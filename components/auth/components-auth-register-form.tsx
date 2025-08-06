@@ -2,7 +2,7 @@
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
 import IconUser from '@/components/icon/icon-user';
-import { useRegisterMutation } from '@/store/api/baseApi';
+import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';

@@ -124,6 +124,28 @@ const Sidebar = () => {
 
                             <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
                                 <IconMinus className="hidden h-5 w-4 flex-none" />
+                                <span>{t('admins')}</span>
+                            </h2>
+                            <ul>
+                                <li className="nav-item">
+                                    <Link href="/store" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('store')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link href="/category" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('category')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                            </ul>
+                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                <IconMinus className="hidden h-5 w-4 flex-none" />
                                 <span>{t('apps')}</span>
                             </h2>
 
