@@ -1,7 +1,8 @@
+// src/store/features/auth/authApi.ts
 import { baseApi } from '@/store/api/baseApi';
-import { login } from './authSlice';
+import { login, logout } from './authSlice';
 
-const authApi = baseApi.injectEndpoints({
+export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (userInfo) => ({
@@ -29,12 +30,25 @@ const authApi = baseApi.injectEndpoints({
                     const { data } = await queryFulfilled;
                     dispatch(login({ user: data.user, token: data.token }));
                 } catch (error) {
-                    console.error('Signup failed:', error);
+                    console.error('Registration failed:', error);
+                }
+            },
+        }),
+        logout: builder.mutation({
+            query: () => ({
+                url: '/logout',
+                method: 'POST',
+            }),
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    dispatch(logout());
+                } catch (error) {
+                    console.error('Logout failed:', error);
                 }
             },
         }),
     }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApi;
-
+export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApi;

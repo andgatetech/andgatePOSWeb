@@ -31,6 +31,7 @@
         "formik": "^2.2.9",
         "highlight.js": "^11.7.0",
         "i18next": "^22.4.10",
+        "lucide-react": "^0.537.0",
         "mantine-datatable": "^1.7.35",
         "next": "14.0.3",
         "ni18n": "^1.0.5",

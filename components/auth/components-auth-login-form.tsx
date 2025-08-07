@@ -39,7 +39,7 @@ const ComponentsAuthLoginForm = () => {
 
             // ✅ Redirect
             setTimeout(() => {
-                router.push('/components/cards');
+                router.push('/dashboard');
             }, 1500);
         } catch (error: any) {
             console.error('Login failed:', error);
