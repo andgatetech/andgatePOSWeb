@@ -128,7 +128,7 @@ const Sidebar = () => {
                             </h2>
                             <ul>
                                 <li className="nav-item">
-                                    <Link href="/store" className="group">
+                                    <Link href="/apps/store" className="group">
                                         <div className="flex items-center">
                                             <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
                                             <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('store')}</span>
@@ -136,7 +136,7 @@ const Sidebar = () => {
                                     </Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link href="/category" className="group">
+                                    <Link href="/apps/category" className="group">
                                         <div className="flex items-center">
                                             <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
                                             <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('category')}</span>

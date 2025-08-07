@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-const ComponentsAuthLoginForm = () => {
+const SupplierLoginForm = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -68,4 +68,4 @@ const ComponentsAuthLoginForm = () => {
     );
 };
 
-export default ComponentsAuthLoginForm;
+export default SupplierLoginForm;

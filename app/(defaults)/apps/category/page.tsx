@@ -1,9 +1,8 @@
 'use client';
-import ShowTable from '@/__components/show_table';
-import { useGetStoresQuery } from '@/store/features/store/storeApi';
+import ShowCategory from '@/__components/show_category';
 import 'tippy.js/dist/tippy.css';
 
-const Store = () => {
+const Category = () => {
     // Sample data for the table
     // const { data: stores, isLoading, error, refetch } = useGetStoresQuery();
     // console.log('stores', stores);
@@ -19,7 +18,7 @@ const Store = () => {
     // }));
 
     return (
-        <ShowTable title="Store List">
+        <ShowCategory title="Category List">
             <div className="table-responsive mb-5">
                 <table className="table-hover">
                     <thead>
@@ -52,8 +51,8 @@ const Store = () => {
                     </tbody>
                 </table>
             </div>
-        </ShowTable>
+        </ShowCategory>
     );
 };
 
-export default Store;
+export default Category;
