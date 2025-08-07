@@ -1,32 +1,32 @@
 'use client';
+import IconCaretDown from '@/components/icon/icon-caret-down';
+import IconCaretsDown from '@/components/icon/icon-carets-down';
+import IconMinus from '@/components/icon/icon-minus';
+import IconMenuAuthentication from '@/components/icon/menu/icon-menu-authentication';
+import IconMenuCharts from '@/components/icon/menu/icon-menu-charts';
+import IconMenuComponents from '@/components/icon/menu/icon-menu-components';
+import IconMenuContacts from '@/components/icon/menu/icon-menu-contacts';
+import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
+import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
+import IconMenuDocumentation from '@/components/icon/menu/icon-menu-documentation';
+import IconMenuDragAndDrop from '@/components/icon/menu/icon-menu-drag-and-drop';
+import IconMenuElements from '@/components/icon/menu/icon-menu-elements';
+import IconMenuFontIcons from '@/components/icon/menu/icon-menu-font-icons';
+import IconMenuForms from '@/components/icon/menu/icon-menu-forms';
+import IconMenuInvoice from '@/components/icon/menu/icon-menu-invoice';
+import IconMenuPages from '@/components/icon/menu/icon-menu-pages';
+import IconMenuTables from '@/components/icon/menu/icon-menu-tables';
+import IconMenuUsers from '@/components/icon/menu/icon-menu-users';
+import IconMenuWidgets from '@/components/icon/menu/icon-menu-widgets';
+import { getTranslation } from '@/i18n';
+import { IRootState } from '@/store';
+import { toggleSidebar } from '@/store/themeConfigSlice';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import AnimateHeight from 'react-animate-height';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
-import Link from 'next/link';
-import { toggleSidebar } from '@/store/themeConfigSlice';
-import AnimateHeight from 'react-animate-height';
-import { IRootState } from '@/store';
-import { useState, useEffect } from 'react';
-import IconCaretsDown from '@/components/icon/icon-carets-down';
-import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
-import IconCaretDown from '@/components/icon/icon-caret-down';
-import IconMinus from '@/components/icon/icon-minus';
-import IconMenuContacts from '@/components/icon/menu/icon-menu-contacts';
-import IconMenuInvoice from '@/components/icon/menu/icon-menu-invoice';
-import IconMenuComponents from '@/components/icon/menu/icon-menu-components';
-import IconMenuElements from '@/components/icon/menu/icon-menu-elements';
-import IconMenuCharts from '@/components/icon/menu/icon-menu-charts';
-import IconMenuWidgets from '@/components/icon/menu/icon-menu-widgets';
-import IconMenuFontIcons from '@/components/icon/menu/icon-menu-font-icons';
-import IconMenuDragAndDrop from '@/components/icon/menu/icon-menu-drag-and-drop';
-import IconMenuTables from '@/components/icon/menu/icon-menu-tables';
-import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
-import IconMenuForms from '@/components/icon/menu/icon-menu-forms';
-import IconMenuUsers from '@/components/icon/menu/icon-menu-users';
-import IconMenuPages from '@/components/icon/menu/icon-menu-pages';
-import IconMenuAuthentication from '@/components/icon/menu/icon-menu-authentication';
-import IconMenuDocumentation from '@/components/icon/menu/icon-menu-documentation';
-import { usePathname } from 'next/navigation';
-import { getTranslation } from '@/i18n';
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -113,10 +113,11 @@ const Sidebar = () => {
                                 <AnimateHeight duration={300} height={currentMenu === 'dashboard' ? 'auto' : 0}>
                                     <ul className="sub-menu text-gray-500">
                                         <li>
-                                            <Link href="/">{t('sales')}</Link>
+                                            <Link href="/dashboard">{t('sales')}</Link>
                                         </li>
+                                        
                                         <li>
-                                            <Link href="/finance">{t('finance')}</Link>
+                                            <Link href="/apps/pos">{t('POS')}</Link>
                                         </li>
                                     </ul>
                                 </AnimateHeight>
@@ -131,7 +132,7 @@ const Sidebar = () => {
                                     <Link href="/apps/store" className="group">
                                         <div className="flex items-center">
                                             <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
-                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('store')}</span>
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('Store')}</span>
                                         </div>
                                     </Link>
                                 </li>
@@ -139,7 +140,48 @@ const Sidebar = () => {
                                     <Link href="/apps/category" className="group">
                                         <div className="flex items-center">
                                             <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
-                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('category')}</span>
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('Category')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link href="/apps/products" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('Products List')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link href="/apps/createProduct" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('Create Product')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+
+                                <li className="nav-item">
+                                    <Link href="/apps/Purchase" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('Purchase List')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link href="/apps/createPurchase" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('Create Purchase')}</span>
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link href="/apps/OrderView" className="group">
+                                        <div className="flex items-center">
+                                            <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('View Order')}</span>
                                         </div>
                                     </Link>
                                 </li>

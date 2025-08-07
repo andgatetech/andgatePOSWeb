@@ -204,16 +204,7 @@ const ComponentsAppsInvoiceList = () => {
         <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
             <div className="invoice-table">
                 <div className="mb-4.5 flex flex-col gap-5 px-5 md:flex-row md:items-center">
-                    <div className="flex items-center gap-2">
-                        <button type="button" className="btn btn-danger gap-2" onClick={() => deleteRow()}>
-                            <IconTrashLines />
-                            Delete
-                        </button>
-                        <Link href="/apps/invoice/add" className="btn btn-primary gap-2">
-                            <IconPlus />
-                            Add New
-                        </Link>
-                    </div>
+                   
                     <div className="ltr:ml-auto rtl:mr-auto">
                         <input type="text" className="form-input w-auto" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
@@ -225,12 +216,12 @@ const ComponentsAppsInvoiceList = () => {
                         records={records}
                         columns={[
                             {
-                                accessor: 'invoice',
+                                accessor: 'Order Id',
                                 sortable: true,
                                 render: ({ invoice }) => (
-                                    <Link href="/apps/invoice/preview">
+                                    <div >
                                         <div className="font-semibold text-primary underline hover:no-underline">{`#${invoice}`}</div>
-                                    </Link>
+                                    </div>
                                 ),
                             },
                             {
@@ -271,12 +262,7 @@ const ComponentsAppsInvoiceList = () => {
                                 textAlignment: 'center',
                                 render: ({ id }) => (
                                     <div className="mx-auto flex w-max items-center gap-4">
-                                        <Link href="/apps/invoice/edit" className="flex hover:text-info">
-                                            <IconEdit className="h-4.5 w-4.5" />
-                                        </Link>
-                                        <Link href="/apps/invoice/preview" className="flex hover:text-primary">
-                                            <IconEye />
-                                        </Link>
+                                       
                                         <button type="button" className="flex hover:text-danger" onClick={(e) => deleteRow(id)}>
                                             <IconTrashLines />
                                         </button>

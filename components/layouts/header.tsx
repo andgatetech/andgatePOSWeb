@@ -7,7 +7,7 @@ import { toggleTheme, toggleSidebar, toggleRTL } from '@/store/themeConfigSlice'
 import Dropdown from '@/components/dropdown';
 import IconMenu from '@/components/icon/icon-menu';
 import IconCalendar from '@/components/icon/icon-calendar';
-import IconEdit from '@/components/icon/icon-edit';
+import IconPOS from '@/components/icon/icon-POS';
 import IconChatNotification from '@/components/icon/icon-chat-notification';
 import IconSearch from '@/components/icon/icon-search';
 import IconXCircle from '@/components/icon/icon-x-circle';
@@ -52,7 +52,7 @@ const Header = () => {
 
         localStorage.clear();
         sessionStorage.clear();
-        // ✅ Clear all cookies (including your token)
+        
         document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();
             document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -173,7 +173,7 @@ const Header = () => {
                     <div className="horizontal-logo flex items-center justify-between lg:hidden ltr:mr-2 rtl:ml-2">
                         <Link href="/" className="main-logo flex shrink-0 items-center">
                             <img className="inline w-8 ltr:-ml-1 rtl:-mr-1" src="/assets/images/logo.svg" alt="logo" />
-                            <span className="hidden align-middle text-2xl  font-semibold  transition-all duration-300 dark:text-white-light md:inline ltr:ml-1.5 rtl:mr-1.5">VRISTO</span>
+                            <span className="hidden align-middle text-2xl  font-semibold  transition-all duration-300 dark:text-white-light md:inline ltr:ml-1.5 rtl:mr-1.5">AndGatePOS</span>
                         </Link>
                         <button
                             type="button"
@@ -185,24 +185,18 @@ const Header = () => {
                     </div>
 
                     <div className="hidden sm:block ltr:mr-2 rtl:ml-2">
-                        <ul className="flex items-center space-x-2 dark:text-[#d0d2d6] rtl:space-x-reverse">
+                        <ul className="flex items-center space-x-2 rtl:space-x-reverse">
                             <li>
-                                <Link href="/apps/calendar" className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60">
-                                    <IconCalendar />
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/apps/todolist" className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60">
-                                    <IconEdit />
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/apps/chat" className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60">
-                                    <IconChatNotification />
+                                <Link
+                                    href="/apps/pos"
+                                    className="rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
+                                >
+                                    POS
                                 </Link>
                             </li>
                         </ul>
                     </div>
+
                     <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 lg:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
                         <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
                             <form
@@ -475,6 +469,10 @@ const Header = () => {
                             </Dropdown>
                         </div>
                     </div>
+
+
+
+                    
                 </div>
 
                 {/* horizontal menu */}
@@ -491,17 +489,12 @@ const Header = () => {
                         </button>
                         <ul className="sub-menu">
                             <li>
-                                <Link href="/">{t('sales')}</Link>
+                                <Link href="/dashboard">{t('sales')}</Link>
                             </li>
                             <li>
-                                <Link href="/analytics">{t('analytics')}</Link>
+                                <Link href="/pos">{t('POS')}</Link>
                             </li>
-                            <li>
-                                <Link href="/finance">{t('finance')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/crypto">{t('crypto')}</Link>
-                            </li>
+                           
                         </ul>
                     </li>
                     <li className="menu nav-item relative">
@@ -911,12 +904,12 @@ const Header = () => {
                                 </button>
                                 <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                                     <li>
-                                        <Link href="/auth/cover-register" target="_blank">
+                                        <Link href="register" target="_blank">
                                             {t('register_cover')}
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/auth/boxed-signup" target="_blank">
+                                        <Link href="signup" target="_blank">
                                             {t('register_boxed')}
                                         </Link>
                                     </li>

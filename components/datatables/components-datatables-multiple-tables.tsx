@@ -625,73 +625,7 @@ const ComponentsDatatablesMultipleTables = () => {
 
     return (
         <>
-            <div className="panel mt-6">
-                <div className="mb-5 flex flex-col gap-5 md:flex-row md:items-center">
-                    <h5 className="text-lg font-semibold dark:text-white-light">Table 1</h5>
-                    <div className="ltr:ml-auto rtl:mr-auto">
-                        <input type="text" className="form-input w-auto" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                    </div>
-                </div>
-                <div className="datatables">
-                    {isMounted && (
-                        <DataTable
-                            className="table-hover whitespace-nowrap"
-                            records={recordsData}
-                            columns={[
-                                {
-                                    accessor: 'firstName',
-                                    title: 'Name',
-                                    sortable: true,
-                                    render: ({ firstName, lastName, id }) => (
-                                        <div className="flex w-max items-center">
-                                            <img className="h-9 w-9 rounded-full object-cover ltr:mr-2 rtl:ml-2" src={`/assets/images/profile-${id}.jpeg`} alt="" />
-                                            <div>{firstName + ' ' + lastName}</div>
-                                        </div>
-                                    ),
-                                },
-                                { accessor: 'company', title: 'Company', sortable: true },
-                                { accessor: 'age', title: 'Age', sortable: true },
-                                {
-                                    accessor: 'dob',
-                                    title: 'Start Date',
-                                    sortable: true,
-                                    render: ({ dob }) => <div>{formatDate(dob)}</div>,
-                                },
-                                { accessor: 'email', title: 'Email', sortable: true },
-                                { accessor: 'phone', title: 'Phone No.', sortable: true },
-                                {
-                                    accessor: 'status',
-                                    title: 'Status',
-                                    sortable: true,
-                                    render: () => <span className={`badge bg-${randomColor()} `}>{randomStatus()}</span>,
-                                },
-                                {
-                                    accessor: 'action',
-                                    title: 'Action',
-                                    titleClassName: '!text-center',
-                                    render: () => (
-                                        <div className="mx-auto flex w-max items-center">
-                                            <Tippy content="Delete">
-                                                <IconXCircle />
-                                            </Tippy>
-                                        </div>
-                                    ),
-                                },
-                            ]}
-                            totalRecords={initialRecords.length}
-                            recordsPerPage={pageSize}
-                            page={page}
-                            onPageChange={(p) => setPage(p)}
-                            recordsPerPageOptions={PAGE_SIZES}
-                            onRecordsPerPageChange={setPageSize}
-                            sortStatus={sortStatus}
-                            onSortStatusChange={setSortStatus}
-                            minHeight={200}
-                            paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
-                        />
-                    )}
-                </div>
-            </div>
+          
 
             <div className="panel mt-6">
                 <div className="mb-5 flex flex-col gap-5 md:flex-row md:items-center">

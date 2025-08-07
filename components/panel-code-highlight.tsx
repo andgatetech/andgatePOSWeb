@@ -19,8 +19,8 @@ const PanelCodeHighlight = ({ children, title, codeHighlight, id, className = ''
                 <h5 className="text-lg font-semibold dark:text-white-light">{title}</h5>
                 <button type="button" className="font-semibold hover:text-gray-400 dark:text-gray-400 dark:hover:text-gray-600" onClick={() => setToggleCode(!toggleCode)}>
                     <span className="flex items-center">
-                        <IconCode className="me-2" />
-                        Code
+                       
+                        
                     </span>
                 </button>
             </div>
