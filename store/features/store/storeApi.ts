@@ -1,4 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
+import { login } from '@/store/features/auth/authSlice'; // ✅ adjust this import if needed
 
 const storeApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -12,19 +13,23 @@ const storeApi = baseApi.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(create({ user: data.user, token: data.token, store: data.store }));
+
+                   
+                    dispatch(login({ user: data.user, token: data.token }));
+
                 } catch (error) {
                     console.error('Create failed:', error);
                 }
             },
         }),
+
         getStores: builder.query({
-            query: (params = {}) => ({
+            query: () => ({
                 url: '/stores',
                 method: 'GET',
             }),
             providesTags: ['Store'],
-            transformResponse: (response) => response.stores || response,
+            transformResponse: (response: any) => response.stores || response,
         }),
     }),
 });
