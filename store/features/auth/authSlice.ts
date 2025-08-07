@@ -1,10 +1,5 @@
+// src/store/features/auth/authSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface AuthState {
-    user: User | null;
-    token: string | null;
-    isAuthenticated: boolean;
-}
 
 export interface User {
     id: number;
@@ -14,6 +9,12 @@ export interface User {
     status: string;
     phone: any;
     address: any;
+}
+
+interface AuthState {
+    user: User | null;
+    token: string | null;
+    isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
