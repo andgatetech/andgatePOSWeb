@@ -1,4 +1,5 @@
 'use client';
+
 import Dropdown from '@/components/dropdown';
 import IconHorizontalDots from '@/components/icon/icon-horizontal-dots';
 import PanelCodeHighlight from '@/components/panel-code-highlight';
@@ -16,7 +17,7 @@ const ComponentsTablesDropdown = () => {
             email: 'johndoe@yahoo.com',
             date: '10/08/2020',
             sale: 120,
-            status: 'Complete',
+            status: 'Draft',
             register: '5 min ago',
             progress: '40%',
             position: 'Developer',
@@ -28,7 +29,7 @@ const ComponentsTablesDropdown = () => {
             email: 'shaunpark@gmail.com',
             date: '11/08/2020',
             sale: 400,
-            status: 'Pending',
+            status: 'Received',
             register: '11 min ago',
             progress: '23%',
             position: 'Designer',
@@ -40,7 +41,7 @@ const ComponentsTablesDropdown = () => {
             email: 'alma@gmail.com',
             date: '12/02/2020',
             sale: 310,
-            status: 'In Progress',
+            status: 'Delivered',
             register: '1 hour ago',
             progress: '80%',
             position: 'Accountant',
@@ -59,161 +60,68 @@ const ComponentsTablesDropdown = () => {
             office: 'Canada',
         },
     ];
+
+    const getStatusBadgeClass = (status: string) => {
+        switch (status) {
+            case 'Draft':
+                return 'bg-warning';
+            case 'Received':
+                return 'bg-secondary';
+            case 'Delivered':
+                return 'bg-success';
+            case 'Canceled':
+                return 'bg-danger';
+            default:
+                return 'bg-primary';
+        }
+    };
+
     return (
-        <PanelCodeHighlight
-            title="Dropdown"
-            codeHighlight={`import Dropdown from '@/components/Dropdown';
-
-const tableData = [
-    {
-        id: 1,
-        name: 'John Doe',
-        email: 'johndoe@yahoo.com',
-        date: '10/08/2020',
-        sale: 120,
-        status: 'Complete',
-        register: '5 min ago',
-        progress: '40%',
-        position: 'Developer',
-        office: 'London',
-    },
-    ...
-];
-
-<div className="table-responsive mb-5">
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Date</th>
-                <th>Sale</th>
-                <th>Status</th>
-                <th className="text-center">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {tableData.map((data) => {
-                return (
-                    <tr key={data.id}>
-                        <td>
-                            <div className="whitespace-nowrap">{data.name}</div>
-                        </td>
-                        <td>{data.date}</td>
-                        <td>{data.sale}</td>
-                        <td>
-                            <span
-                                className={\`badge whitespace-nowrap \${
-                                    data.status === 'completed'
-                                        ? 'bg-primary   '
-                                        : data.status === 'Pending'
-                                        ? 'bg-secondary'
-                                        : data.status === 'In Progress'
-                                        ? 'bg-success'
-                                        : data.status === 'Canceled'
-                                        ? 'bg-danger'
-                                        : 'bg-primary'
-                                }\`}
-                            >
-                                {data.status}
-                            </span>
-                        </td>
-                        <td className="text-center">
-                            <div className="dropdown">
-                                <Dropdown
-                                    offset={[0, 5]}
-                                    placement={\`\${isRtl ? 'bottom-start' : 'bottom-end'}\`}
-                                    button={
-                                        <svg className="opacity-70 m-auto w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="5" cy="12" r="2" stroke="currentColor" strokeWidth="1.5" />
-                                            <circle opacity="0.5" cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="1.5" />
-                                            <circle cx="19" cy="12" r="2" stroke="currentColor" strokeWidth="1.5" />
-                                        </svg>
-                                    }
-                                >
-                                    <ul>
-                                        <li>
-                                            <button type="button">Download</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Share</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Edit</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Delete</button>
-                                        </li>
-                                    </ul>
-                                </Dropdown>
-                            </div>
-                        </td>
-                    </tr>
-                );
-            })}
-        </tbody>
-    </table>
-</div>`}
-        >
+        <PanelCodeHighlight>
             <div className="table-responsive mb-5">
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>Sale</th>
+                            <th>Purchase Id</th>
+                            <th>Payment Status</th>
+                            <th>Grand Total</th>
                             <th>Status</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {tableData.map((data) => {
-                            return (
-                                <tr key={data.id}>
-                                    <td>
-                                        <div className="whitespace-nowrap">{data.name}</div>
-                                    </td>
-                                    <td>{data.date}</td>
-                                    <td>{data.sale}</td>
-                                    <td>
-                                        <span
-                                            className={`badge whitespace-nowrap ${
-                                                data.status === 'completed'
-                                                    ? 'bg-primary   '
-                                                    : data.status === 'Pending'
-                                                    ? 'bg-secondary'
-                                                    : data.status === 'In Progress'
-                                                    ? 'bg-success'
-                                                    : data.status === 'Canceled'
-                                                    ? 'bg-danger'
-                                                    : 'bg-primary'
-                                            }`}
-                                        >
-                                            {data.status}
-                                        </span>
-                                    </td>
-                                    <td className="text-center">
-                                        <div className="dropdown">
-                                            <Dropdown offset={[0, 5]} placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`} button={<IconHorizontalDots className="m-auto opacity-70" />}>
-                                                <ul>
-                                                    <li>
-                                                        <button type="button">Download</button>
-                                                    </li>
-                                                    <li>
-                                                        <button type="button">Share</button>
-                                                    </li>
-                                                    <li>
-                                                        <button type="button">Edit</button>
-                                                    </li>
-                                                    <li>
-                                                        <button type="button">Delete</button>
-                                                    </li>
-                                                </ul>
-                                            </Dropdown>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        {tableData.map((data) => (
+                            <tr key={data.id}>
+                                <td>
+                                    <div className="whitespace-nowrap">{data.name}</div>
+                                </td>
+                                <td>{data.date}</td>
+                                <td>{data.sale}</td>
+                                <td>
+                                    <span className={`badge whitespace-nowrap ${getStatusBadgeClass(data.status)}`}>{data.status}</span>
+                                </td>
+                                <td className="text-center">
+                                    <div className="dropdown">
+                                        <Dropdown offset={[0, 5]} placement={isRtl ? 'bottom-start' : 'bottom-end'} button={<IconHorizontalDots className="m-auto opacity-70" />}>
+                                            <ul>
+                                                <li>
+                                                    <button type="button">Draft</button>
+                                                </li>
+                                                <li>
+                                                    <button type="button">Received</button>
+                                                </li>
+                                                <li>
+                                                    <button type="button">Delivered</button>
+                                                </li>
+                                                <li>
+                                                    <button type="button">Canceled</button>
+                                                </li>
+                                            </ul>
+                                        </Dropdown>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
