@@ -80,7 +80,7 @@ const CoverLogin = () => {
                             </div>
                             <div className="text-center dark:text-white">
                                 Don&apos;t have an account ?&nbsp;
-                                <Link href="/auth/cover-register" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
+                                <Link href="register" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
                                     SIGN UP
                                 </Link>
                             </div>

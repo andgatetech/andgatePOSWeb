@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '../store';
+import { RootState } from '..';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'http://127.0.0.1:8000/api/',
@@ -22,6 +22,6 @@ const baseQuery = fetchBaseQuery({
 export const baseApi = createApi({
     reducerPath: 'baseApi',
     baseQuery,
-    tagTypes: ['User', 'Store', 'Category'],
+    tagTypes: ['Store', 'User'],
     endpoints: () => ({}),
 });
