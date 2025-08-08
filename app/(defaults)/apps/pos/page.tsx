@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import React from 'react';
 
 export const metadata: Metadata = {
-    title: 'Invoice Add',
+    title: 'POS',
 };
 
 const InvoiceAdd = () => {

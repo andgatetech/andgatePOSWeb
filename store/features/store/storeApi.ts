@@ -1,37 +1,50 @@
-import { baseApi } from '@/store/api/baseApi';
-import { login } from '@/store/features/auth/authSlice'; // ✅ adjust this import if needed
+import { baseApi } from "@/store/api/baseApi";
 
-const storeApi = baseApi.injectEndpoints({
+
+const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        storeCreate: builder.mutation({
-            query: (storeData) => ({
+        createStore: builder.mutation({
+            query: (newStore:any) => ({
                 url: '/stores',
                 method: 'POST',
-                body: storeData,
+                body: newStore,
             }),
-            invalidatesTags: ['Store', 'User'],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled;
-
-                   
-                    dispatch(login({ user: data.user, token: data.token }));
-
-                } catch (error) {
-                    console.error('Create failed:', error);
-                }
-            },
+            invalidatesTags: ['Stores'],
         }),
 
-        getStores: builder.query({
+        getAllStores: builder.query({
             query: () => ({
                 url: '/stores',
                 method: 'GET',
             }),
-            providesTags: ['Store'],
-            transformResponse: (response: any) => response.stores || response,
+            providesTags: ['Stores'],
+        }),
+
+        getStoreById: builder.query({
+            query: (id) => ({
+                url: `/stores/${id}`,
+                method: 'GET',
+            }),
+            providesTags: ['Stores'],
+        }),
+
+        updateStore: builder.mutation({
+            query: ({ id, updateData }) => ({
+                url: `/stores/${id}`,
+                method: 'PUT',
+                body: updateData,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+
+        deleteStore: builder.mutation({
+            query: (id) => ({
+                url: `/stores/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Stores'],
         }),
     }),
 });
 
-export const { useStoreCreateMutation, useGetStoresQuery } = storeApi;
+export const { useCreateStoreMutation, useGetAllStoresQuery, useGetStoreByIdQuery, useUpdateStoreMutation, useDeleteStoreMutation } = StoreApi;
