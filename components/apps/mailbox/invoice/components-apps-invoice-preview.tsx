@@ -73,7 +73,7 @@ const ComponentsAppsInvoicePreview = () => {
             <div className="mb-6 flex flex-wrap items-center justify-center gap-4 lg:justify-end">
                 <button type="button" className="btn btn-info gap-2">
                     <IconSend />
-                    Send Invoice
+                    Create Order
                 </button>
 
                 <button type="button" className="btn btn-primary gap-2" onClick={() => exportTable()}>
@@ -81,20 +81,11 @@ const ComponentsAppsInvoicePreview = () => {
                     Print
                 </button>
 
-                <button type="button" className="btn btn-success gap-2">
-                    <IconDownload />
-                    Download
-                </button>
+               
 
-                <Link href="/apps/invoice/add" className="btn btn-secondary gap-2">
-                    <IconPlus />
-                    Create
-                </Link>
+                
 
-                <Link href="/apps/invoice/edit" className="btn btn-warning gap-2">
-                    <IconEdit />
-                    Edit
-                </Link>
+                
             </div>
             <div className="panel">
                 <div className="flex flex-wrap justify-between gap-4 px-4">
@@ -105,9 +96,9 @@ const ComponentsAppsInvoicePreview = () => {
                 </div>
                 <div className="px-4 ltr:text-right rtl:text-left">
                     <div className="mt-6 space-y-1 text-white-dark">
-                        <div>13 Tetrick Road, Cypress Gardens, Florida, 33884, US</div>
-                        <div>vristo@gmail.com</div>
-                        <div>+1 (070) 123-4567</div>
+                        <div>Dhaka , Bangladesh, 1212</div>
+                        <div>andgate@gmail.com</div>
+                        <div>+8801610108851</div>
                     </div>
                 </div>
 
@@ -137,31 +128,21 @@ const ComponentsAppsInvoicePreview = () => {
                                 <div>#OD-85794</div>
                             </div>
                             <div className="flex w-full items-center justify-between">
-                                <div className="text-white-dark">Shipment ID :</div>
-                                <div>#SHP-8594</div>
+                                
                             </div>
                         </div>
                         <div className="xl:1/3 sm:w-1/2 lg:w-2/5">
                             <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Bank Name:</div>
-                                <div className="whitespace-nowrap">Bank Of America</div>
+                                <div className="text-white-dark">Paid:</div>
+                                <div className="whitespace-nowrap">paid</div>
                             </div>
                             <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Account Number:</div>
-                                <div>1234567890</div>
+                                <div className="text-white-dark">Type:</div>
+                                <div>Bkash</div>
                             </div>
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">SWIFT Code:</div>
-                                <div>S58K796</div>
-                            </div>
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">IBAN:</div>
-                                <div>L5698445485</div>
-                            </div>
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Country:</div>
-                                <div>United States</div>
-                            </div>
+                            
+                          
+                           
                         </div>
                     </div>
                 </div>
@@ -204,10 +185,7 @@ const ComponentsAppsInvoicePreview = () => {
                             <div className="flex-1">Tax</div>
                             <div className="w-[37%]">$700</div>
                         </div>
-                        <div className="flex items-center">
-                            <div className="flex-1">Shipping Rate</div>
-                            <div className="w-[37%]">$0</div>
-                        </div>
+                       
                         <div className="flex items-center">
                             <div className="flex-1">Discount</div>
                             <div className="w-[37%]">$10</div>
