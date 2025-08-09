@@ -12,23 +12,13 @@ const ProductApi = baseApi.injectEndpoints({
         }),
 
         getAllProducts: builder.query({
-            query: (filters = {}) => {
-                const params = new URLSearchParams();
-                if (filters.search) params.append('search', filters.search);
-                if (filters.price) params.append('price', filters.price);
-                if (filters.price_min) params.append('price_min', filters.price_min);
-                if (filters.price_max) params.append('price_max', filters.price_max);
-                if (filters.available !== undefined) params.append('available', filters.available);
-                if (filters.quantity) params.append('quantity', filters.quantity);
-                if (filters.quantity_min) params.append('quantity_min', filters.quantity_min);
-                if (filters.quantity_max) params.append('quantity_max', filters.quantity_max);
-                return {
-                    url: `/products?${params.toString()}`,
-                    method: 'GET',
-                };
-            },
-            providesTags: ['Products'],
-        }),
+    query: (filters = {}) => ({
+        url: '/products',
+        method: 'GET',
+        params: filters, // Let Laravel ignore empty ones
+    }),
+    providesTags: ['Products'],
+}),
 
         updateAvailability: builder.mutation({
             query: ({ id, available }) => ({
