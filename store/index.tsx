@@ -40,6 +40,9 @@ import themeConfigSlice from '@/store/themeConfigSlice';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import invoiceReducer from '@/store/features/Order/OrderSlice'; // Adjust path
+
+
 
 const persistConfig = {
     key: 'root',
@@ -53,6 +56,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     supplier: supplierReducer,
     [baseApi.reducerPath]: baseApi.reducer,
+    invoice: invoiceReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
