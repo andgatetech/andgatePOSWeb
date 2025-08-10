@@ -1,6 +1,6 @@
 'use client';
 import ShowTable from '@/__components/show_table';
-import { useGetStoresQuery } from '@/store/features/store/storeApi';
+
 import 'tippy.js/dist/tippy.css';
 
 const Store = () => {
