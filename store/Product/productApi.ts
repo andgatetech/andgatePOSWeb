@@ -17,7 +17,7 @@ const ProductApi = baseApi.injectEndpoints({
         method: 'GET',
         params: filters, // Let Laravel ignore empty ones
     }),
-    providesTags: ['Products'],
+    providesTags: ['Products','Orders'],
 }),
 
         updateAvailability: builder.mutation({
