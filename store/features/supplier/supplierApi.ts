@@ -16,7 +16,13 @@ const supplierApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+        getSuppliers: builder.query({
+            query: () => ({
+                url: '/suppliers',
+                method: 'GET',
+            }),
+        }),
     }),
 });
 
-export const { useRegisterSupplierMutation } = supplierApi;
+export const { useRegisterSupplierMutation, useGetSuppliersQuery } = supplierApi;
