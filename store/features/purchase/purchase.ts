@@ -5,7 +5,7 @@ import { baseApi } from "@/store/api/baseApi";
 const PurchaseApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         createPurchase: builder.mutation({
-            query: (newPurchase : any) => ({
+            query: (newPurchase: any) => ({
                 url: '/purchases',
                 method: 'POST',
                 body: newPurchase,
@@ -22,7 +22,7 @@ const PurchaseApi = baseApi.injectEndpoints({
         }),
 
         getPurchaseById: builder.query({
-            query: (id:any) => ({
+            query: (id: any) => ({
                 url: `/purchases/${id}`,
                 method: 'GET',
             }),
@@ -30,7 +30,7 @@ const PurchaseApi = baseApi.injectEndpoints({
         }),
 
         receivePurchase: builder.mutation({
-            query: (id:any) => ({
+            query: (id: any) => ({
                 url: `/purchases/${id}/receive`,
                 method: 'PUT',
             }),
@@ -45,7 +45,15 @@ const PurchaseApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Purchases'],
         }),
+
+        getAllPurchasesTransactions: builder.query({
+            query: () => ({
+                url: '/purchases/transactions ',
+                method: 'GET',
+            }),
+            providesTags: ['Purchases'],
+        }),
     }),
 });
 
-export const { useCreatePurchaseMutation, useGetAllPurchasesQuery, useGetPurchaseByIdQuery, useReceivePurchaseMutation, useUpdatePurchaseStatusMutation } = PurchaseApi;
+export const { useCreatePurchaseMutation, useGetAllPurchasesQuery, useGetPurchaseByIdQuery, useReceivePurchaseMutation, useUpdatePurchaseStatusMutation,useGetAllPurchasesTransactionsQuery } = PurchaseApi;
