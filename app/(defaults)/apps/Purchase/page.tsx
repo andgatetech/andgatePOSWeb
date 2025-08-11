@@ -1,4 +1,5 @@
 
+import PurchaseManagement from '@/components/tables/components-tables-dropdown';
 import ComponentsTablesDropdown from '@/components/tables/components-tables-dropdown';
 
 import { Metadata } from 'next';
@@ -11,11 +12,8 @@ export const metadata: Metadata = {
 const Tables = () => {
     return (
         <div className="grid grid-cols-1 gap-1 xl:grid-cols-1">
-           
             {/* dropdown */}
-            <ComponentsTablesDropdown />
-            
-            
+            <PurchaseManagement />
         </div>
     );
 };

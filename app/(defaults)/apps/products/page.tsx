@@ -1,3 +1,4 @@
+import ProductTable from '@/components/datatables/components-datatables-multiple-tables';
 import ComponentsDatatablesMultipleTables from '@/components/datatables/components-datatables-multiple-tables';
 import IconBell from '@/components/icon/icon-bell';
 import { Metadata } from 'next';
@@ -11,7 +12,7 @@ const MultipleTables = () => {
     return (
         <div>
            
-            <ComponentsDatatablesMultipleTables />
+            <ProductTable />
         </div>
     );
 };
