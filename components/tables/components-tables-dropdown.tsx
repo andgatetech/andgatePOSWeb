@@ -1,66 +1,17 @@
 'use client';
 
-import Dropdown from '@/components/dropdown';
-import IconHorizontalDots from '@/components/icon/icon-horizontal-dots';
 import PanelCodeHighlight from '@/components/panel-code-highlight';
 import { IRootState } from '@/store';
-import React from 'react';
+import { useGetAllPurchasesQuery } from '@/store/features/purchase/purchase';
 import { useSelector } from 'react-redux';
+import Dropdown from '../dropdown';
+import IconHorizontalDots from '../icon/icon-horizontal-dots';
 
 const ComponentsTablesDropdown = () => {
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
 
-    const tableData = [
-        {
-            id: 1,
-            name: 'John Doe',
-            email: 'johndoe@yahoo.com',
-            date: '10/08/2020',
-            sale: 120,
-            status: 'Draft',
-            register: '5 min ago',
-            progress: '40%',
-            position: 'Developer',
-            office: 'London',
-        },
-        {
-            id: 2,
-            name: 'Shaun Park',
-            email: 'shaunpark@gmail.com',
-            date: '11/08/2020',
-            sale: 400,
-            status: 'Received',
-            register: '11 min ago',
-            progress: '23%',
-            position: 'Designer',
-            office: 'New York',
-        },
-        {
-            id: 3,
-            name: 'Alma Clarke',
-            email: 'alma@gmail.com',
-            date: '12/02/2020',
-            sale: 310,
-            status: 'Delivered',
-            register: '1 hour ago',
-            progress: '80%',
-            position: 'Accountant',
-            office: 'Amazon',
-        },
-        {
-            id: 4,
-            name: 'Vincent Carpenter',
-            email: 'vincent@gmail.com',
-            date: '13/08/2020',
-            sale: 100,
-            status: 'Canceled',
-            register: '1 day ago',
-            progress: '60%',
-            position: 'Data Scientist',
-            office: 'Canada',
-        },
-    ];
-
+    const { data: purchases, isLoading } = useGetAllPurchasesQuery();
+    console.log('Purchases:', purchases);
     const getStatusBadgeClass = (status: string) => {
         switch (status) {
             case 'Draft':
@@ -75,6 +26,24 @@ const ComponentsTablesDropdown = () => {
                 return 'bg-primary';
         }
     };
+    const getPaymentStatusBadgeClass = (payment_status: string) => {
+        switch (payment_status) {
+            case 'Pending':
+                return 'bg-warning';
+            case 'Received':
+                return 'bg-secondary';
+            case 'Delivered':
+                return 'bg-success';
+            case 'Canceled':
+                return 'bg-danger';
+            default:
+                return 'bg-primary';
+        }
+    };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <PanelCodeHighlight>
@@ -83,23 +52,34 @@ const ComponentsTablesDropdown = () => {
                     <thead>
                         <tr>
                             <th>Purchase Id</th>
+                            <th>Purchaser Name</th>
                             <th>Payment Status</th>
-                            <th>Grand Total</th>
                             <th>Status</th>
+                            <th>Grand Total</th>
+                            <th>Total</th>
+                            <th>Tax</th>
+                            <th>Payment Type</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {tableData.map((data) => (
+                        {purchases.map((data) => (
                             <tr key={data.id}>
                                 <td>
-                                    <div className="whitespace-nowrap">{data.name}</div>
+                                    <div className="whitespace-nowrap">{data?.id}</div>
                                 </td>
-                                <td>{data.date}</td>
-                                <td>{data.sale}</td>
+                                <td>{data?.user?.name}</td>
+
+                                <td>
+                                    <span className={`badge whitespace-nowrap ${getStatusBadgeClass(data.payment_status)}`}>{data.payment_status}</span>
+                                </td>
                                 <td>
                                     <span className={`badge whitespace-nowrap ${getStatusBadgeClass(data.status)}`}>{data.status}</span>
                                 </td>
+                                <td>{data.grand_total}</td>
+                                <td>{data.total}</td>
+                                <td>{data.tax}</td>
+                                <td>{data.payment_type}</td>
                                 <td className="text-center">
                                     <div className="dropdown">
                                         <Dropdown offset={[0, 5]} placement={isRtl ? 'bottom-start' : 'bottom-end'} button={<IconHorizontalDots className="m-auto opacity-70" />}>
