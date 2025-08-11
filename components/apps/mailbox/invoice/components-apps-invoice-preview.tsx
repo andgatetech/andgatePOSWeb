@@ -1,12 +1,28 @@
 'use client';
 
+import React, { useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 import IconSend from '@/components/icon/icon-send';
 import IconPrinter from '@/components/icon/icon-printer';
-import React from 'react';
 
 const ComponentsAppsInvoicePreview = ({ data }) => {
+    const invoiceRef = useRef(null);
+
     const exportTable = () => {
-        window.print();
+        if (!invoiceRef.current) return;
+
+        html2canvas(invoiceRef.current, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('invoice.pdf');
+        });
     };
 
     const { customer, items = [], tax = 0, discount = 0, paymentMethod = 'Cash', paymentStatus = 'Paid', totals } = data || {};
@@ -28,17 +44,15 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
     return (
         <div>
             <div className="mb-6 flex flex-wrap items-center justify-center gap-4 lg:justify-end">
-                <button type="button" className="btn btn-info gap-2">
-                    <IconSend />
-                    Create Order
-                </button>
+                
 
                 <button type="button" className="btn btn-primary gap-2" onClick={exportTable}>
                     <IconPrinter />
-                    Print
+                    Print PDF
                 </button>
             </div>
-            <div className="panel">
+            {/* Invoice container to capture for PDF */}
+            <div className="panel" ref={invoiceRef}>
                 <div className="flex flex-wrap justify-between gap-4 px-4">
                     <div className="text-2xl font-semibold uppercase">Invoice</div>
                     <div className="shrink-0">

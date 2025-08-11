@@ -1,37 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import IconEye from '@/components/icon/icon-eye';
-import IconSave from '@/components/icon/icon-save';
-import IconX from '@/components/icon/icon-x';
-import Link from 'next/link';
-import { useSelector, useDispatch } from 'react-redux';
-import { removeItemRedux, updateItemRedux, clearItemsRedux } from '@/store/features/Order/OrderSlice';
-import type { RootState } from '@/store';
-import { useCreateOrderMutation } from '@/store/features/Order/Order';
+import { useState, useRef, useEffect } from 'react';
+import { useGetAllPurchasesQuery, useReceivePurchaseMutation } from '@/store/features/purchase/purchase';
+import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import ComponentsAppsInvoicePreview from './components-apps-invoice-preview';
 
-const BillToForm: React.FC = () => {
-    const [showPreview, setShowPreview] = useState(false);
-    const dispatch = useDispatch();
-    const invoiceItems = useSelector((state: RootState) => state.invoice.items);
-    const userId = useSelector((state: RootState) => state.auth.user?.id);
+const ComponentsTablesDropdown = () => {
+    const isRtl = useSelector((state) => state.themeConfig.rtlClass) === 'rtl';
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const dropdownRefs = useRef({});
 
-    const [formData, setFormData] = useState({
-        customerName: '',
-        customerEmail: '',
-        customerPhone: '',
-        tax: 0,
-        discount: 0,
-        paymentMethod: '',
-        paymentStatus: '',
-    });
+    const { data, isLoading, refetch } = useGetAllPurchasesQuery();
+    const [receivePurchase] = useReceivePurchaseMutation();
 
-    const [createOrder] = useCreateOrderMutation();
-    const [loading, setLoading] = useState(false);
+    const purchases = data?.data || [];
 
-    const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
+    // Toast message helper
+    const showMessage = (msg = '', type = 'success') => {
         const toast = Swal.mixin({
             toast: true,
             position: 'top',
@@ -47,299 +32,161 @@ const BillToForm: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log('Current invoice items:', invoiceItems);
-    }, [invoiceItems]);
-
-    const handleRemoveItem = (itemId: number) => {
-        if (invoiceItems.length <= 1) {
-            showMessage('At least one item is required', 'error');
-            return;
-        }
-        dispatch(removeItemRedux(itemId));
-    };
-
-    const handleQuantityChange = (itemId: number, newQuantity: number) => {
-        if (newQuantity < 1) return;
-
-        const item = invoiceItems.find((item) => item.id === itemId);
-        if (!item) return;
-
-        if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
-            return;
-        }
-
-        const updatedItem = {
-            ...item,
-            quantity: newQuantity,
-            amount: item.rate * newQuantity,
+        const handleClickOutside = (event) => {
+            if (openDropdown && dropdownRefs.current[openDropdown] && !dropdownRefs.current[openDropdown].contains(event.target)) {
+                setOpenDropdown(null);
+            }
         };
 
-        dispatch(updateItemRedux(updatedItem));
-    };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [openDropdown]);
 
-    const calculateSubtotal = () => invoiceItems.reduce((total, item) => total + item.rate * item.quantity, 0);
-    const calculateTax = () => (calculateSubtotal() * formData.tax) / 100;
-    const calculateDiscount = () => (calculateSubtotal() * formData.discount) / 100;
-    const calculateTotal = () => calculateSubtotal() + calculateTax() - calculateDiscount();
-
-    const clearAllItems = () => {
-        if (window.confirm('Are you sure you want to clear all items?')) {
-            dispatch(clearItemsRedux());
+    const getStatusBadgeClass = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'draft':
+                return 'bg-orange-500 text-white';
+            case 'received':
+                return 'bg-blue-500 text-white';
+            case 'delivered':
+                return 'bg-green-500 text-white';
+            case 'canceled':
+                return 'bg-red-500 text-white';
+            default:
+                return 'bg-gray-500 text-white';
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'tax' || name === 'discount' ? Number(value) : value,
-        }));
+    const getPaymentStatusBadgeClass = (payment_status, method) => {
+        if (method?.toLowerCase() === 'cash') {
+            return 'bg-green-500 text-white';
+        }
+        switch (payment_status?.toLowerCase()) {
+            case 'pending':
+                return 'bg-orange-500 text-white';
+            case 'paid':
+                return 'bg-green-500 text-white';
+            default:
+                return 'bg-gray-500 text-white';
+        }
     };
 
-    const handleSubmit = async () => {
-        if (!formData.customerName.trim() || !formData.customerEmail.trim()) {
-            showMessage('Name and email are required', 'error');
-            return;
-        }
-        if (invoiceItems.length === 0) {
-            showMessage('At least one item is required', 'error');
-            return;
-        }
-        const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
-        if (invalidItems.length > 0) {
-            showMessage('Please select products and set quantities for all items', 'error');
-            return;
-        }
-
-        const orderData = {
-            user_id: userId,
-            customer_name: formData.customerName,
-            customer_number: formData.customerPhone,
-            customer_email: formData.customerEmail,
-            payment_method: formData.paymentMethod,
-            payment_status: formData.paymentStatus,
-            tax: Number(formData.tax),
-            total: calculateSubtotal(),
-            grand_total: calculateTotal(),
-            items: invoiceItems.map((item) => ({
-                product_id: item.productId,
-                quantity: item.quantity,
-                unit_price: item.rate,
-                discount: 0,
-                tax: Number(formData.tax),
-                subtotal: item.rate * item.quantity + (item.rate * item.quantity * formData.tax) / 100,
-            })),
-        };
-
+    const handleReceive = async (purchaseId) => {
         try {
-            setLoading(true);
-            await createOrder(orderData).unwrap();
-            setLoading(false);
-            showMessage('Order Create successfully!', 'success');
-            dispatch(clearItemsRedux());
-            setFormData({
-                customerName: '',
-                customerEmail: '',
-                customerPhone: '',
-                tax: 0,
-                discount: 0,
-                paymentMethod: '',
-                paymentStatus: '',
-            });
+            await receivePurchase(purchaseId).unwrap();
+            showMessage('Purchase marked as received', 'success');
+            refetch(); // refresh purchases after server updates
         } catch (error) {
-            setLoading(false);
-            console.error('Failed to create order:', error);
-            showMessage('Failed to create order', 'error');
+            console.error('Error receiving purchase:', error);
+            showMessage('Failed to mark as received', 'error');
+        } finally {
+            setOpenDropdown(null);
         }
     };
 
-    const handlePreview = () => {
-        if (invoiceItems.length === 0) {
-            showMessage('No items to preview', 'error');
-            return;
-        }
-        setShowPreview(true);
+    const toggleDropdown = (purchaseId, event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setOpenDropdown(openDropdown === purchaseId ? null : purchaseId);
     };
 
-    const previewData = {
-        customer: {
-            name: formData.customerName,
-            email: formData.customerEmail,
-            phone: formData.customerPhone,
-        },
-        items: invoiceItems.map((item, idx) => ({
-            id: idx + 1,
-            title: item.title || 'Untitled',
-            quantity: item.quantity,
-            price: item.rate,
-            amount: item.rate * item.quantity,
-        })),
-        tax: formData.tax,
-        discount: formData.discount,
-        paymentMethod: formData.paymentMethod,
-        paymentStatus: formData.paymentStatus,
-        totals: {
-            subtotal: calculateSubtotal(),
-            tax: calculateTax(),
-            discount: calculateDiscount(),
-            total: calculateTotal(),
-        },
-    };
-
-    if (showPreview) {
+    if (isLoading) {
         return (
-            <div>
-                <button onClick={() => setShowPreview(false)} className="btn btn-secondary mb-4">
-                    ← Back to Edit
-                </button>
-                {(() => {
-                    console.log(previewData);
-                    return <ComponentsAppsInvoicePreview data={previewData} />;
-                })()}
+            <div className="flex items-center justify-center py-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading...</span>
             </div>
         );
     }
 
     return (
-        <div className="relative mt-6 w-full xl:mt-0 xl:w-full">
-            {loading && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="loader"></div>
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Purchase ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Product Details</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Total Qty</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Payment Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Total</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                        {purchases.slice(0, 7).map((purchase) => (
+                            <tr key={purchase.id} className="hover:bg-gray-50">
+                                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{purchase.id}</td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <div className="space-y-2">
+                                        {purchase.items?.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between rounded border-l-4 border-blue-500 bg-gray-50 px-3 py-2">
+                                                <span className="text-sm font-medium text-gray-800">{item.product?.product_name}</span>
+                                                <span className="ml-3 rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">{item.quantity}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <div className="text-center">
+                                        <span className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-800">
+                                            {purchase.items?.reduce((total, item) => total + item.quantity, 0)} items
+                                        </span>
+                                    </div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getPaymentStatusBadgeClass(purchase.payment_status, purchase.payment_method)}`}>
+                                        {purchase.payment_status || 'N/A'}
+                                    </span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeClass(purchase.status)}`}>{purchase.status}</span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{purchase.grand_total}</td>
+                                <td className="whitespace-nowrap px-6 py-4 text-center">
+                                    <div className="relative inline-block" ref={(el) => (dropdownRefs.current[purchase.id] = el)}>
+                                        <button
+                                            type="button"
+                                            disabled={purchase.status?.toLowerCase() === 'received'}
+                                            onClick={(e) => toggleDropdown(purchase.id, e)}
+                                            className={`inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                                                ${purchase.status?.toLowerCase() === 'received' ? 'cursor-not-allowed opacity-50' : 'text-gray-700 hover:bg-gray-50'}`}
+                                        >
+                                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                            </svg>
+                                        </button>
+
+                                        {openDropdown === purchase.id && (
+                                            <div className="absolute right-0 z-50 mt-1 w-36 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                                                <div className="py-1" role="menu">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleReceive(purchase.id)}
+                                                        className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                                                        role="menuitem"
+                                                    >
+                                                        Mark as Received
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {purchases.length === 0 && (
+                <div className="py-8 text-center">
+                    <p className="text-gray-500">No purchases found</p>
                 </div>
             )}
-
-            <div className="panel mb-5">
-                <div className="mt-8 px-4">
-                    <div className="flex flex-col justify-between lg:flex-row">
-                        <div className="mb-6 w-full lg:w-full">
-                            <div className="text-lg font-semibold text-gray-800">Bill To :-</div>
-                            <div className="mt-4 flex items-center">
-                                <label className="w-1/3 text-sm font-medium">
-                                    Name <span className="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="customerName" className="form-input flex-1" placeholder="Enter Name" value={formData.customerName} onChange={handleInputChange} />
-                            </div>
-                            <div className="mt-4 flex items-center">
-                                <label className="w-1/3 text-sm font-medium">
-                                    Email <span className="text-red-500">*</span>
-                                </label>
-                                <input type="email" name="customerEmail" className="form-input flex-1" placeholder="Enter Email" value={formData.customerEmail} onChange={handleInputChange} />
-                            </div>
-                            <div className="mt-4 flex items-center">
-                                <label className="w-1/3 text-sm font-medium">Phone Number</label>
-                                <input type="text" name="customerPhone" className="form-input flex-1" placeholder="Enter Phone number" value={formData.customerPhone} onChange={handleInputChange} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="panel mb-5">
-                    <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-800">Order Details</h3>
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm">Items: {invoiceItems.length}</span>
-                            <button type="button" onClick={clearAllItems} className="text-sm text-red-600 hover:text-red-800">
-                                Clear all
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b-2 border-gray-200">
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Item</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Qty</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Rate</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Amount</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {invoiceItems.map((item) => (
-                                    <tr key={item.id} className="border-b border-gray-200">
-                                        <td className="p-3 text-sm">{item.title}</td>
-                                        <td className="p-3">
-                                            <input
-                                                type="number"
-                                                className="form-input w-16"
-                                                min={1}
-                                                max={item.PlaceholderQuantity || 9999}
-                                                value={item.quantity}
-                                                onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                                            />
-                                        </td>
-                                        <td className="p-3 text-sm">{item.rate.toFixed(2)}</td>
-                                        <td className="p-3 text-sm">{(item.rate * item.quantity).toFixed(2)}</td>
-                                        <td className="p-3">
-                                            <button type="button" className="text-red-600 hover:text-red-800" onClick={() => handleRemoveItem(item.id)}>
-                                                <IconX />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="mt-6 flex flex-col gap-3">
-                        <div className="flex justify-between">
-                            <label className="font-semibold">Tax (%)</label>
-                            <input type="number" className="form-input w-20" name="tax" value={formData.tax} onChange={handleInputChange} min={0} />
-                        </div>
-                        <div className="flex justify-between">
-                            <label className="font-semibold">Discount (%)</label>
-                            <input type="number" className="form-input w-20" name="discount" value={formData.discount} onChange={handleInputChange} min={0} />
-                        </div>
-                        <div className="flex justify-between">
-                            <label className="font-semibold">Payment Method</label>
-                            <select name="paymentMethod" className="form-select w-40" value={formData.paymentMethod} onChange={handleInputChange}>
-                                <option value="">Select</option>
-                                <option value="cash">Cash</option>
-                                <option value="Credit Card">Credit Card</option>
-                                <option value="Bank">Bank</option>
-                            </select>
-                        </div>
-                        <div className="flex justify-between">
-                            <label className="font-semibold">Payment Status</label>
-                            <select name="paymentStatus" className="form-select w-40" value={formData.paymentStatus} onChange={handleInputChange}>
-                                <option value="">Select</option>
-                                <option value="paid">Paid</option>
-                                <option value="unpaid">Unpaid</option>
-                            </select>
-                        </div>
-
-                        <div className="flex justify-between border-t border-gray-300 pt-4 text-lg font-semibold">
-                            <span>Subtotal</span>
-                            <span>{calculateSubtotal().toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Tax</span>
-                            <span>{calculateTax().toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>Discount</span>
-                            <span>{calculateDiscount().toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between border-t border-gray-300 pt-4 text-xl font-bold">
-                            <span>Total</span>
-                            <span>{calculateTotal().toFixed(2)}</span>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex gap-4">
-                        <button type="button" className="btn btn-primary flex-1" onClick={handleSubmit} disabled={loading}>
-                            Save Order <IconSave />
-                        </button>
-                        <button type="button" className="btn btn-secondary flex-1" onClick={handlePreview}>
-                            Preview <IconEye />
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
 
-export default BillToForm;
+export default ComponentsTablesDropdown;
