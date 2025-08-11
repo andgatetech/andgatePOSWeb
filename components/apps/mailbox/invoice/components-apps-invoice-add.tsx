@@ -318,6 +318,7 @@ const ComponentsAppsInvoiceAdd = () => {
                                                 min={0}
                                                 step="0.01"
                                                 value={item.rate}
+                                                readOnly
                                                 onChange={(e) => changeQuantityPrice('price', e.target.value, item.id)}
                                             />
                                         </td>
