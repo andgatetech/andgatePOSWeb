@@ -2,7 +2,8 @@
 import IconPlus from '@/components/icon/icon-plus';
 import { ReactNode, useState } from 'react';
 import StoreModal from './CreateStoreModal';
-import { useStoreCreateMutation } from '@/store/features/store/storeApi';
+import { useCreateStoreMutation } from '@/store/features/store/storeApi';
+
 
 interface PanelCodeHighlightProps {
     children: ReactNode;
@@ -19,13 +20,13 @@ const ShowTable = ({ children, title, codeHighlight, id, className = '' }: Panel
         store_location: '',
         store_contact: '',
     });
-    const [storeCreate, { isLoading }] = useStoreCreateMutation();
+    const [storeCreate, { isLoading }] = useCreateStoreMutation();
 
     const handleCreateStore = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const res = await storeCreate(formData).unwrap();
-            clg('Store created successfully:', res);
+            console.log(res);
             setIsModalOpen(false);
             setFormData({ store_name: '', store_location: '', store_contact: '' });
         } catch (error) {
