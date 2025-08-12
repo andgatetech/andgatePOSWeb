@@ -22,7 +22,22 @@ const supplierApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        getSupplierPurchase: builder.query({
+            query: () => ({
+                url: '/supplier/purchases',
+                method: 'GET',
+            }),
+            providesTags: ['SupplierPurchases'], // <-- Correct place for providesTags
+        }),
+        updateSupplierPurchase: builder.mutation({
+            query: (data) => ({
+                url: `/purchases/${data.id}/status`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['SupplierPurchases'], // <-- Correct place for invalidatesTags
+        }),
     }),
 });
 
-export const { useRegisterSupplierMutation, useGetSuppliersQuery } = supplierApi;
+export const { useRegisterSupplierMutation, useGetSuppliersQuery, useGetSupplierPurchaseQuery, useUpdateSupplierPurchaseMutation } = supplierApi;

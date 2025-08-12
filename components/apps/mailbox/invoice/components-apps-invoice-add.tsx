@@ -12,7 +12,7 @@ const ComponentsAppsInvoiceAdd = () => {
     const dispatch = useDispatch();
 
     // Fetch all products from API
-    const { data: productsData, isLoading } = useGetAllProductsQuery();
+    const { data: productsData, isLoading } = useGetAllProductsQuery({available:'yes'});
     const products = productsData?.data || [];
 
     // Get items from Redux store

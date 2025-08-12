@@ -14,7 +14,7 @@ const Recent_Order_Transactions = () => {
         return <div>Error loading transactions</div>;
     }
 
-    const transactions = data?.data || [];
+    const transactions = (data?.data || []).slice(0, 7);
 
     return (
         <div>
