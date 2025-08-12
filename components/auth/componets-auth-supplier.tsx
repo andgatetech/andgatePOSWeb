@@ -11,7 +11,7 @@ import IconMail from '@/components/icon/icon-mail';
 import { RootState } from '@/store';
 import { login } from '@/store/features/auth/authSlice'; // ✅ import login action
 
-const ComponentsAuthLoginForm = () => {
+const SupplierLoginForm = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -93,4 +93,4 @@ const ComponentsAuthLoginForm = () => {
     );
 };
 
-export default ComponentsAuthLoginForm;
+export default SupplierLoginForm;

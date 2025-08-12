@@ -1,824 +1,416 @@
-'use client';
-import Dropdown from '@/components/dropdown';
-import IconBinance from '@/components/icon/icon-binance';
-import IconBitcoin from '@/components/icon/icon-bitcoin';
-import IconCircleCheck from '@/components/icon/icon-circle-check';
-import IconEthereum from '@/components/icon/icon-ethereum';
-import IconEye from '@/components/icon/icon-eye';
-import IconHorizontalDots from '@/components/icon/icon-horizontal-dots';
-import IconInfoCircle from '@/components/icon/icon-info-circle';
-import IconLitecoin from '@/components/icon/icon-litecoin';
-import IconSolana from '@/components/icon/icon-solana';
-import IconTether from '@/components/icon/icon-tether';
-import { IRootState } from '@/store';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import ReactApexChart from 'react-apexcharts';
-import { useSelector } from 'react-redux';
+// pages/dashboard.js
+'use client'
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 
-const ComponentsDashboardFinance = () => {
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+const SupplierDashboard = () => {
+    const [stats, setStats] = useState({
+        totalOrders: 1247,
+        pendingOrders: 23,
+        completedOrders: 1180,
+        totalRevenue: 284750,
+        monthlyGrowth: 12.5,
+        avgOrderValue: 228.4,
+    });
 
-    //bitcoinoption
-    const bitcoin: any = {
-        series: [
-            {
-                data: [21, 9, 36, 12, 44, 25, 59, 41, 25, 66],
-            },
-        ],
-        options: {
-            chart: {
-                height: 45,
-                type: 'line',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                width: 2,
-            },
-            markers: {
-                size: 0,
-            },
-            colors: ['#00ab55'],
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                },
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: () => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            responsive: [
-                {
-                    breakPoint: 576,
-                    options: {
-                        chart: {
-                            height: 95,
-                        },
-                        grid: {
-                            padding: {
-                                top: 45,
-                                bottom: 0,
-                                left: 0,
-                            },
-                        },
-                    },
-                },
-            ],
-        },
+    const [recentOrders, setRecentOrders] = useState([
+        { id: 'ORD-2024-001', customer: 'TechCorp Inc.', amount: 1250, status: 'pending', date: '2024-08-13' },
+        { id: 'ORD-2024-002', customer: 'BuildRight Ltd.', amount: 890, status: 'completed', date: '2024-08-12' },
+        { id: 'ORD-2024-003', customer: 'Manufacturing Co.', amount: 2340, status: 'processing', date: '2024-08-12' },
+        { id: 'ORD-2024-004', customer: 'Global Solutions', amount: 567, status: 'completed', date: '2024-08-11' },
+        { id: 'ORD-2024-005', customer: 'Industry Partners', amount: 1456, status: 'pending', date: '2024-08-11' },
+    ]);
+
+    const [topProducts, setTopProducts] = useState([
+        { name: 'Industrial Valve A', sales: 245, revenue: 24500 },
+        { name: 'Steel Pipe 2inch', sales: 189, revenue: 18900 },
+        { name: 'Heavy Duty Motor', sales: 156, revenue: 31200 },
+        { name: 'Safety Equipment Kit', sales: 134, revenue: 13400 },
+        { name: 'Control Panel Unit', sales: 98, revenue: 19600 },
+    ]);
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'completed':
+                return '#10B981';
+            case 'pending':
+                return '#F59E0B';
+            case 'processing':
+                return '#3B82F6';
+            default:
+                return '#6B7280';
+        }
     };
 
-    //ethereumoption
-    const ethereum: any = {
-        series: [
-            {
-                data: [44, 25, 59, 41, 66, 25, 21, 9, 36, 12],
-            },
-        ],
-        options: {
-            chart: {
-                height: 45,
-                type: 'line',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                width: 2,
-            },
-            markers: {
-                size: 0,
-            },
-            colors: ['#e7515a'],
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                },
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: () => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            responsive: [
-                {
-                    breakPoint: 576,
-                    options: {
-                        chart: {
-                            height: 95,
-                        },
-                        grid: {
-                            padding: {
-                                top: 45,
-                                bottom: 0,
-                                left: 0,
-                            },
-                        },
-                    },
-                },
-            ],
-        },
+    const getStatusBg = (status) => {
+        switch (status) {
+            case 'completed':
+                return '#ECFDF5';
+            case 'pending':
+                return '#FFFBEB';
+            case 'processing':
+                return '#EFF6FF';
+            default:
+                return '#F9FAFB';
+        }
     };
-
-    //litecoinoption
-    const litecoin: any = {
-        series: [
-            {
-                data: [9, 21, 36, 12, 66, 25, 44, 25, 41, 59],
-            },
-        ],
-        options: {
-            chart: {
-                height: 45,
-                type: 'line',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                width: 2,
-            },
-            markers: {
-                size: 0,
-            },
-            colors: ['#00ab55'],
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                },
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: () => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            responsive: [
-                {
-                    breakPoint: 576,
-                    options: {
-                        chart: {
-                            height: 95,
-                        },
-                        grid: {
-                            padding: {
-                                top: 45,
-                                bottom: 0,
-                                left: 0,
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-    };
-
-    //binanceoption
-    const binance: any = {
-        series: [
-            {
-                data: [25, 44, 25, 59, 41, 21, 36, 12, 19, 9],
-            },
-        ],
-        options: {
-            chart: {
-                height: 45,
-                type: 'line',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                width: 2,
-            },
-            markers: {
-                size: 0,
-            },
-            colors: ['#e7515a'],
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                },
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: () => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            responsive: [
-                {
-                    breakPoint: 576,
-                    options: {
-                        chart: {
-                            height: 95,
-                        },
-                        grid: {
-                            padding: {
-                                top: 45,
-                                bottom: 0,
-                                left: 0,
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-    };
-
-    //tetheroption
-    const tether: any = {
-        series: [
-            {
-                data: [21, 59, 41, 44, 25, 66, 9, 36, 25, 12],
-            },
-        ],
-        options: {
-            chart: {
-                height: 45,
-                type: 'line',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                width: 2,
-            },
-            markers: {
-                size: 0,
-            },
-            colors: ['#00ab55'],
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                },
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: () => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            responsive: [
-                {
-                    breakPoint: 576,
-                    options: {
-                        chart: {
-                            height: 95,
-                        },
-                        grid: {
-                            padding: {
-                                top: 45,
-                                bottom: 0,
-                                left: 0,
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-    };
-
-    //solanaoption
-    const solana: any = {
-        series: [
-            {
-                data: [21, -9, 36, -12, 44, 25, 59, -41, 66, -25],
-            },
-        ],
-        options: {
-            chart: {
-                height: 45,
-                type: 'line',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                width: 2,
-            },
-            markers: {
-                size: 0,
-            },
-            colors: ['#e7515a'],
-            grid: {
-                padding: {
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                },
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: () => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            responsive: [
-                {
-                    breakPoint: 576,
-                    options: {
-                        chart: {
-                            height: 95,
-                        },
-                        grid: {
-                            padding: {
-                                top: 45,
-                                bottom: 0,
-                                left: 0,
-                            },
-                        },
-                    },
-                },
-            ],
-        },
-    };
-
-    const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
 
     return (
-        <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link href="/" className="text-primary hover:underline">
-                        Dashboard
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>Finance</span>
-                </li>
-            </ul>
-            <div className="pt-5">
-                <div className="mb-6 grid grid-cols-1 gap-6 text-white sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="panel bg-gradient-to-r from-cyan-500 to-cyan-400">
-                        <div className="flex justify-between">
-                            <div className="text-md font-semibold ltr:mr-1 rtl:ml-1">Users Visit</div>
-                            <div className="dropdown">
-                                <Dropdown
-                                    offset={[0, 5]}
-                                    placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                    btnClassName="hover:opacity-80"
-                                    button={<IconHorizontalDots className="opacity-70 hover:opacity-80" />}
-                                >
-                                    <ul className="text-black dark:text-white-dark">
-                                        <li>
-                                            <button type="button">View Report</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Edit Report</button>
-                                        </li>
-                                    </ul>
-                                </Dropdown>
-                            </div>
-                        </div>
-                        <div className="mt-5 flex items-center">
-                            <div className="text-3xl font-bold ltr:mr-3 rtl:ml-3"> $170.46 </div>
-                            <div className="badge bg-white/30">+ 2.35% </div>
-                        </div>
-                        <div className="mt-5 flex items-center font-semibold">
-                            <IconEye className="shrink-0 ltr:mr-2 rtl:ml-2" />
-                            Last Week 44,700
-                        </div>
-                    </div>
+        <>
+            <Head>
+                <title>Supplier Dashboard</title>
+                <meta name="description" content="Professional supplier management dashboard" />
+            </Head>
 
-                    {/* Sessions */}
-                    <div className="panel bg-gradient-to-r from-violet-500 to-violet-400">
-                        <div className="flex justify-between">
-                            <div className="text-md font-semibold ltr:mr-1 rtl:ml-1">Sessions</div>
-                            <div className="dropdown">
-                                <Dropdown
-                                    offset={[0, 5]}
-                                    placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                    btnClassName="hover:opacity-80"
-                                    button={<IconHorizontalDots className="opacity-70 hover:opacity-80" />}
-                                >
-                                    <ul className="text-black dark:text-white-dark">
-                                        <li>
-                                            <button type="button">View Report</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Edit Report</button>
-                                        </li>
-                                    </ul>
-                                </Dropdown>
+            <div
+                style={{
+                    minHeight: '100vh',
+                    backgroundColor: '#F8FAFC',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                }}
+            >
+                {/* Header */}
+                <header
+                    style={{
+                        backgroundColor: 'white',
+                        borderBottom: '1px solid #E2E8F0',
+                        padding: '1rem 2rem',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 1000,
+                    }}
+                >
+                    <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h1 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1E293B', margin: 0 }}>Supplier Dashboard</h1>
+                            <p style={{ color: '#64748B', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>Welcome back! Here's what's happening with your business today.</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div
+                                style={{
+                                    backgroundColor: '#F1F5F9',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.875rem',
+                                    color: '#475569',
+                                }}
+                            >
+                                {new Date().toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                })}
                             </div>
                         </div>
-                        <div className="mt-5 flex items-center">
-                            <div className="text-3xl font-bold ltr:mr-3 rtl:ml-3"> 74,137 </div>
-                            <div className="badge bg-white/30">- 2.35% </div>
-                        </div>
-                        <div className="mt-5 flex items-center font-semibold">
-                            <IconEye className="shrink-0 ltr:mr-2 rtl:ml-2" />
-                            Last Week 84,709
-                        </div>
                     </div>
+                </header>
 
-                    {/*  Time On-Site */}
-                    <div className="panel bg-gradient-to-r from-blue-500 to-blue-400">
-                        <div className="flex justify-between">
-                            <div className="text-md font-semibold ltr:mr-1 rtl:ml-1">Time On-Site</div>
-                            <div className="dropdown">
-                                <Dropdown
-                                    offset={[0, 5]}
-                                    placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                    btnClassName="hover:opacity-80"
-                                    button={<IconHorizontalDots className="opacity-70 hover:opacity-80" />}
-                                >
-                                    <ul className="text-black dark:text-white-dark">
-                                        <li>
-                                            <button type="button">View Report</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Edit Report</button>
-                                        </li>
-                                    </ul>
-                                </Dropdown>
-                            </div>
-                        </div>
-                        <div className="mt-5 flex items-center">
-                            <div className="text-3xl font-bold ltr:mr-3 rtl:ml-3"> 38,085 </div>
-                            <div className="badge bg-white/30">+ 1.35% </div>
-                        </div>
-                        <div className="mt-5 flex items-center font-semibold">
-                            <IconEye className="shrink-0 ltr:mr-2 rtl:ml-2" />
-                            Last Week 37,894
-                        </div>
-                    </div>
-
-                    {/* Bounce Rate */}
-                    <div className="panel bg-gradient-to-r from-fuchsia-500 to-fuchsia-400">
-                        <div className="flex justify-between">
-                            <div className="text-md font-semibold ltr:mr-1 rtl:ml-1">Bounce Rate</div>
-                            <div className="dropdown">
-                                <Dropdown
-                                    offset={[0, 5]}
-                                    placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                    btnClassName="hover:opacity-80"
-                                    button={<IconHorizontalDots className="opacity-70 hover:opacity-80" />}
-                                >
-                                    <ul className="text-black dark:text-white-dark">
-                                        <li>
-                                            <button type="button">View Report</button>
-                                        </li>
-                                        <li>
-                                            <button type="button">Edit Report</button>
-                                        </li>
-                                    </ul>
-                                </Dropdown>
-                            </div>
-                        </div>
-                        <div className="mt-5 flex items-center">
-                            <div className="text-3xl font-bold ltr:mr-3 rtl:ml-3"> 49.10% </div>
-                            <div className="badge bg-white/30">- 0.35% </div>
-                        </div>
-                        <div className="mt-5 flex items-center font-semibold">
-                            <IconEye className="shrink-0 ltr:mr-2 rtl:ml-2" />
-                            Last Week 50.01%
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    {/*  Favorites  */}
-                    <div>
-                        <div className="mb-5 flex items-center font-bold">
-                            <span className="text-lg">Favorites</span>
-                            <button type="button" className="text-primary hover:text-black ltr:ml-auto rtl:mr-auto dark:hover:text-white-dark">
-                                See All
-                            </button>
-                        </div>
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:mb-5">
-                            {/*  Bitcoin  */}
-                            <div className="panel">
-                                <div className="mb-5 flex items-center font-semibold">
-                                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-full">
-                                        <IconBitcoin />
-                                    </div>
-                                    <div className="ltr:ml-2 rtl:mr-2">
-                                        <h6 className="text-dark dark:text-white-light">BTC</h6>
-                                        <p className="text-xs text-white-dark">Bitcoin</p>
-                                    </div>
-                                </div>
-                                <div className="mb-5">{isMounted && <ReactApexChart series={bitcoin.series} options={bitcoin.options} type="line" height={45} width={'100%'} />}</div>
-                                <div className="flex items-center justify-between text-base font-bold">
-                                    $20,000 <span className="text-sm font-normal text-success">+0.25%</span>
-                                </div>
-                            </div>
-                            {/*  Ethereum*/}
-                            <div className="panel">
-                                <div className="mb-5 flex items-center font-semibold">
-                                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-full bg-warning p-2">
-                                        <IconEthereum />
-                                    </div>
-                                    <div className="ltr:ml-2 rtl:mr-2">
-                                        <h6 className="text-dark dark:text-white-light">ETH</h6>
-                                        <p className="text-xs text-white-dark">Ethereum</p>
-                                    </div>
-                                </div>
-                                <div className="mb-5">{isMounted && <ReactApexChart series={ethereum.series} options={ethereum.options} type="line" height={45} width={'100%'} />}</div>
-                                <div className="flex items-center justify-between text-base font-bold">
-                                    $21,000 <span className="text-sm font-normal text-danger">-1.25%</span>
-                                </div>
-                            </div>
-                            {/*  Litecoin*/}
-                            <div className="panel">
-                                <div className="mb-5 flex items-center font-semibold">
-                                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-full">
-                                        <IconLitecoin />
-                                    </div>
-                                    <div className="ltr:ml-2 rtl:mr-2">
-                                        <h6 className="text-dark dark:text-white-light">LTC</h6>
-                                        <p className="text-xs text-white-dark">Litecoin</p>
-                                    </div>
-                                </div>
-                                <div className="mb-5">{isMounted && <ReactApexChart series={litecoin.series} options={litecoin.options} type="line" height={45} width={'100%'} />}</div>
-                                <div className="flex items-center justify-between text-base font-bold">
-                                    $11,657 <span className="text-sm font-normal text-success">+0.25%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/*  Prices  */}
-                    <div>
-                        <div className="mb-5 flex items-center font-bold">
-                            <span className="text-lg">Live Prices</span>
-                            <button type="button" className="text-primary hover:text-black ltr:ml-auto rtl:mr-auto dark:hover:text-white-dark">
-                                See All
-                            </button>
-                        </div>
-                        <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                            {/*  Binance */}
-                            <div className="panel">
-                                <div className="mb-5 flex items-center font-semibold">
-                                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-full">
-                                        <IconBinance />
-                                    </div>
-                                    <div className="ltr:ml-2 rtl:mr-2">
-                                        <h6 className="text-dark dark:text-white-light">BNB</h6>
-                                        <p className="text-xs text-white-dark">Binance</p>
-                                    </div>
-                                </div>
-                                <div className="mb-5">{isMounted && <ReactApexChart series={binance.series} options={binance.options} type="line" height={45} width={'100%'} />}</div>
-                                <div className="flex items-center justify-between text-base font-bold">
-                                    $21,000 <span className="text-sm font-normal text-danger">-1.25%</span>
-                                </div>
-                            </div>
-                            {/*  Tether  */}
-                            <div className="panel">
-                                <div className="mb-5 flex items-center font-semibold">
-                                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-full">
-                                        <IconTether />
-                                    </div>
-                                    <div className="ltr:ml-2 rtl:mr-2">
-                                        <h6 className="text-dark dark:text-white-light">USDT</h6>
-                                        <p className="text-xs text-white-dark">Tether</p>
-                                    </div>
-                                </div>
-                                <div className="mb-5">{isMounted && <ReactApexChart series={tether.series} options={tether.options} type="line" height={45} width={'100%'} />}</div>
-                                <div className="flex items-center justify-between text-base font-bold">
-                                    $20,000 <span className="text-sm font-normal text-success">+0.25%</span>
-                                </div>
-                            </div>
-                            {/*  Solana */}
-                            <div className="panel">
-                                <div className="mb-5 flex items-center font-semibold">
-                                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-full bg-warning p-2">
-                                        <IconSolana />
-                                    </div>
-                                    <div className="ltr:ml-2 rtl:mr-2">
-                                        <h6 className="text-dark dark:text-white-light">SOL</h6>
-                                        <p className="text-xs text-white-dark">Solana</p>
-                                    </div>
-                                </div>
-                                <div className="mb-5">{isMounted && <ReactApexChart series={solana.series} options={solana.options} type="line" height={45} width={'100%'} />}</div>
-                                <div className="flex items-center justify-between text-base font-bold">
-                                    $21,000 <span className="text-sm font-normal text-danger">-1.25%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                    <div className="grid gap-6 xl:grid-flow-row">
-                        {/*  Previous Statement  */}
-                        <div className="panel overflow-hidden">
-                            <div className="flex items-center justify-between">
+                {/* Main Content */}
+                <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+                    {/* Stats Cards */}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '1.5rem',
+                            marginBottom: '2rem',
+                        }}
+                    >
+                        <div
+                            style={{
+                                backgroundColor: 'white',
+                                padding: '1.5rem',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #E2E8F0',
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                 <div>
-                                    <div className="text-lg font-bold">Previous Statement</div>
-                                    <div className="text-success"> Paid on June 27, 2022 </div>
+                                    <p style={{ color: '#64748B', fontSize: '0.875rem', margin: 0 }}>Total Orders</p>
+                                    <p style={{ fontSize: '2rem', fontWeight: '700', color: '#1E293B', margin: '0.5rem 0 0 0' }}>{stats.totalOrders.toLocaleString()}</p>
                                 </div>
-                                <div className="dropdown">
-                                    <Dropdown
-                                        offset={[0, 5]}
-                                        placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                        btnClassName="hover:opacity-80"
-                                        button={<IconHorizontalDots className="opacity-70 hover:opacity-80" />}
+                                <div
+                                    style={{
+                                        backgroundColor: '#EFF6FF',
+                                        padding: '0.75rem',
+                                        borderRadius: '0.5rem',
+                                    }}
+                                >
+                                    📦
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style={{
+                                backgroundColor: 'white',
+                                padding: '1.5rem',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #E2E8F0',
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                <div>
+                                    <p style={{ color: '#64748B', fontSize: '0.875rem', margin: 0 }}>Pending Orders</p>
+                                    <p style={{ fontSize: '2rem', fontWeight: '700', color: '#F59E0B', margin: '0.5rem 0 0 0' }}>{stats.pendingOrders}</p>
+                                </div>
+                                <div
+                                    style={{
+                                        backgroundColor: '#FFFBEB',
+                                        padding: '0.75rem',
+                                        borderRadius: '0.5rem',
+                                    }}
+                                >
+                                    ⏳
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style={{
+                                backgroundColor: 'white',
+                                padding: '1.5rem',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #E2E8F0',
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                <div>
+                                    <p style={{ color: '#64748B', fontSize: '0.875rem', margin: 0 }}>Total Revenue</p>
+                                    <p style={{ fontSize: '2rem', fontWeight: '700', color: '#10B981', margin: '0.5rem 0 0 0' }}>${stats.totalRevenue.toLocaleString()}</p>
+                                </div>
+                                <div
+                                    style={{
+                                        backgroundColor: '#ECFDF5',
+                                        padding: '0.75rem',
+                                        borderRadius: '0.5rem',
+                                    }}
+                                >
+                                    💰
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style={{
+                                backgroundColor: 'white',
+                                padding: '1.5rem',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #E2E8F0',
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                <div>
+                                    <p style={{ color: '#64748B', fontSize: '0.875rem', margin: 0 }}>Monthly Growth</p>
+                                    <p style={{ fontSize: '2rem', fontWeight: '700', color: '#3B82F6', margin: '0.5rem 0 0 0' }}>+{stats.monthlyGrowth}%</p>
+                                </div>
+                                <div
+                                    style={{
+                                        backgroundColor: '#EFF6FF',
+                                        padding: '0.75rem',
+                                        borderRadius: '0.5rem',
+                                    }}
+                                >
+                                    📈
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+                        {/* Recent Orders */}
+                        <div
+                            style={{
+                                backgroundColor: 'white',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #E2E8F0',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <div style={{ padding: '1.5rem', borderBottom: '1px solid #E2E8F0' }}>
+                                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1E293B', margin: 0 }}>Recent Orders</h3>
+                            </div>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#F8FAFC' }}>
+                                            <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '500', color: '#64748B' }}>Order ID</th>
+                                            <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '500', color: '#64748B' }}>Customer</th>
+                                            <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '500', color: '#64748B' }}>Amount</th>
+                                            <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '500', color: '#64748B' }}>Status</th>
+                                            <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '500', color: '#64748B' }}>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {recentOrders.map((order, index) => (
+                                            <tr key={order.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                                                <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#1E293B' }}>{order.id}</td>
+                                                <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#475569' }}>{order.customer}</td>
+                                                <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#1E293B' }}>${order.amount.toLocaleString()}</td>
+                                                <td style={{ padding: '1rem 1.5rem' }}>
+                                                    <span
+                                                        style={{
+                                                            backgroundColor: getStatusBg(order.status),
+                                                            color: getStatusColor(order.status),
+                                                            padding: '0.25rem 0.75rem',
+                                                            borderRadius: '9999px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: '500',
+                                                            textTransform: 'capitalize',
+                                                        }}
+                                                    >
+                                                        {order.status}
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#64748B' }}>{new Date(order.date).toLocaleDateString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Top Products */}
+                        <div
+                            style={{
+                                backgroundColor: 'white',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                border: '1px solid #E2E8F0',
+                            }}
+                        >
+                            <div style={{ padding: '1.5rem', borderBottom: '1px solid #E2E8F0' }}>
+                                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1E293B', margin: 0 }}>Top Products</h3>
+                            </div>
+                            <div style={{ padding: '1.5rem' }}>
+                                {topProducts.map((product, index) => (
+                                    <div
+                                        key={product.name}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            paddingBottom: index === topProducts.length - 1 ? 0 : '1rem',
+                                            marginBottom: index === topProducts.length - 1 ? 0 : '1rem',
+                                            borderBottom: index === topProducts.length - 1 ? 'none' : '1px solid #F1F5F9',
+                                        }}
                                     >
-                                        <ul>
-                                            <li>
-                                                <button type="button">View Report</button>
-                                            </li>
-                                            <li>
-                                                <button type="button">Edit Report</button>
-                                            </li>
-                                        </ul>
-                                    </Dropdown>
-                                </div>
-                            </div>
-                            <div className="relative mt-10">
-                                <div className="absolute -bottom-12 h-24 w-24 ltr:-right-12 rtl:-left-12">
-                                    <IconCircleCheck className="h-full w-full text-success opacity-20" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
-                                    <div>
-                                        <div className="text-primary">Card Limit</div>
-                                        <div className="mt-2 text-2xl font-semibold">$50,000.00</div>
+                                        <div>
+                                            <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#1E293B', margin: 0 }}>{product.name}</p>
+                                            <p style={{ fontSize: '0.75rem', color: '#64748B', margin: '0.25rem 0 0 0' }}>{product.sales} sales</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#10B981', margin: 0 }}>${product.revenue.toLocaleString()}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div className="text-primary">Spent</div>
-                                        <div className="mt-2 text-2xl font-semibold">$15,000.00</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-primary">Minimum</div>
-                                        <div className="mt-2 text-2xl font-semibold">$2,500.00</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {/*  Current Statement */}
-                        <div className="panel overflow-hidden">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="text-lg font-bold">Current Statement</div>
-                                    <div className="text-danger"> Must be paid before July 27, 2022 </div>
-                                </div>
-                                <div className="dropdown">
-                                    <Dropdown offset={[0, 5]} placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`} button={<IconHorizontalDots className="opacity-70 hover:opacity-80" />}>
-                                        <ul>
-                                            <li>
-                                                <button type="button">View Report</button>
-                                            </li>
-                                            <li>
-                                                <button type="button">Edit Report</button>
-                                            </li>
-                                        </ul>
-                                    </Dropdown>
-                                </div>
-                            </div>
-                            <div className="relative mt-10">
-                                <div className="absolute -bottom-12 h-24 w-24 ltr:-right-12 rtl:-left-12">
-                                    <IconInfoCircle className="h-full w-24 text-danger opacity-20" />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
-                                    <div>
-                                        <div className="text-primary">Card Limit</div>
-                                        <div className="mt-2 text-2xl font-semibold">$50,000.00</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-primary">Spent</div>
-                                        <div className="mt-2 text-2xl font-semibold">$30,500.00</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-primary">Minimum</div>
-                                        <div className="mt-2 text-2xl font-semibold">$8,000.00</div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    {/*  Recent Transactions  */}
-                    <div className="panel">
-                        <div className="mb-5 text-lg font-bold">Recent Transactions</div>
-                        <div className="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th className="ltr:rounded-l-md rtl:rounded-r-md">ID</th>
-                                        <th>DATE</th>
-                                        <th>NAME</th>
-                                        <th>AMOUNT</th>
-                                        <th className="text-center ltr:rounded-r-md rtl:rounded-l-md">STATUS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td className="font-semibold">#01</td>
-                                        <td className="whitespace-nowrap">Oct 08, 2021</td>
-                                        <td className="whitespace-nowrap">Eric Page</td>
-                                        <td>$1,358.75</td>
-                                        <td className="text-center">
-                                            <span className="badge rounded-full bg-success/20 text-success hover:top-0">Completed</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="font-semibold">#02</td>
-                                        <td className="whitespace-nowrap">Dec 18, 2021</td>
-                                        <td className="whitespace-nowrap">Nita Parr</td>
-                                        <td>-$1,042.82</td>
-                                        <td className="text-center">
-                                            <span className="badge rounded-full bg-info/20 text-info hover:top-0">In Process</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="font-semibold">#03</td>
-                                        <td className="whitespace-nowrap">Dec 25, 2021</td>
-                                        <td className="whitespace-nowrap">Carl Bell</td>
-                                        <td>$1,828.16</td>
-                                        <td className="text-center">
-                                            <span className="badge rounded-full bg-danger/20 text-danger hover:top-0">Pending</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="font-semibold">#04</td>
-                                        <td className="whitespace-nowrap">Nov 29, 2021</td>
-                                        <td className="whitespace-nowrap">Dan Hart</td>
-                                        <td>$1,647.55</td>
-                                        <td className="text-center">
-                                            <span className="badge rounded-full bg-success/20 text-success hover:top-0">Completed</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="font-semibold">#05</td>
-                                        <td className="whitespace-nowrap">Nov 24, 2021</td>
-                                        <td className="whitespace-nowrap">Jake Ross</td>
-                                        <td>$927.43</td>
-                                        <td className="text-center">
-                                            <span className="badge rounded-full bg-success/20 text-success hover:top-0">Completed</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="font-semibold">#06</td>
-                                        <td className="whitespace-nowrap">Jan 26, 2022</td>
-                                        <td className="whitespace-nowrap">Anna Bell</td>
-                                        <td>$250.00</td>
-                                        <td className="text-center">
-                                            <span className="badge rounded-full bg-info/20 text-info hover:top-0">In Process</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    {/* Performance Metrics */}
+                    <div
+                        style={{
+                            backgroundColor: 'white',
+                            borderRadius: '0.75rem',
+                            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                            border: '1px solid #E2E8F0',
+                            padding: '1.5rem',
+                        }}
+                    >
+                        <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1E293B', margin: '0 0 1.5rem 0' }}>Performance Overview</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <div
+                                    style={{
+                                        backgroundColor: '#EFF6FF',
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        height: '60px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 1rem auto',
+                                        fontSize: '1.5rem',
+                                    }}
+                                >
+                                    🎯
+                                </div>
+                                <p style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1E293B', margin: '0 0 0.25rem 0' }}>94.7%</p>
+                                <p style={{ fontSize: '0.875rem', color: '#64748B', margin: 0 }}>Order Fulfillment Rate</p>
+                            </div>
+
+                            <div style={{ textAlign: 'center' }}>
+                                <div
+                                    style={{
+                                        backgroundColor: '#ECFDF5',
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        height: '60px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 1rem auto',
+                                        fontSize: '1.5rem',
+                                    }}
+                                >
+                                    ⭐
+                                </div>
+                                <p style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1E293B', margin: '0 0 0.25rem 0' }}>4.8/5.0</p>
+                                <p style={{ fontSize: '0.875rem', color: '#64748B', margin: 0 }}>Customer Rating</p>
+                            </div>
+
+                            <div style={{ textAlign: 'center' }}>
+                                <div
+                                    style={{
+                                        backgroundColor: '#FFFBEB',
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        height: '60px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 1rem auto',
+                                        fontSize: '1.5rem',
+                                    }}
+                                >
+                                    🚚
+                                </div>
+                                <p style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1E293B', margin: '0 0 0.25rem 0' }}>2.3 days</p>
+                                <p style={{ fontSize: '0.875rem', color: '#64748B', margin: 0 }}>Avg Delivery Time</p>
+                            </div>
+
+                            <div style={{ textAlign: 'center' }}>
+                                <div
+                                    style={{
+                                        backgroundColor: '#FDF2F8',
+                                        borderRadius: '50%',
+                                        width: '60px',
+                                        height: '60px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 1rem auto',
+                                        fontSize: '1.5rem',
+                                    }}
+                                >
+                                    💼
+                                </div>
+                                <p style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1E293B', margin: '0 0 0.25rem 0' }}>${stats.avgOrderValue}</p>
+                                <p style={{ fontSize: '0.875rem', color: '#64748B', margin: 0 }}>Avg Order Value</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </main>
             </div>
-        </div>
+        </>
     );
 };
 
-export default ComponentsDashboardFinance;
+export default SupplierDashboard;
