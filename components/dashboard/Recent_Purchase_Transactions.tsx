@@ -1,20 +1,35 @@
 import React from 'react';
-
 import dayjs from 'dayjs';
 import { useGetAllPurchasesTransactionsQuery } from '@/store/features/purchase/purchase';
 
 const Recent_Purchase_Transactions = () => {
     const { data, isLoading, isError } = useGetAllPurchasesTransactionsQuery();
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
+    // Skeleton row for loading state
+    const SkeletonRow = () => (
+        <tr>
+            <td className="h-6 py-2">
+                <div className="h-4 w-10 animate-pulse rounded bg-gray-300 dark:bg-gray-700"></div>
+            </td>
+            <td className="h-6 py-2">
+                <div className="h-4 w-20 animate-pulse rounded bg-gray-300 dark:bg-gray-700"></div>
+            </td>
+            <td className="h-6 py-2 text-center">
+                <div className="mx-auto h-4 w-16 animate-pulse rounded-full bg-gray-300 dark:bg-gray-700"></div>
+            </td>
+            <td className="h-6 py-2">
+                <div className="h-4 w-16 animate-pulse rounded bg-gray-300 dark:bg-gray-700"></div>
+            </td>
+            <td className="h-6 py-2">
+                <div className="h-4 w-24 animate-pulse rounded bg-gray-300 dark:bg-gray-700"></div>
+            </td>
+        </tr>
+    );
 
     if (isError) {
         return <div>Error loading purchase transactions</div>;
     }
 
-    // Limit to 7 latest transactions
     const purchases = (data?.data || []).slice(0, 7);
 
     return (
@@ -33,19 +48,21 @@ const Recent_Purchase_Transactions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {purchases.map((p: any) => (
-                                <tr key={p.id}>
-                                    <td className="font-semibold">#{p.id}</td>
-                                    <td>{p.purchase_id}</td>
-                                    <td className="text-center">
-                                        <span className={`badge rounded-full px-3 py-1 ${p.payment_method === 'cash' ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-700'}`}>
-                                            {p.payment_method}
-                                        </span>
-                                    </td>
-                                    <td>${p.amount}</td>
-                                    <td>{dayjs(p.created_at).format('MMM DD, YYYY')}</td>
-                                </tr>
-                            ))}
+                            {isLoading
+                                ? Array.from({ length: 7 }).map((_, i) => <SkeletonRow key={i} />)
+                                : purchases.map((p: any) => (
+                                      <tr key={p.id}>
+                                          <td className="font-semibold">#{p.id}</td>
+                                          <td>{p.purchase_id}</td>
+                                          <td className="text-center">
+                                              <span className={`badge rounded-full px-3 py-1 ${p.payment_method === 'cash' ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-700'}`}>
+                                                  {p.payment_method}
+                                              </span>
+                                          </td>
+                                          <td>${p.amount}</td>
+                                          <td>{dayjs(p.created_at).format('MMM DD, YYYY')}</td>
+                                      </tr>
+                                  ))}
                         </tbody>
                     </table>
                 </div>
