@@ -1,8 +1,8 @@
 'use client';
 import IconPlus from '@/components/icon/icon-plus';
+import { useCreateStoreMutation } from '@/store/features/store/storeApi';
 import { ReactNode, useState } from 'react';
 import StoreModal from './CreateStoreModal';
-import { useStoreCreateMutation } from '@/store/features/store/storeApi';
 
 interface PanelCodeHighlightProps {
     children: ReactNode;
@@ -19,13 +19,13 @@ const ShowTable = ({ children, title, codeHighlight, id, className = '' }: Panel
         store_location: '',
         store_contact: '',
     });
-    const [storeCreate, { isLoading }] = useStoreCreateMutation();
+    const [createStore, { isLoading }] = useCreateStoreMutation();
 
     const handleCreateStore = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await storeCreate(formData).unwrap();
-            clg('Store created successfully:', res);
+            const res = await createStore(formData).unwrap();
+            console.log('Store created successfully:', res);
             setIsModalOpen(false);
             setFormData({ store_name: '', store_location: '', store_contact: '' });
         } catch (error) {

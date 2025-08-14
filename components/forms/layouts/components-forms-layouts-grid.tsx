@@ -4,9 +4,12 @@ import PanelCodeHighlight from '@/components/panel-code-highlight';
 import { useGetCategoriesQuery } from '@/store/features/category/categoryApi';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { useCreateProductMutation } from '@/store/Product/productApi';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const ComponentsFormsLayoutsGrid = () => {
+    const router = useRouter();
     const { data: categories, isLoading: catLoading } = useGetCategoriesQuery();
     const { data: suppliers, isLoading: supLoading } = useGetSuppliersQuery();
     const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
@@ -53,6 +56,8 @@ const ComponentsFormsLayoutsGrid = () => {
                 quantity: '',
                 purchase_price: '',
             });
+            toast.success('Product created successfully!');
+            router.push('/apps/products');
         } catch (error) {
             console.error('Create product failed', error);
             //   alert("Something went wrong!");
