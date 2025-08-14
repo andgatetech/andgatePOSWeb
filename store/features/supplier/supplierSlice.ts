@@ -18,8 +18,8 @@ export interface Supplier {
 
 const initialState: AuthState = {
     user: null,
-    token: null,
-    isAuthenticated: false,
+    // token: null,
+    // isAuthenticated: false,
 };
 
 const supplierSlice = createSlice({
@@ -28,13 +28,13 @@ const supplierSlice = createSlice({
     reducers: {
         supplierLogin(state, action: PayloadAction<{ user: Supplier; token: string }>) {
             state.user = action.payload.user;
-            state.token = action.payload.token;
-            state.isAuthenticated = true;
+            // state.token = action.payload.token;
+            // state.isAuthenticated = true;
         },
         supplierLogout(state) {
             state.user = null;
-            state.token = null;
-            state.isAuthenticated = false;
+            // state.token = null;
+            // state.isAuthenticated = false;
         },
         setUser(state, action: PayloadAction<{ user: Supplier }>) {
             state.user = action.payload.user;
