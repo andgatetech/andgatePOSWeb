@@ -5,7 +5,7 @@ import IconSave from '@/components/icon/icon-save';
 import IconSend from '@/components/icon/icon-send';
 import IconX from '@/components/icon/icon-x';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const ComponentsAppsInvoiceEdit = () => {
     const currencyList = ['USD - US Dollar', 'GBP - British Pound', 'IDR - Indonesian Rupiah', 'INR - Indian Rupee', 'BRL - Brazilian Real', 'EUR - Germany (Euro)', 'TRY - Turkish Lira'];
@@ -107,7 +107,7 @@ const ComponentsAppsInvoiceEdit = () => {
                         </div>
                         <div className="mt-6 space-y-1 text-gray-500 dark:text-gray-400">
                             <div>13 Tetrick Road, Cypress Gardens, Florida, 33884, US</div>
-                            <div>vristo@gmail.com</div>
+                            <div>AndGate@gmail.com</div>
                             <div>+1 (070) 123-4567</div>
                         </div>
                     </div>

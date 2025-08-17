@@ -28,9 +28,7 @@ const CoverLogin = () => {
                     <div className="relative hidden w-full items-center justify-center bg-[linear-gradient(225deg,rgba(239,18,98,1)_0%,rgba(67,97,238,1)_100%)] p-5 lg:inline-flex lg:max-w-[835px] xl:-ms-28 ltr:xl:skew-x-[14deg] rtl:xl:skew-x-[-14deg]">
                         <div className="absolute inset-y-0 w-8 from-primary/10 via-transparent to-transparent xl:w-16 ltr:-right-10 ltr:bg-gradient-to-r ltr:xl:-right-20 rtl:-left-10 rtl:bg-gradient-to-l rtl:xl:-left-20"></div>
                         <div className="ltr:xl:-skew-x-[14deg] rtl:xl:skew-x-[14deg]">
-                            <Link href="/" className="ms-10 block w-48 lg:w-72">
-                                <img src="/assets/images/auth/logo-white.svg" alt="Logo" className="w-full" />
-                            </Link>
+                           
                             <div className="mt-24 hidden w-full max-w-[430px] lg:block">
                                 <img src="/assets/images/auth/login.svg" alt="Cover Image" className="w-full" />
                             </div>
@@ -85,7 +83,7 @@ const CoverLogin = () => {
                                 </Link>
                             </div>
                         </div>
-                        <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()}.VRISTO All Rights Reserved.</p>
+                        <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()}.AndGate All Rights Reserved.</p>
                     </div>
                 </div>
             </div>

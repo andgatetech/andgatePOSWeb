@@ -180,26 +180,7 @@ const ComponentsAppsInvoiceAdd = () => {
 };
 
 
-    // Remove item function - for UI row only, Redux items handled separately
-    const removeItem = (id: number) => {
-        const itemToRemove = items.find((item) => item.id === id);
-
-        // Just clear the current row
-        const resetItem = {
-            id: id,
-            title: '',
-            product_name: '',
-            productId: undefined,
-            description: '',
-            rate: 0,
-            quantity: 0,
-            amount: 0,
-        };
-
-        setItems([resetItem]);
-        setSearchTerm({});
-        setShowDropdown({});
-    };
+    
 
     // Generate invoice number on mount
     const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -218,7 +199,7 @@ const ComponentsAppsInvoiceAdd = () => {
                 <div className="flex flex-wrap justify-between px-4">
                     <div className="mb-6 w-full lg:w-1/2">
                         <div className="flex shrink-0 items-center text-black dark:text-white">
-                            <img src="/assets/images/logo.svg" alt="img" className="w-14" />
+                            <img src="/assets/images/Logo-PNG.png" alt="img" className="w-24" />
                         </div>
                         <div className="mt-6 space-y-1 text-gray-500 dark:text-gray-400">
                             <div>Dhaka, Bangladesh</div>
@@ -246,7 +227,6 @@ const ComponentsAppsInvoiceAdd = () => {
                                     <th className="w-1">Quantity</th>
                                     <th className="w-1">Price</th>
                                     <th>Total</th>
-                                   
                                 </tr>
                             </thead>
                             <tbody>
@@ -324,8 +304,6 @@ const ComponentsAppsInvoiceAdd = () => {
                                         </td>
 
                                         <td>${(item.quantity * item.rate).toFixed(2)}</td>
-
-                                        
                                     </tr>
                                 ))}
                             </tbody>
@@ -343,7 +321,6 @@ const ComponentsAppsInvoiceAdd = () => {
                                 Add Item
                             </button>
                         </div>
-                        
                     </div>
                 </div>
                 <div className="mt-8 px-4">

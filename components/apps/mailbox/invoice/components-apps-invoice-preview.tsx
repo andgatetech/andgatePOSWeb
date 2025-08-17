@@ -44,8 +44,6 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
     return (
         <div>
             <div className="mb-6 flex flex-wrap items-center justify-center gap-4 lg:justify-end">
-                
-
                 <button type="button" className="btn btn-primary gap-2" onClick={exportTable}>
                     <IconPrinter />
                     Print PDF
@@ -56,7 +54,7 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                 <div className="flex flex-wrap justify-between gap-4 px-4">
                     <div className="text-2xl font-semibold uppercase">Invoice</div>
                     <div className="shrink-0">
-                        <img src="/assets/images/logo.svg" alt="Logo" className="w-14 ltr:ml-auto rtl:mr-auto" />
+                        <img src="/assets/images/Logo-PNG.png" alt="Logo" className="w-14 ltr:ml-auto rtl:mr-auto" />
                     </div>
                 </div>
 
