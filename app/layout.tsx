@@ -1,13 +1,13 @@
 import ProviderComponent from '@/components/layouts/provider-component';
-import 'react-perfect-scrollbar/dist/css/styles.css';
-import '../styles/tailwind.css';
 import { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
+import 'react-perfect-scrollbar/dist/css/styles.css';
+import '../styles/tailwind.css';
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | VRISTO - Multipurpose Tailwind Dashboard Template',
-        default: 'VRISTO - Multipurpose Tailwind Dashboard Template',
+        template: '%s | AndGate - Multipurpose Tailwind Dashboard Template',
+        default: 'AndGate - Multipurpose Tailwind Dashboard Template',
     },
 };
 const nunito = Nunito({

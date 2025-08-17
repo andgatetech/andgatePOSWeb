@@ -3,23 +3,38 @@ import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
+import { useLoginSupplierMutation } from '@/store/features/supplier/supplierApi';
 // import { useLoginMutation } from '@/store/api/baseApi';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const SupplierLoginForm = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-    const [loginApi, { isLoading }] = useLoginMutation();
+    const [loginApi, { isLoading }] = useLoginSupplierMutation();
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({ email: '', password: '' });
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
             const result = await loginApi(credentials).unwrap();
-            dispatch(login({ user: result.user, token: result.token }));
-            console.log('Login successful:', result);
+           
+
+                        document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
+                        document.cookie = `role=${result.data.role}; path=/; max-age=${60 * 60 * 24};`;
+            
+                        // ✅ Optional: Save user in Redux
+                        dispatch(login({ user: result.data, token: result.token }));
+            
+                        // ✅ Show success toast
+                        toast.success('Login successful! Redirecting to dashboard...');
+            
+                        // ✅ Redirect
+                        setTimeout(() => {
+                            router.push('/apps/supplier');
+                        }, 100);
         } catch (error) {
             console.error('Login failed:', error);
         }

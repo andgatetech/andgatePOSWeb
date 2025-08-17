@@ -1,8 +1,11 @@
+import React from 'react';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
+import { useGetCategoriesQuery } from '@/store/features/category/categoryApi';
 import { Package } from 'lucide-react';
 
 const Top_Selling_Products = () => {
     const { data, isLoading, isError } = useGetAllOrdersQuery();
+    const { data: categories } = useGetCategoriesQuery();
 
     // Skeleton row for loading
     const SkeletonRow = () => (
@@ -80,7 +83,7 @@ const Top_Selling_Products = () => {
                                                   </div>
                                                   <p className="whitespace-nowrap">
                                                       {product.name}
-                                                      <span className="block text-xs text-primary">Category {product.category}</span>
+                                                      <span className="block text-xs text-primary"> {categories?.data?.find((cat: any) => cat.id === product.category)?.name || 'N/A'}</span>
                                                   </p>
                                               </div>
                                           </td>
