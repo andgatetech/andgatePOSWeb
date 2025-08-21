@@ -85,9 +85,9 @@ const Sidebar = () => {
                 <div className="h-full bg-white dark:bg-black">
                     {/* Logo */}
                     <div className="flex items-center justify-between px-4 py-3">
-                        <Link href="/" className="main-logo flex shrink-0 items-center">
+                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
                             <img className="ml-[5px] w-14 flex-none" src="/assets/images/Logo-PNG.png" alt="logo" />
-                            <span className="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">andgate POS</span>
+                            <span className="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">AndGate POS</span>
                         </Link>
 
                         <button
