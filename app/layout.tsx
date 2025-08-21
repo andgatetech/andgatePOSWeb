@@ -6,8 +6,8 @@ import '../styles/tailwind.css';
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | AndGate - Multipurpose Tailwind Dashboard Template',
-        default: 'AndGate - Multipurpose Tailwind Dashboard Template',
+        template: '%s | AndGate - POS System',
+        default: 'AndGate - POS System',
     },
 };
 const nunito = Nunito({
