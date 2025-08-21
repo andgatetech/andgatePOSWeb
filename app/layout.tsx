@@ -1,13 +1,15 @@
 import ProviderComponent from '@/components/layouts/provider-component';
-import { Metadata } from 'next';
-import { Nunito } from 'next/font/google';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import '../styles/tailwind.css';
+import { Metadata } from 'next';
+import { Nunito } from 'next/font/google';
 
 export const metadata: Metadata = {
     title: {
+
         template: '%s | AndGate - POS System',
         default: 'AndGate - POS System',
+
     },
 };
 const nunito = Nunito({
