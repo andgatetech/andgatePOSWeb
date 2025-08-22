@@ -14,9 +14,7 @@ export const authApi = baseApi.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
                     dispatch(login({ user: data.user, token: data.token }));
-                } catch (error) {
-                    console.error('Login failed:', error);
-                }
+                } catch (error) {}
             },
         }),
         register: builder.mutation({
@@ -48,7 +46,8 @@ export const authApi = baseApi.injectEndpoints({
                 }
             },
         }),
+       
     }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation, useLogoutMutation} = authApi;

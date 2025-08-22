@@ -18,8 +18,8 @@ const ComponentsAuthLoginForm = () => {
     const [loginApi, { isLoading }] = useLoginMutation();
 
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({
-        email: 'dr@gmail.com',
-        password: 'secret123',
+        email: 'admin@defaultstore.com',
+        password: 'admin123',
     });
 
     const submitForm = async (e: FormEvent) => {
@@ -41,7 +41,7 @@ const ComponentsAuthLoginForm = () => {
             // ✅ Redirect
             setTimeout(() => {
                 router.push('/dashboard');
-            }, 30);
+            },30);
         } catch (error: any) {
             console.error('Login failed:', error);
             toast.error(error?.data?.message || 'Login failed. Please check your credentials.');
