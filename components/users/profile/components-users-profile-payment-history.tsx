@@ -11,17 +11,17 @@ const ComponentsUsersProfilePaymentHistory = () => {
     return (
         <div className="panel">
             <div className="mb-5 flex items-center justify-between">
-                <h5 className="text-lg font-semibold dark:text-white-light">Payment History</h5>
+                <h5 className="text-lg font-semibold dark:text-white-light">Subscription History</h5>
             </div>
             <div>
                 <div className="border-b border-[#ebedf2] dark:border-[#1b2e4b]">
                     <div className="flex items-center justify-between py-2">
                         <h6 className="font-semibold text-[#515365] dark:text-white-dark">
                             March
-                            <span className="block text-white-dark dark:text-white-light">Pro Membership</span>
+                            <span className="block text-white-dark dark:text-white-light">POS Transaction – Order #POS-1024</span>
                         </h6>
                         <div className="flex items-start justify-between ltr:ml-auto rtl:mr-auto">
-                            <p className="font-semibold">90%</p>
+                            <p className="font-semibold">$250.00</p>
                             <div className="dropdown ltr:ml-4 rtl:mr-4">
                                 <Dropdown
                                     offset={[0, 5]}
@@ -46,10 +46,10 @@ const ComponentsUsersProfilePaymentHistory = () => {
                     <div className="flex items-center justify-between py-2">
                         <h6 className="font-semibold text-[#515365] dark:text-white-dark">
                             February
-                            <span className="block text-white-dark dark:text-white-light">Pro Membership</span>
+                            <span className="block text-white-dark dark:text-white-light">Subscription Renewal – Pro Plan (Monthly)</span>
                         </h6>
                         <div className="flex items-start justify-between ltr:ml-auto rtl:mr-auto">
-                            <p className="font-semibold">90%</p>
+                            <p className="font-semibold">$49.99</p>
                             <div className="dropdown ltr:ml-4 rtl:mr-4">
                                 <Dropdown offset={[0, 5]} placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`} button={<IconHorizontalDots className="opacity-80 hover:opacity-100" />}>
                                     <ul className="!min-w-[150px]">
@@ -69,10 +69,10 @@ const ComponentsUsersProfilePaymentHistory = () => {
                     <div className="flex items-center justify-between py-2">
                         <h6 className="font-semibold text-[#515365] dark:text-white-dark">
                             January
-                            <span className="block text-white-dark dark:text-white-light">Pro Membership</span>
+                            <span className="block text-white-dark dark:text-white-light">POS Transaction – Order #POS-987</span>
                         </h6>
                         <div className="flex items-start justify-between ltr:ml-auto rtl:mr-auto">
-                            <p className="font-semibold">90%</p>
+                            <p className="font-semibold">$120.00</p>
                             <div className="dropdown ltr:ml-4 rtl:mr-4">
                                 <Dropdown offset={[0, 5]} placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`} button={<IconHorizontalDots className="opacity-80 hover:opacity-100" />}>
                                     <ul className="!min-w-[150px]">

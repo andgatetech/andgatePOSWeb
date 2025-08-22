@@ -26,17 +26,22 @@ function getCookieValue(name: string): string | null {
 }
 
 // Configs
-const adminRoutes = [
+const baseAdminRoutes = [
     { href: '/apps/store', label: 'Store' },
     { href: '/apps/category', label: 'Category' },
     { href: '/apps/products', label: 'Products List' },
     { href: '/apps/createProduct', label: 'Create Product' },
     { href: '/apps/Purchase', label: 'Purchase List' },
     { href: '/apps/createPurchase', label: 'Create Purchase' },
-    { href: '/apps/OrderView', label: 'View Order' },
+    { href: '/apps/OrderView', label: 'Order List' },
+    { href: '/apps/Staff', label: 'Staff Management' },
+    { href: '/apps/ActivityLog', label: 'Activity Log' }
 ];
 
-const supplierRoutes = [{ href: '/apps/supplier', label: 'Dashboard' },{ href: '/apps/supplier/purchase', label: 'Purchase' }, ];
+const supplierRoutes = [
+    { href: '/apps/supplier', label: 'Dashboard' },
+    { href: '/apps/supplier/purchase', label: 'Purchase' },
+];
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -54,7 +59,7 @@ const Sidebar = () => {
 
     // Load role from cookies
     useEffect(() => {
-        const userRole = getCookieValue('role'); // e.g., "admin" or "supplier"
+        const userRole = getCookieValue('role'); // e.g., "store_admin", "staff", "supplier"
         setRole(userRole);
     }, []);
 
@@ -74,8 +79,17 @@ const Sidebar = () => {
         selector?.classList.add('active');
     };
 
-    // Pick routes based on role
-    const menuRoutes = role === 'admin' ? adminRoutes : role === 'supplier' ? supplierRoutes : [];
+    // Build routes based on role
+    let menuRoutes: { href: string; label: string }[] = [];
+
+    if (role === 'store_admin') {
+        menuRoutes = baseAdminRoutes; // show all
+    } else if (role === 'staff') {
+        // staff cannot see Store, Category, Create Product, Staff Management
+        menuRoutes = baseAdminRoutes.filter((r) => !['/apps/store', '/apps/category', '/apps/createProduct', '/apps/Staff', '/apps/ActivityLog'].includes(r.href));
+    } else if (role === 'supplier') {
+        menuRoutes = supplierRoutes;
+    }
 
     return (
         <div className={semidark ? 'dark' : ''}>
@@ -103,7 +117,7 @@ const Sidebar = () => {
                     <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
                         <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
                             {/* Dashboard (admin only) */}
-                            {role === 'admin' && (
+                            {role === 'store_admin' && (
                                 <li className="menu nav-item">
                                     <button type="button" className={`${currentMenu === 'dashboard' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('dashboard')}>
                                         <div className="flex items-center">
@@ -132,7 +146,7 @@ const Sidebar = () => {
                                 <>
                                     <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
                                         <IconMinus className="hidden h-5 w-4 flex-none" />
-                                        <span>{role === 'admin' ? t('admins') : t('supplier')}</span>
+                                        <span>{role === 'store_admin' ? t('admins') : role === 'supplier' ? t('supplier') : t('staff')}</span>
                                     </h2>
                                     <ul>
                                         {menuRoutes.map((route) => (
