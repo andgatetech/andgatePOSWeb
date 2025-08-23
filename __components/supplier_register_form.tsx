@@ -9,9 +9,11 @@ import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierA
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { login } from '@/store/features/auth/authSlice';
 
 const SupplierRegisterForm = () => {
     const router = useRouter();
+    const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
     const [registerSupplier, { isLoading }] = useRegisterSupplierMutation();
     const [credentials, setCredentials] = useState<{ email: string; password: string; name: string; password_confirmation: string; phone: string; address: string }>({
@@ -26,6 +28,7 @@ const SupplierRegisterForm = () => {
         e.preventDefault();
         try {
             const result = await registerSupplier(credentials).unwrap();
+            dispatch(login({ user: result.user, token: result.token }));
             console.log('Registration successful:', result);
         } catch (error) {
             console.error('Registration failed:', error);

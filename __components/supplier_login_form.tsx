@@ -1,33 +1,36 @@
 'use client';
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
-import { useLoginMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
-// import { useLoginMutation } from '@/store/api/baseApi';
+import { useLoginSupplierMutation } from '@/store/features/supplier/supplierApi';
+import { supplierLogin } from '@/store/features/supplier/supplierSlice';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const SupplierLoginForm = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-    const [loginApi, { isLoading }] = useLoginMutation();
+    const [loginSupplier, { isLoading }] = useLoginSupplierMutation();
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({ email: '', password: '' });
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            const result = await loginApi(credentials).unwrap();
-            dispatch(login({ user: result.user, token: result.token }));
+            const result = await loginSupplier(credentials).unwrap();
+            document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
+            // dispatch(supplierLogin({ user: result.data, token: result.token }));
+            dispatch(login({ token: result.token }));
+            console.log('Logging in with credentials:', result);
+            dispatch(supplierLogin({ user: result.data }));
+            toast.success('Login successful! Redirecting to dashboard...');
+            router.push('/dashboard');
             console.log('Login successful:', result);
         } catch (error) {
             console.error('Login failed:', error);
         }
     };
-
-    // if (isAuthenticated && user) {
-    //     router.push('/dashboard');
-    // }
 
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>

@@ -63,7 +63,7 @@ const ComponentsTablesDropdown = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {purchases.map((data) => (
+                        {purchases?.map((data) => (
                             <tr key={data.id}>
                                 <td>
                                     <div className="whitespace-nowrap">{data?.id}</div>

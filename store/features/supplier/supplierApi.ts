@@ -25,4 +25,4 @@ const supplierApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useRegisterSupplierMutation, useGetSuppliersQuery } = supplierApi;
+export const { useRegisterSupplierMutation, useGetSuppliersQuery, useLoginSupplierMutation } = supplierApi;
