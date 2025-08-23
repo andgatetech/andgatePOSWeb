@@ -59,42 +59,39 @@ const ComponentsAppsInvoiceAdd = () => {
         });
     };
 
-   const changeQuantityPrice = (type: string, value: string, id: number) => {
-       setItems((prevItems) => {
-           return prevItems.map((d) => {
-               if (d.id !== id) return d;
+    const changeQuantityPrice = (type: string, value: string, id: number) => {
+        setItems((prevItems) => {
+            return prevItems.map((d) => {
+                if (d.id !== id) return d;
 
-               let qty = d.quantity;
-               let rate = d.rate;
+                let qty = d.quantity;
+                let rate = d.rate;
 
-               if (type === 'quantity') {
-                   const newQty = Number(value);
-                   if (newQty < 0) return d;
-                   if (d.PlaceholderQuantity && newQty > d.PlaceholderQuantity) {
-                       showMessage(`Maximum available quantity is ${d.PlaceholderQuantity}`, 'error');
-                       return d;
-                   }
-                   qty = newQty;
-               }
+                if (type === 'quantity') {
+                    const newQty = Number(value);
+                    if (newQty < 0) return d;
+                    if (d.PlaceholderQuantity && newQty > d.PlaceholderQuantity) {
+                        showMessage(`Maximum available quantity is ${d.PlaceholderQuantity}`, 'error');
+                        return d;
+                    }
+                    qty = newQty;
+                }
 
-               if (type === 'price') {
-                   const newRate = Number(value);
-                   if (newRate < 0) return d;
-                   rate = newRate;
-               }
+                if (type === 'price') {
+                    const newRate = Number(value);
+                    if (newRate < 0) return d;
+                    rate = newRate;
+                }
 
-               return {
-                   ...d,
-                   quantity: qty,
-                   rate,
-                   amount: qty * rate,
-               };
-           });
-       });
-
-
-   };
-
+                return {
+                    ...d,
+                    quantity: qty,
+                    rate,
+                    amount: qty * rate,
+                };
+            });
+        });
+    };
 
     // Handle product name search input change
     const onSearchChange = (id: number, value: string) => {
@@ -138,47 +135,46 @@ const ComponentsAppsInvoiceAdd = () => {
 
     useEffect(() => {
         beepRef.current = new Audio('/assets/sound/store-scanner-beep-90395.mp3');
-    }, []); 
- const addItem = () => {
-    const currentItem = items.find((item) => item.productId);
+    }, []);
+    const addItem = () => {
+        const currentItem = items.find((item) => item.productId);
 
-    if (!currentItem) {
-        showMessage('Please select a product first', 'error');
-        return;
-    }
-  if (beepRef.current) {
-      beepRef.current.currentTime = 0;
-      beepRef.current.play().catch((e) => {
-        console.warn('Audio play failed:', e);
-      });
-    }
-  
-    // Assign a unique ID before dispatching (using timestamp + random for safety)
-    const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
-    const itemToAdd = { ...currentItem, id: uniqueId };
+        if (!currentItem) {
+            showMessage('Please select a product first', 'error');
+            return;
+        }
+        if (beepRef.current) {
+            beepRef.current.currentTime = 0;
+            beepRef.current.play().catch((e) => {
+                console.warn('Audio play failed:', e);
+            });
+        }
 
-    dispatch(addItemRedux(itemToAdd));
+        // Assign a unique ID before dispatching (using timestamp + random for safety)
+        const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+        const itemToAdd = { ...currentItem, id: uniqueId };
 
-    // Reset the local item with a new unique id for next input
-    setItems([
-        {
-            id: uniqueId + 1, // or just uniqueId + 1, any unique number here
-            searchTerm: undefined,
-            product_name: '',
-            title: '',
-            productId: undefined,
-            description: '',
-            rate: 0,
-            quantity: 0,
-            amount: 0,
-        },
-    ]);
-    setSearchTerm({});
-    setShowDropdown({});
+        dispatch(addItemRedux(itemToAdd));
 
-    showMessage('Item added successfully!', 'success');
-};
+        // Reset the local item with a new unique id for next input
+        setItems([
+            {
+                id: uniqueId + 1, // or just uniqueId + 1, any unique number here
+                searchTerm: undefined,
+                product_name: '',
+                title: '',
+                productId: undefined,
+                description: '',
+                rate: 0,
+                quantity: 0,
+                amount: 0,
+            },
+        ]);
+        setSearchTerm({});
+        setShowDropdown({});
 
+        showMessage('Item added successfully!', 'success');
+    };
 
     // Remove item function - for UI row only, Redux items handled separately
     const removeItem = (id: number) => {
@@ -246,7 +242,6 @@ const ComponentsAppsInvoiceAdd = () => {
                                     <th className="w-1">Quantity</th>
                                     <th className="w-1">Price</th>
                                     <th>Total</th>
-                                   
                                 </tr>
                             </thead>
                             <tbody>
@@ -323,8 +318,6 @@ const ComponentsAppsInvoiceAdd = () => {
                                         </td>
 
                                         <td>${(item.quantity * item.rate).toFixed(2)}</td>
-
-                                        
                                     </tr>
                                 ))}
                             </tbody>
@@ -342,7 +335,6 @@ const ComponentsAppsInvoiceAdd = () => {
                                 Add Item
                             </button>
                         </div>
-                        
                     </div>
                 </div>
                 <div className="mt-8 px-4">

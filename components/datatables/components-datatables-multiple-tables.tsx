@@ -1,17 +1,23 @@
 'use client';
-import { useGetAllProductsQuery } from '@/store/Product/productApi';
+import { useDeleteProductMutation, useGetAllProductsQuery } from '@/store/Product/productApi';
 import sortBy from 'lodash/sortBy';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import 'tippy.js/dist/tippy.css';
 
+import Dropdown from '@/components/dropdown';
+import IconHorizontalDots from '@/components/icon/icon-horizontal-dots';
+import Link from 'next/link';
+
 const ComponentsDatatablesMultipleTables = () => {
     let products;
     const { data: pds, isLoading } = useGetAllProductsQuery();
+    const [deleteProduct] = useDeleteProductMutation();
     products = pds?.data;
     const [page, setPage] = useState(1);
     const PAGE_SIZES = [10, 20, 30];
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+    const [search, setSearch] = useState('');
 
     const [sortedRecords, setSortedRecords] = useState([]);
     const [records, setRecords] = useState([]);
@@ -20,9 +26,37 @@ const ComponentsDatatablesMultipleTables = () => {
         direction: 'asc',
     });
 
+    // handle delete
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteProduct(id).unwrap();
+        } catch (error) {
+            console.error('Failed to delete product:', error);
+        }
+    };
+
     useEffect(() => {
         setSortedRecords(sortBy(products, sortStatus.columnAccessor));
     }, [products, sortStatus]);
+
+    useEffect(() => {
+        let filteredData = products;
+
+        if (search.trim() !== '') {
+            const lowerSearch = search.toLowerCase();
+            filteredData = products.filter(
+                (item: any) =>
+                    item.product_name?.toLowerCase().includes(lowerSearch) ||
+                    item.description?.toLowerCase().includes(lowerSearch) ||
+                    String(item.price)?.toLowerCase().includes(lowerSearch) ||
+                    String(item.purchase_price)?.toLowerCase().includes(lowerSearch)
+            );
+        }
+
+        const sorted = sortBy(filteredData, sortStatus.columnAccessor);
+        setSortedRecords(sortStatus.direction === 'desc' ? sorted.reverse() : sorted);
+        setPage(1);
+    }, [products, sortStatus, search]);
 
     // pagination
     useEffect(() => {
@@ -36,9 +70,9 @@ const ComponentsDatatablesMultipleTables = () => {
         <div className="panel mt-6">
             <div className="mb-5 flex flex-col gap-5 md:flex-row md:items-center">
                 <h5 className="text-lg font-semibold dark:text-white-light">Product List</h5>
-                {/* <div className="ltr:ml-auto rtl:mr-auto">
-                        <input type="text" className="form-input w-auto" placeholder="Search..." value={search2} onChange={(e) => setSearch2(e.target.value)} />
-                    </div> */}
+                <div className="ltr:ml-auto rtl:mr-auto">
+                    <input type="text" className="form-input w-auto" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                </div>
             </div>
             <div className="datatables">
                 <DataTable
@@ -52,7 +86,15 @@ const ComponentsDatatablesMultipleTables = () => {
                             title: 'Quantity',
                             sortable: true,
                             render: ({ quantity }) => (
-                                <div className="progress-bar" style={{ width: `${quantity}%`, backgroundColor: '#4caf50', height: '20px', borderRadius: '4px' }}>
+                                <div
+                                    className="progress-bar"
+                                    style={{
+                                        width: `${quantity}%`,
+                                        backgroundColor: '#4caf50',
+                                        height: '20px',
+                                        borderRadius: '4px',
+                                    }}
+                                >
                                     <span style={{ paddingLeft: 5, color: 'white' }}>{quantity}</span>
                                 </div>
                             ),
@@ -60,8 +102,24 @@ const ComponentsDatatablesMultipleTables = () => {
                         { accessor: 'price', title: 'Price', sortable: true, render: ({ price }) => `$${Number(price).toFixed(2)}` },
                         { accessor: 'available', title: 'Available', sortable: true },
                         { accessor: 'purchase_price', title: 'Purchase Price', sortable: true, render: ({ purchase_price }) => `$${Number(purchase_price).toFixed(2)}` },
+                        {
+                            accessor: 'actions',
+                            title: 'Actions',
+                            render: (record: any) => (
+                                <Dropdown offset={[0, 5]} placement="bottom-end" btnClassName="text-primary" button={<IconHorizontalDots />}>
+                                    <ul>
+                                        <Link href={`/apps/products/edit/${record.id}`}>
+                                            <div className="cursor-pointer px-3 py-1 hover:bg-gray-100">Edit</div>
+                                        </Link>
+                                        <li className="cursor-pointer px-3 py-1 text-red-500 hover:bg-gray-100" onClick={() => handleDelete(record.id)}>
+                                            Delete
+                                        </li>
+                                    </ul>
+                                </Dropdown>
+                            ),
+                        },
                     ]}
-                    totalRecords={products.length}
+                    totalRecords={products?.length}
                     recordsPerPage={pageSize}
                     page={page}
                     onPageChange={setPage}
