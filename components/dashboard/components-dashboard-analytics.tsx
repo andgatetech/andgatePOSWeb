@@ -20,10 +20,10 @@ import IconTrendingUp from '@/components/icon/icon-trending-up';
 import IconUsersGroup from '@/components/icon/icon-users-group';
 import { IRootState } from '@/store';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import { useSelector } from 'react-redux';
 import PerfectScrollbar from 'react-perfect-scrollbar';
+import { useSelector } from 'react-redux';
 
 const ComponentsDashboardAnalytics = () => {
     const isDark = useSelector((state: IRootState) => state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode);
@@ -437,7 +437,7 @@ const ComponentsDashboardAnalytics = () => {
                         </div>
                         <div className=" my-10 text-3xl font-bold text-[#e95f2b]">
                             <span>$ 45,141 </span>
-                            <span className="text-sm text-black ltr:mr-2 rtl:ml-2 dark:text-white-light">this week</span>
+                            <span className="text-sm text-black dark:text-white-light ltr:mr-2 rtl:ml-2">this week</span>
                             <IconTrendingUp className="inline text-success" />
                         </div>
                         <div className="flex items-center justify-between">
@@ -447,7 +447,7 @@ const ComponentsDashboardAnalytics = () => {
                                     style={{ width: '65%' }}
                                 ></div>
                             </div>
-                            <span className="ltr:ml-5 rtl:mr-5 dark:text-white-light">57%</span>
+                            <span className="dark:text-white-light ltr:ml-5 rtl:mr-5">57%</span>
                         </div>
                     </div>
 
@@ -543,7 +543,7 @@ const ComponentsDashboardAnalytics = () => {
                                         <h5 className="font-semibold dark:text-white-light">
                                             New project created :{' '}
                                             <button type="button" className="text-success">
-                                                [VRISTO Admin Template]
+                                                [AndGate Admin Template]
                                             </button>
                                         </h5>
                                         <p className="text-xs text-white-dark">27 Feb, 2020</p>
@@ -746,7 +746,7 @@ const ComponentsDashboardAnalytics = () => {
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     <div className="panel h-full">
                         <div className="-m-5 mb-5 flex  items-start border-b border-white-light p-5 dark:border-[#1b2e4b]">
-                            <div className="shrink-0 rounded-full ring-2 ring-white-light ltr:mr-4 rtl:ml-4 dark:ring-dark">
+                            <div className="shrink-0 rounded-full ring-2 ring-white-light dark:ring-dark ltr:mr-4 rtl:ml-4">
                                 <img src="/assets/images/profile-1.jpeg" alt="profile1" className="h-10 w-10 rounded-full object-cover" />
                             </div>
                             <div className="font-semibold">
@@ -777,7 +777,7 @@ const ComponentsDashboardAnalytics = () => {
                         <div className="-m-5 mb-5 flex items-center  justify-between border-b border-white-light p-5 dark:border-[#1b2e4b]">
                             <div className="flex">
                                 <div className="media-aside align-self-start">
-                                    <div className="shrink-0 rounded-full ring-2 ring-white-light ltr:mr-4 rtl:ml-4 dark:ring-dark">
+                                    <div className="shrink-0 rounded-full ring-2 ring-white-light dark:ring-dark ltr:mr-4 rtl:ml-4">
                                         <img src="/assets/images/g-8.png" alt="profile2" className="h-10 w-10 rounded-full object-cover" />
                                     </div>
                                 </div>

@@ -1,39 +1,36 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import Link from 'next/link';
-import { IRootState } from '@/store';
-import { toggleTheme, toggleSidebar, toggleRTL } from '@/store/themeConfigSlice';
 import Dropdown from '@/components/dropdown';
-import IconMenu from '@/components/icon/icon-menu';
-import IconCalendar from '@/components/icon/icon-calendar';
-import IconPOS from '@/components/icon/icon-POS';
-import IconChatNotification from '@/components/icon/icon-chat-notification';
-import IconSearch from '@/components/icon/icon-search';
-import IconXCircle from '@/components/icon/icon-x-circle';
-import IconSun from '@/components/icon/icon-sun';
-import IconMoon from '@/components/icon/icon-moon';
-import IconLaptop from '@/components/icon/icon-laptop';
-import IconMailDot from '@/components/icon/icon-mail-dot';
 import IconArrowLeft from '@/components/icon/icon-arrow-left';
-import IconInfoCircle from '@/components/icon/icon-info-circle';
 import IconBellBing from '@/components/icon/icon-bell-bing';
-import IconUser from '@/components/icon/icon-user';
-import IconMail from '@/components/icon/icon-mail';
+import IconCaretDown from '@/components/icon/icon-caret-down';
+import IconInfoCircle from '@/components/icon/icon-info-circle';
+import IconLaptop from '@/components/icon/icon-laptop';
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconLogout from '@/components/icon/icon-logout';
-import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
-import IconCaretDown from '@/components/icon/icon-caret-down';
+import IconMail from '@/components/icon/icon-mail';
+import IconMailDot from '@/components/icon/icon-mail-dot';
+import IconMenu from '@/components/icon/icon-menu';
+import IconMoon from '@/components/icon/icon-moon';
+import IconSearch from '@/components/icon/icon-search';
+import IconSun from '@/components/icon/icon-sun';
+import IconUser from '@/components/icon/icon-user';
+import IconXCircle from '@/components/icon/icon-x-circle';
 import IconMenuApps from '@/components/icon/menu/icon-menu-apps';
 import IconMenuComponents from '@/components/icon/menu/icon-menu-components';
-import IconMenuElements from '@/components/icon/menu/icon-menu-elements';
+import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
 import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
+import IconMenuElements from '@/components/icon/menu/icon-menu-elements';
 import IconMenuForms from '@/components/icon/menu/icon-menu-forms';
-import IconMenuPages from '@/components/icon/menu/icon-menu-pages';
 import IconMenuMore from '@/components/icon/menu/icon-menu-more';
-import { usePathname, useRouter } from 'next/navigation';
+import IconMenuPages from '@/components/icon/menu/icon-menu-pages';
 import { getTranslation } from '@/i18n';
+import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
+import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Header = () => {
     const pathname = usePathname();
@@ -41,7 +38,6 @@ const Header = () => {
     const router = useRouter();
     const { t, i18n } = getTranslation();
     const [logout] = useLogoutMutation();
-   
 
     const handleLogout = async () => {
         try {
@@ -52,7 +48,7 @@ const Header = () => {
 
         localStorage.clear();
         sessionStorage.clear();
-        
+
         document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();
             document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -469,10 +465,6 @@ const Header = () => {
                             </Dropdown>
                         </div>
                     </div>
-
-
-
-                    
                 </div>
 
                 {/* horizontal menu */}
@@ -494,7 +486,6 @@ const Header = () => {
                             <li>
                                 <Link href="/pos">{t('POS')}</Link>
                             </li>
-                           
                         </ul>
                     </li>
                     <li className="menu nav-item relative">
@@ -981,7 +972,7 @@ const Header = () => {
                                 <Link href="/widgets">{t('widgets')}</Link>
                             </li>
                             <li>
-                                <Link href="https://vristo.sbthemes.com" target="_blank">
+                                <Link href="https://AndGate.sbthemes.com" target="_blank">
                                     {t('documentation')}
                                 </Link>
                             </li>

@@ -7,6 +7,7 @@ import IconX from '@/components/icon/icon-x';
 import Link from 'next/link';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeItemRedux, updateItemRedux, clearItemsRedux } from '@/store/features/Order/OrderSlice';
+
 import type { RootState } from '@/store';
 import { useCreateOrderMutation } from '@/store/features/Order/Order';
 import Swal from 'sweetalert2';
@@ -194,7 +195,7 @@ const BillToForm: React.FC = () => {
                     ← Back to Edit
                 </button>
                 {(() => {
-                    console.log(previewData);
+                    
                     return <ComponentsAppsInvoicePreview data={previewData} />;
                 })()}
             </div>
@@ -226,6 +227,7 @@ const BillToForm: React.FC = () => {
                                 </label>
                                 <input type="email" name="customerEmail" className="form-input flex-1" placeholder="Enter Email" value={formData.customerEmail} onChange={handleInputChange} />
                             </div>
+
                             <div className="mt-4 flex items-center">
                                 <label className="w-1/3 text-sm font-medium">Phone Number</label>
                                 <input type="text" name="customerPhone" className="form-input flex-1" placeholder="Enter Phone number" value={formData.customerPhone} onChange={handleInputChange} />

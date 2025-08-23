@@ -18,8 +18,8 @@ const ComponentsAuthLoginForm = () => {
     const [loginApi, { isLoading }] = useLoginMutation();
 
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({
-        email: 'dr@gmail.com',
-        password: 'secret123',
+        email: 'admin@defaultstore.com',
+        password: 'admin123',
     });
 
     const submitForm = async (e: FormEvent) => {
@@ -30,6 +30,7 @@ const ComponentsAuthLoginForm = () => {
 
             // ✅ Set token in cookie (instead of localStorage)
             document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
+            document.cookie = `role=${result.user.role}; path=/; max-age=${60 * 60 * 24};`;
 
             // ✅ Optional: Save user in Redux
             dispatch(login({ user: result.user, token: result.token }));
@@ -40,7 +41,7 @@ const ComponentsAuthLoginForm = () => {
             // ✅ Redirect
             setTimeout(() => {
                 router.push('/dashboard');
-            }, 1500);
+            },30);
         } catch (error: any) {
             console.error('Login failed:', error);
             toast.error(error?.data?.message || 'Login failed. Please check your credentials.');

@@ -6,10 +6,11 @@ import { Nunito } from 'next/font/google';
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | VRISTO - Multipurpose Tailwind Dashboard Template',
-        default: 'VRISTO - Multipurpose Tailwind Dashboard Template',
+        template: '%s | AndGate - POS System',
+        default: 'AndGate - POS System',
     },
 };
+
 const nunito = Nunito({
     weight: ['400', '500', '600', '700', '800'],
     subsets: ['latin'],

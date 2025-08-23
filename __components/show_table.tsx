@@ -19,13 +19,14 @@ const ShowTable = ({ children, title, codeHighlight, id, className = '' }: Panel
         store_location: '',
         store_contact: '',
     });
-    const [createStore, { isLoading }] = useCreateStoreMutation();
+    const [createStore] = useCreateStoreMutation();
 
     const handleCreateStore = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const res = await createStore(formData).unwrap();
             console.log('Store created successfully:', res);
+
             setIsModalOpen(false);
             setFormData({ store_name: '', store_location: '', store_contact: '' });
         } catch (error) {

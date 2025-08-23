@@ -4,6 +4,7 @@ import IconMail from '@/components/icon/icon-mail';
 import { login } from '@/store/features/auth/authSlice';
 import { useLoginSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { supplierLogin } from '@/store/features/supplier/supplierSlice';
+
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,19 +15,26 @@ const SupplierLoginForm = () => {
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
     const [loginSupplier, { isLoading }] = useLoginSupplierMutation();
+
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({ email: '', password: '' });
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            const result = await loginSupplier(credentials).unwrap();
+            const result = await loginApi(credentials).unwrap();
+
             document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
-            // dispatch(supplierLogin({ user: result.data, token: result.token }));
-            dispatch(login({ token: result.token }));
-            console.log('Logging in with credentials:', result);
-            dispatch(supplierLogin({ user: result.data }));
+            document.cookie = `role=${result.data.role}; path=/; max-age=${60 * 60 * 24};`;
+
+            // ✅ Optional: Save user in Redux
+            dispatch(login({ user: result.data, token: result.token }));
+
+            // ✅ Show success toast
             toast.success('Login successful! Redirecting to dashboard...');
-            router.push('/dashboard');
-            console.log('Login successful:', result);
+
+            // ✅ Redirect
+            setTimeout(() => {
+                router.push('/apps/supplier');
+            }, 100);
         } catch (error) {
             console.error('Login failed:', error);
         }
