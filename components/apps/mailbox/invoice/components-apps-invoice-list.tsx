@@ -1,8 +1,5 @@
 'use client';
-<<<<<<< HEAD
-=======
 
->>>>>>> 458cefee0147168071f6b63cf48f71121be18839
 import IconTrashLines from '@/components/icon/icon-trash-lines';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { sortBy } from 'lodash';
@@ -10,27 +7,9 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 
 const ComponentsAppsInvoiceList = () => {
-<<<<<<< HEAD
-    const { data: orders, isLoading } = useGetAllOrdersQuery();
-
-    console.log('Orders:', orders);
-    const [items, setItems] = useState([
-        {
-            id: 1,
-            invoice: '081451',
-            name: 'Laurie Fox',
-            email: 'lauriefox@company.com',
-            date: '15 Dec 2020',
-            amount: '2275.45',
-            status: { tooltip: 'Paid', color: 'success' },
-            profile: 'profile-1.jpeg',
-        },
-    ]);
-=======
     const { data: ods, isLoading } = useGetAllOrdersQuery();
     const orders = ods?.data;
     console.log('orders', orders);
->>>>>>> 458cefee0147168071f6b63cf48f71121be18839
 
     const [items, setItems] = useState<any[]>([]);
     const [page, setPage] = useState(1);
@@ -103,15 +82,7 @@ const ComponentsAppsInvoiceList = () => {
     return (
         <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
             <div className="invoice-table">
-<<<<<<< HEAD
-                <div className="mb-4.5 flex flex-col gap-5 px-5 md:flex-row md:items-center">
-                    <div className="ltr:ml-auto rtl:mr-auto">
-                        <input type="text" className="form-input w-auto" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                    </div>
-                </div>
-=======
                 <div className="mb-4.5 flex flex-col gap-5 px-5 md:flex-row md:items-center" />
->>>>>>> 458cefee0147168071f6b63cf48f71121be18839
 
                 <div className="datatables pagination-padding">
                     <DataTable
@@ -121,15 +92,7 @@ const ComponentsAppsInvoiceList = () => {
                             {
                                 accessor: 'invoice',
                                 sortable: true,
-<<<<<<< HEAD
-                                render: ({ invoice }) => (
-                                    <div>
-                                        <div className="font-semibold text-primary underline hover:no-underline">{`#${invoice}`}</div>
-                                    </div>
-                                ),
-=======
                                 render: ({ invoice }) => <div className="font-semibold text-primary underline hover:no-underline">#{invoice}</div>,
->>>>>>> 458cefee0147168071f6b63cf48f71121be18839
                             },
                             {
                                 accessor: 'name',
@@ -156,23 +119,19 @@ const ComponentsAppsInvoiceList = () => {
                                 sortable: true,
                                 render: ({ status }) => <span className={`badge badge-outline-${status.color}`}>{status.tooltip}</span>,
                             },
-                            {
-                                accessor: 'action',
-                                title: 'Actions',
-                                sortable: false,
-                                textAlignment: 'center',
-                                render: ({ id }) => (
-                                    <div className="mx-auto flex w-max items-center gap-4">
-<<<<<<< HEAD
-                                        <button type="button" className="flex hover:text-danger" onClick={(e) => deleteRow(id)}>
-=======
-                                        <button type="button" className="flex hover:text-danger" onClick={() => deleteRow(id)}>
->>>>>>> 458cefee0147168071f6b63cf48f71121be18839
-                                            <IconTrashLines />
-                                        </button>
-                                    </div>
-                                ),
-                            },
+                            // {
+                            //     accessor: 'action',
+                            //     title: 'Actions',
+                            //     sortable: false,
+                            //     textAlignment: 'center',
+                            //     render: ({ id }) => (
+                            //         <div className="mx-auto flex w-max items-center gap-4">
+                            //             <button type="button" className="flex hover:text-danger" onClick={() => deleteRow(id)}>
+                            //                 <IconTrashLines />
+                            //             </button>
+                            //         </div>
+                            //     ),
+                            // },
                         ]}
                         highlightOnHover
                         totalRecords={initialRecords.length}

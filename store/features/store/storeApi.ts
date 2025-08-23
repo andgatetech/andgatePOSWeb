@@ -1,10 +1,11 @@
 import { baseApi } from "@/store/api/baseApi";
 
 
+
 const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         createStore: builder.mutation({
-            query: (newStore:any) => ({
+            query: (newStore: any) => ({
                 url: '/stores',
                 method: 'POST',
                 body: newStore,
@@ -44,7 +45,29 @@ const StoreApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Stores'],
         }),
+
+        GetWhoLogin: builder.query({
+            query: () => ({
+                url: '/user',
+                method: 'GET',
+            }),
+        }),
+
+        getStaffMember: builder.query({
+            query: () => ({
+                url: '/store/members',
+                method: 'GET',
+            }),
+        }),
+        staffRegister: builder.mutation({
+            query: (newStaff) => ({
+                url: '/staff/register',
+                method: 'POST',
+                body: newStaff,
+            }),
+            
+        }),
     }),
 });
 
-export const { useCreateStoreMutation, useGetAllStoresQuery, useGetStoreByIdQuery, useUpdateStoreMutation, useDeleteStoreMutation } = StoreApi;
+export const { useCreateStoreMutation, useGetAllStoresQuery, useGetStoreByIdQuery, useUpdateStoreMutation, useDeleteStoreMutation, useGetWhoLoginQuery , useGetStaffMemberQuery, useStaffRegisterMutation } = StoreApi;

@@ -41,13 +41,13 @@ import IconZipFile from '@/components/icon/icon-zip-file';
 import { IRootState } from '@/store';
 import { Disclosure } from '@headlessui/react';
 import Tippy from '@tippyjs/react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import 'tippy.js/dist/tippy.css';
-import 'react-quill/dist/quill.snow.css';
 
 const ComponentsAppsMailbox = () => {
     const [mailList, setMailList] = useState([
@@ -829,7 +829,7 @@ const ComponentsAppsMailbox = () => {
 
     const defaultParams = {
         id: null,
-        from: 'vristo@mail.com',
+        from: 'AndGate@mail.com',
         to: '',
         cc: '',
         title: '',
@@ -1231,7 +1231,7 @@ const ComponentsAppsMailbox = () => {
                     onClick={() => setIsShowMailMenu(!isShowMailMenu)}
                 ></div>
                 <div
-                    className={`panel dark:gray-50 absolute z-10 hidden h-full w-[250px] max-w-full flex-none space-y-3 overflow-hidden p-4 ltr:rounded-r-none rtl:rounded-l-none xl:relative xl:block xl:h-auto ltr:xl:rounded-r-md rtl:xl:rounded-l-md ${
+                    className={`panel dark:gray-50 absolute z-10 hidden h-full w-[250px] max-w-full flex-none space-y-3 overflow-hidden p-4 xl:relative xl:block xl:h-auto ltr:rounded-r-none ltr:xl:rounded-r-md rtl:rounded-l-none rtl:xl:rounded-l-md ${
                         isShowMailMenu ? '!block' : ''
                     }`}
                 >
@@ -1589,7 +1589,7 @@ const ComponentsAppsMailbox = () => {
 
                                 <div className="flex w-full items-center justify-between sm:w-auto">
                                     <div className="flex items-center ltr:mr-4 rtl:ml-4">
-                                        <button type="button" className="block hover:text-primary ltr:mr-3 rtl:ml-3 xl:hidden" onClick={() => setIsShowMailMenu(!isShowMailMenu)}>
+                                        <button type="button" className="block hover:text-primary xl:hidden ltr:mr-3 rtl:ml-3" onClick={() => setIsShowMailMenu(!isShowMailMenu)}>
                                             <IconMenu />
                                         </button>
                                         <div className="group relative">
@@ -1684,7 +1684,7 @@ const ComponentsAppsMailbox = () => {
                                         <button
                                             type="button"
                                             disabled={pager.currentPage === 1}
-                                            className="rounded-md bg-[#f4f4f4] p-1 enabled:hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60 ltr:mr-3 rtl:ml-3 dark:bg-white-dark/20 enabled:dark:hover:bg-white-dark/30"
+                                            className="rounded-md bg-[#f4f4f4] p-1 enabled:hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white-dark/20 enabled:dark:hover:bg-white-dark/30 ltr:mr-3 rtl:ml-3"
                                             onClick={() => {
                                                 pager.currentPage--;
                                                 searchMails(false);
@@ -1812,7 +1812,7 @@ const ComponentsAppsMailbox = () => {
                                     <button type="button" className="hover:text-primary ltr:mr-2 rtl:ml-2" onClick={() => setSelectedMail(null)}>
                                         <IconArrowLeft className="h-5 w-5 rotate-180" />
                                     </button>
-                                    <h4 className="text-base font-medium ltr:mr-2 rtl:ml-2 md:text-lg">{selectedMail.title}</h4>
+                                    <h4 className="text-base font-medium md:text-lg ltr:mr-2 rtl:ml-2">{selectedMail.title}</h4>
                                     <div className="badge bg-info hover:top-0">{selectedMail.type}</div>
                                 </div>
                                 <div>
@@ -1869,13 +1869,13 @@ const ComponentsAppsMailbox = () => {
                                                         <li>
                                                             <div className="flex items-center px-4 py-2">
                                                                 <div className="w-1/4 text-white-dark ltr:mr-2 rtl:ml-2">From:</div>
-                                                                <div className="flex-1 truncate">{selectedMail.type === 'sent_mail' ? 'vristo@gmail.com' : selectedMail.email}</div>
+                                                                <div className="flex-1 truncate">{selectedMail.type === 'sent_mail' ? 'AndGate@gmail.com' : selectedMail.email}</div>
                                                             </div>
                                                         </li>
                                                         <li>
                                                             <div className="flex items-center px-4 py-2">
                                                                 <div className="w-1/4 text-white-dark ltr:mr-2 rtl:ml-2">To:</div>
-                                                                <div className="flex-1 truncate">{selectedMail.type !== 'sent_mail' ? 'vristo@gmail.com' : selectedMail.email}</div>
+                                                                <div className="flex-1 truncate">{selectedMail.type !== 'sent_mail' ? 'AndGate@gmail.com' : selectedMail.email}</div>
                                                             </div>
                                                         </li>
                                                         <li>
@@ -1951,7 +1951,7 @@ const ComponentsAppsMailbox = () => {
                                                     <button
                                                         key={i}
                                                         type="button"
-                                                        className="group relative mb-4 flex items-center rounded-md border border-white-light px-4 py-2.5 transition-all duration-300 hover:border-primary hover:text-primary ltr:mr-4 rtl:ml-4 dark:border-[#1b2e4b]"
+                                                        className="group relative mb-4 flex items-center rounded-md border border-white-light px-4 py-2.5 transition-all duration-300 hover:border-primary hover:text-primary dark:border-[#1b2e4b] ltr:mr-4 rtl:ml-4"
                                                     >
                                                         {attachment.type === 'image' && <IconGallery />}
                                                         {attachment.type === 'folder' && <IconFolder />}
@@ -1979,7 +1979,7 @@ const ComponentsAppsMailbox = () => {
                     {isEdit && (
                         <div className="relative">
                             <div className="flex items-center px-6 py-4">
-                                <button type="button" className="block hover:text-primary ltr:mr-3 rtl:ml-3 xl:hidden" onClick={() => setIsShowMailMenu(!isShowMailMenu)}>
+                                <button type="button" className="block hover:text-primary xl:hidden ltr:mr-3 rtl:ml-3" onClick={() => setIsShowMailMenu(!isShowMailMenu)}>
                                     <IconMenu />
                                 </button>
                                 <h4 className="text-lg font-medium text-gray-600 dark:text-gray-400">Message</h4>
