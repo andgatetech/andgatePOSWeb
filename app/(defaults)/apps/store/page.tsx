@@ -1,22 +1,23 @@
 'use client';
 import ShowTable from '@/__components/show_table';
-
+import IconTrashLines from '@/components/icon/icon-trash-lines';
+import { useGetAllStoresQuery } from '@/store/features/store/storeApi';
+import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
-
 const Store = () => {
     // Sample data for the table
-    // const { data: stores, isLoading, error, refetch } = useGetStoresQuery();
-    // console.log('stores', stores);
-    // if (isLoading) return <div>Loading...</div>;
-    // if (error) return <div>Error loading stores: {error.message}</div>;
-    // if (stores.length === 0) return <div>No stores available.</div>;
+    const { data: stores, isLoading, error, refetch } = useGetAllStoresQuery();
+    console.log('stores', stores);
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error loading stores: {error.message}</div>;
+    if (stores?.data?.length === 0) return <div>No stores available.</div>;
 
-    // const tableData = stores?.map((store, index) => ({
-    //     id: store.id,
-    //     name: store.store_name,
-    //     location: store.store_location,
-    //     contact: store.store_contact,
-    // }));
+    const tableData = stores?.data?.map((store, index) => ({
+        id: store.id,
+        name: store.store_name,
+        location: store.store_location,
+        contact: store.store_contact,
+    }));
 
     return (
         <ShowTable title="Store List">
@@ -31,7 +32,7 @@ const Store = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* {tableData.map((data) => {
+                        {tableData.map((data) => {
                             return (
                                 <tr key={data.id}>
                                     <td>
@@ -48,7 +49,7 @@ const Store = () => {
                                     </td>
                                 </tr>
                             );
-                        })} */}
+                        })}
                     </tbody>
                 </table>
             </div>
