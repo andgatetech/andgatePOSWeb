@@ -1,9 +1,9 @@
 'use client';
 
 import IconPlus from '@/components/icon/icon-plus';
+import { useCreateCategoryMutation } from '@/store/features/category/categoryApi';
 import { ReactNode, useState } from 'react';
 import StoreModal from './CreateStoreModal';
-import { useCategoryCreateMutation } from '@/store/features/category/categoryApi';
 
 interface PanelCodeHighlightProps {
     children: ReactNode;
@@ -20,7 +20,7 @@ const ShowCategory: React.FC<PanelCodeHighlightProps> = ({ children, title, code
         description: '',
     });
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [categoryCreate, { isLoading }] = useCategoryCreateMutation();
+    const [categoryCreate, { isLoading }] = useCreateCategoryMutation();
 
     const handleCreateCategory = async (e: React.FormEvent) => {
         e.preventDefault();

@@ -4,12 +4,18 @@ import IconMail from '@/components/icon/icon-mail';
 import IconPhone from '@/components/icon/icon-phone';
 import IconUser from '@/components/icon/icon-user';
 import IconXCircle from '@/components/icon/icon-x-circle';
-import { useRegisterMutation } from '@/store/features/auth/authApi';
+import { login } from '@/store/features/auth/authSlice';
 import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { useRouter } from 'next/navigation';
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { login } from '@/store/features/auth/authSlice';
+=======
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+>>>>>>> 458cefee0147168071f6b63cf48f71121be18839
 
 const SupplierRegisterForm = () => {
     const router = useRouter();
@@ -30,8 +36,12 @@ const SupplierRegisterForm = () => {
             const result = await registerSupplier(credentials).unwrap();
             dispatch(login({ user: result.user, token: result.token }));
             console.log('Registration successful:', result);
+            setCredentials({ email: '', password: '', name: '', password_confirmation: '', phone: '', address: '' });
+            toast.success('Registration successful!');
+            router.push('/dashboard');
         } catch (error) {
             console.error('Registration failed:', error);
+            toast.error('Registration failed!');
         }
     };
     return (
