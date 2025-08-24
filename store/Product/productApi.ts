@@ -12,13 +12,13 @@ const ProductApi = baseApi.injectEndpoints({
         }),
 
         getAllProducts: builder.query({
-    query: (filters = {}) => ({
-        url: '/products',
-        method: 'GET',
-        params: filters, // Let Laravel ignore empty ones
-    }),
-    providesTags: ['Products','Orders'],
-}),
+            query: (filters = {}) => ({
+                url: '/products',
+                method: 'GET',
+                params: filters, // Let Laravel ignore empty ones
+            }),
+            providesTags: ['Products', 'Orders'],
+        }),
 
         updateAvailability: builder.mutation({
             query: ({ id, available }) => ({
@@ -36,7 +36,14 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products'],
         }),
+        getActivityLog: builder.query({
+            query: () => ({
+                url: 'store/activity',
+                method: 'GET',
+            }),
+           
+        }),
     }),
 });
 
-export const { useCreateProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation, useDeleteProductMutation } = ProductApi;
+export const { useCreateProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation, useDeleteProductMutation , useGetActivityLogQuery } = ProductApi;
