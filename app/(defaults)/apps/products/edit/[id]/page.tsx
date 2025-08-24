@@ -3,7 +3,7 @@
 import { useGetSingleProductQuery, useUpdateProductMutation } from '@/store/Product/productApi';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
+import { toast } from 'react-toastify';
 interface Props {
     params: { id: string };
 }
@@ -66,10 +66,23 @@ export default function UpdateProductPage({ params }: Props) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await updateProduct({ id, ...formData }).unwrap();
-            router.push('/apps/products'); // redirect to product list after update
+            const res = await updateProduct({ id, ...formData }).unwrap();
+            console.log('Update response:', res);
+            if (res.success) {
+                setFormData({
+                    product_name: '',
+                    description: '',
+                    quantity: 0,
+                    price: 0,
+                    available: 'no',
+                    purchase_price: 0,
+                });
+                toast.success('Product updated successfully');
+                router.push('/apps/products');
+            }
         } catch (error) {
             console.error('Failed to update product:', error);
+            toast.error('Failed to update product');
         }
     };
 

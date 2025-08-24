@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, ChevronDown, ChevronUp, Filter, Package, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, Filter, Package, AlertCircle, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
 import { useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import Link from 'next/link';
+// import Dropdown from '../dropdown';
+import Dropdown from '@/components/dropdown';
 
 const ProductTable = () => {
     // API calls
@@ -262,6 +265,9 @@ const ProductTable = () => {
                                             {sortField === 'price' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
+                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('price')}>
+                                        <div className="flex items-center gap-2">Action</div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
@@ -326,6 +332,18 @@ const ProductTable = () => {
                                             <td className="whitespace-nowrap px-6 py-4">
                                                 <div className="text-sm font-medium text-gray-900">${Number(product.price).toFixed(2)}</div>
                                                 <div className="text-xs text-green-600">+${(Number(product.price) - Number(product.purchase_price)).toFixed(2)} profit</div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <Dropdown offset={[0, 5]} placement="bottom-end" btnClassName="text-gray-600 hover:text-gray-800" button={<MoreVertical className="h-5 w-5" />}>
+                                                    <ul className="rounded-md bg-white shadow-md">
+                                                        <li>
+                                                            <Link href={`/apps/products/edit/${product.id}`}>
+                                                                <div className="cursor-pointer px-3 py-1 hover:bg-gray-100">Edit</div>
+                                                            </Link>
+                                                        </li>
+                                                        <li className="cursor-pointer px-3 py-1 text-red-500 hover:bg-gray-100">Delete</li>
+                                                    </ul>
+                                                </Dropdown>
                                             </td>
                                         </tr>
                                     );

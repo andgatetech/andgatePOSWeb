@@ -2,6 +2,7 @@
 
 import PanelCodeHighlight from '@/components/panel-code-highlight';
 import { useGetCategoriesQuery } from '@/store/features/category/categoryApi';
+import { useGetAllStoreAdminStoresQuery } from '@/store/features/store/storeApi';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { useCreateProductMutation } from '@/store/Product/productApi';
 import { useRouter } from 'next/navigation';
@@ -12,15 +13,14 @@ const ComponentsFormsLayoutsGrid = () => {
     const router = useRouter();
     const { data: ct, isLoading: catLoading } = useGetCategoriesQuery();
     const { data: sp, isLoading: supLoading } = useGetSuppliersQuery();
+    // const { data: st, isLoading: storeLoading } = useGetAllStoreAdminStoresQuery();
     const suppliers = sp?.data || [];
     const categories = ct?.data || [];
+    // const stores = st?.data || [];
     const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
 
     const [formData, setFormData] = useState({
         category_id: '',
-        category_name: '',
-        supplier_id: '',
-        supplier_name: '',
         product_name: '',
         description: '',
         price: '',
@@ -37,8 +37,8 @@ const ComponentsFormsLayoutsGrid = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.category_id || !formData.supplier_id) {
-            toast.error('Please select Category and Supplier!');
+        if (!formData.category_id) {
+            toast.error('Please select Category!');
             return;
         }
 
@@ -46,7 +46,6 @@ const ComponentsFormsLayoutsGrid = () => {
             const result = await createProduct({
                 ...formData,
                 category_id: Number(formData.category_id),
-                supplier_id: Number(formData.supplier_id),
                 price: Number(formData.price),
                 quantity: Number(formData.quantity),
                 purchase_price: Number(formData.purchase_price),
@@ -54,9 +53,6 @@ const ComponentsFormsLayoutsGrid = () => {
 
             setFormData({
                 category_id: '',
-                category_name: '',
-                supplier_id: '',
-                supplier_name: '',
                 product_name: '',
                 description: '',
                 price: '',
@@ -64,7 +60,6 @@ const ComponentsFormsLayoutsGrid = () => {
                 quantity: '',
                 purchase_price: '',
             });
-
             toast.success('Product created successfully!');
             router.push('/apps/products');
         } catch (error) {
@@ -126,7 +121,7 @@ const ComponentsFormsLayoutsGrid = () => {
                             setFormData((prev) => ({
                                 ...prev,
                                 category_name: e.target.value,
-                                category_id: '', // typing করলে id reset হবে
+                                category_id: '',
                             }))
                         }
                         placeholder="Search Category..."
@@ -156,8 +151,49 @@ const ComponentsFormsLayoutsGrid = () => {
                     )}
                 </div>
 
-                {/* Supplier Searchable Dropdown */}
+                {/* Store Searchable Dropdown
                 <div className="relative">
+                    <label htmlFor="store_id">Store</label>
+                    <input
+                        id="store_id"
+                        type="text"
+                        value={formData.store_name || ''}
+                        onChange={(e) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                store_name: e.target.value,
+                                store_id: '',
+                            }))
+                        }
+                        placeholder="Search Store..."
+                        className="form-input w-full"
+                        autoComplete="off"
+                    />
+                    {stores?.length > 0 && formData.store_name && !formData.store_id && (
+                        <ul className="absolute z-10 max-h-40 w-full overflow-y-auto border bg-white shadow-lg">
+                            {stores
+                                .filter((store: any) => store.name.toLowerCase().includes(formData.store_name.toLowerCase()))
+                                .map((store: any) => (
+                                    <li
+                                        key={store.id}
+                                        className="cursor-pointer p-2 hover:bg-gray-200"
+                                        onClick={() =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                store_name: store.name,
+                                                store_id: store.id,
+                                            }))
+                                        }
+                                    >
+                                        {store.name}
+                                    </li>
+                                ))}
+                        </ul>
+                    )}
+                </div> */}
+
+                {/* Supplier Searchable Dropdown */}
+                {/* <div className="relative">
                     <label htmlFor="supplier_id">Supplier</label>
                     <input
                         id="supplier_id"
@@ -167,7 +203,7 @@ const ComponentsFormsLayoutsGrid = () => {
                             setFormData((prev) => ({
                                 ...prev,
                                 supplier_name: e.target.value,
-                                supplier_id: '', // typing করলে id reset হবে
+                                supplier_id: '',
                             }))
                         }
                         placeholder="Search Supplier..."
@@ -195,7 +231,7 @@ const ComponentsFormsLayoutsGrid = () => {
                                 ))}
                         </ul>
                     )}
-                </div>
+                </div> */}
 
                 <button type="submit" disabled={createLoading} className="btn btn-primary !mt-6">
                     {createLoading ? 'Submitting...' : 'Submit'}
