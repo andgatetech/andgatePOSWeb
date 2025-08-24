@@ -12,7 +12,7 @@ const PurchaseManagement = () => {
     const { data, isLoading, refetch } = useGetAllPurchasesQuery();
     const [receivePurchase] = useReceivePurchaseMutation();
     const purchases = data?.data || [];
-
+    console.log('Purchases:', purchases);
     // State management
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
