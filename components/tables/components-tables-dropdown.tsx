@@ -12,7 +12,7 @@ const PurchaseManagement = () => {
     const { data, isLoading, refetch } = useGetAllPurchasesQuery();
     const [receivePurchase] = useReceivePurchaseMutation();
     const purchases = data?.data || [];
-
+    console.log('Purchases:', purchases);
     // State management
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -182,8 +182,6 @@ const PurchaseManagement = () => {
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="mx-auto max-w-7xl">
-               
-
                 {/* Stats Cards */}
                 <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                     <div className="rounded-lg border bg-white p-6 shadow-sm">
@@ -215,8 +213,6 @@ const PurchaseManagement = () => {
                             <Clock className="h-8 w-8 text-orange-500" />
                         </div>
                     </div>
-
-                    
                 </div>
 
                 {/* Filters */}
@@ -327,7 +323,6 @@ const PurchaseManagement = () => {
                                                             <span className="ml-2 flex-shrink-0 rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">{item.quantity}</span>
                                                         </div>
                                                     ))}
-                                                    
                                                 </div>
                                             </td>
 
@@ -385,7 +380,6 @@ const PurchaseManagement = () => {
                                                                     <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
                                                                     Mark as Received
                                                                 </button>
-                                                                
                                                             </div>
                                                         </div>
                                                     )}

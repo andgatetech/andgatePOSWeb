@@ -1,10 +1,10 @@
 'use client';
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
-import { useLoginMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { useLoginSupplierMutation } from '@/store/features/supplier/supplierApi';
-// import { useLoginMutation } from '@/store/api/baseApi';
+import { supplierLogin } from '@/store/features/supplier/supplierSlice';
+
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,35 +14,31 @@ const SupplierLoginForm = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-    const [loginApi, { isLoading }] = useLoginSupplierMutation();
+    const [loginSupplier, { isLoading }] = useLoginSupplierMutation();
+
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({ email: '', password: '' });
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
             const result = await loginApi(credentials).unwrap();
-           
 
-                        document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
-                        document.cookie = `role=${result.data.role}; path=/; max-age=${60 * 60 * 24};`;
-            
-                        // ✅ Optional: Save user in Redux
-                        dispatch(login({ user: result.data, token: result.token }));
-            
-                        // ✅ Show success toast
-                        toast.success('Login successful! Redirecting to dashboard...');
-            
-                        // ✅ Redirect
-                        setTimeout(() => {
-                            router.push('/apps/supplier');
-                        }, 100);
+            document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
+            document.cookie = `role=${result.data.role}; path=/; max-age=${60 * 60 * 24};`;
+
+            // ✅ Optional: Save user in Redux
+            dispatch(login({ user: result.data, token: result.token }));
+
+            // ✅ Show success toast
+            toast.success('Login successful! Redirecting to dashboard...');
+
+            // ✅ Redirect
+            setTimeout(() => {
+                router.push('/apps/supplier');
+            }, 100);
         } catch (error) {
             console.error('Login failed:', error);
         }
     };
-
-    // if (isAuthenticated && user) {
-    //     router.push('/dashboard');
-    // }
 
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>

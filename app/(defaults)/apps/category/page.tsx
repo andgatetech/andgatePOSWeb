@@ -9,6 +9,7 @@ import 'tippy.js/dist/tippy.css';
 const Category = () => {
     const { data: categories, isLoading, error, refetch } = useGetCategoriesQuery();
     console.log('categories', categories);
+    console.log('error', error);
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error loading categories: {error.message}</div>;
     if (categories.data.length === 0) return <div>No categories available.</div>;

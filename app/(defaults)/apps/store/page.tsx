@@ -10,7 +10,6 @@ const Store = () => {
     console.log('stores', stores);
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error loading stores: {error.message}</div>;
-    // if (stores?.data?.length === 0) return <div>No stores available.</div>;
 
     const tableData = stores?.data?.map((store, index) => ({
         id: store.id,

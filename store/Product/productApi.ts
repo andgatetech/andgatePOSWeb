@@ -4,7 +4,7 @@ const ProductApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         createProduct: builder.mutation({
             query: (newProduct) => ({
-                url: '/products',
+                url: '/store/products',
                 method: 'POST',
                 body: newProduct,
             }),
@@ -20,11 +20,28 @@ const ProductApi = baseApi.injectEndpoints({
             providesTags: ['Products', 'Orders'],
         }),
 
+        getSingleProduct: builder.query({
+            query: (id) => ({
+                url: `/store/products/${id}`,
+                method: 'GET',
+            }),
+            providesTags: ['Products'],
+        }),
+
+
         updateAvailability: builder.mutation({
             query: ({ id, available }) => ({
                 url: `/products/${id}/availability`,
                 method: 'PUT',
                 body: { available },
+            }),
+            invalidatesTags: ['Products'],
+        }),
+        updateProduct: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/store/products/${id}`,
+                method: 'PUT',
+                body: data,
             }),
             invalidatesTags: ['Products'],
         }),
@@ -46,4 +63,5 @@ const ProductApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useCreateProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation, useDeleteProductMutation , useGetActivityLogQuery } = ProductApi;
+
+export const { useCreateProductMutation, useGetAllProductsQuery, useGetSingleProductQuery, useUpdateProductMutation, useDeleteProductMutation, useUpdateAvailabilityMutation,useGetActivityLogQuery } = ProductApi;
