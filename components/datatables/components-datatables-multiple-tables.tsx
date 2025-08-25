@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Search, ChevronDown, ChevronUp, Filter, Package, AlertCircle, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
-import { useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, Filter, MoreVertical, Package, Search, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 // import Dropdown from '../dropdown';
 import Dropdown from '@/components/dropdown';
 
@@ -12,6 +12,7 @@ const ProductTable = () => {
     const { data: pds, isLoading } = useGetAllProductsQuery();
     const products = pds?.data || [];
     const [updateAvailability] = useUpdateAvailabilityMutation();
+    const [deleteProduct] = useDeleteProductMutation();
 
     // State management
     const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +35,15 @@ const ProductTable = () => {
             toast.classList.add('translate-x-full', 'opacity-0');
             setTimeout(() => document.body.removeChild(toast), 300);
         }, 3000);
+    };
+
+    const handleDeleteProduct = async (productId) => {
+        try {
+            await deleteProduct(productId).unwrap();
+            showToast('Product deleted successfully', 'success');
+        } catch (error) {
+            showToast('Failed to delete product', 'error');
+        }
     };
 
     // Handle availability toggle
@@ -223,7 +233,7 @@ const ProductTable = () => {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th
-                                        className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                                        className="cursor-pointer px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
                                         onClick={() => handleSort('product_name')}
                                     >
                                         <div className="flex items-center gap-2">
@@ -231,7 +241,7 @@ const ProductTable = () => {
                                             {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Description</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Description</th>
                                     <th
                                         className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
                                         onClick={() => handleSort('quantity')}
@@ -242,7 +252,7 @@ const ProductTable = () => {
                                         </div>
                                     </th>
                                     <th
-                                        className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                                        className="cursor-pointer px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
                                         onClick={() => handleSort('available')}
                                     >
                                         <div className="flex items-center gap-2">
@@ -251,7 +261,7 @@ const ProductTable = () => {
                                         </div>
                                     </th>
                                     <th
-                                        className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                                        className="cursor-pointer px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
                                         onClick={() => handleSort('purchase_price')}
                                     >
                                         <div className="flex items-center gap-2">
@@ -259,13 +269,13 @@ const ProductTable = () => {
                                             {sortField === 'purchase_price' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('price')}>
+                                    <th className="cursor-pointer px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('price')}>
                                         <div className="flex items-center gap-2">
                                             Selling Price
                                             {sortField === 'price' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('price')}>
+                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-tight text-gray-500 hover:bg-gray-100" onClick={() => handleSort('price')}>
                                         <div className="flex items-center gap-2">Action</div>
                                     </th>
                                 </tr>
@@ -341,7 +351,9 @@ const ProductTable = () => {
                                                                 <div className="cursor-pointer px-3 py-1 hover:bg-gray-100">Edit</div>
                                                             </Link>
                                                         </li>
-                                                        <li className="cursor-pointer px-3 py-1 text-red-500 hover:bg-gray-100">Delete</li>
+                                                        <li onClick={() => handleDeleteProduct(product.id)} className="cursor-pointer px-3 py-1 text-red-500 hover:bg-gray-100">
+                                                            Delete
+                                                        </li>
                                                     </ul>
                                                 </Dropdown>
                                             </td>

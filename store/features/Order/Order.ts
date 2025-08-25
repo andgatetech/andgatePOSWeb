@@ -1,15 +1,14 @@
-import { baseApi } from "@/store/api/baseApi";
-
+import { baseApi } from '@/store/api/baseApi';
 
 const OrderApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         createOrder: builder.mutation({
-            query: (newOrder:any) => ({
+            query: (newOrder: any) => ({
                 url: '/orders',
                 method: 'POST',
                 body: newOrder,
             }),
-            invalidatesTags: ['Orders','Products','Transactions'],
+            invalidatesTags: ['Orders', 'Products', 'Transactions'],
         }),
 
         getAllOrders: builder.query({
@@ -27,7 +26,14 @@ const OrderApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Orders'],
         }),
+        getOrderItems: builder.query({
+            query: (id: any) => ({
+                url: `/orders/${id}/items`,
+                method: 'GET',
+            }),
+            providesTags: ['Orders'],
+        }),
     }),
 });
 
-export const { useCreateOrderMutation, useGetAllOrdersQuery, useGetOrderByIdQuery } = OrderApi;
+export const { useCreateOrderMutation, useGetAllOrdersQuery, useGetOrderByIdQuery, useGetOrderItemsQuery } = OrderApi;

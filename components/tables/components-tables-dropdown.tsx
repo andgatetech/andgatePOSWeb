@@ -4,9 +4,26 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Filter, ShoppingCart, Clock, CheckCircle, XCircle, Package, DollarSign, MoreVertical, Eye, Download, Truck } from 'lucide-react';
 import { useGetAllPurchasesQuery, useReceivePurchaseMutation } from '@/store/features/purchase/purchase';
 import { useSelector } from 'react-redux';
+import PurchaseItemsModal from '../apps/mailbox/invoice/purchase_items_modal';
+import IconEye from '../icon/icon-eye';
 
 const PurchaseManagement = () => {
+    const [id, setSelectedId] = useState(undefined);
+    const [modalOpen, setModalOpen] = useState(false);
     const isRtl = useSelector((state) => state.themeConfig.rtlClass) === 'rtl';
+
+    const handleViewItems = async (id) => {
+        try {
+            if (!id) {
+                console.error('Invalid order id');
+                return;
+            }
+            setSelectedId(id);
+            setModalOpen(true);
+        } catch (err) {
+            console.error('Failed to fetch items', err);
+        }
+    };
 
     // API calls
     const { data, isLoading, refetch } = useGetAllPurchasesQuery();
@@ -285,13 +302,14 @@ const PurchaseManagement = () => {
                         <table className="w-full">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Purchase ID</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Purchase ID</th>
                                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Product Details</th>
-                                    <th className="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Total Items</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Payment Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Order Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Total Amount</th>
-                                    <th className="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                                    <th className="px-4 py-4 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Total Items</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Payment Status</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Order Status</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Total Amount</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Marked Items</th>
+                                    <th className="px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">View Items</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
@@ -385,6 +403,13 @@ const PurchaseManagement = () => {
                                                     )}
                                                 </div>
                                             </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <div className="text-sm font-bold text-gray-900">
+                                                    <button type="button" className="flex hover:text-danger" onClick={() => handleViewItems(purchase?.id)}>
+                                                        <IconEye />
+                                                    </button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     );
                                 })}
@@ -448,6 +473,8 @@ const PurchaseManagement = () => {
                     )}
                 </div>
             </div>
+            {/* Modal for viewing purchase items */}
+            <PurchaseItemsModal open={modalOpen} onClose={() => setModalOpen(false)} id={id} />
         </div>
     );
 };

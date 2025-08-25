@@ -1,15 +1,30 @@
 'use client';
 
+import IconEye from '@/components/icon/icon-eye';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
-import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
+import { useGetAllOrdersQuery, useGetOrderItemsQuery } from '@/store/features/Order/Order';
 import { sortBy } from 'lodash';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
+import OrderItemsModal from './ordeo_items_modal';
 
 const ComponentsAppsInvoiceList = () => {
+    // const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    const [selectedId, setSelectedId] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
     const { data: ods, isLoading } = useGetAllOrdersQuery();
     const orders = ods?.data;
-    console.log('orders', orders);
+    // console.log('orders', orders);
+
+    const handleViewItems = async (id) => {
+        try {
+            // setSelectedItems(items);
+            setSelectedId(id);
+            setModalOpen(true);
+        } catch (err) {
+            console.error('Failed to fetch items', err);
+        }
+    };
 
     const [items, setItems] = useState<any[]>([]);
     const [page, setPage] = useState(1);
@@ -119,19 +134,19 @@ const ComponentsAppsInvoiceList = () => {
                                 sortable: true,
                                 render: ({ status }) => <span className={`badge badge-outline-${status.color}`}>{status.tooltip}</span>,
                             },
-                            // {
-                            //     accessor: 'action',
-                            //     title: 'Actions',
-                            //     sortable: false,
-                            //     textAlignment: 'center',
-                            //     render: ({ id }) => (
-                            //         <div className="mx-auto flex w-max items-center gap-4">
-                            //             <button type="button" className="flex hover:text-danger" onClick={() => deleteRow(id)}>
-                            //                 <IconTrashLines />
-                            //             </button>
-                            //         </div>
-                            //     ),
-                            // },
+                            {
+                                accessor: 'action',
+                                title: 'View Items',
+                                sortable: false,
+                                textAlignment: 'center',
+                                render: ({ id }) => (
+                                    <div className="mx-auto flex w-max items-center gap-4">
+                                        <button type="button" className="flex hover:text-danger" onClick={() => handleViewItems(id)}>
+                                            <IconEye />
+                                        </button>
+                                    </div>
+                                ),
+                            },
                         ]}
                         highlightOnHover
                         totalRecords={initialRecords.length}
@@ -148,6 +163,8 @@ const ComponentsAppsInvoiceList = () => {
                     />
                 </div>
             </div>
+            {/* Modal */}
+            <OrderItemsModal open={modalOpen} onClose={() => setModalOpen(false)} id={selectedId} />
         </div>
     );
 };

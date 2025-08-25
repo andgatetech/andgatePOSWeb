@@ -1,6 +1,4 @@
-import { baseApi } from "@/store/api/baseApi";
-
-
+import { baseApi } from '@/store/api/baseApi';
 
 const PurchaseApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -53,7 +51,15 @@ const PurchaseApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Purchases'],
         }),
+        getPurchaseItems: builder.query({
+            query: (id) => ({
+                url: `/purchases/${id}/items`,
+                method: 'GET',
+            }),
+            providesTags: ['Purchases'],
+        }),
     }),
 });
 
-export const { useCreatePurchaseMutation, useGetAllPurchasesQuery, useGetPurchaseByIdQuery, useReceivePurchaseMutation, useUpdatePurchaseStatusMutation,useGetAllPurchasesTransactionsQuery } = PurchaseApi;
+export const { useCreatePurchaseMutation, useGetAllPurchasesQuery, useGetPurchaseByIdQuery, useReceivePurchaseMutation, useUpdatePurchaseStatusMutation, useGetAllPurchasesTransactionsQuery, useGetPurchaseItemsQuery } =
+    PurchaseApi;
