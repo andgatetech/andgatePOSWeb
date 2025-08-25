@@ -1,72 +1,81 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-=======
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
->>>>>>> bbe1b40749ea87fdc7d041f76b62dc5ac90cd03d
+<h1 align="center">🏪 AndGate POS</h1>
 
-## Getting Started
+<p align="center">
+  <b>A modern Point of Sale (POS) web application built with Next.js, React, TailwindCSS & Redux Toolkit</b>
+</p>
 
-First, run the development server:
+<p align="center">
+  <!-- Badges -->
+  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
+  <img src="https://img.shields.io/badge/Redux%20Toolkit-8-764ABC?style=for-the-badge&logo=redux&logoColor=white" alt="Redux Toolkit" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
+</p>
+
+---
+
+## 🚀 Features
+
+-   Store management (Products, Categories, Suppliers, Staff, Purchases, Orders, Invoices )
+-   Authentication (Login, Register, Role-based access)
+-   POS dashboard with charts & reports
+-   Datatables with advanced filtering & export
+-   Multi-language support (i18n)
+-   Responsive UI with Tailwind + Mantine
+
+---
+
+## 📂 Folder Structure
+
+andgate-pos/
+├── app/ # Next.js App router (pages, layouts, auth, modules)
+├── components/ # Reusable React components (charts, forms, tables etc.)
+├── public/
+│ ├── assets/ # [Static assets like css, js, icons, vendor libs...]
+│ └── images/ # [App logos, banners, product images...]
+├── theme.config.tsx # Theme settings
+├── tailwind.config.js # Tailwind CSS config
+├── package.json # Dependencies
+├── tsconfig.json # TypeScript config
+└── README.md
+
+⚠️ **Excluded folders:**
+
+-   `.next/` (Next.js build output)
+-   `node_modules/` (Dependencies)
+-   `dist/` (Build artifacts if any)
+
+---
+
+## 🛠️ Tech Stack
+
+-   **Frontend:** Next.js 14, React 18, TailwindCSS 3, Mantine UI, Redux Toolkit
+-   **Database:** MySQL
+-   **Other Tools:** i18n, React ApexCharts, React Toastify, FullCalendar
+
+---
+
+## ⚙️ Installation
 
 ```bash
+git clone <your-repo-link>
+cd andgate-pos
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-<<<<<<< HEAD
-# or
-bun dev
-=======
->>>>>>> bbe1b40749ea87fdc7d041f76b62dc5ac90cd03d
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🔗 Links
 
-<<<<<<< HEAD
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    - Frontend Source Code: Click Here
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-=======
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+    - Backend Source Code: Click Here
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+    - Sample Database File: Download
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+    - Live Site: Visit Now
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
->>>>>>> bbe1b40749ea87fdc7d041f76b62dc5ac90cd03d
+📸 Screenshots
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-<<<<<<< HEAD
-=======
-To learn more about Next.js, take a look at the following resources:
-To learn more about Next.js, take a look at the following resources:
-To learn more about Next.js, take a look at the following resources:
-Test branch and merge 
->>>>>>> bbe1b40749ea87fdc7d041f76b62dc5ac90cd03d
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-<<<<<<< HEAD
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-=======
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
->>>>>>> bbe1b40749ea87fdc7d041f76b62dc5ac90cd03d
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-<<<<<<< HEAD
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-Test git
-test git 2
-test git 3
-test git 4
->>>>>>> bbe1b40749ea87fdc7d041f76b62dc5ac90cd03d
+এখানে তুমি কয়েকটা অ্যাপের Screenshot যোগ করতে পারো।
+(assets/images ফোল্ডার থেকে লিঙ্ক দাও)
