@@ -32,14 +32,13 @@ andgate-pos/
 ├── app/ # Next.js App router (pages, layouts, auth, modules)
 ├── components/ # Reusable React components (charts, forms, tables etc.)
 ├── public/
-│ ├── assets/ # [Static assets like css, js, icons, vendor libs...]
-│ └── images/ # [App logos, banners, product images...]
-├── theme.config.tsx # Theme settings
-├── tailwind.config.js # Tailwind CSS config
-├── package.json # Dependencies
-├── tsconfig.json # TypeScript config
-└── README.md
-
+│ ├── assets/ # Static assets (css, js, vendor libs, icons, etc.)
+│ └── images/ # App logos, banners, product images
+├── theme.config.tsx # Theme configuration
+├── tailwind.config.js # Tailwind CSS configuration
+├── package.json # Project dependencies
+├── tsconfig.json # TypeScript configuration
+└── README.md # Project documentation
 ⚠️ **Excluded folders:**
 
 -   `.next/` (Next.js build output)
@@ -76,6 +75,3 @@ npm run dev
     - Live Site: Visit Now
 
 📸 Screenshots
-
-এখানে তুমি কয়েকটা অ্যাপের Screenshot যোগ করতে পারো।
-(assets/images ফোল্ডার থেকে লিঙ্ক দাও)
