@@ -7,15 +7,11 @@ import IconXCircle from '@/components/icon/icon-x-circle';
 import { login } from '@/store/features/auth/authSlice';
 import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { useRouter } from 'next/navigation';
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { login } from '@/store/features/auth/authSlice';
-=======
+
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
->>>>>>> 458cefee0147168071f6b63cf48f71121be18839
+
 
 const SupplierRegisterForm = () => {
     const router = useRouter();

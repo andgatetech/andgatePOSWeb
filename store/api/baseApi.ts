@@ -3,8 +3,7 @@ import { RootState } from '..';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://pos.api.andgatetech.net/api/',
-    // credentials: 'include',
-    // mode: 'cors',
+
     prepareHeaders: (headers, { getState }) => {
         const token = (getState() as RootState).auth.token;
 
