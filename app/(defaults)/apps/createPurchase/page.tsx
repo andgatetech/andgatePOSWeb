@@ -1,5 +1,5 @@
 'use client';
-
+import IconX from '@/components/icon/icon-x';
 import type { RootState } from '@/store';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
 import { useCreatePurchaseMutation } from '@/store/features/purchase/purchase';
@@ -296,8 +296,8 @@ const CreatePurchase = () => {
                                         <td className="border px-2 py-1">{item.tax}</td>
                                         <td className="border px-2 py-1">{total.toFixed(2)}</td>
                                         <td className="border px-2 py-1">
-                                            <button className="btn btn-danger btn-sm" onClick={() => removeItem(item.id)}>
-                                                Remove
+                                            <button type="button" className="text-red-600 hover:text-red-800" onClick={() => removeItem(item.id)}>
+                                                <IconX className="h-4 w-4" />
                                             </button>
                                         </td>
                                     </tr>

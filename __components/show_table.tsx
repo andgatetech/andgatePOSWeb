@@ -10,9 +10,10 @@ interface PanelCodeHighlightProps {
     codeHighlight?: string;
     id?: string;
     className?: string;
+    role?: string;
 }
 
-const ShowTable = ({ children, title, codeHighlight, id, className = '' }: PanelCodeHighlightProps) => {
+const ShowTable = ({ children, title, codeHighlight, id, className = '', role }: PanelCodeHighlightProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         store_name: '',
@@ -37,13 +38,15 @@ const ShowTable = ({ children, title, codeHighlight, id, className = '' }: Panel
     return (
         <div className={`panel ${className}`} id={id}>
             <div className="mb-5 flex items-center justify-between">
-                <h5 className="text-lg font-semibold dark:text-white-light">{title}</h5>
-                <button type="button" className="font-semibold hover:text-gray-400 dark:text-gray-400 dark:hover:text-gray-600" onClick={() => setIsModalOpen(true)}>
-                    <span className="flex items-center">
-                        <IconPlus className="me-2" />
-                        Create Store
-                    </span>
-                </button>
+                <h5 className="text-lg font-semibold dark:text-white-light">{role !== 'platform_admin' ? 'Store Info' : 'Store List'}</h5>
+                {role === 'platform_admin' && (
+                    <button type="button" className="font-semibold hover:text-gray-400 dark:text-gray-400 dark:hover:text-gray-600" onClick={() => setIsModalOpen(true)}>
+                        <span className="flex items-center">
+                            <IconPlus className="me-2" />
+                            Create Store
+                        </span>
+                    </button>
+                )}
             </div>
             {children}
             <StoreModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Store">
