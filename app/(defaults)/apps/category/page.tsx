@@ -1,15 +1,15 @@
 'use client';
 import ShowCategory from '@/__components/show_category';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
-import { useGetCategoriesQuery } from '@/store/features/category/categoryApi';
+import { useDeleteCategoryMutation, useGetCategoriesQuery } from '@/store/features/category/categoryApi';
 import { useGetAllStoresQuery } from '@/store/features/store/storeApi';
 import Tippy from '@tippyjs/react';
+import { toast } from 'react-toastify';
 import 'tippy.js/dist/tippy.css';
 
 const Category = () => {
     const { data: categories, isLoading, error, refetch } = useGetCategoriesQuery();
-    console.log('categories', categories);
-    console.log('error', error);
+    const [deleteCategory] = useDeleteCategoryMutation();
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error loading categories: {error.message}</div>;
     if (categories.data.length === 0) return <div>No categories available.</div>;
@@ -19,6 +19,16 @@ const Category = () => {
         name: category.name,
         description: category.description,
     }));
+
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteCategory(id).unwrap();
+            refetch();
+            toast.success('Category deleted successfully');
+        } catch (error) {
+            console.error('Error deleting category:', error);
+        }
+    };
 
     return (
         <ShowCategory title="Category List">
@@ -41,7 +51,7 @@ const Category = () => {
                                     <td>{data.description}</td>
                                     <td className="text-center">
                                         <Tippy content="Delete">
-                                            <button type="button">
+                                            <button type="button" onClick={() => handleDelete(data.id)}>
                                                 <IconTrashLines className="m-auto" />
                                             </button>
                                         </Tippy>
