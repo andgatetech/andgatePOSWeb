@@ -2,7 +2,7 @@
 import PanelCodeHighlight from '@/components/panel-code-highlight';
 import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import 'quill/dist/quill.snow.css';
 
 const ComponentsFormsQuillEditorWithTooltip = () => {
     const [value1, setValue1] = useState(
