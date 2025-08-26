@@ -54,7 +54,7 @@ const Recent_Order_Transactions = () => {
                                       <tr key={tx.id}>
                                           <td className="font-semibold">#{tx.id}</td>
                                           <td>{tx.order_id}</td>
-                                          <td>${tx.amount}</td>
+                                          <td>৳{tx.amount}</td>
                                           <td className="text-center">
                                               <span className={`badge rounded-full px-3 py-1 ${tx.payment_status === 'paid' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}`}>
                                                   {tx.payment_status}

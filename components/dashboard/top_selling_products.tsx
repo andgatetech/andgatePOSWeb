@@ -87,8 +87,8 @@ const Top_Selling_Products = () => {
                                                   </p>
                                               </div>
                                           </td>
-                                          <td>${product.price.toFixed(2)}</td>
-                                          <td>${product.discount.toFixed(2)}</td>
+                                          <td>৳{product.price.toFixed(2)}</td>
+                                          <td>৳{product.discount.toFixed(2)}</td>
                                           <td>{product.sold}</td>
                                       </tr>
                                   ))}

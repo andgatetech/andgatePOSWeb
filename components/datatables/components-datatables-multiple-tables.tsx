@@ -337,11 +337,11 @@ const ProductTable = () => {
                                                 </button>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">${Number(product.purchase_price).toFixed(2)}</div>
+                                                <div className="text-sm font-medium text-gray-900">৳{Number(product.purchase_price).toFixed(2)}</div>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">${Number(product.price).toFixed(2)}</div>
-                                                <div className="text-xs text-green-600">+${(Number(product.price) - Number(product.purchase_price)).toFixed(2)} profit</div>
+                                                <div className="text-sm font-medium text-gray-900">৳{Number(product.price).toFixed(2)}</div>
+                                                <div className="text-xs text-green-600">+৳{(Number(product.price) - Number(product.purchase_price)).toFixed(2)} profit</div>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4">
                                                 <Dropdown offset={[0, 5]} placement="bottom-end" btnClassName="text-gray-600 hover:text-gray-800" button={<MoreVertical className="h-5 w-5" />}>

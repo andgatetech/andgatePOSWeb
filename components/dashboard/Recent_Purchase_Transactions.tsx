@@ -59,7 +59,7 @@ const Recent_Purchase_Transactions = () => {
                                                   {p.payment_method}
                                               </span>
                                           </td>
-                                          <td>${p.amount}</td>
+                                          <td>৳{p.amount}</td>
                                           <td>{dayjs(p.created_at).format('MMM DD, YYYY')}</td>
                                       </tr>
                                   ))}

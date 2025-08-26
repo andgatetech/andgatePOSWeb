@@ -12,7 +12,7 @@ const ComponentsAppsInvoiceAdd = () => {
     const dispatch = useDispatch();
 
     // Fetch all products from API
-    const { data: productsData, isLoading } = useGetAllProductsQuery({available:'yes'});
+    const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes' });
     const products = productsData?.data || [];
 
     // Get items from Redux store
@@ -176,8 +176,6 @@ const ComponentsAppsInvoiceAdd = () => {
         showMessage('Item added successfully!', 'success');
     };
 
-    
-
     // Generate invoice number on mount
     const [invoiceNumber, setInvoiceNumber] = useState('');
     useEffect(() => {
@@ -299,7 +297,7 @@ const ComponentsAppsInvoiceAdd = () => {
                                             />
                                         </td>
 
-                                        <td>${(item.quantity * item.rate).toFixed(2)}</td>
+                                        <td>৳{(item.quantity * item.rate).toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -442,7 +442,7 @@ const ComponentsAppsInvoiceEdit = () => {
                                                     onChange={(e) => changeQuantityPrice('price', e.target.value, item.id)}
                                                 />
                                             </td>
-                                            <td>${item.quantity * item.amount}</td>
+                                            <td>৳{item.quantity * item.amount}</td>
                                             <td>
                                                 <button type="button" onClick={() => removeItem(item)}>
                                                     <IconX className="h-5 w-5" />

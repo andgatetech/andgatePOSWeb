@@ -136,7 +136,7 @@ const Revenue = ({ isRtl = false }) => {
                 Total Expense (purchase product) : <span className="ml-2 text-red-500">-${totalExpense.toLocaleString()}</span>
             </p>
             <p className="text-lg font-semibold dark:text-white-light/90">
-                Total Profit: <span className={`${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>${totalProfit.toLocaleString()}</span>
+                Total Profit: <span className={`${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>৳{totalProfit.toLocaleString()}</span>
             </p>
 
             <div className="relative mt-6 rounded-lg bg-white dark:bg-black">

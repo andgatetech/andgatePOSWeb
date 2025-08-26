@@ -127,7 +127,7 @@ const ComponentsAppsInvoiceList = () => {
                                 accessor: 'amount',
                                 sortable: true,
                                 titleClassName: 'text-right',
-                                render: ({ amount }) => <div className="text-right font-semibold">${amount.toFixed(2)}</div>,
+                                render: ({ amount }) => <div className="text-right font-semibold">৳{amount.toFixed(2)}</div>,
                             },
                             {
                                 accessor: 'status',

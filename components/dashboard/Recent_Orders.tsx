@@ -62,8 +62,7 @@ const Recent_Orders = () => {
                                           <td>
                                               <Link href={`/orders/${order.id}`}>{order.id}</Link>
                                           </td>
-                                          {/* <td>${order.grand_total?.toFixed(2)}</td> */}
-                                          <td>${Number(order.grand_total || 0).toFixed(2)}</td>
+                                          <td>৳{Number(order.grand_total || 0).toFixed(2)}</td>
                                           <td>{order.items?.length || 0}</td>
                                           <td>
                                               <span className={`badge shadow-md ${order.payment_status === 'paid' ? 'bg-success' : 'bg-warning'}`}>{order.payment_status}</span>
