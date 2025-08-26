@@ -60,9 +60,9 @@ export default function PurchaseItemsModal({ open, onClose, id }: PurchaseItemsM
                                                     <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                         <td className="border px-4 py-2">{item.category_name}</td>
                                                         <td className="border px-4 py-2">{item.product_name}</td>
-                                                        <td className="border px-4 py-2">${Number(item.purchase_price).toFixed(2)}</td>
-                                                        <td className="border px-4 py-2">${Number(item.unit_price).toFixed(2)}</td>
-                                                        <td className="border px-4 py-2">${Number(item.subtotal).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.purchase_price).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.unit_price).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.subtotal).toFixed(2)}</td>
                                                     </tr>
                                                 ))
                                             ) : (

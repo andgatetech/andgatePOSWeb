@@ -368,7 +368,7 @@ const PurchaseManagement = () => {
                                             </td>
 
                                             <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm font-bold text-gray-900">${Number(purchase.grand_total || 0).toFixed(2)}</div>
+                                                <div className="text-sm font-bold text-gray-900">৳{Number(purchase.grand_total || 0).toFixed(2)}</div>
                                             </td>
 
                                             <td className="whitespace-nowrap px-6 py-4 text-center">

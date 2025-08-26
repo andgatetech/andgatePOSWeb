@@ -127,7 +127,7 @@ export default function HomePage() {
                     <div className="grid gap-8 text-center md:grid-cols-4">
                         {[
                             { number: '50K+', label: 'Active Businesses', icon: <Users className="h-8 w-8" /> },
-                            { number: '$2.5B+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
+                            { number: '৳2.5B+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
                             { number: '99.9%', label: 'Uptime Guarantee', icon: <Shield className="h-8 w-8" /> },
                             { number: '24/7', label: 'Customer Support', icon: <Clock className="h-8 w-8" /> },
                         ].map((stat, index) => (

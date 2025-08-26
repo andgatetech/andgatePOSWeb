@@ -440,7 +440,7 @@ const ActivityLog = () => {
                                                                 <span className="rounded border bg-white px-2 py-1 text-gray-600">{field === 'price' ? `$${change.before}` : change.before}</span>
                                                                 <ArrowRight className="h-3 w-3 flex-shrink-0 text-gray-400" />
                                                                 <span className={`rounded border px-2 py-1 font-medium ${style.color} bg-white`}>
-                                                                    {field === 'price' ? `$${change.after}` : change.after}
+                                                                    {field === 'price' ? `৳${change.after}` : change.after}
                                                                 </span>
                                                             </div>
                                                         </div>

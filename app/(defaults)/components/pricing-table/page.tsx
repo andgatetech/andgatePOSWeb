@@ -34,7 +34,7 @@ const PricingTable = () => {
                 <div className="border-t border-black dark:border-white-dark w-1/5 mx-auto my-6 group-hover:border-primary"></div>
                 <p className="text-[15px]">For people who are starting out in the water saving business</p>
                 <div className="my-7 p-2.5 text-center text-lg group-hover:text-primary">
-                    <strong className="text-[#3b3f5c] dark:text-white-dark text-3xl lg:text-5xl group-hover:text-primary">$19</strong> / monthly
+                    <strong className="text-[#3b3f5c] dark:text-white-dark text-3xl lg:text-5xl group-hover:text-primary">৳19</strong> / monthly
                 </div>
                 <ul className="space-y-2.5 mb-5 font-semibold group-hover:text-primary">
                     <li className="flex justify-center items-center">
@@ -62,7 +62,7 @@ const PricingTable = () => {
                 <div className="border-t border-black dark:border-white-dark w-1/5 mx-auto my-6 group-hover:border-primary"></div>
                 <p className="text-[15px] ">For experienced water savers who'd like to push their limits</p>
                 <div className="my-7 p-2.5 text-center text-lg group-hover:text-primary">
-                    <strong className="text-[#3b3f5c] dark:text-white-dark text-3xl lg:text-5xl group-hover:text-primary">$29</strong> / monthly
+                    <strong className="text-[#3b3f5c] dark:text-white-dark text-3xl lg:text-5xl group-hover:text-primary">৳29</strong> / monthly
                 </div>
                 <ul className="space-y-2.5 mb-5 font-semibold group-hover:text-primary">
                     <li className="flex justify-center items-center">
@@ -90,7 +90,7 @@ const PricingTable = () => {
                 <div className="border-t border-black dark:border-white-dark w-1/5 mx-auto my-6 group-hover:border-primary"></div>
                 <p className="text-[15px] ">For all the professionals who'd like to educate others, too</p>
                 <div className="my-7 p-2.5 text-center text-lg group-hover:text-primary">
-                    <strong className="text-[#3b3f5c] dark:text-white-dark text-3xl lg:text-5xl group-hover:text-primary">$79</strong> / monthly
+                    <strong className="text-[#3b3f5c] dark:text-white-dark text-3xl lg:text-5xl group-hover:text-primary">৳79</strong> / monthly
                 </div>
                 <ul className="space-y-2.5 mb-5 font-semibold group-hover:text-primary">
                     <li className="flex justify-center items-center">
@@ -118,13 +118,13 @@ const PricingTable = () => {
                 >
                     <div className="mb-5">
                         <div className="mx-auto max-w-[320px] md:max-w-[990px]">
-                            <div className="justify-between space-y-4 rtl:space-x-reverse md:flex md:space-x-4 md:space-y-0">
+                            <div className="justify-between space-y-4 md:flex md:space-x-4 md:space-y-0 rtl:space-x-reverse">
                                 <div className="group rounded border border-black p-3 text-center hover:border-primary dark:border-[#1b2e4b] lg:p-5">
                                     <h3 className="text-xl lg:text-2xl">Beginner Savers</h3>
                                     <div className="mx-auto my-6 w-1/5 border-t border-black group-hover:border-primary dark:border-white-dark"></div>
                                     <p className="text-[15px]">For people who are starting out in the water saving business</p>
                                     <div className="my-7 p-2.5 text-center text-lg group-hover:text-primary">
-                                        <strong className="text-3xl text-[#3b3f5c] group-hover:text-primary dark:text-white-dark lg:text-5xl">$19</strong> / monthly
+                                        <strong className="text-3xl text-[#3b3f5c] group-hover:text-primary dark:text-white-dark lg:text-5xl">৳19</strong> / monthly
                                     </div>
                                     <ul className="mb-5 space-y-2.5 font-semibold group-hover:text-primary">
                                         <li className="flex items-center justify-center">
@@ -153,7 +153,7 @@ const PricingTable = () => {
                                     <div className="mx-auto my-6 w-1/5 border-t border-black group-hover:border-primary dark:border-white-dark"></div>
                                     <p className="text-[15px] ">{`For experienced water savers who'd like to push their limits`}</p>
                                     <div className="my-7 p-2.5 text-center text-lg group-hover:text-primary">
-                                        <strong className="text-3xl text-[#3b3f5c] group-hover:text-primary dark:text-white-dark lg:text-5xl">$29</strong> / monthly
+                                        <strong className="text-3xl text-[#3b3f5c] group-hover:text-primary dark:text-white-dark lg:text-5xl">৳29</strong> / monthly
                                     </div>
                                     <ul className="mb-5 space-y-2.5 font-semibold group-hover:text-primary">
                                         <li className="flex items-center justify-center">
@@ -223,7 +223,7 @@ const PricingTable = () => {
             <div className="border border-white-light dark:border-[#1b2e4b] rounded transition-all duration-300 group">
                 <div className="border-b border-white-light dark:border-[#1b2e4b] p-5 pt-0">
                     <span className="bg-white dark:bg-black text-[#3b3f5c] dark:text-white-light border-2 border-primary w-[70px] h-[70px] lg:w-[100px] lg:h-[100px] rounded flex justify-center items-center text-xl lg:text-3xl font-bold -mt-[30px] shadow-[0_0_15px_1px_rgba(113,106,202,0.20)] transition-all duration-300 group-hover:-translate-y-[10px]">
-                        $49
+                        ৳49
                     </span>
                     <h3 className="text-xl lg:text-2xl mt-4 mb-2.5">Freelancer</h3>
                     <p className="text-[15px] ">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
@@ -243,7 +243,7 @@ const PricingTable = () => {
             <div className="border border-white-light dark:border-[#1b2e4b] rounded transition-all duration-300 group">
                 <div className="border-b border-white-light dark:border-[#1b2e4b] p-5 pt-0">
                     <span className="bg-white dark:bg-black text-[#3b3f5c] dark:text-white-light border-2 border-primary w-[70px] h-[70px] lg:w-[100px] lg:h-[100px] rounded flex justify-center items-center text-xl lg:text-3xl font-bold -mt-[30px] shadow-[0_0_15px_1px_rgba(113,106,202,0.20)] transition-all duration-300 group-hover:-translate-y-[10px]">
-                        $89
+                        ৳89
                     </span>
                     <h3 className="text-xl lg:text-2xl mt-4 mb-2.5">Small business</h3>
                     <p className="text-[15px] ">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
@@ -263,7 +263,7 @@ const PricingTable = () => {
             <div className="border border-white-light dark:border-[#1b2e4b] rounded transition-all duration-300 group">
                 <div className="border-b border-white-light dark:border-[#1b2e4b] p-5 pt-0">
                     <span className="bg-white dark:bg-black text-[#3b3f5c] dark:text-white-light border-2 border-primary w-[70px] h-[70px] lg:w-[100px] lg:h-[100px] rounded flex justify-center items-center text-xl lg:text-3xl font-bold -mt-[30px] shadow-[0_0_15px_1px_rgba(113,106,202,0.20)] transition-all duration-300 group-hover:-translate-y-[10px]">
-                        $129
+                        ৳129
                     </span>
                     <h3 className="text-xl lg:text-2xl mt-4 mb-2.5">Larger business</h3>
                     <p className="text-[15px]">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
@@ -286,11 +286,11 @@ const PricingTable = () => {
                 >
                     <div className="mb-5">
                         <div className="mx-auto mt-20 max-w-[1140px] dark:text-white-dark">
-                            <div className="justify-between space-y-14 rtl:space-x-reverse md:flex md:space-x-4 md:space-y-0">
+                            <div className="justify-between space-y-14 md:flex md:space-x-4 md:space-y-0 rtl:space-x-reverse">
                                 <div className="group rounded border border-white-light transition-all duration-300 dark:border-[#1b2e4b]">
                                     <div className="border-b border-white-light p-5 pt-0 dark:border-[#1b2e4b]">
                                         <span className="-mt-[30px] flex h-[70px] w-[70px] items-center justify-center rounded border-2 border-primary bg-white text-xl font-bold text-[#3b3f5c] shadow-[0_0_15px_1px_rgba(113,106,202,0.20)] transition-all duration-300 group-hover:-translate-y-[10px] dark:bg-black dark:text-white-light lg:h-[100px] lg:w-[100px] lg:text-3xl">
-                                            $49
+                                            ৳49
                                         </span>
                                         <h3 className="mb-2.5 mt-4 text-xl lg:text-2xl">Freelancer</h3>
                                         <p className="text-[15px] ">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
@@ -310,7 +310,7 @@ const PricingTable = () => {
                                 <div className="group rounded border border-white-light transition-all duration-300 dark:border-[#1b2e4b]">
                                     <div className="border-b border-white-light p-5 pt-0 dark:border-[#1b2e4b]">
                                         <span className="-mt-[30px] flex h-[70px] w-[70px] items-center justify-center rounded border-2 border-primary bg-white text-xl font-bold text-[#3b3f5c] shadow-[0_0_15px_1px_rgba(113,106,202,0.20)] transition-all duration-300 group-hover:-translate-y-[10px] dark:bg-black dark:text-white-light lg:h-[100px] lg:w-[100px] lg:text-3xl">
-                                            $89
+                                            ৳89
                                         </span>
                                         <h3 className="mb-2.5 mt-4 text-xl lg:text-2xl">Small business</h3>
                                         <p className="text-[15px] ">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
@@ -330,7 +330,7 @@ const PricingTable = () => {
                                 <div className="group rounded border border-white-light transition-all duration-300 dark:border-[#1b2e4b]">
                                     <div className="border-b border-white-light p-5 pt-0 dark:border-[#1b2e4b]">
                                         <span className="-mt-[30px] flex h-[70px] w-[70px] items-center justify-center rounded border-2 border-primary bg-white text-xl font-bold text-[#3b3f5c] shadow-[0_0_15px_1px_rgba(113,106,202,0.20)] transition-all duration-300 group-hover:-translate-y-[10px] dark:bg-black dark:text-white-light lg:h-[100px] lg:w-[100px] lg:text-3xl">
-                                            $129
+                                            ৳129
                                         </span>
                                         <h3 className="mb-2.5 mt-4 text-xl lg:text-2xl">Larger business</h3>
                                         <p className="text-[15px]">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>

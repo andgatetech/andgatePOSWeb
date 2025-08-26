@@ -120,8 +120,8 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                                     <td>{item.id}</td>
                                     <td>{item.title}</td>
                                     <td>{item.quantity}</td>
-                                    <td className="ltr:text-right rtl:text-left">${Number(item.price).toFixed(2)}</td>
-                                    <td className="ltr:text-right rtl:text-left">${Number(item.amount).toFixed(2)}</td>
+                                    <td className="ltr:text-right rtl:text-left">৳{Number(item.price).toFixed(2)}</td>
+                                    <td className="ltr:text-right rtl:text-left">৳{Number(item.amount).toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -133,20 +133,20 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                     <div className="space-y-2 ltr:text-right rtl:text-left">
                         <div className="flex items-center">
                             <div className="flex-1">Subtotal</div>
-                            <div className="w-[37%]">${subtotal.toFixed(2)}</div>
+                            <div className="w-[37%]">৳{subtotal.toFixed(2)}</div>
                         </div>
                         <div className="flex items-center">
                             <div className="flex-1">Tax</div>
-                            <div className="w-[37%]">${calculatedTax.toFixed(2)}</div>
+                            <div className="w-[37%]">৳{calculatedTax.toFixed(2)}</div>
                         </div>
 
                         <div className="flex items-center">
                             <div className="flex-1">Discount</div>
-                            <div className="w-[37%]">${calculatedDiscount.toFixed(2)}</div>
+                            <div className="w-[37%]">৳{calculatedDiscount.toFixed(2)}</div>
                         </div>
                         <div className="flex items-center text-lg font-semibold">
                             <div className="flex-1">Grand Total</div>
-                            <div className="w-[37%]">${grandTotal.toFixed(2)}</div>
+                            <div className="w-[37%]">৳{grandTotal.toFixed(2)}</div>
                         </div>
                     </div>
                 </div>

@@ -147,7 +147,7 @@ const SupplierPurchaseList = () => {
                                                 <span className={`rounded-full px-2 py-1 text-xs font-medium capitalize ${statusInfo.bg} ${statusInfo.text}`}>{statusInfo.label}</span>
                                                 <span className={`rounded-full px-2 py-1 text-xs font-medium capitalize ${paymentInfo.bg} ${paymentInfo.text}`}>{paymentInfo.label}</span>
                                             </div>
-                                            <p className="text-lg font-bold text-slate-800">${purchase.grand_total.toLocaleString()}</p>
+                                            <p className="text-lg font-bold text-slate-800">৳{purchase.grand_total.toLocaleString()}</p>
                                         </div>
                                     </div>
 
@@ -168,9 +168,9 @@ const SupplierPurchaseList = () => {
                                                         <tr key={item.id} className="border-b last:border-0">
                                                             <td className="p-2 font-medium">{item.product.product_name}</td>
                                                             <td className="p-2 text-center">{item.quantity}</td>
-                                                            <td className="p-2 text-right">${item.purchase_price.toLocaleString()}</td>
-                                                            <td className="p-2 text-right">${item.tax.toLocaleString()}</td>
-                                                            <td className="p-2 text-right font-semibold">${item.total.toLocaleString()}</td>
+                                                            <td className="p-2 text-right">৳{item.purchase_price.toLocaleString()}</td>
+                                                            <td className="p-2 text-right">৳{item.tax.toLocaleString()}</td>
+                                                            <td className="p-2 text-right font-semibold">৳{item.total.toLocaleString()}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>

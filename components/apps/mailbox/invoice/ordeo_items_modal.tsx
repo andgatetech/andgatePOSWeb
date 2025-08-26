@@ -71,11 +71,11 @@ export default function OrderItemsModal({ open, onClose, id }: OrderItemsModalPr
                                                     <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                         <td className="border px-4 py-2">{item.product?.category?.name}</td>
                                                         <td className="border px-4 py-2">{item.product?.product_name}</td>
-                                                        <td className="border px-4 py-2">${Number(item.product?.purchase_price).toFixed(2)}</td>
-                                                        <td className="border px-4 py-2">${Number(item.product?.price).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.product?.purchase_price).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.product?.price).toFixed(2)}</td>
                                                         <td className="border px-4 py-2">{item.quantity}</td>
-                                                        <td className="border px-4 py-2">${Number(item.unit_price).toFixed(2)}</td>
-                                                        <td className="border px-4 py-2">${Number(item.subtotal).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.unit_price).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">৳{Number(item.subtotal).toFixed(2)}</td>
                                                     </tr>
                                                 ))
                                             ) : (
