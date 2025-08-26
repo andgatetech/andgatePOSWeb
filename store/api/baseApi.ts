@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '..';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'http://127.0.0.1:8000/api/',
+    baseUrl: 'https://pos.api.andgatetech.net/api/',
     // credentials: 'include',
     // mode: 'cors',
     prepareHeaders: (headers, { getState }) => {
