@@ -57,7 +57,7 @@ const Revenue = ({ isRtl = false }) => {
 
         // Sum purchase price (expense) for all items in the order
         const orderExpense = order.items.reduce((sum, item) => {
-            return  Number(item.quantity) * Number(item.product.purchase_price || 0);
+            return Number(item.quantity) * Number(item.product.purchase_price || 0);
         }, 0);
 
         expenseByMonth[monthKey] = (expenseByMonth[monthKey] || 0) + orderExpense;
@@ -130,10 +130,10 @@ const Revenue = ({ isRtl = false }) => {
             </div>
 
             <p className="text-lg dark:text-white-light/90">
-                Total Revenue: <span className="ml-2 text-primary">${totalRevenue.toLocaleString()}</span>
+                Total Revenue: <span className="ml-2 text-primary">৳{totalRevenue.toLocaleString()}</span>
             </p>
             <p className="text-lg dark:text-white-light/90">
-                Total Expense (purchase product) : <span className="ml-2 text-red-500">-${totalExpense.toLocaleString()}</span>
+                Total Expense (purchase product) : <span className="ml-2 text-red-500">৳{totalExpense.toLocaleString()}</span>
             </p>
             <p className="text-lg font-semibold dark:text-white-light/90">
                 Total Profit: <span className={`${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>৳{totalProfit.toLocaleString()}</span>
