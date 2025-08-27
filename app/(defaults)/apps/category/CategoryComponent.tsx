@@ -1,5 +1,7 @@
+'use client';
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, Eye, Search, Image, X, Save, Upload } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { useGetCategoryQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from '@/store/features/category/categoryApi';
 
 const CategoryComponent = () => {
@@ -10,7 +12,7 @@ const CategoryComponent = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState('create'); // create, edit, view
+    const [modalType, setModalType] = useState('create'); // 'create', 'edit', 'view'
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
@@ -23,6 +25,18 @@ const CategoryComponent = () => {
     const categories = categoriesResponse?.data || [];
 
     const filteredCategories = categories.filter((category) => category.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const showMessage = (msg = '', type = 'success') => {
+        Swal.fire({
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 3000,
+            icon: type,
+            title: msg,
+            padding: '10px 20px',
+        });
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -46,11 +60,11 @@ const CategoryComponent = () => {
             setImagePreview(null);
         } else if (type === 'edit' && category) {
             setFormData({
-                name: category.name,
-                description: category.description,
+                name: category.name || '',
+                description: category.description || '',
                 image: null,
             });
-            setImagePreview(category.image_url);
+            setImagePreview(category.image_url || null);
         }
     };
 
@@ -65,30 +79,21 @@ const CategoryComponent = () => {
         e.preventDefault();
         setLoading(true);
 
-        if (!formData.name || !formData.description || (modalType === 'create' && !formData.image)) {
-            alert('Please fill all required fields and upload an image.');
-            setLoading(false);
-            return;
-        }
-
         try {
-            const data = new FormData();
-            data.append('name', formData.name);
-            data.append('description', formData.description);
-            if (formData.image) {
-                data.append('image', formData.image);
-            }
-
             if (modalType === 'create') {
-                await createCategory(data).unwrap();
-            } else if (modalType === 'edit') {
-                data.append('_method', 'PUT'); // Laravel file update
-                await updateCategory({ id: selectedCategory.id, updatedCategory: data }).unwrap();
+                await createCategory(formData).unwrap();
+                showMessage('Category created successfully', 'success');
+            } else if (modalType === 'edit' && selectedCategory) {
+                await updateCategory({
+                    id: selectedCategory.id,
+                    updatedCategory: formData,
+                }).unwrap();
+                showMessage('Category updated successfully', 'success');
             }
-
             closeModal();
-        } catch (err) {
-            console.error('Error submitting category:', err);
+        } catch (error) {
+            console.error('Error:', error);
+            showMessage('Something went wrong', 'error');
         } finally {
             setLoading(false);
         }
@@ -98,20 +103,23 @@ const CategoryComponent = () => {
         if (window.confirm('Are you sure you want to delete this category?')) {
             try {
                 await deleteCategory(id).unwrap();
-            } catch (err) {
-                console.error('Error deleting category:', err);
+                showMessage('Category deleted successfully', 'success');
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showMessage('Failed to delete category', 'error');
             }
         }
     };
 
-    const formatDate = (dateString) =>
-        new Date(dateString).toLocaleDateString('en-US', {
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
         });
+    };
 
     if (isLoading) {
         return (
@@ -136,6 +144,7 @@ const CategoryComponent = () => {
             {/* Action Bar */}
             <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                    {/* Search */}
                     <div className="relative max-w-md flex-1">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                         <input
@@ -146,6 +155,8 @@ const CategoryComponent = () => {
                             className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
+
+                    {/* Add Category Button */}
                     <button onClick={() => openModal('create')} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700">
                         <Plus className="h-4 w-4" />
                         Add Category
@@ -157,9 +168,12 @@ const CategoryComponent = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredCategories.map((category) => (
                     <div key={category.id} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                        {/* Category Image */}
                         <div className="flex h-48 items-center justify-center bg-gray-100">
                             {category.image_url ? <img src={category.image_url} alt={category.name} className="h-full w-full object-cover" /> : <Image className="h-16 w-16 text-gray-400" />}
                         </div>
+
+                        {/* Category Content */}
                         <div className="p-4">
                             <div className="mb-2 flex items-start justify-between">
                                 <h3 className="truncate text-lg font-semibold text-gray-900">{category.name}</h3>
@@ -175,7 +189,9 @@ const CategoryComponent = () => {
                                     </button>
                                 </div>
                             </div>
+
                             <p className="mb-3 line-clamp-2 text-sm text-gray-600">{category.description}</p>
+
                             <div className="text-xs text-gray-500">
                                 <p>Created: {formatDate(category.created_at)}</p>
                                 {category.updated_at !== category.created_at && <p>Updated: {formatDate(category.updated_at)}</p>}
@@ -193,7 +209,8 @@ const CategoryComponent = () => {
                     <p className="mb-4 text-gray-500">{searchTerm ? `No categories match "${searchTerm}"` : 'Get started by creating your first category'}</p>
                     {!searchTerm && (
                         <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                            <Plus className="h-4 w-4" /> Add First Category
+                            <Plus className="h-4 w-4" />
+                            Add First Category
                         </button>
                     )}
                 </div>
@@ -203,6 +220,7 @@ const CategoryComponent = () => {
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                     <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white">
+                        {/* Modal Header */}
                         <div className="flex items-center justify-between border-b border-gray-200 p-6">
                             <h2 className="text-xl font-semibold text-gray-900">
                                 {modalType === 'create' && 'Create New Category'}
@@ -214,6 +232,7 @@ const CategoryComponent = () => {
                             </button>
                         </div>
 
+                        {/* Modal Content */}
                         <div className="p-6">
                             {modalType === 'view' ? (
                                 <div className="space-y-4">
@@ -267,7 +286,7 @@ const CategoryComponent = () => {
                                                     <p className="mb-2 text-sm text-gray-600">Click to upload image</p>
                                                     <input
                                                         type="file"
-                                                        accept="image/*"
+                                                        accept="image/jpeg,image/jpg,image/png,image/webp"
                                                         onChange={handleImageChange}
                                                         className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
                                                     />
@@ -306,7 +325,7 @@ const CategoryComponent = () => {
                                         />
                                     </div>
 
-                                    {/* Actions */}
+                                    {/* Form Actions */}
                                     <div className="flex gap-3 pt-4">
                                         <button type="button" onClick={closeModal} className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50">
                                             Cancel
