@@ -1,7 +1,7 @@
 <p align="center">
   <img src="public/images/cover.PNG" alt="AndGate POS Banner" width="100%" />
 </p>
-<h1 align="center">🏪 AndGate POS</h1>
+<h1 align="center">🏪 AndgatePOS</h1>
 
 <p align="center">
   <b>A modern Point of Sale (POS) web application built with Next.js, React, TailwindCSS & Redux Toolkit</b>
