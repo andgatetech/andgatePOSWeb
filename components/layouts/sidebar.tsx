@@ -34,7 +34,6 @@ const baseAdminRoutes = [
     { href: '/apps/Purchase', label: 'Purchase List' },
     { href: '/apps/createPurchase', label: 'Create Purchase' },
     { href: '/apps/OrderView', label: 'Order List' },
-    { href: '/apps/Staff', label: 'Staff Management' },
     { href: '/apps/ActivityLog', label: 'Activity Log' }
 ];
 
