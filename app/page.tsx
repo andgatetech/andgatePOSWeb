@@ -233,7 +233,7 @@ export default function HomePage() {
                                 name: 'Isabella Rodriguez',
                                 business: 'Bella Boutique',
                                 image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-                                review: 'Customer management features helped us build a loyal community. Our repeat customer rate has doubled since switching to AndGate POS.',
+                                review: 'Customer management features helped us build a loyal community. Our repeat customer rate has doubled since switching to Andgate POS.',
                                 rating: 5,
                             },
                         ].map((testimonial, index) => (

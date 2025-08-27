@@ -6,8 +6,8 @@ import { Nunito } from 'next/font/google';
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | AndGate - POS System',
-        default: 'AndGate - POS System',
+        template: '%s | AndgatePOS System',
+        default: 'AndgatePOS - POS System',
     },
 };
 

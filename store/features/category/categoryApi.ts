@@ -1,50 +1,64 @@
-import { baseApi } from "@/store/api/baseApi";
-
+import { baseApi } from '@/store/api/baseApi';
 
 const CategoryApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        getCategories: builder.query({
-            query: () => ({
-                url: '/categories',
-                method: 'GET',
-            }),
-            providesTags: ['Categories'],
-        }),
-
-        getCategory: builder.query({
-            query: (id) => ({
-                url: `/categories/${id}`,
-                method: 'GET',
-            }),
-            providesTags: (result, error, id) => [{ type: 'Categories', id }],
-        }),
-
+        // Create category
         createCategory: builder.mutation({
-            query: (newCategory) => ({
-                url: '/categories',
-                method: 'POST',
-                body: newCategory,
-            }),
+            query: (newCategory: any) => {
+                const formData = new FormData();
+                formData.append('name', newCategory.name || '');
+                formData.append('description', newCategory.description || '');
+                if (newCategory.image) {
+                    formData.append('image', newCategory.image);
+                }
+
+                return {
+                    url: '/categories',
+                    method: 'POST',
+                    body: formData,
+                };
+            },
             invalidatesTags: ['Categories'],
         }),
 
+        // Update category
         updateCategory: builder.mutation({
-            query: ({ id, ...patch }) => ({
-                url: `/categories/${id}`,
-                method: 'PUT',
-                body: patch,
-            }),
-            invalidatesTags: (result, error, { id }) => [{ type: 'Categories', id }],
+            query: ({ id, updatedCategory }: any) => {
+                const formData = new FormData();
+                if (updatedCategory.name) formData.append('name', updatedCategory.name);
+                if (updatedCategory.description) formData.append('description', updatedCategory.description);
+                if (updatedCategory.image) formData.append('image', updatedCategory.image);
+
+                // Laravel requires _method=PUT for file uploads
+                formData.append('_method', 'PUT');
+
+                return {
+                    url: `/categories/${id}`,
+                    method: 'POST', // POST + _method=PUT
+                    body: formData,
+                };
+            },
+            invalidatesTags: ['Categories'],
         }),
 
+        // Delete category
         deleteCategory: builder.mutation({
-            query: (id) => ({
+            query: (id: number) => ({
                 url: `/categories/${id}`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['Categories'],
         }),
+
+        // Get all categories
+        getCategory: builder.query({
+            query: () => ({
+                url: `/categories`,
+                method: 'GET',
+            }),
+            providesTags: ['Categories'],
+        }),
     }),
 });
 
-export const { useGetCategoriesQuery, useGetCategoryQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } = CategoryApi;
+export const { useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery } = CategoryApi;
