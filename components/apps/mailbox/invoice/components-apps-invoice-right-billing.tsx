@@ -39,8 +39,40 @@ interface Customer {
     deleted_at: string | null;
 }
 
+// Order response interface
+interface OrderResponse {
+    success: boolean;
+    message: string;
+    data: {
+        order_id: number;
+        invoice: string;
+        customer: {
+            id: number;
+            name: string;
+            email: string;
+            phone: string;
+        };
+        products: Array<{
+            name: string;
+            product_id: number;
+            quantity: number;
+            unit_price: number;
+            tax: number;
+            discount: number;
+            subtotal: number;
+        }>;
+        totals: {
+            total: string;
+            tax: string;
+            discount: number;
+            grand_total: string;
+        };
+    };
+}
+
 const BillToForm: React.FC = () => {
     const [showPreview, setShowPreview] = useState(false);
+    const [orderResponse, setOrderResponse] = useState<OrderResponse | null>(null);
     const [customerSearch, setCustomerSearch] = useState('');
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -48,15 +80,14 @@ const BillToForm: React.FC = () => {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchParams, setSearchParams] = useState<string>('');
 
-   const {
-       data: customersResponse,
-       isLoading: isSearching,
-       error,
-       refetch,
-   } = useGetStoreCustomersQuery(
-       { search: searchParams || '' } // always pass an object
-   );
-
+    const {
+        data: customersResponse,
+        isLoading: isSearching,
+        error,
+        refetch,
+    } = useGetStoreCustomersQuery(
+        { search: searchParams || '' } // always pass an object
+    );
 
     const dispatch = useDispatch();
     const invoiceItems = useSelector((state: RootState) => state.invoice.items);
@@ -293,36 +324,27 @@ const BillToForm: React.FC = () => {
             showMessage('Please select products and set quantities for all items', 'error');
             return;
         }
-       
 
+        const grandTotal = calculateTotal();
 
-       const grandTotal = calculateTotal();
-
-     
-
-       let orderData: any = {
-           user_id: userId,
-           payment_method: formData.paymentMethod,
-           payment_status: formData.paymentStatus,
-           tax: Number(formData.tax),
-
-           // ✅ discount field now includes manual + points + balance
-           discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0) ,
-
-           total: calculateSubtotal(),
-           grand_total: grandTotal, //  already excludes membership, points, and balance
-
-           items: invoiceItems.map((item) => ({
-               product_id: item.productId,
-               quantity: item.quantity,
-               unit_price: item.rate,
-               discount: 0,
-               tax: Number(formData.tax),
-               subtotal: item.rate * item.quantity + (item.rate * item.quantity * formData.tax) / 100,
-           })),
-       };
-
-
+        let orderData: any = {
+            user_id: userId,
+            payment_method: formData.paymentMethod,
+            payment_status: formData.paymentStatus,
+            tax: Number(formData.tax),
+            // ✅ discount field now includes manual + points + balance
+            discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0),
+            total: calculateSubtotal(),
+            grand_total: grandTotal, //  already excludes membership, points, and balance
+            items: invoiceItems.map((item) => ({
+                product_id: item.productId,
+                quantity: item.quantity,
+                unit_price: item.rate,
+                discount: 0,
+                tax: Number(formData.tax),
+                subtotal: item.rate * item.quantity + (item.rate * item.quantity * formData.tax) / 100,
+            })),
+        };
 
         // ✅ If existing customer is selected
         if (formData.customerId) {
@@ -336,11 +358,18 @@ const BillToForm: React.FC = () => {
 
         try {
             setLoading(true);
-            
-            await createOrder(orderData).unwrap();
-             refetch();
+            const response = await createOrder(orderData).unwrap();
+            console.log('Order API response:', response);
+
+            // Store the order response and automatically show preview
+            setOrderResponse(response);
+            setShowPreview(true);
+
+            refetch();
             setLoading(false);
             showMessage('Order created successfully!', 'success');
+
+            // Clear form data but keep the response for preview
             dispatch(clearItemsRedux());
             clearCustomerSelection();
             setFormData({
@@ -373,47 +402,113 @@ const BillToForm: React.FC = () => {
         setShowPreview(true);
     };
 
-    const previewData = {
-        customer: {
-            name: formData.customerName,
-            email: formData.customerEmail,
-            phone: formData.customerPhone,
-            membership: selectedCustomer?.membership || 'normal',
-            points: selectedCustomer?.points || 0,
-        },
-        items: invoiceItems.map((item, idx) => ({
-            id: idx + 1,
-            title: item.title || 'Untitled',
-            quantity: item.quantity,
-            price: item.rate,
-            amount: item.rate * item.quantity,
-        })),
-        tax: formData.tax,
-        discount: formData.discount,
-        membershipDiscount: formData.membershipDiscount,
-        paymentMethod: formData.paymentMethod,
-        paymentStatus: formData.paymentStatus,
-        totals: {
-            subtotal: calculateSubtotal(),
-            tax: calculateTax(),
-            discount: calculateDiscount(),
-            membershipDiscount: calculateMembershipDiscount(),
-            pointsDiscount: calculatePointsDiscount(),
-            balanceDiscount: calculateBalanceDiscount(),
-            total: calculateTotal(),
-        },
+    const handleBackToEdit = () => {
+        setShowPreview(false);
+        setOrderResponse(null); // Clear order response when going back to edit
     };
 
-    if (showPreview) {
-        return (
-            <div>
-                <button onClick={() => setShowPreview(false)} className="btn btn-secondary mb-4">
-                    ← Back to Edit
-                </button>
-                <ComponentsAppsInvoicePreview data={previewData} />
-            </div>
-        );
-    }
+    // Create preview data based on whether we have order response or not
+    const getPreviewData = () => {
+        if (orderResponse) {
+            // Use actual order response data
+            return {
+                customer: {
+                    name: orderResponse.data.customer.name,
+                    email: orderResponse.data.customer.email,
+                    phone: orderResponse.data.customer.phone,
+                    membership: selectedCustomer?.membership || 'normal',
+                    points: selectedCustomer?.points || 0,
+                },
+                invoice: orderResponse.data.invoice,
+                order_id: orderResponse.data.order_id,
+                items: orderResponse.data.products.map((product, idx) => ({
+                    id: idx + 1,
+                    title: product.name,
+                    quantity: product.quantity,
+                    price: product.unit_price,
+                    amount: product.subtotal,
+                })),
+                tax: parseFloat(orderResponse.data.totals.tax),
+                discount: orderResponse.data.totals.discount,
+                membershipDiscount: formData.membershipDiscount,
+                paymentMethod: formData.paymentMethod,
+                paymentStatus: formData.paymentStatus,
+                totals: {
+                    subtotal: parseFloat(orderResponse.data.totals.total),
+                    tax: parseFloat(orderResponse.data.totals.tax),
+                    discount: orderResponse.data.totals.discount,
+                    membershipDiscount: calculateMembershipDiscount(),
+                    pointsDiscount: calculatePointsDiscount(),
+                    balanceDiscount: calculateBalanceDiscount(),
+                    total: parseFloat(orderResponse.data.totals.grand_total),
+                },
+                isOrderCreated: true, // Flag to indicate this is a created order
+            };
+        } else {
+            // Use form data for manual preview (before order creation)
+            return {
+                customer: {
+                    name: formData.customerName,
+                    email: formData.customerEmail,
+                    phone: formData.customerPhone,
+                    membership: selectedCustomer?.membership || 'normal',
+                    points: selectedCustomer?.points || 0,
+                },
+                items: invoiceItems.map((item, idx) => ({
+                    id: idx + 1,
+                    title: item.title || 'Untitled',
+                    quantity: item.quantity,
+                    price: item.rate,
+                    amount: item.rate * item.quantity,
+                })),
+                tax: formData.tax,
+                discount: formData.discount,
+                membershipDiscount: formData.membershipDiscount,
+                paymentMethod: formData.paymentMethod,
+                paymentStatus: formData.paymentStatus,
+                totals: {
+                    subtotal: calculateSubtotal(),
+                    tax: calculateTax(),
+                    discount: calculateDiscount(),
+                    membershipDiscount: calculateMembershipDiscount(),
+                    pointsDiscount: calculatePointsDiscount(),
+                    balanceDiscount: calculateBalanceDiscount(),
+                    total: calculateTotal(),
+                },
+                isOrderCreated: false,
+            };
+        }
+    };
+
+  if (showPreview) {
+      return (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-2">
+              <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
+                  {/* Close Button */}
+                  <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800">
+                      <IconX className="h-6 w-6" />
+                  </button>
+
+                  {/* Invoice Preview */}
+                  <div className="mb-4">
+                      <ComponentsAppsInvoicePreview data={getPreviewData()} />
+                  </div>
+
+                  {/* Footer Buttons */}
+                  <div className="mt-6 flex justify-end gap-3">
+                      <button className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200" onClick={handleBackToEdit}>
+                          Create Another Order
+                      </button>
+                      <button className="btn btn-primary px-5 py-2 text-sm hover:bg-blue-600" onClick={() => window.print()}>
+                          Print Invoice
+                      </button>
+                  </div>
+              </div>
+          </div>
+      );
+  }
+
+
 
     return (
         <div className="relative mt-6 w-full xl:mt-0 xl:w-full">
@@ -421,7 +516,6 @@ const BillToForm: React.FC = () => {
                 <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black bg-opacity-50">
                     {/* Spinner */}
                     <div className="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent"></div>
-
                     {/* Loading Text */}
                     <span className="animate-pulse text-lg font-semibold text-white">Processing Order...</span>
                 </div>
@@ -778,7 +872,7 @@ const BillToForm: React.FC = () => {
 
                     <div className="mt-6 flex gap-4">
                         <button type="button" className="btn btn-primary flex-1" onClick={handleSubmit} disabled={loading}>
-                            Save Order <IconSave />
+                            Confirm Order <IconSave />
                         </button>
                         <button type="button" className="btn btn-secondary flex-1" onClick={handlePreview}>
                             Preview <IconEye />
