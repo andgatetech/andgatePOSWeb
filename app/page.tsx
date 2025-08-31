@@ -1,8 +1,7 @@
-
-"use client"
-import { useState } from 'react';
-import { ShoppingCart, BarChart3, Users, CreditCard, CheckCircle, Star, Menu, X, ArrowRight, TrendingUp, Shield, Zap, Clock } from 'lucide-react';
+'use client';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Menu, Shield, ShoppingCart, Star, TrendingUp, Users, X, Zap } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 import AndGate from '/public/assets/images/Logo-PNG.png';
 export default function HomePage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -245,7 +244,7 @@ export default function HomePage() {
                                 </div>
                                 <blockquote className="mb-6 text-lg italic leading-relaxed text-gray-700">"{testimonial.review}"</blockquote>
                                 <div className="flex items-center">
-                                    <img src={testimonial.image} alt={testimonial.name} className="mr-4 h-12 w-12 rounded-full object-cover" />
+                                    <Image src={testimonial.image} alt={testimonial.name} width={40} height={40} className="mr-4 h-12 w-12 rounded-full object-cover" />
                                     <div>
                                         <div className="font-bold text-gray-900">{testimonial.name}</div>
                                         <div className="text-sm text-gray-600">{testimonial.business}</div>
@@ -384,5 +383,4 @@ export default function HomePage() {
             </footer>
         </div>
     );
-
 }

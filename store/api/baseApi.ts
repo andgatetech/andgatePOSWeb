@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '..';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'https://pos.api.andgatetech.net/api/',
+    baseUrl: 'http://127.0.0.1:8000/api/',
     // credentials: 'include',
     // mode: 'cors',
     prepareHeaders: (headers, { getState }) => {
@@ -12,7 +12,12 @@ const baseQuery = fetchBaseQuery({
             headers.set('authorization', `Bearer ${token}`);
         }
 
-        headers.set('Content-Type', 'application/json');
+        // FormData হলে Content-Type set করবেনা
+        // if (!(headers.get('Content-Type') === 'multipart/form-data')) {
+        //     headers.set('Content-Type', 'application/json');
+        // }
+
+        // headers.set('Content-Type', 'application/json');
         headers.set('Accept', 'application/json');
 
         return headers;
