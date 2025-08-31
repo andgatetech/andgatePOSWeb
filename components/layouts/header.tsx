@@ -27,6 +27,7 @@ import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -167,11 +168,10 @@ const Header = () => {
             <div className="shadow-sm">
                 <div className="relative flex w-full items-center bg-white px-5 py-2.5 dark:bg-black">
                     <div className="horizontal-logo flex items-center justify-between lg:hidden ltr:mr-2 rtl:ml-2">
-                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center space-x-2">
-                          
-
-                            {/* Additional JPEG icon */}
+                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
                             <img src="/images/andgatePOS.jpeg" alt="logo icon" className="inline w-40 object-contain" />
+                            {/* <Image src="/assets/images/logo.svg" alt="logo" width={32} height={32} className="inline ltr:-ml-1 rtl:-mr-1" /> */}
+                            <span className="hidden align-middle text-2xl  font-semibold  transition-all duration-300 dark:text-white-light md:inline ltr:ml-1.5 rtl:mr-1.5">AndGatePOS</span>
                         </Link>
 
                         <button
@@ -266,7 +266,11 @@ const Header = () => {
                                 offset={[0, 8]}
                                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
                                 btnClassName="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                button={i18n.language && <img className="h-5 w-5 rounded-full object-cover" src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt="flag" />}
+                                button={
+                                    i18n.language && (
+                                        <Image className="h-5 w-5 rounded-full object-cover" src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt="flag" width={20} height={20} />
+                                    )
+                                }
                             >
                                 <ul className="grid w-[280px] grid-cols-2 gap-2 !px-2 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
                                     {themeConfig.languageList.map((item: any) => {
@@ -280,7 +284,13 @@ const Header = () => {
                                                         setLocale(item.code);
                                                     }}
                                                 >
-                                                    <img src={`/assets/images/flags/${item.code.toUpperCase()}.svg`} alt="flag" className="h-5 w-5 rounded-full object-cover" />
+                                                    <Image
+                                                        src={`/assets/images/flags/${item.code.toUpperCase()}.svg`}
+                                                        alt="flag"
+                                                        width={20}
+                                                        height={20}
+                                                        className="h-5 w-5 rounded-full object-cover"
+                                                    />
                                                     <span className="ltr:ml-3 rtl:mr-3">{item.name}</span>
                                                 </button>
                                             </li>
@@ -374,7 +384,13 @@ const Header = () => {
                                                         <div className="group flex items-center px-4 py-2">
                                                             <div className="grid place-content-center rounded">
                                                                 <div className="relative h-12 w-12">
-                                                                    <img className="h-12 w-12 rounded-full object-cover" alt="profile" src={`/assets/images/${notification.profile}`} />
+                                                                    <Image
+                                                                        src={`/assets/images/${notification.profile}`}
+                                                                        alt="profile"
+                                                                        width={48}
+                                                                        height={48}
+                                                                        className="absolute inset-0 h-full w-full rounded-full object-cover"
+                                                                    />
                                                                     <span className="absolute bottom-0 right-[6px] block h-2 w-2 rounded-full bg-success"></span>
                                                                 </div>
                                                             </div>
@@ -423,12 +439,14 @@ const Header = () => {
                                 offset={[0, 8]}
                                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
                                 btnClassName="relative group block"
-                                button={<img className="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src="/assets/images/user-profile.jpeg" alt="userProfile" />}
+                                button={
+                                    <Image className="rounded-full object-cover saturate-50 group-hover:saturate-100" src="/assets/images/user-profile.jpeg" alt="userProfile" width={36} height={36} />
+                                }
                             >
                                 <ul className="w-[230px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
                                     <li>
                                         <div className="flex items-center px-4 py-4">
-                                            <img className="h-10 w-10 rounded-md object-cover" src="/assets/images/user-profile.jpeg" alt="userProfile" />
+                                            <Image src="/assets/images/user-profile.jpeg" alt="userProfile" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />
                                             <div className="truncate ltr:pl-4 rtl:pr-4">
                                                 <h4 className="text-base">
                                                     John Doe

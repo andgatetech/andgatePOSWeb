@@ -7,14 +7,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setItemsRedux, addItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
 import type { RootState } from '@/store';
 import BillToForm from './components-apps-invoice-right-billing';
+import Image from 'next/image';
+import IconEye from '@/components/icon/icon-eye';
+import ImageShowModal from '@/__components/ImageShowModal';
 
 const ComponentsAppsInvoiceAdd = () => {
+    const [open, setOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const dispatch = useDispatch();
 
     // Fetch all products from API
     const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes' });
     const products = productsData?.data || [];
-
+    console.log(products[0]);
     // Get items from Redux store
     const reduxItems = useSelector((state: RootState) => state.invoice.items);
 
@@ -30,6 +35,7 @@ const ComponentsAppsInvoiceAdd = () => {
             rate: 0,
             quantity: 0,
             amount: 0,
+            images: [],
         },
     ]);
 
@@ -57,6 +63,11 @@ const ComponentsAppsInvoiceAdd = () => {
             title: msg,
             padding: '10px 20px',
         });
+    };
+
+    const handleImageShow = (product) => {
+        setSelectedProduct(product);
+        setOpen(true);
     };
 
     const changeQuantityPrice = (type: string, value: string, id: number) => {
@@ -121,6 +132,7 @@ const ComponentsAppsInvoiceAdd = () => {
         item.description = product.description || '';
         item.rate = Number(product.price) || 0;
         item.quantity = 1;
+        item.images = product.images || [];
         item.PlaceholderQuantity = product.quantity || 0;
         item.amount = item.rate * item.quantity;
 
@@ -136,6 +148,7 @@ const ComponentsAppsInvoiceAdd = () => {
     useEffect(() => {
         beepRef.current = new Audio('/assets/sound/store-scanner-beep-90395.mp3');
     }, []);
+
     const addItem = () => {
         const currentItem = items.find((item) => item.productId);
 
@@ -187,7 +200,7 @@ const ComponentsAppsInvoiceAdd = () => {
                 <div className="flex flex-wrap justify-between px-4">
                     <div className="mb-6 w-full lg:w-1/2">
                         <div className="flex shrink-0 items-center text-black dark:text-white">
-                            <img src="/assets/images/Logo-PNG.png" alt="img" className="w-24" />
+                            <Image src="/assets/images/Logo-PNG.png" alt="img" width={96} height={96} className="" />
                         </div>
                         <div className="mt-6 space-y-1 text-gray-500 dark:text-gray-400">
                             <div>Dhaka, Bangladesh</div>
@@ -206,6 +219,7 @@ const ComponentsAppsInvoiceAdd = () => {
                                 <tr>
                                     <th>Item</th>
                                     <th className="w-1">Quantity</th>
+                                    <th className="w-1">Image</th>
                                     <th className="w-1">Price</th>
                                     <th>Total</th>
                                 </tr>
@@ -270,6 +284,11 @@ const ComponentsAppsInvoiceAdd = () => {
                                             />
                                             {item.PlaceholderQuantity && <div className="text-xs text-gray-400">Available: {item.PlaceholderQuantity}</div>}
                                         </td>
+                                        <td>
+                                            <button className="cursor-pointer" onClick={() => handleImageShow(item)}>
+                                                <IconEye />
+                                            </button>
+                                        </td>
 
                                         <td>
                                             <input
@@ -314,6 +333,7 @@ const ComponentsAppsInvoiceAdd = () => {
             <div>
                 <BillToForm />
             </div>
+            <ImageShowModal isOpen={open} onClose={() => setOpen(false)} product={selectedProduct} />
         </div>
     );
 };

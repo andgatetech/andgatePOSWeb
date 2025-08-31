@@ -38,7 +38,7 @@ const ProductApi = baseApi.injectEndpoints({
         updateProduct: builder.mutation({
             query: ({ id, ...data }) => ({
                 url: `/store/products/${id}`,
-                method: 'PUT',
+                method: 'POST',
                 body: data,
             }),
             invalidatesTags: ['Products'],
@@ -51,7 +51,22 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products'],
         }),
+        getProductQRCode: builder.query({
+            query: (id) => `/products/${id}/qrcode`,
+        }),
+        getProductBrCode: builder.query({
+            query: (id) => `/products/${id}/barcode`,
+        }),
     }),
 });
 
-export const { useCreateProductMutation, useGetAllProductsQuery, useGetSingleProductQuery, useUpdateProductMutation, useDeleteProductMutation, useUpdateAvailabilityMutation } = ProductApi;
+export const {
+    useCreateProductMutation,
+    useGetAllProductsQuery,
+    useGetSingleProductQuery,
+    useUpdateProductMutation,
+    useDeleteProductMutation,
+    useUpdateAvailabilityMutation,
+    useGetProductQRCodeQuery,
+    useGetProductBrCodeQuery,
+} = ProductApi;
