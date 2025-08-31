@@ -7,6 +7,7 @@ import { sortBy } from 'lodash';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import OrderItemsModal from './ordeo_items_modal';
+import Image from 'next/image';
 
 const ComponentsAppsInvoiceList = () => {
     // const [selectedItems, setSelectedItems] = useState<any[]>([]);
@@ -115,7 +116,7 @@ const ComponentsAppsInvoiceList = () => {
                                 render: ({ name }) => (
                                     <div className="flex items-center font-semibold">
                                         <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
-                                            <img className="h-8 w-8 rounded-full object-cover" src={`/assets/images/default.jpeg`} alt="" />
+                                            <Image src={`/assets/images/default.jpeg`} alt="" className="rounded-full object-cover" width={32} height={32} />
                                         </div>
                                         <div>{name}</div>
                                     </div>

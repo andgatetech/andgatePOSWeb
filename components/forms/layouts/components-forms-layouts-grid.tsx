@@ -2,22 +2,25 @@
 
 import PanelCodeHighlight from '@/components/panel-code-highlight';
 import { useGetCategoriesQuery } from '@/store/features/category/categoryApi';
-import { useGetAllStoreAdminStoresQuery } from '@/store/features/store/storeApi';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { useCreateProductMutation } from '@/store/Product/productApi';
+// import 'file-upload-with-preview/dist/file-upload-with-preview.min.css';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { toast } from 'react-toastify';
 
 const ComponentsFormsLayoutsGrid = () => {
+    const maxNumber = 69;
+    const [images, setImages] = useState<any>([]);
     const router = useRouter();
     const { data: ct, isLoading: catLoading } = useGetCategoriesQuery();
-    const { data: sp, isLoading: supLoading } = useGetSuppliersQuery();
-    // const { data: st, isLoading: storeLoading } = useGetAllStoreAdminStoresQuery();
-    const suppliers = sp?.data || [];
     const categories = ct?.data || [];
-    // const stores = st?.data || [];
     const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
+
+    const onChange2 = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
+        setImages(imageList as never[]);
+    };
 
     const [formData, setFormData] = useState({
         category_id: '',
@@ -27,6 +30,7 @@ const ComponentsFormsLayoutsGrid = () => {
         available: 'yes',
         quantity: '',
         purchase_price: '',
+        sku: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -38,19 +42,66 @@ const ComponentsFormsLayoutsGrid = () => {
         e.preventDefault();
 
         if (!formData.category_id) {
-            toast.error('Please select Category!');
+            toast.error('Please select a Category!');
+            return;
+        }
+        if (!formData.product_name) {
+            toast.error('Please enter Product Name!');
+            return;
+        }
+        if (!formData.price) {
+            toast.error('Please enter Price!');
+            return;
+        }
+        if (!formData.quantity) {
+            toast.error('Please enter Quantity!');
+            return;
+        }
+        if (!formData.purchase_price) {
+            toast.error('Please enter Purchase Price!');
             return;
         }
 
         try {
-            const result = await createProduct({
-                ...formData,
-                category_id: Number(formData.category_id),
-                price: Number(formData.price),
-                quantity: Number(formData.quantity),
-                purchase_price: Number(formData.purchase_price),
-            }).unwrap();
+            // ✅ FormData বানাও
+            const fd = new FormData();
+            fd.append('category_id', formData.category_id);
+            fd.append('product_name', formData.product_name);
+            fd.append('description', formData.description);
+            fd.append('price', String(formData.price));
+            fd.append('quantity', String(formData.quantity));
+            fd.append('purchase_price', String(formData.purchase_price));
+            fd.append('available', formData.available);
 
+            if (formData.sku) {
+                fd.append('sku', formData.sku); // manual input
+            }
+
+            // Log FormData
+            for (let [key, value] of fd.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            // ✅ multiple images handle করো
+            if (images && images.length > 0) {
+                images.forEach((img) => {
+                    const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    if (!validMimes.includes(img.file.type)) {
+                        toast.error('Only JPG and PNG images are allowed!');
+                        return;
+                    }
+                    if (img.file.size > 2 * 1024 * 1024) {
+                        toast.error('Image size must be less than 2MB!');
+                        return;
+                    }
+                    fd.append('images[]', img.file as File);
+                });
+            }
+
+            // ✅ RTK mutation call
+            const result = await createProduct(fd).unwrap();
+
+            // reset form
             setFormData({
                 category_id: '',
                 product_name: '',
@@ -60,6 +111,7 @@ const ComponentsFormsLayoutsGrid = () => {
                 quantity: '',
                 purchase_price: '',
             });
+
             toast.success('Product created successfully!');
             router.push('/apps/products');
         } catch (error) {
@@ -150,88 +202,68 @@ const ComponentsFormsLayoutsGrid = () => {
                         </ul>
                     )}
                 </div>
+                {/* SKU Input + Radio */}
+                <div>
+                    <label>SKU</label>
+                    <div className="mb-2 flex items-center gap-4">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="skuOption"
+                                value="manual"
+                                checked={formData.skuOption === 'manual'}
+                                onChange={() => setFormData((prev) => ({ ...prev, skuOption: 'manual', sku: '' }))}
+                            />
+                            Input SKU
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="skuOption"
+                                value="auto"
+                                checked={formData.skuOption === 'auto'}
+                                onChange={() => setFormData((prev) => ({ ...prev, skuOption: 'auto', sku: '' }))}
+                            />
+                            Auto-generate SKU
+                        </label>
+                    </div>
 
-                {/* Store Searchable Dropdown
-                <div className="relative">
-                    <label htmlFor="store_id">Store</label>
                     <input
-                        id="store_id"
+                        id="sku"
+                        name="sku"
                         type="text"
-                        value={formData.store_name || ''}
-                        onChange={(e) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                store_name: e.target.value,
-                                store_id: '',
-                            }))
-                        }
-                        placeholder="Search Store..."
-                        className="form-input w-full"
-                        autoComplete="off"
+                        value={formData.sku}
+                        onChange={handleChange}
+                        placeholder={formData.skuOption === 'manual' ? 'Enter SKU' : 'Will be generated automatically'}
+                        className="form-input"
+                        disabled={formData.skuOption === 'auto'}
                     />
-                    {stores?.length > 0 && formData.store_name && !formData.store_id && (
-                        <ul className="absolute z-10 max-h-40 w-full overflow-y-auto border bg-white shadow-lg">
-                            {stores
-                                .filter((store: any) => store.name.toLowerCase().includes(formData.store_name.toLowerCase()))
-                                .map((store: any) => (
-                                    <li
-                                        key={store.id}
-                                        className="cursor-pointer p-2 hover:bg-gray-200"
-                                        onClick={() =>
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                store_name: store.name,
-                                                store_id: store.id,
-                                            }))
-                                        }
-                                    >
-                                        {store.name}
-                                    </li>
-                                ))}
-                        </ul>
-                    )}
-                </div> */}
+                    <p className="mt-1 text-sm text-gray-500">{formData.skuOption === 'auto' ? 'SKU will be auto-generated by system.' : 'Enter SKU manually.'}</p>
+                </div>
 
-                {/* Supplier Searchable Dropdown */}
-                {/* <div className="relative">
-                    <label htmlFor="supplier_id">Supplier</label>
-                    <input
-                        id="supplier_id"
-                        type="text"
-                        value={formData.supplier_name || ''}
-                        onChange={(e) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                supplier_name: e.target.value,
-                                supplier_id: '',
-                            }))
-                        }
-                        placeholder="Search Supplier..."
-                        className="form-input w-full"
-                        autoComplete="off"
-                    />
-                    {suppliers?.length > 0 && formData.supplier_name && !formData.supplier_id && (
-                        <ul className="absolute z-10 max-h-40 w-full overflow-y-auto border bg-white shadow-lg">
-                            {suppliers
-                                .filter((sup: any) => sup.name.toLowerCase().includes(formData.supplier_name.toLowerCase()))
-                                .map((sup: any) => (
-                                    <li
-                                        key={sup.id}
-                                        className="cursor-pointer p-2 hover:bg-gray-200"
-                                        onClick={() =>
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                supplier_name: sup.name,
-                                                supplier_id: sup.id,
-                                            }))
-                                        }
-                                    >
-                                        {sup.name}
-                                    </li>
-                                ))}
-                        </ul>
-                    )}
-                </div> */}
+                {/* Image Upload */}
+                <div>
+                    <label>Upload Images</label>
+                    <ImageUploading multiple value={images} onChange={onChange2} maxNumber={10}>
+                        {({ imageList, onImageUpload, onImageRemove, onImageUpdate }) => (
+                            <div className="upload__image-wrapper">
+                                <button type="button" onClick={onImageUpload} className="btn btn-secondary mb-3">
+                                    Choose File...
+                                </button>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    {imageList.map((image, index) => (
+                                        <div key={index} className="relative">
+                                            <img src={image.dataURL} alt="img" className="!max-h-48 w-full rounded object-cover shadow" />
+                                            <button type="button" className="absolute right-1 top-1 rounded-full bg-red-500 px-2 py-1 text-white" onClick={() => onImageRemove(index)}>
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </ImageUploading>
+                </div>
 
                 <button type="submit" disabled={createLoading} className="btn btn-primary !mt-6">
                     {createLoading ? 'Submitting...' : 'Submit'}
