@@ -12,7 +12,8 @@ const baseQuery = fetchBaseQuery({
             headers.set('authorization', `Bearer ${token}`);
         }
 
-        //headers.set('Content-Type', 'application/json');
+        headers.set('Content-Type', 'application/json');
+
         headers.set('Accept', 'application/json');
 
         return headers;
@@ -22,6 +23,6 @@ const baseQuery = fetchBaseQuery({
 export const baseApi = createApi({
     reducerPath: 'baseApi',
     baseQuery,
-    tagTypes: ['Stores', 'User', 'Products', 'Orders', 'Purchases', 'Categories', 'Transactions', 'SupplierPurchases','Customers'],
+    tagTypes: ['Stores', 'User', 'Products', 'Orders', 'Purchases', 'Categories', 'Transactions', 'SupplierPurchases', 'Customers'],
     endpoints: () => ({}),
 });

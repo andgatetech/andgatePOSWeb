@@ -6,8 +6,12 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 // import Dropdown from '../dropdown';
 import Dropdown from '@/components/dropdown';
+import IconEye from '../icon/icon-eye';
+import ImageShowModal from '@/__components/ImageShowModal';
 
 const ProductTable = () => {
+    const [open, setOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     // API calls
     const { data: pds, isLoading } = useGetAllProductsQuery();
     const products = pds?.data || [];
@@ -131,6 +135,11 @@ const ProductTable = () => {
         );
     }
 
+    const handleImageShow = (product) => {
+        setSelectedProduct(product);
+        setOpen(true);
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="mx-auto max-w-7xl">
@@ -251,6 +260,9 @@ const ProductTable = () => {
                                             {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
+                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100">
+                                        <div className="flex items-center gap-2">See Images</div>
+                                    </th>
                                     <th
                                         className="cursor-pointer px-4 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
                                         onClick={() => handleSort('available')}
@@ -315,6 +327,11 @@ const ProductTable = () => {
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td className="whitespace-nowrap px-6 py-4">
+                                                <button className="cursor-pointer" onClick={() => handleImageShow(product)}>
+                                                    <IconEye />
+                                                </button>
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4">
                                                 <button
@@ -419,6 +436,7 @@ const ProductTable = () => {
                     )}
                 </div>
             </div>
+            <ImageShowModal isOpen={open} onClose={() => setOpen(false)} product={selectedProduct} />
         </div>
     );
 };
