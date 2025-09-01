@@ -1,8 +1,7 @@
 'use client';
 
 import PanelCodeHighlight from '@/components/panel-code-highlight';
-import { useGetCategoriesQuery } from '@/store/features/category/categoryApi';
-import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
+import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation } from '@/store/Product/productApi';
 // import 'file-upload-with-preview/dist/file-upload-with-preview.min.css';
 import { useRouter } from 'next/navigation';
@@ -14,7 +13,7 @@ const ComponentsFormsLayoutsGrid = () => {
     const maxNumber = 69;
     const [images, setImages] = useState<any>([]);
     const router = useRouter();
-    const { data: ct, isLoading: catLoading } = useGetCategoriesQuery();
+    const { data: ct, isLoading: catLoading } = useGetCategoryQuery();
     const categories = ct?.data || [];
     const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
 
