@@ -54,7 +54,7 @@ export default function ProductAndQrTable() {
 
         for (const product of selected) {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/products/${product.id}/qrcode`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/${product.id}/qrcode`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

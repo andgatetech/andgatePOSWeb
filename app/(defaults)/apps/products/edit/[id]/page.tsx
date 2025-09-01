@@ -23,7 +23,7 @@ export default function UpdateProductPage({ params }: Props) {
             setImages(
                 product.images
                     ? product.images.map((img: string) => ({
-                          dataURL: `${process.env.NEXT_PUBLIC_APP_URL}/storage/${img}`, // প্রিভিউর জন্য ফুল URL
+                          dataURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${img}`, // প্রিভিউর জন্য ফুল URL
                           path: img, // ব্যাকএন্ডে পাঠানোর জন্য স্টোরেজ পাথ
                           file: null,
                       }))
@@ -123,7 +123,7 @@ export default function UpdateProductPage({ params }: Props) {
             }
 
             // ✅ API Call
-            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/store/products/${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/store/products/${id}`, {
                 method: 'POST', // 👈 Laravel এর জন্য update() তে `POST` + `_method=PUT`
                 headers: {
                     Authorization: `Bearer ${token}`,
