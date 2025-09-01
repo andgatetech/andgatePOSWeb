@@ -5,9 +5,9 @@ import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, Filter, MoreVertical,
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 // import Dropdown from '../dropdown';
+import ImageShowModal from '@/__components/ImageShowModal';
 import Dropdown from '@/components/dropdown';
 import IconEye from '../icon/icon-eye';
-import ImageShowModal from '@/__components/ImageShowModal';
 
 const ProductTable = () => {
     const [open, setOpen] = useState(false);
@@ -15,6 +15,8 @@ const ProductTable = () => {
     // API calls
     const { data: pds, isLoading } = useGetAllProductsQuery();
     const products = pds?.data || [];
+    console.log('products', products);
+
     const [updateAvailability] = useUpdateAvailabilityMutation();
     const [deleteProduct] = useDeleteProductMutation();
 
