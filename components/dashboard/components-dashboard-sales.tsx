@@ -43,16 +43,12 @@ const ComponentsDashboardSales = () => {
 
                 <div className="pt-5">
                     <div className="mb-6 grid gap-6 xl:grid-cols-3">
-                       <Revenue></Revenue>
+                        <Revenue></Revenue>
 
-                          {/* <Sale_by></Sale_by> */}
+                        <Sale_by></Sale_by> 
                     </div>
 
-                    <div className="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                       
-
-                        
-                    </div>
+                    <div className="mb-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3"></div>
 
                     {/* Recent Order Transactions */}
                     <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -65,7 +61,7 @@ const ComponentsDashboardSales = () => {
 
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         <Recent_Orders />
-                        {/* <Top_Selling_Products /> */}
+                        <Top_Selling_Products />
                     </div>
                 </div>
             </div>

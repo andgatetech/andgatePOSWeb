@@ -1,5 +1,4 @@
-import CategoryComponent from "./categoryComponent";
-
+import CategoryComponent from "./CategoryComponent";
 
 const page = () => {
     return (
