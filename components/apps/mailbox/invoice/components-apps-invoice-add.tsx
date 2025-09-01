@@ -17,7 +17,7 @@ const ComponentsAppsInvoiceAdd = () => {
     const dispatch = useDispatch();
 
     // Fetch all products from API
-    const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes' });
+    const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes'});
     const products = productsData?.data || [];
     console.log(products[0]);
     // Get items from Redux store

@@ -49,14 +49,14 @@ const CoverLogin = () => {
                                 >
                                     Login
                                 </button>
-                                <button
+                                {/* <button
                                     className={`flex-1 py-2 text-center text-lg font-medium transition-colors ${
                                         activeTab === 'supplier' ? 'border-b-2 border-primary text-primary' : 'text-white-dark hover:text-primary'
                                     }`}
                                     onClick={() => setActiveTab('supplier')}
                                 >
                                     Supplier Login
-                                </button>
+                                </button> */}
                             </div>
                             {activeTab === 'login' ? <ComponentsAuthLoginForm /> : <SupplierLoginForm />}
                             <div className="relative my-7 text-center md:mb-9">

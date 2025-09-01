@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const InvoiceAdd = () => {
-    return <ComponentsAppsInvoiceAdd />;
+    return <ComponentsAppsInvoiceAdd/>;
 };
 
 export default InvoiceAdd;

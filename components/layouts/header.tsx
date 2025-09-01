@@ -27,6 +27,7 @@ import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
+import { CreditCard } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -171,7 +172,6 @@ const Header = () => {
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
                             <img src="/images/andgatePOS.jpeg" alt="logo icon" className="inline w-40 object-contain" />
                             {/* <Image src="/assets/images/logo.svg" alt="logo" width={32} height={32} className="inline ltr:-ml-1 rtl:-mr-1" /> */}
-                            <span className="hidden align-middle text-2xl  font-semibold  transition-all duration-300 dark:text-white-light md:inline ltr:ml-1.5 rtl:mr-1.5">AndGatePOS</span>
                         </Link>
 
                         <button
@@ -188,8 +188,16 @@ const Header = () => {
                             <li>
                                 <Link
                                     href="/apps/pos"
-                                    className="rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
+                                    className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
                                 >
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 14h.01M9 11h.01M12 11h.01M15 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                        />
+                                    </svg>
                                     POS
                                 </Link>
                             </li>
@@ -197,33 +205,7 @@ const Header = () => {
                     </div>
 
                     <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 lg:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
-                        <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
-                            <form
-                                className={`${search && '!block'} absolute inset-x-0 top-1/2 z-10 mx-4 hidden -translate-y-1/2 sm:relative sm:top-0 sm:mx-0 sm:block sm:translate-y-0`}
-                                onSubmit={() => setSearch(false)}
-                            >
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        className="peer form-input bg-gray-100 placeholder:tracking-widest sm:bg-transparent ltr:pl-9 ltr:pr-9 ltr:sm:pr-4 rtl:pl-9 rtl:pr-9 rtl:sm:pl-4"
-                                        placeholder="Search..."
-                                    />
-                                    <button type="button" className="absolute inset-0 h-9 w-9 appearance-none peer-focus:text-primary ltr:right-auto rtl:left-auto">
-                                        <IconSearch className="mx-auto" />
-                                    </button>
-                                    <button type="button" className="absolute top-1/2 block -translate-y-1/2 hover:opacity-80 sm:hidden ltr:right-2 rtl:left-2" onClick={() => setSearch(false)}>
-                                        <IconXCircle />
-                                    </button>
-                                </div>
-                            </form>
-                            <button
-                                type="button"
-                                onClick={() => setSearch(!search)}
-                                className="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
-                            >
-                                <IconSearch className="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" />
-                            </button>
-                        </div>
+                        <div className="sm:ltr:mr-auto sm:rtl:ml-auto"></div>
                         <div>
                             {themeConfig.theme === 'light' ? (
                                 <button
@@ -449,12 +431,10 @@ const Header = () => {
                                             <Image src="/assets/images/user-profile.jpeg" alt="userProfile" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />
                                             <div className="truncate ltr:pl-4 rtl:pr-4">
                                                 <h4 className="text-base">
-                                                    John Doe
+                                                    User
                                                     <span className="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">Pro</span>
                                                 </h4>
-                                                <button type="button" className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white">
-                                                    johndoe@gmail.com
-                                                </button>
+                                               
                                             </div>
                                         </div>
                                     </li>
@@ -503,9 +483,6 @@ const Header = () => {
                         <ul className="sub-menu">
                             <li>
                                 <Link href="/dashboard">{t('sales')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/pos">{t('POS')}</Link>
                             </li>
                         </ul>
                     </li>

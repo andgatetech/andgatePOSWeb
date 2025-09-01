@@ -31,8 +31,21 @@ const adminRoutes = [
         icon: <IconMenuDashboard />,
         subMenu: [
             { label: 'Sales', href: '/dashboard' },
-            { label: 'POS', href: '/apps/pos' },
+           
         ],
+    },
+    {
+        label: 'Store',
+        icon: <IconMenuContacts />,
+        subMenu: [
+            { label: 'Store', href: '/apps/store' },
+            { label: 'Staff Management', href: '/apps/staff' },
+        ],
+    },
+    {
+        label: 'Category',
+        icon: <IconMenuContacts />,
+        subMenu: [{ label: 'Category List', href: '/apps/category' }],
     },
     {
         label: 'Product',
@@ -43,9 +56,18 @@ const adminRoutes = [
         ],
     },
     {
+        label: 'POS',
+        icon: <IconMenuContacts />,
+        subMenu: [
+            { label: 'POS System', href: '/apps/pos' },
+           
+        ],
+    },
+
+    {
         label: 'Order',
         icon: <IconMenuContacts />,
-        subMenu: [{ label: 'Order View', href: '/apps/OrderView' }],
+        subMenu: [{ label: 'Order List', href: '/apps/OrderView' }],
     },
     {
         label: 'Purchase',
@@ -55,14 +77,7 @@ const adminRoutes = [
             { label: 'Purchase List', href: '/apps/Purchase' },
         ],
     },
-    {
-        label: 'store',
-        icon: <IconMenuContacts />,
-        subMenu: [
-            { label: 'category', href: '/apps/category' },
-            { label: 'store', href: '/apps/store' },
-        ],
-    },
+
     {
         label: 'Report',
         icon: <IconMenuContacts />,

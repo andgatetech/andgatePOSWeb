@@ -12,16 +12,16 @@ const Revenue = ({ isRtl = false }) => {
         setIsMounted(true);
     }, []);
 
-    // Loading skeleton component
+    // Loading skeleton
     const LoadingSkeleton = () => (
         <div className="animate-pulse space-y-4 p-6">
-            <div className="h-6 w-32 rounded bg-gray-300"></div> {/* Title */}
+            <div className="h-6 w-32 rounded bg-gray-300"></div>
             <div className="flex space-x-4">
-                <div className="h-6 w-24 rounded bg-gray-300"></div> {/* Revenue */}
-                <div className="h-6 w-24 rounded bg-gray-300"></div> {/* Expense */}
-                <div className="h-6 w-24 rounded bg-gray-300"></div> {/* Profit */}
+                <div className="h-6 w-24 rounded bg-gray-300"></div>
+                <div className="h-6 w-24 rounded bg-gray-300"></div>
+                <div className="h-6 w-24 rounded bg-gray-300"></div>
             </div>
-            <div className="mt-6 h-80 rounded bg-gray-300"></div> {/* Chart placeholder */}
+            <div className="mt-6 h-80 rounded bg-gray-300"></div>
         </div>
     );
 
@@ -41,9 +41,17 @@ const Revenue = ({ isRtl = false }) => {
 
     const orders = Array.isArray(data?.data) ? data.data : [];
 
-    // Group orders by month (e.g., "Aug 2025")
-    const revenueByMonth = {};
-    const expenseByMonth = {};
+    if (orders.length === 0) {
+        return (
+            <div className="panel grid h-full place-content-center xl:col-span-2">
+                <p className="text-lg text-gray-500 dark:text-gray-400">No orders found yet. Your revenue data will appear here once you have orders.</p>
+            </div>
+        );
+    }
+
+    // Group orders by month
+    const revenueByMonth: Record<string, number> = {};
+    const expenseByMonth: Record<string, number> = {};
 
     orders.forEach((order) => {
         const date = new Date(order.created_at);
@@ -52,65 +60,46 @@ const Revenue = ({ isRtl = false }) => {
             month: 'short',
         });
 
-        // Add revenue (grand_total)
+        // Revenue
         revenueByMonth[monthKey] = (revenueByMonth[monthKey] || 0) + Number(order.grand_total || 0);
 
-        // Sum purchase price (expense) for all items in the order
-        const orderExpense = order.items.reduce((sum, item) => {
-            return Number(item.quantity) * Number(item.product.purchase_price || 0);
-        }, 0);
+        // Expense
+        const orderExpense =
+            order.items?.reduce((sum, item) => {
+                const purchasePrice = item.product?.purchase_price ?? 0;
+                return sum + Number(item.quantity || 0) * Number(purchasePrice);
+            }, 0) || 0;
 
         expenseByMonth[monthKey] = (expenseByMonth[monthKey] || 0) + orderExpense;
     });
 
-    // Prepare data sorted by month ascending
-    const months = Object.keys(revenueByMonth).sort((a, b) => {
-        const dateA = new Date(a);
-        const dateB = new Date(b);
-        return dateA.getTime() - dateB.getTime();
-    });
+    const months = Object.keys(revenueByMonth).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
     const revenueData = months.map((month) => revenueByMonth[month]);
     const expenseData = months.map((month) => expenseByMonth[month]);
 
-    // Calculate totals for display
     const totalRevenue = revenueData.reduce((sum, val) => sum + val, 0);
     const totalExpense = expenseData.reduce((sum, val) => sum + val, 0);
     const totalProfit = totalRevenue - totalExpense;
 
-    // ApexCharts config
     const chartOptions = {
-        chart: {
-            type: 'area',
-            toolbar: { show: false },
-            stacked: false,
-        },
+        chart: { type: 'area', toolbar: { show: false }, stacked: false },
         dataLabels: { enabled: false },
         stroke: { curve: 'smooth' },
         xaxis: { categories: months },
-        colors: ['#3b82f6', '#ef4444'], // blue for revenue, red for expense
+        colors: ['#3b82f6', '#ef4444'],
         fill: { opacity: 0.3 },
         grid: { borderColor: '#f1f1f1' },
         tooltip: {
             y: {
-                formatter: (val) =>
-                    `$${val.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    })}`,
+                formatter: (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
             },
         },
     };
 
     const chartSeries = [
-        {
-            name: 'Revenue',
-            data: revenueData,
-        },
-        {
-            name: 'Expense',
-            data: expenseData,
-        },
+        { name: 'Revenue', data: revenueData },
+        { name: 'Expense', data: expenseData },
     ];
 
     return (
@@ -123,7 +112,6 @@ const Revenue = ({ isRtl = false }) => {
                             <li>
                                 <button type="button">Monthly</button>
                             </li>
-                            {/* Add more options if needed */}
                         </ul>
                     </Dropdown>
                 </div>
@@ -133,7 +121,7 @@ const Revenue = ({ isRtl = false }) => {
                 Total Revenue: <span className="ml-2 text-primary">৳{totalRevenue.toLocaleString()}</span>
             </p>
             <p className="text-lg dark:text-white-light/90">
-                Total Expense (purchase product) : <span className="ml-2 text-red-500">৳{totalExpense.toLocaleString()}</span>
+                Total Expense: <span className="ml-2 text-red-500">৳{totalExpense.toLocaleString()}</span>
             </p>
             <p className="text-lg font-semibold dark:text-white-light/90">
                 Total Profit: <span className={`${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>৳{totalProfit.toLocaleString()}</span>
