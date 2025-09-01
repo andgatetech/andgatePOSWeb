@@ -16,6 +16,7 @@ import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
 import IconMenuContacts from '@/components/icon/menu/icon-menu-contacts';
 import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
+import { BarChart, FileText, Home, Layers, Package, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -28,28 +29,25 @@ function getCookieValue(name: string): string | null {
 const adminRoutes = [
     {
         label: 'Dashboard',
-        icon: <IconMenuDashboard />,
-        subMenu: [
-            { label: 'Sales', href: '/dashboard' },
-           
-        ],
+        icon: <Home />,
+        subMenu: [{ label: 'Sales', href: '/dashboard' }],
     },
     {
         label: 'Store',
-        icon: <IconMenuContacts />,
+        icon: <ShoppingBag />,
         subMenu: [
             { label: 'Store', href: '/apps/store' },
-            { label: 'Staff Management', href: '/apps/staff' },
+            { label: 'Staff Management', href: '/apps/Staff' },
         ],
     },
     {
         label: 'Category',
-        icon: <IconMenuContacts />,
+        icon: <Layers />,
         subMenu: [{ label: 'Category List', href: '/apps/category' }],
     },
     {
         label: 'Product',
-        icon: <IconMenuContacts />,
+        icon: <Package />,
         subMenu: [
             { label: 'Create Product', href: '/apps/createProduct' },
             { label: 'Product List', href: '/apps/products' },
@@ -57,33 +55,40 @@ const adminRoutes = [
     },
     {
         label: 'POS',
-        icon: <IconMenuContacts />,
-        subMenu: [
-            { label: 'POS System', href: '/apps/pos' },
-           
-        ],
+        icon: <ShoppingCart />,
+        subMenu: [{ label: 'POS Interface', href: '/apps/pos' }],
     },
-
     {
         label: 'Order',
-        icon: <IconMenuContacts />,
+        icon: <FileText />,
         subMenu: [{ label: 'Order List', href: '/apps/OrderView' }],
     },
     {
         label: 'Purchase',
-        icon: <IconMenuContacts />,
+        icon: <Package />,
         subMenu: [
             { label: 'Create Purchase', href: '/apps/createPurchase' },
             { label: 'Purchase List', href: '/apps/Purchase' },
         ],
     },
-
+    {
+        label: 'Seller',
+        icon: <Users />,
+        subMenu: [{ label: 'Seller Management', href: '/apps/Seller' }],
+    },
     {
         label: 'Report',
-        icon: <IconMenuContacts />,
-        subMenu: [{ label: 'Activity log', href: '/apps/ActivityLog' }],
+        icon: <BarChart />,
+        subMenu: [
+            { label: 'Activity log', href: '/apps/ActivityLog' },
+            { label: 'Sales Report', href: '/apps/SalesReport' },
+            { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
+            { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
+        ],
     },
 ];
+
+
 
 const Sidebar = () => {
     const dispatch = useDispatch();
