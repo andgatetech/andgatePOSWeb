@@ -12,12 +12,7 @@ const baseQuery = fetchBaseQuery({
             headers.set('authorization', `Bearer ${token}`);
         }
 
-        // FormData হলে Content-Type set করবেনা
-        // if (!(headers.get('Content-Type') === 'multipart/form-data')) {
-        //     headers.set('Content-Type', 'application/json');
-        // }
-
-        // headers.set('Content-Type', 'application/json');
+        headers.set('Content-Type', 'application/json');
         headers.set('Accept', 'application/json');
 
         return headers;
