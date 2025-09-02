@@ -41,10 +41,10 @@ const CoverRegister = () => {
                     <div className="relative flex w-full flex-col items-center justify-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:max-w-[667px]">
                         <div className="w-full max-w-[440px] lg:mt-16">
                             <div className="mb-10">
-                                <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Sign Up</h1>
+                                <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl"> Store Sign Up</h1>
                                 <p className="text-base font-bold leading-normal text-white-dark">Enter your email and password to register</p>
                             </div>
-                            <div className="mb-6 flex border-b border-white-light dark:border-white-dark">
+                            {/* <div className="mb-6 flex border-b border-white-light dark:border-white-dark">
                                 <button
                                     className={`flex-1 py-2 text-center text-lg font-medium transition-colors ${
                                         activeTab === 'register' ? 'border-b-2 border-primary text-primary' : 'text-white-dark hover:text-primary'
@@ -61,8 +61,9 @@ const CoverRegister = () => {
                                 >
                                     Supplier Register
                                 </button>
-                            </div>
-                            {activeTab === 'register' ? <ComponentsAuthRegisterForm /> : <SupplierRegisterForm />}
+                            </div> */}
+                            <ComponentsAuthRegisterForm />
+                            {/* {activeTab === 'register' ? <ComponentsAuthRegisterForm /> : <SupplierRegisterForm />} */}
                             <div className="relative my-7 text-center md:mb-9">
                                 <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
                                 <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">or</span>
@@ -82,7 +83,7 @@ const CoverRegister = () => {
                             </div>
                             <div className="text-center dark:text-white">
                                 Already have an account ?&nbsp;
-                                <Link href="/auth/cover-login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
+                                <Link href="/login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
                                     SIGN IN
                                 </Link>
                             </div>
