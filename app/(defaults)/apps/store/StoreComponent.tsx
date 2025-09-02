@@ -139,9 +139,6 @@ const StoreComponent = () => {
                                         <p className="text-sm text-gray-500">Store details and configuration</p>
                                     </div>
                                 </div>
-                                <button className="flex items-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
-                                    <Edit3 className="mr-2 h-5 w-5" /> Edit
-                                </button>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -217,7 +214,10 @@ const StoreComponent = () => {
                             </a>
 
                             {/* Store Settings */}
-                            <div className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-md">
+                            <a
+                                href="/apps/store/StoreSetting"
+                                className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-md"
+                            >
                                 <div className="flex items-start justify-between">
                                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg">
                                         <Settings className="h-6 w-6" />
@@ -234,7 +234,7 @@ const StoreComponent = () => {
                                         <span>{currentStore?.working_hours || '9 AM – 9 PM'}</span>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
 
                             {/* Compliance & Legal */}
                             <div className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-red-50 to-red-100 p-6 transition hover:-translate-y-1 hover:border-red-300 hover:shadow-md">
