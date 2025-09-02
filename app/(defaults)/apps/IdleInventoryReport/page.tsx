@@ -1,10 +1,10 @@
-import StoreComponent from "./StoreComponent";
+import IdleInventoryReport from "./IdleInventoryReport";
 
 
 const page = () => {
     return (
         <div className="  ">
-            <StoreComponent></StoreComponent>
+           <IdleInventoryReport />
         </div>
     );
 };

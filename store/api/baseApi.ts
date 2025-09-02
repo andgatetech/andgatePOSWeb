@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '..';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'http://127.0.0.1:8000/api/',
+    baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/`,
     // credentials: 'include',
     // mode: 'cors',
     prepareHeaders: (headers, { getState }) => {
@@ -13,6 +13,7 @@ const baseQuery = fetchBaseQuery({
         }
 
         headers.set('Content-Type', 'application/json');
+
         headers.set('Accept', 'application/json');
 
         return headers;
@@ -22,6 +23,6 @@ const baseQuery = fetchBaseQuery({
 export const baseApi = createApi({
     reducerPath: 'baseApi',
     baseQuery,
-    tagTypes: ['Stores', 'User', 'Products', 'Orders', 'Purchases', 'Categories', 'Transactions', 'SupplierPurchases'],
+    tagTypes: ['Stores', 'User', 'Products', 'Orders', 'Purchases', 'Categories', 'Transactions', 'SupplierPurchases', 'Customers'],
     endpoints: () => ({}),
 });

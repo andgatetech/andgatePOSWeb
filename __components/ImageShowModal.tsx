@@ -58,7 +58,7 @@ export default function ImageShowModal({ isOpen, onClose, product }) {
                             >
                                 {product.images.map((img, i) => (
                                     <SwiperSlide key={i}>
-                                        <Image src={`${process.env.NEXT_PUBLIC_APP_URL}/storage/${img.image_path}`} alt={`Product image ${i + 1}`} width={800} height={600} objectFit="contain" />
+                                        <Image src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${img.image_path}`} alt={`Product image ${i + 1}`} width={800} height={600} objectFit="contain" />
                                     </SwiperSlide>
                                 ))}
                                 <button

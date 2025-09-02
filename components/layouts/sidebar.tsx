@@ -14,34 +14,81 @@ import { getTranslation } from '@/i18n';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import IconMinus from '@/components/icon/icon-minus';
 import IconMenuContacts from '@/components/icon/menu/icon-menu-contacts';
 import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
+import { BarChart, FileText, Home, Layers, Package, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
 
-// 🔑 Helper: read cookie without any package
+// Helper: read cookie
 function getCookieValue(name: string): string | null {
-    if (typeof document === 'undefined') return null; // avoid SSR crash
+    if (typeof document === 'undefined') return null;
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : null;
 }
 
-// Configs
-const baseAdminRoutes = [
-    { href: '/apps/store', label: 'Store' },
-    { href: '/apps/category', label: 'Category' },
-    { href: '/apps/products', label: 'Products List' },
-    { href: '/apps/createProduct', label: 'Create Product' },
-    { href: '/apps/Purchase', label: 'Purchase List' },
-    { href: '/apps/createPurchase', label: 'Create Purchase' },
-    { href: '/apps/OrderView', label: 'Order List' },
-    { href: '/apps/Staff', label: 'Staff Management' },
-    { href: '/apps/ActivityLog', label: 'Activity Log' }
+// Sidebar routes
+const adminRoutes = [
+    {
+        label: 'Dashboard',
+        icon: <Home />,
+        subMenu: [{ label: 'Sales', href: '/dashboard' }],
+    },
+    {
+        label: 'Store',
+        icon: <ShoppingBag />,
+        subMenu: [
+            { label: 'Store', href: '/apps/store' },
+            { label: 'Staff Management', href: '/apps/Staff' },
+        ],
+    },
+    {
+        label: 'Category',
+        icon: <Layers />,
+        subMenu: [{ label: 'Category List', href: '/apps/category' }],
+    },
+    {
+        label: 'Product',
+        icon: <Package />,
+        subMenu: [
+            { label: 'Create Product', href: '/apps/createProduct' },
+            { label: 'Product List', href: '/apps/products' },
+        ],
+    },
+    {
+        label: 'POS',
+        icon: <ShoppingCart />,
+        subMenu: [{ label: 'POS Interface', href: '/apps/pos' }],
+    },
+    {
+        label: 'Order',
+        icon: <FileText />,
+        subMenu: [{ label: 'Order List', href: '/apps/OrderView' }],
+    },
+    {
+        label: 'Purchase',
+        icon: <Package />,
+        subMenu: [
+            { label: 'Create Purchase', href: '/apps/createPurchase' },
+            { label: 'Purchase List', href: '/apps/Purchase' },
+        ],
+    },
+    {
+        label: 'Seller',
+        icon: <Users />,
+        subMenu: [{ label: 'Seller Management', href: '/apps/Seller' }],
+    },
+    {
+        label: 'Report',
+        icon: <BarChart />,
+        subMenu: [
+            { label: 'Activity log', href: '/apps/ActivityLog' },
+            { label: 'Sales Report', href: '/apps/SalesReport' },
+            { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
+            { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
+        ],
+    },
 ];
 
-const supplierRoutes = [
-    { href: '/apps/supplier', label: 'Dashboard' },
-    { href: '/apps/supplier/purchase', label: 'Purchase' },
-];
+
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -59,7 +106,7 @@ const Sidebar = () => {
 
     // Load role from cookies
     useEffect(() => {
-        const userRole = getCookieValue('role'); // e.g., "store_admin", "staff", "supplier"
+        const userRole = getCookieValue('role'); // "store_admin", "staff", "supplier"
         setRole(userRole);
     }, []);
 
@@ -72,24 +119,12 @@ const Sidebar = () => {
     }, [pathname]);
 
     const setActiveRoute = () => {
-        let allLinks = document.querySelectorAll('.sidebar ul a.active');
-        allLinks.forEach((el) => el.classList.remove('active'));
-
+        document.querySelectorAll('.sidebar ul a.active').forEach((el) => el.classList.remove('active'));
         const selector = document.querySelector(`.sidebar ul a[href="${window.location.pathname}"]`);
         selector?.classList.add('active');
     };
 
-    // Build routes based on role
-    let menuRoutes: { href: string; label: string }[] = [];
-
-    if (role === 'store_admin') {
-        menuRoutes = baseAdminRoutes; // show all
-    } else if (role === 'staff') {
-        // staff cannot see Store, Category, Create Product, Staff Management
-        menuRoutes = baseAdminRoutes.filter((r) => !['/apps/store', '/apps/category', '/apps/createProduct', '/apps/Staff', '/apps/ActivityLog'].includes(r.href));
-    } else if (role === 'supplier') {
-        menuRoutes = supplierRoutes;
-    }
+    const menuRoutes = role === 'store_admin' ? adminRoutes : [];
 
     return (
         <div className={semidark ? 'dark' : ''}>
@@ -99,9 +134,12 @@ const Sidebar = () => {
                 <div className="h-full bg-white dark:bg-black">
                     {/* Logo */}
                     <div className="flex items-center justify-between px-4 py-3">
-                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
-                            <img className="ml-[5px] w-14 flex-none" src="/assets/images/Logo-PNG.png" alt="logo" />
-                            <span className="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">AndGate POS</span>
+                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center space-x-2">
+                            {/* Icon from public/images */}
+                            <img src="/images/andgatePOS.jpeg" alt="logo icon" className=" w-40 object-contain" />
+
+                            {/* Main site name */}
+                           
                         </Link>
 
                         <button
@@ -116,52 +154,31 @@ const Sidebar = () => {
                     {/* Sidebar Menu */}
                     <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
                         <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
-                            {/* Dashboard (admin only) */}
-                            {role === 'store_admin' && (
-                                <li className="menu nav-item">
-                                    <button type="button" className={`${currentMenu === 'dashboard' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('dashboard')}>
+                            {menuRoutes.map((route) => (
+                                <li key={route.label} className="menu nav-item">
+                                    <button
+                                        type="button"
+                                        className={`${currentMenu === route.label ? 'active' : ''} nav-link group flex w-full items-center justify-between`}
+                                        onClick={() => toggleMenu(route.label)}
+                                    >
                                         <div className="flex items-center">
-                                            <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
-                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t('dashboard')}</span>
+                                            {route.icon}
+                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
                                         </div>
-                                        <div className={currentMenu !== 'dashboard' ? '-rotate-90 rtl:rotate-90' : ''}>
-                                            <IconCaretDown />
-                                        </div>
+                                        <IconCaretDown className={`${currentMenu === route.label ? 'rotate-180' : ''}`} />
                                     </button>
-                                    <AnimateHeight duration={300} height={currentMenu === 'dashboard' ? 'auto' : 0}>
+
+                                    <AnimateHeight duration={300} height={currentMenu === route.label ? 'auto' : 0}>
                                         <ul className="sub-menu text-gray-500">
-                                            <li>
-                                                <Link href="/dashboard">{t('sales')}</Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/apps/pos">{t('POS')}</Link>
-                                            </li>
+                                            {route.subMenu.map((sub) => (
+                                                <li key={sub.href}>
+                                                    <Link href={sub.href}>{t(sub.label)}</Link>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </AnimateHeight>
                                 </li>
-                            )}
-
-                            {/* Role-based routes */}
-                            {role && (
-                                <>
-                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                        <IconMinus className="hidden h-5 w-4 flex-none" />
-                                        <span>{role === 'store_admin' ? t('admins') : role === 'supplier' ? t('supplier') : t('staff')}</span>
-                                    </h2>
-                                    <ul>
-                                        {menuRoutes.map((route) => (
-                                            <li key={route.href} className="nav-item">
-                                                <Link href={route.href} className="group">
-                                                    <div className="flex items-center">
-                                                        <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
-                                                        <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
-                                                    </div>
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </>
-                            )}
+                            ))}
                         </ul>
                     </PerfectScrollbar>
                 </div>
