@@ -27,15 +27,31 @@ const invoiceSlice = createSlice({
             // Filter out items without productId to avoid empty items
             state.items = action.payload.filter((item) => item.productId !== undefined);
         },
-       addItemRedux(state, action: PayloadAction<Item>) {
-    if (action.payload.productId !== undefined) {
-        const existingItemIndex = state.items.findIndex((item) => item.id === action.payload.id);
-        if (existingItemIndex === -1) {
-            state.items.push(action.payload);
-        }
-    }
-}
-,
+        addItemRedux(state, action: PayloadAction<Item>) {
+            if (action.payload.productId !== undefined) {
+                // Find existing product by productId (not by id)
+                const existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId);
+
+                if (existingItemIndex !== -1) {
+                    // Product already exists → increase quantity
+                    const existingItem = state.items[existingItemIndex];
+                    const newQuantity = existingItem.quantity + action.payload.quantity;
+
+                    // Respect available stock limit if PlaceholderQuantity exists
+                    if (existingItem.PlaceholderQuantity && newQuantity > existingItem.PlaceholderQuantity) {
+                        existingItem.quantity = existingItem.PlaceholderQuantity;
+                    } else {
+                        existingItem.quantity = newQuantity;
+                    }
+
+                    existingItem.amount = existingItem.quantity * existingItem.rate;
+                } else {
+                    // New product → add normally
+                    state.items.push(action.payload);
+                }
+            }
+        },
+
         updateItemRedux(state, action: PayloadAction<Item>) {
             const index = state.items.findIndex((item) => item.id === action.payload.id);
             if (index !== -1) {

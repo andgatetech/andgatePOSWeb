@@ -17,7 +17,7 @@ const ComponentsAppsInvoiceAdd = () => {
     const dispatch = useDispatch();
 
     // Fetch all products from API
-    const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes' });
+    const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes'});
     const products = productsData?.data || [];
     console.log(products[0]);
     // Get items from Redux store
@@ -189,13 +189,7 @@ const ComponentsAppsInvoiceAdd = () => {
         showMessage('Item added successfully!', 'success');
     };
 
-    // Generate invoice number on mount
-    const [invoiceNumber, setInvoiceNumber] = useState('');
-    useEffect(() => {
-        const now = Date.now(); // milliseconds since 1970
-        const randomPart = Math.floor(100 + Math.random() * 900); // 3 random digits
-        setInvoiceNumber(`#${now}-${randomPart}`);
-    }, []);
+   
 
     // Calculate subtotal from Redux items only
     const subtotal = reduxItems.reduce((acc, item) => acc + item.amount, 0);
@@ -214,14 +208,7 @@ const ComponentsAppsInvoiceAdd = () => {
                             <div>+8801610108851</div>
                         </div>
                     </div>
-                    <div className="w-full lg:w-1/2 lg:max-w-fit">
-                        <div className="flex items-center">
-                            <label htmlFor="number" className="mb-0 flex-1 ltr:mr-2 rtl:ml-2">
-                                Invoice Number
-                            </label>
-                            <input id="number" type="text" name="inv-num" className="form-input w-2/3 lg:w-[250px]" value={invoiceNumber} readOnly />
-                        </div>
-                    </div>
+                    
                 </div>
                 <hr className="my-6 border-white-light dark:border-[#1b2e4b]" />
 

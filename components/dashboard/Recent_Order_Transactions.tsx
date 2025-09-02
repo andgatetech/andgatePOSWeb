@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import dayjs from 'dayjs';
 import { useGetAllTransactionsQuery } from '@/store/features/transactions/transactions';
@@ -48,21 +49,29 @@ const Recent_Order_Transactions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {isLoading
-                                ? Array.from({ length: 7 }).map((_, i) => <SkeletonRow key={i} />)
-                                : transactions.map((tx: any) => (
-                                      <tr key={tx.id}>
-                                          <td className="font-semibold">#{tx.id}</td>
-                                          <td>{tx.order_id}</td>
-                                          <td>৳{tx.amount}</td>
-                                          <td className="text-center">
-                                              <span className={`badge rounded-full px-3 py-1 ${tx.payment_status === 'paid' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}`}>
-                                                  {tx.payment_status}
-                                              </span>
-                                          </td>
-                                          <td>{dayjs(tx.created_at).format('MMM DD, YYYY')}</td>
-                                      </tr>
-                                  ))}
+                            {isLoading ? (
+                                Array.from({ length: 7 }).map((_, i) => <SkeletonRow key={i} />)
+                            ) : transactions.length > 0 ? (
+                                transactions.map((tx: any) => (
+                                    <tr key={tx.id}>
+                                        <td className="font-semibold">#{tx.id}</td>
+                                        <td>{tx.order_id}</td>
+                                        <td>৳{tx.amount}</td>
+                                        <td className="text-center">
+                                            <span className={`badge rounded-full px-3 py-1 ${tx.payment_status === 'paid' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}`}>
+                                                {tx.payment_status || 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td>{tx.created_at ? dayjs(tx.created_at).format('MMM DD, YYYY') : 'N/A'}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="py-4 text-center text-gray-500">
+                                        No transactions found.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

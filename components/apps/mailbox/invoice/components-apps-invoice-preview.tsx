@@ -3,35 +3,33 @@
 import React, { useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
-import IconSend from '@/components/icon/icon-send';
 import IconPrinter from '@/components/icon/icon-printer';
 
 const ComponentsAppsInvoicePreview = ({ data }) => {
     const invoiceRef = useRef(null);
 
-    const exportTable = () => {
+    const exportPDF = () => {
         if (!invoiceRef.current) return;
 
         html2canvas(invoiceRef.current, { scale: 2 }).then((canvas) => {
             const imgData = canvas.toDataURL('image/png');
-
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('invoice.pdf');
+            pdf.save(`invoice-${data?.invoice || 'preview'}.pdf`);
         });
     };
 
-    const { customer, items = [], tax = 0, discount = 0, paymentMethod = 'Cash', paymentStatus = 'Paid', totals } = data || {};
+    const { customer = {}, items = [], totals = {}, tax = 0, discount = 0, invoice = '#INV-PREVIEW', order_id, isOrderCreated = false } = data || {};
 
-    // If totals object not passed, calculate it dynamically
+    const paymentStatus = 'Paid'; // Always Paid
+    const paymentMethod = 'Cash'; // Default
+
     const subtotal = items.reduce((acc, item) => acc + Number(item.amount || 0), 0);
-    const calculatedTax = tax || 0;
-    const calculatedDiscount = discount || 0;
-    const grandTotal = totals?.total ?? subtotal + calculatedTax - calculatedDiscount;
+    const calculatedTax = totals.tax ?? tax;
+    const calculatedDiscount = totals.discount ?? discount;
+    const grandTotal = totals.grand_total ?? subtotal + calculatedTax - calculatedDiscount;
 
     const columns = [
         { key: 'id', label: 'S.NO' },
@@ -41,75 +39,101 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
         { key: 'amount', label: 'AMOUNT', class: 'ltr:text-right rtl:text-left' },
     ];
 
+    const currentDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
     return (
         <div>
-            <div className="mb-6 flex flex-wrap items-center justify-center gap-4 lg:justify-end">
-                <button type="button" className="btn btn-primary gap-2" onClick={exportTable}>
-                    <IconPrinter />
-                    Print PDF
+            {/* Download PDF Button */}
+            <div className="mb-6 flex justify-start gap-4">
+                <button type="button" className="btn btn-primary gap-2" onClick={exportPDF}>
+                    <IconPrinter /> Download Invoice
                 </button>
             </div>
-            {/* Invoice container to capture for PDF */}
-            <div className="panel" ref={invoiceRef}>
-                <div className="flex flex-wrap justify-between gap-4 px-4">
-                    <div className="text-2xl font-semibold uppercase">Invoice</div>
-                    <div className="shrink-0">
-                        <img src="/assets/images/Logo-PNG.png" alt="Logo" className="w-14 ltr:ml-auto rtl:mr-auto" />
+
+            <div className="panel relative" ref={invoiceRef}>
+                {/* PAID Watermark */}
+                {isOrderCreated && (
+                    <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 rotate-[-25deg] transform select-none text-6xl font-bold text-green-500 opacity-20">
+                        PAID
                     </div>
+                )}
+
+                {/* Header */}
+                <div className="relative z-10 flex items-center justify-between px-4">
+                    <h2 className="text-2xl font-semibold uppercase">Invoice</h2>
+                    <img src="/assets/images/Logo-PNG.png" alt="Logo" className="w-14" />
                 </div>
 
-                <div className="mt-6 space-y-1 px-4 text-white-dark ltr:text-right rtl:text-left">
+                {/* Company Info */}
+                <div className="relative z-10 mt-6 space-y-1 px-4 text-right">
                     <div>Dhaka, Bangladesh, 1212</div>
                     <div>andgate@gmail.com</div>
-                    <div>+8801610108851</div>
+                    <div>+8801600000</div>
                 </div>
 
-                <hr className="my-6 border-white-light dark:border-[#1b2e4b]" />
+                <hr className="relative z-10 my-6 border-gray-300" />
 
-                <div className="flex flex-col flex-wrap justify-between gap-6 lg:flex-row">
-                    <div className="flex-1 space-y-1 text-white-dark">
+                {/* Customer & Invoice Details */}
+                <div className="relative z-10 flex flex-col justify-between gap-6 px-4 lg:flex-row">
+                    <div className="flex-1 space-y-1">
                         <div>Issue For:</div>
-                        <div className="font-semibold text-black dark:text-white">{customer?.name || 'John Doe'}</div>
-                        <div>{customer?.email || 'No Email'}</div>
-                        <div>{customer?.phone || 'No Phone'}</div>
+                        <div className="font-semibold text-black">{customer.name || 'John Doe'}</div>
+                        <div>{customer.email || 'No Email'}</div>
+                        <div>{customer.phone || 'No Phone'}</div>
+                        {customer.membership && customer.membership !== 'normal' && (
+                            <div
+                                className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                                    customer.membership === 'platinum'
+                                        ? 'bg-purple-100 text-purple-800'
+                                        : customer.membership === 'gold'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                }`}
+                            >
+                                {customer.membership.toUpperCase()} MEMBER
+                            </div>
+                        )}
                     </div>
 
-                    <div className="flex flex-col justify-between gap-6 sm:flex-row lg:w-2/3">
-                        <div className="xl:1/3 sm:w-1/2 lg:w-2/5">
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Invoice :</div>
-                                <div>#8701</div>
+                    <div className="flex flex-col gap-6 sm:flex-row lg:w-2/3">
+                        <div className="sm:w-1/2 lg:w-2/5">
+                            <div className="mb-2 flex justify-between">
+                                <span>Invoice:</span>
+                                <span>{invoice}</span>
                             </div>
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Issue Date :</div>
-                                <div>13 Sep 2022</div>
+                            <div className="mb-2 flex justify-between">
+                                <span>Issue Date:</span>
+                                <span>{currentDate}</span>
                             </div>
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Order ID :</div>
-                                <div>#OD-85794</div>
-                            </div>
+                            {order_id && (
+                                <div className="mb-2 flex justify-between">
+                                    <span>Order ID:</span>
+                                    <span>#{order_id}</span>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="xl:1/3 sm:w-1/2 lg:w-2/5">
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Paid:</div>
-                                <div className="whitespace-nowrap">{paymentStatus}</div>
+                        <div className="sm:w-1/2 lg:w-2/5">
+                            <div className="mb-2 flex justify-between">
+                                <span>Payment Status:</span>
+                                <span className="font-semibold text-green-600">{paymentStatus}</span>
                             </div>
-                            <div className="mb-2 flex w-full items-center justify-between">
-                                <div className="text-white-dark">Type:</div>
-                                <div>{paymentMethod}</div>
+                            <div className="mb-2 flex justify-between">
+                                <span>Payment Method:</span>
+                                <span>{paymentMethod}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="table-responsive mt-6">
-                    <table className="table-striped">
+                {/* Products Table */}
+                <div className="relative z-10 mt-6 overflow-auto px-4">
+                    <table className="w-full table-auto border-collapse">
                         <thead>
                             <tr>
-                                {columns.map((column) => (
-                                    <th key={column.key} className={column?.class}>
-                                        {column.label}
+                                {columns.map((col) => (
+                                    <th key={col.key} className={`border-b py-2 ${col.class || ''}`}>
+                                        {col.label}
                                     </th>
                                 ))}
                             </tr>
@@ -117,39 +141,50 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                         <tbody>
                             {items.map((item) => (
                                 <tr key={item.id}>
-                                    <td>{item.id}</td>
-                                    <td>{item.title}</td>
-                                    <td>{item.quantity}</td>
-                                    <td className="ltr:text-right rtl:text-left">৳{Number(item.price).toFixed(2)}</td>
-                                    <td className="ltr:text-right rtl:text-left">৳{Number(item.amount).toFixed(2)}</td>
+                                    <td className="py-2">{item.id}</td>
+                                    <td className="py-2">{item.title}</td>
+                                    <td className="py-2">{item.quantity}</td>
+                                    <td className="py-2 text-right">৳{Number(item.price).toFixed(2)}</td>
+                                    <td className="py-2 text-right">৳{Number(item.amount).toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
 
-                <div className="mt-6 grid grid-cols-1 px-4 sm:grid-cols-2">
-                    <div></div>
-                    <div className="space-y-2 ltr:text-right rtl:text-left">
-                        <div className="flex items-center">
-                            <div className="flex-1">Subtotal</div>
-                            <div className="w-[37%]">৳{subtotal.toFixed(2)}</div>
+                {/* Totals */}
+                <div className="relative z-10 mt-6 flex flex-col justify-end gap-2 px-4 sm:flex-row sm:justify-end">
+                    <div className="w-full space-y-1 text-right sm:w-[40%]">
+                        <div className="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>৳{subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="flex items-center">
-                            <div className="flex-1">Tax</div>
-                            <div className="w-[37%]">৳{calculatedTax.toFixed(2)}</div>
-                        </div>
-
-                        <div className="flex items-center">
-                            <div className="flex-1">Discount</div>
-                            <div className="w-[37%]">৳{calculatedDiscount.toFixed(2)}</div>
-                        </div>
-                        <div className="flex items-center text-lg font-semibold">
-                            <div className="flex-1">Grand Total</div>
-                            <div className="w-[37%]">৳{grandTotal.toFixed(2)}</div>
+                        {calculatedTax > 0 && (
+                            <div className="flex justify-between">
+                                <span>Tax</span>
+                                <span>৳{calculatedTax.toFixed(2)}</span>
+                            </div>
+                        )}
+                        {calculatedDiscount > 0 && (
+                            <div className="flex justify-between text-red-600">
+                                <span>Discount</span>
+                                <span>-৳{calculatedDiscount.toFixed(2)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
+                            <span>Grand Total</span>
+                            <span>৳{grandTotal.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
+
+                {/* Footer */}
+                {isOrderCreated && (
+                    <div className="relative z-10 mt-6 border-t border-gray-200 px-4 pt-4 text-center">
+                        <div className="text-sm text-gray-600">Thank you for your business!</div>
+                        <div className="mt-1 text-xs text-gray-500">Order processed on {currentDate}</div>
+                    </div>
+                )}
             </div>
         </div>
     );
