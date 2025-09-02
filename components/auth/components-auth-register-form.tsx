@@ -1,24 +1,31 @@
 'use client';
 
-import IconLockDots from '@/components/icon/icon-lock-dots';
-import IconMail from '@/components/icon/icon-mail';
-import IconUser from '@/components/icon/icon-user';
+// import IconLockDots from '@/components/icon/icon-lock-dots';
+// import IconMail from '@/components/icon/icon-mail';
+// import IconUser from '@/components/icon/icon-user';
+
+import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
+
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
-import { useRouter } from 'next/navigation';
-import React, { FormEvent, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
 import { login } from '@/store/features/auth/authSlice';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const ComponentsAuthRegisterForm = () => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const [registerApi, { isLoading }] = useRegisterMutation();
 
     const [credentials, setCredentials] = useState({
+        store_name: '',
         name: '',
+        phone: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -61,8 +68,8 @@ const ComponentsAuthRegisterForm = () => {
                         placeholder="Enter Name"
                         className="form-input ps-10 placeholder:text-white-dark"
                     />
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                        <IconUser fill={true} />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconUser size={18} />
                     </span>
                 </div>
             </div>
@@ -78,8 +85,41 @@ const ComponentsAuthRegisterForm = () => {
                         placeholder="Enter Email"
                         className="form-input ps-10 placeholder:text-white-dark"
                     />
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                        <IconMail fill={true} />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconMail size={18} />
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <label htmlFor="Phone">Phone</label>
+                <div className="relative text-white-dark">
+                    <input
+                        id="Phone"
+                        onChange={(e) => setCredentials({ ...credentials, phone: e.target.value })}
+                        type="tel"
+                        placeholder="Enter Phone Number"
+                        className="form-input ps-10 placeholder:text-white-dark"
+                    />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconPhone size={18} />
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <label htmlFor="StoreName">Store Name</label>
+                <div className="relative text-white-dark">
+                    <input
+                        id="StoreName"
+                        required
+                        onChange={(e) => setCredentials({ ...credentials, store_name: e.target.value })}
+                        type="text"
+                        placeholder="Enter Store Name"
+                        className="form-input ps-10 placeholder:text-white-dark"
+                    />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconBuilding size={18} />
                     </span>
                 </div>
             </div>
@@ -91,12 +131,18 @@ const ComponentsAuthRegisterForm = () => {
                         id="Password"
                         required
                         onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         placeholder="Enter Password"
-                        className="form-input ps-10 placeholder:text-white-dark"
+                        className="form-input pe-12 ps-10 placeholder:text-white-dark"
                     />
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                        <IconLockDots fill={true} />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconLockDots size={18} />
+                    </span>
+                    <span
+                        className="absolute end-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 text-gray-400 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
                     </span>
                 </div>
             </div>
@@ -108,12 +154,18 @@ const ComponentsAuthRegisterForm = () => {
                         id="PasswordConfirm"
                         required
                         onChange={(e) => setCredentials({ ...credentials, password_confirmation: e.target.value })}
-                        type="password"
+                        type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Repeat Password"
-                        className="form-input ps-10 placeholder:text-white-dark"
+                        className="form-input pe-12 ps-10 placeholder:text-white-dark"
                     />
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                        <IconLockDots fill={true} />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconLockDots size={18} />
+                    </span>
+                    <span
+                        className="absolute end-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 text-gray-400 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                        {showConfirmPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
                     </span>
                 </div>
             </div>
