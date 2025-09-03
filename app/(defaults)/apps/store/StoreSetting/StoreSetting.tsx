@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 import { Store, MapPin, Phone, Clock, Percent, Gift, Camera, Save, AlertCircle, CheckCircle, Loader2, Upload, X } from 'lucide-react';
 import { useGetStoreQuery, useUpdateStoreMutation } from '@/store/features/store/storeApi';
+import Image from 'next/image';
 
 const StoreSetting = () => {
     const { data: storeData, isLoading, error } = useGetStoreQuery();
@@ -391,12 +392,14 @@ const StoreSetting = () => {
                             {storeData?.data?.logo_path && !logoPreview && (
                                 <div>
                                     <p className="mb-2 text-sm font-medium text-gray-700">Current Logo</p>
-                                    <img
-                                        src={`/storage/${storeData.data.logo_path}`}
+                                    <Image
+                                        src={storeData.data.logo_path} // full URL is already returned from API
                                         alt="Current store logo"
+                                        width={128} // required
+                                        height={128} // required
                                         className="h-32 w-32 rounded-lg border border-gray-300 object-contain"
                                         onError={(e) => {
-                                            e.target.style.display = 'none';
+                                            (e.target as HTMLImageElement).style.display = 'none';
                                         }}
                                     />
                                 </div>
