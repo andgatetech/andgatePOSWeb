@@ -4,9 +4,14 @@ import React, { useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import IconPrinter from '@/components/icon/icon-printer';
+import { useGetStoreQuery } from '@/store/features/store/storeApi';
 
 const ComponentsAppsInvoicePreview = ({ data }) => {
     const invoiceRef = useRef(null);
+
+    // Fetch store details
+    const { data: storeData } = useGetStoreQuery();
+    const currentStore = storeData?.data || {};
 
     const exportPDF = () => {
         if (!invoiceRef.current) return;
@@ -39,7 +44,11 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
         { key: 'amount', label: 'AMOUNT', class: 'ltr:text-right rtl:text-left' },
     ];
 
-    const currentDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
 
     return (
         <div>
@@ -61,14 +70,19 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                 {/* Header */}
                 <div className="relative z-10 flex items-center justify-between px-4">
                     <h2 className="text-2xl font-semibold uppercase">Invoice</h2>
-                    <img src="/assets/images/Logo-PNG.png" alt="Logo" className="w-14" />
+                    {currentStore?.logo_path ? (
+                        <img src={currentStore.logo_path} alt="Store Logo" className="h-14 w-14 rounded object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+                    ) : (
+                        <img src="/assets/images/Logo-PNG.png" alt="Default Logo" className="w-14" />
+                    )}
                 </div>
 
                 {/* Company Info */}
                 <div className="relative z-10 mt-6 space-y-1 px-4 text-right">
-                    <div>Dhaka, Bangladesh, 1212</div>
-                    <div>andgate@gmail.com</div>
-                    <div>+8801600000</div>
+                    <div className="font-semibold text-black">{currentStore?.store_name || 'AndGate POS'}</div>
+                    <div>{currentStore?.store_location || 'Dhaka, Bangladesh, 1212'}</div>
+                   
+                    <div>{currentStore?.store_contact || '+8801600000'}</div>
                 </div>
 
                 <hr className="relative z-10 my-6 border-gray-300" />
@@ -77,7 +91,7 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                 <div className="relative z-10 flex flex-col justify-between gap-6 px-4 lg:flex-row">
                     <div className="flex-1 space-y-1">
                         <div>Issue For:</div>
-                        <div className="font-semibold text-black">{customer.name || 'John Doe'}</div>
+                        <div className="font-semibold text-black">{customer.name || 'Customer'}</div>
                         <div>{customer.email || 'No Email'}</div>
                         <div>{customer.phone || 'No Phone'}</div>
                         {customer.membership && customer.membership !== 'normal' && (
@@ -139,9 +153,9 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {items.map((item) => (
+                            {items.map((item, idx) => (
                                 <tr key={item.id}>
-                                    <td className="py-2">{item.id}</td>
+                                    <td className="py-2">{idx + 1}</td>
                                     <td className="py-2">{item.title}</td>
                                     <td className="py-2">{item.quantity}</td>
                                     <td className="py-2 text-right">৳{Number(item.price).toFixed(2)}</td>

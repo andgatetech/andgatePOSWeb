@@ -77,6 +77,23 @@ const adminRoutes = [
         subMenu: [{ label: 'Seller Management', href: '/apps/Seller' }],
     },
     {
+        label: 'Account',
+        icon: <Users />,
+        subMenu: [
+            { label: 'Account Create', href: '/apps/Seller' },
+            { label: 'Account List', href: '/apps/Seller' },
+        ],
+    },
+    {
+        label: 'Expense',
+        icon: <Users />,
+        subMenu: [
+            { label: 'Expense Create', href: '/apps/Seller' },
+            { label: 'Expense List', href: '/apps/Seller' },
+        ],
+    },
+
+    {
         label: 'Report',
         icon: <BarChart />,
         subMenu: [
