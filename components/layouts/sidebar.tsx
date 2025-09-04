@@ -1,21 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
-import PerfectScrollbar from 'react-perfect-scrollbar';
+import { useEffect, useState } from 'react';
 import AnimateHeight from 'react-animate-height';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { toggleSidebar } from '@/store/themeConfigSlice';
-import { getTranslation } from '@/i18n';
 
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import IconMenuContacts from '@/components/icon/menu/icon-menu-contacts';
-import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
 import { BarChart, FileText, Home, Layers, Package, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
 
 // Helper: read cookie
@@ -51,6 +49,7 @@ const adminRoutes = [
         subMenu: [
             { label: 'Create Product', href: '/apps/createProduct' },
             { label: 'Product List', href: '/apps/products' },
+            { label: 'Generate Product QrCode', href: '/apps/qr-code' },
         ],
     },
     {
@@ -77,6 +76,22 @@ const adminRoutes = [
         subMenu: [{ label: 'Seller Management', href: '/apps/Seller' }],
     },
     {
+        label: 'Account',
+        icon: <Users />,
+        subMenu: [
+            { label: 'Ledger List', href: '/apps/account/ledger-list' },
+            { label: 'Create Ledger', href: '/apps/account/create-ledger' },
+        ],
+    },
+    {
+        label: 'Expenses',
+        icon: <Users />,
+        subMenu: [
+            { label: 'Expenses List', href: '/apps/expenses/expense-list' },
+            { label: 'Create Expense', href: '/apps/expenses/create-expense' },
+        ],
+    },
+    {
         label: 'Report',
         icon: <BarChart />,
         subMenu: [
@@ -84,11 +99,10 @@ const adminRoutes = [
             { label: 'Sales Report', href: '/apps/SalesReport' },
             { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
             { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
+            { label: 'Stock Report', href: '/apps/stock-report' },
         ],
     },
 ];
-
-
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -139,7 +153,6 @@ const Sidebar = () => {
                             <img src="/images/andgatePOS.jpeg" alt="logo icon" className=" w-40 object-contain" />
 
                             {/* Main site name */}
-                           
                         </Link>
 
                         <button

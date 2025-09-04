@@ -1,6 +1,5 @@
 'use client';
 
-import SupplierRegisterForm from '@/__components/supplier_register_form';
 import ComponentsAuthRegisterForm from '@/components/auth/components-auth-register-form';
 import IconGoogle from '@/components/icon/icon-google';
 import Image from 'next/image';
@@ -42,7 +41,7 @@ const CoverRegister = () => {
                         <div className="w-full max-w-[440px] lg:mt-16">
                             <div className="mb-10">
                                 <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl"> Store Sign Up</h1>
-                                <p className="text-base font-bold leading-normal text-white-dark">Enter your email and password to register</p>
+                                <p className="text-base font-bold leading-normal text-white-dark">Fill up the form to get free access</p>
                             </div>
                             {/* <div className="mb-6 flex border-b border-white-light dark:border-white-dark">
                                 <button
