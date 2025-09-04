@@ -1,30 +1,40 @@
 'use client';
 
+import InvoiceModal from '@/__components/InvoiceModal';
 import IconEye from '@/components/icon/icon-eye';
-import IconTrashLines from '@/components/icon/icon-trash-lines';
-import { useGetAllOrdersQuery, useGetOrderItemsQuery } from '@/store/features/Order/Order';
+import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { sortBy } from 'lodash';
+import { FileText, Printer } from 'lucide-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import OrderItemsModal from './ordeo_items_modal';
-import Image from 'next/image';
 
 const ComponentsAppsInvoiceList = () => {
-    // const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [selectedId, setSelectedId] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+    const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+
     const { data: ods, isLoading } = useGetAllOrdersQuery();
     const orders = ods?.data;
-    // console.log('orders', orders);
 
-    const handleViewItems = async (id) => {
-        try {
-            // setSelectedItems(items);
-            setSelectedId(id);
-            setModalOpen(true);
-        } catch (err) {
-            console.error('Failed to fetch items', err);
-        }
+    // Handle different modal actions
+    const handleViewDetails = (order) => {
+        setSelectedOrder(order);
+        setSelectedId(order.id);
+        setDetailsModalOpen(true);
+    };
+
+    const handleViewInvoice = (order) => {
+        setSelectedOrder(order);
+        setInvoiceModalOpen(true);
+    };
+
+    const handleViewReceipt = (order) => {
+        setSelectedOrder(order);
+        setReceiptModalOpen(true);
     };
 
     const [items, setItems] = useState<any[]>([]);
@@ -44,9 +54,9 @@ const ComponentsAppsInvoiceList = () => {
         if (Array.isArray(orders)) {
             const formatted = orders.map((order) => ({
                 id: order.id,
-                invoice: String(order.id).padStart(6, '0'),
-                name: order.customer_name || '',
-                email: order.customer_email || '',
+                invoice: order.invoice || String(order.id).padStart(6, '0'),
+                name: order.customer.name || '',
+                email: order.customer.email || '',
                 date: order.created_at ? new Date(order.created_at).toLocaleDateString() : '',
                 amount: Number(order.grand_total) || 0,
                 status: {
@@ -54,6 +64,8 @@ const ComponentsAppsInvoiceList = () => {
                     color: order.payment_status === 'paid' ? 'success' : 'danger',
                 },
                 profile: 'default.jpeg',
+                // Keep original order data for modals
+                originalOrder: order,
             }));
             setItems(formatted);
             setInitialRecords(sortBy(formatted, 'invoice'));
@@ -73,27 +85,6 @@ const ComponentsAppsInvoiceList = () => {
         setRecords(sortStatus.direction === 'desc' ? data2.reverse() : data2);
         setPage(1);
     }, [sortStatus, initialRecords]);
-
-    // Delete row handler
-    const deleteRow = (id: any = null) => {
-        if (window.confirm('Are you sure you want to delete selected row(s)?')) {
-            if (id) {
-                const updated = items.filter((user) => user.id !== id);
-                setItems(updated);
-                setInitialRecords(updated);
-                setRecords(updated);
-                setSelectedRecords([]);
-            } else {
-                const idsToDelete = selectedRecords.map((d: any) => d.id);
-                const updated = items.filter((d) => !idsToDelete.includes(d.id));
-                setItems(updated);
-                setInitialRecords(updated);
-                setRecords(updated);
-                setSelectedRecords([]);
-                setPage(1);
-            }
-        }
-    };
 
     return (
         <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
@@ -115,9 +106,6 @@ const ComponentsAppsInvoiceList = () => {
                                 sortable: true,
                                 render: ({ name }) => (
                                     <div className="flex items-center font-semibold">
-                                        <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
-                                            <Image src={`/assets/images/default.jpeg`} alt="" className="rounded-full object-cover" width={32} height={32} />
-                                        </div>
                                         <div>{name}</div>
                                     </div>
                                 ),
@@ -137,13 +125,26 @@ const ComponentsAppsInvoiceList = () => {
                             },
                             {
                                 accessor: 'action',
-                                title: 'View Items',
+                                title: 'Actions',
                                 sortable: false,
                                 textAlignment: 'center',
-                                render: ({ id }) => (
-                                    <div className="mx-auto flex w-max items-center gap-4">
-                                        <button type="button" className="flex hover:text-danger" onClick={() => handleViewItems(id)}>
+                                render: (record) => (
+                                    <div className="mx-auto flex w-max items-center gap-2">
+                                        {/* Details Button */}
+                                        <button type="button" className="flex hover:text-primary" onClick={() => handleViewDetails(record.originalOrder)} title="View Details">
                                             <IconEye />
+                                        </button>
+
+                                        {/* Invoice Button */}
+                                        <button type="button" className="flex hover:text-info" onClick={() => handleViewInvoice(record.originalOrder)} title="View Invoice">
+                                            {/* <IconFileText /> */}
+                                            <FileText className="h-4 w-4" />
+                                        </button>
+
+                                        {/* Receipt Button */}
+                                        <button type="button" className="flex hover:text-success" onClick={() => handleViewReceipt(record.originalOrder)} title="View Receipt">
+                                            {/* <IconPrinter /> */}
+                                            <Printer className="h-4 w-4" />
                                         </button>
                                     </div>
                                 ),
@@ -164,8 +165,13 @@ const ComponentsAppsInvoiceList = () => {
                     />
                 </div>
             </div>
-            {/* Modal */}
-            <OrderItemsModal open={modalOpen} onClose={() => setModalOpen(false)} id={selectedId} />
+
+            {/* Modals */}
+            <OrderItemsModal open={detailsModalOpen} onClose={() => setDetailsModalOpen(false)} id={selectedId} />
+
+            <InvoiceModal open={invoiceModalOpen} onClose={() => setInvoiceModalOpen(false)} order={selectedOrder} />
+
+            {/* <ReceiptModal open={receiptModalOpen} onClose={() => setReceiptModalOpen(false)} order={selectedOrder} /> */}
         </div>
     );
 };

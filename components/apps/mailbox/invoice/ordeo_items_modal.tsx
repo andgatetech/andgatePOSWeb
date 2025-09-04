@@ -1,8 +1,8 @@
 'use client';
 
+import { useGetOrderItemsQuery } from '@/store/features/Order/Order';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { useGetOrderItemsQuery } from '@/store/features/Order/Order';
 
 interface OrderItemsModalProps {
     open: boolean;
@@ -12,7 +12,7 @@ interface OrderItemsModalProps {
 
 export default function OrderItemsModal({ open, onClose, id }: OrderItemsModalProps) {
     const { data } = useGetOrderItemsQuery(id);
-
+    console.log('data', data);
     const columns = [
         { key: 'category', label: 'Category' },
         { key: 'product_name', label: 'Product Name' },
