@@ -1,0 +1,415 @@
+'use client';
+import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useAllStoresQuery } from '@/store/features/store/storeApi';
+import { Award, ChevronLeft, ChevronRight, Crown, Search, Shield, Star, Store, Users } from 'lucide-react';
+import { useMemo, useState } from 'react';
+
+// Mock Redux hooks - replace with your actual Redux hooks
+// const useGetStoreQuery = () => ({
+//     data: {
+//         success: true,
+//         data: [
+//             { id: 1, name: 'Downtown Store', location: 'Main Street' },
+//             { id: 2, name: 'Mall Branch', location: 'Shopping Center' },
+//             { id: 3, name: 'Airport Store', location: 'Terminal A' },
+//         ],
+//     },
+//     isLoading: false,
+//     error: null,
+// });
+
+// const useGetStoreCustomersListQuery = (params) => {
+//     // Mock data - replace with actual API call
+//     const mockCustomers = [
+//         { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+1234567890', membership: 'gold', points: 1250, balance: 0.0, store_id: 1, is_active: true },
+//         { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+1234567891', membership: 'platinum', points: 2500, balance: -25.5, store_id: 1, is_active: true },
+//         { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '+1234567892', membership: 'silver', points: 750, balance: 15.0, store_id: 2, is_active: true },
+//         { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com', phone: '+1234567893', membership: 'normal', points: 150, balance: 0.0, store_id: 2, is_active: false },
+//         { id: 5, name: 'David Brown', email: 'david@example.com', phone: '+1234567894', membership: 'gold', points: 1800, balance: 50.25, store_id: 3, is_active: true },
+//     ];
+
+//     // Filter based on params
+//     let filteredData = mockCustomers;
+
+//     if (params.store_id) {
+//         filteredData = filteredData.filter((customer) => customer.store_id == params.store_id);
+//     }
+
+//     if (params.search) {
+//         const searchLower = params.search.toLowerCase();
+//         filteredData = filteredData.filter(
+//             (customer) => customer.name.toLowerCase().includes(searchLower) || customer.email.toLowerCase().includes(searchLower) || customer.phone.includes(searchLower)
+//         );
+//     }
+
+//     if (params.membership) {
+//         filteredData = filteredData.filter((customer) => customer.membership === params.membership);
+//     }
+
+//     // Pagination
+//     const perPage = params.per_page || 10;
+//     const page = params.page || 1;
+//     const total = filteredData.length;
+//     const lastPage = Math.ceil(total / perPage);
+//     const startIndex = (page - 1) * perPage;
+//     const paginatedData = filteredData.slice(startIndex, startIndex + perPage);
+
+//     return {
+//         data: {
+//             success: true,
+//             data: paginatedData,
+//             meta: {
+//                 current_page: page,
+//                 per_page: perPage,
+//                 total: total,
+//                 last_page: lastPage,
+//             },
+//         },
+//         isLoading: false,
+//         error: null,
+//     };
+// };
+
+// Membership Badge Component
+const MembershipBadge = ({ membership }) => {
+    const getBadgeConfig = (membership) => {
+        switch (membership) {
+            case 'platinum':
+                return {
+                    icon: Crown,
+                    bgColor: 'bg-purple-100',
+                    textColor: 'text-purple-800',
+                    borderColor: 'border-purple-200',
+                    label: 'Platinum',
+                };
+            case 'gold':
+                return {
+                    icon: Award,
+                    bgColor: 'bg-yellow-100',
+                    textColor: 'text-yellow-800',
+                    borderColor: 'border-yellow-200',
+                    label: 'Gold',
+                };
+            case 'silver':
+                return {
+                    icon: Star,
+                    bgColor: 'bg-gray-100',
+                    textColor: 'text-gray-800',
+                    borderColor: 'border-gray-200',
+                    label: 'Silver',
+                };
+            default:
+                return {
+                    icon: Shield,
+                    bgColor: 'bg-blue-100',
+                    textColor: 'text-blue-800',
+                    borderColor: 'border-blue-200',
+                    label: 'Normal',
+                };
+        }
+    };
+
+    const config = getBadgeConfig(membership);
+    const IconComponent = config.icon;
+
+    return (
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${config.bgColor} ${config.textColor} ${config.borderColor}`}>
+            <IconComponent className="mr-1 h-3 w-3" />
+            {config.label}
+        </span>
+    );
+};
+
+// Filters Component
+const CustomerFilters = ({ filters, onFiltersChange, stores, isLoadingStores }) => {
+    const handleFilterChange = (key, value) => {
+        onFiltersChange({ ...filters, [key]: value, page: 1 }); // Reset to page 1 when filtering
+    };
+
+    return (
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {/* Search */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search customers..."
+                        value={filters.search || ''}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                {/* Store Filter */}
+                <div>
+                    <select
+                        value={filters.store_id || ''}
+                        onChange={(e) => handleFilterChange('store_id', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                        disabled={isLoadingStores}
+                    >
+                        <option value="">All Stores</option>
+                        {stores?.data?.map((store) => (
+                            <option key={store.id} value={store.id}>
+                                {store.store_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Membership Filter */}
+                <div>
+                    <select
+                        value={filters.membership || ''}
+                        onChange={(e) => handleFilterChange('membership', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Memberships</option>
+                        <option value="normal">Normal</option>
+                        <option value="silver">Silver</option>
+                        <option value="gold">Gold</option>
+                        <option value="platinum">Platinum</option>
+                    </select>
+                </div>
+
+                {/* Per Page */}
+                <div>
+                    <select
+                        value={filters.per_page || 10}
+                        onChange={(e) => handleFilterChange('per_page', parseInt(e.target.value))}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value={5}>5 per page</option>
+                        <option value={10}>10 per page</option>
+                        <option value={20}>20 per page</option>
+                        <option value={50}>50 per page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Customer Table Component
+const CustomerTable = ({ customers, isLoading }) => {
+    if (isLoading) {
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                    <p className="mt-2 text-gray-600">Loading customers...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!customers || customers.length === 0) {
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <Users className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No customers found</h3>
+                    <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Customer</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Membership</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Points</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Balance</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                        {customers.map((customer) => (
+                            <tr key={customer.id} className="hover:bg-gray-50">
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                                    <div className="text-sm text-gray-500">ID: {customer.id}</div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="text-sm text-gray-900">{customer.email}</div>
+                                    <div className="text-sm text-gray-500">{customer.phone}</div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <MembershipBadge membership={customer.membership} />
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{customer.points.toLocaleString()}</td>
+                                <td className="whitespace-nowrap px-6 py-4 text-sm">
+                                    <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>${customer.balance}</span>
+                                    {/* <td className="whitespace-nowrap px-6 py-4 text-sm">
+                                    <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>${customer.balance.toFixed(2)}</span> */}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${customer.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                        {customer.is_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+// Pagination Component
+const Pagination = ({ meta, onPageChange }) => {
+    if (!meta || meta.last_page <= 1) {
+        return null;
+    }
+
+    const { current_page, last_page, total, per_page } = meta;
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const showPages = 5;
+        const halfShow = Math.floor(showPages / 2);
+
+        let start = Math.max(1, current_page - halfShow);
+        let end = Math.min(last_page, current_page + halfShow);
+
+        // Adjust if we're near the beginning or end
+        if (end - start < showPages - 1) {
+            if (start === 1) {
+                end = Math.min(last_page, start + showPages - 1);
+            } else {
+                start = Math.max(1, end - showPages + 1);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        return pages;
+    };
+
+    const startItem = (current_page - 1) * per_page + 1;
+    const endItem = Math.min(current_page * per_page, total);
+
+    return (
+        <div className="rounded-b-lg border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm text-gray-700">
+                    Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{total}</span> results
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={() => onPageChange(current_page - 1)}
+                        disabled={current_page === 1}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    {getPageNumbers().map((page) => (
+                        <button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            className={`relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
+                                page === current_page ? 'z-10 border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => onPageChange(current_page + 1)}
+                        disabled={current_page === last_page}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Main Customer List Component
+const CustomerListSystem = () => {
+    const [filters, setFilters] = useState({
+        search: '',
+        store_id: '',
+        membership: '',
+        per_page: 10,
+        page: 1,
+    });
+
+    // Redux queries
+    const { data: storesData, isLoading: isLoadingStores } = useAllStoresQuery();
+    const { data: customersData, isLoading: isLoadingCustomers, error } = useGetStoreCustomersListQuery(filters);
+    console.log(customersData);
+    const handleFiltersChange = (newFilters) => {
+        setFilters(newFilters);
+    };
+
+    const handlePageChange = (page) => {
+        setFilters((prev) => ({ ...prev, page }));
+    };
+
+    const selectedStore = useMemo(() => {
+        if (!filters.store_id || !storesData?.data) return null;
+        return storesData.data.find((store) => store.id == filters.store_id);
+    }, [filters.store_id, storesData]);
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 p-4">
+                <div className="mx-auto max-w-7xl">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                        <p className="text-red-800">Error loading customers. Please try again.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-4">
+            <div className="mx-auto max-w-7xl">
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="flex items-center text-2xl font-bold text-gray-900">
+                        <Users className="mr-2 h-6 w-6" />
+                        Customer Management
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-600">
+                        Manage and view customer information across all stores
+                        {selectedStore && (
+                            <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                <Store className="mr-1 h-3 w-3" />
+                                {selectedStore.name}
+                            </span>
+                        )}
+                    </p>
+                </div>
+
+                {/* Filters */}
+                <CustomerFilters filters={filters} onFiltersChange={handleFiltersChange} stores={storesData} isLoadingStores={isLoadingStores} />
+
+                {/* Customer Table */}
+                <CustomerTable customers={customersData?.data} isLoading={isLoadingCustomers} />
+
+                {/* Pagination */}
+                {customersData?.meta && <Pagination meta={customersData.meta} onPageChange={handlePageChange} />}
+            </div>
+        </div>
+    );
+};
+
+export default CustomerListSystem;
