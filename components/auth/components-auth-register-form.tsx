@@ -48,7 +48,7 @@ const ComponentsAuthRegisterForm = () => {
             toast.success('Registration successful! Redirecting to dashboard...');
             setTimeout(() => {
                 router.push('/dashboard');
-            }, 1500);
+            }, 300);
         } catch (error: any) {
             console.error('Registration failed:', error);
             toast.error(error?.data?.message || 'Registration failed. Please try again.');

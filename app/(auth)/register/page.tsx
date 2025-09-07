@@ -6,12 +6,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
-// Metadata for the page (commented out in your code, but included for completeness)
-// Note: Metadata is only supported in server components, so it may need to be handled differently
-// export const metadata: Metadata = {
-//     title: 'Register Cover',
-// };
-
 const CoverRegister = () => {
     const [activeTab, setActiveTab] = useState<'register' | 'supplier'>('register');
 
