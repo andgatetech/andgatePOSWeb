@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, Edit, Trash2, TrendingUp, TrendingDown, BookOpen, Store, User } from 'lucide-react';
+import { BookOpen, Edit, Eye, Store, Trash2, TrendingDown, TrendingUp, User } from 'lucide-react';
 import { useState } from 'react';
 
 const JournalTable = ({ journals }) => {
@@ -110,7 +110,7 @@ const JournalTable = ({ journals }) => {
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-2">
                                         <Store size={14} className="text-slate-400" />
-                                        <span className="text-sm text-slate-600">{journal.store?.name || 'N/A'}</span>
+                                        <span className="text-sm text-slate-600">{journal.store?.store_name || 'N/A'}</span>
                                     </div>
                                 </td>
 
