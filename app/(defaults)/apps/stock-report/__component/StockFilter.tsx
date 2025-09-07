@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 
 const StockFilter = ({ storeList, selectedStore, setSelectedStore, selectedRange, setSelectedRange }) => {

@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { RefreshCcw, Printer, Download } from 'lucide-react';
 

@@ -2,15 +2,7 @@ import { baseApi } from '@/store/api/baseApi';
 
 const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        updateStore: builder.mutation({
-            query: ({ id, updateData }) => ({
-                url: `/stores/${id}`,
-                method: 'PUT',
-                body: updateData,
-            }),
-        }),
-
-        // 1️⃣ Get store details
+        // ✅ Get store details
         getStore: builder.query({
             query: () => ({
                 url: `/store`,
@@ -19,7 +11,7 @@ const StoreApi = baseApi.injectEndpoints({
             providesTags: ['Stores'],
         }),
 
-        // 2️⃣ Update store (with optional image)
+        // ✅ Update store (with optional image)
         updateStore: builder.mutation({
             query: ({ updateData }: { updateData: any }) => {
                 const formData = new FormData();
@@ -46,13 +38,15 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['Stores'],
         }),
 
+        // ✅ All stores
         allStores: builder.query({
             query: () => ({
                 url: '/stores',
                 method: 'GET',
             }),
         }),
-        // 3️⃣ Get currently logged-in user
+
+        // ✅ Currently logged-in user
         getWhoLogin: builder.query({
             query: () => ({
                 url: '/user',
@@ -61,7 +55,7 @@ const StoreApi = baseApi.injectEndpoints({
             providesTags: ['User'],
         }),
 
-        // 4️⃣ Get staff members for a store
+        // ✅ Staff members for a store
         getStaffMember: builder.query({
             query: () => ({
                 url: '/store/members',
@@ -69,7 +63,7 @@ const StoreApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 5️⃣ Register a new staff member
+        // ✅ Register a new staff member
         staffRegister: builder.mutation({
             query: (newStaff) => ({
                 url: '/staff/register',
@@ -80,4 +74,4 @@ const StoreApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useUpdateStoreMutation, useGetStoreQuery, useGetWhoLoginQuery, useGetStaffMemberQuery, useStaffRegisterMutation, useAllStoresQuery } = StoreApi;
+export const { useUpdateStoreMutation, useGetStoreQuery, useAllStoresQuery, useGetWhoLoginQuery, useGetStaffMemberQuery, useStaffRegisterMutation } = StoreApi;
