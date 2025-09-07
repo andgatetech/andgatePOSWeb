@@ -18,8 +18,8 @@ const ComponentsAuthLoginForm = () => {
     const [loginApi, { isLoading }] = useLoginMutation();
 
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({
-        email: 'admin1@store.com',
-        password: 'admin123',
+        email: '',
+        password: '',
     });
 
     const submitForm = async (e: FormEvent) => {

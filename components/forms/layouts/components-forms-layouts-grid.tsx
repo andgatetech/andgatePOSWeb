@@ -210,7 +210,7 @@ const ComponentsFormsLayoutsGrid = () => {
                                         Selling Price <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 transform font-medium text-gray-500">$</span>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 transform font-medium text-gray-500">&#2547;</span>
                                         <input
                                             id="price"
                                             name="price"
@@ -230,7 +230,7 @@ const ComponentsFormsLayoutsGrid = () => {
                                         Purchase Price <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 transform font-medium text-gray-500">$</span>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 transform font-medium text-gray-500">৳</span>
                                         <input
                                             id="purchase_price"
                                             name="purchase_price"

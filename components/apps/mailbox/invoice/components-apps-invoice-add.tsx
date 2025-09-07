@@ -42,26 +42,13 @@ const ComponentsAppsInvoiceAdd = () => {
         toast.fire({ icon: type, title: msg, padding: '8px 16px' });
     };
 
-    const handleSearchChange = (value: string) => {
-        setSearchTerm(value);
-        setCurrentPage(1);
-
-        if (value.startsWith('sku-') && value.length > 10) {
-            const foundProduct = products.find((p) => p.sku.toLowerCase() === value.toLowerCase());
-            if (foundProduct) {
-                addToCart(foundProduct);
-                setSearchTerm('');
-            }
-        }
-    };
-
     const addToCart = (product: any) => {
         if (product.available === 'no' || product.quantity <= 0) {
             showMessage('Product is not available', 'error');
             return;
         }
 
-        // Check how many times product is already added
+        // Check stock limit
         const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
 
         if (currentQuantityInCart >= product.quantity) {
@@ -90,6 +77,20 @@ const ComponentsAppsInvoiceAdd = () => {
 
         showMessage('Item added successfully!');
         setSearchTerm('');
+    };
+
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+
+        // 🔑 Auto-add when SKU format detected
+        if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
+            const foundProduct = products.find((p) => p.sku.toLowerCase() === value.toLowerCase());
+            if (foundProduct) {
+                addToCart(foundProduct);
+                setSearchTerm(''); // clear after adding
+            }
+        }
     };
 
     const handleImageShow = (product: any) => {
@@ -121,7 +122,7 @@ const ComponentsAppsInvoiceAdd = () => {
                 <div className="panel px-6 py-6">
                     <div className="mb-6">
                         <h1 className="mb-1 text-2xl font-bold text-gray-900">Select Products</h1>
-                        <p className="text-sm text-gray-600">Click on a product to add it to your order</p>
+                        <p className="text-sm text-gray-600">Click or scan a product to add it to your order</p>
                     </div>
 
                     {/* Search */}
@@ -133,6 +134,7 @@ const ComponentsAppsInvoiceAdd = () => {
                             className="form-input w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-primary"
                             value={searchTerm}
                             onChange={(e) => handleSearchChange(e.target.value)}
+                            autoFocus
                         />
                     </div>
 
