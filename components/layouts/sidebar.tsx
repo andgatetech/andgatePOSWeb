@@ -100,7 +100,7 @@ const adminRoutes = [
             { label: 'Sales Report', href: '/apps/SalesReport' },
             { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
             { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
-            { label: 'Stock Report', href: '/apps/stock-report' },
+            { label: 'Stock Report', href: '/apps/stock-report/stock' },
         ],
     },
 ];
