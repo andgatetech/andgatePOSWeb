@@ -80,11 +80,4 @@ const StoreApi = baseApi.injectEndpoints({
     }),
 });
 
-export const {
-    useUpdateStoreMutation,
-
-    useGetWhoLoginQuery,
-    useGetStaffMemberQuery,
-    useStaffRegisterMutation,
-    useAllStoresQuery,
-} = StoreApi;
+export const { useUpdateStoreMutation, useGetStoreQuery, useGetWhoLoginQuery, useGetStaffMemberQuery, useStaffRegisterMutation, useAllStoresQuery } = StoreApi;
