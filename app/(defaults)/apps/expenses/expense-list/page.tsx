@@ -12,11 +12,13 @@ const JournalList = () => {
     const [filters, setFilters] = useState({
         search: '',
         store_id: '',
+        ledger_id: '',
         per_page: 10,
         page: 1,
     });
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [stores, setStores] = useState([]);
+    const [ledgers, setLedgers] = useState([]);
 
     const token = useSelector((state) => state.auth.token);
 
@@ -53,21 +55,103 @@ const JournalList = () => {
         }
     };
 
+    // Fetch all ledgers for filter dropdown
+    const fetchLedgers = async () => {
+        try {
+            // Try to fetch ledgers with pagination response structure
+            const response = await fetch('http://127.0.0.1:8000/api/ledgers', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+            const data = await response.json();
+
+            // Handle paginated response structure from Laravel
+            if (data.data && Array.isArray(data.data)) {
+                setLedgers(data.data);
+            } else if (data.success && data.data) {
+                setLedgers(data.data);
+            } else {
+                console.log('Unexpected ledger response structure:', data);
+                // If the above fails, try to fetch from each store individually
+                fetchLedgersByStore();
+            }
+        } catch (error) {
+            console.error('Error fetching ledgers:', error);
+            // If the above fails, try to fetch from each store individually
+            fetchLedgersByStore();
+        }
+    };
+
+    // Fallback method: fetch ledgers for each store
+    const fetchLedgersByStore = async () => {
+        try {
+            const allLedgers = [];
+
+            // Fetch stores first
+            const storesResponse = await fetch('http://127.0.0.1:8000/api/stores', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+            const storesData = await storesResponse.json();
+
+            if (storesData.success) {
+                // Fetch ledgers for each store
+                for (const store of storesData.data) {
+                    try {
+                        const ledgersResponse = await fetch(`http://127.0.0.1:8000/api/ledgers?store_id=${store.id}`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                Accept: 'application/json',
+                            },
+                        });
+                        const ledgersData = await ledgersResponse.json();
+
+                        if (ledgersData.data && Array.isArray(ledgersData.data)) {
+                            // Add store information to each ledger
+                            const ledgersWithStore = ledgersData.data.map((ledger) => ({
+                                ...ledger,
+                                store_id: store.id,
+                                store_name: store.store_name,
+                            }));
+                            allLedgers.push(...ledgersWithStore);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching ledgers for store ${store.id}:`, error);
+                    }
+                }
+                setLedgers(allLedgers);
+            }
+        } catch (error) {
+            console.error('Error in fetchLedgersByStore:', error);
+        }
+    };
+
     useEffect(() => {
         fetchStores();
-    }, []);
+        fetchLedgers();
+    }, [token]);
 
     const handleFilterChange = (newFilters) => {
-        setFilters({ ...filters, ...newFilters, page: 1 });
+        setFilters((prev) => ({
+            ...prev,
+            ...newFilters,
+            page: newFilters.page !== undefined ? newFilters.page : 1,
+        }));
     };
 
     const handlePageChange = (page) => {
-        setFilters({ ...filters, page });
+        setFilters((prev) => ({ ...prev, page }));
     };
 
     const handleCreateSuccess = () => {
         setShowCreateModal(false);
         refetch();
+        // Refresh ledgers after creating a new journal entry
+        fetchLedgers();
     };
 
     return (
@@ -89,7 +173,7 @@ const JournalList = () => {
                     </div>
 
                     {/* Filters Section */}
-                    <JournalFilters filters={filters} stores={stores} onFilterChange={handleFilterChange} onRefresh={refetch} />
+                    <JournalFilters filters={filters} ledgers={ledgers} stores={stores} onFilterChange={handleFilterChange} onRefresh={refetch} />
                 </div>
 
                 {/* Journal Table */}
@@ -107,7 +191,7 @@ const JournalList = () => {
                                 <div className="mb-4 text-6xl">⚠️</div>
                                 <h3 className="mb-2 text-xl font-semibold text-slate-600">Error loading journals</h3>
                                 <p className="mb-4 text-slate-400">Something went wrong while fetching journal entries</p>
-                                <button onClick={refetch} className="flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700">
+                                <button onClick={refetch} className="mx-auto flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700">
                                     <RefreshCw size={16} />
                                     Try Again
                                 </button>
@@ -116,10 +200,24 @@ const JournalList = () => {
                             <div className="py-12 text-center">
                                 <div className="mb-4 text-6xl">📚</div>
                                 <h3 className="mb-2 text-xl font-semibold text-slate-600">No journal entries found</h3>
-                                <p className="mb-4 text-slate-400">Create your first journal entry to get started</p>
-                                <button onClick={() => setShowCreateModal(true)} className="rounded-lg bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700">
-                                    Create Journal Entry
-                                </button>
+                                <p className="mb-4 text-slate-400">
+                                    {filters.search || filters.store_id || filters.ledger_id
+                                        ? 'No journal entries match your current filters. Try adjusting your search criteria.'
+                                        : 'Create your first journal entry to get started'}
+                                </p>
+                                <div className="flex justify-center gap-3">
+                                    {(filters.search || filters.store_id || filters.ledger_id) && (
+                                        <button
+                                            onClick={() => handleFilterChange({ search: '', store_id: '', ledger_id: '' })}
+                                            className="rounded-lg border border-slate-300 px-6 py-2 text-slate-600 hover:bg-slate-50"
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    )}
+                                    <button onClick={() => setShowCreateModal(true)} className="rounded-lg bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700">
+                                        Create Journal Entry
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                             <>
