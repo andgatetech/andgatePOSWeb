@@ -39,9 +39,7 @@ const ComponentsAuthLoginForm = () => {
             toast.success('Login successful! Redirecting to dashboard...');
 
             // ✅ Redirect
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 30);
+            router.push('/dashboard');
         } catch (error: any) {
             console.error('Login failed:', error);
             toast.error(error?.data?.message || 'Login failed. Please check your credentials.');
