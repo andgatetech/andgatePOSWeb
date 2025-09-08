@@ -111,12 +111,8 @@ const ComponentsAuthRegisterForm = () => {
             // ✅ Show toast and redirect
             toast.success('Registration successful! Redirecting to dashboard...');
 
-            // Set flag to trigger sidebar tour after redirect
-            localStorage.setItem('start-sidebar-tour', 'true');
+            router.push('/dashboard');
 
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 300);
         } catch (error: any) {
             console.error('Registration failed:', error);
             toast.error(error?.data?.message || 'Registration failed. Please try again.');

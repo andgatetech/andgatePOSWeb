@@ -1,10 +1,10 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
@@ -18,8 +18,8 @@ const ComponentsAuthLoginForm = () => {
     const [loginApi, { isLoading }] = useLoginMutation();
 
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({
-        email: '',
-        password: '',
+        email: 'eyad@gmail.com',
+        password: '12345678',
     });
 
     const submitForm = async (e: FormEvent) => {
@@ -39,9 +39,7 @@ const ComponentsAuthLoginForm = () => {
             toast.success('Login successful! Redirecting to dashboard...');
 
             // ✅ Redirect
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 30);
+            router.push('/dashboard');
         } catch (error: any) {
             console.error('Login failed:', error);
             toast.error(error?.data?.message || 'Login failed. Please check your credentials.');

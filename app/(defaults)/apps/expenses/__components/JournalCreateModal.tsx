@@ -14,7 +14,7 @@ const JournalCreateModal = ({ onClose, onSuccess }) => {
     // Fetch stores for filter dropdown
     const fetchStores = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/stores', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stores`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
@@ -196,7 +196,7 @@ const JournalCreateModal = ({ onClose, onSuccess }) => {
                                 <BookOpen size={24} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold">Create Journal Entry</h3>
+                                <h3 className="text-xl font-bold">Create Expense Entry</h3>
                                 <p className="text-emerald-100">Add a new accounting transaction</p>
                             </div>
                         </div>
