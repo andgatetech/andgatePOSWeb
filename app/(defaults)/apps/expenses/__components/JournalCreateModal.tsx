@@ -14,7 +14,7 @@ const JournalCreateModal = ({ onClose, onSuccess }) => {
     // Fetch stores for filter dropdown
     const fetchStores = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/stores', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stores`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',

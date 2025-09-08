@@ -40,7 +40,7 @@ const JournalList = () => {
     // Fetch stores for filter dropdown
     const fetchStores = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/stores', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stores`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
@@ -59,7 +59,7 @@ const JournalList = () => {
     const fetchLedgers = async () => {
         try {
             // Try to fetch ledgers with pagination response structure
-            const response = await fetch('http://127.0.0.1:8000/api/ledgers', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/ledgers`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
@@ -90,7 +90,7 @@ const JournalList = () => {
             const allLedgers = [];
 
             // Fetch stores first
-            const storesResponse = await fetch('http://127.0.0.1:8000/api/stores', {
+            const storesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stores`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
@@ -102,7 +102,7 @@ const JournalList = () => {
                 // Fetch ledgers for each store
                 for (const store of storesData.data) {
                     try {
-                        const ledgersResponse = await fetch(`http://127.0.0.1:8000/api/ledgers?store_id=${store.id}`, {
+                        const ledgersResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/ledgers?store_id=${store.id}`, {
                             headers: {
                                 Authorization: `Bearer ${token}`,
                                 Accept: 'application/json',
