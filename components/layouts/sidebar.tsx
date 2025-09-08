@@ -91,6 +91,11 @@ const adminRoutes = [
             { label: 'Create Expense', href: '/apps/expenses/create-expense' },
         ],
     },
+    {
+        label: 'Customer',
+        icon: <Users />,
+        subMenu: [{ label: 'Customer List', href: '/apps/customer' }],
+    },
 
     {
         label: 'Report',
