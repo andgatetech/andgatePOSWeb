@@ -1,22 +1,21 @@
 'use client';
 
-// import IconLockDots from '@/components/icon/icon-lock-dots';
-// import IconMail from '@/components/icon/icon-mail';
-// import IconUser from '@/components/icon/icon-user';
-
 import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
-
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 
 const ComponentsAuthRegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [runTour, setRunTour] = useState(false);
+    const [tourKey, setTourKey] = useState(0);
+
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -30,6 +29,71 @@ const ComponentsAuthRegisterForm = () => {
         password: '',
         password_confirmation: '',
     });
+
+    // Joyride steps for registration form
+    const tourSteps: Step[] = [
+        {
+            target: '#Name',
+            content: 'Enter your full name here. This will be used to identify you in the system.',
+            placement: 'bottom',
+        },
+        {
+            target: '#Email',
+            content: 'Provide a valid email address. This will be used for login and important notifications.',
+            placement: 'bottom',
+        },
+        {
+            target: '#Phone',
+            content: 'Add your phone number for account verification and support contact.',
+            placement: 'bottom',
+        },
+        {
+            target: '#StoreName',
+            content: 'Enter your store or business name. This will appear throughout your dashboard.',
+            placement: 'bottom',
+        },
+        {
+            target: '#Password',
+            content: 'Create a strong password with at least 8 characters. Use the eye icon to toggle visibility.',
+            placement: 'bottom',
+        },
+        {
+            target: '#PasswordConfirm',
+            content: 'Confirm your password by entering it again to ensure accuracy.',
+            placement: 'bottom',
+        },
+        {
+            target: '.register-submit-btn',
+            content: 'Click here to complete your registration and access your dashboard!',
+            placement: 'top',
+        },
+    ];
+
+    // Start tour on component mount (optional - you can trigger this differently)
+    useEffect(() => {
+        // Check if user hasn't seen the tour before
+        const hasSeenTour = localStorage.getItem('register-tour-completed');
+        if (!hasSeenTour) {
+            setTimeout(() => setRunTour(true), 1000); // Start tour after 1 second
+        }
+    }, []);
+
+    // Handle tour callback
+    const handleJoyrideCallback = (data: CallBackProps) => {
+        const { status, type } = data;
+
+        if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+            setRunTour(false);
+            localStorage.setItem('register-tour-completed', 'true');
+        }
+    };
+
+    // Reset tour function
+    const restartTour = () => {
+        setRunTour(false);
+        setTourKey((prev) => prev + 1);
+        setTimeout(() => setRunTour(true), 100);
+    };
 
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
@@ -46,6 +110,10 @@ const ComponentsAuthRegisterForm = () => {
 
             // ✅ Show toast and redirect
             toast.success('Registration successful! Redirecting to dashboard...');
+
+            // Set flag to trigger sidebar tour after redirect
+            localStorage.setItem('start-sidebar-tour', 'true');
+
             setTimeout(() => {
                 router.push('/dashboard');
             }, 300);
