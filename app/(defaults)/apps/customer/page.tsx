@@ -180,7 +180,7 @@ const CustomerTable = ({ customers, isLoading }) => {
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{customer.points.toLocaleString()}</td>
                                 <td className="whitespace-nowrap px-6 py-4 text-sm">
-                                    <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>${customer.balance}</span>
+                                    <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>৳{customer.balance}</span>
                                     {/* <td className="whitespace-nowrap px-6 py-4 text-sm">
                                     <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>${customer.balance.toFixed(2)}</span> */}
                                 </td>

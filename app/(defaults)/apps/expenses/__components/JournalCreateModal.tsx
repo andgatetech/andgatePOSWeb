@@ -196,7 +196,7 @@ const JournalCreateModal = ({ onClose, onSuccess }) => {
                                 <BookOpen size={24} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold">Create Journal Entry</h3>
+                                <h3 className="text-xl font-bold">Create Expense Entry</h3>
                                 <p className="text-emerald-100">Add a new accounting transaction</p>
                             </div>
                         </div>
