@@ -71,7 +71,7 @@ const invoiceSlice = createSlice({
         updateItemQuantityRedux(state, action: PayloadAction<{ id: number; quantity: number }>) {
             const { id, quantity } = action.payload;
             const item = state.items.find((item) => item.id === id);
-            if (item && quantity > 0) {
+            if (item && quantity >= 0) {
                 item.quantity = quantity;
                 item.amount = item.rate * quantity;
             }

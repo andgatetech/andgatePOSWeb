@@ -80,6 +80,8 @@ const CategoryComponent = () => {
         setLoading(true);
 
         try {
+            setLoading(true);
+
             if (modalType === 'create') {
                 await createCategory(formData).unwrap();
                 showMessage('Category created successfully', 'success');
@@ -90,13 +92,24 @@ const CategoryComponent = () => {
                 }).unwrap();
                 showMessage('Category updated successfully', 'success');
             }
+
             closeModal();
-        } catch (error) {
-            console.error('Error:', error);
-            showMessage('Something went wrong', 'error');
+        } catch (err: any) {
+            console.error('Error:', err);
+
+            // Extract message from RTK Query error
+            let errorMessage = 'Something went wrong';
+            if (err?.data?.message) {
+                errorMessage = err.data.message; // Custom backend message
+            } else if (err?.error) {
+                errorMessage = err.error; // Fallback
+            }
+
+            showMessage(errorMessage, 'error');
         } finally {
             setLoading(false);
         }
+
     };
 
     const handleDelete = async (id) => {
