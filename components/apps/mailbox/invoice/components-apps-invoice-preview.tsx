@@ -54,9 +54,7 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
         <div>
             {/* Download PDF Button */}
             <div className="mb-6 flex justify-start gap-4">
-                <button type="button" className="btn btn-primary gap-2" onClick={exportPDF}>
-                    <IconPrinter /> Download Invoice
-                </button>
+               
             </div>
 
             <div className="panel relative" ref={invoiceRef}>

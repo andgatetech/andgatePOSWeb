@@ -37,11 +37,18 @@ const ProductApi = baseApi.injectEndpoints({
         }),
         updateProduct: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/store/products/${id}`,
+                url: `/products/${id}`,
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['Products'],
+            invalidatesTags: ['Products', 'ActivityLogs'],
+        }),
+        getActivityLogs: builder.query({
+            query: () => ({
+                url: `/activity-logs`,
+                method: 'GET',
+            }),
+            providesTags: ['ActivityLogs'],
         }),
 
         deleteProduct: builder.mutation({
@@ -69,4 +76,5 @@ export const {
     useUpdateAvailabilityMutation,
     useGetProductQRCodeQuery,
     useGetProductBrCodeQuery,
+    useGetActivityLogsQuery,
 } = ProductApi;

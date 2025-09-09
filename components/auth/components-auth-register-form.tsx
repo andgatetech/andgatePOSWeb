@@ -1,22 +1,21 @@
 'use client';
 
-// import IconLockDots from '@/components/icon/icon-lock-dots';
-// import IconMail from '@/components/icon/icon-mail';
-// import IconUser from '@/components/icon/icon-user';
-
 import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
-
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 
 const ComponentsAuthRegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [runTour, setRunTour] = useState(false);
+    const [tourKey, setTourKey] = useState(0);
+
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -30,6 +29,21 @@ const ComponentsAuthRegisterForm = () => {
         password: '',
         password_confirmation: '',
     });
+
+    
+
+    // Start tour on component mount (optional - you can trigger this differently)
+    useEffect(() => {
+        // Check if user hasn't seen the tour before
+        const hasSeenTour = localStorage.getItem('register-tour-completed');
+        if (!hasSeenTour) {
+            setTimeout(() => setRunTour(true), 1000); // Start tour after 1 second
+        }
+    }, []);
+
+    
+
+   
 
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
@@ -46,7 +60,11 @@ const ComponentsAuthRegisterForm = () => {
 
             // ✅ Show toast and redirect
             toast.success('Registration successful! Redirecting to dashboard...');
+
+
             router.push('/dashboard');
+
+
         } catch (error: any) {
             console.error('Registration failed:', error);
             toast.error(error?.data?.message || 'Registration failed. Please try again.');
