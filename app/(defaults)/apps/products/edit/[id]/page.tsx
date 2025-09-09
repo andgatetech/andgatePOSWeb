@@ -410,7 +410,7 @@ const ProductUpdatePage = () => {
                         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                             {existingImages.map((imagePath, index) => (
                                 <div key={index} className="relative">
-                                    <img src={`/storage/${imagePath}`} alt={`Product image ${index + 1}`} className="h-24 w-full rounded-md border object-cover" />
+                                    <img src={`${process.env.NEXT_PUBLIC_BASE_PATH}${imagePath}`} alt={`Product image ${index + 1}`} className="h-24 w-full rounded-md border object-cover" />
                                     <button type="button" onClick={() => removeExistingImage(imagePath)} className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600">
                                         <X className="h-3 w-3" />
                                     </button>
