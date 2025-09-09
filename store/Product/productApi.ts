@@ -21,22 +21,14 @@ const ProductApi = baseApi.injectEndpoints({
         }),
         getSingleProduct: builder.query({
             query: (id) => ({
-                url: `/store/products/${id}`,
+                url: `/products/${id}`,
                 method: 'GET',
             }),
             providesTags: ['Products'],
         }),
 
-        updateAvailability: builder.mutation({
-            query: ({ id, available }) => ({
-                url: `/products/${id}/availability`,
-                method: 'PUT',
-                body: { available },
-            }),
-            invalidatesTags: ['Products'],
-        }),
         updateProduct: builder.mutation({
-            query: ({ id, ...data }) => ({
+            query: ({ id, data }) => ({
                 url: `/products/${id}`,
                 method: 'POST',
                 body: data,
@@ -46,6 +38,13 @@ const ProductApi = baseApi.injectEndpoints({
         getActivityLogs: builder.query({
             query: () => ({
                 url: `/activity-logs`,
+                method: 'GET',
+            }),
+            providesTags: ['ActivityLogs'],
+        }),
+        getActivityLogs: builder.query({
+            query: () => ({
+                url: '/activity-logs',
                 method: 'GET',
             }),
             providesTags: ['ActivityLogs'],
@@ -63,6 +62,14 @@ const ProductApi = baseApi.injectEndpoints({
         }),
         getProductBrCode: builder.query({
             query: (id) => `/products/${id}/barcode`,
+        }),
+        updateAvailability: builder.mutation({
+            query: ({ id, available }) => ({
+                url: `/products/${id}/availability`,
+                method: 'PUT',
+                body: { available },
+            }),
+            invalidatesTags: ['Products'],
         }),
     }),
 });
