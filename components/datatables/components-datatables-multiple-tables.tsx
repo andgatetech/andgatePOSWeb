@@ -15,7 +15,6 @@ const ProductTable = () => {
     // API calls
     const { data: pds, isLoading } = useGetAllProductsQuery();
     const products = pds?.data || [];
-    console.log('products', products);
 
     const [updateAvailability] = useUpdateAvailabilityMutation();
     const [deleteProduct] = useDeleteProductMutation();

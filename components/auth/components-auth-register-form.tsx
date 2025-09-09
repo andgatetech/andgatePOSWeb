@@ -36,8 +36,6 @@ const ComponentsAuthRegisterForm = () => {
         try {
             const result = await registerApi(credentials).unwrap();
 
-            console.log('Registration successful:', result);
-
             // ✅ Set cookie
             document.cookie = `token=${result.data.token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
 

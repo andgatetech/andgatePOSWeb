@@ -21,27 +21,26 @@ const ProductApi = baseApi.injectEndpoints({
         }),
         getSingleProduct: builder.query({
             query: (id) => ({
-                url: `/store/products/${id}`,
+                url: `/products/${id}`,
                 method: 'GET',
             }),
             providesTags: ['Products'],
         }),
 
-        updateAvailability: builder.mutation({
-            query: ({ id, available }) => ({
-                url: `/products/${id}/availability`,
-                method: 'PUT',
-                body: { available },
-            }),
-            invalidatesTags: ['Products'],
-        }),
         updateProduct: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/store/products/${id}`,
+            query: ({ id, data }) => ({
+                url: `/products/${id}`,
                 method: 'POST',
                 body: data,
             }),
             invalidatesTags: ['Products'],
+        }),
+        getActivityLogs: builder.query({
+            query: () => ({
+                url: '/activity-logs',
+                method: 'GET',
+            }),
+            providesTags: ['ActivityLogs'],
         }),
 
         deleteProduct: builder.mutation({
@@ -56,6 +55,14 @@ const ProductApi = baseApi.injectEndpoints({
         }),
         getProductBrCode: builder.query({
             query: (id) => `/products/${id}/barcode`,
+        }),
+        updateAvailability: builder.mutation({
+            query: ({ id, available }) => ({
+                url: `/products/${id}/availability`,
+                method: 'PUT',
+                body: { available },
+            }),
+            invalidatesTags: ['Products'],
         }),
     }),
 });
