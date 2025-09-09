@@ -4,13 +4,14 @@ import InvoiceModal from '@/__components/InvoiceModal';
 import IconEye from '@/components/icon/icon-eye';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { sortBy } from 'lodash';
-import { FileText, Printer } from 'lucide-react';
+import { FileText, MoreVertical, Printer } from 'lucide-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import OrderItemsModal from './ordeo_items_modal';
+import OrderActionsComponent from '@/__components/OrderActionsComponent';
 
 const ComponentsAppsInvoiceList = () => {
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -87,41 +88,63 @@ const ComponentsAppsInvoiceList = () => {
     }, [sortStatus, initialRecords]);
 
     return (
-        <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+        <div className="panel border-white-light px-0 shadow-sm dark:border-[#1b2e4b]">
             <div className="invoice-table">
-                <div className="mb-4.5 flex flex-col gap-5 px-5 md:flex-row md:items-center" />
+                {/* Header Section with better spacing */}
+                <div className="mb-6 flex flex-col gap-6 rounded-t-lg bg-gradient-to-r from-gray-50 to-white px-6 py-4 dark:from-gray-800 dark:to-gray-900 md:flex-row md:items-center">
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Order Management</h2>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage and track your orders</p>
+                    </div>
+                </div>
 
-                <div className="datatables pagination-padding">
+                {/* DataTable with enhanced styling */}
+                <div className="datatables pagination-padding px-6 pb-6">
                     <DataTable
-                        className="table-hover whitespace-nowrap"
+                        className="table-hover overflow-hidden whitespace-nowrap rounded-lg border border-gray-200 dark:border-gray-700"
                         records={records}
                         columns={[
                             {
                                 accessor: 'invoice',
                                 sortable: true,
-                                render: ({ invoice }) => <div className="font-semibold text-primary underline hover:no-underline">#{invoice}</div>,
+                                render: ({ invoice }) => <div className="px-3 py-2 font-semibold text-primary underline hover:no-underline">#{invoice}</div>,
                             },
                             {
                                 accessor: 'name',
                                 sortable: true,
                                 render: ({ name }) => (
-                                    <div className="flex items-center font-semibold">
+                                    <div className="flex items-center px-3 py-2 font-semibold">
+                                        <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-sm font-medium text-white">
+                                            {name?.charAt(0)?.toUpperCase() || 'U'}
+                                        </div>
                                         <div>{name}</div>
                                     </div>
                                 ),
                             },
-                            { accessor: 'email', sortable: true },
-                            { accessor: 'date', sortable: true },
+                            {
+                                accessor: 'email',
+                                sortable: true,
+                                render: ({ email }) => <div className="px-3 py-2 text-gray-600 dark:text-gray-400">{email}</div>,
+                            },
+                            {
+                                accessor: 'date',
+                                sortable: true,
+                                render: ({ date }) => <div className="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">{date}</div>,
+                            },
                             {
                                 accessor: 'amount',
                                 sortable: true,
                                 titleClassName: 'text-right',
-                                render: ({ amount }) => <div className="text-right font-semibold">৳{amount.toFixed(2)}</div>,
+                                render: ({ amount }) => <div className="px-3 py-2 text-right text-lg font-bold text-green-600 dark:text-green-400">৳{amount.toFixed(2)}</div>,
                             },
                             {
                                 accessor: 'status',
                                 sortable: true,
-                                render: ({ status }) => <span className={`badge badge-outline-${status.color}`}>{status.tooltip}</span>,
+                                render: ({ status }) => (
+                                    <div className="px-3 py-2">
+                                        <span className={`badge badge-outline-${status.color} rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide`}>{status.tooltip}</span>
+                                    </div>
+                                ),
                             },
                             {
                                 accessor: 'action',
@@ -129,23 +152,8 @@ const ComponentsAppsInvoiceList = () => {
                                 sortable: false,
                                 textAlignment: 'center',
                                 render: (record) => (
-                                    <div className="mx-auto flex w-max items-center gap-2">
-                                        {/* Details Button */}
-                                        <button type="button" className="flex hover:text-primary" onClick={() => handleViewDetails(record.originalOrder)} title="View Details">
-                                            <IconEye />
-                                        </button>
-
-                                        {/* Invoice Button */}
-                                        <button type="button" className="flex hover:text-info" onClick={() => handleViewInvoice(record.originalOrder)} title="View Invoice">
-                                            {/* <IconFileText /> */}
-                                            <FileText className="h-4 w-4" />
-                                        </button>
-
-                                        {/* Receipt Button */}
-                                        <button type="button" className="flex hover:text-success" onClick={() => handleViewReceipt(record.originalOrder)} title="View Receipt">
-                                            {/* <IconPrinter /> */}
-                                            <Printer className="h-4 w-4" />
-                                        </button>
+                                    <div className="px-3 py-2">
+                                        <OrderActionsComponent order={record.originalOrder} />
                                     </div>
                                 ),
                             },
@@ -161,7 +169,13 @@ const ComponentsAppsInvoiceList = () => {
                         onSortStatusChange={setSortStatus}
                         selectedRecords={selectedRecords}
                         onSelectedRecordsChange={setSelectedRecords}
-                        paginationText={({ from, to, totalRecords }) => `Showing ${from} to ${to} of ${totalRecords} entries`}
+                        paginationText={({ from, to, totalRecords }) => (
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                Showing <span className="font-semibold text-gray-900 dark:text-white">{from}</span> to <span className="font-semibold text-gray-900 dark:text-white">{to}</span> of{' '}
+                                <span className="font-semibold text-gray-900 dark:text-white">{totalRecords}</span> entries
+                            </span>
+                        )}
+                        rowClassName="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
                     />
                 </div>
             </div>

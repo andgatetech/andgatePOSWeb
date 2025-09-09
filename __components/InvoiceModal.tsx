@@ -29,12 +29,61 @@ const InvoiceModal = ({ open, onClose, order }) => {
         return num % 1 === 0 ? num.toString() : num.toFixed(2); // Remove .00 for whole numbers
     };
 
+    // const generateInvoicePDF = (order, items) => {
+    //     const doc = new jsPDF();
+
+    //     // Set monospaced font for better alignment
+    //     doc.setFontSize(12);
+    //     doc.setFont('courier', 'normal');
+
+    //     // Add Invoice Header
+    //     doc.text(`INVOICE: ${items.invoice || `INV-${items.id}`}`, 10, 10);
+    //     doc.text(`Date: ${formatDate(order.created_at)}`, 10, 20);
+    //     doc.text(`Customer: ${items.customer.name || 'N/A'}`, 10, 30);
+    //     doc.text(`Email: ${items.customer.email || 'N/A'}`, 10, 40);
+
+    //     // Add Items Header with fixed column positions
+    //     doc.text('ITEMS:', 10, 50);
+    //     doc.text('Product', 10, 60);
+    //     doc.text('Qty', 70, 60);
+    //     doc.text('Price', 90, 60);
+    //     doc.text('Total', 120, 60);
+    //     doc.text('-'.repeat(50), 10, 65);
+
+    //     // Add Items with fixed column positions
+    //     let yPosition = 70;
+    //     items?.items.forEach((item) => {
+    //         const productName = item.product?.product_name || 'Unknown Product';
+    //         const truncatedName = productName.length > 20 ? productName.substring(0, 17) + '...' : productName;
+    //         doc.text(truncatedName, 10, yPosition);
+    //         doc.text(item.quantity.toString(), 70, yPosition);
+    //         doc.text(`৳${formatNumber(item.unit_price)}`, 90, yPosition);
+    //         doc.text(`৳${formatNumber(item.subtotal)}`, 120, yPosition);
+    //         yPosition += 10;
+    //     });
+
+    //     // Add Totals, aligned with the 'Total' column
+    //     doc.text(`Subtotal:`, 90, yPosition + 10);
+    //     doc.text(`৳${formatNumber(items?.grand_total)}`, 120, yPosition + 10);
+    //     doc.text(`Discount:`, 90, yPosition + 20);
+    //     doc.text(`৳${formatNumber(order.discount || 0)}`, 120, yPosition + 20);
+    //     doc.text(`Grand Total:`, 90, yPosition + 30);
+    //     doc.text(`৳${formatNumber(order.grand_total)}`, 120, yPosition + 30);
+
+    //     return doc;
+    // };
+
     const generateInvoicePDF = (order, items) => {
         const doc = new jsPDF();
 
-        // Set monospaced font for better alignment
+        // Set font for better compatibility
         doc.setFontSize(12);
-        doc.setFont('courier', 'normal');
+        doc.setFont('helvetica', 'normal');
+
+        const formatNumber = (value) => {
+            const num = Number(value || 0);
+            return num % 1 === 0 ? num.toString() : num.toFixed(2);
+        };
 
         // Add Invoice Header
         doc.text(`INVOICE: ${items.invoice || `INV-${items.id}`}`, 10, 10);
@@ -42,33 +91,53 @@ const InvoiceModal = ({ open, onClose, order }) => {
         doc.text(`Customer: ${items.customer.name || 'N/A'}`, 10, 30);
         doc.text(`Email: ${items.customer.email || 'N/A'}`, 10, 40);
 
-        // Add Items Header with fixed column positions
+        // Add Items Header
         doc.text('ITEMS:', 10, 50);
         doc.text('Product', 10, 60);
-        doc.text('Qty', 70, 60);
-        doc.text('Price', 90, 60);
-        doc.text('Total', 120, 60);
-        doc.text('-'.repeat(50), 10, 65);
+        doc.text('Qty', 90, 60);
+        doc.text('Price', 120, 60);
+        doc.text('Total', 160, 60);
 
-        // Add Items with fixed column positions
-        let yPosition = 70;
+        // Add clean horizontal line under headers
+        doc.line(10, 63, 195, 63);
+
+        // Add Items with proper number formatting
+        let yPosition = 68;
         items?.items.forEach((item) => {
             const productName = item.product?.product_name || 'Unknown Product';
-            const truncatedName = productName.length > 20 ? productName.substring(0, 17) + '...' : productName;
+            const truncatedName = productName.length > 15 ? productName.substring(0, 12) + '...' : productName;
+
+            // Product name
             doc.text(truncatedName, 10, yPosition);
-            doc.text(item.quantity.toString(), 70, yPosition);
-            doc.text(`৳${formatNumber(item.unit_price)}`, 90, yPosition);
-            doc.text(`৳${formatNumber(item.subtotal)}`, 120, yPosition);
+
+            // Quantity - center aligned
+            doc.text(formatNumber(item.quantity), 100, yPosition, { align: 'center' });
+
+            // Unit price - right aligned
+            doc.text(formatNumber(item.unit_price), 150, yPosition, { align: 'right' });
+
+            // Subtotal - right aligned
+            doc.text(formatNumber(item.subtotal), 190, yPosition, { align: 'right' });
+
             yPosition += 10;
         });
 
-        // Add Totals, aligned with the 'Total' column
-        doc.text(`Subtotal:`, 90, yPosition + 10);
-        doc.text(`৳${formatNumber(items?.grand_total)}`, 120, yPosition + 10);
-        doc.text(`Discount:`, 90, yPosition + 20);
-        doc.text(`৳${formatNumber(order.discount || 0)}`, 120, yPosition + 20);
-        doc.text(`Grand Total:`, 90, yPosition + 30);
-        doc.text(`৳${formatNumber(order.grand_total)}`, 120, yPosition + 30);
+        // Add clean separator line after items
+        doc.line(10, yPosition + 2, 195, yPosition + 2);
+
+        // Add Totals with proper alignment
+        yPosition += 12;
+        doc.text('Subtotal:', 120, yPosition);
+        doc.text(formatNumber(items?.grand_total || items?.total || 0), 190, yPosition, { align: 'right' });
+
+        yPosition += 10;
+        doc.text('Discount:', 120, yPosition);
+        doc.text(formatNumber(order.discount || 0), 190, yPosition, { align: 'right' });
+
+        yPosition += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Grand Total:', 120, yPosition);
+        doc.text(formatNumber(order.grand_total || 0), 190, yPosition, { align: 'right' });
 
         return doc;
     };

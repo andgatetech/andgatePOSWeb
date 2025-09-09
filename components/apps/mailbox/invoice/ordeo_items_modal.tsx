@@ -10,9 +10,9 @@ interface OrderItemsModalProps {
     id: any;
 }
 
-export default function OrderItemsModal({ open, onClose, id }: OrderItemsModalProps) {
-    const { data } = useGetOrderItemsQuery(id);
-    console.log('data', data);
+export default function OrderItemsModal({ open, onClose, order }: OrderItemsModalProps) {
+    const { data } = useGetOrderItemsQuery(order?.id);
+    console.log('data', order?.id);
     const columns = [
         { key: 'category', label: 'Category' },
         { key: 'product_name', label: 'Product Name' },
