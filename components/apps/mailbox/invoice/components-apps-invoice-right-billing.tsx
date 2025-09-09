@@ -219,7 +219,7 @@ const BillToForm: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        console.log('Current invoice items:', invoiceItems);
+        
     }, [invoiceItems]);
 
     const handleRemoveItem = (itemId: number) => {
@@ -230,25 +230,35 @@ const BillToForm: React.FC = () => {
         dispatch(removeItemRedux(itemId));
     };
 
-    const handleQuantityChange = (itemId: number, newQuantity: number) => {
-        if (newQuantity < 1) return;
+   const handleQuantityChange = (itemId: number, value: string) => {
+       const item = invoiceItems.find((item) => item.id === itemId);
+       if (!item) return;
 
-        const item = invoiceItems.find((item) => item.id === itemId);
-        if (!item) return;
+       // If input is empty, temporarily set quantity to 0
+       if (value === '') {
+           dispatch(updateItemRedux({ ...item, quantity: 0, amount: 0 }));
+           return;
+       }
 
-        if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
-            return;
-        }
+       const newQuantity = Number(value);
 
-        const updatedItem = {
-            ...item,
-            quantity: newQuantity,
-            amount: item.rate * newQuantity,
-        };
+       if (newQuantity < 0) return; // prevent negatives
 
-        dispatch(updateItemRedux(updatedItem));
-    };
+       if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
+           showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
+           return;
+       }
+
+       dispatch(
+           updateItemRedux({
+               ...item,
+               quantity: newQuantity,
+               amount: item.rate * newQuantity,
+           })
+       );
+   };
+
+
 
     const calculateSubtotal = () => invoiceItems.reduce((total, item) => total + item.rate * item.quantity, 0);
     const calculateTax = () => (calculateSubtotal() * formData.tax) / 100;
@@ -356,42 +366,63 @@ const BillToForm: React.FC = () => {
             orderData.customer_email = formData.customerEmail;
         }
 
-        try {
-            setLoading(true);
-            const response = await createOrder(orderData).unwrap();
-            console.log('Order API response:', response);
+       try {
+           setLoading(true);
+           const response = await createOrder(orderData).unwrap();
+           console.log('Order API response:', response);
 
-            // Store the order response and automatically show preview
-            setOrderResponse(response);
-            setShowPreview(true);
+           // Store the order response and automatically show preview
+           setOrderResponse(response);
+           setShowPreview(true);
 
-            refetch();
-            setLoading(false);
-            showMessage('Order created successfully!', 'success');
+           refetch();
+           setLoading(false);
+           showMessage('Order created successfully!', 'success');
 
-            // Clear form data but keep the response for preview
-            dispatch(clearItemsRedux());
-            clearCustomerSelection();
-            setFormData({
-                customerId: null,
-                customerName: '',
-                customerEmail: '',
-                customerPhone: '',
-                tax: 0,
-                discount: 0,
-                membershipDiscount: 0,
-                paymentMethod: '',
-                paymentStatus: '',
-                usePoints: false,
-                useBalance: false,
-                pointsToUse: 0,
-                balanceToUse: 0,
-            });
-        } catch (error) {
-            setLoading(false);
-            console.error('Failed to create order:', error);
-            showMessage('Failed to create order', 'error');
-        }
+           // Clear form data but keep the response for preview
+           dispatch(clearItemsRedux());
+           clearCustomerSelection();
+           setFormData({
+               customerId: null,
+               customerName: '',
+               customerEmail: '',
+               customerPhone: '',
+               tax: 0,
+               discount: 0,
+               membershipDiscount: 0,
+               paymentMethod: '',
+               paymentStatus: '',
+               usePoints: false,
+               useBalance: false,
+               pointsToUse: 0,
+               balanceToUse: 0,
+           });
+       } catch (err: any) {
+           setLoading(false);
+
+           let errorMessage = 'Failed to create order';
+
+           // 🔎 Laravel validation errors (422)
+           if (err?.status === 422 && err?.data?.errors) {
+               errorMessage = Object.values(err.data.errors).flat().join('\n');
+           }
+           // 🔎 Backend business logic errors (403, 404, 400…)
+           else if (err?.data?.message) {
+               errorMessage = err.data.message;
+           }
+           // 🔎 Server exception (500)
+           else if (err?.data?.error) {
+               errorMessage = err.data.error;
+           }
+           // 🔎 Network error fallback
+           else if (err?.error) {
+               errorMessage = err.error;
+           }
+
+           console.error('Failed to create order:', errorMessage);
+           showMessage(errorMessage, 'error');
+       }
+
     };
 
     const handlePreview = () => {
@@ -690,6 +721,7 @@ const BillToForm: React.FC = () => {
                                         value={formData.customerPhone}
                                         onChange={handleInputChange}
                                         disabled={!!selectedCustomer}
+                                        required={!selectedCustomer}
                                     />
                                 </div>
                             </div>
@@ -724,15 +756,40 @@ const BillToForm: React.FC = () => {
                                     <tr key={item.id} className="border-b border-gray-200">
                                         <td className="p-3 text-sm">{item.title}</td>
                                         <td className="p-3">
-                                            <input
-                                                type="number"
-                                                className="form-input w-16"
-                                                min={1}
-                                                max={item.PlaceholderQuantity || 9999}
-                                                value={item.quantity}
-                                                onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    className={`form-input ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
+                                                    style={{ minWidth: '4rem', width: 'auto' }}
+                                                    min={0}
+                                                    max={item.PlaceholderQuantity || 9999}
+                                                    value={item.quantity === 0 ? '' : item.quantity}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        handleQuantityChange(item.id, value);
+                                                    }}
+                                                    onBlur={() => {
+                                                        // Set minimum quantity to 1 if empty on blur
+                                                        if (item.quantity === 0) {
+                                                            const updatedItem = invoiceItems.find((invItem) => invItem.id === item.id);
+                                                            if (updatedItem) {
+                                                                dispatch(
+                                                                    updateItemRedux({
+                                                                        ...updatedItem,
+                                                                        quantity: 1,
+                                                                        amount: updatedItem.rate * 1,
+                                                                    })
+                                                                );
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+
+                                                {/* Soft message for empty/0 quantity */}
+                                                {item.quantity === 0 && <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>}
+                                            </div>
                                         </td>
+
                                         <td className="p-3 text-sm">{item.rate.toFixed(2)}</td>
                                         <td className="p-3 text-sm">{(item.rate * item.quantity).toFixed(2)}</td>
                                         <td className="p-3">
@@ -817,17 +874,34 @@ const BillToForm: React.FC = () => {
                         )}
 
                         <div className="flex justify-between">
-                            <label className="font-semibold">Payment Method</label>
-                            <select name="paymentMethod" className="form-select w-40" value={formData.paymentMethod} onChange={handleInputChange}>
+                            <label className="font-semibold">
+                                Payment Method <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="paymentMethod"
+                                className="form-select w-40"
+                                value={formData.paymentMethod}
+                                onChange={handleInputChange}
+                                required // ✅ HTML5 required
+                            >
                                 <option value="">Select</option>
                                 <option value="cash">Cash</option>
                                 <option value="Credit Card">Credit Card</option>
                                 <option value="Bank">Bank</option>
                             </select>
                         </div>
+
                         <div className="flex justify-between">
-                            <label className="font-semibold">Payment Status</label>
-                            <select name="paymentStatus" className="form-select w-40" value={formData.paymentStatus} onChange={handleInputChange}>
+                            <label className="font-semibold">
+                                Payment Status <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="paymentStatus"
+                                className="form-select w-40"
+                                value={formData.paymentStatus}
+                                onChange={handleInputChange}
+                                required // ✅ HTML5 required
+                            >
                                 <option value="">Select</option>
                                 <option value="paid">Paid</option>
                                 <option value="unpaid">Unpaid</option>

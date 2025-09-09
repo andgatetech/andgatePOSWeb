@@ -93,11 +93,6 @@ const adminRoutes = [
         icon: <Users />,
         subMenu: [{ label: 'Customer List', href: '/apps/customer' }],
     },
-    {
-        label: 'Customer',
-        icon: <Users />,
-        subMenu: [{ label: 'Customer List', href: '/apps/customer' }],
-    },
 
     {
         label: 'Report',

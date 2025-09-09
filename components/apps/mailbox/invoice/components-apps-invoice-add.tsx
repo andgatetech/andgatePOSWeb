@@ -177,6 +177,10 @@ const ComponentsAppsInvoiceAdd = () => {
                                     {/* Info */}
                                     <div className="p-3">
                                         <h3 className="mb-1 line-clamp-2 text-sm font-semibold text-gray-900">{product.product_name}</h3>
+
+                                        {/* SKU */}
+                                        {product.sku && <div className="mb-1 text-xs text-gray-400">SKU: {product.sku}</div>}
+
                                         <div className="mt-2 flex items-center justify-between">
                                             <span className="text-base font-bold text-primary">৳{parseFloat(product.price).toFixed(2)}</span>
                                             <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">Stock: {product.quantity}</span>
