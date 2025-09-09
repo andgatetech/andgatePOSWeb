@@ -237,11 +237,14 @@ const SalesManagement = () => {
                     </div>
 
                     {/* Product Sales Table */}
-                    <div className="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div className="mb-6 rounded-lg border border-gray-200 bg-white shadow-md">
+                        {/* Header */}
                         <div className="border-b border-gray-200 p-6">
                             <h2 className="text-xl font-semibold text-gray-900">Product Sales Performance</h2>
                             <p className="mt-1 text-gray-600">{periodLabel} sales breakdown by product</p>
                         </div>
+
+                        {/* Table */}
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50">
@@ -277,7 +280,7 @@ const SalesManagement = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-8 text-center">
+                                            <td colSpan={4} className="px-6 py-12 text-center">
                                                 <div className="text-gray-500">
                                                     <Package className="mx-auto mb-4 h-12 w-12 text-gray-300" />
                                                     <p className="text-lg font-medium">No sales data found</p>
@@ -289,8 +292,13 @@ const SalesManagement = () => {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="border-t border-gray-200 p-6 text-right font-semibold text-gray-800">
-                            {periodLabel} Sales Total: {formatCurrency(processedData.summary.totalRevenue)}
+
+                        {/* Footer / Summary */}
+                        <div className="border-t border-gray-200 p-6">
+                            <div className="flex items-center justify-between rounded-lg bg-blue-50 p-4 shadow-sm">
+                                <span className="text-sm font-medium text-blue-700">{periodLabel} Sales Total</span>
+                                <span className="text-lg font-bold text-blue-900">{formatCurrency(processedData.summary.totalRevenue)}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

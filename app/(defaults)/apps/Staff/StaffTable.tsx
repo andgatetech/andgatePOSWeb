@@ -554,9 +554,8 @@ const StaffManagement = () => {
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             >
                                                 <option value="staff">Staff</option>
-                                                <option value="cashier">Cashier</option>
-                                                <option value="manager">Manager</option>
-                                                <option value="store admin">Store Admin</option>
+                                            
+                                                <option value="store_admin">Store Admin</option>
                                             </select>
                                         </div>
                                     </div>
