@@ -2,16 +2,17 @@
 
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { Eye, EyeOff } from 'lucide-react';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
 import { RootState } from '@/store';
-import { login } from '@/store/features/auth/authSlice'; // ✅ import login action
+import { login } from '@/store/features/auth/authSlice';
 
-const ComponentsAuthLoginForm = () => {
+const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -22,23 +23,49 @@ const ComponentsAuthLoginForm = () => {
         password: '',
     });
 
+    // State for password visibility
+    const [showPassword, setShowPassword] = useState(false);
+
+    // Expose method to parent component via ref
+    useImperativeHandle(ref, () => ({
+        updateCredentials: (email: string, password: string) => {
+            setCredentials({ email, password });
+        },
+    }));
+
+    // Handle password visibility toggle
+    const togglePasswordVisibility = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowPassword(!showPassword);
+    };
+
+    // Handle input changes with proper event handling
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCredentials((prev) => ({ ...prev, email: e.target.value }));
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCredentials((prev) => ({ ...prev, password: e.target.value }));
+    };
+
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
             const result = await loginApi(credentials).unwrap();
             console.log(result);
 
-            // ✅ Set token in cookie (instead of localStorage)
+            // Set token in cookie (instead of localStorage)
             document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
             document.cookie = `role=${result.user.role}; path=/; max-age=${60 * 60 * 24};`;
 
-            // ✅ Optional: Save user in Redux
+            // Optional: Save user in Redux
             dispatch(login({ user: result.user, token: result.token }));
 
-            // ✅ Show success toast
+            // Show success toast
             toast.success('Login successful! Redirecting to dashboard...');
 
-            // ✅ Redirect
+            // Redirect
             router.push('/dashboard');
         } catch (error: any) {
             console.error('Login failed:', error);
@@ -53,12 +80,13 @@ const ComponentsAuthLoginForm = () => {
                 <div className="relative text-white-dark">
                     <input
                         id="Email"
-                        onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                        onChange={handleEmailChange}
                         type="email"
                         placeholder="Enter Email"
                         className="form-input ps-10 placeholder:text-white-dark"
                         value={credentials.email}
                         required
+                        autoComplete="email"
                     />
                     <span className="absolute start-4 top-1/2 -translate-y-1/2">
                         <IconMail fill={true} />
@@ -71,16 +99,26 @@ const ComponentsAuthLoginForm = () => {
                 <div className="relative text-white-dark">
                     <input
                         id="Password"
-                        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                        type="password"
+                        onChange={handlePasswordChange}
+                        type={showPassword ? 'text' : 'password'}
                         placeholder="Enter Password"
-                        className="form-input ps-10 placeholder:text-white-dark"
+                        className="form-input pe-10 ps-10 placeholder:text-white-dark"
                         value={credentials.password}
                         required
+                        autoComplete="current-password"
                     />
                     <span className="absolute start-4 top-1/2 -translate-y-1/2">
                         <IconLockDots fill={true} />
                     </span>
+                    {/* Password toggle button */}
+                    <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute end-4 top-1/2 -translate-y-1/2 text-white-dark transition-colors duration-200 hover:text-primary focus:outline-none"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                 </div>
             </div>
 
@@ -89,6 +127,8 @@ const ComponentsAuthLoginForm = () => {
             </button>
         </form>
     );
-};
+});
+
+ComponentsAuthLoginForm.displayName = 'ComponentsAuthLoginForm';
 
 export default ComponentsAuthLoginForm;

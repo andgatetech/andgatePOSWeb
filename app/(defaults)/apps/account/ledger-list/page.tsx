@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
 import CreateLedgerModal from './__component/LedgerModal';
 import { useAllStoresQuery } from '@/store/features/store/storeApi';
+import Link from 'next/link';
 
 const LedgerList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -230,15 +231,15 @@ const LedgerList = () => {
                                                     <td className="px-4 py-4">
                                                         <div className="flex items-center gap-2">
                                                             <Building2 className="h-4 w-4 text-slate-400" />
-                                                            <span className="text-slate-600">{ledger.store?.name || 'N/A'}</span>
+                                                            <span className="text-slate-600">{ledger.store?.store_name || 'N/A'}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-4 text-sm text-slate-500">{ledger.created_at ? new Date(ledger.created_at).toLocaleDateString() : 'N/A'}</td>
                                                     <td className="px-4 py-4">
                                                         <div className="flex gap-2">
-                                                            <button className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50">
+                                                            <Link href={`/apps/account/ledger-list/${ledger.id}`} className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50">
                                                                 <Eye size={16} />
-                                                            </button>
+                                                            </Link>
                                                             <button className="rounded-lg p-2 text-amber-600 transition-colors hover:bg-amber-50">
                                                                 <Edit size={16} />
                                                             </button>

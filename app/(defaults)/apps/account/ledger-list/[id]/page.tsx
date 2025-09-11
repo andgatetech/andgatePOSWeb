@@ -1,58 +1,84 @@
 'use client';
 
-import { useGetExpensesQuery } from '@/store/features/expense/expenseApi';
+import { useGetLedgerJournalsQuery } from '@/store/features/ledger/ledger';
 import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { Calendar, CalendarRange, ChevronLeft, ChevronRight, Clock, CreditCard, Filter, Plus, RefreshCw, Search, Store, TrendingDown, User, X } from 'lucide-react';
+import { ArrowUpDown, Building2, Calendar, CalendarRange, ChevronLeft, ChevronRight, Clock, FileText, Filter, Search, Store, TrendingDown, TrendingUp, User, X, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import CreateExpenseModal from './__component/create_expense_modal';
 
-interface FilterState {
-    search?: string;
-    store_id?: number;
-    selected_date?: string;
-    from_date?: string;
-    to_date?: string;
-    per_page?: number;
-    page?: number;
-}
+const JournalListPage = () => {
+    const { id } = useParams();
 
-const ExpenseList = () => {
-    const [filters, setFilters] = useState<FilterState>({ per_page: 10, page: 1 });
-    const [modalOpened, setModalOpened] = useState(false);
+    // Filter states
+    const [filters, setFilters] = useState({
+        store_id: '',
+        user_id: '',
+        user_name: '',
+        notes: '',
+        type: '', // 'debit' or 'credit'
+        date: '',
+        from_date: '',
+        to_date: '',
+        per_page: 10,
+        page: 1,
+    });
+
     const [showFilters, setShowFilters] = useState(false);
     const [dateFilterType, setDateFilterType] = useState('specific'); // 'specific' or 'range'
 
-    const { data: expensesData, isLoading, error, refetch } = useGetExpensesQuery(filters);
+    // RTK Query calls
     const { data: storesData, isLoading: storesLoading } = useAllStoresQuery();
+    const {
+        data: journalsData,
+        isLoading: journalsLoading,
+        error,
+        refetch,
+    } = useGetLedgerJournalsQuery({
+        ledgerId: id,
+        params: filters,
+    });
 
     const stores = storesData?.data || [];
-    const expenses = expensesData?.data || [];
-    const pagination = {
-        current_page: filters.page || 1,
-        last_page: Math.ceil((expensesData?.total || 0) / (filters.per_page || 10)),
-        from: ((filters.page || 1) - 1) * (filters.per_page || 10) + 1,
-        to: Math.min((filters.page || 1) * (filters.per_page || 10), expensesData?.total || 0),
-        total: expensesData?.total || 0,
-    };
+    const journals = journalsData?.journals?.data || [];
+    const pagination = journalsData?.journals || {};
+    console.log(journals);
 
-    const handleChange = (key: keyof FilterState, value: any) => {
-        setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
+    // Handle filter changes
+    const handleFilterChange = (key, value) => {
+        setFilters((prev) => ({
+            ...prev,
+            [key]: value,
+            page: 1, // Reset to first page when filters change
+        }));
     };
 
     // Handle pagination
-    const handlePageChange = (newPage: number) => {
+    const handlePageChange = (newPage) => {
         setFilters((prev) => ({
             ...prev,
             page: newPage,
         }));
     };
 
-    const resetFilters = () => {
-        setFilters({ per_page: 10, page: 1 });
+    // Clear all filters
+    const clearFilters = () => {
+        setFilters({
+            store_id: '',
+            user_id: '',
+            user_name: '',
+            notes: '',
+            type: '',
+            date: '',
+            from_date: '',
+            to_date: '',
+            per_page: 10,
+            page: 1,
+        });
         setDateFilterType('specific');
     };
 
-    const formatCurrency = (amount: number) => {
+    const formatCurrency = (amount) => {
         return `৳${new Intl.NumberFormat('en-BD', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
@@ -60,7 +86,7 @@ const ExpenseList = () => {
     };
 
     // Format date
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -119,30 +145,24 @@ const ExpenseList = () => {
                     <div className="rounded-t-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
+                                <Link href="/apps/account/ledger-list" className="rounded-lg bg-white/20 p-2 transition-all duration-200 hover:bg-white/30">
+                                    <ChevronLeft className="h-6 w-6" />
+                                </Link>
                                 <div className="rounded-lg bg-white/20 p-3">
-                                    <CreditCard className="h-8 w-8" />
+                                    <FileText className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold">Expense Management</h1>
-                                    <p className="mt-1 text-blue-100">Track and manage all expenses</p>
+                                    <h1 className="text-3xl font-bold">{journals[0] ? `${journals[0].ledger?.title} Journals` : 'Journal Entries'}</h1>
+                                    <p className="mt-1 text-blue-100">Ledger ID: {id}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setModalOpened(true)}
-                                    className="flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-medium transition-all duration-200 hover:scale-105 hover:bg-white/30"
-                                >
-                                    <Plus size={20} />
-                                    Create Expense
-                                </button>
-                                <button
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className="flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-medium transition-all duration-200 hover:scale-105 hover:bg-white/30"
-                                >
-                                    <Filter size={20} />
-                                    {showFilters ? 'Hide Filters' : 'Show Filters'}
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-medium transition-all duration-200 hover:scale-105 hover:bg-white/30"
+                            >
+                                <Filter size={20} />
+                                {showFilters ? 'Hide Filters' : 'Show Filters'}
+                            </button>
                         </div>
                     </div>
 
@@ -154,7 +174,7 @@ const ExpenseList = () => {
                                     <Filter className="mr-2 h-5 w-5 text-blue-600" />
                                     Filters & Search
                                 </h3>
-                                <button onClick={resetFilters} className="flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-200">
+                                <button onClick={clearFilters} className="flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-200">
                                     <X size={16} />
                                     Clear All
                                 </button>
@@ -163,19 +183,33 @@ const ExpenseList = () => {
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                                 {/* Store Filter */}
                                 <div className="relative">
-                                    <Store className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                    <Building2 className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                                     <select
-                                        value={filters.store_id?.toString() || ''}
-                                        onChange={(e) => handleChange('store_id', e.target.value ? Number(e.target.value) : undefined)}
+                                        value={filters.store_id}
+                                        onChange={(e) => handleFilterChange('store_id', e.target.value)}
                                         className="w-full rounded-lg border border-slate-300 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                         disabled={storesLoading}
                                     >
                                         <option value="">All Stores</option>
-                                        {stores.map((store: any) => (
+                                        {stores.map((store) => (
                                             <option key={store.id} value={store.id}>
-                                                {store.store_name}
+                                                {store.name}
                                             </option>
                                         ))}
+                                    </select>
+                                </div>
+
+                                {/* Type Filter */}
+                                <div className="relative">
+                                    <ArrowUpDown className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                    <select
+                                        value={filters.type}
+                                        onChange={(e) => handleFilterChange('type', e.target.value)}
+                                        className="w-full rounded-lg border border-slate-300 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    >
+                                        <option value="">All Types</option>
+                                        <option value="debit">Debit</option>
+                                        <option value="credit">Credit</option>
                                     </select>
                                 </div>
 
@@ -184,25 +218,11 @@ const ExpenseList = () => {
                                     <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                                     <input
                                         type="text"
-                                        placeholder="Search by title, notes, user..."
+                                        placeholder="Search by user or notes..."
                                         value={filters.search || ''}
-                                        onChange={(e) => handleChange('search', e.target.value)}
+                                        onChange={(e) => handleFilterChange('search', e.target.value)}
                                         className="w-full rounded-lg border border-slate-300 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                     />
-                                </div>
-
-                                {/* Per Page */}
-                                <div className="relative">
-                                    <select
-                                        value={filters.per_page?.toString() || '10'}
-                                        onChange={(e) => handleChange('per_page', Number(e.target.value))}
-                                        className="w-full rounded-lg border border-slate-300 px-4 py-3 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    >
-                                        <option value={5}>5 per page</option>
-                                        <option value={10}>10 per page</option>
-                                        <option value={25}>25 per page</option>
-                                        <option value={50}>50 per page</option>
-                                    </select>
                                 </div>
 
                                 {/* Refresh */}
@@ -210,7 +230,7 @@ const ExpenseList = () => {
                                     onClick={() => refetch()}
                                     className="flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-3 text-slate-700 transition-colors hover:bg-slate-200"
                                 >
-                                    <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+                                    <RefreshCw size={16} className={journalsLoading ? 'animate-spin' : ''} />
                                     Refresh
                                 </button>
                             </div>
@@ -244,17 +264,17 @@ const ExpenseList = () => {
                                     </label>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                                     {dateFilterType === 'specific' ? (
                                         <div>
                                             <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
                                             <input
                                                 type="date"
-                                                value={filters.selected_date || ''}
+                                                value={filters.date}
                                                 onChange={(e) => {
-                                                    handleChange('selected_date', e.target.value);
-                                                    handleChange('from_date', '');
-                                                    handleChange('to_date', '');
+                                                    handleFilterChange('date', e.target.value);
+                                                    handleFilterChange('from_date', '');
+                                                    handleFilterChange('to_date', '');
                                                 }}
                                                 className="w-full rounded-lg border border-slate-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                             />
@@ -265,10 +285,10 @@ const ExpenseList = () => {
                                                 <label className="mb-2 block text-sm font-medium text-slate-700">From Date</label>
                                                 <input
                                                     type="date"
-                                                    value={filters.from_date || ''}
+                                                    value={filters.from_date}
                                                     onChange={(e) => {
-                                                        handleChange('from_date', e.target.value);
-                                                        handleChange('selected_date', '');
+                                                        handleFilterChange('from_date', e.target.value);
+                                                        handleFilterChange('date', '');
                                                     }}
                                                     className="w-full rounded-lg border border-slate-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                                 />
@@ -277,16 +297,31 @@ const ExpenseList = () => {
                                                 <label className="mb-2 block text-sm font-medium text-slate-700">To Date</label>
                                                 <input
                                                     type="date"
-                                                    value={filters.to_date || ''}
+                                                    value={filters.to_date}
                                                     onChange={(e) => {
-                                                        handleChange('to_date', e.target.value);
-                                                        handleChange('selected_date', '');
+                                                        handleFilterChange('to_date', e.target.value);
+                                                        handleFilterChange('date', '');
                                                     }}
                                                     className="w-full rounded-lg border border-slate-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                                 />
                                             </div>
                                         </>
                                     )}
+
+                                    {/* Per Page */}
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-slate-700">Per Page</label>
+                                        <select
+                                            value={filters.per_page}
+                                            onChange={(e) => handleFilterChange('per_page', parseInt(e.target.value))}
+                                            className="w-full rounded-lg border border-slate-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                        >
+                                            <option value={10}>10</option>
+                                            <option value={25}>25</option>
+                                            <option value={50}>50</option>
+                                            <option value={100}>100</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -296,40 +331,37 @@ const ExpenseList = () => {
                 {/* Content */}
                 <div className="rounded-2xl border border-slate-200 bg-white shadow-xl">
                     <div className="p-6">
-                        {isLoading ? (
+                        {journalsLoading ? (
                             <div className="flex h-64 items-center justify-center">
                                 <div className="text-center">
                                     <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                                    <p className="text-slate-600">Loading expenses...</p>
+                                    <p className="text-slate-600">Loading journal entries...</p>
                                 </div>
                             </div>
                         ) : error ? (
                             <div className="py-12 text-center">
                                 <div className="mb-4 text-6xl">⚠️</div>
-                                <h3 className="mb-2 text-xl font-semibold text-slate-600">Error loading expenses</h3>
+                                <h3 className="mb-2 text-xl font-semibold text-slate-600">Error loading journals</h3>
                                 <p className="mb-4 text-slate-400">Something went wrong. Please try again.</p>
                                 <button onClick={() => refetch()} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
                                     Retry
                                 </button>
                             </div>
-                        ) : expenses.length === 0 ? (
+                        ) : journals.length === 0 ? (
                             <div className="py-12 text-center">
-                                <div className="mb-4 text-6xl">💰</div>
-                                <h3 className="mb-2 text-xl font-semibold text-slate-600">No expenses found</h3>
+                                <div className="mb-4 text-6xl">📊</div>
+                                <h3 className="mb-2 text-xl font-semibold text-slate-600">No journal entries found</h3>
                                 <p className="mb-4 text-slate-400">
-                                    {Object.values(filters).some((val) => val && val !== 10 && val !== 1) ? 'Try adjusting your search criteria' : 'No expenses have been created yet'}
+                                    {Object.values(filters).some((val) => val && val !== 10 && val !== 1) ? 'Try adjusting your search criteria' : 'No journal entries have been created yet'}
                                 </p>
-                                <button onClick={() => setModalOpened(true)} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
-                                    Create First Expense
-                                </button>
                             </div>
                         ) : (
                             <>
                                 {/* Table Header */}
                                 <div className="mb-6 flex items-center justify-between">
                                     <h3 className="flex items-center text-xl font-semibold text-slate-900">
-                                        <CreditCard className="mr-3 h-6 w-6 text-blue-600" />
-                                        Expenses ({pagination.total || 0})
+                                        <FileText className="mr-3 h-6 w-6 text-blue-600" />
+                                        Journal Entries ({pagination.total || 0})
                                     </h3>
                                 </div>
 
@@ -338,54 +370,60 @@ const ExpenseList = () => {
                                     <table className="w-full">
                                         <thead>
                                             <tr className="border-b border-slate-200">
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">#</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Title</th>
+                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Date & Time</th>
+                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Type</th>
+                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Amount</th>
                                                 <th className="px-4 py-4 text-left font-semibold text-slate-700">Notes</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Debit</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Balance</th>
+                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Store</th>
                                                 <th className="px-4 py-4 text-left font-semibold text-slate-700">Created By</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Created At</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {expenses.map((expense: any, index: number) => (
-                                                <tr key={expense.id} className={`border-b border-slate-100 transition-colors hover:bg-slate-50 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}`}>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-800">
-                                                            {index + 1 + ((filters.page || 1) - 1) * (filters.per_page || 10)}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="font-medium text-slate-900">{expense.title || '-'}</div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="max-w-xs">
-                                                            <span className="text-sm text-slate-600" title={expense.notes}>
-                                                                {expense.notes || '-'}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <TrendingDown className="h-4 w-4 text-red-500" />
-                                                            <span className="text-base font-bold text-red-600">{formatCurrency(expense.debit)}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="text-base font-semibold text-slate-900">{formatCurrency(expense.balance)}</div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <User className="h-4 w-4 text-slate-400" />
-                                                            <span className="text-slate-600">{expense.user?.name || 'N/A'}</span>
-                                                        </div>
-                                                    </td>
+                                            {journals.map((journal, index) => (
+                                                <tr key={journal.id} className={`border-b border-slate-100 transition-colors hover:bg-slate-50 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}`}>
                                                     <td className="px-4 py-4">
                                                         <div className="flex items-center gap-3 text-sm text-slate-900">
                                                             <div className="rounded-lg bg-slate-100 p-2">
                                                                 <Clock className="h-4 w-4 text-slate-600" />
                                                             </div>
-                                                            <span>{formatDate(expense.created_at)}</span>
+                                                            <span>{formatDate(journal.created_at)}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        {journal.debit ? (
+                                                            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
+                                                                <TrendingUp className="h-3 w-3" />
+                                                                Debit
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                                                                <TrendingDown className="h-3 w-3" />
+                                                                Credit
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className={`text-base font-bold ${journal.debit ? 'text-red-600' : 'text-green-600'}`}>
+                                                            {formatCurrency(journal.debit > 0 ? journal.debit : journal.credit)}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="max-w-xs">
+                                                            <span className="text-sm text-slate-600" title={journal.notes}>
+                                                                {journal.notes || '-'}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <Building2 className="h-4 w-4 text-slate-400" />
+                                                            <span className="text-slate-600">{journal.store?.store_name || 'N/A'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <User className="h-4 w-4 text-slate-400" />
+                                                            <span className="text-slate-600">{journal.user?.name || 'N/A'}</span>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -401,11 +439,8 @@ const ExpenseList = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Create Expense Modal */}
-            <CreateExpenseModal opened={modalOpened} onClose={() => setModalOpened(false)} />
         </div>
     );
 };
 
-export default ExpenseList;
+export default JournalListPage;
