@@ -78,7 +78,10 @@ const adminRoutes = [
     {
         label: 'Account',
         icon: <Users />,
-        subMenu: [{ label: 'Ledger List', href: '/apps/account/ledger-list' }],
+        subMenu: [
+            { label: 'Ledger List', href: '/apps/account/ledger-list' },
+            { label: 'Journal List', href: '/apps/account/journal-list' },
+        ],
     },
     {
         label: 'Expenses',

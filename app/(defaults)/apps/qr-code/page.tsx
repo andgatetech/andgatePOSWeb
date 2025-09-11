@@ -136,7 +136,7 @@ export default function ProductAndQrTable() {
                                     <td className="p-3 text-gray-600">{p.sku}</td>
                                     <td className="p-3">
                                         <div className="flex items-center gap-2">
-                                            <button
+                                            {/* <button
                                                 className="rounded bg-gray-200 px-3 py-1 font-medium text-gray-700 transition-colors hover:bg-gray-300"
                                                 onClick={() => changeQuantity(p.id, -1)}
                                                 disabled={p.quantity <= 1}
@@ -155,7 +155,18 @@ export default function ProductAndQrTable() {
                                             />
                                             <button className="rounded bg-gray-200 px-3 py-1 font-medium text-gray-700 transition-colors hover:bg-gray-300" onClick={() => changeQuantity(p.id, 1)}>
                                                 +
-                                            </button>
+                                            </button> */}
+                                            <input
+                                                type="number"
+                                                value={p.quantity ?? 1} // ✅ default to 1 if undefined/null
+                                                onChange={(e) => {
+                                                    const value = parseInt(e.target.value) || 1;
+                                                    setProducts((prev) => prev.map((prod) => (prod.id === p.id ? { ...prod, quantity: Math.max(1, value) } : prod)));
+                                                }}
+                                                className="w-16 rounded border border-gray-300 px-2 py-1 text-center [appearance:textfield] focus:border-blue-500
+               focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                min="1"
+                                            />
                                         </div>
                                     </td>
                                 </tr>

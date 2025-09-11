@@ -2,18 +2,21 @@
 
 import SupplierLoginForm from '@/__components/supplier_login_form';
 import ComponentsAuthLoginForm from '@/components/auth/components-auth-login-form';
-import IconGoogle from '@/components/icon/icon-google';
 import Image from 'next/image';
-// import { Metadata } from 'next';
 import Link from 'next/link';
-import { useState } from 'react';
-
-// export const metadata: Metadata = {
-//     title: 'Login Cover',
-// };
+import { useState, useRef } from 'react';
 
 const CoverLogin = () => {
     const [activeTab, setActiveTab] = useState<'login' | 'supplier'>('login');
+    const loginFormRef = useRef<any>(null);
+
+    // Function to handle demo credential filling
+    const fillDemoCredentials = (email: string, password: string) => {
+        if (loginFormRef.current) {
+            // Use the ref method to update credentials in the child component
+            loginFormRef.current.updateCredentials(email, password);
+        }
+    };
 
     return (
         <div>
@@ -49,33 +52,32 @@ const CoverLogin = () => {
                                 >
                                     Login
                                 </button>
-                                {/* <button
-                                    className={`flex-1 py-2 text-center text-lg font-medium transition-colors ${
-                                        activeTab === 'supplier' ? 'border-b-2 border-primary text-primary' : 'text-white-dark hover:text-primary'
-                                    }`}
-                                    onClick={() => setActiveTab('supplier')}
-                                >
-                                    Supplier Login
-                                </button> */}
                             </div>
-                            {activeTab === 'login' ? <ComponentsAuthLoginForm /> : <SupplierLoginForm />}
+
+                            {activeTab === 'login' ? <ComponentsAuthLoginForm ref={loginFormRef} /> : <SupplierLoginForm />}
+
                             <div className="relative my-7 text-center md:mb-9">
-                                <span className="top pumpkin-1/2 absolute inset-x-0 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
+                                <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
                                 <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">or</span>
                             </div>
+
                             <div className="mb-10 md:mb-[60px]">
-                                <ul className="flex justify-center gap-3.5 text-white">
-                                    <li>
-                                        <Link
-                                            href="#"
-                                            className="изделия-center inline-flex h-8 w-8 justify-center rounded-full p-0 transition hover:scale-110"
-                                            style={{ background: 'linear-gradient(135deg, rgba(239, 18, 98, 1) 0%, rgba(67, 97, 238, 1) 100%)' }}
+                                <div className="rounded-lg border border-white-light bg-white/50 p-4 dark:border-white-dark dark:bg-black/20">
+                                    <h3 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Demo Credential (Click to auto-fill)</h3>
+                                    <div className="space-y-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => fillDemoCredentials('user@demo.com', 'user123')}
+                                            className="w-full rounded bg-green-50 px-3 py-2 text-left text-sm transition hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50"
                                         >
-                                            <IconGoogle />
-                                        </Link>
-                                    </li>
-                                </ul>
+                                            <div className="font-medium text-green-700 dark:text-green-300">Demo Store Admin Credentials</div>
+                                            <div className="text-xs text-green-600 dark:text-green-400">Email: user@demo.com | Password: user123</div>
+                                        </button>
+                                    </div>
+                                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">💡 Click credential above to automatically fill the login form</div>
+                                </div>
                             </div>
+
                             <div className="text-center dark:text-white">
                                 Don&apos;t have an account ?&nbsp;
                                 <Link href="register" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">

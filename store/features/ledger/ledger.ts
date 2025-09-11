@@ -29,7 +29,15 @@ export const ledgerApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Ledger'],
         }),
+        getLedgerJournals: builder.query({
+            query: ({ ledgerId, params }) => ({
+                url: `/ledgers/${ledgerId}/journals`,
+                method: 'GET',
+                params, // filters go here
+            }),
+            providesTags: ['Journals'],
+        }),
     }),
 });
 
-export const { useGetLedgersQuery, useCreateLedgerMutation } = ledgerApi;
+export const { useGetLedgersQuery, useCreateLedgerMutation, useGetLedgerJournalsQuery } = ledgerApi;
