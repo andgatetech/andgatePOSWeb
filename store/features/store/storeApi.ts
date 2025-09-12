@@ -27,6 +27,13 @@ const StoreApi = baseApi.injectEndpoints({
                 if (updateData.is_active !== undefined) formData.append('is_active', updateData.is_active);
                 if (updateData.logo) formData.append('logo', updateData.logo);
 
+                // ✅ Append units
+                if (updateData.units && Array.isArray(updateData.units)) {
+                    updateData.units.forEach((unit: any, index: number) => {
+                        formData.append(`units[${index}][name]`, unit.name);
+                    });
+                }
+
                 formData.append('_method', 'PUT'); // Laravel PUT via POST
 
                 return {
