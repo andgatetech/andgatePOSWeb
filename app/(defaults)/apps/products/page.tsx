@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import React from 'react';
 
 export const metadata: Metadata = {
-    title: 'Multiple Tables',
+    title: 'POS Products',
 };
 
 const MultipleTables = () => {

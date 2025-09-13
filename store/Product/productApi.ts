@@ -42,13 +42,7 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             providesTags: ['ActivityLogs'],
         }),
-        getActivityLogs: builder.query({
-            query: () => ({
-                url: '/activity-logs',
-                method: 'GET',
-            }),
-            providesTags: ['ActivityLogs'],
-        }),
+        
 
         deleteProduct: builder.mutation({
             query: (id) => ({
@@ -71,6 +65,15 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products'],
         }),
+
+getUnits : builder.query({
+            query: () => ({
+                url: `/store/units`,
+                method: 'GET',
+            }),
+            providesTags: ['Products'],
+        }),
+
     }),
 });
 
@@ -84,4 +87,5 @@ export const {
     useGetProductQRCodeQuery,
     useGetProductBrCodeQuery,
     useGetActivityLogsQuery,
+    useGetUnitsQuery
 } = ProductApi;
