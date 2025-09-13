@@ -18,34 +18,30 @@ const SalesManagement = () => {
         // Calculate start & end dates based on selectedPeriod
         let startDate: Date;
         let endDate: Date = new Date(selectedDateTime);
+        endDate.setHours(23, 59, 59, 999);
 
         switch (selectedPeriod) {
             case 'daily':
                 startDate = new Date(selectedDateTime);
-                startDate.setDate(startDate.getDate() - 1); // previous day
                 startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
                 break;
 
             case 'weekly':
                 startDate = new Date(selectedDateTime);
-                startDate.setDate(startDate.getDate() - 7); // 7 days back
+                startDate.setDate(startDate.getDate() - 6); // Last 7 days including today
                 startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
                 break;
 
             case 'monthly':
                 startDate = new Date(selectedDateTime);
-                startDate.setMonth(startDate.getMonth() - 1); // 1 month back
+                startDate.setDate(1); // First day of the month
                 startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
                 break;
 
             case 'yearly':
                 startDate = new Date(selectedDateTime);
-                startDate.setFullYear(startDate.getFullYear() - 1); // 1 year back
+                startDate.setMonth(0, 1); // First day of the year
                 startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
                 break;
 
             default:
@@ -59,18 +55,27 @@ const SalesManagement = () => {
         });
 
         // Summary calculation
-        const totalRevenue = filteredOrders.reduce((sum, order) => sum + parseFloat(order.grand_total), 0);
+        const totalRevenue = filteredOrders.reduce((sum, order) => sum + parseFloat(order.grand_total || '0'), 0);
         const totalOrders = filteredOrders.length;
-        const totalItems = filteredOrders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+        const totalItems = filteredOrders.reduce((sum, order) => {
+            return sum + order.items.reduce((itemSum, item) => itemSum + parseFloat(item.quantity || '0'), 0);
+        }, 0);
 
         // Product sales aggregation
-        const productSales: any = {};
+        const productSales = {};
         filteredOrders.forEach((order) => {
             order.items.forEach((item) => {
-                const productName = item.product.product_name;
-                if (!productSales[productName]) productSales[productName] = { name: productName, quantity: 0, revenue: 0, orders: 0 };
-                productSales[productName].quantity += item.quantity;
-                productSales[productName].revenue += parseFloat(item.subtotal);
+                const productName = item.product?.product_name || 'Unknown Product';
+                if (!productSales[productName]) {
+                    productSales[productName] = { 
+                        name: productName, 
+                        quantity: 0, 
+                        revenue: 0, 
+                        orders: 0 
+                    };
+                }
+                productSales[productName].quantity += parseFloat(item.quantity || '0');
+                productSales[productName].revenue += parseFloat(item.subtotal || '0');
                 productSales[productName].orders += 1;
             });
         });
@@ -78,15 +83,25 @@ const SalesManagement = () => {
         return {
             orders: filteredOrders,
             summary: { totalRevenue, totalOrders, totalItems },
-            productSales: Object.values(productSales).sort((a: any, b: any) => b.revenue - a.revenue),
+            productSales: Object.values(productSales).sort((a, b) => b.revenue - a.revenue),
         };
     }, [ordersResponse, selectedPeriod, selectedDate]);
 
-    const formatCurrency = (amount: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(amount);
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-BD', { 
+            style: 'currency', 
+            currency: 'BDT',
+            minimumFractionDigits: 2
+        }).format(amount);
+    };
 
     const exportToPDF = () => {
         const printContent = document.getElementById('sales-report-content');
+        if (!printContent) return;
+        
         const newWindow = window.open('', '_blank');
+        if (!newWindow) return;
+        
         newWindow.document.write(`
             <html>
                 <head>
@@ -96,9 +111,27 @@ const SalesManagement = () => {
                         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
                         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
                         th { background-color: #f5f5f5; }
+                        .summary-cards { display: flex; gap: 20px; margin-bottom: 20px; }
+                        .card { border: 1px solid #ddd; padding: 20px; flex: 1; }
                     </style>
                 </head>
                 <body>
+                    <h1>Sales Report - ${selectedPeriod.charAt(0).toUpperCase() + selectedPeriod.slice(1)}</h1>
+                    <p>Date: ${selectedDate}</p>
+                    <div class="summary-cards">
+                        <div class="card">
+                            <h3>Total Revenue</h3>
+                            <p>${formatCurrency(processedData.summary.totalRevenue)}</p>
+                        </div>
+                        <div class="card">
+                            <h3>Total Orders</h3>
+                            <p>${processedData.summary.totalOrders}</p>
+                        </div>
+                        <div class="card">
+                            <h3>Total Items</h3>
+                            <p>${processedData.summary.totalItems}</p>
+                        </div>
+                    </div>
                     ${printContent.innerHTML}
                 </body>
             </html>
@@ -110,7 +143,12 @@ const SalesManagement = () => {
     const exportToExcel = () => {
         const csvContent = [
             ['Product Name', 'Quantity Sold', 'Revenue', 'Orders Count'],
-            ...processedData.productSales.map((product: any) => [product.name, product.quantity, product.revenue.toFixed(2), product.orders]),
+            ...processedData.productSales.map((product) => [
+                product.name, 
+                product.quantity, 
+                product.revenue.toFixed(2), 
+                product.orders
+            ]),
         ]
             .map((row) => row.join(','))
             .join('\n');
@@ -120,7 +158,9 @@ const SalesManagement = () => {
         const a = document.createElement('a');
         a.href = url;
         a.download = `sales-report-${selectedPeriod}-${selectedDate}.csv`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     };
 
@@ -185,10 +225,16 @@ const SalesManagement = () => {
                             </div>
 
                             <div className="flex gap-2">
-                                <button onClick={exportToPDF} className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
+                                <button 
+                                    onClick={exportToPDF} 
+                                    className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors"
+                                >
                                     <FileText className="h-4 w-4" /> PDF
                                 </button>
-                                <button onClick={exportToExcel} className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                                <button 
+                                    onClick={exportToExcel} 
+                                    className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 transition-colors"
+                                >
                                     <Download className="h-4 w-4" /> Excel
                                 </button>
                             </div>
@@ -257,7 +303,7 @@ const SalesManagement = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     {processedData.productSales.length > 0 ? (
-                                        processedData.productSales.map((product: any, index) => (
+                                        processedData.productSales.map((product, index) => (
                                             <tr key={index} className="transition-colors hover:bg-gray-50">
                                                 <td className="whitespace-nowrap px-6 py-4">
                                                     <div className="flex items-center">

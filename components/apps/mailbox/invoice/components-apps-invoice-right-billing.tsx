@@ -5,7 +5,7 @@ import IconSearch from '@/components/icon/icon-search';
 import IconUser from '@/components/icon/icon-user';
 import IconX from '@/components/icon/icon-x';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState } from '@/store';
@@ -98,7 +98,6 @@ const BillToForm: React.FC = () => {
         customerName: '',
         customerEmail: '',
         customerPhone: '',
-        tax: 0,
         discount: 0,
         membershipDiscount: 0,
         paymentMethod: '',
@@ -128,8 +127,8 @@ const BillToForm: React.FC = () => {
         });
     };
 
-    // Get customers from RTK Query response
-    const customers: Customer[] = customersResponse?.success ? customersResponse.data : [];
+    // Get customers from RTK Query response with useMemo to prevent dependency issues
+    const customers: Customer[] = useMemo(() => (customersResponse?.success ? customersResponse.data : []), [customersResponse]);
 
     // Handle search input change with debounce
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,9 +217,7 @@ const BillToForm: React.FC = () => {
         };
     }, []);
 
-    useEffect(() => {
-        
-    }, [invoiceItems]);
+    useEffect(() => {}, [invoiceItems]);
 
     const handleRemoveItem = (itemId: number) => {
         if (invoiceItems.length <= 1) {
@@ -230,41 +227,87 @@ const BillToForm: React.FC = () => {
         dispatch(removeItemRedux(itemId));
     };
 
-   const handleQuantityChange = (itemId: number, value: string) => {
-       const item = invoiceItems.find((item) => item.id === itemId);
-       if (!item) return;
+    const handleQuantityChange = (itemId: number, value: string) => {
+        const item = invoiceItems.find((item) => item.id === itemId);
+        if (!item) return;
 
-       // If input is empty, temporarily set quantity to 0
-       if (value === '') {
-           dispatch(updateItemRedux({ ...item, quantity: 0, amount: 0 }));
-           return;
-       }
+        // If input is empty, temporarily set quantity to 0
+        if (value === '') {
+            dispatch(updateItemRedux({ ...item, quantity: 0, amount: 0 }));
+            return;
+        }
 
-       const newQuantity = Number(value);
+        const newQuantity = Number(value);
 
-       if (newQuantity < 0) return; // prevent negatives
+        if (newQuantity < 0) return; // prevent negatives
 
-       if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-           showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
-           return;
-       }
+        if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
+            showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
+            return;
+        }
 
-       dispatch(
-           updateItemRedux({
-               ...item,
-               quantity: newQuantity,
-               amount: item.rate * newQuantity,
-           })
-       );
-   };
-
-
+        dispatch(
+            updateItemRedux({
+                ...item,
+                quantity: newQuantity,
+                amount: item.rate * newQuantity,
+            })
+        );
+    };
 
     const calculateSubtotal = () => invoiceItems.reduce((total, item) => total + item.rate * item.quantity, 0);
-    const calculateTax = () => (calculateSubtotal() * formData.tax) / 100;
-    const calculateDiscount = () => (calculateSubtotal() * formData.discount) / 100;
-    const calculateMembershipDiscount = () => (calculateSubtotal() * formData.membershipDiscount) / 100;
-    const calculateBaseTotal = () => calculateSubtotal() + calculateTax() - calculateDiscount() - calculateMembershipDiscount();
+
+    // Calculate tax for each item individually based on tax_included flag
+    const calculateItemTax = (item: any) => {
+        if (!item.tax_rate) return 0;
+
+        const itemTotal = item.rate * item.quantity;
+        const taxRate = item.tax_rate / 100;
+
+        if (item.tax_included) {
+            // Tax is included in price - extract tax amount
+            const taxAmount = itemTotal - itemTotal / (1 + taxRate);
+            return taxAmount;
+        } else {
+            // Tax is excluded - add tax to price
+            const taxAmount = itemTotal * taxRate;
+            return taxAmount;
+        }
+    };
+
+    // Calculate total tax for all items
+    const calculateTax = () => {
+        const totalTax = invoiceItems.reduce((total, item) => total + calculateItemTax(item), 0);
+        // Debug log to verify tax calculations
+        console.log('Tax Calculation Debug:', {
+            items: invoiceItems.map((item) => ({
+                name: item.title,
+                rate: item.rate,
+                quantity: item.quantity,
+                tax_rate: item.tax_rate,
+                tax_included: item.tax_included,
+                itemTax: calculateItemTax(item),
+            })),
+            totalTax,
+        });
+        return totalTax;
+    };
+
+    // Calculate subtotal without tax (for tax-included items, this extracts the base price)
+    const calculateSubtotalWithoutTax = () => {
+        return invoiceItems.reduce((total, item) => {
+            const itemTotal = item.rate * item.quantity;
+            if (item.tax_included && item.tax_rate) {
+                const taxRate = item.tax_rate / 100;
+                return total + itemTotal / (1 + taxRate);
+            }
+            return total + itemTotal;
+        }, 0);
+    };
+
+    const calculateDiscount = () => (calculateSubtotalWithoutTax() * formData.discount) / 100;
+    const calculateMembershipDiscount = () => (calculateSubtotalWithoutTax() * formData.membershipDiscount) / 100;
+    const calculateBaseTotal = () => calculateSubtotalWithoutTax() + calculateTax() - calculateDiscount() - calculateMembershipDiscount();
 
     // New calculation functions for payment
     const calculatePointsDiscount = () => {
@@ -303,7 +346,7 @@ const BillToForm: React.FC = () => {
         } else {
             let processedValue: any = value;
 
-            if (name === 'tax' || name === 'discount') {
+            if (name === 'discount') {
                 processedValue = Number(value);
             } else if (name === 'pointsToUse') {
                 const maxPoints = selectedCustomer?.points || 0;
@@ -341,19 +384,33 @@ const BillToForm: React.FC = () => {
             user_id: userId,
             payment_method: formData.paymentMethod,
             payment_status: formData.paymentStatus,
-            tax: Number(formData.tax),
+            tax: calculateTax(), // Calculate total tax from all items
             // ✅ discount field now includes manual + points + balance
             discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0),
-            total: calculateSubtotal(),
+            total: calculateSubtotalWithoutTax(), // Subtotal without tax
             grand_total: grandTotal, //  already excludes membership, points, and balance
-            items: invoiceItems.map((item) => ({
-                product_id: item.productId,
-                quantity: item.quantity,
-                unit_price: item.rate,
-                discount: 0,
-                tax: Number(formData.tax),
-                subtotal: item.rate * item.quantity + (item.rate * item.quantity * formData.tax) / 100,
-            })),
+            items: invoiceItems.map((item) => {
+                const itemBasePrice = item.rate * item.quantity;
+                const itemTax = calculateItemTax(item);
+
+                // For tax-included items, the subtotal should be the base price without tax
+                // For tax-excluded items, the subtotal is the item price, and tax is added separately
+                const itemSubtotal =
+                    item.tax_included && item.tax_rate
+                        ? itemBasePrice // Tax is already included in the price
+                        : itemBasePrice + itemTax; // Add tax to the base price
+
+                return {
+                    product_id: item.productId,
+                    quantity: item.quantity,
+                    unit_price: item.rate,
+                    unit: item.unit || 'piece',
+                    discount: 0,
+                    tax: item.tax_rate || 0,
+                    tax_included: item.tax_included || false,
+                    subtotal: itemSubtotal,
+                };
+            }),
         };
 
         // ✅ If existing customer is selected
@@ -366,63 +423,62 @@ const BillToForm: React.FC = () => {
             orderData.customer_email = formData.customerEmail;
         }
 
-       try {
-           setLoading(true);
-           const response = await createOrder(orderData).unwrap();
-           console.log('Order API response:', response);
+        try {
+            setLoading(true);
+            console.log('Creating order with data:', orderData);
+            const response = await createOrder(orderData).unwrap();
+            console.log('Order API response:', response);
 
-           // Store the order response and automatically show preview
-           setOrderResponse(response);
-           setShowPreview(true);
+            // Store the order response and automatically show preview
+            setOrderResponse(response);
+            setShowPreview(true);
 
-           refetch();
-           setLoading(false);
-           showMessage('Order created successfully!', 'success');
+            refetch();
+            setLoading(false);
+            showMessage('Order created successfully!', 'success');
 
-           // Clear form data but keep the response for preview
-           dispatch(clearItemsRedux());
-           clearCustomerSelection();
-           setFormData({
-               customerId: null,
-               customerName: '',
-               customerEmail: '',
-               customerPhone: '',
-               tax: 0,
-               discount: 0,
-               membershipDiscount: 0,
-               paymentMethod: '',
-               paymentStatus: '',
-               usePoints: false,
-               useBalance: false,
-               pointsToUse: 0,
-               balanceToUse: 0,
-           });
-       } catch (err: any) {
-           setLoading(false);
+            // Clear form data but keep the response for preview
+            dispatch(clearItemsRedux());
+            clearCustomerSelection();
+            setFormData({
+                customerId: null,
+                customerName: '',
+                customerEmail: '',
+                customerPhone: '',
+                discount: 0,
+                membershipDiscount: 0,
+                paymentMethod: '',
+                paymentStatus: '',
+                usePoints: false,
+                useBalance: false,
+                pointsToUse: 0,
+                balanceToUse: 0,
+            });
+        } catch (err: any) {
+            setLoading(false);
 
-           let errorMessage = 'Failed to create order';
+            let errorMessage = 'Failed to create order';
 
-           // 🔎 Laravel validation errors (422)
-           if (err?.status === 422 && err?.data?.errors) {
-               errorMessage = Object.values(err.data.errors).flat().join('\n');
-           }
-           // 🔎 Backend business logic errors (403, 404, 400…)
-           else if (err?.data?.message) {
-               errorMessage = err.data.message;
-           }
-           // 🔎 Server exception (500)
-           else if (err?.data?.error) {
-               errorMessage = err.data.error;
-           }
-           // 🔎 Network error fallback
-           else if (err?.error) {
-               errorMessage = err.error;
-           }
+            // 🔎 Laravel validation errors (422)
+            if (err?.status === 422 && err?.data?.errors) {
+                errorMessage = Object.values(err.data.errors).flat().join('\n');
+            }
+            // 🔎 Backend business logic errors (403, 404, 400…)
+            else if (err?.data?.message) {
+                errorMessage = err.data.message;
+            }
+            // 🔎 Server exception (500)
+            else if (err?.data?.error) {
+                errorMessage = err.data.error;
+            }
+            // 🔎 Network error fallback
+            else if (err?.error) {
+                errorMessage = err.error;
+            }
 
-           console.error('Failed to create order:', errorMessage);
-           showMessage(errorMessage, 'error');
-       }
-
+            console.error('Failed to create order:', errorMessage);
+            showMessage(errorMessage, 'error');
+        }
     };
 
     const handlePreview = () => {
@@ -491,14 +547,17 @@ const BillToForm: React.FC = () => {
                     quantity: item.quantity,
                     price: item.rate,
                     amount: item.rate * item.quantity,
+                    tax_rate: item.tax_rate,
+                    tax_included: item.tax_included,
+                    unit: item.unit || 'piece',
                 })),
-                tax: formData.tax,
+                tax: 0, // Will be calculated from individual items
                 discount: formData.discount,
                 membershipDiscount: formData.membershipDiscount,
                 paymentMethod: formData.paymentMethod,
                 paymentStatus: formData.paymentStatus,
                 totals: {
-                    subtotal: calculateSubtotal(),
+                    subtotal: calculateSubtotalWithoutTax(),
                     tax: calculateTax(),
                     discount: calculateDiscount(),
                     membershipDiscount: calculateMembershipDiscount(),
@@ -511,35 +570,33 @@ const BillToForm: React.FC = () => {
         }
     };
 
-  if (showPreview) {
-      return (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-2">
-              <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
-                  {/* Close Button */}
-                  <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800">
-                      <IconX className="h-6 w-6" />
-                  </button>
+    if (showPreview) {
+        return (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-2">
+                <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
+                    {/* Close Button */}
+                    <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800">
+                        <IconX className="h-6 w-6" />
+                    </button>
 
-                  {/* Invoice Preview */}
-                  <div className="mb-4">
-                      <ComponentsAppsInvoicePreview data={getPreviewData()} />
-                  </div>
+                    {/* Invoice Preview */}
+                    <div className="mb-4">
+                        <ComponentsAppsInvoicePreview data={getPreviewData()} />
+                    </div>
 
-                  {/* Footer Buttons */}
-                  <div className="mt-6 flex justify-end gap-3">
-                      <button className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200" onClick={handleBackToEdit}>
-                          Create Another Order
-                      </button>
-                      <button className="btn btn-primary px-5 py-2 text-sm hover:bg-blue-600" onClick={() => window.print()}>
-                          Print Invoice
-                      </button>
-                  </div>
-              </div>
-          </div>
-      );
-  }
-
-
+                    {/* Footer Buttons */}
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200"
+                            onClick={handleBackToEdit} // Make sure handleClose closes your modal
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative mt-6 w-full xl:mt-0 xl:w-full">
@@ -746,7 +803,9 @@ const BillToForm: React.FC = () => {
                                 <tr className="border-b-2 border-gray-200">
                                     <th className="p-3 text-left text-xs font-semibold text-gray-700">Item</th>
                                     <th className="p-3 text-left text-xs font-semibold text-gray-700">Qty</th>
+                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Unit</th>
                                     <th className="p-3 text-left text-xs font-semibold text-gray-700">Rate</th>
+                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Tax</th>
                                     <th className="p-3 text-left text-xs font-semibold text-gray-700">Amount</th>
                                     <th className="p-3 text-left text-xs font-semibold text-gray-700">Action</th>
                                 </tr>
@@ -789,9 +848,19 @@ const BillToForm: React.FC = () => {
                                                 {item.quantity === 0 && <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>}
                                             </div>
                                         </td>
-
-                                        <td className="p-3 text-sm">{item.rate.toFixed(2)}</td>
-                                        <td className="p-3 text-sm">{(item.rate * item.quantity).toFixed(2)}</td>
+                                        <td className="p-3 text-sm">{item.unit || 'piece'}</td>
+                                        <td className="p-3 text-sm">৳{item.rate.toFixed(2)}</td>
+                                        <td className="p-3 text-sm">
+                                            {item.tax_rate ? (
+                                                <div className="text-xs">
+                                                    <div>{item.tax_rate}%</div>
+                                                    <div className={`text-${item.tax_included ? 'green' : 'blue'}-600`}>{item.tax_included ? 'Incl.' : 'Excl.'}</div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">No tax</span>
+                                            )}
+                                        </td>
+                                        <td className="p-3 text-sm">৳{(item.rate * item.quantity).toFixed(2)}</td>
                                         <td className="p-3">
                                             <button type="button" className="text-red-600 hover:text-red-800" onClick={() => handleRemoveItem(item.id)}>
                                                 <IconX />
@@ -804,11 +873,6 @@ const BillToForm: React.FC = () => {
                     </div>
 
                     <div className="mt-6 flex flex-col gap-3">
-                        <div className="flex justify-between">
-                            <label className="font-semibold">Tax (%)</label>
-                            <input type="number" className="form-input w-20" name="tax" value={formData.tax} onChange={handleInputChange} min={0} />
-                        </div>
-
                         {selectedCustomer && formData.membershipDiscount > 0 && (
                             <div className="flex justify-between rounded bg-green-50 p-2">
                                 <label className="font-semibold text-green-700">Membership Discount ({selectedCustomer.membership})</label>
@@ -909,11 +973,11 @@ const BillToForm: React.FC = () => {
                         </div>
 
                         <div className="flex justify-between border-t border-gray-300 pt-4 text-lg font-semibold">
-                            <span>Subtotal</span>
-                            <span>৳{calculateSubtotal().toFixed(2)}</span>
+                            <span>Subtotal (without tax)</span>
+                            <span>৳{calculateSubtotalWithoutTax().toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span>Tax</span>
+                            <span>Tax (from items)</span>
                             <span>৳{calculateTax().toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">

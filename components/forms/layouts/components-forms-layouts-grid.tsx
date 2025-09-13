@@ -3,7 +3,7 @@
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/Product/productApi';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
@@ -12,6 +12,7 @@ const EnhancedProductForm = () => {
     const maxNumber = 10;
     const [images, setImages] = useState<any>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+    const [categorySearchTerm, setCategorySearchTerm] = useState('');
     const router = useRouter();
 
     const { data: ct, isLoading: catLoading } = useGetCategoryQuery();
@@ -32,13 +33,20 @@ const EnhancedProductForm = () => {
         purchase_price: '',
         sku: '',
         skuOption: 'auto',
-        unit: '',
+        units: '',
         tax_rate: '',
         tax_included: false,
     });
 
-    // Get recent 5 categories for dropdown
+    // Get recent 5 categories for dropdown and filter based on search
     const recentCategories = categories.slice(0, 5);
+
+    // Filter categories based on search term
+    const filteredCategories = categorySearchTerm.trim()
+        ? categories.filter(
+              (cat: any) => cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase()) || (cat.description && cat.description.toLowerCase().includes(categorySearchTerm.toLowerCase()))
+          )
+        : recentCategories;
 
     const onChange2 = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
         setImages(imageList as never[]);
@@ -62,6 +70,7 @@ const EnhancedProductForm = () => {
             category_name: category.name,
         }));
         setShowCategoryDropdown(false);
+        setCategorySearchTerm(''); // Clear search when category is selected
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -115,16 +124,17 @@ const EnhancedProductForm = () => {
                 fd.append('low_stock_quantity', String(formData.low_stock_quantity));
             }
 
-            // Add unit field
-            if (formData.unit) {
-                fd.append('unit', formData.unit);
+            // Add unit field as units array (backend expects units array)
+            if (formData.units) {
+                fd.append('units[0][name]', formData.units);
             }
 
             // Add tax fields
             if (formData.tax_rate) {
                 fd.append('tax_rate', String(formData.tax_rate));
             }
-            fd.append('tax_included', String(formData.tax_included));
+            // Send tax_included as string boolean that backend can parse
+            fd.append('tax_included', formData.tax_included ? '1' : '0');
 
             // Add SKU if manual
             if (formData.skuOption === 'manual' && formData.sku.trim()) {
@@ -166,7 +176,7 @@ const EnhancedProductForm = () => {
                 purchase_price: '',
                 sku: '',
                 skuOption: 'auto',
-                unit: '',
+                units: '',
                 tax_rate: '',
                 tax_included: false,
             });
@@ -291,11 +301,31 @@ const EnhancedProductForm = () => {
 
                                             {/* Category Dropdown */}
                                             {showCategoryDropdown && (
-                                                <div className="absolute z-20 mt-2 max-h-80 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                                                    <div className="p-2">
-                                                        <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">Recent Categories</p>
-                                                        {recentCategories.length > 0 ? (
-                                                            recentCategories.map((cat: any) => (
+                                                <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    {/* Search Input */}
+                                                    <div className="border-b border-gray-100 p-3">
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search categories..."
+                                                                value={categorySearchTerm}
+                                                                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                                                                className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                autoFocus
+                                                            />
+                                                            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Categories List */}
+                                                    <div className="max-h-64 overflow-y-auto p-2">
+                                                        <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">
+                                                            {categorySearchTerm.trim() ? 'Search Results' : 'Recent Categories'}
+                                                        </p>
+                                                        {filteredCategories.length > 0 ? (
+                                                            filteredCategories.map((cat: any) => (
                                                                 <button
                                                                     key={cat.id}
                                                                     type="button"
@@ -323,7 +353,9 @@ const EnhancedProductForm = () => {
                                                                 </button>
                                                             ))
                                                         ) : (
-                                                            <p className="px-3 py-2 text-sm text-gray-500">No categories available</p>
+                                                            <p className="px-3 py-2 text-sm text-gray-500">
+                                                                {categorySearchTerm.trim() ? 'No categories found matching your search' : 'No categories available'}
+                                                            </p>
                                                         )}
                                                     </div>
                                                 </div>
@@ -333,7 +365,14 @@ const EnhancedProductForm = () => {
                                         {formData.category_id && (
                                             <div className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
                                                 <span>Selected: {formData.category_name}</span>
-                                                <button type="button" onClick={() => setFormData((prev) => ({ ...prev, category_id: '', category_name: '' }))} className="ml-2 hover:text-blue-600">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, category_id: '', category_name: '' }));
+                                                        setCategorySearchTerm('');
+                                                    }}
+                                                    className="ml-2 hover:text-blue-600"
+                                                >
                                                     ×
                                                 </button>
                                             </div>
@@ -345,7 +384,27 @@ const EnhancedProductForm = () => {
                             {/* Pricing & Stock Section */}
                             <div className="border-t border-gray-200 pt-6">
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">Pricing & Stock</h3>
-                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
+                                    {/* Purchase Price */}
+                                    <div>
+                                        <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Purchase Price <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
+                                            <input
+                                                id="purchase_price"
+                                                name="purchase_price"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={formData.purchase_price}
+                                                onChange={handleChange}
+                                                placeholder="0.00"
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
                                     {/* Selling Price */}
                                     <div>
                                         <label htmlFor="price" className="mb-2 block text-sm font-medium text-gray-700">
@@ -367,25 +426,26 @@ const EnhancedProductForm = () => {
                                         </div>
                                     </div>
 
-                                    {/* Purchase Price */}
+                                    {/* Unit */}
                                     <div>
-                                        <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Purchase Price <span className="text-red-500">*</span>
+                                        <label htmlFor="units" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Unit <span className="text-red-500">*</span>
                                         </label>
-                                        <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
-                                            <input
-                                                id="purchase_price"
-                                                name="purchase_price"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={formData.purchase_price}
-                                                onChange={handleChange}
-                                                placeholder="0.00"
-                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
+                                        <select
+                                            id="units"
+                                            name="units"
+                                            value={formData.units}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">Select Unit</option>
+                                            <option value="piece">Piece</option>
+                                            {units.map((unit: any) => (
+                                                <option key={unit.id} value={unit.name}>
+                                                    {unit.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
 
                                     {/* Quantity */}
@@ -421,28 +481,6 @@ const EnhancedProductForm = () => {
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
                                         />
                                         <p className="mt-1 text-sm text-gray-500">Get alerted when stock reaches this level</p>
-                                    </div>
-
-                                    {/* Unit */}
-                                    <div>
-                                        <label htmlFor="unit" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Unit
-                                        </label>
-                                        <select
-                                            id="unit"
-                                            name="unit"
-                                            value={formData.unit}
-                                            onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            <option value="">Select Unit</option>
-                                            <option value="piece">Piece</option>
-                                            {units.map((unit: any) => (
-                                                <option key={unit.id} value={unit.name}>
-                                                    {unit.name}
-                                                </option>
-                                            ))}
-                                        </select>
                                     </div>
 
                                     {/* Available Status */}
@@ -723,8 +761,6 @@ const EnhancedProductForm = () => {
                         </div>
                     </div>
                 </div>
-
-                
             </div>
         </div>
     );
