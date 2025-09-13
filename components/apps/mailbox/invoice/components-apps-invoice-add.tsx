@@ -1,16 +1,16 @@
 'use client';
 
-import { useGetAllProductsQuery } from '@/store/Product/productApi';
-import React, { useEffect, useRef, useState } from 'react';
-import Swal from 'sweetalert2';
-import { useDispatch, useSelector } from 'react-redux';
-import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import type { RootState } from '@/store';
+import { addItemRedux } from '@/store/features/Order/OrderSlice';
+import { useGetAllProductsQuery } from '@/store/Product/productApi';
+import { Eye, Package, Search } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import BillToForm from './components-apps-invoice-right-billing';
-import { Search, Eye, Package } from 'lucide-react';
 
-import Image from 'next/image';
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
+import Image from 'next/image';
 
 const ComponentsAppsInvoiceAdd = () => {
     const [open, setOpen] = useState(false);
@@ -72,6 +72,9 @@ const ComponentsAppsInvoiceAdd = () => {
                 quantity: 1,
                 amount: parseFloat(product.price),
                 PlaceholderQuantity: product.quantity,
+                tax_rate: parseFloat(product.tax_rate || '0'),
+                tax_included: product.tax_included === 1,
+                unit: product.unit || 'piece',
             })
         );
 

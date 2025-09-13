@@ -9,6 +9,9 @@ interface Item {
     quantity: number;
     amount: number; // rate * quantity
     PlaceholderQuantity?: number; // Available stock quantity
+    tax_rate?: number; // Tax rate percentage from backend
+    tax_included?: boolean; // Whether tax is included in the price (0=excluded, 1=included)
+    unit?: string; // Product unit (piece, kg, etc.)
 }
 
 interface InvoiceState {

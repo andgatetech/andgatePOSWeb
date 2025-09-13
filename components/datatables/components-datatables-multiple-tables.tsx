@@ -31,12 +31,7 @@ const ProductTable = () => {
     const [availabilityFilter, setAvailabilityFilter] = useState('all');
     const [stockFilter, setStockFilter] = useState('all');
 
-    // Helper function to get unit name by ID
-    const getUnitName = (unitId) => {
-        if (!unitId) return 'piece';
-        const unit = productUnits.find(u => u.id === parseInt(unitId));
-        return unit ? unit.name : 'piece';
-    };
+    
 
     // Toast notification
     const showToast = (message, type = 'success') => {
@@ -88,7 +83,7 @@ const getStockStatus = (quantity, low_stock_quantity) => {
         return { status: 'out', color: 'bg-gray-400', textColor: 'text-gray-600', percentage: 0 };
     } else if (qty <= lowQty) {
         return { status: 'low', color: 'bg-red-500', textColor: 'text-red-600', percentage: 25 };
-    } else if (qty <= lowQty * 5) { // medium range example
+    } else if (qty <= lowQty * 3) { // medium range example
         return { status: 'medium', color: 'bg-yellow-500', textColor: 'text-yellow-600', percentage: 50 };
     } else {
         return { status: 'full', color: 'bg-green-500', textColor: 'text-green-600', percentage: 100 };
@@ -320,7 +315,15 @@ const getStockStatus = (quantity, low_stock_quantity) => {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                                <tr>
+                                <tr> <th
+                                        className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 hover:bg-gray-200 transition-colors"
+                                        onClick={() => handleSort('sku')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            SKU
+                                            {sortField === 'sku' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                        </div>
+                                    </th>
                                     <th
                                         className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 hover:bg-gray-200 transition-colors"
                                         onClick={() => handleSort('product_name')}
@@ -330,15 +333,7 @@ const getStockStatus = (quantity, low_stock_quantity) => {
                                             {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th
-                                        className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 hover:bg-gray-200 transition-colors"
-                                        onClick={() => handleSort('sku')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            SKU & Unit
-                                            {sortField === 'sku' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                                        </div>
-                                    </th>
+                                   
                                     <th
                                         className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 hover:bg-gray-200 transition-colors"
                                         onClick={() => handleSort('quantity')}
@@ -376,15 +371,6 @@ const getStockStatus = (quantity, low_stock_quantity) => {
                                     return (
                                         <tr key={product.id} className={`hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                                             {/* Product Details */}
-                                            <td className="px-4 py-4">
-                                                <div className="space-y-1">
-                                                    <div className="font-semibold text-gray-900">{product.product_name}</div>
-                                                    <div className="max-w-xs truncate text-sm text-gray-600" title={product.description}>
-                                                        {product.description || 'No description'}
-                                                    </div>
-                                                </div>
-                                            </td>
-
                                             {/* SKU & Unit */}
                                             <td className="px-4 py-4">
                                                 <div className="space-y-1">
@@ -394,11 +380,17 @@ const getStockStatus = (quantity, low_stock_quantity) => {
                                                             {product.sku || 'N/A'}
                                                         </span>
                                                     </div>
-                                                    <div className="text-xs text-gray-600">
-                                                        Unit: <span className="font-medium">{getUnitName(product.unit)}</span>
-                                                    </div>
+                                                    
                                                 </div>
                                             </td>
+                                            <td className="px-4 py-4">
+                                                <div className="space-y-1">
+                                                    <div className="font-semibold text-gray-900">{product.product_name}</div>
+                                                    
+                                                </div>
+                                            </td>
+
+                                            
 
                                             {/* Stock Level */}
                                             <td className="px-4 py-4">
@@ -409,6 +401,7 @@ const getStockStatus = (quantity, low_stock_quantity) => {
                                                                 <div className={`h-2 rounded-full transition-all duration-300 ${stockStatus.color}`} style={{ width: `${stockStatus.percentage}%` }}></div>
                                                             </div>
                                                             <span className={`text-sm font-bold ${stockStatus.textColor}`}>{product.quantity}</span>
+                                                            <div className="text-sm font-bold text-gray-500">{product.unit}</div>
                                                         </div>
                                                         <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                                                             stockStatus.status === 'out' ? 'bg-gray-100 text-gray-700' :
@@ -421,8 +414,10 @@ const getStockStatus = (quantity, low_stock_quantity) => {
                                                              stockStatus.status === 'critical' ? 'Critical' :
                                                              stockStatus.status === 'low' ? 'Low Stock' :
                                                              stockStatus.status === 'medium' ? 'Medium' :
-                                                             'In Stock'}
+                                                                            'In Stock'}
+                                                            
                                                         </span>
+                                                        
                                                     </div>
                                                 </div>
                                             </td>
