@@ -46,5 +46,5 @@ jobs:
             npm run build
 
             # Restart the PM2 process
-            pm2 start npm --name "nextjs-app" -- start
-            pm2 save
+            # pm2 start npm --name "nextjs-app" -- start
+            # pm2 save
