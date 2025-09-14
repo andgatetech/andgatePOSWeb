@@ -38,15 +38,15 @@ jobs:
             cd /var/www/andgatePOSWeb
 
             # Stop the existing PM2 process
-            pm2 stop all || true
+            /root/.nvm/versions/node/v18.18.1/bin/pm2 stop all || true
 
             # Pull the latest code from your repository
             git pull origin master
 
             # Install dependencies and build
-            npm install
-            npm run build
+            /root/.nvm/versions/node/v18.18.1/bin/npm install
+            /root/.nvm/versions/node/v18.18.1/bin/npm run build
 
             # Restart the PM2 process
-            pm2 start "PORT=80 npm start"
-            pm2 save
+            /root/.nvm/versions/node/v18.18.1/bin/pm2 start "PORT=80 npm start"
+            /root/.nvm/versions/node/v18.18.1/bin/pm2 save
