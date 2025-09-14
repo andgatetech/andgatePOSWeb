@@ -2,7 +2,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '..';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/`,
+    // baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
+    baseUrl: 'http://127.0.0.1:8000/api',
     // credentials: 'include',
     // mode: 'cors',
     prepareHeaders: (headers, { getState }) => {
