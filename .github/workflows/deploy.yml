@@ -31,6 +31,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
+            # Load the environment variables from your user's profile
+            source ~/.profile || source ~/.bashrc
+
             # Navigate to the correct directory on your VPS
             cd /var/www/andgatePOSWeb
 
