@@ -52,8 +52,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
+            console.log(credentials);
             const result = await loginApi(credentials).unwrap();
-            console.log(result);
 
             // Set token in cookie (instead of localStorage)
             document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
