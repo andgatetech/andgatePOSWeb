@@ -3,8 +3,8 @@
 import type { RootState } from '@/store';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
-import { Eye, Package, Search } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Eye, Package, Search, GripVertical } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import BillToForm from './components-apps-invoice-right-billing';
@@ -18,8 +18,13 @@ const ComponentsAppsInvoiceAdd = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
+    // Resizable layout state
+    const [leftWidth, setLeftWidth] = useState(40); // percentage
+    const [isDragging, setIsDragging] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
     const dispatch = useDispatch();
-    const itemsPerPage = 12;
+    const itemsPerPage = 6;
 
     const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes' });
     const products = productsData?.data || [];
@@ -30,6 +35,51 @@ const ComponentsAppsInvoiceAdd = () => {
     useEffect(() => {
         beepRef.current = new Audio('/assets/sound/store-scanner-beep-90395.mp3');
     }, []);
+
+    // Resizable functionality
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    }, []);
+
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            if (!isDragging || !containerRef.current) return;
+
+            const containerRect = containerRef.current.getBoundingClientRect();
+            const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+
+            // Constrain between 30% and 80%
+            const constrainedWidth = Math.max(30, Math.min(80, newLeftWidth));
+            setLeftWidth(constrainedWidth);
+        },
+        [isDragging]
+    );
+
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+    }, []);
+
+    useEffect(() => {
+        if (isDragging) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        } else {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+    }, [isDragging, handleMouseMove, handleMouseUp]);
 
     const showMessage = (msg = '', type = 'success') => {
         const toast: any = Swal.mixin({
@@ -119,10 +169,10 @@ const ComponentsAppsInvoiceAdd = () => {
     const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
     return (
-        <div className="flex flex-col gap-6 xl:flex-row">
-            {/* Products Section */}
-            <div className="flex-1">
-                <div className="panel px-6 py-6">
+        <div ref={containerRef} className="flex h-screen overflow-hidden" style={{ userSelect: isDragging ? 'none' : 'auto' }}>
+            {/* Products Section - Resizable Left Panel */}
+            <div className="flex flex-col overflow-hidden" style={{ width: `${leftWidth}%` }}>
+                <div className="panel flex-1 overflow-auto px-6 py-6">
                     <div className="mb-6">
                         <h1 className="mb-1 text-2xl font-bold text-gray-900">Select Products</h1>
                         <p className="text-sm text-gray-600">Click or scan a product to add it to your order</p>
@@ -141,8 +191,12 @@ const ComponentsAppsInvoiceAdd = () => {
                         />
                     </div>
 
-                    {/* Products Grid */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {/* Products Grid - Responsive based on width */}
+                    <div
+                        className={`grid gap-4 ${
+                            leftWidth > 60 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : leftWidth > 45 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
+                        }`}
+                    >
                         {currentProducts.map((product) => {
                             const isUnavailable = product.available === 'no' || product.quantity <= 0;
 
@@ -219,9 +273,19 @@ const ComponentsAppsInvoiceAdd = () => {
                 </div>
             </div>
 
-            {/* Right Panel */}
-            <div className="w-full xl:w-96">
-                <BillToForm />
+            {/* Resizable Divider - WHITE COLOR */}
+            <div
+                className={`flex w-2 cursor-col-resize items-center justify-center border-l border-r border-white bg-white hover:bg-gray-50 ${isDragging ? 'bg-white' : ''}`}
+                onMouseDown={handleMouseDown}
+            >
+                <GripVertical className="h-6 w-6 text-white" />
+            </div>
+
+            {/* Bill Form Section - Resizable Right Panel */}
+            <div className="flex flex-col overflow-hidden" style={{ width: `${100 - leftWidth}%` }}>
+                <div className="flex-1 overflow-auto">
+                    <BillToForm />
+                </div>
             </div>
 
             {/* Modal for all images & description */}
