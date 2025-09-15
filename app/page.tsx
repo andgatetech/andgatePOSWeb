@@ -17,7 +17,7 @@ export default function HomePage() {
                         <div className="flex items-center">
                             <div className="flex flex-shrink-0 items-center">
                                 <div className="rounded-lg  p-2">
-                                    <Image src={andgatePOSLogo} alt="andgatePOS Logo" width={300} height={60} />
+                                    <Image src={andgatePOSLogo} alt="andgatePOS Logo" width={255} height={50} />
                                 </div>
                             </div>
                         </div>
