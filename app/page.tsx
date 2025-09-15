@@ -215,7 +215,7 @@ export default function HomePage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-20 text-center">
                         <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">Loved by Business Owners</h2>
-                        <p className="text-xl text-gray-600">Join thousands of successful businesses already using AndGate POS</p>
+                        <p className="text-xl text-gray-600">Join thousands of successful businesses already using AndGatePOS</p>
                     </div>
 
                     <div className="grid gap-8 md:grid-cols-3">
@@ -224,7 +224,7 @@ export default function HomePage() {
                                 name: 'Sarah Mitchell',
                                 business: 'Artisan Coffee Co.',
                                 image: 'https://images.unsplash.com/photo-1494790108755-2616b612b593?w=150&h=150&fit=crop&crop=face',
-                                review: 'AndGate POS revolutionized our operations.Sales increased 45% in just 3 months, and our customers love the quick checkout experience.',
+                                review: 'AndGatePOS revolutionized our operations.Sales increased 45% in just 3 months, and our customers love the quick checkout experience.',
                                 rating: 5,
                             },
                             {
@@ -238,7 +238,7 @@ export default function HomePage() {
                                 name: 'Isabella Rodriguez',
                                 business: 'Bella Boutique',
                                 image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-                                review: 'Customer management features helped us build a loyal community. Our repeat customer rate has doubled since switching to Andgate POS.',
+                                review: 'Customer management features helped us build a loyal community. Our repeat customer rate has doubled since switching to AndgatePOS.',
                                 rating: 5,
                             },
                         ].map((testimonial, index) => (
@@ -268,7 +268,7 @@ export default function HomePage() {
                 <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
                     <h2 className="mb-8 text-4xl font-bold text-white md:text-5xl">Ready to Transform Your Business?</h2>
                     <p className="mb-12 text-xl leading-relaxed text-blue-100">
-                        Join over 50,000 businesses that trust AndGate POS to power their success. Start your free trial today and see the difference in just 24 hours.
+                        Join over 50,000 businesses that trust AndGatePOS to power their success. Start your free trial today and see the difference in just 24 hours.
                     </p>
                     <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
                         <a
@@ -298,10 +298,10 @@ export default function HomePage() {
                                 <div className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-2">
                                     <ShoppingCart className="h-6 w-6 text-white" />
                                 </div>
-                                <span className="ml-3 text-2xl font-bold">AndGate POS</span>
+                                <span className="ml-3 text-2xl font-bold">AndGatePOS</span>
                             </div>
                             <p className="mb-6 max-w-md leading-relaxed text-gray-400">
-                                Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with AndGate POS.
+                                Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with AndGatePOS.
                             </p>
                             <div className="flex space-x-4">
                                 <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-blue-600">
@@ -370,7 +370,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="flex flex-col items-center justify-between border-t border-gray-800 pt-8 md:flex-row">
-                        <p className="text-sm text-gray-400">© 2024 AndGate POS. All rights reserved. Empowering businesses worldwide.</p>
+                        <p className="text-sm text-gray-400">© 2024 AndGate Technologies. All rights reserved. Empowering businesses worldwide.</p>
                         <div className="mt-4 flex space-x-6 md:mt-0">
                             <a href="#" className="text-sm text-gray-400 transition-colors hover:text-white">
                                 Privacy Policy
