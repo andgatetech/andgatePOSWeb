@@ -8,8 +8,8 @@ const frequencies = [
 
 const tiers = [
     {
-        name: 'Basic',
-        id: 'tier-basic',
+        name: 'Free',
+        id: 'tier-free',
         href: '#',
         price: { monthly: '৳29', annually: '৳279' },
         originalPrice: { annually: '৳348' },
@@ -20,8 +20,8 @@ const tiers = [
         color: 'slate',
     },
     {
-        name: 'Professional',
-        id: 'tier-professional',
+        name: 'SME',
+        id: 'tier-sme',
         href: '#',
         price: { monthly: '৳59', annually: '৳567' },
         originalPrice: { annually: '৳708' },
