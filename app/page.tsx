@@ -2,7 +2,7 @@
 import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Menu, Shield, ShoppingCart, Star, TrendingUp, Users, X, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import AndGate from '/public/assets/images/Logo-PNG.png';
+import andgatePOSLogo from '/public/assets/images/andgatePOS.jpeg' ;
 import PriceSection from './(defaults)/components/price/PriceSection';
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
 export default function HomePage() {
@@ -17,7 +17,7 @@ export default function HomePage() {
                         <div className="flex items-center">
                             <div className="flex flex-shrink-0 items-center">
                                 <div className="rounded-lg  p-2">
-                                    <Image src={AndGate} alt="AndGate Logo" width={64} height={64} />
+                                    <Image src={andgatePOSLogo} alt="andgatePOS Logo" width={64} height={64} />
                                 </div>
                             </div>
                         </div>
@@ -92,7 +92,7 @@ export default function HomePage() {
                             New: AI-Powered Sales Analytics
                         </div>
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
-                            The Future of CI/CD TESTING -<span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
+                            The Future of -<span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
                         </h1>
                         <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-600 md:text-2xl">
                             Transform your business with our cutting-edge POS system. Streamline operations, boost sales, and delight customers with lightning-fast transactions and powerful analytics.
