@@ -2,7 +2,7 @@
 import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Menu, Shield, ShoppingCart, Star, TrendingUp, Users, X, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import andgatePOSLogo from '/public/assets/images/andgatePOS.jpeg' ;
+import andgatePOSLogo from '/public/images/andgatePOS.jpeg' ;
 import PriceSection from './(defaults)/components/price/PriceSection';
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
 export default function HomePage() {
