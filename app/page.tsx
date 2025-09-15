@@ -89,7 +89,7 @@ export default function HomePage() {
                     <div className="text-center">
                         <div className="mb-8 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
                             <Zap className="mr-2 h-4 w-4" />
-                            New: AI-Powered Sales Analytics
+                            Upcoming: AI-Powered Sales Analytics
                         </div>
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
                             The Future of -<span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
