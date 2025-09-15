@@ -34,7 +34,7 @@ export default function WhatsAppButton() {
 
     const handleSendMessage = () => {
         if (message.trim()) {
-            const phoneNumber = '++8801838680434'; // Replace with your phone number
+            const phoneNumber = '+8801838680434'; // Replace with your phone number
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
             window.open(whatsappUrl, '_blank');
