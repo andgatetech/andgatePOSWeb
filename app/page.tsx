@@ -3,6 +3,8 @@ import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Menu, Shield, Sh
 import Image from 'next/image';
 import { useState } from 'react';
 import AndGate from '/public/assets/images/Logo-PNG.png';
+import PriceSection from './(defaults)/components/price/PriceSection';
+import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
 export default function HomePage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -17,7 +19,6 @@ export default function HomePage() {
                                 <div className="rounded-lg  p-2">
                                     <Image src={AndGate} alt="AndGate Logo" width={64} height={64} />
                                 </div>
-                                <span className="ml-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">AndGatePOS</span>
                             </div>
                         </div>
 
@@ -25,6 +26,9 @@ export default function HomePage() {
                         <div className="hidden items-center space-x-8 md:flex">
                             <a href="#features" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Features
+                            </a>
+                            <a href="#overview" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+                                POS Overview
                             </a>
                             <a href="#pricing" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Pricing
@@ -59,6 +63,9 @@ export default function HomePage() {
                             <a href="#features" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                 Features
                             </a>
+                            <a href="#overview" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
+                                POS Overview
+                            </a>
                             <a href="#pricing" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                 Pricing
                             </a>
@@ -75,7 +82,6 @@ export default function HomePage() {
                     </div>
                 )}
             </nav>
-
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pb-32 pt-20">
                 <div className="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
@@ -86,8 +92,7 @@ export default function HomePage() {
                             New: AI-Powered Sales Analytics
                         </div>
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
-                            The Future of CI/CD TESTING - 
-                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
+                            The Future of CI/CD TESTING -<span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
                         </h1>
                         <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-600 md:text-2xl">
                             Transform your business with our cutting-edge POS system. Streamline operations, boost sales, and delight customers with lightning-fast transactions and powerful analytics.
@@ -97,19 +102,19 @@ export default function HomePage() {
                                 href="/register"
                                 className="group flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl"
                             >
-                                Start Free Trial
+                                Get Started
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </a>
-                            <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
+                            {/* <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
                                 <div className="mr-3 rounded-full bg-white p-2 shadow-md">
                                     <div className="ml-1 h-0 w-0 border-b-[6px] border-l-[8px] border-t-[6px] border-b-transparent border-l-blue-600 border-t-transparent"></div>
                                 </div>
                                 Watch Demo
-                            </button>
+                            </button> */}
                         </div>
                         <div className="mt-12 flex items-center justify-center text-sm text-gray-500">
                             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            No credit card required • 14-day free trial • Cancel anytime
+                            No pre payment required • 1 month free trial • Cancel anytime
                         </div>
                     </div>
                 </div>
@@ -119,14 +124,13 @@ export default function HomePage() {
                 <div className="absolute right-10 top-1/3 h-16 w-16 animate-pulse rounded-full bg-purple-200 opacity-20 delay-75"></div>
                 <div className="absolute bottom-1/4 left-1/4 h-12 w-12 animate-pulse rounded-full bg-indigo-200 opacity-20 delay-150"></div>
             </section>
-
             {/* Stats Section */}
             <section className="bg-white py-16">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 text-center md:grid-cols-4">
                         {[
-                            { number: '50K+', label: 'Active Businesses', icon: <Users className="h-8 w-8" /> },
-                            { number: '৳2.5B+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
+                            { number: '1K+', label: 'Active Businesses', icon: <Users className="h-8 w-8" /> },
+                            { number: '৳1.8M+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
                             { number: '99.9%', label: 'Uptime Guarantee', icon: <Shield className="h-8 w-8" /> },
                             { number: '24/7', label: 'Customer Support', icon: <Clock className="h-8 w-8" /> },
                         ].map((stat, index) => (
@@ -141,7 +145,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-
             {/* Features Section */}
             <section id="features" className="bg-gradient-to-b from-slate-50 to-white py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -203,7 +206,10 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-
+            {/* POS Overview Section */}
+            <OverViewSection id="overview"></OverViewSection>
+            {/* Price Section */}
+            <PriceSection id="pricing"></PriceSection>
             {/* Testimonials Section */}
             <section className="bg-white py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -256,7 +262,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-
             {/* CTA Section */}
             <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 py-24">
                 <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -284,7 +289,6 @@ export default function HomePage() {
                 <div className="absolute left-10 top-10 h-32 w-32 rounded-full bg-white opacity-10"></div>
                 <div className="absolute bottom-10 right-10 h-24 w-24 rounded-full bg-white opacity-10"></div>
             </section>
-
             {/* Footer */}
             <footer className="bg-gray-900 py-16 text-white">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
