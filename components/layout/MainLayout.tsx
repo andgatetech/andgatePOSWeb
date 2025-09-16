@@ -21,7 +21,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         <div className="flex items-center">
                             <div className="flex flex-shrink-0 items-center">
                                 <Link href="/" className="rounded-lg p-2">
-                                    <Image src={AndGate} alt="AndGate Logo" width={64} height={64} />
+                                    <Image src={AndGate} alt="AndgatePOS Logo" width={190} height={37} />
                                 </Link>
                             </div>
                         </div>
