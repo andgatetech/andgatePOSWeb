@@ -14,7 +14,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, Package, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, Package, Receipt, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -93,6 +93,15 @@ const adminRoutes = [
         icon: <Users />,
         subMenu: [{ label: 'Customer List', href: '/apps/customer' }],
     },
+    {
+        label: 'Stock',
+        icon: <Receipt />,
+        subMenu: [
+            { label: 'Create Stock Adjustment', href: '/apps/stock/create-stock-adjustment' },
+            { label: 'Stock Adjustment List', href: '/apps/stock/stock-adjustment-list' },
+            { label: 'Adjustment Type', href: '/apps/create-adjustment' },
+        ],
+    },
 
     {
         label: 'Report',
@@ -102,6 +111,7 @@ const adminRoutes = [
             { label: 'Sales Report', href: '/apps/SalesReport' },
             { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
             { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
+            // { label: 'Stock Report ', href: '/apps/stock-report/stock' },
             { label: 'Stock Report', href: '/apps/stock-report/stock' },
         ],
     },
