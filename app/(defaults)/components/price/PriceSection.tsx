@@ -1,5 +1,6 @@
+import { Building2, Check, Star, Zap } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
-import { Check, Star, Zap, Building2 } from 'lucide-react';
 
 const frequencies = [
     { value: 'monthly', label: 'Monthly', priceSuffix: '/month' },
@@ -8,8 +9,8 @@ const frequencies = [
 
 const tiers = [
     {
-        name: 'Basic',
-        id: 'tier-basic',
+        name: 'Free',
+        id: 'tier-Free',
         href: '#',
         price: { monthly: '৳29', annually: '৳279' },
         originalPrice: { annually: '৳348' },
@@ -20,8 +21,8 @@ const tiers = [
         color: 'slate',
     },
     {
-        name: 'Professional',
-        id: 'tier-professional',
+        name: 'SME',
+        id: 'tier-SMNE',
         href: '#',
         price: { monthly: '৳59', annually: '৳567' },
         originalPrice: { annually: '৳708' },
@@ -175,11 +176,16 @@ export default function PriceSection({ id }) {
                                     </div>
 
                                     {/* CTA Button */}
-                                    <button className={classNames('w-full rounded-lg px-4 py-3 text-sm font-semibold transition-all duration-200', colors.button)}>Get Started</button>
+                                    <Link
+                                        href={tier.name === 'Free' ? '/register' : '/contact'}
+                                        className={classNames('block w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}
+                                    >
+                                        Get Started
+                                    </Link>
 
                                     {/* Features */}
                                     <div className="mt-8">
-                                        <p className="mb-4 text-sm font-medium text-gray-900">What's included:</p>
+                                        <p className="mb-4 text-sm font-medium text-gray-900">What&apos;s included:</p>
                                         <ul className="space-y-3">
                                             {tier.features.map((feature, index) => (
                                                 <li key={index} className="flex items-start gap-3">

@@ -1,87 +1,13 @@
 'use client';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Menu, Shield, ShoppingCart, Star, TrendingUp, Users, X, Zap } from 'lucide-react';
+import MainLayout from '@/components/layout/MainLayout';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Shield, ShoppingCart, Star, TrendingUp, Users, Zap } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
-import AndGate from '/public/assets/images/Logo-PNG.png';
-import PriceSection from './(defaults)/components/price/PriceSection';
+import Link from 'next/link';
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
+import PriceSection from './(defaults)/components/price/PriceSection';
 export default function HomePage() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
     return (
-        <div className="min-h-screen bg-white">
-            {/* Navigation */}
-            <nav className="fixed top-0 z-50 w-full bg-white shadow-lg">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex items-center">
-                            <div className="flex flex-shrink-0 items-center">
-                                <div className="rounded-lg  p-2">
-                                    <Image src={AndGate} alt="AndGate Logo" width={64} height={64} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Desktop Navigation */}
-                        <div className="hidden items-center space-x-8 md:flex">
-                            <a href="#features" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-                                Features
-                            </a>
-                            <a href="#overview" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-                                POS Overview
-                            </a>
-                            <a href="#pricing" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-                                Pricing
-                            </a>
-                            <a href="#about" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-                                About
-                            </a>
-                            <a href="/login" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-                                Login
-                            </a>
-                            <a
-                                href="/register"
-                                className="transform rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-2 text-sm font-medium text-white transition-all hover:scale-105 hover:shadow-lg"
-                            >
-                                Get Started
-                            </a>
-                        </div>
-
-                        {/* Mobile menu button */}
-                        <div className="flex items-center md:hidden">
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700 hover:text-blue-600">
-                                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile Navigation */}
-                {isMenuOpen && (
-                    <div className="border-t bg-white shadow-lg md:hidden">
-                        <div className="space-y-1 px-2 pb-3 pt-2">
-                            <a href="#features" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
-                                Features
-                            </a>
-                            <a href="#overview" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
-                                POS Overview
-                            </a>
-                            <a href="#pricing" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
-                                Pricing
-                            </a>
-                            <a href="#about" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
-                                About
-                            </a>
-                            <a href="/login" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
-                                Login
-                            </a>
-                            <a href="/register" className="block px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700">
-                                Get Started
-                            </a>
-                        </div>
-                    </div>
-                )}
-            </nav>
+        <MainLayout>
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pb-32 pt-20">
                 <div className="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
@@ -98,13 +24,13 @@ export default function HomePage() {
                             Transform your business with our cutting-edge POS system. Streamline operations, boost sales, and delight customers with lightning-fast transactions and powerful analytics.
                         </p>
                         <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-                            <a
+                            <Link
                                 href="/register"
                                 className="group flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl"
                             >
                                 Get Started
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                            </a>
+                            </Link>
                             {/* <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
                                 <div className="mr-3 rounded-full bg-white p-2 shadow-md">
                                     <div className="ml-1 h-0 w-0 border-b-[6px] border-l-[8px] border-t-[6px] border-b-transparent border-l-blue-600 border-t-transparent"></div>
@@ -248,7 +174,7 @@ export default function HomePage() {
                                         <Star key={i} className="h-5 w-5 fill-current text-yellow-400" />
                                     ))}
                                 </div>
-                                <blockquote className="mb-6 text-lg italic leading-relaxed text-gray-700">"{testimonial.review}"</blockquote>
+                                <blockquote className="mb-6 text-lg italic leading-relaxed text-gray-700">&ldquo;{testimonial.review}&rdquo;</blockquote>
                                 <div className="flex items-center">
                                     <Image src={testimonial.image} alt={testimonial.name} width={40} height={40} className="mr-4 h-12 w-12 rounded-full object-cover" />
                                     <div>
@@ -271,16 +197,16 @@ export default function HomePage() {
                         Join over 50,000 businesses that trust AndGate POS to power their success. Start your free trial today and see the difference in just 24 hours.
                     </p>
                     <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-                        <a
-                            href="/register"
+                        <Link
+                            href="/contact"
                             className="group flex transform items-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-100"
                         >
                             Start Free Trial Now
                             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                        </a>
-                        <a href="/login" className="rounded-full border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600">
+                        </Link>
+                        <Link href="/login" className="rounded-full border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600">
                             Sign In
-                        </a>
+                        </Link>
                     </div>
                     <div className="mt-8 text-sm text-blue-100">✓ No setup fees ✓ Cancel anytime ✓ 24/7 support included</div>
                 </div>
@@ -385,6 +311,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </footer>
-        </div>
+        </MainLayout>
     );
 }
