@@ -40,6 +40,10 @@ jobs:
             # Stop the existing PM2 process
             /root/.nvm/versions/node/v18.18.1/bin/pm2 stop all || true
 
+            # Stop the existing PM2 process
+            /root/.nvm/versions/node/v18.18.1/bin/pm2 delete all || true
+
+
             # Pull the latest code from your repository
             git pull origin master
 
