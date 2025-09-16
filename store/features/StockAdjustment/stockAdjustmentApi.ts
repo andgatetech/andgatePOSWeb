@@ -10,6 +10,14 @@ export const stockAdjustmentApi = baseApi.injectEndpoints({
             providesTags: ['StockAdjustment'],
         }),
 
+        getStockReport: builder.query({
+            query: (params) => ({
+                url: '/stock-report',
+                params,
+            }),
+            providesTags: ['StockAdjustment'],
+        }),
+
         // CREATE new stock adjustment
         createStockAdjustment: builder.mutation({
             query: (body) => ({
@@ -31,4 +39,4 @@ export const stockAdjustmentApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useGetStockAdjustmentsQuery, useCreateStockAdjustmentMutation, useDeleteStockAdjustmentMutation } = stockAdjustmentApi;
+export const { useGetStockAdjustmentsQuery, useCreateStockAdjustmentMutation, useDeleteStockAdjustmentMutation, useGetStockReportQuery } = stockAdjustmentApi;

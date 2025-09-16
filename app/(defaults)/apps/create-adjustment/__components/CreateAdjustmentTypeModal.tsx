@@ -29,31 +29,19 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
     // Handle input changes
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        // Clear error for this field when user starts typing
-        if (errors[field]) {
-            setErrors((prev) => ({ ...prev, [field]: '' }));
-        }
+        if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
     };
 
     // Validate form
     const validateForm = () => {
         const newErrors = {};
+        if (!formData.type.trim()) newErrors.type = 'Type is required';
+        else if (formData.type.length > 255) newErrors.type = 'Type must be less than 255 characters';
 
-        if (!formData.type.trim()) {
-            newErrors.type = 'Type is required';
-        } else if (formData.type.length > 255) {
-            newErrors.type = 'Type must be less than 255 characters';
-        }
+        if (!formData.description.trim()) newErrors.description = 'Description is required';
+        else if (formData.description.length > 255) newErrors.description = 'Description must be less than 255 characters';
 
-        if (!formData.description.trim()) {
-            newErrors.description = 'Description is required';
-        } else if (formData.description.length > 255) {
-            newErrors.description = 'Description must be less than 255 characters';
-        }
-
-        if (!formData.store_id) {
-            newErrors.store_id = 'Store is required';
-        }
+        if (!formData.store_id) newErrors.store_id = 'Store is required';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -61,61 +49,44 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
 
     // Handle form submission
     const handleSubmit = async () => {
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         setIsSubmitting(true);
-
         try {
-            const result = await createAdjustmentType({
+            await createAdjustmentType({
                 type: formData.type.trim(),
                 description: formData.description.trim(),
                 store_id: formData.store_id,
             }).unwrap();
-
-            // Show success message briefly
-            setTimeout(() => {
-                onSuccess();
-            }, 100);
+            setTimeout(() => onSuccess(), 100);
         } catch (error) {
-            console.error('Failed to create adjustment type:', error);
-
-            // Handle validation errors from server
-            if (error?.data?.errors) {
-                setErrors(error.data.errors);
-            } else {
-                setErrors({
-                    general: error?.data?.message || 'Failed to create adjustment type. Please try again.',
-                });
-            }
+            if (error?.data?.errors) setErrors(error.data.errors);
+            else setErrors({ general: error?.data?.message || 'Failed to create adjustment type' });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Handle backdrop click
-    const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
+    // Handle key events (Enter & Escape) safely
+    useEffect(() => {
+        if (!isOpen) return;
 
-    // Handle key press for Enter submission
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && !isSubmitting && formData.type.trim() && formData.description.trim() && formData.store_id) {
-            handleSubmit();
-        }
-        if (e.key === 'Escape') {
-            onClose();
-        }
-    };
+        const handleKey = (e) => {
+            if (e.key === 'Enter' && !isSubmitting && formData.type && formData.description && formData.store_id) {
+                handleSubmit();
+            }
+            if (e.key === 'Escape') onClose();
+        };
 
-    // Don't render if modal is not open
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [isOpen, formData, isSubmitting]);
+
+    // Don't render if modal is closed
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={handleBackdropClick} onKeyDown={handleKeyPress} tabIndex={-1}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black bg-opacity-50 transition-opacity" />
 
@@ -185,7 +156,6 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
                             type="text"
                             value={formData.type}
                             onChange={(e) => handleInputChange('type', e.target.value)}
-                            onKeyDown={handleKeyPress}
                             disabled={isSubmitting}
                             placeholder="e.g., Stock Loss, Damaged Goods, Expired Items"
                             className={`w-full rounded-lg border px-4 py-3 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-50 ${
@@ -214,7 +184,6 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
                             id="adjustment-description"
                             value={formData.description}
                             onChange={(e) => handleInputChange('description', e.target.value)}
-                            onKeyDown={handleKeyPress}
                             disabled={isSubmitting}
                             placeholder="Provide a detailed explanation of when and why this adjustment type should be used..."
                             rows={4}
@@ -249,20 +218,11 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={isSubmitting || !formData.type.trim() || !formData.description.trim() || !formData.store_id}
+                        disabled={isSubmitting || !formData.type || !formData.description || !formData.store_id}
                         className="flex min-w-[140px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isSubmitting ? (
-                            <>
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                Creating...
-                            </>
-                        ) : (
-                            <>
-                                <CheckCircle className="h-4 w-4" />
-                                Create Type
-                            </>
-                        )}
+                        {isSubmitting ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <CheckCircle className="h-4 w-4" />}
+                        {isSubmitting ? 'Creating...' : 'Create Type'}
                     </button>
                 </div>
             </div>
