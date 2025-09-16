@@ -1,3 +1,4 @@
+import WhatsAppButton from '@/__components/WhatsAppButton';
 import ContentAnimation from '@/components/layouts/content-animation';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
@@ -38,6 +39,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                         {/* END FOOTER */}
                         <Portals />
                     </div>
+                    <WhatsAppButton />
                 </MainContainer>
             </div>
         </>
