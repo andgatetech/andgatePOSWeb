@@ -1,13 +1,15 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Link, Shield, ShoppingCart, Star, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Shield, ShoppingCart, Star, TrendingUp, Users, Zap } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
-import { useState } from 'react';
-import andgatePOSLogo from '/public/images/andgatePOS.jpeg' ;
-import PriceSection from './(defaults)/components/price/PriceSection';
+
 
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
+import PriceSection from './(defaults)/components/price/PriceSection';
+
+
  export default function HomePage() {
     return (
         <MainLayout>
@@ -30,8 +32,7 @@ import OverViewSection from './(defaults)/components/pos-overview/OverViewSectio
                             <Link
                                 href="/register"
                                 className="group flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl"
-                            >
-                                Get Started
+                            >Get Started
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Link>
                             {/* <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
