@@ -1,11 +1,11 @@
 'use client';
 
 import OrderActionsComponent from '@/__components/OrderActionsComponent';
-import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { useEffect, useState, useMemo } from 'react';
-import { debounce } from 'lodash';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
+import { useAllStoresQuery } from '@/store/features/store/storeApi';
+import { debounce } from 'lodash';
+import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import { useMemo, useState } from 'react';
 
 const ComponentsAppsInvoiceList = () => {
     // Modal states
@@ -42,11 +42,27 @@ const ComponentsAppsInvoiceList = () => {
         params: filters,
     });
 
-    const { data: storesResponse, isLoading: storesLoading } = useAllStoresQuery();
+    const { data: storesResponse, isLoading: storesLoading } = useAllStoresQuery({});
 
     // Extract data from API responses
-    const orders = ordersResponse?.data?.data || [];
-    const pagination = ordersResponse?.data || {};
+    const orders = useMemo(() => {
+        return Array.isArray(ordersResponse?.data) ? ordersResponse.data : ordersResponse?.data?.data || [];
+    }, [ordersResponse]);
+
+    const pagination = useMemo(() => {
+        // If the response has pagination data, use it
+        if (ordersResponse?.data && !Array.isArray(ordersResponse.data)) {
+            return ordersResponse.data;
+        }
+        // If no pagination data, create default pagination based on orders length
+        const ordersArray = Array.isArray(ordersResponse?.data) ? ordersResponse.data : [];
+        return {
+            total: ordersArray.length,
+            per_page: filters.per_page,
+            current_page: filters.page,
+            last_page: Math.ceil(ordersArray.length / filters.per_page),
+        };
+    }, [ordersResponse, filters.per_page, filters.page]);
     const stores = storesResponse?.data || [];
 
     // Debounced search function
@@ -133,7 +149,7 @@ const ComponentsAppsInvoiceList = () => {
             invoice: order.invoice || String(order.id).padStart(6, '0'),
             name: order.customer?.name || 'N/A',
             email: order.customer?.email || '',
-            createdBy: order.user?.name || 'N/A',
+            createdBy: order.user?.name || order.created_by || 'N/A',
             storeName: order.store?.store_name || 'N/A',
             date: order.created_at ? new Date(order.created_at).toLocaleDateString() : '',
             amount: Number(order.grand_total) || 0,
@@ -144,6 +160,12 @@ const ComponentsAppsInvoiceList = () => {
             originalOrder: order,
         }));
     }, [orders]);
+
+    // Debug logs
+    console.log('Orders Response:', ordersResponse);
+    console.log('Extracted Orders:', orders);
+    console.log('Pagination:', pagination);
+    console.log('Formatted Orders:', formattedOrders);
 
     // Payment status options
     const paymentStatusOptions = [
@@ -267,7 +289,7 @@ const ComponentsAppsInvoiceList = () => {
                                     Date: {filters.from_date} to {filters.to_date}
                                 </span>
                             )}
-                            {filters.search && <span className="badge badge-outline-warning">Search: "{filters.search}"</span>}
+                            {filters.search && <span className="badge badge-outline-warning">Search: &quot;{filters.search}&quot;</span>}
                         </div>
                     </div>
                 </div>
@@ -362,7 +384,6 @@ const ComponentsAppsInvoiceList = () => {
                             fetching={isLoading}
                             loaderColor="blue"
                             loaderSize="lg"
-                            loaderType="bars"
                             paginationText={({ from, to, totalRecords }) => (
                                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                                     Showing <span className="font-semibold text-gray-900 dark:text-white">{from}</span> to <span className="font-semibold text-gray-900 dark:text-white">{to}</span> of{' '}
@@ -370,7 +391,6 @@ const ComponentsAppsInvoiceList = () => {
                                 </span>
                             )}
                             rowClassName="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
-                            paginationWrapClassName="px-4 py-3"
                             noRecordsText="No orders found"
                             emptyState={
                                 <div className="flex flex-col items-center justify-center py-12">

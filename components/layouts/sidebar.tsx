@@ -114,6 +114,7 @@ const adminRoutes = [
             { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
             // { label: 'Stock Report ', href: '/apps/stock-report/stock' },
             { label: 'Stock Report', href: '/apps/stock-report/stock' },
+            { label: 'Tax Report', href: '/apps/TaxReport' },
         ],
     },
 ];
