@@ -13,8 +13,8 @@ const tiers = [
 
         id: 'tier-Free',
         href: '#',
-        price: { monthly: '৳29', annually: '৳279' },
-        originalPrice: { annually: '৳348' },
+        price: { monthly: '৳0', annually: '৳0' },
+        originalPrice: { annually: '৳3600' },
         description: 'Perfect for small businesses and startups getting started with POS.',
         features: ['Up to 2 registers', '1,000 products', 'Basic inventory management', 'Payment processing', 'Email support', 'Basic reporting'],
         mostPopular: false,
@@ -27,8 +27,8 @@ const tiers = [
         id: 'tier-SME',
 
         href: '#',
-        price: { monthly: '৳59', annually: '৳567' },
-        originalPrice: { annually: '৳708' },
+        price: { monthly: '৳500', annually: '৳4800' },
+        originalPrice: { annually: '৳6000' },
         description: 'Advanced features for growing businesses that need more control.',
         features: [
             'Up to 5 registers',
@@ -48,8 +48,8 @@ const tiers = [
         name: 'Enterprise',
         id: 'tier-enterprise',
         href: '#',
-        price: { monthly: '৳99', annually: '৳949' },
-        originalPrice: { annually: '৳1188' },
+        price: { monthly: '৳2000', annually: '৳19200' },
+        originalPrice: { annually: '৳24000' },
         description: 'Complete solution for large businesses with multiple locations.',
         features: [
             'Unlimited registers',
