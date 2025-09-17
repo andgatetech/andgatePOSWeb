@@ -100,7 +100,7 @@ const adminRoutes = [
             { label: 'Create Stock Adjustment', href: '/apps/stock/create-stock-adjustment' },
             { label: 'Stock Adjustment List', href: '/apps/stock/stock-adjustment-list' },
             { label: 'Stock Report', href: '/apps/stock/stock-report' },
-            { label: 'Adjustment Type', href: '/apps/stock/adjustment-type' },
+            { label: 'Adjustment Type', href: '/apps/create-adjustment' },
         ],
     },
 
