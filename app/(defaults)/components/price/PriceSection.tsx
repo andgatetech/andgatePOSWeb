@@ -210,7 +210,7 @@ export default function PriceSection({ id }) {
                 {/* Bottom CTA */}
                 <div className="mt-16 text-center">
                     <p className="mb-6 text-gray-600">Need a custom solution? We offer tailored plans for large enterprises.</p>
-                    <button className="inline-flex items-center rounded-lg bg-gray-900 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-800">Contact Sales</button>
+                    <a href="/contact" className="inline-flex items-center rounded-lg bg-gray-900 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-800">Contact Sales</a>
                 </div>
             </div>
         </div>

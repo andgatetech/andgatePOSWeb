@@ -1,16 +1,44 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Shield, ShoppingCart, Star, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-
-
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
 import PriceSection from './(defaults)/components/price/PriceSection';
+import Footer from './terms-of-service/Footer';
 
-
- export default function HomePage() {
+export default function HomePage() {
+     const quickStartSteps = [
+            {
+                step: 1,
+                title: 'Create Your Account',
+                description: 'Sign up and verify your business information',
+                icon: <Target className="h-6 w-6" />,
+                color: 'text-blue-600',
+            },
+            {
+                step: 2,
+                title: 'Configure Settings',
+                description: 'Set up payment methods, tax rates, and business preferences',
+                icon: <Settings className="h-6 w-6" />,
+                color: 'text-green-600',
+            },
+            {
+                step: 3,
+                title: 'Add Products',
+                description: 'Import your inventory or add products manually',
+                icon: <Package className="h-6 w-6" />,
+                color: 'text-purple-600',
+            },
+            {
+                step: 4,
+                title: 'Start Selling',
+                description: 'Process your first transaction and explore features',
+                icon: <ShoppingCart className="h-6 w-6" />,
+                color: 'text-orange-600',
+            },
+        ];
     return (
         <MainLayout>
             {/* Hero Section */}
@@ -32,7 +60,8 @@ import PriceSection from './(defaults)/components/price/PriceSection';
                             <Link
                                 href="/register"
                                 className="group flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl"
-                            >Get Started
+                            >
+                                Get Started
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Link>
                             {/* <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
@@ -140,6 +169,51 @@ import PriceSection from './(defaults)/components/price/PriceSection';
             <OverViewSection id="overview"></OverViewSection>
             {/* Price Section */}
             <PriceSection id="pricing"></PriceSection>
+
+{/*Quick account start*/}
+ {/* Quick Start Section */}
+                <section id="quick-start" className="bg-gradient-to-b from-white to-gray-50 py-11">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mb-16 text-center">
+                            <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">Quick Start Guide</h2>
+                            <p className="mx-auto max-w-3xl text-xl text-gray-600">Get up and running in just 4 simple steps. Perfect for new users who want to start selling immediately.</p>
+                        </div>
+
+                        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                            {quickStartSteps.map((step, index) => (
+                                <div key={index} className="group relative">
+                                    <div className="rounded-2xl bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl group-hover:scale-105">
+                                        <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 ${step.color}`}>{step.icon}</div>
+                                        <div className="mb-2 text-2xl font-bold text-gray-400">0{step.step}</div>
+                                        <h3 className="mb-4 text-xl font-bold text-gray-900">{step.title}</h3>
+                                        <p className="text-gray-600">{step.description}</p>
+                                    </div>
+                                    {index < quickStartSteps.length - 1 && (
+                                        <div className="absolute -right-4 top-1/2 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-blue-100 lg:flex">
+                                            <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-16 text-center">
+                            <Link
+                                href="/training"
+                                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl"
+                            >
+                                <Play className="h-5 w-5" />
+                                Watch Quick Start Video
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+
+
+
+
+
+
             {/* Testimonials Section */}
             <section className="bg-white py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -220,101 +294,7 @@ import PriceSection from './(defaults)/components/price/PriceSection';
                 <div className="absolute bottom-10 right-10 h-24 w-24 rounded-full bg-white opacity-10"></div>
             </section>
             {/* Footer */}
-            <footer className="bg-gray-900 py-16 text-white">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-12 grid gap-8 md:grid-cols-4">
-                        <div className="md:col-span-2">
-                            <div className="mb-6 flex items-center">
-                                <div className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-2">
-                                    <ShoppingCart className="h-6 w-6 text-white" />
-                                </div>
-                                <span className="ml-3 text-2xl font-bold">AndGatePOS</span>
-                            </div>
-                            <p className="mb-6 max-w-md leading-relaxed text-gray-400">
-                                Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with AndGatePOS.
-                            </p>
-                            <div className="flex space-x-4">
-                                <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-blue-600">
-                                    <span className="text-sm font-bold">f</span>
-                                </div>
-                                <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-blue-600">
-                                    <span className="text-sm font-bold">t</span>
-                                </div>
-                                <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-blue-600">
-                                    <span className="text-sm font-bold">in</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 className="mb-6 text-lg font-semibold">Product</h3>
-                            <ul className="space-y-4">
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Features
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Pricing
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Integrations
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        API
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 className="mb-6 text-lg font-semibold">Support</h3>
-                            <ul className="space-y-4">
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Help Center
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Contact Us
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Status
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-gray-400 transition-colors hover:text-white">
-                                        Training
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-between border-t border-gray-800 pt-8 md:flex-row">
-                        <p className="text-sm text-gray-400">© 2024 AndGate Technologies. All rights reserved. Empowering businesses worldwide.</p>
-                        <div className="mt-4 flex space-x-6 md:mt-0">
-                            <a href="#" className="text-sm text-gray-400 transition-colors hover:text-white">
-                                Privacy Policy
-                            </a>
-                            <a href="#" className="text-sm text-gray-400 transition-colors hover:text-white">
-                                Terms of Service
-                            </a>
-                            <a href="#" className="text-sm text-gray-400 transition-colors hover:text-white">
-                                Cookie Policy
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </MainLayout>
     );
 }
