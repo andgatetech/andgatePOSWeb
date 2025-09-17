@@ -28,12 +28,7 @@ const purchaseFeatures = ['Supplier management', 'Purchase order tracking', 'Inv
 const reportFeatures = ['Sales summary reports', 'Tax reports', 'Inventory valuation', 'Custom report generation'];
 
 // Multiple images for each section
-const analyticsImages = [
-    { src: '/images/dashboard.png', alt: 'Analytics Dashboard 1' },
-    { src: '/images/pos.png', alt: 'Analytics Dashboard 2' },
-    { src: '/images/products.png', alt: 'Analytics Dashboard 3' },
-    { src: '/images/dashboard-4.png', alt: 'Analytics Dashboard 4' },
-];
+const analyticsImages = [{ src: '/images/dashboard.png', alt: 'Analytics Dashboard 1' }];
 
 const productImages = [
     { src: '/images/products-1.png', alt: 'Product Management 1' },
@@ -110,21 +105,8 @@ export default function OverViewSection({ id }: { id: string }) {
                     <div className="overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-gray-900/5">
                         <div className="grid grid-cols-1 lg:grid-cols-2">
                             <div className="relative overflow-hidden border-r border-gray-100 lg:border-r-2">
-                                <Swiper
-                                    modules={[Mousewheel, Pagination, Navigation]}
-                                    mousewheel={true}
-                                    pagination={{ clickable: true }}
-                                    navigation={true}
-                                    spaceBetween={0}
-                                    slidesPerView={1}
-                                    className="h-80 lg:h-full"
-                                >
-                                    {analyticsImages.map((image, index) => (
-                                        <SwiperSlide key={index}>
-                                            <Image className="h-80 w-full object-cover lg:h-full" src={image.src} alt={image.alt} width={700} height={500} />
-                                        </SwiperSlide>
-                                    ))}
-                                </Swiper>
+                                {/* SINGLE IMAGE */}
+                                <Image className="h-80 w-full object-cover lg:h-full" src={analyticsImages[0].src} alt={analyticsImages[0].alt} width={700} height={500} />
                             </div>
                             <div className="flex flex-col justify-center border-l border-gray-100 p-10 lg:border-l-2 lg:p-16">
                                 <div className="mb-8 flex items-center gap-4">
@@ -545,10 +527,10 @@ export default function OverViewSection({ id }: { id: string }) {
                                     ))}
                                 </div>
                                 <div className="mt-10">
-                                    <button className="group inline-flex items-center gap-2 rounded-full bg-indigo-600 px-8 py-4 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-500/30">
+                                    <Link href='/register' className="group inline-flex items-center gap-2 rounded-full bg-indigo-600 px-8 py-4 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-500/30">
                                         View Reports
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                             <div className="relative order-1 overflow-hidden border-r border-gray-100 lg:order-2 lg:border-r-2">
@@ -579,13 +561,19 @@ export default function OverViewSection({ id }: { id: string }) {
                             <h3 className="mb-6 text-4xl font-bold text-white">Ready to Transform Your Business?</h3>
                             <p className="mb-8 text-xl text-blue-100">Join thousands of businesses that trust our comprehensive POS solution to streamline their operations and boost growth.</p>
                             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                                <button className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-blue-600 shadow-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-xl">
+                                <Link
+                                    href="/register"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-blue-600 shadow-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-xl"
+                                >
                                     Start Free Trial
                                     <ArrowRight className="h-4 w-4" />
-                                </button>
-                                <button className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/20 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
+                                </Link>
+                                <Link
+                                    href="/contact"
+                                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/20 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/10"
+                                >
                                     Schedule Demo
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>
