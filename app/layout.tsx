@@ -4,6 +4,8 @@ import '../styles/tailwind.css';
 import { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
 import WhatsAppButton from '@/__components/WhatsAppButton';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
     title: {
@@ -27,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {children}
                     <WhatsAppButton />
                 </ProviderComponent>
+                 <ToastContainer position="top-right" autoClose={3000} />
             </body>
         </html>
     );

@@ -35,6 +35,7 @@ const adminRoutes = [
         icon: <ShoppingBag />,
         subMenu: [
             { label: 'Store', href: '/apps/store' },
+            { label: 'Settings', href: '/apps/store/StoreSetting' },
             { label: 'Staff Management', href: '/apps/Staff' },
         ],
     },
@@ -71,9 +72,9 @@ const adminRoutes = [
         ],
     },
     {
-        label: 'Seller',
+        label: 'Supplier',
         icon: <Users />,
-        subMenu: [{ label: 'Seller Management', href: '/apps/Seller' }],
+        subMenu: [{ label: 'Supplier Management', href: '/apps/Supplier' }],
     },
     {
         label: 'Account',
