@@ -28,6 +28,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
                         {/* Desktop Navigation */}
                         <div className="hidden items-center space-x-8 md:flex">
+                            <Link href="/" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+                                Home
+                            </Link>
                             <Link href="/#features" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Features
                             </Link>
