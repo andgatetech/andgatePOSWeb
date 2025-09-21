@@ -6,6 +6,7 @@ import { Nunito } from 'next/font/google';
 import WhatsAppButton from '@/__components/WhatsAppButton';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Script from "next/script";
 
 export const metadata: Metadata = {
     title: {
@@ -24,7 +25,8 @@ const nunito = Nunito({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
-            <Script id="tawk-to-script" strategy="lazyOnload">
+            <body className={nunito.variable}>
+                <Script id="tawk-to-script" strategy="lazyOnload">
                 {`
                     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
                     (function(){
@@ -37,7 +39,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     })();
                 `}
             </Script>
-            <body className={nunito.variable}>
                 <ProviderComponent>
                     {children}
                     <WhatsAppButton />
