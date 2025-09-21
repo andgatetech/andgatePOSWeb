@@ -5,64 +5,6 @@ import jsPDF from 'jspdf';
 
 export default function QrCodeTable({ qrCodes }: { qrCodes: any[] }) {
     // PDF Generation: quantity অনুযায়ী QR loop
-    // const handleGeneratePdf = async () => {
-    //     const pdf = new jsPDF('p', 'mm', 'a4');
-    //     const pageWidth = pdf.internal.pageSize.getWidth();
-    //     const pageHeight = pdf.internal.pageSize.getHeight();
-
-    //     let x = 10;
-    //     let y = 20;
-    //     const cellSize = 50;
-    //     const margin = 10;
-    //     const perRow = 3;
-
-    //     for (const item of qrCodes) {
-    //         pdf.setFontSize(14);
-    //         pdf.text(item.product_name + ' (x' + item.quantity + ')', 10, y);
-    //         y += 10;
-
-    //         // await image load
-    //         const pngData = await new Promise<string>((resolve) => {
-    //             const img = new Image();
-    //             img.src = item.qrcode; // data:image/svg+xml;base64,...
-    //             img.onload = () => {
-    //                 const canvas = document.createElement('canvas');
-    //                 canvas.width = img.width;
-    //                 canvas.height = img.height;
-    //                 const ctx = canvas.getContext('2d');
-    //                 if (ctx) ctx.drawImage(img, 0, 0);
-    //                 resolve(canvas.toDataURL('image/png'));
-    //             };
-    //         });
-
-    //         for (let i = 0; i < item.quantity; i++) {
-    //             pdf.addImage(pngData, 'PNG', x, y, cellSize, cellSize);
-    //             x += cellSize + margin;
-
-    //             if ((i + 1) % perRow === 0) {
-    //                 x = 10;
-    //                 y += cellSize + margin;
-    //             }
-
-    //             if (y + cellSize > pageHeight - 20) {
-    //                 pdf.addPage();
-    //                 x = 10;
-    //                 y = 20;
-    //             }
-    //         }
-
-    //         // Reset X, increment Y after each product
-    //         x = 10;
-    //         y += cellSize + margin;
-    //         if (y > pageHeight - 20) {
-    //             pdf.addPage();
-    //             y = 20;
-    //         }
-    //     }
-
-    //     pdf.save('qrcodes.pdf');
-    // };
-
     const handleGeneratePdf = async () => {
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pageWidth = pdf.internal.pageSize.getWidth();

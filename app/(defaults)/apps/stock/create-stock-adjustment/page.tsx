@@ -155,8 +155,7 @@ const SelectedProductsTable = ({ selectedProducts, onUpdateProduct, onRemoveProd
                                 </td>
                                 <td className="p-3">
                                     <select
-                                        value={product.id || ''}
-                                        // value={product.adjustment_type_id || ''}
+                                        value={product.product_stock_type_id || ''}
                                         onChange={(e) => onUpdateProduct(product.id, 'product_stock_type_id', parseInt(e.target.value))}
                                         className="rounded border border-gray-300 px-2 py-1 text-sm"
                                     >
@@ -310,7 +309,7 @@ const StockAdjustmentPage = () => {
                 product_id: product.id,
                 adjusted_stock: product.adjustedQuantity,
                 direction: product.direction,
-                product_stock_type_id: '',
+                product_stock_type_id: product.product_stock_type_id,
             })),
             reference_no: `ADJ-${Date.now()}`,
             reason: formData.reason,
