@@ -1,14 +1,13 @@
 'use client';
 
-import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
+import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState, useEffect } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 
 const ComponentsAuthRegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -30,8 +29,6 @@ const ComponentsAuthRegisterForm = () => {
         password_confirmation: '',
     });
 
-    
-
     // Start tour on component mount (optional - you can trigger this differently)
     useEffect(() => {
         // Check if user hasn't seen the tour before
@@ -41,33 +38,30 @@ const ComponentsAuthRegisterForm = () => {
         }
     }, []);
 
-    
+   const submitForm = async (e: FormEvent) => {
+       e.preventDefault();
+       try {
+           const result = await registerApi(credentials).unwrap();
+           console.log('Register result:', result);
 
-   
+           const token = result.data.token;
+           const user = result.data;
 
-    const submitForm = async (e: FormEvent) => {
-        e.preventDefault();
-        try {
-            const result = await registerApi(credentials).unwrap();
+           // Save token + role in cookies
+           document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
+           document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
 
-            // ✅ Set cookie
-            document.cookie = `token=${result.data.token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
+           // Save in Redux
+           dispatch(login({ user, token }));
 
-            // ✅ Save to Redux
-            dispatch(login({ user: result.data, token: result.data.token }));
+           toast.success('Registration successful! Redirecting to dashboard...');
+           setTimeout(() => router.push('/dashboard'), 800);
+       } catch (error: any) {
+           console.error('Registration failed:', error);
+           toast.error(error?.data?.message || 'Registration failed. Please try again.');
+       }
+   };
 
-            // ✅ Show toast and redirect
-            toast.success('Registration successful! Redirecting to dashboard...');
-
-
-            router.push('/dashboard');
-
-
-        } catch (error: any) {
-            console.error('Registration failed:', error);
-            toast.error(error?.data?.message || 'Registration failed. Please try again.');
-        }
-    };
 
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
