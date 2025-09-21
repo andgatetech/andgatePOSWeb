@@ -26,13 +26,13 @@ const SubscriptionProgress = () => {
 
         // Calculate percentage of remaining time (time-based for smooth updates)
         let percentage = 0;
-        if (totalTime > 0) {
-            // Clamp between 0 and 100
-            percentage = Math.max(Math.min((remainingTime / totalTime) * 100, 100), 0);
+        if (totalTime > 0 && remainingTime > 0) {
+            // Calculate percentage without upper clamp to preserve precision
+            percentage = Math.max((remainingTime / totalTime) * 100, 0);
         }
 
-        const daysLeft = Math.floor(remainingTime / (1000 * 60 * 60 * 24)); // Use Math.floor for accurate day count
-        const hoursLeft = Math.floor(remainingTime / (1000 * 60 * 60)); // Use Math.floor for consistency
+        const daysLeft = Math.ceil(remainingTime / (1000 * 60 * 60 * 24)); // Use Math.ceil to show 30 days instead of 29
+        const hoursLeft = Math.floor(remainingTime / (1000 * 60 * 60)); // Keep Math.floor for hours
 
         // NOTE: Avoid day-based percentage here to prevent the bar from updating only once per day.
 
@@ -112,6 +112,31 @@ const SubscriptionProgress = () => {
 
     const { startDate, expireDate, totalTime, remainingTime, percentage, daysLeft, hoursLeft } = dateCalculations;
     const price = subscriptionUser.subscription?.monthly_price || 0;
+
+    // Check if account is blocked (status = 0)
+    const isBlocked = subscriptionUser.status === 0;
+
+    // If account is blocked, show blocked message
+    if (isBlocked) {
+        return (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-6 shadow-lg">
+                <div className="mb-4 flex items-center justify-center">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-red-600" />
+                        <h3 className="text-lg font-semibold text-red-800">Account Blocked</h3>
+                    </div>
+                </div>
+                <div className="text-center">
+                    <p className="mb-4 text-red-700">Your account has been temporarily suspended. Please contact our support team for assistance.</p>
+                    <div className="flex justify-center gap-2">
+                        <button onClick={() => (window.location.href = '/contact')} className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700">
+                            Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // Enhanced expiry status logic
     const isExpired = remainingTime <= 0;
