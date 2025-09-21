@@ -40,6 +40,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             <Link href="/#pricing" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Pricing
                             </Link>
+                            <Link href="/training" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+                                Training
+                            </Link>
                             <Link href="/contact" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Contact
                             </Link>
