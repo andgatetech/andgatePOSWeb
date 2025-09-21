@@ -1,4 +1,3 @@
-// src/store/features/auth/authApi.ts
 import { baseApi } from '@/store/api/baseApi';
 import { login, logout } from './authSlice';
 
@@ -13,8 +12,13 @@ export const authApi = baseApi.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(login({ user: data.user, token: data.token }));
-                } catch (error) { }
+
+                    const { user, token } = data;
+
+                    dispatch(login({ user, token }));
+                } catch (error) {
+                    console.error('Login failed:', error);
+                }
             },
         }),
         register: builder.mutation({
@@ -26,7 +30,10 @@ export const authApi = baseApi.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(login({ user: data.user, token: data.token }));
+
+                    const { user, token } = data;
+
+                    dispatch(login({ user, token }));
                 } catch (error) {
                     console.error('Registration failed:', error);
                 }
@@ -46,7 +53,6 @@ export const authApi = baseApi.injectEndpoints({
                 }
             },
         }),
-       
         getAllLeads: builder.query({
             query: () => ({
                 url: '/leads/all',
@@ -60,9 +66,24 @@ export const authApi = baseApi.injectEndpoints({
                 body: leadData,
             }),
         }),
+        updateUser: builder.mutation({
+            query: (userData) => ({
+                url: '/user/update',
+                method: 'PUT',
+                body: userData,
+            }),
+            invalidatesTags: ['User'],
+        }),
+
+        getUserInfo: builder.query({
+            query: () => ({
+                url: '/user',
+                method: 'GET',
+            }),
+            providesTags: ['User'],
+        }),
     }),
     overrideExisting: false,
 });
 
-
-export const { useLoginMutation, useRegisterMutation, useLogoutMutation, useGetAllLeadsQuery, useCreateLeadMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation, useLogoutMutation, useGetAllLeadsQuery, useCreateLeadMutation, useUpdateUserMutation, useGetUserInfoQuery } = authApi;
