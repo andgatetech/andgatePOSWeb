@@ -88,8 +88,8 @@ export default function HomePage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 text-center md:grid-cols-4">
                         {[
-                            { number: '1K+', label: 'Active Businesses', icon: <Users className="h-8 w-8" /> },
-                            { number: '৳1.8M+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
+                            { number: '100+', label: 'Active Businesses', icon: <Users className="h-8 w-8" /> },
+                            { number: '৳1M+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
                             { number: '99.9%', label: 'Uptime Guarantee', icon: <Shield className="h-8 w-8" /> },
                             { number: '24/7', label: 'Customer Support', icon: <Clock className="h-8 w-8" /> },
                         ].map((stat, index) => (
