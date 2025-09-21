@@ -73,7 +73,7 @@ export default function HomePage() {
                         </div>
                         <div className="mt-12 flex items-center justify-center text-sm text-gray-500">
                             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            No pre payment required • 1 month free trial • Cancel anytime
+                            No pre payment required <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
                         </div>
                     </div>
                 </div>
