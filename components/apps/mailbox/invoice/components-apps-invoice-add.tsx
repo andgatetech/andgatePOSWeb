@@ -93,15 +93,20 @@ const ComponentsAppsInvoiceAdd = () => {
     };
 
     const addToCart = (product: any) => {
-        if (product.available === 'no' || product.quantity <= 0) {
+        // Calculate total quantity from product_stocks
+        const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+
+        console.log('Product:', product.product_name);
+        console.log('Product stocks:', product.product_stocks);
+        console.log('Calculated total quantity:', totalQuantity);
+
+        if (product.available === 'no' || totalQuantity <= 0) {
             showMessage('Product is not available', 'error');
             return;
-        }
-
-        // Check stock limit
+        } // Check stock limit
         const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
 
-        if (currentQuantityInCart >= product.quantity) {
+        if (currentQuantityInCart >= totalQuantity) {
             showMessage('Cannot add more, stock limit reached!', 'error');
             return;
         }
@@ -112,21 +117,22 @@ const ComponentsAppsInvoiceAdd = () => {
         }
 
         const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
-        dispatch(
-            addItemRedux({
-                id: uniqueId,
-                productId: product.id,
-                title: product.product_name,
-                description: product.description,
-                rate: parseFloat(product.price),
-                quantity: 1,
-                amount: parseFloat(product.price),
-                PlaceholderQuantity: product.quantity,
-                tax_rate: parseFloat(product.tax_rate || '0'),
-                tax_included: product.tax_included === 1,
-                unit: product.unit || 'piece',
-            })
-        );
+        const itemToAdd = {
+            id: uniqueId,
+            productId: product.id,
+            title: product.product_name,
+            description: product.description,
+            rate: parseFloat(product.price),
+            quantity: 1,
+            amount: parseFloat(product.price),
+            PlaceholderQuantity: totalQuantity,
+            tax_rate: parseFloat(product.tax_rate || '0'),
+            tax_included: product.tax_included === 1,
+            unit: product.unit || 'piece',
+        };
+
+        console.log('Adding item to Redux:', itemToAdd);
+        dispatch(addItemRedux(itemToAdd));
 
         showMessage('Item added successfully!');
         setSearchTerm('');
@@ -198,7 +204,9 @@ const ComponentsAppsInvoiceAdd = () => {
                         }`}
                     >
                         {currentProducts.map((product) => {
-                            const isUnavailable = product.available === 'no' || product.quantity <= 0;
+                            // Calculate total quantity from product_stocks
+                            const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+                            const isUnavailable = product.available === 'no' || totalQuantity <= 0;
 
                             return (
                                 <div
@@ -240,7 +248,7 @@ const ComponentsAppsInvoiceAdd = () => {
 
                                         <div className="mt-2 flex items-center justify-between">
                                             <span className="text-base font-bold text-primary">৳{parseFloat(product.price).toFixed(2)}</span>
-                                            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">Stock: {product.quantity}</span>
+                                            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">Stock: {totalQuantity}</span>
                                         </div>
                                     </div>
                                 </div>
