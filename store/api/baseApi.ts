@@ -39,6 +39,7 @@ export const baseApi = createApi({
         'Expenses',
         'AdjustmentType',
         'StockAdjustment',
+        'Suppliers',
     ],
     endpoints: () => ({}),
 });

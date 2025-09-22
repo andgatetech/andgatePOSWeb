@@ -4,7 +4,7 @@ const supplierApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         registerSupplier: builder.mutation({
             query: (data) => ({
-                url: '/supplier/register',
+                url: '/suppliers',
                 method: 'POST',
                 body: data,
             }),
@@ -19,6 +19,12 @@ const supplierApi = baseApi.injectEndpoints({
         getSuppliers: builder.query({
             query: () => ({
                 url: '/suppliers',
+                method: 'GET',
+            }),
+        }),
+        getSingleSupplier: builder.query({
+            query: (id) => ({
+                url: `/suppliers/${id}`,
                 method: 'GET',
             }),
         }),
@@ -37,7 +43,31 @@ const supplierApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['SupplierPurchases'], // <-- Correct place for invalidatesTags
         }),
+        updateSupplier: builder.mutation({
+            query: (data) => ({
+                url: `/suppliers/${data.id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Suppliers'],
+        }),
+        deleteSupplier: builder.mutation({
+            query: (id) => ({
+                url: `/suppliers/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Suppliers'],
+        }),
     }),
 });
 
-export const { useRegisterSupplierMutation, useGetSuppliersQuery, useGetSupplierPurchaseQuery, useUpdateSupplierPurchaseMutation, useLoginSupplierMutation } = supplierApi;
+export const {
+    useRegisterSupplierMutation,
+    useGetSuppliersQuery,
+    useGetSingleSupplierQuery,
+    useGetSupplierPurchaseQuery,
+    useUpdateSupplierPurchaseMutation,
+    useLoginSupplierMutation,
+    useUpdateSupplierMutation,
+    useDeleteSupplierMutation,
+} = supplierApi;

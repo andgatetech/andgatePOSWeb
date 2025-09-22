@@ -14,7 +14,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, Package, Receipt, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, Package, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -37,6 +37,7 @@ const adminRoutes = [
             { label: 'Store', href: '/apps/store' },
             { label: 'Settings', href: '/apps/store/StoreSetting' },
             { label: 'Staff Management', href: '/apps/Staff' },
+            { label: 'Adjustment Type', href: '/apps/create-adjustment' },
         ],
     },
     {
@@ -50,7 +51,8 @@ const adminRoutes = [
         subMenu: [
             { label: 'Create Product', href: '/apps/createProduct' },
             { label: 'Product List', href: '/apps/products' },
-            { label: 'Generate Product QrCode', href: '/apps/qr-code' },
+            { label: 'Stock Adjustment', href: '/apps/stock/create-stock-adjustment' },
+            { label: 'Product QrCode', href: '/apps/qr-code' },
         ],
     },
     {
@@ -64,11 +66,11 @@ const adminRoutes = [
         subMenu: [{ label: 'Order List', href: '/apps/OrderView' }],
     },
     {
-        label: 'Purchase',
+        label: 'Supplier',
         icon: <Package />,
         subMenu: [
-            { label: 'Create Purchase', href: '/apps/createPurchase' },
-            { label: 'Purchase List', href: '/apps/Purchase' },
+            { label: 'Create Supplier', href: '/apps/suppliers/create-supplier' },
+            { label: 'Supplier List', href: '/apps/suppliers' },
         ],
     },
     {
@@ -95,17 +97,6 @@ const adminRoutes = [
         subMenu: [{ label: 'Customer List', href: '/apps/customer' }],
     },
     {
-        label: 'Stock',
-        icon: <Receipt />,
-        subMenu: [
-            { label: 'Create Stock Adjustment', href: '/apps/stock/create-stock-adjustment' },
-            { label: 'Stock Adjustment List', href: '/apps/stock/stock-adjustment-list' },
-            { label: 'Stock Report', href: '/apps/stock/stock-report' },
-            { label: 'Adjustment Type', href: '/apps/stock/adjustment-type' },
-        ],
-    },
-
-    {
         label: 'Report',
         icon: <BarChart />,
         subMenu: [
@@ -114,8 +105,10 @@ const adminRoutes = [
             { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
             { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
             // { label: 'Stock Report ', href: '/apps/stock-report/stock' },
-            { label: 'Stock Report', href: '/apps/stock-report/stock' },
+            // { label: 'Stock Report', href: '/apps/stock-report/stock' },
             { label: 'Tax Report', href: '/apps/TaxReport' },
+            { label: 'Stock Adjustment List', href: '/apps/stock/stock-adjustment-list' },
+            { label: 'Stock Report', href: '/apps/stock/stock-report' },
         ],
     },
 ];
