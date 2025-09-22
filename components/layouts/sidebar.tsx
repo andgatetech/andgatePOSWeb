@@ -14,7 +14,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, Package, ShoppingBag, ShoppingCart, Users } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, Package, Receipt, ShoppingBag, ShoppingCart, Truck, Users, Wallet } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -67,20 +67,15 @@ const adminRoutes = [
     },
     {
         label: 'Supplier',
-        icon: <Package />,
+        icon: <Truck />,
         subMenu: [
             { label: 'Create Supplier', href: '/apps/suppliers/create-supplier' },
             { label: 'Supplier List', href: '/apps/suppliers' },
         ],
     },
     {
-        label: 'Supplier',
-        icon: <Users />,
-        subMenu: [{ label: 'Supplier Management', href: '/apps/Supplier' }],
-    },
-    {
         label: 'Account',
-        icon: <Users />,
+        icon: <Wallet />,
         subMenu: [
             { label: 'Ledger List', href: '/apps/account/ledger-list' },
             { label: 'Journal List', href: '/apps/account/journal-list' },
@@ -88,7 +83,7 @@ const adminRoutes = [
     },
     {
         label: 'Expenses',
-        icon: <Users />,
+        icon: <Receipt />,
         subMenu: [{ label: 'Expenses List', href: '/apps/expenses/expense-list' }],
     },
     {
