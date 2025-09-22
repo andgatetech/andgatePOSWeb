@@ -14,7 +14,7 @@ import { login } from '@/store/features/auth/authSlice';
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
     const dispatch = useDispatch();
-    
+
     const [loginApi, { isLoading }] = useLoginMutation();
 
     const [credentials, setCredentials] = useState<{ email: string; password: string }>({
@@ -50,7 +50,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             const result = await loginApi(credentials).unwrap();
 
             // API should return: { user: {...store, subscription_user}, token }
-            const { user, token } = result.data;
+            console.log('Login successful:', result);
+            const { user, token } = result;
 
             // Save token + role in cookies
             document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
