@@ -65,11 +65,11 @@ const adminRoutes = [
         subMenu: [{ label: 'Order List', href: '/apps/OrderView' }],
     },
     {
-        label: 'Purchase',
+        label: 'Supplier',
         icon: <Package />,
         subMenu: [
-            { label: 'Create Purchase', href: '/apps/createPurchase' },
-            { label: 'Purchase List', href: '/apps/Purchase' },
+            { label: 'Create Supplier', href: '/apps/suppliers/create-supplier' },
+            { label: 'Supplier List', href: '/apps/suppliers' },
         ],
     },
     {
