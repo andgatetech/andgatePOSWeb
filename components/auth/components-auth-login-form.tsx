@@ -47,11 +47,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            const result = await loginApi(credentials).unwrap();
-
-            // API should return: { user: {...store, subscription_user}, token }
-            console.log('Login successful:', result);
-            const { user, token } = result;
+           const result = await loginApi(credentials).unwrap();
+           const { user, token } = result.data;
 
             // Save token + role in cookies
             document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;

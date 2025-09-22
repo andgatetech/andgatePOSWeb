@@ -173,7 +173,7 @@ const IdleInventoryReport = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">Inventory Value</p>
-                            <p className="text-2xl font-bold text-gray-900">${summaryMetrics.totalInventoryValue}</p>
+                            <p className="text-2xl font-bold text-gray-900">৳{summaryMetrics.totalInventoryValue}</p>
                         </div>
                         <div className="rounded-lg bg-blue-100 p-3">
                             <DollarSign className="text-blue-600" size={24} />
@@ -186,7 +186,7 @@ const IdleInventoryReport = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">Revenue Impact</p>
-                            <p className="text-2xl font-bold text-red-600">${summaryMetrics.totalRevenueLost}</p>
+                            <p className="text-2xl font-bold text-red-600">৳{summaryMetrics.totalRevenueLost}</p>
                         </div>
                         <div className="rounded-lg bg-red-100 p-3">
                             <TrendingDown className="text-red-600" size={24} />
@@ -207,7 +207,7 @@ const IdleInventoryReport = () => {
                                 <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
                                 <YAxis tick={{ fontSize: 12 }} />
                                 <Tooltip
-                                    formatter={(value, name) => [name === 'stock' ? `${value} units` : `$${value}`, name === 'stock' ? 'Stock Quantity' : 'Inventory Value']}
+                                    formatter={(value, name) => [name === 'stock' ? `${value} units` : `৳${value}`, name === 'stock' ? 'Stock Quantity' : 'Inventory Value']}
                                     labelFormatter={(label) => `Product: ${label}`}
                                 />
                                 <Bar dataKey="stock" fill="#f59e0b" radius={[4, 4, 0, 0]} name="stock" />
@@ -276,7 +276,7 @@ const IdleInventoryReport = () => {
                                             </span>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{product.lastSoldDate}</td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">${product.price}</td>
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">৳{product.price}</td>
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <span
                                                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -286,7 +286,7 @@ const IdleInventoryReport = () => {
                                                 {product.available === 'yes' ? 'Available' : 'Unavailable'}
                                             </span>
                                         </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-red-600">-${product.revenueLost}</td>
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-red-600">-৳{product.revenueLost}</td>
                                     </tr>
                                 ))}
                             </tbody>
