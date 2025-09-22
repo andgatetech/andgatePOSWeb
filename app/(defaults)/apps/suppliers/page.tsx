@@ -1,5 +1,6 @@
 'use client';
 
+import { useAllStoresQuery } from '@/store/features/store/storeApi';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Edit, Filter, MoreVertical, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
@@ -30,14 +31,40 @@ const SuppliersPage = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+    // New state for selected store
+    const [selectedStore, setSelectedStore] = useState('');
 
     // API hooks
-    const { data: suppliersResponse, isLoading, error, refetch } = useGetSuppliersQuery();
+    const {
+        data: suppliersResponse,
+        isLoading,
+        error,
+        refetch,
+    } = useGetSuppliersQuery({
+        search: searchTerm,
+        store_id: selectedStore,
+    });
     const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
-    const suppliers: Supplier[] = suppliersResponse?.data || [];
+    const suppliers: Supplier[] = suppliersResponse?.data?.data || [];
+
+    // API hook for all stores
+    const { data: storesResponse } = useAllStoresQuery();
+    const stores = storesResponse?.data || [];
 
     // Filter suppliers based on search term and status
+    // const filteredSuppliers = useMemo(() => {
+    //     return suppliers.filter((supplier) => {
+    //         const matchesSearch =
+    //             supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
+
+    //         const matchesStatus = !statusFilter || supplier.status === statusFilter;
+
+    //         return matchesSearch && matchesStatus;
+    //     });
+    // }, [suppliers, searchTerm, statusFilter]);
+
+    // Update filteredSuppliers to include store filter
     const filteredSuppliers = useMemo(() => {
         return suppliers.filter((supplier) => {
             const matchesSearch =
@@ -45,9 +72,11 @@ const SuppliersPage = () => {
 
             const matchesStatus = !statusFilter || supplier.status === statusFilter;
 
-            return matchesSearch && matchesStatus;
+            const matchesStore = !selectedStore || supplier.store_id === Number(selectedStore);
+
+            return matchesSearch && matchesStatus && matchesStore;
         });
-    }, [suppliers, searchTerm, statusFilter]);
+    }, [suppliers, searchTerm, statusFilter, selectedStore]);
 
     // Handle delete supplier with SweetAlert2 and react-toastify
     const handleDeleteSupplier = async (supplier: Supplier) => {
@@ -110,12 +139,20 @@ const SuppliersPage = () => {
     };
 
     // Count active filters
+    // const activeFiltersCount = useMemo(() => {
+    //     let count = 0;
+    //     if (searchTerm) count++;
+    //     if (statusFilter) count++;
+    //     return count;
+    // }, [searchTerm, statusFilter]);
+
     const activeFiltersCount = useMemo(() => {
         let count = 0;
         if (searchTerm) count++;
         if (statusFilter) count++;
+        if (selectedStore) count++;
         return count;
-    }, [searchTerm, statusFilter]);
+    }, [searchTerm, statusFilter, selectedStore]);
 
     if (error) {
         return (
@@ -201,9 +238,45 @@ const SuppliersPage = () => {
                     </div>
 
                     {/* Advanced Filters */}
+                    {/* {showFilters && (
+                        <div className="border-t pt-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
+                                    <select
+                                        value={statusFilter}
+                                        onChange={(e) => setStatusFilter(e.target.value)}
+                                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">All Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )} */}
+
                     {showFilters && (
                         <div className="border-t pt-4">
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">Store</label>
+                                    <select
+                                        value={selectedStore}
+                                        onChange={(e) => setSelectedStore(e.target.value)}
+                                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">All Stores</option>
+                                        {stores.map((store) => (
+                                            <option key={store.id} value={store.id}>
+                                                {store.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Existing Status Filter */}
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
                                     <select

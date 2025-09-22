@@ -17,9 +17,10 @@ const supplierApi = baseApi.injectEndpoints({
             }),
         }),
         getSuppliers: builder.query({
-            query: () => ({
+            query: (params) => ({
                 url: '/suppliers',
                 method: 'GET',
+                params,
             }),
         }),
         getSingleSupplier: builder.query({
