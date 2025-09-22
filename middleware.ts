@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
     const role = request.cookies.get('role')?.value; // must be set as a cookie at login
     const { pathname } = request.nextUrl;
 
-    const publicRoutes = ['/', '/login', '/register'];
+    const publicRoutes = ['/', '/login', '/register', '/privacy-policy', '/terms-of-service', '/cookie-policy', '/training'];
 
     // Allow public routes
     if (publicRoutes.includes(pathname)) {
@@ -37,7 +37,12 @@ export function middleware(request: NextRequest) {
 
     // ✅ Staff allowed areas
     if (role === 'staff') {
-        const staffAllowed = pathname.startsWith('/apps/products') || pathname.startsWith('/apps/Purchase') || pathname.startsWith('/apps/createPurchase') || pathname.startsWith('/apps/pos') || pathname.startsWith('/apps/OrderView'); // optional: allow staff to create purchase
+        const staffAllowed =
+            pathname.startsWith('/apps/products') ||
+            pathname.startsWith('/apps/Purchase') ||
+            pathname.startsWith('/apps/createPurchase') ||
+            pathname.startsWith('/apps/pos') ||
+            pathname.startsWith('/apps/OrderView'); // optional: allow staff to create purchase
 
         if (staffAllowed) {
             return NextResponse.next();

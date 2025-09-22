@@ -13,10 +13,10 @@ const tiers = [
 
         id: 'tier-Free',
         href: '#',
-        price: { monthly: '৳29', annually: '৳279' },
-        originalPrice: { annually: '৳348' },
+        price: { monthly: '৳0', annually: '৳0' },
+        originalPrice: { annually: '৳3600' },
         description: 'Perfect for small businesses and startups getting started with POS.',
-        features: ['Up to 2 registers', '1,000 products', 'Basic inventory management', 'Payment processing', 'Email support', 'Basic reporting'],
+        features: ['Up to 1 Store', '50 products', 'Basic Inventory Management', 'Basic Accounting', 'Basic Reporting', 'Basic Support'],
         mostPopular: false,
         icon: Building2,
         color: 'slate',
@@ -27,17 +27,17 @@ const tiers = [
         id: 'tier-SME',
 
         href: '#',
-        price: { monthly: '৳59', annually: '৳567' },
-        originalPrice: { annually: '৳708' },
+        price: { monthly: '৳500', annually: '৳4800' },
+        originalPrice: { annually: '৳6000' },
         description: 'Advanced features for growing businesses that need more control.',
         features: [
-            'Up to 5 registers',
-            'Unlimited products',
-            'Advanced inventory management',
-            'Multi-payment processing',
+            'Up to 1 Store',
+            '200 products',
+            'Advanced Inventory Management',
+            'Advance Accounting',
             'Priority support',
-            'Advanced analytics',
-            'Customer management',
+            'Advanced Analytics',
+            'Customer Management',
             'Staff management',
         ],
         mostPopular: true,
@@ -48,19 +48,22 @@ const tiers = [
         name: 'Enterprise',
         id: 'tier-enterprise',
         href: '#',
-        price: { monthly: '৳99', annually: '৳949' },
-        originalPrice: { annually: '৳1188' },
+        price: { monthly: '৳2000', annually: '৳19200' },
+        originalPrice: { annually: '৳24000' },
         description: 'Complete solution for large businesses with multiple locations.',
         features: [
-            'Unlimited registers',
-            'Unlimited products',
+            'Unlimited Stores',
+            'Unlimited Products',
             'Multi-location support',
+            'Advanced Inventory Management',
+            'Advanced Accounting',
+            'Advanced Anlytics',
+            'Custom reporting',
             'Custom integrations',
             '24/7 phone support',
-            'Custom reporting',
             'API access',
-            'Dedicated account manager',
-            'Training & onboarding',
+            'Priority Support',
+            'Training & Onboarding',
         ],
         mostPopular: false,
         icon: Zap,
@@ -207,7 +210,7 @@ export default function PriceSection({ id }) {
                 {/* Bottom CTA */}
                 <div className="mt-16 text-center">
                     <p className="mb-6 text-gray-600">Need a custom solution? We offer tailored plans for large enterprises.</p>
-                    <button className="inline-flex items-center rounded-lg bg-gray-900 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-800">Contact Sales</button>
+                    <a href="/contact" className="inline-flex items-center rounded-lg bg-gray-900 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-800">Contact Sales</a>
                 </div>
             </div>
         </div>
