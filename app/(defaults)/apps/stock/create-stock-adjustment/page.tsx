@@ -3,38 +3,8 @@ import { useGetAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adju
 import { useCreateStockAdjustmentMutation } from '@/store/features/StockAdjustment/stockAdjustmentApi';
 import { useAllStoresQuery } from '@/store/features/store/storeApi';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
-import { Calendar, Minus, Plus, Save, Search, X } from 'lucide-react';
+import { Minus, Plus, Save, Search, X } from 'lucide-react';
 import { useState } from 'react';
-
-// Mock RTK Query hooks (replace with your actual hooks)
-// const useAllStoresQuery = () => ({
-//     data: [
-//         { id: 1, name: 'Main Store', location: 'Downtown' },
-//         { id: 2, name: 'Branch Store', location: 'Uptown' },
-//         { id: 3, name: 'Warehouse', location: 'Industrial Area' },
-//     ],
-//     isLoading: false,
-//     error: null,
-// });
-
-// const useGetAllProductsQuery = (filters) => ({
-//     data: [
-//         { id: 1, product_name: 'Celeron Silver N5030 15.6"', sku: 'AP-000002', quantity: 18, price: 599.99 },
-//         { id: 2, product_name: 'Pentium Silver N5030 15.6"', sku: 'AP-000001', quantity: 17, price: 699.99 },
-//         { id: 3, product_name: 'Intel Core i5 Laptop', sku: 'AP-000003', quantity: 25, price: 899.99 },
-//         { id: 4, product_name: 'AMD Ryzen 5 Desktop', sku: 'AP-000004', quantity: 12, price: 799.99 },
-//     ].filter((product) => !filters?.store_id || product.store_id === filters.store_id),
-//     isLoading: false,
-//     error: null,
-// });
-
-// const useCreateStockAdjustmentMutation = () => [
-//     (data) => {
-//         console.log('Creating stock adjustment:', data);
-//         return Promise.resolve({ data: { message: 'Success' } });
-//     },
-//     { isLoading: false, error: null },
-// ];
 
 // Store Selection Component
 const StoreSelector = ({ selectedStore, onStoreChange, stores, isLoading }) => (
@@ -147,6 +117,7 @@ const QuantityControl = ({ quantity, onQuantityChange, min = 1 }) => (
 const SelectedProductsTable = ({ selectedProducts, onUpdateProduct, onRemoveProduct }) => {
     const { data: ads_type } = useGetAdjustmentTypesQuery();
     const adjustmentTypes = ads_type?.adjustment_types || [];
+    // console.log(adjustmentTypes);
     if (selectedProducts.length === 0) {
         return (
             <div className="rounded-lg border bg-white p-6 shadow-sm">
@@ -180,12 +151,12 @@ const SelectedProductsTable = ({ selectedProducts, onUpdateProduct, onRemoveProd
                                 <td className="p-3 font-mono text-sm">{product.sku}</td>
                                 <td className="p-3">{product.product_name}</td>
                                 <td className="p-3">
-                                    <span className="rounded bg-yellow-100 px-2 py-1 text-sm text-yellow-800">{product.quantity}</span>
+                                    <span className="rounded bg-yellow-100 px-2 py-1 text-sm text-yellow-800">{Number(product.in_stock.quantity)}</span>
                                 </td>
                                 <td className="p-3">
                                     <select
-                                        value={product.adjustment_type_id || ''}
-                                        onChange={(e) => onUpdateProduct(product.id, 'adjustment_type_id', e.target.value)}
+                                        value={product.product_stock_type_id || ''}
+                                        onChange={(e) => onUpdateProduct(product.id, 'product_stock_type_id', parseInt(e.target.value))}
                                         className="rounded border border-gray-300 px-2 py-1 text-sm"
                                     >
                                         <option value="" disabled>
@@ -285,6 +256,7 @@ const AdjustmentForm = ({ formData, onFormChange, onSubmit, onCancel, isSubmitti
 const StockAdjustmentPage = () => {
     const [selectedStore, setSelectedStore] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
+    // console.log(selectedProducts);
     const [formData, setFormData] = useState({
         reason: '',
         date: new Date().toISOString().split('T')[0],
@@ -298,6 +270,7 @@ const StockAdjustmentPage = () => {
     const [createStockAdjustment, { isLoading: isSubmitting }] = useCreateStockAdjustmentMutation();
     const stores = st?.data || [];
     const products = pd?.data || [];
+    // console.log(products);
     const selectedProductIds = selectedProducts.map((p) => p.id);
 
     const handleAddProduct = (product) => {
@@ -307,7 +280,7 @@ const StockAdjustmentPage = () => {
                 ...product,
                 direction: 'increase',
                 adjustedQuantity: 1,
-                adjustment_type_id: 1, // Default adjustment type
+                product_stock_type_id: '',
             },
         ]);
     };
@@ -336,7 +309,7 @@ const StockAdjustmentPage = () => {
                 product_id: product.id,
                 adjusted_stock: product.adjustedQuantity,
                 direction: product.direction,
-                adjustment_type_id: product.adjustment_type_id,
+                product_stock_type_id: product.product_stock_type_id,
             })),
             reference_no: `ADJ-${Date.now()}`,
             reason: formData.reason,
