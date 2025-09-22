@@ -3,9 +3,11 @@
 import ComponentsAuthRegisterForm from '@/components/auth/components-auth-register-form';
 import IconGoogle from '@/components/icon/icon-google';
 import MainLayout from '@/components/layout/MainLayout';
+import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import Footer from '../terms-of-service/Footer';
 
 const CoverRegister = () => {
     const [activeTab, setActiveTab] = useState<'register' | 'supplier'>('register');
@@ -26,9 +28,9 @@ const CoverRegister = () => {
                         <div className="relative hidden w-full items-center justify-center bg-[linear-gradient(225deg,rgba(239,18,98,1)_0%,rgba(67,97,238,1)_100%)] p-5 lg:inline-flex lg:max-w-[835px] xl:-ms-28 ltr:xl:skew-x-[14deg] rtl:xl:skew-x-[-14deg]">
                             <div className="absolute inset-y-0 w-8 from-primary/10 via-transparent to-transparent xl:w-16 ltr:-right-10 ltr:bg-gradient-to-r ltr:xl:-right-20 rtl:-left-10 rtl:bg-gradient-to-l rtl:xl:-left-20"></div>
                             <div className="ltr:xl:-skew-x-[14deg] rtl:xl:skew-x-[14deg]">
-                                <Link href="/" className="ms-10 block w-48 lg:w-72">
+                                {/* <Link href="/" className="ms-10 block w-48 lg:w-72">
                                     <Image src="/assets/images/auth/logo-white.svg" width={430} height={430} alt="Logo" className="w-full" />
-                                </Link>
+                                </Link> */}
                                 <div className="mt-24 hidden w-full max-w-[430px] lg:block">
                                     <Image src="/assets/images/auth/register.svg" width={430} height={430} alt="Cover Image" className="w-full" />
                                 </div>
@@ -64,7 +66,7 @@ const CoverRegister = () => {
                                     <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
                                     <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">or</span>
                                 </div>
-                                <div className="mb-10 md:mb-[60px]">
+                                {/* <div className="mb-10 md:mb-[60px]">
                                     <ul className="flex justify-center gap-3.5 text-white">
                                         <li>
                                             <Link
@@ -76,7 +78,7 @@ const CoverRegister = () => {
                                             </Link>
                                         </li>
                                     </ul>
-                                </div>
+                                </div> */}
                                 <div className="text-center dark:text-white">
                                     Already have an account ?&nbsp;
                                     <Link href="/login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
@@ -84,10 +86,11 @@ const CoverRegister = () => {
                                     </Link>
                                 </div>
                             </div>
-                            <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()}.andGatePOS All Rights Reserved.</p>
                         </div>
                     </div>
                 </div>
+                {/* Footer */}
+                
             </div>
         </MainLayout>
     );
