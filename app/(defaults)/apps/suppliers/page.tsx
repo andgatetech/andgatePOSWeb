@@ -4,7 +4,7 @@ import { useAllStoresQuery } from '@/store/features/store/storeApi';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Edit, Filter, MoreVertical, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
@@ -21,8 +21,14 @@ interface Supplier {
     phone: string;
     address: string;
     status: 'active' | 'inactive';
+    store_id?: number;
     created_at: string;
     updated_at: string;
+}
+
+interface Store {
+    id: number;
+    name: string;
 }
 
 const SuppliersPage = () => {
@@ -31,8 +37,10 @@ const SuppliersPage = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-    // New state for selected store
     const [selectedStore, setSelectedStore] = useState('');
+
+    // Ref for dropdown handling
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     // API hooks
     const {
@@ -50,28 +58,29 @@ const SuppliersPage = () => {
 
     // API hook for all stores
     const { data: storesResponse } = useAllStoresQuery();
-    const stores = storesResponse?.data || [];
+    const stores: Store[] = storesResponse?.data || [];
 
-    // Filter suppliers based on search term and status
-    // const filteredSuppliers = useMemo(() => {
-    //     return suppliers.filter((supplier) => {
-    //         const matchesSearch =
-    //             supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenDropdown(null);
+            }
+        };
 
-    //         const matchesStatus = !statusFilter || supplier.status === statusFilter;
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
-    //         return matchesSearch && matchesStatus;
-    //     });
-    // }, [suppliers, searchTerm, statusFilter]);
-
-    // Update filteredSuppliers to include store filter
+    // Filter suppliers based on search term, status, and store
     const filteredSuppliers = useMemo(() => {
         return suppliers.filter((supplier) => {
             const matchesSearch =
                 supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
 
             const matchesStatus = !statusFilter || supplier.status === statusFilter;
-
             const matchesStore = !selectedStore || supplier.store_id === Number(selectedStore);
 
             return matchesSearch && matchesStatus && matchesStore;
@@ -136,16 +145,10 @@ const SuppliersPage = () => {
     const clearFilters = () => {
         setSearchTerm('');
         setStatusFilter('');
+        setSelectedStore('');
     };
 
     // Count active filters
-    // const activeFiltersCount = useMemo(() => {
-    //     let count = 0;
-    //     if (searchTerm) count++;
-    //     if (statusFilter) count++;
-    //     return count;
-    // }, [searchTerm, statusFilter]);
-
     const activeFiltersCount = useMemo(() => {
         let count = 0;
         if (searchTerm) count++;
@@ -238,25 +241,6 @@ const SuppliersPage = () => {
                     </div>
 
                     {/* Advanced Filters */}
-                    {/* {showFilters && (
-                        <div className="border-t pt-4">
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
-                                    <select
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">All Status</option>
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    )} */}
-
                     {showFilters && (
                         <div className="border-t pt-4">
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -269,14 +253,14 @@ const SuppliersPage = () => {
                                     >
                                         <option value="">All Stores</option>
                                         {stores.map((store) => (
-                                            <option key={store.id} value={store.id}>
+                                            <option key={store.id} value={store.id.toString()}>
                                                 {store.name}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
 
-                                {/* Existing Status Filter */}
+                                {/* Status Filter */}
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
                                     <select
@@ -313,6 +297,14 @@ const SuppliersPage = () => {
                                 </button>
                             </span>
                         )}
+                        {selectedStore && (
+                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+                                Store: {stores.find((s) => s.id.toString() === selectedStore)?.name || selectedStore}
+                                <button onClick={() => setSelectedStore('')} className="ml-2 text-blue-600 hover:text-blue-800">
+                                    <X className="h-3 w-3" />
+                                </button>
+                            </span>
+                        )}
                     </div>
                 )}
 
@@ -338,7 +330,7 @@ const SuppliersPage = () => {
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {isLoading ? (
                                     Array.from({ length: 5 }).map((_, index) => (
-                                        <tr key={index} className="animate-pulse">
+                                        <tr key={`loading-${index}`} className="animate-pulse">
                                             <td className="px-6 py-4">
                                                 <div className="h-4 w-32 rounded bg-gray-200"></div>
                                             </td>
@@ -372,7 +364,7 @@ const SuppliersPage = () => {
                                                     </button>
                                                 ) : (
                                                     <Link
-                                                        href="/apps/suppliers/create"
+                                                        href="/apps/suppliers/create-supplier"
                                                         className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                                                     >
                                                         <Plus className="mr-2 h-4 w-4" />
@@ -408,7 +400,7 @@ const SuppliersPage = () => {
                                             </td>
                                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{new Date(supplier.created_at).toLocaleDateString()}</td>
                                             <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                                <div className="relative">
+                                                <div className="relative" ref={dropdownRef}>
                                                     <button
                                                         onClick={() => setOpenDropdown(openDropdown === supplier.id ? null : supplier.id)}
                                                         className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
@@ -451,9 +443,6 @@ const SuppliersPage = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Click outside to close dropdown */}
-            {openDropdown && <div className="fixed inset-0 z-0" onClick={() => setOpenDropdown(null)} />}
         </div>
     );
 };

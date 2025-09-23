@@ -22,12 +22,14 @@ const supplierApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params,
             }),
+            providesTags: ['Suppliers'],
         }),
         getSingleSupplier: builder.query({
             query: (id) => ({
                 url: `/suppliers/${id}`,
                 method: 'GET',
             }),
+            providesTags: ['Suppliers'],
         }),
         getSupplierPurchase: builder.query({
             query: () => ({
