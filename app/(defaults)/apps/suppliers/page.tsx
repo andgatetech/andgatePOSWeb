@@ -180,7 +180,7 @@ const SuppliersPage = () => {
                             <p className="mt-1 text-gray-600">Manage your suppliers and their information</p>
                         </div>
                         <Link
-                            href="/apps/suppliers/create"
+                            href="/apps/suppliers/create-supplier"
                             className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <Plus className="mr-2 h-4 w-4" />
