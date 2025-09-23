@@ -5,31 +5,8 @@ import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierA
 import { Mail, MapPin, Phone, Store, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'react-toastify';
-
-// Toast function for notifications
-const showToast = (message: string, type: 'success' | 'error') => {
-    if (type === 'success') toast.success(message);
-    else toast.error(message);
-};
-
-// SweetAlert function for modals
-// const showSweetAlert = async (config: any) => {
-//     return await Swal.fire(config);
-// };
-
-const showSweetAlert = async (config: any) => {
-    if (typeof window !== 'undefined') {
-        const Swal = (await import('sweetalert2')).default;
-        // run inside next tick so hydration finishes
-        return new Promise((resolve) => {
-            setTimeout(async () => {
-                const result = await Swal.fire(config);
-                resolve(result);
-            }, 0);
-        });
-    }
-};
 
 interface SupplierFormData {
     name: string;
@@ -40,11 +17,62 @@ interface SupplierFormData {
     store_id: string;
 }
 
+interface Store {
+    id: number;
+    store_name: string;
+}
+
+interface SuccessModalProps {
+    onAction: (action: 'list' | 'create') => void;
+}
+
+const SuccessModal = ({ onAction }: SuccessModalProps) => {
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => onAction('create')}></div>
+            <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+                <div className="text-center">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                        <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div className="mt-3">
+                        <h3 className="text-lg font-medium text-gray-900">Success!</h3>
+                        <div className="mt-2">
+                            <p className="text-sm text-gray-500">Supplier has been created successfully</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                    <button
+                        type="button"
+                        className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:col-start-2"
+                        onClick={() => onAction('list')}
+                    >
+                        Go to Suppliers
+                    </button>
+                    <button
+                        type="button"
+                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+                        onClick={() => onAction('create')}
+                    >
+                        Create Another
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
 const CreateSupplierPage = () => {
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-    // RTK Query hooks
     const [registerSupplier, { isLoading: createLoading }] = useRegisterSupplierMutation();
     const { data: storesData, isLoading: storesLoading, error: storesError } = useAllStoresQuery();
 
@@ -59,58 +87,43 @@ const CreateSupplierPage = () => {
 
     const [errors, setErrors] = useState<Partial<SupplierFormData>>({});
 
-    // Ensure client-side rendering
     useEffect(() => {
         setIsClient(true);
     }, []);
 
+    const showToast = (message: string, type: 'success' | 'error') => {
+        if (typeof window !== 'undefined') {
+            try {
+                type === 'success' ? toast.success(message) : toast.error(message);
+            } catch {
+                alert(message);
+            }
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-
-        // Clear error when user starts typing
-        if (errors[name as keyof SupplierFormData]) {
-            setErrors((prev) => ({ ...prev, [name]: '' }));
-        }
+        if (errors[name as keyof SupplierFormData]) setErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
     const validateForm = (): boolean => {
         const newErrors: Partial<SupplierFormData> = {};
+        if (!formData.name.trim()) newErrors.name = 'Supplier name is required';
+        else if (formData.name.trim().length < 2) newErrors.name = 'Name must be at least 2 characters';
 
-        // Name validation
-        if (!formData.name.trim()) {
-            newErrors.name = 'Supplier name is required';
-        } else if (formData.name.trim().length < 2) {
-            newErrors.name = 'Name must be at least 2 characters';
-        }
-
-        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email.trim()) {
-            newErrors.email = 'Email is required';
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address';
-        }
+        if (!formData.email.trim()) newErrors.email = 'Email is required';
+        else if (!emailRegex.test(formData.email)) newErrors.email = 'Please enter a valid email address';
 
-        // Phone validation
         const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-        } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Please enter a valid phone number';
-        }
+        if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+        else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) newErrors.phone = 'Please enter a valid phone number';
 
-        // Address validation
-        if (!formData.address.trim()) {
-            newErrors.address = 'Address is required';
-        } else if (formData.address.trim().length < 10) {
-            newErrors.address = 'Address must be at least 10 characters';
-        }
+        if (!formData.address.trim()) newErrors.address = 'Address is required';
+        else if (formData.address.trim().length < 10) newErrors.address = 'Address must be at least 10 characters';
 
-        // Store validation
-        if (!formData.store_id) {
-            newErrors.store_id = 'Please select a store';
-        }
+        if (!formData.store_id) newErrors.store_id = 'Please select a store';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -123,104 +136,36 @@ const CreateSupplierPage = () => {
         }
 
         try {
-            const submitData = {
+            await registerSupplier({
+                ...formData,
                 name: formData.name.trim(),
                 email: formData.email.trim().toLowerCase(),
                 phone: formData.phone.trim(),
                 address: formData.address.trim(),
-                status: formData.status,
-                store_id: parseInt(formData.store_id), // Convert to number as per schema
-            };
+                store_id: parseInt(formData.store_id),
+            }).unwrap();
 
-            const result = await registerSupplier(submitData).unwrap();
+            showToast('Supplier created successfully!', 'success');
 
-            // Reset form
-            setFormData({
-                name: '',
-                email: '',
-                phone: '',
-                address: '',
-                status: 'active',
-                store_id: '',
-            });
+            setFormData({ name: '', email: '', phone: '', address: '', status: 'active', store_id: '' });
             setErrors({});
 
-            // Success modal
-            const response = await showSweetAlert({
-                title: 'Success!',
-                text: 'Supplier has been created successfully',
-                icon: 'success',
-                confirmButtonText: 'Go to Suppliers',
-                showCancelButton: true,
-                cancelButtonText: 'Create Another',
-            });
-
-            // if (typeof window !== 'undefined') {
-            //     const Swal = (await import('sweetalert2')).default;
-            //     const response = await Swal.fire({
-            //         title: 'Success!',
-            //         text: 'Supplier has been created successfully',
-            //         icon: 'success',
-            //         confirmButtonText: 'Go to Suppliers',
-            //         showCancelButton: true,
-            //         cancelButtonText: 'Create Another',
-            //     });
-            // }
-
-            if (response.isConfirmed) {
-                router.push('/apps/suppliers');
-            }
+            if (isClient) setShowSuccessModal(true);
         } catch (error: any) {
-            console.error('Create supplier failed', error);
-            const errorMessage = error?.data?.message || 'Something went wrong while creating the supplier';
-
-            await showSweetAlert({
-                title: 'Error!',
-                text: errorMessage,
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-            });
+            const errorMessage = error?.data?.message || 'Something went wrong';
+            showToast(errorMessage, 'error');
         }
     };
 
-    // Handle stores loading state
-    if (!isClient || storesLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-                <div className="mx-auto max-w-4xl">
-                    <div className="flex items-center justify-center py-12">
-                        <div className="flex items-center gap-2 text-gray-600">
-                            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                ></path>
-                            </svg>
-                            Loading...
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const handleModalAction = (action: 'list' | 'create') => {
+        setShowSuccessModal(false);
+        if (action === 'list') router.push('/apps/suppliers');
+    };
 
-    // Handle stores error state
-    if (storesError) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-                <div className="mx-auto max-w-4xl">
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
-                        <div className="text-red-800">
-                            <p className="font-medium">Error loading stores</p>
-                            <p className="mt-1 text-sm">Please refresh the page and try again.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    if (!isClient || storesLoading) return <div>Loading...</div>;
+    if (storesError) return <div>Error loading stores</div>;
+
+    const stores: Store[] = storesData?.data || [];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -326,8 +271,8 @@ const CreateSupplierPage = () => {
                                                 }`}
                                             >
                                                 <option value="">Select a store</option>
-                                                {storesData?.data?.map((store: any) => (
-                                                    <option key={store.id} value={store.id}>
+                                                {stores.map((store) => (
+                                                    <option key={store.id} value={store.id.toString()}>
                                                         {store.store_name}
                                                     </option>
                                                 ))}
@@ -343,7 +288,7 @@ const CreateSupplierPage = () => {
                                             </div>
                                         </div>
                                         {errors.store_id && <p className="mt-1 text-sm text-red-600">{errors.store_id}</p>}
-                                        <p className="mt-1 text-sm text-gray-500">Total stores available: {storesData?.data?.length || 0}</p>
+                                        <p className="mt-1 text-sm text-gray-500">Total stores available: {stores.length}</p>
                                     </div>
 
                                     {/* Status */}
@@ -450,6 +395,9 @@ const CreateSupplierPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Render Success Modal */}
+            {showSuccessModal && <SuccessModal onAction={handleModalAction} />}
         </div>
     );
 };
