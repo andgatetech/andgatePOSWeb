@@ -203,11 +203,13 @@ export default function HomePage() {
                                 color: 'from-yellow-500 to-yellow-600',
                             },
                         ].map((feature, index) => (
-                            <div key={index} className="group">
-                                <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl group-hover:scale-105">
-                                    <div className={`inline-flex rounded-xl bg-gradient-to-r p-4 ${feature.color} mb-6 text-white transition-transform group-hover:scale-110`}>{feature.icon}</div>
+                            <div key={index} className="group flex">
+                                <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl group-hover:scale-105 flex-1">
+                                    <div className={`inline-flex rounded-xl bg-gradient-to-r p-4 ${feature.color} mb-6 text-white transition-transform group-hover:scale-110`}>
+                                    {feature.icon}
+                                    </div>
                                     <h3 className="mb-4 text-xl font-bold text-gray-900">{feature.title}</h3>
-                                    <p className="leading-relaxed text-gray-600">{feature.description}</p>
+                                    <p className="leading-relaxed text-gray-600 mt-auto">{feature.description}</p>
                                 </div>
                             </div>
                         ))}
