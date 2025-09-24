@@ -51,17 +51,20 @@ export default function HomePage() {
                             Upcoming: AI-Powered Sales Analytics
                         </div>
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
-                            The Future of<span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
+                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">POS Software</span>            
+                        </h1>
+                        <h1 className="mb-8 text-3xl font-black leading-tight text-gray-900 md:text-4xl">
+                            Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock, and Customers Easily            
                         </h1>
                         <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-600 md:text-2xl">
-                            Transform your business with our cutting-edge POS system. Streamline operations, boost sales, and delight customers with lightning-fast transactions and powerful analytics.
+                            From small shops to growing businesses, our cloud-based POS helps you track sales, control inventory, and grow profits — anytime, anywhere.
                         </p>
                         <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
                             <Link
                                 href="/register"
                                 className="group flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl"
                             >
-                                Get Started
+                                Get Started Free
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Link>
                             {/* <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
@@ -73,7 +76,7 @@ export default function HomePage() {
                         </div>
                         <div className="mt-12 flex items-center justify-center text-sm text-gray-500">
                             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            No pre payment required <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
+                            No pre payment required  <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available  <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
                         </div>
                     </div>
                 </div>
@@ -89,7 +92,7 @@ export default function HomePage() {
                     <div className="grid gap-8 text-center md:grid-cols-4">
                         {[
                             { number: '100+', label: 'Active Businesses', icon: <Users className="h-8 w-8" /> },
-                            { number: '৳1M+', label: 'Transactions Processed', icon: <TrendingUp className="h-8 w-8" /> },
+                            { number: '৳1M+', label: 'Order Processed', icon: <TrendingUp className="h-8 w-8" /> },
                             { number: '99.9%', label: 'Uptime Guarantee', icon: <Shield className="h-8 w-8" /> },
                             { number: '24/7', label: 'Customer Support', icon: <Clock className="h-8 w-8" /> },
                         ].map((stat, index) => (
@@ -109,18 +112,18 @@ export default function HomePage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-20 text-center">
                         <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">
-                            Everything You Need to
-                            <span className="block text-blue-600">Succeed</span>
+                            Manage Sales, Stock, and Growth — 
+                            <span className="block text-blue-600">Effortlessly</span>
                         </h2>
-                        <p className="mx-auto max-w-3xl text-xl text-gray-600">Our comprehensive POS system is packed with features designed to streamline your operations and accelerate growth.</p>
+                        <p className="mx-auto max-w-3xl text-xl text-gray-600">From billing to reporting, our POS takes care of the hard work so you can focus on running your business.</p>
                     </div>
 
                     <div className="grid gap-8 lg:grid-cols-3">
                         {[
                             {
                                 icon: <ShoppingCart className="h-12 w-12" />,
-                                title: 'Lightning-Fast Checkout',
-                                description: 'Process transactions in seconds with our intuitive interface. Support for all payment methods including contactless and mobile payments.',
+                                title: 'Sell in Seconds, Without the Stress',
+                                description: 'Our POS makes checkout effortless, so you can focus on customers, not complex systems.',
                                 color: 'from-blue-500 to-blue-600',
                             },
                             {
@@ -131,26 +134,26 @@ export default function HomePage() {
                             },
                             {
                                 icon: <Users className="h-12 w-12" />,
-                                title: 'Customer Insights',
-                                description: 'Build lasting relationships with integrated CRM, loyalty programs, and personalized marketing campaigns.',
+                                title: 'Smart Supplier Management',
+                                description: 'Easily track suppliers, manage purchases, and keep your stock flowing without the paperwork.',
                                 color: 'from-purple-500 to-purple-600',
                             },
                             {
                                 icon: <CreditCard className="h-12 w-12" />,
-                                title: 'Secure Payments',
-                                description: 'Accept all payment types with bank-level security. PCI compliance and fraud protection included.',
+                                title: 'Control Your Costs, Grow Your Profits',
+                                description: 'Record and monitor daily expenses in one place — no more notebooks or guesswork.',
                                 color: 'from-orange-500 to-orange-600',
                             },
                             {
                                 icon: <TrendingUp className="h-12 w-12" />,
-                                title: 'Inventory Management',
-                                description: 'Track stock levels, automate reordering, and manage suppliers with our intelligent inventory system.',
+                                title: 'Know Exactly What’s in Your Store',
+                                description: 'Stay updated on stock levels, damaged goods, lost items, and transfers without the paperwork.',
                                 color: 'from-indigo-500 to-indigo-600',
                             },
                             {
                                 icon: <Shield className="h-12 w-12" />,
-                                title: 'Multi-Location Support',
-                                description: 'Manage multiple stores from one dashboard. Sync inventory, sales, and customer data across all locations.',
+                                title: 'Multi-Store Management',
+                                description: 'Run all your shops from one system — track sales, stock, and expenses across every branch.',
                                 color: 'from-pink-500 to-pink-600',
                             },
                         ].map((feature, index) => (
