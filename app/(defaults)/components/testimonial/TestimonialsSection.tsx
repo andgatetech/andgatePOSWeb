@@ -1,120 +1,89 @@
-'use client';
-
-import Image from 'next/image';
-import { Star } from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper';
-import 'swiper/css';
-import 'swiper/css/pagination';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Star } from "lucide-react";
 
 const testimonials = [
   {
-    name: 'Md. Rahman',
-    business: 'Dhaka Mart Super Shop',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
+    name: "Md. Rakib Hossain",
+    business: "Dhaka Mart",
+    image: "https://img.icons8.com/color/96/shop.png", // Shop style logo
     review:
-      'AndgatePOS made our checkout process smooth and error-free. Sales reporting is simple, and we saved hours in manual calculations every week.',
+      "AndGatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
     rating: 5,
   },
   {
-    name: 'Nasrin Akter',
-    business: 'Chattogram Fashion House',
-    image: 'https://randomuser.me/api/portraits/women/44.jpg',
+    name: "Shamima Akter",
+    business: "Chattogram Fashion House",
+    image: "https://img.icons8.com/color/96/clothes.png", // Fashion shop
     review:
-      'Inventory tracking was always a headache. Now I can manage products and suppliers easily. Our stock losses dropped significantly.',
+      "Before AndGatePOS, I was struggling with manual calculation. Now everything is digital and customers are happier.",
     rating: 5,
   },
   {
-    name: 'Sajidul Islam',
-    business: 'Sylhet Electronics & Home Appliances',
-    image: 'https://randomuser.me/api/portraits/men/47.jpg',
+    name: "Jahidul Islam",
+    business: "Sylhet Electronics",
+    image: "https://img.icons8.com/color/96/electronics.png", // Electronics
     review:
-      'The POS dashboard helps me see daily sales at a glance. Even when I travel, I can check everything online — no tension anymore.',
+      "The reporting dashboard is very helpful. I can track profit and expenses daily without hiring an accountant.",
     rating: 5,
   },
   {
-    name: 'Farzana Hossain',
-    business: 'Rajshahi Bakery & Café',
-    image: 'https://randomuser.me/api/portraits/women/12.jpg',
+    name: "Farhana Rahman",
+    business: "Rajshahi Grocery",
+    image: "https://img.icons8.com/color/96/grocery-store.png", // Grocery
     review:
-      'AndgatePOS transformed our business. Customers love the faster checkout, and managing expenses became super easy for us.',
-    rating: 5,
-  },
-  {
-    name: 'Tanvir Alam',
-    business: 'Khulna Mobile Center',
-    image: 'https://randomuser.me/api/portraits/men/85.jpg',
-    review:
-      'I run multiple outlets, and multi-store management is a game changer. I can now track sales and stock for all shops in one place.',
+      "AndGatePOS is easy to use for everyone in my shop. Our sales increased after using the system because checkout is much faster.",
     rating: 5,
   },
 ];
 
-export default function TestimonialsSection() {
+export default function Testimonials() {
   return (
-    <section className="bg-white py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-20 text-center">
-          <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">
-            Loved by Business Owners
-          </h2>
-          <p className="text-xl text-gray-600">
-            Join thousands of successful businesses already using AndgatePOS
-          </p>
-        </div>
-
-        <Swiper
-          modules={[Pagination]}
-          pagination={{ clickable: true }}
-          spaceBetween={24}
-          breakpoints={{
-            0: { slidesPerView: 1 }, // Mobile: 1 card
-            768: { slidesPerView: 2 }, // Tablet: 2 cards
-            1024: { slidesPerView: 3 }, // Desktop: 3 cards
-          }}
-        >
-          {testimonials.map((testimonial, index) => (
-            <SwiperSlide key={index}>
-              <div className="relative h-full rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50 p-8 shadow-sm transition-all hover:shadow-xl">
-                {/* Stars */}
-                <div className="mb-6 flex">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-5 w-5 fill-current text-yellow-400"
-                    />
-                  ))}
-                </div>
-                {/* Review */}
-                <blockquote className="mb-6 text-lg italic leading-relaxed text-gray-700">
-                  &ldquo;{testimonial.review}&rdquo;
-                </blockquote>
-                {/* Author */}
-                <div className="flex items-center">
-                  <Image
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    width={48}
-                    height={48}
-                    className="mr-4 h-12 w-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <div className="font-bold text-gray-900">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {testimonial.business}
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute right-6 top-6 text-6xl text-blue-200 opacity-50">
-                  ❝
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+    <section className="bg-gray-50 py-16 px-4 md:px-8">
+      <div className="max-w-6xl mx-auto text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+          Loved by Business Owners in Bangladesh
+        </h2>
+        <p className="text-gray-600 mt-4">
+          See how entrepreneurs across Bangladesh are growing with AndGatePOS.
+        </p>
       </div>
+
+      <Swiper
+        modules={[Navigation, Pagination, Autoplay]}
+        spaceBetween={30}
+        slidesPerView={1}
+        navigation
+        pagination={{ clickable: true }}
+        autoplay={{ delay: 4000 }}
+        breakpoints={{
+          768: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+        }}
+      >
+        {testimonials.map((t, index) => (
+          <SwiperSlide key={index}>
+            <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center h-full">
+              <img
+                src={t.image}
+                alt={t.business}
+                className="w-20 h-20 object-contain bg-gray-100 rounded-xl mb-4 p-3"
+              />
+              <h3 className="text-lg font-semibold text-gray-900">{t.name}</h3>
+              <p className="text-sm text-blue-600 mb-3">{t.business}</p>
+              <div className="flex justify-center mb-3">
+                {Array.from({ length: t.rating }).map((_, i) => (
+                  <Star key={i} size={18} className="text-yellow-400 fill-yellow-400" />
+                ))}
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed">{t.review}</p>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </section>
   );
 }
