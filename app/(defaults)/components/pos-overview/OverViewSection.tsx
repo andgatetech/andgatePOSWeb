@@ -243,11 +243,11 @@ export default function OverViewSection({ id }: { id: string }) {
         </div>
 
         {sectionsData.map((section, idx) => (
-          <SectionBlock
-            key={idx}
-            {...section}
-            reverse={idx % 2 === 1} // even index = reverse
-          />
+            <SectionBlock
+                key={idx}
+                {...section}
+                reverse={idx % 2 === 0} // **odd sections (0,2,4...) reversed**
+            />
         ))}
       </div>
     </section>
