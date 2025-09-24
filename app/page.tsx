@@ -74,9 +74,19 @@ export default function HomePage() {
                                 Watch Demo
                             </button> */}
                         </div>
-                        <div className="mt-12 flex items-center justify-center text-sm text-gray-500">
+                        <div className="mt-12 flex items-center justify-center text-sm text-gray-500 space-x-6">
+                        <div className="flex items-center">
                             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            No pre payment required  <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available  <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
+                            No pre payment required
+                        </div>
+                        <div className="flex items-center">
+                            <CheckCircle className="mr-2 h-4 w-4 text-blue-500" />
+                            Free package available
+                        </div>
+                        <div className="flex items-center">
+                            <CheckCircle className="mr-2 h-4 w-4 text-red-500" />
+                            Cancel anytime
+                        </div>
                         </div>
                     </div>
                 </div>
