@@ -1,6 +1,6 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote, Store } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -133,7 +133,7 @@ export default function HomePage() {
                             {
                                 icon: <LayoutDashboard className="h-12 w-12" />,
                                 title: 'Smart Dashboard',
-                                description: 'Get a clear overview of sales, stock, and business performance in one easy-to-read screen.',
+                                description: 'Get a clear overview of sales, stock, and business performance in one easy screen.',
                                 color: 'from-blue-500 to-blue-600',
                             },
                             {
@@ -191,10 +191,16 @@ export default function HomePage() {
                                 color: 'from-indigo-500 to-indigo-600',
                             },
                             {
-                                icon: <Target className="h-12 w-12" />,
+                                icon: <Store className="h-12 w-12" />,
                                 title: 'Multi-Store Management',
                                 description: 'Run multiple shops from a single dashboard — track sales, stock, and expenses across branches.',
                                 color: 'from-pink-500 to-pink-600',
+                            },
+                            {
+                                icon: <Zap className="h-12 w-12" />,
+                                title: 'Barcode Generation & Printing',
+                                description: 'Generate and print barcodes for your products quickly and easily, improving sales and stock management.',
+                                color: 'from-yellow-500 to-yellow-600',
                             },
                         ].map((feature, index) => (
                             <div key={index} className="group">
