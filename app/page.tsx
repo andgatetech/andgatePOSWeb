@@ -1,6 +1,6 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap, Receipt } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -131,6 +131,12 @@ export default function HomePage() {
                     <div className="grid gap-8 lg:grid-cols-3">
                         {[
                             {
+                                icon: <LayoutDashboard className="h-12 w-12" />,
+                                title: 'Smart Dashboard',
+                                description: 'Get a clear overview of sales, stock, and business performance in one easy-to-read screen.',
+                                color: 'from-blue-500 to-blue-600',
+                            },
+                            {
                                 icon: <ShoppingCart className="h-12 w-12" />,
                                 title: 'Easy Checkout',
                                 description: 'Process sales quickly and effortlessly — cash, bKash, or card payments, all in one simple interface.',
@@ -167,7 +173,7 @@ export default function HomePage() {
                                 color: 'from-red-500 to-red-600',
                             },
                             {
-                                icon: <Settings className="h-12 w-12" />,
+                                icon: <Banknote className="h-12 w-12" />,
                                 title: 'Accounts & Payments',
                                 description: 'Track income, payments, and balances across your business to stay financially organized.',
                                 color: 'from-teal-500 to-teal-600',
@@ -179,7 +185,7 @@ export default function HomePage() {
                                 color: 'from-pink-500 to-pink-600',
                             },
                             {
-                                icon: <TrendingUp className="h-12 w-12" />,
+                                icon: <Archive className="h-12 w-12" />,
                                 title: 'Inventory Management',
                                 description: 'Monitor stock levels, damaged or lost items, and transfer stock between locations easily.',
                                 color: 'from-indigo-500 to-indigo-600',
