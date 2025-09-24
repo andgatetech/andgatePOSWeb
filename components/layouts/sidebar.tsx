@@ -8,13 +8,14 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTranslation } from '@/i18n';
-import { IRootState } from '@/store';
+import { RootState } from '@/store';
+import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, Package, Receipt, ShoppingBag, ShoppingCart, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, Package, Receipt, ShoppingBag, ShoppingCart, Store, Truck, Users, Wallet } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -114,12 +115,31 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [role, setRole] = useState<string | null>(null);
+    const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
 
-    const themeConfig = useSelector((state: IRootState) => state.themeConfig);
-    const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
+    const themeConfig = useSelector((state: RootState) => state.themeConfig);
+    const semidark = useSelector((state: RootState) => state.themeConfig.semidark);
+
+    // Get user stores and current store from Redux
+    const user = useSelector((state: RootState) => state.auth.user);
+    const currentStore = useSelector((state: RootState) => state.auth.currentStore);
+    const currentStoreId = useSelector((state: RootState) => state.auth.currentStoreId);
+    const userStores = user?.stores || [];
 
     const toggleMenu = (value: string) => {
         setCurrentMenu((oldValue) => (oldValue === value ? '' : value));
+    };
+
+    const handleStoreChange = (store: any) => {
+        console.log('🏪 BEFORE Store Change:');
+        console.log('  - Previous Store:', currentStore?.store_name, 'ID:', currentStoreId);
+        console.log('  - Selecting Store:', store.store_name, 'ID:', store.id);
+
+        dispatch(setCurrentStore(store));
+        setIsStoreDropdownOpen(false);
+
+        // Log after dispatch (this will show in next render)
+        console.log('🔄 Store change dispatched successfully');
     };
 
     // Load role from cookies
@@ -127,6 +147,16 @@ const Sidebar = () => {
         const userRole = getCookieValue('role'); // "store_admin", "staff", "supplier"
         setRole(userRole);
     }, []);
+
+    // Log store changes for verification
+    useEffect(() => {
+        if (currentStore && currentStoreId) {
+            console.log('✅ REDUX STATE UPDATED:');
+            console.log('  - Current Store:', currentStore.store_name);
+            console.log('  - Current Store ID:', currentStoreId);
+            console.log('  - Full Store Object:', currentStore);
+        }
+    }, [currentStore, currentStoreId]);
 
     // Highlight active route
     useEffect(() => {
@@ -167,6 +197,46 @@ const Sidebar = () => {
                             <IconCaretsDown className="m-auto rotate-90" />
                         </button>
                     </div>
+
+                    {/* Store Selector Dropdown */}
+                    {userStores.length > 0 && (
+                        <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
+                                    className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Store className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                                        <span className="font-medium text-gray-700 dark:text-gray-200">{currentStore ? currentStore.store_name : 'Select Store'}</span>
+                                    </div>
+                                    <IconCaretDown className={`h-4 w-4 text-gray-500 transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                <AnimateHeight duration={200} height={isStoreDropdownOpen ? 'auto' : 0}>
+                                    <div className="mt-2 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800">
+                                        <div className="border-b border-gray-100 px-3 py-2 text-xs font-semibold uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">Select Store</div>
+                                        <div className="py-1">
+                                            {userStores.map((store) => (
+                                                <button
+                                                    key={store.id}
+                                                    onClick={() => handleStoreChange(store)}
+                                                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                                                        currentStore?.id === store.id ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-gray-700 dark:text-gray-200'
+                                                    }`}
+                                                >
+                                                    <Store className="h-4 w-4" />
+                                                    <span className="truncate font-medium">{store.store_name}</span>
+                                                    {currentStore?.id === store.id && <span className="ml-auto text-xs text-primary">✓</span>}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </AnimateHeight>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Sidebar Menu */}
                     <PerfectScrollbar className="relative h-[calc(100vh-80px)]">

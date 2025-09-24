@@ -2,15 +2,6 @@ import { baseApi } from '@/store/api/baseApi';
 
 const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // ✅ Get store details
-        getStore: builder.query({
-            query: () => ({
-                url: `/store`,
-                method: 'GET',
-            }),
-            providesTags: ['Stores'],
-        }),
-
         // ✅ Update store (with optional image)
         updateStore: builder.mutation({
             query: ({ updateData }: { updateData: any }) => {
@@ -46,11 +37,21 @@ const StoreApi = baseApi.injectEndpoints({
         }),
 
         // ✅ All stores
-        allStores: builder.query({
+        getAllStores: builder.query({
             query: () => ({
                 url: '/stores',
                 method: 'GET',
             }),
+        }),
+
+        // ✅ Get specific store by ID (calls your getStore backend function)
+        getStore: builder.query({
+            query: (params?: { store_id?: number }) => ({
+                url: '/store',
+                method: 'GET',
+                params: params, 
+            }),
+            providesTags: (result, error, arg) => (result ? [{ type: 'Stores', id: arg?.store_id || 'default' }] : []),
         }),
 
         // ✅ Currently logged-in user
@@ -81,4 +82,11 @@ const StoreApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useUpdateStoreMutation, useGetStoreQuery, useAllStoresQuery, useGetWhoLoginQuery, useGetStaffMemberQuery, useStaffRegisterMutation } = StoreApi;
+export const {
+    useUpdateStoreMutation,
+    useGetAllStoresQuery,
+    useGetStoreQuery, // ← New hook for your getStore endpoint
+    useGetWhoLoginQuery,
+    useGetStaffMemberQuery,
+    useStaffRegisterMutation,
+} = StoreApi;

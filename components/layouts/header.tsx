@@ -1,6 +1,5 @@
 'use client';
 import Dropdown from '@/components/dropdown';
-import IconArrowLeft from '@/components/icon/icon-arrow-left';
 import IconBellBing from '@/components/icon/icon-bell-bing';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
@@ -8,10 +7,8 @@ import IconLaptop from '@/components/icon/icon-laptop';
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMail from '@/components/icon/icon-mail';
-import IconMailDot from '@/components/icon/icon-mail-dot';
 import IconMenu from '@/components/icon/icon-menu';
 import IconMoon from '@/components/icon/icon-moon';
-import IconSearch from '@/components/icon/icon-search';
 import IconSun from '@/components/icon/icon-sun';
 import IconUser from '@/components/icon/icon-user';
 import IconXCircle from '@/components/icon/icon-x-circle';
@@ -27,7 +24,6 @@ import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
-import { CreditCard } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -243,7 +239,7 @@ const Header = () => {
                                 </button>
                             )}
                         </div>
-                        
+
                         {/* language switch */}
                         {/* <div className="dropdown shrink-0">
                             <Dropdown
@@ -339,7 +335,6 @@ const Header = () => {
                             </Dropdown>
                         </div> */}
 
-
                         <div className="dropdown shrink-0">
                             <Dropdown
                                 offset={[0, 8]}
@@ -420,13 +415,13 @@ const Header = () => {
                                 </ul>
                             </Dropdown>
                         </div>
+
                         <div className="dropdown flex shrink-0">
                             <Dropdown
                                 offset={[0, 8]}
                                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
                                 btnClassName="relative group block"
                                 button={
-                                    
                                     <Image className="rounded-full object-cover saturate-50 group-hover:saturate-100" src="/assets/images/user-profile.jpeg" alt="userProfile" width={36} height={36} />
                                 }
                             >
@@ -439,7 +434,6 @@ const Header = () => {
                                                     User
                                                     <span className="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">Pro</span>
                                                 </h4>
-                                               
                                             </div>
                                         </div>
                                     </li>
