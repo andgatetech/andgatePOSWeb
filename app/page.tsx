@@ -278,26 +278,41 @@ export default function HomePage() {
                     <div className="grid gap-8 md:grid-cols-3">
                         {[
                             {
-                                name: 'Sarah Mitchell',
-                                business: 'Artisan Coffee Co.',
-                                image: 'https://images.unsplash.com/photo-1494790108755-2616b612b593?w=150&h=150&fit=crop&crop=face',
-                                review: 'AndGatePOS revolutionized our operations.Sales increased 45% in just 3 months, and our customers love the quick checkout experience.',
+                                name: 'Md. Rahman',
+                                business: 'Dhaka Mart Super Shop',
+                                image: 'https://randomuser.me/api/portraits/men/32.jpg',
+                                review: 'AndGatePOS made our checkout process smooth and error-free. Sales reporting is simple, and we saved hours in manual calculations every week.',
                                 rating: 5,
                             },
                             {
-                                name: 'Marcus Chen',
-                                business: 'TechHub Electronics',
-                                image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-                                review: 'The analytics dashboard gives us insights we never had before. We can now make data-driven decisions that actually impact our bottom line.',
+                                name: 'Nasrin Akter',
+                                business: 'Chattogram Fashion House',
+                                image: 'https://randomuser.me/api/portraits/women/44.jpg',
+                                review: 'Inventory tracking was always a headache. Now I can manage products and suppliers easily. Our stock losses dropped significantly.',
                                 rating: 5,
                             },
                             {
-                                name: 'Isabella Rodriguez',
-                                business: 'Bella Boutique',
-                                image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-                                review: 'Customer management features helped us build a loyal community. Our repeat customer rate has doubled since switching to AndgatePOS.',
+                                name: 'Sajidul Islam',
+                                business: 'Sylhet Electronics & Home Appliances',
+                                image: 'https://randomuser.me/api/portraits/men/47.jpg',
+                                review: 'The POS dashboard helps me see daily sales at a glance. Even when I travel, I can check everything online — no tension anymore.',
                                 rating: 5,
                             },
+                            {
+                                name: 'Farzana Hossain',
+                                business: 'Rajshahi Bakery & Café',
+                                image: 'https://randomuser.me/api/portraits/women/12.jpg',
+                                review: 'AndGatePOS transformed our business. Customers love the faster checkout, and managing expenses became super easy for us.',
+                                rating: 5,
+                            },
+                            {
+                                name: 'Tanvir Alam',
+                                business: 'Khulna Mobile Center',
+                                image: 'https://randomuser.me/api/portraits/men/85.jpg',
+                                review: 'I run multiple outlets, and multi-store management is a game changer. I can now track sales and stock for all shops in one place.',
+                                rating: 5,
+                            },
+
                         ].map((testimonial, index) => (
                             <div key={index} className="group relative rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50 p-8 transition-all hover:shadow-xl">
                                 <div className="mb-6 flex">
