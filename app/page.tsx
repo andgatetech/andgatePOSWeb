@@ -1,6 +1,6 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap, Receipt } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -132,38 +132,62 @@ export default function HomePage() {
                         {[
                             {
                                 icon: <ShoppingCart className="h-12 w-12" />,
-                                title: 'Sell in Seconds, Without the Stress',
-                                description: 'Our POS makes checkout effortless, so you can focus on customers, not complex systems.',
+                                title: 'Easy Checkout',
+                                description: 'Process sales quickly and effortlessly — cash, bKash, or card payments, all in one simple interface.',
                                 color: 'from-blue-500 to-blue-600',
                             },
                             {
                                 icon: <BarChart3 className="h-12 w-12" />,
-                                title: 'Advanced Analytics',
-                                description: 'Get deep insights into your business with real-time reporting, sales trends, and predictive analytics powered by AI.',
+                                title: 'Simple Reporting',
+                                description: 'View daily sales, revenue trends, and stock levels in a clear dashboard designed for small business owners.',
                                 color: 'from-green-500 to-green-600',
                             },
                             {
                                 icon: <Users className="h-12 w-12" />,
-                                title: 'Smart Supplier Management',
-                                description: 'Easily track suppliers, manage purchases, and keep your stock flowing without the paperwork.',
+                                title: 'Supplier Management',
+                                description: 'Easily track suppliers, purchase orders, and stock transfers without paperwork or confusion.',
                                 color: 'from-purple-500 to-purple-600',
                             },
                             {
-                                icon: <CreditCard className="h-12 w-12" />,
-                                title: 'Control Your Costs, Grow Your Profits',
-                                description: 'Record and monitor daily expenses in one place — no more notebooks or guesswork.',
+                                icon: <Package className="h-12 w-12" />,
+                                title: 'Product & Category Management',
+                                description: 'Organize products into categories, manage variants, and keep your inventory clear and up-to-date.',
                                 color: 'from-orange-500 to-orange-600',
                             },
                             {
+                                icon: <Receipt className="h-12 w-12" />,
+                                title: 'Order Management',
+                                description: 'Track orders, sales, and invoices easily, so you never miss a sale or customer request.',
+                                color: 'from-yellow-500 to-yellow-600',
+                            },
+                            {
+                                icon: <CreditCard className="h-12 w-12" />,
+                                title: 'Expense Management',
+                                description: 'Record and monitor daily expenses — rent, bills, and other costs — in one easy place.',
+                                color: 'from-red-500 to-red-600',
+                            },
+                            {
+                                icon: <Settings className="h-12 w-12" />,
+                                title: 'Accounts & Payments',
+                                description: 'Track income, payments, and balances across your business to stay financially organized.',
+                                color: 'from-teal-500 to-teal-600',
+                            },
+                            {
+                                icon: <Users className="h-12 w-12" />,
+                                title: 'Customer Management',
+                                description: 'Keep customer records, contact details, and purchase history to improve service and loyalty.',
+                                color: 'from-pink-500 to-pink-600',
+                            },
+                            {
                                 icon: <TrendingUp className="h-12 w-12" />,
-                                title: 'Know Exactly What’s in Your Store',
-                                description: 'Stay updated on stock levels, damaged goods, lost items, and transfers without the paperwork.',
+                                title: 'Inventory Management',
+                                description: 'Monitor stock levels, damaged or lost items, and transfer stock between locations easily.',
                                 color: 'from-indigo-500 to-indigo-600',
                             },
                             {
-                                icon: <Shield className="h-12 w-12" />,
+                                icon: <Target className="h-12 w-12" />,
                                 title: 'Multi-Store Management',
-                                description: 'Run all your shops from one system — track sales, stock, and expenses across every branch.',
+                                description: 'Run multiple shops from a single dashboard — track sales, stock, and expenses across branches.',
                                 color: 'from-pink-500 to-pink-600',
                             },
                         ].map((feature, index) => (
