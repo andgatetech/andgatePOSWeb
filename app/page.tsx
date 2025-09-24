@@ -122,7 +122,7 @@ export default function HomePage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-20 text-center">
                         <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">
-                            Manage Sales, Stock, and Growth — 
+                            Manage Sales, Stock, and Growth 
                             <span className="block text-blue-600">Effortlessly</span>
                         </h2>
                         <p className="mx-auto max-w-3xl text-xl text-gray-600">From billing to reporting, our POS takes care of the hard work so you can focus on running your business.</p>
