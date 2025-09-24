@@ -3,7 +3,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { Zap, Play } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
-import ReactPlayer from 'react-player/youtube';
+import ReactPlayer from 'react-player';
 
 export default function TrainingPage() {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
