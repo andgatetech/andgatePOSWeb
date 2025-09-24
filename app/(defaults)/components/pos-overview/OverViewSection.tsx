@@ -162,7 +162,7 @@ const SectionBlock = ({
     <div className="overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-gray-900/5">
       <div className={`grid grid-cols-1 lg:grid-cols-2 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
         {/* Image / Swiper */}
-        <div className="relative overflow-hidden border-gray-100 lg:border-r-2 lg:border-l-2">
+        <div className="relative overflow-hidden border-gray-100">
           <Swiper
             modules={[Mousewheel, Pagination, Navigation]}
             mousewheel
@@ -172,8 +172,8 @@ const SectionBlock = ({
             slidesPerView={1}
             breakpoints={{
               640: { slidesPerView: 1 },
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
+              768: { slidesPerView: 1 },
+              1024: { slidesPerView: 1 },
             }}
             className="h-80 lg:h-full"
           >
@@ -194,7 +194,7 @@ const SectionBlock = ({
         </div>
 
         {/* Content */}
-        <div className="flex flex-col justify-center border-gray-100 p-6 sm:p-10 lg:p-16 lg:border-l-2 lg:border-r-2">
+        <div className="flex flex-col justify-center border-gray-100 p-6 sm:p-10 lg:p-16">
           <div className="mb-6 flex items-center gap-4">
             <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${colorClass} shadow-lg`}>
               {icon}
@@ -216,7 +216,10 @@ const SectionBlock = ({
           </div>
           <Link
             href={ctaLink}
-            className={`inline-flex items-center gap-2 rounded-full px-6 sm:px-8 py-3 sm:py-4 font-semibold shadow-lg transition-all duration-200 ${colorClass} hover:opacity-90`}
+            className={`inline-flex items-center gap-2 rounded-full px-6 sm:px-8 py-3 sm:py-4 font-semibold transition-all duration-200
+              ${colorClass} 
+              text-white shadow-lg 
+              hover:opacity-90 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300`}
           >
             {ctaText} <ArrowRight className="h-4 w-4" />
           </Link>
@@ -243,11 +246,11 @@ export default function OverViewSection({ id }: { id: string }) {
         </div>
 
         {sectionsData.map((section, idx) => (
-            <SectionBlock
-                key={idx}
-                {...section}
-                reverse={idx % 2 === 0} // **odd sections (0,2,4...) reversed**
-            />
+          <SectionBlock
+            key={idx}
+            {...section}
+            reverse={idx % 2 !== 0} // Odd sections reversed (image right, content left)
+          />
         ))}
       </div>
     </section>
