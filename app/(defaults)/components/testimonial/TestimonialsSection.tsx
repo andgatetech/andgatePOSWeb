@@ -13,7 +13,7 @@ const testimonials = [
     business: 'Dhaka Mart Super Shop',
     image: 'https://randomuser.me/api/portraits/men/32.jpg',
     review:
-      'AndGatePOS made our checkout process smooth and error-free. Sales reporting is simple, and we saved hours in manual calculations every week.',
+      'AndgatePOS made our checkout process smooth and error-free. Sales reporting is simple, and we saved hours in manual calculations every week.',
     rating: 5,
   },
   {
@@ -37,7 +37,7 @@ const testimonials = [
     business: 'Rajshahi Bakery & Café',
     image: 'https://randomuser.me/api/portraits/women/12.jpg',
     review:
-      'AndGatePOS transformed our business. Customers love the faster checkout, and managing expenses became super easy for us.',
+      'AndgatePOS transformed our business. Customers love the faster checkout, and managing expenses became super easy for us.',
     rating: 5,
   },
   {
@@ -59,7 +59,7 @@ export default function TestimonialsSection() {
             Loved by Business Owners
           </h2>
           <p className="text-xl text-gray-600">
-            Join thousands of successful businesses already using AndGatePOS
+            Join thousands of successful businesses already using AndgatePOS
           </p>
         </div>
 
