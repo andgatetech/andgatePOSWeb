@@ -19,6 +19,14 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Products', 'Orders'],
         }),
+        getAllProductsWithStock: builder.query({
+            query: (params) => ({
+                url: '/products/in-stock',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['Products', 'Orders'],
+        }),
         getSingleProduct: builder.query({
             query: (id) => ({
                 url: `/products/${id}`,
@@ -42,7 +50,6 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             providesTags: ['ActivityLogs'],
         }),
-        
 
         deleteProduct: builder.mutation({
             query: (id) => ({
@@ -66,20 +73,20 @@ const ProductApi = baseApi.injectEndpoints({
             invalidatesTags: ['Products'],
         }),
 
-getUnits : builder.query({
+        getUnits: builder.query({
             query: () => ({
                 url: `/store/units`,
                 method: 'GET',
             }),
             providesTags: ['Products'],
         }),
-
     }),
 });
 
 export const {
     useCreateProductMutation,
     useGetAllProductsQuery,
+    useGetAllProductsWithStockQuery,
     useGetSingleProductQuery,
     useUpdateProductMutation,
     useDeleteProductMutation,
@@ -87,5 +94,5 @@ export const {
     useGetProductQRCodeQuery,
     useGetProductBrCodeQuery,
     useGetActivityLogsQuery,
-    useGetUnitsQuery
+    useGetUnitsQuery,
 } = ProductApi;

@@ -6,49 +6,72 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 export default function ProductAndQrTable() {
-    // Mock Redux state
     const token = useSelector((state) => state.auth.token);
     const [selectedProductId, setSelectedProductId] = useState(null);
 
     const { data: pd, isLoading } = useGetAllProductsQuery();
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState([]);
 
     useEffect(() => {
         if (pd?.data) {
-            setProducts(pd.data);
+            // Set default quantity to 0 for all products
+            const productsWithQuantity = pd.data.map((product) => ({
+                ...product,
+                quantity: 0,
+            }));
+            setProducts(productsWithQuantity);
         }
     }, [pd?.data]);
 
     const [search, setSearch] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
-    const [qrCodes, setQrCodes] = useState([]); // QR Code data array
+    const [qrCodes, setQrCodes] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
 
     const filteredProducts = products.filter((p) => p.product_name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()));
+
+    // Only show products with quantity > 0 as selectable
+    const selectableProducts = filteredProducts.filter((p) => p.quantity > 0);
 
     const totalPages = Math.ceil(filteredProducts.length / pageSize);
     const displayedProducts = filteredProducts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const toggleSelectAll = (checked) => {
         if (checked) {
-            setSelectedProducts(displayedProducts.map((p) => p.id));
+            // Only select products with quantity > 0
+            const selectableIds = displayedProducts.filter((p) => p.quantity > 0).map((p) => p.id);
+            setSelectedProducts(selectableIds);
         } else {
             setSelectedProducts([]);
         }
     };
 
     const toggleSelect = (id) => {
-        setSelectedProducts((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+        const product = products.find((p) => p.id === id);
+        // Only allow selection if quantity > 0
+        if (product && product.quantity > 0) {
+            setSelectedProducts((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+        }
     };
 
-    const changeQuantity = (id, delta) => {
-        setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, quantity: Math.max(1, p.quantity + delta) } : p)));
+    const changeQuantity = (id, value) => {
+        const numValue = Math.max(0, parseInt(value) || 0);
+        setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, quantity: numValue } : p)));
+
+        // Remove from selected if quantity becomes 0
+        if (numValue === 0) {
+            setSelectedProducts((prev) => prev.filter((selectedId) => selectedId !== id));
+        }
     };
 
     const handleGenerateMultipleQR = async () => {
-        const selected = products.filter((p) => selectedProducts.includes(p.id));
-        if (selected.length === 0) return;
+        const selected = products.filter((p) => selectedProducts.includes(p.id) && p.quantity > 0);
+
+        if (selected.length === 0) {
+            alert('Please select products with quantity greater than 0');
+            return;
+        }
 
         const qrResults = [];
 
@@ -86,6 +109,9 @@ export default function ProductAndQrTable() {
         );
     }
 
+    const displayedSelectableCount = displayedProducts.filter((p) => p.quantity > 0).length;
+    const allDisplayedSelectableSelected = displayedSelectableCount > 0 && displayedProducts.filter((p) => p.quantity > 0).every((p) => selectedProducts.includes(p.id));
+
     return (
         <div className="flex flex-col gap-6 p-4 md:flex-row">
             {/* Left Side: Product Table */}
@@ -116,9 +142,10 @@ export default function ProductAndQrTable() {
                                 <th className="p-3 text-left">
                                     <input
                                         type="checkbox"
-                                        checked={displayedProducts.length > 0 && displayedProducts.every((p) => selectedProducts.includes(p.id))}
+                                        checked={allDisplayedSelectableSelected}
                                         onChange={(e) => toggleSelectAll(e.target.checked)}
                                         className="rounded"
+                                        disabled={displayedSelectableCount === 0}
                                     />
                                 </th>
                                 <th className="p-3 text-left font-semibold text-gray-700">Product Name</th>
@@ -128,45 +155,23 @@ export default function ProductAndQrTable() {
                         </thead>
                         <tbody>
                             {displayedProducts.map((p) => (
-                                <tr key={p.id} className="border-b transition-colors hover:bg-gray-50">
+                                <tr key={p.id} className={`border-b transition-colors hover:bg-gray-50 ${p.quantity === 0 ? 'opacity-50' : ''}`}>
                                     <td className="p-3 text-center">
-                                        <input type="checkbox" checked={selectedProducts.includes(p.id)} onChange={() => toggleSelect(p.id)} className="rounded" />
+                                        <input type="checkbox" checked={selectedProducts.includes(p.id)} onChange={() => toggleSelect(p.id)} className="rounded" disabled={p.quantity === 0} />
                                     </td>
                                     <td className="p-3 font-medium text-gray-800">{p.product_name}</td>
                                     <td className="p-3 text-gray-600">{p.sku}</td>
                                     <td className="p-3">
                                         <div className="flex items-center gap-2">
-                                            {/* <button
-                                                className="rounded bg-gray-200 px-3 py-1 font-medium text-gray-700 transition-colors hover:bg-gray-300"
-                                                onClick={() => changeQuantity(p.id, -1)}
-                                                disabled={p.quantity <= 1}
-                                            >
-                                                -
-                                            </button>
                                             <input
                                                 type="number"
-                                                value={p.quantity}
-                                                onChange={(e) => {
-                                                    const value = Math.max(1, parseInt(e.target.value) || 1);
-                                                    setProducts((prev) => prev.map((prod) => (prod.id === p.id ? { ...prod, quantity: value } : prod)));
-                                                }}
-                                                className="w-16 rounded border border-gray-300 px-2 py-1 text-center focus:border-blue-500 focus:outline-none"
-                                                min="1"
+                                                // value={p.quantity}
+                                                onChange={(e) => changeQuantity(p.id, e.target.value)}
+                                                className="w-20 rounded border border-gray-300 px-2 py-1 text-center [appearance:textfield] focus:border-blue-500 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                // min="0"
+                                                placeholder="0"
                                             />
-                                            <button className="rounded bg-gray-200 px-3 py-1 font-medium text-gray-700 transition-colors hover:bg-gray-300" onClick={() => changeQuantity(p.id, 1)}>
-                                                +
-                                            </button> */}
-                                            <input
-                                                type="number"
-                                                value={p.quantity ?? 1} // ✅ default to 1 if undefined/null
-                                                onChange={(e) => {
-                                                    const value = parseInt(e.target.value) || 1;
-                                                    setProducts((prev) => prev.map((prod) => (prod.id === p.id ? { ...prod, quantity: Math.max(1, value) } : prod)));
-                                                }}
-                                                className="w-16 rounded border border-gray-300 px-2 py-1 text-center [appearance:textfield] focus:border-blue-500
-               focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                min="1"
-                                            />
+                                            {p.quantity > 0 && <span className="text-sm font-medium text-green-600">✓</span>}
                                         </div>
                                     </td>
                                 </tr>
@@ -177,6 +182,11 @@ export default function ProductAndQrTable() {
 
                 {/* No results message */}
                 {filteredProducts.length === 0 && <div className="py-8 text-center text-gray-500">No products found matching "{search}"</div>}
+
+                {/* Info message */}
+                <div className="mt-2 text-sm text-gray-600">
+                    {selectableProducts.length} of {filteredProducts.length} products have quantity &gt; 0 and can be selected
+                </div>
 
                 {/* Pagination */}
                 {totalPages > 1 && (

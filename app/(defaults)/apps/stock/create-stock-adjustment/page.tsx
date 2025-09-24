@@ -2,7 +2,7 @@
 import { useGetAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adjustmentTypeApi';
 import { useCreateStockAdjustmentMutation } from '@/store/features/StockAdjustment/stockAdjustmentApi';
 import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { useGetAllProductsQuery } from '@/store/Product/productApi';
+import { useGetAllProductsQuery, useGetAllProductsWithStockQuery } from '@/store/Product/productApi';
 import { Minus, Plus, Save, Search, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -266,7 +266,9 @@ const StockAdjustmentPage = () => {
 
     // RTK Query hooks
     const { data: st, isLoading: storesLoading } = useAllStoresQuery();
-    const { data: pd } = useGetAllProductsQuery({ store_id: selectedStore });
+    // const { data: pd } = useGetAllProductsQuery({ store_id: selectedStore });
+    const { data: pd } = useGetAllProductsWithStockQuery({ store_id: selectedStore });
+    // const { data: pd_in_stock } = useGetAllProductsWithStockQuery();
     const [createStockAdjustment, { isLoading: isSubmitting }] = useCreateStockAdjustmentMutation();
     const stores = st?.data || [];
     const products = pd?.data || [];
