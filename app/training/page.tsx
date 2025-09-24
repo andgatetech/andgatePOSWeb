@@ -20,9 +20,9 @@ export default function TrainingPage() {
             bgColor: 'bg-blue-50',
             textColor: 'text-blue-600',
             videos: [
-                { title: 'Complete Setup Guide', duration: '15:30', description: 'Step-by-step setup from account creation to first sale', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'Dashboard Overview', duration: '8:45', description: 'Navigate your dashboard and understand key metrics', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'User Management & Roles', duration: '12:20', description: 'Add staff, assign roles, and manage permissions', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
+                { title: 'Complete Setup Guide', duration: '15:30', description: 'Step-by-step setup from account creation to first sale', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Dashboard Overview', duration: '8:45', description: 'Navigate your dashboard and understand key metrics', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'User Management & Roles', duration: '12:20', description: 'Add staff, assign roles, and manage permissions', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
             ],
         },
         {
@@ -34,10 +34,10 @@ export default function TrainingPage() {
             bgColor: 'bg-green-50',
             textColor: 'text-green-600',
             videos: [
-                { title: 'Processing Sales', duration: '10:15', description: 'Handle customer transactions efficiently', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'Payment Methods', duration: '7:30', description: 'Accept cash, card, and digital payments', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'Refunds & Returns', duration: '9:45', description: 'Process refunds and handle return transactions', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
-                { title: 'Discounts & Promotions', duration: '11:20', description: 'Apply discounts and manage promotional codes', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
+                { title: 'Processing Sales', duration: '10:15', description: 'Handle customer transactions efficiently', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Payment Methods', duration: '7:30', description: 'Accept cash, card, and digital payments', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Refunds & Returns', duration: '9:45', description: 'Process refunds and handle return transactions', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Discounts & Promotions', duration: '11:20', description: 'Apply discounts and manage promotional codes', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
             ],
         },
         {
@@ -49,10 +49,10 @@ export default function TrainingPage() {
             bgColor: 'bg-purple-50',
             textColor: 'text-purple-600',
             videos: [
-                { title: 'Adding Products', duration: '13:15', description: 'Add new products with variants, pricing, and images', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'Stock Management', duration: '16:40', description: 'Track inventory levels and set up reorder alerts', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
-                { title: 'Bulk Import/Export', duration: '12:30', description: 'Import products in bulk using CSV files', youtubeId: 'njX2bu-_Vw4', difficulty: 'Advanced' },
-                { title: 'Categories & Variants', duration: '14:25', description: 'Organize products with categories and manage variants', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
+                { title: 'Adding Products', duration: '13:15', description: 'Add new products with variants, pricing, and images', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Stock Management', duration: '16:40', description: 'Track inventory levels and set up reorder alerts', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Bulk Import/Export', duration: '12:30', description: 'Import products in bulk using CSV files', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+                { title: 'Categories & Variants', duration: '14:25', description: 'Organize products with categories and manage variants', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
             ],
         },
         {
@@ -64,9 +64,9 @@ export default function TrainingPage() {
             bgColor: 'bg-orange-50',
             textColor: 'text-orange-600',
             videos: [
-                { title: 'Customer Profiles', duration: '9:30', description: 'Create and manage customer information', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'Loyalty Programs', duration: '15:45', description: 'Set up and manage customer loyalty rewards', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
-                { title: 'Customer Analytics', duration: '11:15', description: 'Analyze customer behavior and purchase patterns', youtubeId: 'njX2bu-_Vw4', difficulty: 'Advanced' },
+                { title: 'Customer Profiles', duration: '9:30', description: 'Create and manage customer information', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Loyalty Programs', duration: '15:45', description: 'Set up and manage customer loyalty rewards', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Customer Analytics', duration: '11:15', description: 'Analyze customer behavior and purchase patterns', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
             ],
         },
         {
@@ -78,10 +78,10 @@ export default function TrainingPage() {
             bgColor: 'bg-indigo-50',
             textColor: 'text-indigo-600',
             videos: [
-                { title: 'Sales Reports', duration: '13:20', description: 'Generate and understand daily, weekly, and monthly sales reports', youtubeId: 'njX2bu-_Vw4', difficulty: 'Beginner' },
-                { title: 'Inventory Reports', duration: '10:50', description: 'Track stock movements and inventory valuation', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
-                { title: 'Financial Reports', duration: '17:30', description: 'Understand profit margins, tax reports, and financial insights', youtubeId: 'njX2bu-_Vw4', difficulty: 'Advanced' },
-                { title: 'Custom Reports', duration: '14:15', description: 'Create custom reports for specific business needs', youtubeId: 'njX2bu-_Vw4', difficulty: 'Advanced' },
+                { title: 'Sales Reports', duration: '13:20', description: 'Generate and understand daily, weekly, and monthly sales reports', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Inventory Reports', duration: '10:50', description: 'Track stock movements and inventory valuation', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Financial Reports', duration: '17:30', description: 'Understand profit margins, tax reports, and financial insights', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+                { title: 'Custom Reports', duration: '14:15', description: 'Create custom reports for specific business needs', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
             ],
         },
         {
@@ -93,9 +93,9 @@ export default function TrainingPage() {
             bgColor: 'bg-teal-50',
             textColor: 'text-teal-600',
             videos: [
-                { title: 'Store Setup', duration: '12:40', description: 'Add and configure multiple store locations', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
-                { title: 'Inventory Sync', duration: '16:20', description: 'Synchronize inventory across multiple stores', youtubeId: 'njX2bu-_Vw4', difficulty: 'Advanced' },
-                { title: 'Store Performance', duration: '11:30', description: 'Compare and analyze performance across locations', youtubeId: 'njX2bu-_Vw4', difficulty: 'Intermediate' },
+                { title: 'Store Setup', duration: '12:40', description: 'Add and configure multiple store locations', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Inventory Sync', duration: '16:20', description: 'Synchronize inventory across multiple stores', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+                { title: 'Store Performance', duration: '11:30', description: 'Compare and analyze performance across locations', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
             ],
         },
     ];
