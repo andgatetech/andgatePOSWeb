@@ -60,8 +60,8 @@ const sectionsData = [
       'Category & variant management'
     ],
     images: [
-      { src: '/images/products-1.png', alt: 'Product Management 1', width: 700, height: 500 },
-      { src: '/images/products-2.png', alt: 'Product Management 2', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
     ],
     colorClass: "bg-emerald-600 text-white",
     ctaText: "Manage Products",
@@ -78,8 +78,8 @@ const sectionsData = [
       'Centralized control panel'
     ],
     images: [
-      { src: '/images/store-1.png', alt: 'Store Management 1', width: 700, height: 500 },
-      { src: '/images/store-2.png', alt: 'Store Management 2', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
     ],
     colorClass: "bg-purple-600 text-white",
     ctaText: "Manage Stores",
@@ -96,8 +96,8 @@ const sectionsData = [
       'CRM integration'
     ],
     images: [
-      { src: '/images/customers-1.png', alt: 'Customer Management 1', width: 700, height: 500 },
-      { src: '/images/customers-2.png', alt: 'Customer Management 2', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
     ],
     colorClass: "bg-orange-600 text-white",
     ctaText: "Manage Customers",
@@ -114,8 +114,8 @@ const sectionsData = [
       'Sales analytics'
     ],
     images: [
-      { src: '/images/sales-1.png', alt: 'Sales Management 1', width: 700, height: 500 },
-      { src: '/images/sales-2.png', alt: 'Sales Management 2', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
     ],
     colorClass: "bg-red-600 text-white",
     ctaText: "Track Sales",
@@ -132,8 +132,8 @@ const sectionsData = [
       'Custom report builder'
     ],
     images: [
-      { src: '/images/reports-1.png', alt: 'Reports 1', width: 700, height: 500 },
-      { src: '/images/reports-2.png', alt: 'Reports 2', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
     ],
     colorClass: "bg-indigo-600 text-white",
     ctaText: "View Reports",
