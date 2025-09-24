@@ -277,14 +277,14 @@ export default function HomePage() {
                 <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
                     <h2 className="mb-8 text-4xl font-bold text-white md:text-5xl">Ready to Transform Your Business?</h2>
                     <p className="mb-12 text-xl leading-relaxed text-blue-100">
-                        Join over 50,000 businesses that trust AndGatePOS to power their success. Start your free trial today and see the difference in just 24 hours.
+                        Join over 300 businesses that trust AndgatePOS to power their success. Start your free journey today and see the difference in just 24 hours.
                     </p>
                     <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
                         <Link
-                            href="/contact"
+                            href="/register"
                             className="group flex transform items-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-100"
                         >
-                            Start Free Trial Now
+                            Start Free Journey Now
                             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                         </Link>
                         <Link href="/login" className="rounded-full border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600">
