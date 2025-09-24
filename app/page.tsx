@@ -1,6 +1,6 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote, Store } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Barcode, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote, Store, BanknoteArrowDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -167,7 +167,7 @@ export default function HomePage() {
                                 color: 'from-yellow-500 to-yellow-600',
                             },
                             {
-                                icon: <CreditCard className="h-12 w-12" />,
+                                icon: <BanknoteArrowDown className="h-12 w-12" />,
                                 title: 'Expense Management',
                                 description: 'Record and monitor daily expenses — rent, bills, and other costs — in one easy place.',
                                 color: 'from-red-500 to-red-600',
@@ -197,7 +197,7 @@ export default function HomePage() {
                                 color: 'from-pink-500 to-pink-600',
                             },
                             {
-                                icon: <Zap className="h-12 w-12" />,
+                                icon: <Barcode className="h-12 w-12" />,
                                 title: 'Barcode Generation & Printing',
                                 description: 'Generate and print barcodes for your products quickly and easily, improving sales and stock management.',
                                 color: 'from-yellow-500 to-yellow-600',
