@@ -139,13 +139,13 @@ export default function HomePage() {
                             {
                                 icon: <ShoppingCart className="h-12 w-12" />,
                                 title: 'Easy Checkout',
-                                description: 'Process sales quickly and effortlessly — cash, bKash, or card payments, all in one simple interface.',
+                                description: 'Process sales quickly and effortlessly — cash, bKash, or card, all in one simple interface.',
                                 color: 'from-blue-500 to-blue-600',
                             },
                             {
                                 icon: <BarChart3 className="h-12 w-12" />,
                                 title: 'Simple Reporting',
-                                description: 'View daily sales, revenue trends, and stock levels in a clear dashboard designed for small business owners.',
+                                description: 'View daily sales, revenue trends, and stock levels in a clear dashboard for small business owners.',
                                 color: 'from-green-500 to-green-600',
                             },
                             {
