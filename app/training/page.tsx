@@ -2,11 +2,10 @@
 import MainLayout from '@/components/layout/MainLayout';
 import { BarChart3, CreditCard, Download, ExternalLink, Lightbulb, Package, Play, Store, Users, Zap, X } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 
-// Lazy-load ReactPlayer to improve page performance
+// Lazy-load ReactPlayer to avoid SSR issues
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
 export default function TrainingPage() {
@@ -20,7 +19,7 @@ export default function TrainingPage() {
             bgColor: 'bg-blue-50',
             textColor: 'text-blue-600',
             videos: [
-                { title: 'Complete Setup Guide', duration: '15:30', description: 'Step-by-step setup from account creation to first sale', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Complete Setup Guide', duration: '15:30', description: 'Step-by-step setup from account creation to first sale', youtubeId: 'Vn0QWdiWLqk', difficulty: 'Beginner' },
                 { title: 'Dashboard Overview', duration: '8:45', description: 'Navigate your dashboard and understand key metrics', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
                 { title: 'User Management & Roles', duration: '12:20', description: 'Add staff, assign roles, and manage permissions', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
             ],
@@ -142,7 +141,13 @@ export default function TrainingPage() {
                                                 <div className="relative overflow-hidden">
                                                     {playingVideo === video.youtubeId ? (
                                                         <>
-                                                            <ReactPlayer url={`https://www.youtube.com/watch?v=${video.youtubeId}`} playing controls width="100%" height="225px" />
+                                                            <ReactPlayer
+                                                                url={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                                                                playing
+                                                                controls
+                                                                width="100%"
+                                                                height="225px"
+                                                            />
                                                             <button
                                                                 className="absolute top-2 right-2 rounded-full bg-black bg-opacity-60 p-2 text-white"
                                                                 onClick={() => setPlayingVideo(null)}
@@ -201,10 +206,10 @@ export default function TrainingPage() {
                                         <div className="mb-6 flex justify-center text-white">{resource.icon}</div>
                                         <h3 className="mb-4 text-xl font-bold text-white">{resource.title}</h3>
                                         <p className="mb-6 text-blue-100">{resource.description}</p>
-                                        <Link href={resource.href} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-gray-100">
+                                        <a href={resource.href} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-gray-100">
                                             {resource.action}
                                             <ExternalLink className="h-4 w-4" />
-                                        </Link>
+                                        </a>
                                     </div>
                                 ))}
                             </div>

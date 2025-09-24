@@ -6,7 +6,8 @@ const nextConfig = {
             '127.0.0.1',
             'images.unsplash.com',
             'pos.api.andgatetech.net',
-            'img.youtube.com',  // ✅ Added API domain
+            'img.youtube.com', // for youtube thumbnails
+            'pos.api.andgatetech.net', // ✅ Added API domain
         ],
         remotePatterns: [
             {
