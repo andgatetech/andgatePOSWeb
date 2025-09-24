@@ -51,17 +51,17 @@ export default function HomePage() {
                             Upcoming: AI-Powered Sales Analytics
                         </div>
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
-                            The Future of<span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Point of Sale</span>
+                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">POS Software</span> Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock, and Customers Easily            
                         </h1>
                         <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-600 md:text-2xl">
-                            Transform your business with our cutting-edge POS system. Streamline operations, boost sales, and delight customers with lightning-fast transactions and powerful analytics.
+                            From small shops to growing businesses, our cloud-based POS helps you track sales, control inventory, and grow profits — anytime, anywhere.
                         </p>
                         <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
                             <Link
                                 href="/register"
                                 className="group flex transform items-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:shadow-2xl"
                             >
-                                Get Started
+                                Get Started Free
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Link>
                             {/* <button className="flex items-center rounded-full px-8 py-4 text-lg font-semibold text-gray-700 transition-colors hover:bg-gray-100">
@@ -73,7 +73,7 @@ export default function HomePage() {
                         </div>
                         <div className="mt-12 flex items-center justify-center text-sm text-gray-500">
                             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            No pre payment required <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
+                            No pre payment required  <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available  <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
                         </div>
                     </div>
                 </div>
