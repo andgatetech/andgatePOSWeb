@@ -2,13 +2,17 @@
 
 import { useCreateCustomerMutation } from '@/store/features/customer/customer';
 import { Award, Crown, Shield, Star, UserPlus, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-toastify';
 
 const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
     const [isClient, setIsClient] = useState(false);
+    const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
     const [createCustomer, { isLoading }] = useCreateCustomerMutation();
+
+    // stable container for modal
+    const containerRef = useRef<HTMLDivElement | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -21,10 +25,31 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         details: '',
     });
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         setIsClient(true);
+
+        // Create dedicated modal root if not exist
+        let modalRoot = document.getElementById('modal-root');
+        if (!modalRoot) {
+            modalRoot = document.createElement('div');
+            modalRoot.id = 'modal-root';
+            document.body.appendChild(modalRoot);
+        }
+
+        // stable container for this modal instance
+        if (!containerRef.current) {
+            containerRef.current = document.createElement('div');
+        }
+        modalRoot.appendChild(containerRef.current);
+        setPortalContainer(containerRef.current);
+
+        return () => {
+            if (containerRef.current && modalRoot?.contains(containerRef.current)) {
+                modalRoot.removeChild(containerRef.current);
+            }
+        };
     }, []);
 
     const handleInputChange = (e) => {
@@ -37,7 +62,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
     };
 
     const validateForm = () => {
-        const newErrors = {};
+        const newErrors: Record<string, string> = {};
         if (!formData.name.trim()) newErrors.name = 'Name is required';
         if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email';
         if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone.trim())) newErrors.phone = 'Invalid phone';
@@ -56,8 +81,8 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         try {
             const submitData = {
                 ...formData,
-                points: parseInt(formData.points) || 0,
-                balance: parseFloat(formData.balance) || 0,
+                points: parseInt(String(formData.points)) || 0,
+                balance: parseFloat(String(formData.balance)) || 0,
                 email: formData.email.trim() || null,
                 phone: formData.phone.trim() || null,
                 details: formData.details.trim() || null,
@@ -68,7 +93,8 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
             resetForm();
             toast.success('Customer created successfully!');
             onSuccess?.();
-        } catch (error) {
+            handleClose();
+        } catch (error: any) {
             const msg = error?.data?.message || 'Failed to create customer';
             setErrors({ general: msg });
             toast.error(msg);
@@ -94,7 +120,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         onClose?.();
     };
 
-    const getMembershipIcon = (membership) => {
+    const getMembershipIcon = (membership: string) => {
         switch (membership) {
             case 'platinum':
                 return Crown;
@@ -107,7 +133,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
-    const getMembershipColor = (membership) => {
+    const getMembershipColor = (membership: string) => {
         switch (membership) {
             case 'platinum':
                 return 'text-purple-600';
@@ -120,9 +146,9 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
-    if (!isClient || !isOpen) return null;
+    if (!isClient || !isOpen || !portalContainer) return null;
 
-    return createPortal(
+    const modalContent = (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleClose}></div>
             <div className="flex min-h-full items-center justify-center p-4">
@@ -149,17 +175,16 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             {/* Name */}
                             <div className="sm:col-span-2">
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                                <label className="block text-sm font-medium text-gray-700">
                                     Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
-                                    id="name"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
+                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${
+                                        errors.name ? 'border-red-300' : ''
                                     }`}
                                     placeholder="Enter customer name"
                                 />
@@ -168,17 +193,14 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
 
                             {/* Email */}
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                    Email
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700">Email</label>
                                 <input
                                     type="email"
-                                    id="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
+                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${
+                                        errors.email ? 'border-red-300' : ''
                                     }`}
                                     placeholder="customer@example.com"
                                 />
@@ -187,17 +209,14 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
 
                             {/* Phone */}
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                                    Phone
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700">Phone</label>
                                 <input
                                     type="tel"
-                                    id="phone"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
+                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${
+                                        errors.phone ? 'border-red-300' : ''
                                     }`}
                                     placeholder="+880 1234 567890"
                                 />
@@ -206,65 +225,50 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
 
                             {/* Points */}
                             <div>
-                                <label htmlFor="points" className="block text-sm font-medium text-gray-700">
-                                    Loyalty Points
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700">Loyalty Points</label>
                                 <input
                                     type="number"
-                                    id="points"
                                     name="points"
                                     min="0"
                                     value={formData.points}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.points ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
-                                    }`}
-                                    placeholder="0"
+                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
                                 />
                                 {errors.points && <p className="mt-1 text-sm text-red-600">{errors.points}</p>}
                             </div>
 
                             {/* Balance */}
                             <div>
-                                <label htmlFor="balance" className="block text-sm font-medium text-gray-700">
-                                    Balance (৳)
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700">Balance (৳)</label>
                                 <input
                                     type="number"
-                                    id="balance"
                                     name="balance"
                                     step="0.01"
                                     value={formData.balance}
                                     onChange={handleInputChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    placeholder="0.00"
+                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
                                 />
                             </div>
 
                             {/* Membership */}
                             <div>
-                                <label htmlFor="membership" className="block text-sm font-medium text-gray-700">
-                                    Membership Level
-                                </label>
-                                <div className="relative mt-1">
-                                    <select
-                                        id="membership"
-                                        name="membership"
-                                        value={formData.membership}
-                                        onChange={handleInputChange}
-                                        className="block w-full rounded-md border-gray-300 px-3 py-2 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    >
-                                        <option value="normal">Normal</option>
-                                        <option value="silver">Silver</option>
-                                        <option value="gold">Gold</option>
-                                        <option value="platinum">Platinum</option>
-                                    </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-8 flex items-center">
-                                        {(() => {
-                                            const IconComponent = getMembershipIcon(formData.membership);
-                                            return <IconComponent className={`h-4 w-4 ${getMembershipColor(formData.membership)}`} />;
-                                        })()}
-                                    </div>
+                                <label className="block text-sm font-medium text-gray-700">Membership</label>
+                                <select
+                                    name="membership"
+                                    value={formData.membership}
+                                    onChange={handleInputChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
+                                >
+                                    <option value="normal">Normal</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="platinum">Platinum</option>
+                                </select>
+                                <div className="mt-1">
+                                    {(() => {
+                                        const Icon = getMembershipIcon(formData.membership);
+                                        return <Icon className={`h-4 w-4 ${getMembershipColor(formData.membership)}`} />;
+                                    })()}
                                 </div>
                             </div>
 
@@ -272,30 +276,23 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                             <div className="flex items-center">
                                 <input
                                     type="checkbox"
-                                    id="is_active"
                                     name="is_active"
                                     checked={formData.is_active}
                                     onChange={handleInputChange}
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600"
                                 />
-                                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
-                                    Active Customer
-                                </label>
+                                <label className="ml-2 text-sm text-gray-700">Active Customer</label>
                             </div>
 
                             {/* Details */}
                             <div className="sm:col-span-2">
-                                <label htmlFor="details" className="block text-sm font-medium text-gray-700">
-                                    Additional Details
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700">Additional Details</label>
                                 <textarea
-                                    id="details"
                                     name="details"
                                     rows={3}
                                     value={formData.details}
                                     onChange={handleInputChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    placeholder="Any additional information about the customer..."
+                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -305,7 +302,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                             <button
                                 type="button"
                                 onClick={handleClose}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm"
                                 disabled={isLoading}
                             >
                                 Cancel
@@ -313,27 +310,18 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
                             >
-                                {isLoading ? (
-                                    <>
-                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
-                                        Creating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Create Customer
-                                    </>
-                                )}
+                                {isLoading ? 'Creating...' : 'Create Customer'}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>,
-        document.body
+        </div>
     );
+
+    return createPortal(modalContent, portalContainer);
 };
 
 export default CreateCustomerModal;

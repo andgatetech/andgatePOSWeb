@@ -1,8 +1,65 @@
 'use client';
-import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useDeleteCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { Award, ChevronLeft, ChevronRight, Crown, Search, Shield, Star, Store, Users } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Award, ChevronLeft, ChevronRight, Crown, Edit, MoreVertical, Plus, Search, Shield, Star, Store, Trash2, Users } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import CreateCustomerModal from './__components/CreateCustomerModal';
+import UpdateCustomerModal from './__components/UpdateCustomerModal';
+
+// Action Dropdown Component
+const ActionDropdown = ({ customer, onEdit, onDelete }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleEdit = () => {
+        onEdit(customer);
+        setIsOpen(false);
+    };
+
+    const handleDelete = () => {
+        if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
+            onDelete(customer.id);
+        }
+        setIsOpen(false);
+    };
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="inline-flex items-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <MoreVertical className="h-4 w-4" />
+            </button>
+
+            {isOpen && (
+                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <button onClick={handleEdit} className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Edit className="mr-3 h-4 w-4" />
+                        Edit Customer
+                    </button>
+                    <button onClick={handleDelete} className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                        <Trash2 className="mr-3 h-4 w-4" />
+                        Delete Customer
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
 
 // Membership Badge Component
 const MembershipBadge = ({ membership }) => {
@@ -126,7 +183,7 @@ const CustomerFilters = ({ filters, onFiltersChange, stores, isLoadingStores }) 
 };
 
 // Customer Table Component
-const CustomerTable = ({ customers, isLoading }) => {
+const CustomerTable = ({ customers, isLoading, onEdit, onDelete }) => {
     if (isLoading) {
         return (
             <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -162,6 +219,7 @@ const CustomerTable = ({ customers, isLoading }) => {
                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Points</th>
                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Balance</th>
                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -181,13 +239,14 @@ const CustomerTable = ({ customers, isLoading }) => {
                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{customer.points.toLocaleString()}</td>
                                 <td className="whitespace-nowrap px-6 py-4 text-sm">
                                     <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>৳{customer.balance}</span>
-                                    {/* <td className="whitespace-nowrap px-6 py-4 text-sm">
-                                    <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>${customer.balance.toFixed(2)}</span> */}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4">
                                     <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${customer.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                         {customer.is_active ? 'Active' : 'Inactive'}
                                     </span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <ActionDropdown customer={customer} onEdit={onEdit} onDelete={onDelete} />
                                 </td>
                             </tr>
                         ))}
@@ -284,16 +343,48 @@ const CustomerListSystem = () => {
         page: 1,
     });
 
-    // Redux queries
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+    // Redux queries and mutations
     const { data: storesData, isLoading: isLoadingStores } = useAllStoresQuery();
     const { data: customersData, isLoading: isLoadingCustomers, error } = useGetStoreCustomersListQuery(filters);
-    console.log(customersData);
+    const [deleteCustomer, { isLoading: isDeleting }] = useDeleteCustomerMutation();
+
     const handleFiltersChange = (newFilters) => {
         setFilters(newFilters);
     };
 
     const handlePageChange = (page) => {
         setFilters((prev) => ({ ...prev, page }));
+    };
+
+    const handleCreateSuccess = () => {
+        setIsCreateModalOpen(false);
+        // The table will automatically refresh due to RTK Query cache invalidation
+    };
+
+    const handleUpdateSuccess = () => {
+        setIsUpdateModalOpen(false);
+        setSelectedCustomer(null);
+        // The table will automatically refresh due to RTK Query cache invalidation
+    };
+
+    const handleEditCustomer = (customer) => {
+        setSelectedCustomer(customer);
+        setIsUpdateModalOpen(true);
+    };
+
+    const handleDeleteCustomer = async (customerId) => {
+        try {
+            await deleteCustomer(customerId).unwrap();
+            // Success feedback could be added here (toast notification, etc.)
+        } catch (error) {
+            console.error('Failed to delete customer:', error);
+            // Error handling could be improved with user feedback
+            alert('Failed to delete customer. Please try again.');
+        }
     };
 
     const selectedStore = useMemo(() => {
@@ -317,30 +408,55 @@ const CustomerListSystem = () => {
         <div className="min-h-screen bg-gray-50 p-4">
             <div className="mx-auto max-w-7xl">
                 {/* Header */}
-                <div className="mb-6">
-                    <h1 className="flex items-center text-2xl font-bold text-gray-900">
-                        <Users className="mr-2 h-6 w-6" />
-                        Customer Management
-                    </h1>
-                    <p className="mt-1 text-sm text-gray-600">
-                        Manage and view customer information across all stores
-                        {selectedStore && (
-                            <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                <Store className="mr-1 h-3 w-3" />
-                                {selectedStore.name}
-                            </span>
-                        )}
-                    </p>
+                <div className="mb-6 flex items-center justify-between">
+                    <div>
+                        <h1 className="flex items-center text-2xl font-bold text-gray-900">
+                            <Users className="mr-2 h-6 w-6" />
+                            Customer Management
+                        </h1>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Manage and view customer information across all stores
+                            {selectedStore && (
+                                <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                    <Store className="mr-1 h-3 w-3" />
+                                    {selectedStore.store_name}
+                                </span>
+                            )}
+                        </p>
+                    </div>
+
+                    {/* Create Customer Button */}
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create Customer
+                    </button>
                 </div>
 
                 {/* Filters */}
                 <CustomerFilters filters={filters} onFiltersChange={handleFiltersChange} stores={storesData} isLoadingStores={isLoadingStores} />
 
                 {/* Customer Table */}
-                <CustomerTable customers={customersData?.data} isLoading={isLoadingCustomers} />
+                <CustomerTable customers={customersData?.data} isLoading={isLoadingCustomers || isDeleting} onEdit={handleEditCustomer} onDelete={handleDeleteCustomer} />
 
                 {/* Pagination */}
                 {customersData?.meta && <Pagination meta={customersData.meta} onPageChange={handlePageChange} />}
+
+                {/* Create Customer Modal */}
+                <CreateCustomerModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
+
+                {/* Update Customer Modal */}
+                <UpdateCustomerModal
+                    isOpen={isUpdateModalOpen}
+                    onClose={() => {
+                        setIsUpdateModalOpen(false);
+                        setSelectedCustomer(null);
+                    }}
+                    onSuccess={handleUpdateSuccess}
+                    customer={selectedCustomer}
+                />
             </div>
         </div>
     );
