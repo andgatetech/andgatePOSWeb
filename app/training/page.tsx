@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // Lazy-load ReactPlayer to improve page performance
-const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
 export default function TrainingPage() {
     const trainingCategories = [
