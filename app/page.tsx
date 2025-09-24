@@ -53,7 +53,7 @@ export default function HomePage() {
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
                             <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Easy POS for Shops</span>            
                         </h1>
-                        <h1 className="mb-8 text-3xl font-black leading-tight text-gray-900 md:text-4xl">
+                        <h1 className="mb-8 text-2xl font-black leading-tight text-gray-900 md:text-3xl">
                             Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock, and Customers Easily            
                         </h1>
                         <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-600 md:text-2xl">
