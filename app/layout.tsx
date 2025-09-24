@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body className={nunito.variable}>
-                <Script id="tawk-to-script" strategy="lazyOnload">
+                {/* <Script id="tawk-to-script" strategy="lazyOnload">
                 {`
                     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
                     (function(){
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     s0.parentNode.insertBefore(s1,s0);
                     })();
                 `}
-            </Script>
+            </Script> */}
                 <ProviderComponent>
                     {children}
                     <WhatsAppButton />
