@@ -40,7 +40,11 @@ const sectionsData = [
       'Customer behavior insights',
       'Inventory movement reports'
     ],
-    images: [{ src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 }],
+    images: [
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+    ],
+    
     colorClass: "bg-blue-600 text-white",
     ctaText: "View Dashboard",
     ctaLink: "/register"
