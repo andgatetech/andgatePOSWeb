@@ -1,32 +1,81 @@
 'use client';
-import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Eye, Search, Image, X, Save, Upload } from 'lucide-react';
+import CategoryFilter from '@/components/filters/CategoryFilter';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
+import { Edit, Eye, Image, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import { useGetCategoryQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from '@/store/features/category/categoryApi';
 
 const CategoryComponent = () => {
-    const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery();
+    const { currentStoreId, userStores } = useCurrentStore();
+    const [apiParams, setApiParams] = useState<Record<string, any>>({});
+
+    // Build query parameters based on filter state
+    let queryParams: Record<string, any>;
+
+    if (Object.keys(apiParams).length > 0) {
+        // Filter is active - use filter parameters
+        if (apiParams.store_ids === 'all') {
+            // "All Stores" selected - send all user's store IDs
+            const allStoreIds = userStores.map((store: any) => store.id);
+            queryParams = { ...apiParams, store_ids: allStoreIds };
+        } else if (apiParams.store_id) {
+            // Specific store selected in filter
+            queryParams = apiParams;
+        } else {
+            // Filter active but no store selected - use current store from sidebar
+            queryParams = { ...apiParams, store_id: currentStoreId };
+        }
+    } else {
+        // No filter active - use current store from sidebar (default behavior)
+        queryParams = currentStoreId ? { store_id: currentStoreId } : {};
+    }
+
+    const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams);
     const [createCategory] = useCreateCategoryMutation();
     const [updateCategory] = useUpdateCategoryMutation();
     const [deleteCategory] = useDeleteCategoryMutation();
 
-    const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState('create'); // 'create', 'edit', 'view'
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState<any>(null);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        image: null,
+        image: null as File | null,
     });
-    const [imagePreview, setImagePreview] = useState(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+
+    // Reset filter when current store changes from sidebar
+    useEffect(() => {
+        console.log('Categories - Current store changed, resetting filters');
+        setApiParams({});
+    }, [currentStoreId]);
+
+    // Handle filter changes from CategoryFilter - RTK Query will auto-refetch when queryParams change
+    const handleFilterChange = useCallback(
+        (newApiParams: Record<string, any>) => {
+            console.log('Categories - Filter changed:', newApiParams);
+            console.log('Categories - Current store from sidebar:', currentStoreId);
+            setApiParams(newApiParams);
+        },
+        [currentStoreId]
+    );
+
+    console.log('Categories - API Params:', apiParams);
+    console.log('Categories - Current Store (Sidebar):', currentStoreId);
+    console.log(
+        'Categories - User Stores:',
+        userStores.map((s: any) => ({ id: s.id, name: s.name }))
+    );
+    console.log('Categories - Final Query Params:', queryParams);
+    console.log('Categories - API Response:', categoriesResponse);
+    console.log('Categories - Categories Data:', categoriesResponse?.data);
 
     const categories = categoriesResponse?.data || [];
 
-    const filteredCategories = categories.filter((category) => category.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const showMessage = (msg = '', type = 'success') => {
+    const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
         Swal.fire({
             toast: true,
             position: 'top',
@@ -38,19 +87,19 @@ const CategoryComponent = () => {
         });
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (file) {
             setFormData({ ...formData, image: file });
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result);
+                setImagePreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const openModal = (type, category = null) => {
+    const openModal = (type: string, category: any = null) => {
         setModalType(type);
         setSelectedCategory(category);
         setShowModal(true);
@@ -75,7 +124,7 @@ const CategoryComponent = () => {
         setImagePreview(null);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
@@ -83,7 +132,11 @@ const CategoryComponent = () => {
             setLoading(true);
 
             if (modalType === 'create') {
-                await createCategory(formData).unwrap();
+                const categoryData = {
+                    ...formData,
+                    store_id: currentStoreId,
+                };
+                await createCategory(categoryData).unwrap();
                 showMessage('Category created successfully', 'success');
             } else if (modalType === 'edit' && selectedCategory) {
                 await updateCategory({
@@ -109,10 +162,9 @@ const CategoryComponent = () => {
         } finally {
             setLoading(false);
         }
-
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this category?')) {
             try {
                 await deleteCategory(id).unwrap();
@@ -124,7 +176,7 @@ const CategoryComponent = () => {
         }
     };
 
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -147,39 +199,41 @@ const CategoryComponent = () => {
     }
 
     return (
-        <div className="mx-auto max-w-7xl p-6">
-            {/* Header */}
-            <div className="mb-8">
-                <h1 className="mb-2 text-3xl font-bold text-gray-900">Category Management</h1>
-                <p className="text-gray-600">Manage your store categories efficiently</p>
-            </div>
-
-            {/* Action Bar */}
-            <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-                    {/* Search */}
-                    <div className="relative max-w-md flex-1">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search categories..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                        />
+        <div className="min-h-screen bg-gray-50">
+            {/* Category Page Header */}
+            
+            <section className="mb-8">
+                <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                    <div className="mb-6 flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
+                                <Layers className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">Category Management</h1>
+                                <p className="text-sm text-gray-500">Manage your store categories efficiently</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <button
+                                onClick={() => openModal('create')}
+                                className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            >
+                                <Plus className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                                Add Category
+                                <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
+                            </button>
+                        </div>
                     </div>
-
-                    {/* Add Category Button */}
-                    <button onClick={() => openModal('create')} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700">
-                        <Plus className="h-4 w-4" />
-                        Add Category
-                    </button>
                 </div>
-            </div>
+            </section>
+
+            {/* Filter Bar */}
+            <CategoryFilter key={`category-filter-${currentStoreId}`} onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
 
             {/* Categories Grid */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredCategories.map((category) => (
+            <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {categories.map((category: any) => (
                     <div key={category.id} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
                         {/* Category Image */}
                         <div className="flex h-48 items-center justify-center bg-gray-100">
@@ -215,17 +269,15 @@ const CategoryComponent = () => {
             </div>
 
             {/* Empty State */}
-            {filteredCategories.length === 0 && (
+            {categories.length === 0 && (
                 <div className="py-12 text-center">
                     <Image className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-                    <h3 className="mb-2 text-lg font-medium text-gray-900">{searchTerm ? 'No categories found' : 'No categories yet'}</h3>
-                    <p className="mb-4 text-gray-500">{searchTerm ? `No categories match "${searchTerm}"` : 'Get started by creating your first category'}</p>
-                    {!searchTerm && (
-                        <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                            <Plus className="h-4 w-4" />
-                            Add First Category
-                        </button>
-                    )}
+                    <h3 className="mb-2 text-lg font-medium text-gray-900">No categories yet</h3>
+                    <p className="mb-4 text-gray-500">Get started by creating your first category</p>
+                    <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                        <Plus className="h-4 w-4" />
+                        Add First Category
+                    </button>
                 </div>
             )}
 

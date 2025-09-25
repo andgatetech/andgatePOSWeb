@@ -1,12 +1,26 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { Store, MapPin, Phone, Clock, Percent, Gift, Camera, Save, AlertCircle, CheckCircle, Loader2, Upload, X, Plus, Trash2, Package, Edit3, Check } from 'lucide-react';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreQuery, useUpdateStoreMutation } from '@/store/features/store/storeApi';
+import { AlertCircle, Building2, Camera, Check, CheckCircle, Clock, Edit3, Gift, Loader2, MapPin, Package, Percent, Phone, Plus, Save, Settings, Store, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 
 const StoreSetting = () => {
-    const { data: storeData, isLoading, error } = useGetStoreQuery();
+    const searchParams = useSearchParams();
+    const { currentStoreId } = useCurrentStore();
+
+    // Get store ID from URL search params or fall back to current store
+    const storeId = searchParams.get('store_id') ? parseInt(searchParams.get('store_id') as string) : currentStoreId;
+
+    const {
+        data: storeData,
+        isLoading,
+        error,
+    } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined, {
+        skip: !storeId, // Skip query if no store ID available
+    });
     const [updateStore, { isLoading: isUpdating }] = useUpdateStoreMutation();
 
     const [formData, setFormData] = useState({
@@ -19,7 +33,7 @@ const StoreSetting = () => {
         loyalty_points_enabled: false,
         loyalty_points_rate: '',
         is_active: true,
-        units: [],
+        units: [] as { name: string }[],
     });
 
     const [logoFile, setLogoFile] = useState(null);
@@ -193,7 +207,10 @@ const StoreSetting = () => {
         }
 
         try {
-            const response = await updateStore({ updateData }).unwrap();
+            const response = await updateStore({
+                updateData,
+                storeId: storeId || undefined, // Include store ID in the update mutation
+            }).unwrap();
             setMessage({ type: 'success', text: response.message || 'Store updated successfully!' });
 
             if (logoFile) {
@@ -238,6 +255,18 @@ const StoreSetting = () => {
         );
     }
 
+    if (!storeId) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-gray-50">
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-center">
+                    <Store className="mx-auto h-12 w-12 text-yellow-600" />
+                    <h3 className="mt-4 text-lg font-semibold text-yellow-800">No Store Selected</h3>
+                    <p className="mt-2 text-yellow-600">Please select a store to manage its settings</p>
+                </div>
+            </div>
+        );
+    }
+
     if (error) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -251,17 +280,23 @@ const StoreSetting = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
-            <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-                {/* Enhanced Header */}
-                <div className="mb-8 text-center">
-                    <div className="mb-4 inline-flex items-center justify-center rounded-full bg-blue-100 p-4">
-                        <Store className="h-8 w-8 text-blue-600" />
+        <div className="min-h-screen bg-gray-50">
+            {/* Page Title Section */}
+            <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
+                            <Settings className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">{storeData?.data?.store_name ? `${storeData.data.store_name} - Settings` : 'Store Settings'}</h1>
+                            <p className="text-sm text-gray-500">{storeId ? `Configure settings for Store ID: ${storeId}` : 'Configure your store preferences and options'}</p>
+                        </div>
                     </div>
-                    <h1 className="text-4xl font-bold text-gray-900">Store Settings</h1>
-                    <p className="mt-3 text-lg text-gray-600">Configure your store information and preferences</p>
                 </div>
+            </div>
 
+            <main className="min-h-screen py-8">
                 {/* Enhanced Alert Messages */}
                 {message.text && (
                     <div
@@ -281,117 +316,139 @@ const StoreSetting = () => {
 
                 {/* Main Form Container */}
                 <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Store Information Card - Enhanced */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-                        <div className="mb-8 flex items-center space-x-3">
-                            <div className="rounded-xl bg-blue-100 p-3">
-                                <Store className="h-6 w-6 text-blue-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Store Information</h2>
-                                <p className="text-gray-600">Basic details about your store</p>
+                    {/* Store Information Card */}
+                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-sm">
+                                    <Store className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">Store Information</h2>
+                                    <p className="text-sm text-gray-500">Basic details about your store</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                            <div className="space-y-2">
-                                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                                    <span>Store Name</span>
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="store_name"
-                                    value={formData.store_name}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                                    placeholder="Enter your store name"
-                                    required
-                                />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                                    <Building2 className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm text-gray-500">Store Name *</label>
+                                    <input
+                                        type="text"
+                                        name="store_name"
+                                        value={formData.store_name}
+                                        onChange={handleInputChange}
+                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
+                                        placeholder="Enter store name"
+                                        required
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>Store Location</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="store_location"
-                                    value={formData.store_location}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                                    placeholder="Enter complete address"
-                                />
+                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                                    <MapPin className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm text-gray-500">Store Location</label>
+                                    <input
+                                        type="text"
+                                        name="store_location"
+                                        value={formData.store_location}
+                                        onChange={handleInputChange}
+                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
+                                        placeholder="Enter complete address"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                                    <Phone className="h-4 w-4" />
-                                    <span>Contact Number</span>
-                                </label>
-                                <input
-                                    type="tel"
-                                    name="store_contact"
-                                    value={formData.store_contact}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                                    placeholder="Enter phone number"
-                                />
+                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                                    <Phone className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm text-gray-500">Contact Number</label>
+                                    <input
+                                        type="tel"
+                                        name="store_contact"
+                                        value={formData.store_contact}
+                                        onChange={handleInputChange}
+                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
+                                        placeholder="Enter phone number"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                                    <Percent className="h-4 w-4" />
-                                    <span>Maximum Discount (%)</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    name="max_discount"
-                                    value={formData.max_discount}
-                                    onChange={handleInputChange}
-                                    min="0"
-                                    max="100"
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                                    placeholder="Maximum allowed discount"
-                                />
+                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50 text-yellow-600">
+                                    <Percent className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm text-gray-500">Max Discount (%)</label>
+                                    <input
+                                        type="number"
+                                        name="max_discount"
+                                        value={formData.max_discount}
+                                        onChange={handleInputChange}
+                                        min="0"
+                                        max="100"
+                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
+                                        placeholder="0"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Store Hours Card - Enhanced */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-                        <div className="mb-8 flex items-center space-x-3">
-                            <div className="rounded-xl bg-purple-100 p-3">
-                                <Clock className="h-6 w-6 text-purple-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Operating Hours</h2>
-                                <p className="text-gray-600">Set your store's operating schedule</p>
+                    {/* Store Hours Card */}
+                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-600 shadow-sm">
+                                    <Clock className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">Operating Hours</h2>
+                                    <p className="text-sm text-gray-500">Set your store operating schedule</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Opening Time</label>
-                                <input
-                                    type="time"
-                                    name="opening_time"
-                                    value={formData.opening_time}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg transition-all focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
-                                />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                                    <Clock className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm text-gray-500">Opening Time</label>
+                                    <input
+                                        type="time"
+                                        name="opening_time"
+                                        value={formData.opening_time}
+                                        onChange={handleInputChange}
+                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Closing Time</label>
-                                <input
-                                    type="time"
-                                    name="closing_time"
-                                    value={formData.closing_time}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg transition-all focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
-                                />
+                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                                    <Clock className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="text-sm text-gray-500">Closing Time</label>
+                                    <input
+                                        type="time"
+                                        name="closing_time"
+                                        value={formData.closing_time}
+                                        onChange={handleInputChange}
+                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -405,25 +462,26 @@ const StoreSetting = () => {
                         )}
                     </div>
 
-                    {/* Enhanced Units Management Card */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-                        <div className="mb-8 flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                                <div className="rounded-xl bg-green-100 p-3">
-                                    <Package className="h-6 w-6 text-green-600" />
+                    {/* Units Management Card */}
+                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 shadow-sm">
+                                    <Package className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-bold text-gray-900">Units Management</h2>
-                                    <p className="text-gray-600">Manage measurement units for products</p>
+                                    <p className="text-sm text-gray-500">Manage measurement units for products</p>
                                 </div>
                             </div>
                             <button
                                 type="button"
                                 onClick={addUnit}
-                                className="flex items-center space-x-2 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition-all hover:bg-green-700 focus:ring-4 focus:ring-green-200"
+                                className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-green-700 hover:to-green-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                             >
-                                <Plus className="h-5 w-5" />
-                                <span>Add Unit</span>
+                                <Plus className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                                Add Unit
+                                <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                             </button>
                         </div>
 
@@ -523,15 +581,17 @@ const StoreSetting = () => {
                         </div>
                     </div>
 
-                    {/* Loyalty Program Card - Enhanced */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-                        <div className="mb-8 flex items-center space-x-3">
-                            <div className="rounded-xl bg-yellow-100 p-3">
-                                <Gift className="h-6 w-6 text-yellow-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Loyalty Program</h2>
-                                <p className="text-gray-600">Reward your customers with points</p>
+                    {/* Loyalty Program Card */}
+                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-100 text-yellow-600 shadow-sm">
+                                    <Gift className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">Loyalty Program</h2>
+                                    <p className="text-sm text-gray-500">Reward your customers with points</p>
+                                </div>
                             </div>
                         </div>
 
@@ -569,15 +629,17 @@ const StoreSetting = () => {
                         </div>
                     </div>
 
-                    {/* Store Logo Card - Enhanced */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-                        <div className="mb-8 flex items-center space-x-3">
-                            <div className="rounded-xl bg-pink-100 p-3">
-                                <Camera className="h-6 w-6 text-pink-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Store Logo</h2>
-                                <p className="text-gray-600">Upload your store's logo</p>
+                    {/* Store Logo Card */}
+                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-pink-600 shadow-sm">
+                                    <Camera className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">Store Logo</h2>
+                                    <p className="text-sm text-gray-500">Upload your store logo</p>
+                                </div>
                             </div>
                         </div>
 
@@ -606,7 +668,13 @@ const StoreSetting = () => {
                                     <div>
                                         <p className="mb-3 text-sm font-semibold text-gray-700">New Logo Preview</p>
                                         <div className="relative rounded-2xl border-2 border-pink-200 bg-pink-50 p-6">
-                                            <img src={logoPreview} alt="Logo preview" className="mx-auto h-40 w-40 rounded-xl border border-gray-300 bg-white object-contain" />
+                                            <Image
+                                                src={logoPreview}
+                                                alt="Logo preview"
+                                                width={160}
+                                                height={160}
+                                                className="mx-auto h-40 w-40 rounded-xl border border-gray-300 bg-white object-contain"
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={clearLogo}
@@ -639,15 +707,17 @@ const StoreSetting = () => {
                         </div>
                     </div>
 
-                    {/* Store Status Card - Enhanced */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-                        <div className="mb-6 flex items-center space-x-3">
-                            <div className={`rounded-xl p-3 ${formData.is_active ? 'bg-green-100' : 'bg-red-100'}`}>
-                                <Store className={`h-6 w-6 ${formData.is_active ? 'text-green-600' : 'text-red-600'}`} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Store Status</h2>
-                                <p className="text-gray-600">Control your store's availability</p>
+                    {/* Store Status Card */}
+                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className={`flex h-12 w-12 items-center justify-center rounded-xl shadow-sm ${formData.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                    <Store className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">Store Status</h2>
+                                    <p className="text-sm text-gray-500">Control your store availability</p>
+                                </div>
                             </div>
                         </div>
 
@@ -680,27 +750,25 @@ const StoreSetting = () => {
                         </div>
                     </div>
 
-                    {/* Submit Button - Enhanced */}
+                    {/* Submit Button */}
                     <div className="flex justify-center pt-8">
                         <button
                             type="submit"
                             disabled={isUpdating}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-12 py-4 text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                            className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 transition-opacity group-hover:opacity-100"></div>
-                            <div className="relative flex items-center space-x-3">
-                                {isUpdating ? (
-                                    <>
-                                        <Loader2 className="h-6 w-6 animate-spin" />
-                                        <span>Updating Store...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="h-6 w-6" />
-                                        <span>Save All Changes</span>
-                                    </>
-                                )}
-                            </div>
+                            {isUpdating ? (
+                                <>
+                                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                                    Updating Store...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="mr-3 h-6 w-6 transition-transform group-hover:scale-110" />
+                                    Save All Changes
+                                </>
+                            )}
+                            <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                         </button>
                     </div>
                 </form>
@@ -712,7 +780,7 @@ const StoreSetting = () => {
                         <p className="font-medium">Changes will be automatically saved and applied to your store immediately.</p>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 };

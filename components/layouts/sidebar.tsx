@@ -36,8 +36,8 @@ const adminRoutes = [
         icon: <ShoppingBag />,
         subMenu: [
             { label: 'Store', href: '/apps/store' },
-            { label: 'Settings', href: '/apps/store/StoreSetting' },
-            { label: 'Staff Management', href: '/apps/Staff' },
+            { label: 'Settings', href: '/apps/store/setting' },
+            { label: 'Staff Management', href: '/apps/staff' },
             { label: 'Adjustment Type', href: '/apps/create-adjustment' },
         ],
     },
