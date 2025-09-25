@@ -4,7 +4,7 @@ const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // ✅ Update store (with optional image)
         updateStore: builder.mutation({
-            query: ({ updateData }: { updateData: any }) => {
+            query: ({ updateData, storeId }: { updateData: any; storeId?: number }) => {
                 const formData = new FormData();
 
                 if (updateData.store_name) formData.append('store_name', updateData.store_name);
@@ -25,6 +25,11 @@ const StoreApi = baseApi.injectEndpoints({
                     });
                 }
 
+                // Include store ID if provided
+                if (storeId) {
+                    formData.append('store_id', storeId.toString());
+                }
+
                 formData.append('_method', 'PUT'); // Laravel PUT via POST
 
                 return {
@@ -36,20 +41,12 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['Stores'],
         }),
 
-        // ✅ All stores
-        getAllStores: builder.query({
-            query: () => ({
-                url: '/stores',
-                method: 'GET',
-            }),
-        }),
-
         // ✅ Get specific store by ID (calls your getStore backend function)
         getStore: builder.query({
             query: (params?: { store_id?: number }) => ({
                 url: '/store',
                 method: 'GET',
-                params: params, 
+                params: params,
             }),
             providesTags: (result, error, arg) => (result ? [{ type: 'Stores', id: arg?.store_id || 'default' }] : []),
         }),
@@ -79,14 +76,32 @@ const StoreApi = baseApi.injectEndpoints({
                 body: newStaff,
             }),
         }),
+        fullStoreListWithFilter: builder.query({
+            query: (params = {}) => ({
+                url: '/store/list',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['Stores'],
+        }),
+
+        // ✅ Delete store
+        deleteStore: builder.mutation({
+            query: (storeId: number) => ({
+                url: `/stores/${storeId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Stores'],
+        }),
     }),
 });
 
 export const {
     useUpdateStoreMutation,
-    useGetAllStoresQuery,
     useGetStoreQuery, // ← New hook for your getStore endpoint
     useGetWhoLoginQuery,
     useGetStaffMemberQuery,
     useStaffRegisterMutation,
+    useFullStoreListWithFilterQuery,
+    useDeleteStoreMutation,
 } = StoreApi;

@@ -7,6 +7,8 @@ import { Activity, ArrowRight, Building2, Calendar, Clock, Edit3, ExternalLink, 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
+import AllStoreComponent from './AllStoreComponent';
+
 
 const StoreComponent = () => {
     // Get current store from Redux
@@ -142,14 +144,14 @@ const StoreComponent = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Page Title Section - No duplicate header needed since layout has one */}
-            <div className="bg-white shadow-sm">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                            <Store className="h-7 w-7 text-white" />
+                            <Store className="h-6 w-6 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{currentStore?.store_name || 'Store Management'}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">Store Management</h1>
                             <p className="text-sm text-gray-500">Manage your store operations and settings</p>
                         </div>
                     </div>
@@ -166,7 +168,7 @@ const StoreComponent = () => {
                 </div>
             </div>
 
-            <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <main className="min-h-screen  py-8  ">
                 {/* Quick Overview */}
                 <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
                     <div className="flex items-center rounded-xl bg-white p-5 shadow">
@@ -214,8 +216,8 @@ const StoreComponent = () => {
                                 <Tag className="h-5 w-5 text-pink-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Active Campaigns</p>
-                                <p className="text-lg font-semibold text-gray-900">{currentStore?.campaigns || 0}</p>
+                                <p className="text-sm font-medium text-gray-700">Total Products</p>
+                                <p className="text-lg font-semibold text-gray-900">TODO</p>
                             </div>
                         </div>
                     </div>
@@ -225,10 +227,10 @@ const StoreComponent = () => {
                 <section className="grid grid-cols-1 gap-6">
                     <div className="space-y-6">
                         {/* Store Info - Modern */}
-                        <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-xl">
+                        <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
                             <div className="mb-6 flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-md">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-sm">
                                         <Building2 className="h-6 w-6" />
                                     </div>
                                     <div>
@@ -238,7 +240,7 @@ const StoreComponent = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 ">
                                 {/* Store Name */}
                                 <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -290,131 +292,8 @@ const StoreComponent = () => {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Management Tools */}
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {/* Staff Management */}
-                            <a
-                                href="/apps/Staff"
-                                className="group relative rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-md"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg">
-                                        <Users className="h-6 w-6" />
-                                    </div>
-                                    <ArrowRight className="h-5 w-5 text-blue-400 transition-transform group-hover:translate-x-1" />
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className="text-lg font-semibold text-gray-900">Staff Management</h4>
-                                    <p className="mt-1 text-sm text-gray-600">Manage employees, schedules, and roles</p>
-                                    <div className="mt-3 flex items-center text-sm text-gray-600">
-                                        <Users className="mr-1 h-4 w-4 text-blue-500" />
-                                        <span>{currentStore?.staff_count || totalStaff} active staff</span>
-                                    </div>
-                                </div>
-                            </a>
-
-                            {/* Store Settings */}
-                            <a
-                                href="/apps/store/StoreSetting"
-                                className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-md"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg">
-                                        <Settings className="h-6 w-6" />
-                                    </div>
-                                    <button className="text-indigo-600 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                        <Edit3 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className="text-lg font-semibold text-gray-900">Store Settings</h4>
-                                    <p className="mt-1 text-sm text-gray-600">Update preferences, working hours, and policies</p>
-                                    <div className="mt-3 flex items-center text-sm text-gray-600">
-                                        <Clock className="mr-1 h-4 w-4 text-indigo-500" />
-                                        <span>{currentStore?.working_hours || '9 AM – 9 PM'}</span>
-                                    </div>
-                                </div>
-                            </a>
-
-                            {/* Compliance & Legal */}
-                            <div className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-red-50 to-red-100 p-6 transition hover:-translate-y-1 hover:border-red-300 hover:shadow-md">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-600 text-white shadow-lg">
-                                        <FileText className="h-6 w-6" />
-                                    </div>
-                                    <button className="text-red-600 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                                        <ExternalLink className="h-4 w-4" />
-                                    </button>
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className="text-lg font-semibold text-gray-900">Compliance & Legal</h4>
-                                    <p className="mt-1 text-sm text-gray-600">Manage licenses, tax documents, and business compliance</p>
-                                    <div className="mt-3 flex items-center text-sm text-gray-600">
-                                        <ShieldCheck className="mr-1 h-4 w-4 text-red-500" />
-                                        <span>{currentStore?.documents || 5} active documents</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Promotions & Marketing */}
-                            <div className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-green-50 to-green-100 p-6 transition hover:-translate-y-1 hover:border-green-300 hover:shadow-md">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-600 text-white shadow-lg">
-                                        <Megaphone className="h-6 w-6" />
-                                    </div>
-                                    <button className="text-green-600 hover:text-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                                        <Edit3 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className="text-lg font-semibold text-gray-900">Promotions & Marketing</h4>
-                                    <p className="mt-1 text-sm text-gray-600">Create and manage promotions, discounts, and campaigns</p>
-                                    <div className="mt-3 flex items-center text-sm text-gray-600">
-                                        <Tag className="mr-1 h-4 w-4 text-green-500" />
-                                        <span>{currentStore?.promotions || 0} active promotions</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Security Settings */}
-                            <div className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-md">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
-                                        <Lock className="h-6 w-6" />
-                                    </div>
-                                    <button className="text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                        <ExternalLink className="h-4 w-4" />
-                                    </button>
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className="text-lg font-semibold text-gray-900">Security Settings</h4>
-                                    <p className="mt-1 text-sm text-gray-600">Manage user roles, permissions, and security policies</p>
-                                    <div className="mt-3 flex items-center text-sm text-gray-600">
-                                        <ShieldCheck className="mr-1 h-4 w-4 text-blue-500" />
-                                        <span>{currentStore?.security || 3} active security policies</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Store Tasks & Notes */}
-                            <div className="relative rounded-xl border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-100 p-6 transition hover:-translate-y-1 hover:border-gray-300 hover:shadow-md">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-600 text-white shadow-lg">
-                                        <Edit3 className="h-6 w-6" />
-                                    </div>
-                                    <button className="text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                        <ExternalLink className="h-4 w-4" />
-                                    </button>
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className="text-lg font-semibold text-gray-900">Store Tasks & Notes</h4>
-                                    <p className="mt-1 text-sm text-gray-600">Keep track of daily operational tasks and notes for quick reference.</p>
-                                    <div className="mt-3 flex items-center text-sm text-gray-600">
-                                        <Clock className="mr-1 h-4 w-4 text-gray-500" />
-                                        <span>{currentStore?.tasks_count || 0} pending tasks</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                    <AllStoreComponent />
                 </section>
             </main>
 
@@ -426,7 +305,7 @@ const StoreComponent = () => {
                         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onClick={handleCloseModal} />
 
                         {/* Modal Panel */}
-                        <div className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                        <div className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-sm transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                             {/* Header */}
                             <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                                 <div className="flex items-center space-x-3">
@@ -549,6 +428,7 @@ const StoreComponent = () => {
                             </form>
                         </div>
                     </div>
+                    dfd
                 </div>
             )}
         </div>

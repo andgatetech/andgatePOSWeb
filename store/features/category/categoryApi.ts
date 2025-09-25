@@ -11,6 +11,9 @@ const CategoryApi = baseApi.injectEndpoints({
                 if (newCategory.image) {
                     formData.append('image', newCategory.image);
                 }
+                if (newCategory.store_id) {
+                    formData.append('store_id', newCategory.store_id.toString());
+                }
 
                 return {
                     url: '/categories',
@@ -52,9 +55,10 @@ const CategoryApi = baseApi.injectEndpoints({
 
         // Get all categories
         getCategory: builder.query({
-            query: () => ({
+            query: (params: any = {}) => ({
                 url: `/categories`,
                 method: 'GET',
+                params,
             }),
             providesTags: ['Categories'],
         }),
