@@ -4,7 +4,7 @@
 <h1 align="center">🏪 AndgatePOS</h1>
 
 <p align="center">
-  <b>A modern Point of Sale (POS) web application built with Next.js, React, TailwindCSS & Redux Toolkit</b>
+  <b>A modern Point of Sale (POS) web application built with Next.js, React, TailwindCSS & Redux Toolkit.</b>
 </p>
 
 <p align="center">
