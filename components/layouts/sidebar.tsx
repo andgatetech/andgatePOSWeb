@@ -14,7 +14,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, Package, Receipt, ShoppingBag, ShoppingCart, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Truck, Users, Wallet } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -104,6 +104,14 @@ const adminRoutes = [
             { label: 'Tax Report', href: '/apps/TaxReport' },
             { label: 'Stock Adjustment List', href: '/apps/stock/stock-adjustment-list' },
             { label: 'Stock Report', href: '/apps/stock/stock-report' },
+        ],
+    },
+    {
+        label: 'Feedback',
+        icon: <MessagesSquare />,
+        subMenu: [
+            { label: 'Give Feedback', href: '/apps/feedbacks/create-feedback' },
+            { label: 'View Feedback', href: '/apps/feedbacks' },
         ],
     },
 ];
