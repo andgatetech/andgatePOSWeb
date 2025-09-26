@@ -1,10 +1,11 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Target, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Barcode, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote, Store, BanknoteArrowDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
+import TestimonialsSection from './(defaults)/components/testimonial/TestimonialsSection';
 import PriceSection from './(defaults)/components/price/PriceSection';
 import Footer from './terms-of-service/Footer';
 
@@ -51,9 +52,9 @@ export default function HomePage() {
                             Upcoming: AI-Powered Sales Analytics
                         </div>
                         <h1 className="mb-8 text-5xl font-black leading-tight text-gray-900 md:text-7xl">
-                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">POS Software</span>            
+                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Easy POS for Shops</span>            
                         </h1>
-                        <h1 className="mb-8 text-3xl font-black leading-tight text-gray-900 md:text-4xl">
+                        <h1 className="mb-8 text-2xl font-black leading-tight text-gray-900 md:text-3xl">
                             Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock, and Customers Easily            
                         </h1>
                         <p className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed text-gray-600 md:text-2xl">
@@ -74,9 +75,19 @@ export default function HomePage() {
                                 Watch Demo
                             </button> */}
                         </div>
-                        <div className="mt-12 flex items-center justify-center text-sm text-gray-500">
+                        <div className="mt-12 flex items-center justify-center text-sm text-gray-500 space-x-6">
+                        <div className="flex items-center">
                             <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            No pre payment required  <CheckCircle className="mr-2 h-4 w-4 text-blue-500" /> Free package available  <CheckCircle className="mr-2 h-4 w-4 text-red-500" /> Cancel anytime
+                            No pre payment required
+                        </div>
+                        <div className="flex items-center">
+                            <CheckCircle className="mr-2 h-4 w-4 text-blue-500" />
+                            Free package available
+                        </div>
+                        <div className="flex items-center">
+                            <CheckCircle className="mr-2 h-4 w-4 text-red-500" />
+                            Cancel anytime
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -112,7 +123,7 @@ export default function HomePage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-20 text-center">
                         <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">
-                            Manage Sales, Stock, and Growth — 
+                            Manage Sales, Stock, and Growth 
                             <span className="block text-blue-600">Effortlessly</span>
                         </h2>
                         <p className="mx-auto max-w-3xl text-xl text-gray-600">From billing to reporting, our POS takes care of the hard work so you can focus on running your business.</p>
@@ -121,47 +132,87 @@ export default function HomePage() {
                     <div className="grid gap-8 lg:grid-cols-3">
                         {[
                             {
+                                icon: <LayoutDashboard className="h-12 w-12" />,
+                                title: 'Smart Dashboard',
+                                description: 'Get a clear overview of sales, stock, and business performance in one easy screen.',
+                                color: 'from-blue-500 to-blue-600',
+                            },
+                            {
                                 icon: <ShoppingCart className="h-12 w-12" />,
-                                title: 'Sell in Seconds, Without the Stress',
-                                description: 'Our POS makes checkout effortless, so you can focus on customers, not complex systems.',
+                                title: 'Easy Checkout',
+                                description: 'Process sales quickly and effortlessly — cash, bKash, or card, all in one simple interface.',
                                 color: 'from-blue-500 to-blue-600',
                             },
                             {
                                 icon: <BarChart3 className="h-12 w-12" />,
-                                title: 'Advanced Analytics',
-                                description: 'Get deep insights into your business with real-time reporting, sales trends, and predictive analytics powered by AI.',
+                                title: 'Simple Reporting',
+                                description: 'View daily sales, revenue trends, and stock levels in a clear dashboard for small business owners.',
                                 color: 'from-green-500 to-green-600',
                             },
                             {
                                 icon: <Users className="h-12 w-12" />,
-                                title: 'Smart Supplier Management',
-                                description: 'Easily track suppliers, manage purchases, and keep your stock flowing without the paperwork.',
+                                title: 'Supplier Management',
+                                description: 'Easily track suppliers, purchase orders, and stock transfers without paperwork or confusion.',
                                 color: 'from-purple-500 to-purple-600',
                             },
                             {
-                                icon: <CreditCard className="h-12 w-12" />,
-                                title: 'Control Your Costs, Grow Your Profits',
-                                description: 'Record and monitor daily expenses in one place — no more notebooks or guesswork.',
+                                icon: <Package className="h-12 w-12" />,
+                                title: 'Product & Category Management',
+                                description: 'Organize products into categories, manage variants, and keep your inventory clear and up-to-date.',
                                 color: 'from-orange-500 to-orange-600',
                             },
                             {
-                                icon: <TrendingUp className="h-12 w-12" />,
-                                title: 'Know Exactly What’s in Your Store',
-                                description: 'Stay updated on stock levels, damaged goods, lost items, and transfers without the paperwork.',
+                                icon: <Receipt className="h-12 w-12" />,
+                                title: 'Order Management',
+                                description: 'Track orders, sales, and invoices easily, so you never miss a sale or customer request.',
+                                color: 'from-yellow-500 to-yellow-600',
+                            },
+                            {
+                                icon: <BanknoteArrowDown className="h-12 w-12" />,
+                                title: 'Expense Management',
+                                description: 'Record and monitor daily expenses — rent, bills, and other costs — in one easy place.',
+                                color: 'from-red-500 to-red-600',
+                            },
+                            {
+                                icon: <Banknote className="h-12 w-12" />,
+                                title: 'Accounts & Payments',
+                                description: 'Track income, payments, and balances across your business to stay financially organized.',
+                                color: 'from-teal-500 to-teal-600',
+                            },
+                            {
+                                icon: <Users className="h-12 w-12" />,
+                                title: 'Customer Management',
+                                description: 'Keep customer records, contact details, and purchase history to improve service and loyalty.',
+                                color: 'from-pink-500 to-pink-600',
+                            },
+                            {
+                                icon: <Archive className="h-12 w-12" />,
+                                title: 'Inventory Management',
+                                description: 'Monitor stock levels, damaged or lost items, and transfer stock between locations easily.',
                                 color: 'from-indigo-500 to-indigo-600',
                             },
                             {
-                                icon: <Shield className="h-12 w-12" />,
+                                icon: <Store className="h-12 w-12" />,
                                 title: 'Multi-Store Management',
-                                description: 'Run all your shops from one system — track sales, stock, and expenses across every branch.',
+                                description: 'Run multiple shops from a single dashboard — track sales, stock, and expenses across branches.',
                                 color: 'from-pink-500 to-pink-600',
                             },
+                            {
+                                icon: <Barcode className="h-12 w-12" />,
+                                title: 'Barcode Generation & Printing',
+                                description: 'Generate and print barcodes for your products quickly and easily, improving sales and stock management.',
+                                color: 'from-yellow-500 to-yellow-600',
+                            },
                         ].map((feature, index) => (
-                            <div key={index} className="group">
-                                <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl group-hover:scale-105">
-                                    <div className={`inline-flex rounded-xl bg-gradient-to-r p-4 ${feature.color} mb-6 text-white transition-transform group-hover:scale-110`}>{feature.icon}</div>
+                            <div key={index} className="group flex">
+                                <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl group-hover:scale-105 flex-1">
+                                    {/* Icon Box */}
+                                    <div className={`w-16 h-16 flex items-center justify-center rounded-xl bg-gradient-to-r ${feature.color} mb-6 text-white transition-transform group-hover:scale-110`}>
+                                    {feature.icon}
+                                    </div>
+
                                     <h3 className="mb-4 text-xl font-bold text-gray-900">{feature.title}</h3>
-                                    <p className="leading-relaxed text-gray-600">{feature.description}</p>
+                                    <p className="leading-relaxed text-gray-600 mt-auto">{feature.description}</p>
                                 </div>
                             </div>
                         ))}
@@ -218,71 +269,22 @@ export default function HomePage() {
 
 
             {/* Testimonials Section */}
-            <section className="bg-white py-24">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-20 text-center">
-                        <h2 className="mb-6 text-4xl font-bold text-gray-900 md:text-5xl">Loved by Business Owners</h2>
-                        <p className="text-xl text-gray-600">Join thousands of successful businesses already using AndGatePOS</p>
-                    </div>
+            <TestimonialsSection></TestimonialsSection>
 
-                    <div className="grid gap-8 md:grid-cols-3">
-                        {[
-                            {
-                                name: 'Sarah Mitchell',
-                                business: 'Artisan Coffee Co.',
-                                image: 'https://images.unsplash.com/photo-1494790108755-2616b612b593?w=150&h=150&fit=crop&crop=face',
-                                review: 'AndGatePOS revolutionized our operations.Sales increased 45% in just 3 months, and our customers love the quick checkout experience.',
-                                rating: 5,
-                            },
-                            {
-                                name: 'Marcus Chen',
-                                business: 'TechHub Electronics',
-                                image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-                                review: 'The analytics dashboard gives us insights we never had before. We can now make data-driven decisions that actually impact our bottom line.',
-                                rating: 5,
-                            },
-                            {
-                                name: 'Isabella Rodriguez',
-                                business: 'Bella Boutique',
-                                image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-                                review: 'Customer management features helped us build a loyal community. Our repeat customer rate has doubled since switching to AndgatePOS.',
-                                rating: 5,
-                            },
-                        ].map((testimonial, index) => (
-                            <div key={index} className="group relative rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50 p-8 transition-all hover:shadow-xl">
-                                <div className="mb-6 flex">
-                                    {[...Array(testimonial.rating)].map((_, i) => (
-                                        <Star key={i} className="h-5 w-5 fill-current text-yellow-400" />
-                                    ))}
-                                </div>
-                                <blockquote className="mb-6 text-lg italic leading-relaxed text-gray-700">&ldquo;{testimonial.review}&rdquo;</blockquote>
-                                <div className="flex items-center">
-                                    <Image src={testimonial.image} alt={testimonial.name} width={40} height={40} className="mr-4 h-12 w-12 rounded-full object-cover" />
-                                    <div>
-                                        <div className="font-bold text-gray-900">{testimonial.name}</div>
-                                        <div className="text-sm text-gray-600">{testimonial.business}</div>
-                                    </div>
-                                </div>
-                                <div className="absolute right-6 top-6 text-6xl text-blue-200 opacity-50">❝</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
             {/* CTA Section */}
             <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 py-24">
                 <div className="absolute inset-0 bg-black opacity-10"></div>
                 <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
                     <h2 className="mb-8 text-4xl font-bold text-white md:text-5xl">Ready to Transform Your Business?</h2>
                     <p className="mb-12 text-xl leading-relaxed text-blue-100">
-                        Join over 50,000 businesses that trust AndGatePOS to power their success. Start your free trial today and see the difference in just 24 hours.
+                        Join over 300 businesses that trust AndgatePOS to power their success. Start your free journey today and see the difference in just 24 hours.
                     </p>
                     <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
                         <Link
-                            href="/contact"
+                            href="/register"
                             className="group flex transform items-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-100"
                         >
-                            Start Free Trial Now
+                            Start Free Journey Now
                             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                         </Link>
                         <Link href="/login" className="rounded-full border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600">
