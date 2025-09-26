@@ -1,8 +1,12 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
-import { Award, BarChart3, BookOpen, CheckCircle, CreditCard, Download, ExternalLink, Lightbulb, Package, Play, Settings, ShoppingCart, Star, Store, Target, Users, Video, Zap } from 'lucide-react';
+import { BarChart3, CreditCard, Download, ExternalLink, Lightbulb, Package, Play, Store, Users, Zap, X } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// Lazy-load ReactPlayer to avoid SSR issues
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
 export default function TrainingPage() {
     const trainingCategories = [
@@ -15,30 +19,9 @@ export default function TrainingPage() {
             bgColor: 'bg-blue-50',
             textColor: 'text-blue-600',
             videos: [
-                {
-                    title: 'Complete Setup Guide',
-                    duration: '15:30',
-                    description: 'Step-by-step setup from account creation to first sale',
-                    thumbnail: '/images/training/setup-guide.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'Dashboard Overview',
-                    duration: '8:45',
-                    description: 'Navigate your dashboard and understand key metrics',
-                    thumbnail: '/images/training/dashboard-overview.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'User Management & Roles',
-                    duration: '12:20',
-                    description: 'Add staff, assign roles, and manage permissions',
-                    thumbnail: '/images/training/user-management.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
+                { title: 'Complete Setup Guide', duration: '15:30', description: 'Step-by-step setup from account creation to first sale', youtubeId: 'Vn0QWdiWLqk', difficulty: 'Beginner' },
+                { title: 'Dashboard Overview', duration: '8:45', description: 'Navigate your dashboard and understand key metrics', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'User Management & Roles', duration: '12:20', description: 'Add staff, assign roles, and manage permissions', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
             ],
         },
         {
@@ -50,38 +33,10 @@ export default function TrainingPage() {
             bgColor: 'bg-green-50',
             textColor: 'text-green-600',
             videos: [
-                {
-                    title: 'Processing Sales',
-                    duration: '10:15',
-                    description: 'Handle customer transactions efficiently',
-                    thumbnail: '/images/training/processing-sales.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'Payment Methods',
-                    duration: '7:30',
-                    description: 'Accept cash, card, and digital payments',
-                    thumbnail: '/images/training/payment-methods.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'Refunds & Returns',
-                    duration: '9:45',
-                    description: 'Process refunds and handle return transactions',
-                    thumbnail: '/images/training/refunds-returns.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
-                {
-                    title: 'Discounts & Promotions',
-                    duration: '11:20',
-                    description: 'Apply discounts and manage promotional codes',
-                    thumbnail: '/images/training/discounts.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
+                { title: 'Processing Sales', duration: '10:15', description: 'Handle customer transactions efficiently', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Payment Methods', duration: '7:30', description: 'Accept cash, card, and digital payments', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Refunds & Returns', duration: '9:45', description: 'Process refunds and handle return transactions', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Discounts & Promotions', duration: '11:20', description: 'Apply discounts and manage promotional codes', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
             ],
         },
         {
@@ -93,38 +48,10 @@ export default function TrainingPage() {
             bgColor: 'bg-purple-50',
             textColor: 'text-purple-600',
             videos: [
-                {
-                    title: 'Adding Products',
-                    duration: '13:15',
-                    description: 'Add new products with variants, pricing, and images',
-                    thumbnail: '/images/training/adding-products.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'Stock Management',
-                    duration: '16:40',
-                    description: 'Track inventory levels and set up reorder alerts',
-                    thumbnail: '/images/training/stock-management.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
-                {
-                    title: 'Bulk Import/Export',
-                    duration: '12:30',
-                    description: 'Import products in bulk using CSV files',
-                    thumbnail: '/images/training/bulk-import.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Advanced',
-                },
-                {
-                    title: 'Categories & Variants',
-                    duration: '14:25',
-                    description: 'Organize products with categories and manage variants',
-                    thumbnail: '/images/training/categories.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
+                { title: 'Adding Products', duration: '13:15', description: 'Add new products with variants, pricing, and images', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Stock Management', duration: '16:40', description: 'Track inventory levels and set up reorder alerts', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Bulk Import/Export', duration: '12:30', description: 'Import products in bulk using CSV files', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+                { title: 'Categories & Variants', duration: '14:25', description: 'Organize products with categories and manage variants', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
             ],
         },
         {
@@ -136,30 +63,9 @@ export default function TrainingPage() {
             bgColor: 'bg-orange-50',
             textColor: 'text-orange-600',
             videos: [
-                {
-                    title: 'Customer Profiles',
-                    duration: '9:30',
-                    description: 'Create and manage customer information',
-                    thumbnail: '/images/training/customer-profiles.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'Loyalty Programs',
-                    duration: '15:45',
-                    description: 'Set up and manage customer loyalty rewards',
-                    thumbnail: '/images/training/loyalty-programs.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
-                {
-                    title: 'Customer Analytics',
-                    duration: '11:15',
-                    description: 'Analyze customer behavior and purchase patterns',
-                    thumbnail: '/images/training/customer-analytics.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Advanced',
-                },
+                { title: 'Customer Profiles', duration: '9:30', description: 'Create and manage customer information', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Loyalty Programs', duration: '15:45', description: 'Set up and manage customer loyalty rewards', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Customer Analytics', duration: '11:15', description: 'Analyze customer behavior and purchase patterns', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
             ],
         },
         {
@@ -171,38 +77,10 @@ export default function TrainingPage() {
             bgColor: 'bg-indigo-50',
             textColor: 'text-indigo-600',
             videos: [
-                {
-                    title: 'Sales Reports',
-                    duration: '13:20',
-                    description: 'Generate and understand daily, weekly, and monthly sales reports',
-                    thumbnail: '/images/training/sales-reports.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Beginner',
-                },
-                {
-                    title: 'Inventory Reports',
-                    duration: '10:50',
-                    description: 'Track stock movements and inventory valuation',
-                    thumbnail: '/images/training/inventory-reports.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
-                {
-                    title: 'Financial Reports',
-                    duration: '17:30',
-                    description: 'Understand profit margins, tax reports, and financial insights',
-                    thumbnail: '/images/training/financial-reports.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Advanced',
-                },
-                {
-                    title: 'Custom Reports',
-                    duration: '14:15',
-                    description: 'Create custom reports for specific business needs',
-                    thumbnail: '/images/training/custom-reports.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Advanced',
-                },
+                { title: 'Sales Reports', duration: '13:20', description: 'Generate and understand daily, weekly, and monthly sales reports', youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+                { title: 'Inventory Reports', duration: '10:50', description: 'Track stock movements and inventory valuation', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Financial Reports', duration: '17:30', description: 'Understand profit margins, tax reports, and financial insights', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+                { title: 'Custom Reports', duration: '14:15', description: 'Create custom reports for specific business needs', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
             ],
         },
         {
@@ -214,35 +92,12 @@ export default function TrainingPage() {
             bgColor: 'bg-teal-50',
             textColor: 'text-teal-600',
             videos: [
-                {
-                    title: 'Store Setup',
-                    duration: '12:40',
-                    description: 'Add and configure multiple store locations',
-                    thumbnail: '/images/training/store-setup.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
-                {
-                    title: 'Inventory Sync',
-                    duration: '16:20',
-                    description: 'Synchronize inventory across multiple stores',
-                    thumbnail: '/images/training/inventory-sync.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Advanced',
-                },
-                {
-                    title: 'Store Performance',
-                    duration: '11:30',
-                    description: 'Compare and analyze performance across locations',
-                    thumbnail: '/images/training/store-performance.png',
-                    youtubeId: 'dQw4w9WgXcQ',
-                    difficulty: 'Intermediate',
-                },
+                { title: 'Store Setup', duration: '12:40', description: 'Add and configure multiple store locations', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+                { title: 'Inventory Sync', duration: '16:20', description: 'Synchronize inventory across multiple stores', youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+                { title: 'Store Performance', duration: '11:30', description: 'Compare and analyze performance across locations', youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
             ],
         },
     ];
-
-   
 
     const difficultyColors: { [key: string]: string } = {
         Beginner: 'bg-green-100 text-green-800',
@@ -250,10 +105,11 @@ export default function TrainingPage() {
         Advanced: 'bg-red-100 text-red-800',
     };
 
+    const [playingVideo, setPlayingVideo] = useState<string | null>(null);
+
     return (
         <MainLayout>
             <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-                {/* Training Categories */}
                 <section id="all-tutorials" className="bg-white py-24">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mb-20 text-center">
@@ -264,9 +120,8 @@ export default function TrainingPage() {
                             </p>
                         </div>
 
-                        {trainingCategories.map((category, categoryIndex) => (
+                        {trainingCategories.map((category) => (
                             <div key={category.id} className="mb-20">
-                                {/* Category Header */}
                                 <div className={`mb-8 rounded-2xl ${category.bgColor} p-8`}>
                                     <div className="flex items-center gap-4">
                                         <div className={`rounded-2xl bg-gradient-to-r ${category.color} p-4 text-white shadow-lg`}>{category.icon}</div>
@@ -278,49 +133,56 @@ export default function TrainingPage() {
                                     </div>
                                 </div>
 
-                                {/* Video Grid */}
                                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                    {category.videos.map((video, videoIndex) => (
-                                        <div key={videoIndex} className="group overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-                                            {/* Video Thumbnail */}
-                                            <div className="relative overflow-hidden">
-                                                <Image
-                                                    src={video.thumbnail}
-                                                    alt={video.title}
-                                                    width={400}
-                                                    height={225}
-                                                    className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                                />
-                                                <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-20">
-                                                    <div className="flex h-full items-center justify-center">
-                                                        <div className="rounded-full bg-white bg-opacity-90 p-4 transition-all group-hover:scale-110 group-hover:bg-opacity-100">
-                                                            <Play className={`h-8 w-8 ${category.textColor}`} />
-                                                        </div>
+                                    {category.videos.map((video) => {
+                                        const thumbnailUrl = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
+                                        return (
+                                            <div key={video.youtubeId} className="group overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                                                <div className="relative overflow-hidden">
+                                                    {playingVideo === video.youtubeId ? (
+                                                        <>
+                                                            <ReactPlayer
+                                                                url={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                                                                playing
+                                                                controls
+                                                                width="100%"
+                                                                height="225px"
+                                                            />
+                                                            <button
+                                                                className="absolute top-2 right-2 rounded-full bg-black bg-opacity-60 p-2 text-white"
+                                                                onClick={() => setPlayingVideo(null)}
+                                                            >
+                                                                <X className="h-5 w-5" />
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Image
+                                                                src={thumbnailUrl}
+                                                                alt={video.title}
+                                                                width={400}
+                                                                height={225}
+                                                                className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-110 cursor-pointer"
+                                                                onClick={() => setPlayingVideo(video.youtubeId)}
+                                                            />
+                                                            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer" onClick={() => setPlayingVideo(video.youtubeId)}>
+                                                                <Play className={`h-12 w-12 ${category.textColor}`} />
+                                                            </div>
+                                                            <div className="absolute bottom-3 right-3 rounded bg-black bg-opacity-80 px-2 py-1 text-xs font-medium text-white">{video.duration}</div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                <div className="p-6">
+                                                    <h4 className="mb-3 text-lg font-bold text-gray-900 group-hover:text-blue-600">{video.title}</h4>
+                                                    <p className="mb-4 text-gray-600">{video.description}</p>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${difficultyColors[video.difficulty]}`}>{video.difficulty}</span>
+                                                        <div className="text-sm text-gray-500">{video.duration}</div>
                                                     </div>
                                                 </div>
-                                                <div className="absolute bottom-3 right-3 rounded bg-black bg-opacity-80 px-2 py-1 text-xs font-medium text-white">{video.duration}</div>
                                             </div>
-
-                                            {/* Video Info */}
-                                            <div className="p-6">
-                                                <h4 className="mb-3 text-lg font-bold text-gray-900 group-hover:text-blue-600">{video.title}</h4>
-                                                <p className="mb-4 text-gray-600">{video.description}</p>
-                                                <div className="flex items-center justify-between">
-                                                    <Link
-                                                        href={`https://youtube.com/watch?v=${video.youtubeId}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${category.color} px-4 py-2 text-sm font-semibold text-white transition-all hover:shadow-lg`}
-                                                    >
-                                                        <Play className="h-4 w-4" />
-                                                        Watch Now
-                                                        <ExternalLink className="h-3 w-3" />
-                                                    </Link>
-                                                    <div className="text-sm text-gray-500">{video.duration}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ))}
@@ -336,39 +198,18 @@ export default function TrainingPage() {
 
                             <div className="grid gap-8 md:grid-cols-3">
                                 {[
-                                    {
-                                        icon: <Download className="h-12 w-12" />,
-                                        title: 'User Manual (PDF)',
-                                        description: 'Complete written guide covering all features and functionalities',
-                                        action: 'Download PDF',
-                                        href: '/resources/andgatePOS-user-manual.pdf',
-                                    },
-                                    {
-                                        icon: <Lightbulb className="h-12 w-12" />,
-                                        title: 'Best Practices Guide',
-                                        description: 'Expert tips and industry best practices for maximizing efficiency',
-                                        action: 'Read Guide',
-                                        href: '/resources/best-practices',
-                                    },
-                                    {
-                                        icon: <Users className="h-12 w-12" />,
-                                        title: '24/7 Support',
-                                        description: 'Get help from our expert support team whenever you need it',
-                                        action: 'Contact Support',
-                                        href: '/contact',
-                                    },
+                                    { icon: <Download className="h-12 w-12" />, title: 'User Manual (PDF)', description: 'Complete written guide covering all features and functionalities', action: 'Download PDF', href: '/resources/andgatePOS-user-manual.pdf' },
+                                    { icon: <Lightbulb className="h-12 w-12" />, title: 'Best Practices Guide', description: 'Expert tips and industry best practices for maximizing efficiency', action: 'Read Guide', href: '/resources/best-practices' },
+                                    { icon: <Users className="h-12 w-12" />, title: '24/7 Support', description: 'Get help from our expert support team whenever you need it', action: 'Contact Support', href: '/contact' },
                                 ].map((resource, index) => (
                                     <div key={index} className="rounded-2xl bg-white bg-opacity-10 p-8 backdrop-blur-lg transition-all hover:bg-opacity-20">
                                         <div className="mb-6 flex justify-center text-white">{resource.icon}</div>
                                         <h3 className="mb-4 text-xl font-bold text-white">{resource.title}</h3>
                                         <p className="mb-6 text-blue-100">{resource.description}</p>
-                                        <Link
-                                            href={resource.href}
-                                            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-gray-100"
-                                        >
+                                        <a href={resource.href} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-gray-100">
                                             {resource.action}
                                             <ExternalLink className="h-4 w-4" />
-                                        </Link>
+                                        </a>
                                     </div>
                                 ))}
                             </div>
