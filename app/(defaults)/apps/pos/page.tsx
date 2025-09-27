@@ -1,13 +1,12 @@
-import ComponentsAppsInvoiceAdd from '@/components/apps/mailbox/invoice/components-apps-invoice-add';
+import PosLeftSide from '@/app/(defaults)/apps/pos/PosLeftSide';
 import { Metadata } from 'next';
-import React from 'react';
 
 export const metadata: Metadata = {
     title: 'POS',
 };
 
 const InvoiceAdd = () => {
-    return <ComponentsAppsInvoiceAdd/>;
+    return <PosLeftSide />;
 };
 
 export default InvoiceAdd;
