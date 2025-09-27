@@ -5,10 +5,13 @@ import { useCreateProductMutation, useGetUnitsQuery } from '@/store/Product/prod
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
+import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
 const EnhancedProductForm = () => {
+    const store_id = useSelector((state: any) => state.auth.currentStore.id);
+    console.log('Current Store ID:', store_id);
     const maxNumber = 10;
     const [images, setImages] = useState<any>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -36,6 +39,7 @@ const EnhancedProductForm = () => {
         units: '',
         tax_rate: '',
         tax_included: false,
+        store_id: store_id,
     });
 
     // Get recent 5 categories for dropdown and filter based on search
@@ -118,6 +122,7 @@ const EnhancedProductForm = () => {
             fd.append('quantity', String(formData.quantity));
             fd.append('purchase_price', String(formData.purchase_price));
             fd.append('available', formData.available);
+            fd.append('store_id', Number(formData.store_id));
 
             // Add low stock quantity
             if (formData.low_stock_quantity) {

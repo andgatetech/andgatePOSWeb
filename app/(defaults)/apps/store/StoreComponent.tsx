@@ -3,12 +3,11 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateStoreMutation } from '@/store/features/auth/authApi';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
-import { Activity, ArrowRight, Building2, Calendar, Clock, Edit3, ExternalLink, FileText, Lock, MapPin, Megaphone, Plus, Settings, ShieldCheck, Store, Tag, Users, X } from 'lucide-react';
+import { Activity, Building2, Calendar, MapPin, Plus, Store, Tag, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import AllStoreComponent from './AllStoreComponent';
-
 
 const StoreComponent = () => {
     // Get current store from Redux
@@ -120,7 +119,7 @@ const StoreComponent = () => {
             setIsCreateModalOpen(false);
 
             // Refetch current store data if available
-            if (refetch) refetch();
+            if (currentStoreId && refetch) refetch();
 
             showMessage('Store created successfully!', 'success');
         } catch (error) {
@@ -428,7 +427,6 @@ const StoreComponent = () => {
                             </form>
                         </div>
                     </div>
-                    dfd
                 </div>
             )}
         </div>
