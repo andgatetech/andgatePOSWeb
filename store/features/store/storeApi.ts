@@ -93,6 +93,14 @@ const StoreApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Stores'],
         }),
+        // ✅ All stores
+        allStores: builder.query({
+            query: () => ({
+                url: '/stores',
+                method: 'GET',
+            }),
+            providesTags: ['Stores'],
+        }),
     }),
 });
 
@@ -104,4 +112,5 @@ export const {
     useStaffRegisterMutation,
     useFullStoreListWithFilterQuery,
     useDeleteStoreMutation,
+    useAllStoresQuery,
 } = StoreApi;

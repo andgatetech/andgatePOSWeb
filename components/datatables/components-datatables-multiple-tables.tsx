@@ -13,6 +13,7 @@ import IconEye from '../icon/icon-eye';
 const ProductTable = () => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [apiParams, setApiParams] = useState<Record<string, any>>({});
 
     // API calls - RTK Query will auto-refetch when apiParams change
     const { data: pds, isLoading } = useGetAllProductsQuery(apiParams);
@@ -29,7 +30,6 @@ const ProductTable = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [sortField, setSortField] = useState('product_name');
     const [sortDirection, setSortDirection] = useState('asc');
-    const [apiParams, setApiParams] = useState<Record<string, any>>({});
 
     // Universal filter hook
     const { buildApiParams } = useUniversalFilter();
