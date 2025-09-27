@@ -1,10 +1,10 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput } from '@mantine/core';
-import { DollarSign, FileText, Store, X, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Group, Modal, NumberInput, Textarea, TextInput } from '@mantine/core';
+import { FileText, Plus, Store, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Props {
     opened: boolean;
@@ -15,9 +15,14 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
     const [title, setTitle] = useState('');
     const [notes, setNotes] = useState('');
     const [debit, setDebit] = useState<number | undefined>();
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [storeId, setStoreId] = useState<number | undefined>();
-    const { data: storesData } = useAllStoresQuery();
     const [createExpense, { isLoading }] = useCreateExpenseMutation();
+
+    // Update storeId dynamically when sidebar store changes
+    useEffect(() => {
+        setStoreId(currentStoreId);
+    }, [currentStoreId]);
 
     const handleSubmit = async () => {
         if (!title || !debit) return;
@@ -152,43 +157,23 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
                                 },
                             }}
                         />
-                        <DollarSign className="absolute left-3 top-9 h-4 w-4 text-green-500" />
+                        <span className="absolute left-3 top-9 font-bold text-green-500">৳</span>
                     </div>
 
                     <div className="relative">
-                        <Select
+                        <TextInput
                             label="Store"
-                            placeholder="Select a store"
-                            data={
-                                storesData?.data?.map((store: any) => ({
-                                    value: store.id.toString(),
-                                    label: store.store_name,
-                                })) || []
-                            }
-                            value={storeId?.toString() || ''}
-                            onChange={(value) => setStoreId(Number(value))}
+                            value={currentStore?.store_name || ''}
+                            readOnly
                             styles={{
-                                label: {
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: '#374151',
-                                    marginBottom: '6px',
-                                },
+                                label: { fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' },
                                 input: {
                                     borderRadius: '8px',
                                     border: '2px solid #e5e7eb',
                                     padding: '12px 16px 12px 44px',
                                     fontSize: '14px',
-                                    transition: 'all 0.2s ease',
-                                    '&:focus': {
-                                        borderColor: '#667eea',
-                                        boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
-                                    },
-                                },
-                                dropdown: {
-                                    borderRadius: '8px',
-                                    border: '1px solid #e5e7eb',
-                                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                    backgroundColor: '#f3f4f6',
+                                    cursor: 'not-allowed',
                                 },
                             }}
                         />
