@@ -16,14 +16,12 @@ export function analyzeSeoMetadata(metadata: Metadata): SeoAnalysis {
 
     // Title Analysis
     if (metadata.title) {
-        const titleText = typeof metadata.title === 'string' 
-            ? metadata.title 
-            : metadata.title.default || '';
-        
+        const titleText = typeof metadata.title === 'string' ? metadata.title : metadata.title.default || '';
+
         if (titleText.length > 0) {
             passed.push('✅ Title is present');
             score += 15;
-            
+
             if (titleText.length >= 30 && titleText.length <= 60) {
                 passed.push('✅ Title length is optimal (30-60 chars)');
                 score += 10;
@@ -43,7 +41,7 @@ export function analyzeSeoMetadata(metadata: Metadata): SeoAnalysis {
     if (metadata.description) {
         passed.push('✅ Description is present');
         score += 15;
-        
+
         if (metadata.description.length >= 120 && metadata.description.length <= 160) {
             passed.push('✅ Description length is optimal (120-160 chars)');
             score += 10;
@@ -60,7 +58,7 @@ export function analyzeSeoMetadata(metadata: Metadata): SeoAnalysis {
     if (metadata.keywords && Array.isArray(metadata.keywords) && metadata.keywords.length > 0) {
         passed.push('✅ Keywords are present');
         score += 10;
-        
+
         if (metadata.keywords.length >= 5 && metadata.keywords.length <= 15) {
             passed.push('✅ Optimal number of keywords (5-15)');
             score += 5;
@@ -77,14 +75,14 @@ export function analyzeSeoMetadata(metadata: Metadata): SeoAnalysis {
     if (metadata.openGraph) {
         passed.push('✅ OpenGraph tags are present');
         score += 15;
-        
+
         if (metadata.openGraph.images && metadata.openGraph.images.length > 0) {
             passed.push('✅ OpenGraph image is present');
             score += 10;
         } else {
             suggestions.push('💡 Add OpenGraph image for better social sharing');
         }
-        
+
         if (metadata.openGraph.url) {
             passed.push('✅ OpenGraph URL is present');
             score += 5;
@@ -99,7 +97,7 @@ export function analyzeSeoMetadata(metadata: Metadata): SeoAnalysis {
     if (metadata.twitter) {
         passed.push('✅ Twitter Card tags are present');
         score += 10;
-        
+
         if (metadata.twitter.images && metadata.twitter.images.length > 0) {
             passed.push('✅ Twitter image is present');
             score += 5;
@@ -130,7 +128,7 @@ export function analyzeSeoMetadata(metadata: Metadata): SeoAnalysis {
         score: Math.min(100, score),
         issues,
         suggestions,
-        passed
+        passed,
     };
 }
 
@@ -174,32 +172,32 @@ export function logSeoAnalysis(metadata: Metadata, pagePath: string) {
         const analysis = analyzeSeoMetadata(metadata);
         console.group(`🔍 SEO Analysis for ${pagePath}`);
         console.log(`Score: ${analysis.score}/100`);
-        
+
         if (analysis.passed.length > 0) {
             console.group('✅ Passed');
-            analysis.passed.forEach(item => console.log(item));
+            analysis.passed.forEach((item) => console.log(item));
             console.groupEnd();
         }
-        
+
         if (analysis.issues.length > 0) {
             console.group('❌ Issues');
-            analysis.issues.forEach(item => console.log(item));
+            analysis.issues.forEach((item) => console.log(item));
             console.groupEnd();
         }
-        
+
         if (analysis.suggestions.length > 0) {
             console.group('💡 Suggestions');
-            analysis.suggestions.forEach(item => console.log(item));
+            analysis.suggestions.forEach((item) => console.log(item));
             console.groupEnd();
         }
-        
+
         const recommendations = getSeoRecommendations(pagePath);
         if (recommendations.length > 0) {
             console.group('📋 Recommendations');
-            recommendations.forEach(item => console.log(item));
+            recommendations.forEach((item) => console.log(item));
             console.groupEnd();
         }
-        
+
         console.groupEnd();
     }
 }

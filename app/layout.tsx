@@ -1,31 +1,21 @@
+import WhatsAppButton from '@/__components/WhatsAppButton';
 import ProviderComponent from '@/components/layouts/provider-component';
-import 'react-perfect-scrollbar/dist/css/styles.css';
-import '../styles/tailwind.css';
 import { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
-import WhatsAppButton from '@/__components/WhatsAppButton';
+import Script from 'next/script';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Script from "next/script";
+import '../styles/tailwind.css';
 
 export const metadata: Metadata = {
     title: {
         template: '%s | AndgatePOS System',
         default: 'AndgatePOS - Complete Point of Sale System for Modern Businesses',
     },
-    description: 'AndgatePOS is a comprehensive point of sale system designed for modern businesses. Manage inventory, process transactions, track sales, and grow your business with our powerful POS solution.',
-    keywords: [
-        'POS system',
-        'point of sale',
-        'retail software',
-        'inventory management',
-        'business management',
-        'sales tracking',
-        'AndgatePOS',
-        'restaurant POS',
-        'retail POS',
-        'cloud POS'
-    ],
+    description:
+        'AndgatePOS is a comprehensive point of sale system designed for modern businesses. Manage inventory, process transactions, track sales, and grow your business with our powerful POS solution.',
+    keywords: ['POS system', 'point of sale', 'retail software', 'inventory management', 'business management', 'sales tracking', 'AndgatePOS', 'restaurant POS', 'retail POS', 'cloud POS'],
     authors: [{ name: 'Andgate Technologies' }],
     creator: 'Andgate Technologies',
     publisher: 'Andgate Technologies',
@@ -100,23 +90,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             category: 'SaaS',
             businessFunction: 'Sell',
         },
-        featureList: [
-            'Inventory Management',
-            'Sales Tracking',
-            'Customer Management',
-            'Report Generation',
-            'Multi-store Support',
-            'Real-time Analytics'
-        ]
+        featureList: ['Inventory Management', 'Sales Tracking', 'Customer Management', 'Report Generation', 'Multi-store Support', 'Real-time Analytics'],
     };
 
     return (
         <html lang="en">
             <head>
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#1f2937" />
                 <link rel="icon" href="/favicon.ico" />
@@ -143,14 +123,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {children}
                     <WhatsAppButton />
                 </ProviderComponent>
-                 <ToastContainer position="top-right" autoClose={3000} />
+                <ToastContainer position="top-right" autoClose={3000} />
             </body>
-            
+
             {/* Google Analytics */}
-            <Script
-                src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-                strategy="afterInteractive"
-            />
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} strategy="afterInteractive" />
             <Script id="google-analytics" strategy="afterInteractive">
                 {`
                     window.dataLayer = window.dataLayer || [];
@@ -159,7 +136,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
                 `}
             </Script>
-            
+
             {/* Google Tag Manager */}
             <Script id="gtm" strategy="afterInteractive">
                 {`
@@ -170,7 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
                 `}
             </Script>
-            
+
             {/* Facebook Pixel */}
             <Script id="facebook-pixel" strategy="afterInteractive">
                 {`
