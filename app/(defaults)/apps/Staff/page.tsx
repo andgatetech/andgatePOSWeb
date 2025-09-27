@@ -1,4 +1,4 @@
-import StaffManagement from "./StaffTable";
+import StaffManagement from "./StaffManagement";
 
 
 const page = () => {

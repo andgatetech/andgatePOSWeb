@@ -62,10 +62,12 @@ const StoreApi = baseApi.injectEndpoints({
 
         // ✅ Staff members for a store
         getStaffMember: builder.query({
-            query: () => ({
+            query: (params = {}) => ({
                 url: '/store/members',
                 method: 'GET',
+                params,
             }),
+            providesTags: ['User'],
         }),
 
         // ✅ Register a new staff member
@@ -75,6 +77,7 @@ const StoreApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: newStaff,
             }),
+            invalidatesTags: ['User'],
         }),
         fullStoreListWithFilter: builder.query({
             query: (params = {}) => ({
