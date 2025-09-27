@@ -26,35 +26,20 @@ const CustomerApi = baseApi.injectEndpoints({
 
         // ✅ New endpoint for /store/customers
         getStoreCustomersList: builder.query({
-            query: ({
-                store_id,
-                search,
-                membership,
-                per_page,
-                page,
-            }: {
-                store_id?: number | string;
-                search?: string;
-                membership?: 'normal' | 'silver' | 'gold' | 'platinum';
-                per_page?: number;
-                page?: number;
-            } = {}) => {
-                let params = new URLSearchParams();
-
-                if (store_id) params.append('store_id', String(store_id));
-                if (search) params.append('search', search);
-                if (membership) params.append('membership', membership);
-                if (per_page) params.append('per_page', String(per_page));
-                if (page) params.append('page', String(page));
-
-                return {
-                    url: `/store/customers?${params.toString()}`,
-                    method: 'GET',
-                };
-            },
+            query: (params) => ({
+                url: '/store/customers',
+                method: 'GET',
+                params,
+            }),
             providesTags: (result) =>
                 result
-                    ? [...result.data.map((customer: any) => ({ type: 'StoreCustomers' as const, id: customer.id })), { type: 'StoreCustomers', id: 'LIST' }]
+                    ? [
+                          ...result.data.map((customer: any) => ({
+                              type: 'StoreCustomers' as const,
+                              id: customer.id,
+                          })),
+                          { type: 'StoreCustomers', id: 'LIST' },
+                      ]
                     : [{ type: 'StoreCustomers', id: 'LIST' }],
         }),
 

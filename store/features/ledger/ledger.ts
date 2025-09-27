@@ -37,7 +37,14 @@ export const ledgerApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Journals'],
         }),
+
+        deleteLedger: builder.mutation({
+            query: (ledgerId) => ({
+                url: `/ledgers/${ledgerId}`,
+                method: 'DELETE',
+            }),
+        }),
     }),
 });
 
-export const { useGetLedgersQuery, useCreateLedgerMutation, useGetLedgerJournalsQuery } = ledgerApi;
+export const { useGetLedgersQuery, useCreateLedgerMutation, useGetLedgerJournalsQuery, useDeleteLedgerMutation } = ledgerApi;

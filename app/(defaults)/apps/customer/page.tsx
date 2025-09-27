@@ -5,6 +5,7 @@ import { Award, ChevronLeft, ChevronRight, Crown, Edit, MoreVertical, Plus, Sear
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CreateCustomerModal from './__components/CreateCustomerModal';
 import UpdateCustomerModal from './__components/UpdateCustomerModal';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 
 // Action Dropdown Component
 const ActionDropdown = ({ customer, onEdit, onDelete }) => {
@@ -335,13 +336,24 @@ const Pagination = ({ meta, onPageChange }) => {
 
 // Main Customer List Component
 const CustomerListSystem = () => {
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [filters, setFilters] = useState({
         search: '',
-        store_id: '',
+        store_id: currentStoreId || '',
         membership: '',
         per_page: 10,
         page: 1,
     });
+
+    useEffect(() => {
+        if (currentStoreId) {
+            setFilters((prev) => ({
+                ...prev,
+                store_id: currentStoreId,
+                page: 1,
+            }));
+        }
+    }, [currentStoreId]);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
