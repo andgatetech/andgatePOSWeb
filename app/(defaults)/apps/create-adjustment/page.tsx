@@ -1,32 +1,38 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adjustmentTypeApi';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
 import { Filter, MoreHorizontal, Plus, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CreateAdjustmentTypeModal from './__components/CreateAdjustmentTypeModal';
 
 const AdjustmentTypesPage = () => {
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [filters, setFilters] = useState({
-        store_id: '',
+        store_id: currentStoreId || '',
         type: '',
         search: '',
     });
 
+    useEffect(() => {
+        if (currentStoreId) {
+            setFilters((prev) => ({
+                ...prev,
+                store_id: currentStoreId,
+                page: 1,
+            }));
+        }
+    }, [currentStoreId]);
+
     // API queries
-    const {
-        data: adjustmentTypesData,
-        isLoading: isLoadingAdjustmentTypes,
-        refetch: refetchAdjustmentTypes,
-    } = useGetAdjustmentTypesQuery({
-        store_id: filters.store_id,
-        type: filters.type,
-    });
+    const { data: adjustmentTypesData, isLoading: isLoadingAdjustmentTypes, refetch: refetchAdjustmentTypes } = useGetAdjustmentTypesQuery(filters);
 
-    const { data: storesData, isLoading: isLoadingStores } = useAllStoresQuery();
+    // const { data: storesData, isLoading: isLoadingStores } = useAllStoresQuery();
+    const { data: storesData, isLoading: isLoadingStores } = useFullStoreListWithFilterQuery();
 
-    const adjustmentTypes = adjustmentTypesData?.adjustment_types || [];
+    const adjustmentTypes = adjustmentTypesData?.data || [];
     const stores = storesData?.data || [];
 
     // Filter adjustment types based on search
