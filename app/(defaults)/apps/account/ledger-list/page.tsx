@@ -1,21 +1,36 @@
 'use client';
 
-import { Building2, Edit, Eye, FileText, Filter, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
-import CreateLedgerModal from './__component/LedgerModal';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
+import { Building2, Edit, Eye, FileText, Filter, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import CreateLedgerModal from './__component/LedgerModal';
 
 const LedgerList = () => {
+    const currentStore = useSelector((state: any) => state.auth.currentStore);
+    const currentStoreId = useSelector((state: any) => state.auth.currentStoreId);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStore, setSelectedStore] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ show: false, ledger: null });
-    const { data: st } = useAllStoresQuery();
+    // const { data: st } = useAllStoresQuery();
+    const { data: st } = useFullStoreListWithFilterQuery();
 
     const stores = st?.data || [];
+
+    // useMemo to compute active storeId for the query
+    const activeStoreId = useMemo(() => {
+        // priority: selectedStore (from filter) > currentStoreId (from sidebar)
+        return selectedStore ? Number(selectedStore) : Number(currentStoreId);
+    }, [selectedStore, currentStoreId]);
+
+    useEffect(() => {
+        setSelectedStore(''); // clear filter so currentStoreId is used
+        setCurrentPage(1); // reset pagination
+    }, [currentStoreId]);
 
     // Fetch ledgers with RTK Query
     const {
@@ -25,12 +40,13 @@ const LedgerList = () => {
         refetch,
     } = useGetLedgersQuery({
         search: searchTerm,
-        store_id: selectedStore,
+        store_id: activeStoreId,
         page: currentPage,
         per_page: 10,
     });
 
-    const ledgers = ledgersResponse?.data || [];
+    const ledgers = ledgersResponse?.data?.data || [];
+    console.log(ledgers);
     const pagination = ledgersResponse?.meta || {};
 
     // Reset page when search or filter changes
