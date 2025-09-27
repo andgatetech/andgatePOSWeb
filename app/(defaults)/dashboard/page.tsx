@@ -1,10 +1,9 @@
 import ComponentsDashboardSales from '@/components/dashboard/components-dashboard-sales';
-import { generateMetadata, commonMetadata } from '@/lib/seo';
-import React from 'react';
+import { commonMetadata, generateMetadata } from '@/lib/seo';
 
 export const metadata = generateMetadata({
     ...commonMetadata.dashboard,
-    image: '/images/dashboard-og-image.jpg'
+    image: '/images/dashboard-og-image.jpg',
 });
 
 const Sales = () => {

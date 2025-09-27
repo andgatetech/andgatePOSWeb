@@ -1,5 +1,5 @@
-import React from 'react';
 import { Metadata } from 'next';
+import React from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className="min-h-screen text-black mt-1 dark:text-white-dark">
+        <div className="mt-1 min-h-screen text-black dark:text-white-dark">
             {children}
             <ToastContainer position="top-right" autoClose={3000} />
         </div>
