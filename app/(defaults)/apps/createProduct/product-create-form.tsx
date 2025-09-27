@@ -1,24 +1,31 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/Product/productApi';
+import { Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
-const EnhancedProductForm = () => {
+const ProductCreateForm = () => {
     const maxNumber = 10;
     const [images, setImages] = useState<any>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [categorySearchTerm, setCategorySearchTerm] = useState('');
     const router = useRouter();
 
-    const { data: ct, isLoading: catLoading } = useGetCategoryQuery();
-    const categories = ct?.data || [];
+    const { currentStore } = useCurrentStore();
+
+    // Send store_id for the currently selected store only
+    const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
+
+    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams);
+    const categories = categoriesResponse?.data || [];
     const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
-    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery();
+    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams);
     const units = unitsResponse?.data || [];
 
     const [formData, setFormData] = useState({
@@ -111,6 +118,15 @@ const EnhancedProductForm = () => {
 
         try {
             const fd = new FormData();
+
+            // Add store_id from current store (required by backend)
+            if (currentStore?.id) {
+                fd.append('store_id', String(currentStore.id));
+            } else {
+                toast.error('Please select a store first!');
+                return;
+            }
+
             fd.append('category_id', formData.category_id);
             fd.append('product_name', formData.product_name.trim());
             fd.append('description', formData.description.trim());
@@ -231,17 +247,34 @@ const EnhancedProductForm = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
             <div className="mx-auto ">
                 {/* Header */}
-                <div className="mb-8 text-center">
-                    <h1 className="mb-2 text-3xl font-bold text-gray-900">Create New Product</h1>
-                    <p className="text-gray-600">Add a new product to your inventory</p>
+                <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                    <div className="mb-6 flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
+                                <Store className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">Create New Product</h1>
+                                <p className="text-sm text-gray-500">{currentStore ? `Add a new product to ${currentStore.store_name}` : 'Add a new product to your inventory'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {currentStore && (
+                        <div className="rounded-lg bg-blue-50 p-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                                    <Store className="h-4 w-4 text-blue-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-blue-900">Current Store: {currentStore.store_name}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Main Form Card */}
                 <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-                        <h2 className="text-xl font-semibold text-white">Product Information</h2>
-                    </div>
-
                     <div className="p-8">
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             {/* Basic Information Section */}
@@ -498,6 +531,17 @@ const EnhancedProductForm = () => {
                                             <option value="yes">Available</option>
                                             <option value="no">Out of Stock</option>
                                         </select>
+                                    </div>
+
+                                    {/* Store Info (Read-only display) */}
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Store</label>
+                                        <input
+                                            type="text"
+                                            value={currentStore?.store_name || 'Current Store'}
+                                            disabled
+                                            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600"
+                                        />
                                     </div>
                                 </div>
 
@@ -766,4 +810,4 @@ const EnhancedProductForm = () => {
     );
 };
 
-export default EnhancedProductForm;
+export default ProductCreateForm;
