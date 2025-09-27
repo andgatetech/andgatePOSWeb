@@ -69,7 +69,7 @@ export default function ContactPage() {
                     <div className="mb-16 text-center">
                         <h1 className="mb-6 text-5xl font-bold text-gray-900">
                             Get Started with
-                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">AndGate POS</span>
+                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">AndgatePOS</span>
                         </h1>
                         <p className="mx-auto max-w-3xl text-xl text-gray-600">
                             Ready to transform your business? Fill out the form below and our team will contact you to set up your personalized POS solution.
