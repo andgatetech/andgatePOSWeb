@@ -1,17 +1,16 @@
-import ComponentsFormsLayoutsGrid from '@/components/forms/layouts/components-forms-layouts-grid';
-
 import { Metadata } from 'next';
+import ProductCreateForm from './product-create-form';
 
 export const metadata: Metadata = {
-    title: 'Create Product',
+    title: 'Andgate POS - Create Product',
 };
 
 const Layouts = () => {
     return (
         <div>
             <div className="">
-                {/* Grid */}
-                <ComponentsFormsLayoutsGrid />
+               
+                <ProductCreateForm />
             </div>
         </div>
     );
