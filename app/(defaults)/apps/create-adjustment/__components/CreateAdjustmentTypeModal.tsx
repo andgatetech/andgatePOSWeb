@@ -1,30 +1,42 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateAdjustmentTypeMutation } from '@/store/features/AdjustmentType/adjustmentTypeApi';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { AlertCircle, CheckCircle, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Store, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
+    // const [mounted, setMounted] = useState(false);
+
+    // useEffect(() => {
+    //     setMounted(true);
+    //     // return () => setMounted(false);
+    // }, []);
+
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [formData, setFormData] = useState({
         type: '',
         description: '',
-        store_id: '',
+        store_id: currentStoreId,
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [createAdjustmentType] = useCreateAdjustmentTypeMutation();
-    const { data: storesData, isLoading: isLoadingStores } = useAllStoresQuery();
-
-    // Reset form when modal opens/closes
     useEffect(() => {
         if (isOpen) {
-            setFormData({ type: '', description: '', store_id: '' });
+            setFormData({
+                type: '',
+                description: '',
+                store_id: currentStoreId || '', // ✅ keep store
+            });
             setErrors({});
             setIsSubmitting(false);
         }
-    }, [isOpen]);
+    }, [isOpen, currentStoreId]);
+
+    // Reset form when modal opens/closes
 
     // Handle input changes
     const handleInputChange = (field, value) => {
@@ -41,8 +53,6 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
         if (!formData.description.trim()) newErrors.description = 'Description is required';
         else if (formData.description.length > 255) newErrors.description = 'Description must be less than 255 characters';
 
-        if (!formData.store_id) newErrors.store_id = 'Store is required';
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -56,9 +66,11 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
             await createAdjustmentType({
                 type: formData.type.trim(),
                 description: formData.description.trim(),
-                store_id: formData.store_id,
+                store_id: currentStoreId,
             }).unwrap();
-            setTimeout(() => onSuccess(), 100);
+            toast.success('Adjustment type created successfully');
+            onSuccess();
+            handleClose();
         } catch (error) {
             if (error?.data?.errors) setErrors(error.data.errors);
             else setErrors({ general: error?.data?.message || 'Failed to create adjustment type' });
@@ -67,26 +79,22 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
-    // Handle key events (Enter & Escape) safely
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleKey = (e) => {
-            if (e.key === 'Enter' && !isSubmitting && formData.type && formData.description && formData.store_id) {
-                handleSubmit();
-            }
-            if (e.key === 'Escape') onClose();
-        };
-
-        window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
-    }, [isOpen, formData, isSubmitting]);
+    const handleClose = () => {
+        setFormData({
+            type: '',
+            description: '',
+            store_id: currentStoreId,
+        });
+        setErrors({});
+        onClose();
+    };
 
     // Don't render if modal is closed
+    // if (!isOpen || !mounted) return null;
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
+        <div key={isOpen ? 'open' : 'closed'} className="fixed inset-0 z-50 flex items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black bg-opacity-50 transition-opacity" />
 
@@ -116,34 +124,17 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                     )}
 
-                    {/* Store field */}
                     <div className="mb-4">
-                        <label htmlFor="adjustment-store" className="mb-2 block text-sm font-medium text-gray-700">
-                            Store <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            id="adjustment-store"
-                            value={formData.store_id}
-                            onChange={(e) => handleInputChange('store_id', e.target.value)}
-                            disabled={isSubmitting || isLoadingStores}
-                            className={`w-full rounded-lg border px-4 py-3 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-50 ${
-                                errors.store_id ? 'border-red-300 ring-1 ring-red-300' : 'border-gray-300'
-                            }`}
-                        >
-                            <option value="">Select a store</option>
-                            {storesData?.data?.map((store) => (
-                                <option key={store.id} value={store.id}>
-                                    {store.store_name}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.store_id && (
-                            <div className="mt-2 flex items-center gap-2 text-red-600">
-                                <AlertCircle className="h-4 w-4" />
-                                <p className="text-sm">{errors.store_id}</p>
-                            </div>
-                        )}
-                        <p className="mt-2 text-xs text-gray-500">Select the store for this adjustment type</p>
+                        <label className="block text-sm font-medium text-gray-700">Store</label>
+                        <div className="relative mt-1">
+                            <input
+                                type="text"
+                                value={currentStore?.store_name || 'No Store Selected'}
+                                readOnly
+                                className="block w-full cursor-not-allowed rounded-md border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-gray-900 focus:outline-none"
+                            />
+                            <Store className="absolute left-3 top-2.5 h-4 w-4 text-purple-500" />
+                        </div>
                     </div>
 
                     {/* Type field */}
@@ -218,7 +209,7 @@ const CreateAdjustmentTypeModal = ({ isOpen, onClose, onSuccess }) => {
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={isSubmitting || !formData.type || !formData.description || !formData.store_id}
+                        disabled={isSubmitting || !formData.type || !formData.description}
                         className="flex min-w-[140px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {isSubmitting ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <CheckCircle className="h-4 w-4" />}

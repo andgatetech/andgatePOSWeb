@@ -3,7 +3,11 @@ import { baseApi } from '@/store/api/baseApi';
 const adjustmentTypeApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getAdjustmentTypes: builder.query({
-            query: () => 'adjustment-types',
+            query: (params) => ({
+                url: 'adjustment-types',
+                method: 'GET',
+                params,
+            }),
             providesTags: ['AdjustmentType'],
         }),
         createAdjustmentType: builder.mutation({
