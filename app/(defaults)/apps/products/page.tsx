@@ -1,11 +1,12 @@
 
-import { Metadata } from 'next';
 import React from 'react';
+import { generateMetadata, commonMetadata } from '@/lib/seo';
 import ProductTable from './ProductTable';
 
-export const metadata: Metadata = {
-    title: 'POS Products',
-};
+export const metadata = generateMetadata({
+    ...commonMetadata.products,
+    image: '/images/products-og-image.jpg'
+});
 
 const MultipleTables = () => {
     return (

@@ -31,6 +31,51 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
+    // SEO and Performance optimizations
+    poweredByHeader: false,
+    compress: true,
+    generateEtags: true,
+    // Security headers for better SEO
+    async headers() {
+        return [
+            {
+                source: '/(.*)',
+                headers: [
+                    {
+                        key: 'X-Frame-Options',
+                        value: 'DENY'
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff'
+                    },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'origin-when-cross-origin'
+                    },
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=()'
+                    }
+                ]
+            }
+        ];
+    },
+    // Redirects for SEO
+    async redirects() {
+        return [
+            {
+                source: '/admin',
+                destination: '/dashboard',
+                permanent: true,
+            },
+            {
+                source: '/pos',
+                destination: '/apps/pos',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 module.exports = nextConfig;

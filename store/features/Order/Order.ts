@@ -12,9 +12,10 @@ const OrderApi = baseApi.injectEndpoints({
         }),
 
         getAllOrders: builder.query({
-            query: () => ({
+            query: (filters = {}) => ({
                 url: '/orders',
                 method: 'GET',
+                params: filters, // Let Laravel ignore empty ones
             }),
             providesTags: ['Orders'],
         }),

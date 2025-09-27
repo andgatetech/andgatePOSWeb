@@ -8,23 +8,32 @@ const CustomerApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: customerData,
             }),
-            invalidatesTags: [
-                { type: 'Customers', id: 'LIST' },
-                { type: 'StoreCustomers', id: 'LIST' }, // ✅ ensures store customers list reloads
-            ],
+            invalidatesTags: [{ type: 'Customers', id: 'LIST' }],
         }),
         // Existing endpoint
         getStoreCustomers: builder.query({
-            query: ({ search }: { search?: string } = {}) => {
-                let url = '/customers';
-                if (search) url += `?search=${encodeURIComponent(search)}`;
-                return { url, method: 'GET' };
+            query: ({
+                store_id,
+                search,
+            }: {
+                store_id?: number | string;
+                search?: string;
+            } = {}) => {
+                let params = new URLSearchParams();
+
+                if (store_id) params.append('store_id', String(store_id));
+                if (search) params.append('search', search);
+
+                return {
+                    url: `/customers?${params.toString()}`,
+                    method: 'GET',
+                };
             },
             providesTags: (result) =>
                 result ? [...result.data.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }] : [{ type: 'Customers', id: 'LIST' }],
         }),
 
-        // ✅ New endpoint for /store/customers
+        // ✅ Store customers list endpoint for /customers
         getStoreCustomersList: builder.query({
             query: ({
                 store_id,
@@ -48,14 +57,12 @@ const CustomerApi = baseApi.injectEndpoints({
                 if (page) params.append('page', String(page));
 
                 return {
-                    url: `/store/customers?${params.toString()}`,
+                    url: `/customers?${params.toString()}`,
                     method: 'GET',
                 };
             },
             providesTags: (result) =>
-                result
-                    ? [...result.data.map((customer: any) => ({ type: 'StoreCustomers' as const, id: customer.id })), { type: 'StoreCustomers', id: 'LIST' }]
-                    : [{ type: 'StoreCustomers', id: 'LIST' }],
+                result ? [...result.data.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }] : [{ type: 'Customers', id: 'LIST' }],
         }),
 
         // ✅ Update customer mutation to invalidate store customers list
@@ -67,7 +74,7 @@ const CustomerApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: (result, error, { customerId }) => [
                 { type: 'Customers', id: customerId },
-                { type: 'StoreCustomers', id: 'LIST' }, // ✅ ensures store customers list reloads
+                { type: 'Customers', id: 'LIST' },
             ],
         }),
         // ✅ Delete customer mutation to invalidate store customers list
@@ -79,11 +86,10 @@ const CustomerApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, customerId) => [
                 { type: 'Customers', id: customerId },
                 { type: 'Customers', id: 'LIST' },
-                { type: 'StoreCustomers', id: 'LIST' }, // ✅ ensures store customers list reloads
             ],
         }),
     }),
-    overrideExisting: false,
+    overrideExisting: true,
 });
 
 export const { useCreateCustomerMutation, useGetStoreCustomersQuery, useGetStoreCustomersListQuery, useUpdateCustomerMutation, useDeleteCustomerMutation } = CustomerApi;
