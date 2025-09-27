@@ -1,0 +1,35 @@
+Update [COMPONENT_NAME] to match the modern design pattern established by CategoryComponent and StaffManagement:
+
+**Required Changes:**
+1. **Header Design**: Add modern header section with gradient icon, title, description, and styled action button
+2. **useCurrentStore Integration**: Import and integrate useCurrentStore hook for store-aware filtering  
+3. **UniversalFilter System**: Replace existing filters with dedicated [COMPONENT]Filter component
+4. **API Enhancement**: Update API calls to support store filtering with proper parameter mapping
+5. **Backend Integration**: Ensure API parameters match backend expectations (store_id, store_ids, search, role, date filters)
+
+**Component Details:**
+- Component: [PATH_TO_COMPONENT] 
+- API Hook: [API_HOOK_NAME]
+- Backend Endpoint: [BACKEND_ENDPOINT]
+- Main Entity: [ENTITY_NAME] (e.g., products, orders, categories)
+
+**Backend API Parameters Expected:**
+- store_id: Single store filtering
+- store_ids: Multiple stores (comma-separated) 
+- search: Text search across relevant fields
+- [SPECIFIC_FILTERS]: Add any entity-specific filters
+- start_date/end_date: Date range filtering
+
+**UI Requirements:**
+- Modern card-based header with gradient background
+- Clean filter bar using UniversalFilter + custom filters
+- Remove duplicate client-side filtering (let backend handle it)
+- Proper TypeScript types and error handling
+- Cache invalidation after mutations
+
+**Expected Result:**
+- Store context-aware data loading
+- Advanced filtering capabilities  
+- Consistent modern UI design
+- Efficient backend filtering
+- Proper state management
