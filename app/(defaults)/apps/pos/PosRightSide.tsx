@@ -12,7 +12,7 @@ import type { RootState } from '@/store';
 import { useGetStoreCustomersQuery } from '@/store/features/customer/customer';
 import { useCreateOrderMutation } from '@/store/features/Order/Order';
 import Swal from 'sweetalert2';
-import ComponentsAppsInvoicePreview from './components-apps-invoice-preview';
+import ComponentsAppsInvoicePreview from '../../../../components/apps/mailbox/invoice/components-apps-invoice-preview';
 
 // Membership discount rates
 const MEMBERSHIP_DISCOUNTS = {
@@ -70,7 +70,7 @@ interface OrderResponse {
     };
 }
 
-const BillToForm: React.FC = () => {
+const PosRightSide: React.FC = () => {
     const [showPreview, setShowPreview] = useState(false);
     const [orderResponse, setOrderResponse] = useState<OrderResponse | null>(null);
     const [customerSearch, setCustomerSearch] = useState('');
@@ -1022,4 +1022,4 @@ const BillToForm: React.FC = () => {
     );
 };
 
-export default BillToForm;
+export default PosRightSide;

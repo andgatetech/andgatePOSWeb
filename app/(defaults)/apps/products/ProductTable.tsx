@@ -5,7 +5,7 @@ import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useDeleteProductMutation, useGetAllProductsQuery, useGetUnitsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Percent, Tag, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -58,12 +58,10 @@ const ProductTable = () => {
 
     // API calls - RTK Query will auto-refetch when queryParams change
     const { data: pds, isLoading, refetch } = useGetAllProductsQuery(queryParams);
+
     const products = useMemo(() => pds?.data || [], [pds?.data]);
 
     // Categories are now handled by ProductFilter component
-
-    const { data: unitsResponse } = useGetUnitsQuery({});
-    const productUnits = unitsResponse?.data || [];
 
     const [updateAvailability] = useUpdateAvailabilityMutation();
     const [deleteProduct] = useDeleteProductMutation();
@@ -230,7 +228,7 @@ const ProductTable = () => {
         }
         return (Number(p.quantity) || 0) === 0;
     }).length;
-    
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
             <div className="">
@@ -370,10 +368,16 @@ const ProductTable = () => {
                                             {/* Product Details */}
                                             {/* SKU & Unit */}
                                             <td className="px-4 py-4">
-                                                <div className="space-y-1">
+                                                <div className="space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <Tag className="h-4 w-4 text-gray-400" />
                                                         <span className="rounded bg-gray-100 px-2 py-1 font-mono text-sm">{product.sku || 'N/A'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Package className="h-4 w-4 text-blue-400" />
+                                                        <span className="rounded bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700">
+                                                            {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'No Unit')}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -399,7 +403,9 @@ const ProductTable = () => {
                                                                     ? product.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
                                                                     : Number(product.quantity) || 0}
                                                             </span>
-                                                            <div className="text-sm font-bold text-gray-500">{product.unit}</div>
+                                                            <div className="text-sm font-bold text-gray-500">
+                                                                {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'N/A')}
+                                                            </div>
                                                         </div>
                                                         <span
                                                             className={`rounded-full px-2 py-1 text-xs font-medium ${

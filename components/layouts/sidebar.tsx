@@ -50,8 +50,8 @@ const adminRoutes = [
         label: 'Product',
         icon: <Package />,
         subMenu: [
-            { label: 'Create Product', href: '/apps/createProduct' },
-            { label: 'Product List', href: '/apps/products' },
+            { label: 'Add Product', href: '/apps/createProduct' },
+            { label: 'All Products', href: '/apps/products' },
             { label: 'Stock Adjustment', href: '/apps/stock/create-stock-adjustment' },
             { label: 'Product QrCode', href: '/apps/qr-code' },
         ],
@@ -62,9 +62,9 @@ const adminRoutes = [
         subMenu: [{ label: 'POS Interface', href: '/apps/pos' }],
     },
     {
-        label: 'Order',
+        label: 'Orders',
         icon: <FileText />,
-        subMenu: [{ label: 'Order List', href: '/apps/OrderView' }],
+        subMenu: [{ label: 'All Orders', href: '/apps/orders' }],
     },
     {
         label: 'Supplier',
