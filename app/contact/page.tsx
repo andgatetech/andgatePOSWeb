@@ -238,11 +238,11 @@ export default function ContactPage() {
 
                                 <p className="text-center text-sm text-gray-500">
                                     By submitting this form, you agree to our{' '}
-                                    <Link href="/privacy" className="text-blue-600 hover:underline">
+                                    <Link href="/privacy-policy" className="text-blue-600 hover:underline">
                                         Privacy Policy
                                     </Link>{' '}
                                     and{' '}
-                                    <Link href="/terms" className="text-blue-600 hover:underline">
+                                    <Link href="/terms-of-service" className="text-blue-600 hover:underline">
                                         Terms of Service
                                     </Link>
                                 </p>
