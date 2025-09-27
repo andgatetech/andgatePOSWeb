@@ -1,13 +1,13 @@
-import ComponentsAppsInvoiceList from '@/components/apps/mailbox/invoice/components-apps-invoice-list';
-import { Metadata } from 'next';
-import React from 'react';
+import Orders from '@/app/(defaults)/apps/orders/Orders';
+import { generateMetadata, commonMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: 'View Order',
+export const metadata = generateMetadata({
+    ...commonMetadata.orders,
+    image: '/images/orders-og-image.jpg'
+});
+
+const OrdersPage = () => {
+    return <Orders />;
 };
 
-const InvoiceList = () => {
-    return <ComponentsAppsInvoiceList />;
-};
-
-export default InvoiceList;
+export default OrdersPage;

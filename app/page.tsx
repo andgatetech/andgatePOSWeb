@@ -1,5 +1,6 @@
 'use client';
 import MainLayout from '@/components/layout/MainLayout';
+
 import { ArrowRight, BarChart3, CheckCircle, Clock, CreditCard, Package, Play, Settings, Shield, ShoppingCart, Star, Barcode, Target, TrendingUp, Users, Zap, Receipt, Archive, LayoutDashboard, Banknote, Store, BanknoteArrowDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

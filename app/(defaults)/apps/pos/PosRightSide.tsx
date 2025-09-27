@@ -8,11 +8,12 @@ import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/featu
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
-import { useGetStoreCustomersQuery } from '@/store/features/customer/customer';
+import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useCreateOrderMutation } from '@/store/features/Order/Order';
 import Swal from 'sweetalert2';
-import ComponentsAppsInvoicePreview from '../../../../components/apps/mailbox/invoice/components-apps-invoice-preview';
+import PosInvoicePreview from './PosInvoicePreview';
 
 // Membership discount rates
 const MEMBERSHIP_DISCOUNTS = {
@@ -37,6 +38,17 @@ interface Customer {
     created_at: string;
     updated_at: string;
     deleted_at: string | null;
+}
+
+// Customer API response interface
+interface CustomerApiResponse {
+    data: Customer[];
+    meta: {
+        current_page: number;
+        per_page: number;
+        total: number;
+        last_page: number;
+    };
 }
 
 // Order response interface
@@ -79,14 +91,34 @@ const PosRightSide: React.FC = () => {
     const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [searchParams, setSearchParams] = useState<string>('');
+    // Get current store from hook
+    const { currentStoreId } = useCurrentStore();
 
+    const queryParams = useMemo(() => {
+        const params: Record<string, any> = {
+            available: 'yes', // Only show available products in POS
+        };
+
+        // Always use current store from sidebar for POS
+        if (currentStoreId) {
+            params.store_id = currentStoreId;
+        }
+
+        return params;
+    }, [currentStoreId]);
     const {
         data: customersResponse,
         isLoading: isSearching,
         error,
         refetch,
-    } = useGetStoreCustomersQuery(
-        { search: searchParams || '' } // always pass an object
+    } = useGetStoreCustomersListQuery(
+        {
+            store_id: currentStoreId || undefined,
+            search: searchParams || '',
+        },
+        {
+            skip: !currentStoreId, // Only run query when we have a valid store ID
+        }
     );
 
     const dispatch = useDispatch();
@@ -128,7 +160,9 @@ const PosRightSide: React.FC = () => {
     };
 
     // Get customers from RTK Query response with useMemo to prevent dependency issues
-    const customers: Customer[] = useMemo(() => (customersResponse?.success ? customersResponse.data : []), [customersResponse]);
+    const customers: Customer[] = useMemo(() => {
+        return (customersResponse as CustomerApiResponse)?.data || [];
+    }, [customersResponse]);
 
     // Handle search input change with debounce
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -382,6 +416,7 @@ const PosRightSide: React.FC = () => {
 
         let orderData: any = {
             user_id: userId,
+            store_id: currentStoreId, // Add current store ID
             payment_method: formData.paymentMethod,
             payment_status: formData.paymentStatus,
             tax: calculateTax(), // Calculate total tax from all items
@@ -581,7 +616,7 @@ const PosRightSide: React.FC = () => {
 
                     {/* Invoice Preview */}
                     <div className="mb-4">
-                        <ComponentsAppsInvoicePreview data={getPreviewData()} />
+                        <PosInvoicePreview data={getPreviewData()} storeId={currentStoreId || undefined} />
                     </div>
 
                     {/* Footer Buttons */}

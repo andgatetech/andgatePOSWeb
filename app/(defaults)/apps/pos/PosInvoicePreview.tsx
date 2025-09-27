@@ -1,16 +1,21 @@
 'use client';
 
-import { useRef } from 'react';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useRef } from 'react';
 
-const ComponentsAppsInvoicePreview = ({ data }) => {
+interface PosInvoicePreviewProps {
+    data: any;
+    storeId?: number;
+}
+
+const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
     const invoiceRef = useRef(null);
     const posReceiptRef = useRef(null);
 
-    // Fetch store details
-    const { data: storeData } = useGetStoreQuery();
+    // Fetch store details using the provided storeId
+    const { data: storeData } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined);
     const currentStore = storeData?.data || {};
 
     const { customer = {}, items = [], totals = {}, tax = 0, discount = 0, invoice = '#INV-PREVIEW', order_id, isOrderCreated = false, payment_status, payment_method } = data || {};
@@ -466,4 +471,4 @@ const ComponentsAppsInvoicePreview = ({ data }) => {
     );
 };
 
-export default ComponentsAppsInvoicePreview;
+export default PosInvoicePreview;

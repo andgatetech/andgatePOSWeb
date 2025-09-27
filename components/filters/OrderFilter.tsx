@@ -1,7 +1,8 @@
 'use client';
 import UniversalFilter, { FilterOptions } from '@/components/common/UniversalFilter';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
-import { CreditCard, DollarSign, User } from 'lucide-react';
+import { CreditCard, User } from 'lucide-react';
 import React from 'react';
 
 interface OrderFilterProps {
@@ -9,55 +10,67 @@ interface OrderFilterProps {
 }
 
 const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('all');
-    const [selectedOrderStatus, setSelectedOrderStatus] = React.useState<string>('all');
+    const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [minAmount, setMinAmount] = React.useState<string>('');
     const [maxAmount, setMaxAmount] = React.useState<string>('');
 
+    const { currentStore, userStores } = useCurrentStore();
+
+    // Memoize the filter change handler to prevent infinite re-renders
+    const handleUniversalFilterChange = React.useCallback((filters: FilterOptions) => {
+        // This function should be stable and not recreated on every render
+    }, []);
+
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter({
-        onFilterChange: (filters: FilterOptions) => {
-            const apiParams = buildApiParams({
-                payment_method: selectedPaymentMethod !== 'all' ? selectedPaymentMethod : undefined,
-                order_status: selectedOrderStatus !== 'all' ? selectedOrderStatus : undefined,
-                min_amount: minAmount ? parseFloat(minAmount) : undefined,
-                max_amount: maxAmount ? parseFloat(maxAmount) : undefined,
-            });
-            onFilterChange(apiParams);
-        },
+        onFilterChange: handleUniversalFilterChange,
     });
+
+    // Handle filter changes separately using useEffect
+    React.useEffect(() => {
+        const apiParams = buildApiParams({
+            payment_status: selectedPaymentStatus !== 'all' ? selectedPaymentStatus : 'all',
+            min_amount: minAmount ? parseFloat(minAmount) : undefined,
+            max_amount: maxAmount ? parseFloat(maxAmount) : undefined,
+        });
+        onFilterChange(apiParams);
+    }, [filters, selectedPaymentStatus, minAmount, maxAmount, buildApiParams, onFilterChange]);
+
+    // Reset filters when store selection changes
+    React.useEffect(() => {
+        setSelectedPaymentStatus('all');
+        setMinAmount('');
+        setMaxAmount('');
+    }, [filters.storeId]);
 
     const customFilters = (
         <>
             {/* Payment Method Filter */}
             <div className="relative">
                 <select
-                    value={selectedPaymentMethod}
-                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                    value={selectedPaymentStatus}
+                    onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                    <option value="all">All Payment Methods</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="mobile_payment">Mobile Payment</option>
+                    <option value="all">All Payment Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
                     <option value="bank_transfer">Bank Transfer</option>
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
 
-            {/* Order Status Filter */}
+            {/* Payment Status Filter */}
             <div className="relative">
                 <select
-                    value={selectedOrderStatus}
-                    onChange={(e) => setSelectedOrderStatus(e.target.value)}
+                    value={selectedPaymentStatus}
+                    onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                    <option value="all">All Status</option>
+                    <option value="all">All Payment Status</option>
+                    <option value="paid">Paid</option>
                     <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="processing">Processing</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="refunded">Refunded</option>
+                    <option value="failed">Failed</option>
                 </select>
                 <User className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -72,7 +85,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         onChange={(e) => setMinAmount(e.target.value)}
                         className="w-28 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
-                    <DollarSign className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">৳</span>
                 </div>
                 <span className="text-gray-500">-</span>
                 <div className="relative">
@@ -83,7 +96,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         onChange={(e) => setMaxAmount(e.target.value)}
                         className="w-28 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
-                    <DollarSign className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">৳</span>
                 </div>
             </div>
         </>
