@@ -1,10 +1,13 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateFeedbackMutation } from '@/store/features/feedback/feedbackApi';
-import { AlertCircle, ArrowRight, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
+import { TextInput } from '@mantine/core';
+import { AlertCircle, ArrowRight, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Store, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
 import { useState } from 'react';
 
 const FeedbackPage = () => {
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [createFeedback, { isLoading, isSuccess, error }] = useCreateFeedbackMutation();
 
     const [formData, setFormData] = useState({
@@ -12,6 +15,7 @@ const FeedbackPage = () => {
         message: '',
         rating: 0,
         category: '',
+        store_id: currentStoreId || '',
     });
 
     const [hoveredRating, setHoveredRating] = useState(0);
@@ -161,6 +165,7 @@ const FeedbackPage = () => {
         submitFormData.append('title', formData.title);
         submitFormData.append('message', formData.message);
         submitFormData.append('category', selectedCategory);
+        submitFormData.append('store_id', currentStoreId);
 
         if (formData.rating > 0) {
             submitFormData.append('rating', formData.rating.toString());
@@ -308,6 +313,39 @@ const FeedbackPage = () => {
                                 </div>
                             </div>
 
+                            {/* Store Field */}
+                            <div>
+                                <div className="relative">
+                                    {/* <input
+                                        type="text"
+                                        id="title"
+                                        name="title"
+                                        value={currentStore.store_name}
+                                        className="w-full rounded-2xl border-2 border-gray-200 px-6 py-4 text-lg placeholder-gray-400 transition-all duration-300 focus:border-blue-500 focus:ring-0"
+                                        placeholder="Brief summary of your feedback"
+                                        required
+                                    />
+                                    <Store className="absolute right-4 top-4 h-6 w-6 text-gray-400" /> */}
+                                    <TextInput
+                                        label="Store"
+                                        value={currentStore?.store_name || ''}
+                                        readOnly
+                                        styles={{
+                                            label: { fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' },
+                                            input: {
+                                                borderRadius: '8px',
+                                                border: '2px solid #e5e7eb',
+                                                // padding: '12px 16px 12px 44px',
+                                                padding: '16px 16px 16px 44px',
+                                                fontSize: '14px',
+                                                backgroundColor: '#f3f4f6',
+                                                cursor: 'not-allowed',
+                                            },
+                                        }}
+                                    />
+                                    <Store className="absolute left-3 top-9 h-4 w-4 text-purple-500" />
+                                </div>
+                            </div>
                             {/* Title Field */}
                             <div>
                                 <label htmlFor="title" className="mb-3 block text-lg font-semibold text-gray-900">
