@@ -15,7 +15,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, FileText, Home, Image, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -49,7 +49,8 @@ const adminRoutes = [
 
     {
         label: 'Brand',
-        icon: <Tag />,
+        icon: <Image />,
+        // icon: <Tag />,
         subMenu: [{ label: 'Brand List', href: '/apps/brand' }],
     },
     {

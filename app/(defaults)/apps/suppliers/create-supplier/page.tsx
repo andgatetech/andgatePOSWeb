@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useAllStoresQuery, useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
 import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { Mail, MapPin, Phone, Store, User } from 'lucide-react';
@@ -41,6 +42,7 @@ interface SupplierFormData {
 }
 
 const CreateSupplierPage = () => {
+    const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
 
@@ -57,7 +59,7 @@ const CreateSupplierPage = () => {
         phone: '',
         address: '',
         status: 'active',
-        store_id: '',
+        store_id: currentStoreId || '',
     });
 
     const [errors, setErrors] = useState<Partial<SupplierFormData>>({});
@@ -111,9 +113,9 @@ const CreateSupplierPage = () => {
         }
 
         // Store validation
-        if (!formData.store_id) {
-            newErrors.store_id = 'Please select a store';
-        }
+        // if (!formData.store_id) {
+        //     newErrors.store_id = 'Please select a store';
+        // }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -132,7 +134,7 @@ const CreateSupplierPage = () => {
                 phone: formData.phone.trim(),
                 address: formData.address.trim(),
                 status: formData.status,
-                store_id: parseInt(formData.store_id), // Convert to number as per schema
+                store_id: currentStoreId, // Convert to number as per schema
             };
 
             const result = await registerSupplier(submitData).unwrap();
@@ -144,7 +146,7 @@ const CreateSupplierPage = () => {
                 phone: '',
                 address: '',
                 status: 'active',
-                store_id: '',
+                store_id: currentStoreId,
             });
             setErrors({});
 
@@ -313,7 +315,7 @@ const CreateSupplierPage = () => {
                                     </div>
 
                                     {/* Store Selection */}
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label htmlFor="store_id" className="mb-2 block text-sm font-medium text-gray-700">
                                             Store <span className="text-red-500">*</span>
                                         </label>
@@ -347,6 +349,20 @@ const CreateSupplierPage = () => {
                                         </div>
                                         {errors.store_id && <p className="mt-1 text-sm text-red-600">{errors.store_id}</p>}
                                         <p className="mt-1 text-sm text-gray-500">Total stores available: {storesData?.data?.length || 0}</p>
+                                    </div> */}
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700">Store</label>
+                                        <div className="relative mt-1">
+                                            <input
+                                                type="text"
+                                                value={currentStore?.store_name || 'No Store Selected'}
+                                                readOnly
+                                                className="block w-full cursor-not-allowed rounded-md border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-gray-900 focus:outline-none"
+                                            />
+                                            <Store className="absolute left-3 top-2.5 h-4 w-4 text-purple-500" />
+                                        </div>
+                                        {errors.store_id && <p className="mt-1 text-sm text-red-600">{errors.store_id}</p>}
                                     </div>
 
                                     {/* Status */}
