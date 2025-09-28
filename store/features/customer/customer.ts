@@ -35,7 +35,7 @@ const CustomerApi = baseApi.injectEndpoints({
 
         // ✅ Store customers list endpoint for /customers
         getStoreCustomersList: builder.query({
-<<<<<<< HEAD
+
             query: ({
                 store_id,
                 search,

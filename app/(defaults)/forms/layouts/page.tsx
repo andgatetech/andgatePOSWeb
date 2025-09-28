@@ -5,7 +5,7 @@ import ComponentsFormsLayoutsInline from '@/components/forms/layouts/components-
 import ComponentsFormsLayoutsLogin from '@/components/forms/layouts/components-forms-layouts-login';
 import ComponentsFormsLayoutsRegistration from '@/components/forms/layouts/components-forms-layouts-registration';
 import ComponentsFormsLayoutsStack from '@/components/forms/layouts/components-forms-layouts-stack';
-import ComponentsFormsLayoutsGrid from '@/components/forms/layouts/product-create-form';
+
 import { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -40,8 +40,7 @@ const Layouts = () => {
                 {/* Login */}
                 <ComponentsFormsLayoutsLogin />
 
-                {/* Grid */}
-                <ComponentsFormsLayoutsGrid />
+              
 
                 {/* Inline */}
                 <ComponentsFormsLayoutsInline />
