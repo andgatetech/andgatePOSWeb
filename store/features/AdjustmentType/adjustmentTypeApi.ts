@@ -10,6 +10,13 @@ const adjustmentTypeApi = baseApi.injectEndpoints({
             }),
             providesTags: ['AdjustmentType'],
         }),
+        getSingleAdjustmentTypes: builder.query({
+            query: (store_id) => ({
+                url: `/adjustment-types/${store_id}`,
+                method: 'GET',
+            }),
+            providesTags: ['AdjustmentType'],
+        }),
         createAdjustmentType: builder.mutation({
             query: (data) => ({
                 url: 'adjustment-types',
@@ -21,4 +28,4 @@ const adjustmentTypeApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useGetAdjustmentTypesQuery, useCreateAdjustmentTypeMutation } = adjustmentTypeApi;
+export const { useGetAdjustmentTypesQuery, useGetSingleAdjustmentTypesQuery, useCreateAdjustmentTypeMutation } = adjustmentTypeApi;
