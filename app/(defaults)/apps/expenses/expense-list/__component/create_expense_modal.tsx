@@ -28,7 +28,7 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
         if (!title || !debit) return;
 
         try {
-            await createExpense({ title, notes, debit, store_id: storeId }).unwrap();
+            await createExpense({ title, notes, debit, store_id: currentStoreId }).unwrap();
             setTitle('');
             setNotes('');
             setDebit(undefined);
