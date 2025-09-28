@@ -1,146 +1,313 @@
 'use client';
+// import { useDeleteJournalMutation, useGetJournalsQuery } from '@/store/features/journal/journalApi';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetJournalsQuery } from '@/store/features/journals/journals';
-import { Plus, RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import JournalCreateModal from './__components/JournalCreateModal';
-import JournalFilters from './__components/JournalFilters';
-import JournalPagination from './__components/JournalPagination';
-import JournalTable from './__components/JournalTable';
+import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
+import { BookOpen, ChevronLeft, ChevronRight, MoreVertical, Plus, Search, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+import CreateJournalModal from './__components/CreateJournalModal';
 
-const JournalList = () => {
+// Action Dropdown Component
+const ActionDropdown = ({ journal }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleDelete = () => {
+        if (window.confirm(`Are you sure you want to delete this journal entry? This action cannot be undone.`)) {
+        }
+        setIsOpen(false);
+    };
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="inline-flex items-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <MoreVertical className="h-4 w-4" />
+            </button>
+
+            {isOpen && (
+                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <button className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                        <Trash2 className="mr-3 h-4 w-4" />
+                        Delete Entry
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Filters Component
+const JournalFilters = ({ filters, onFiltersChange, ledgers, isLoadingLedgers }) => {
+    const handleFilterChange = (key, value) => {
+        onFiltersChange({ ...filters, [key]: value, page: 1 }); // Reset to page 1 when filtering
+    };
+
+    return (
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {/* Search */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search journal entries..."
+                        value={filters.search || ''}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                {/* Ledger Filter */}
+                <div>
+                    <select
+                        value={filters.ledger_id || ''}
+                        onChange={(e) => handleFilterChange('ledger_id', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                        disabled={isLoadingLedgers}
+                    >
+                        <option value="">All Ledgers</option>
+                        {ledgers?.data?.data?.map((ledger) => (
+                            <option key={ledger.id} value={ledger.id}>
+                                {ledger.title}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Per Page */}
+                <div>
+                    <select
+                        value={filters.per_page || 10}
+                        onChange={(e) => handleFilterChange('per_page', parseInt(e.target.value))}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value={5}>5 per page</option>
+                        <option value={10}>10 per page</option>
+                        <option value={20}>20 per page</option>
+                        <option value={50}>50 per page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Journal Table Component
+const JournalTable = ({ journals, isLoading }) => {
+    if (isLoading) {
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                    <p className="mt-2 text-gray-600">Loading journal entries...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!journals || journals.length === 0) {
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No journal entries found</h3>
+                    <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                </div>
+            </div>
+        );
+    }
+
+    const formatCurrency = (amount) => {
+        return `৳${parseFloat(amount).toLocaleString()}`;
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    return (
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Date</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Ledger</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Notes</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Debit</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Credit</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Balance</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">User</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                        {journals.map((journal) => (
+                            <tr key={journal.id} className="hover:bg-gray-50">
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="text-sm font-medium text-gray-900">{formatDate(journal.created_at)}</div>
+                                    <div className="text-sm text-gray-500">ID: {journal.id}</div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="text-sm font-medium text-gray-900">{journal.ledger?.title}</div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="max-w-xs truncate text-sm text-gray-900" title={journal.notes}>
+                                        {journal.notes}
+                                    </div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className={`text-sm font-medium ${parseFloat(journal.debit) > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                                        {parseFloat(journal.debit) > 0 ? formatCurrency(journal.debit) : '-'}
+                                    </span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className={`text-sm font-medium ${parseFloat(journal.credit) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                                        {parseFloat(journal.credit) > 0 ? formatCurrency(journal.credit) : '-'}
+                                    </span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className={`text-sm font-medium ${parseFloat(journal.balance) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(journal.balance)}</span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="text-sm text-gray-900">{journal.user?.name}</div>
+                                    <div className="text-sm text-gray-500">{journal.user?.email}</div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <ActionDropdown journal={journal} />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+// Pagination Component
+const Pagination = ({ meta, onPageChange }) => {
+    if (!meta || meta.last_page <= 1) {
+        return null;
+    }
+
+    const { current_page, last_page, total, per_page } = meta;
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const showPages = 5;
+        const halfShow = Math.floor(showPages / 2);
+
+        let start = Math.max(1, current_page - halfShow);
+        let end = Math.min(last_page, current_page + halfShow);
+
+        // Adjust if we're near the beginning or end
+        if (end - start < showPages - 1) {
+            if (start === 1) {
+                end = Math.min(last_page, start + showPages - 1);
+            } else {
+                start = Math.max(1, end - showPages + 1);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        return pages;
+    };
+
+    const startItem = (current_page - 1) * per_page + 1;
+    const endItem = Math.min(current_page * per_page, total);
+
+    return (
+        <div className="rounded-b-lg border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm text-gray-700">
+                    Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{total}</span> results
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={() => onPageChange(current_page - 1)}
+                        disabled={current_page === 1}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    {getPageNumbers().map((page) => (
+                        <button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            className={`relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
+                                page === current_page ? 'z-10 border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => onPageChange(current_page + 1)}
+                        disabled={current_page === last_page}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Main Journal List Component
+const JournalListSystem = () => {
+    const { currentStoreId } = useCurrentStore();
+
     const [filters, setFilters] = useState({
         search: '',
-        store_id: '',
         ledger_id: '',
         per_page: 10,
         page: 1,
+        store_id: currentStoreId,
     });
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [stores, setStores] = useState([]);
-    const [ledgers, setLedgers] = useState([]);
 
-    const token = useSelector((state) => state.auth.token);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    // RTK Query for fetching journals
-    const { data: journalData, isLoading, isError, refetch } = useGetJournalsQuery(filters);
-
-    const journals = journalData?.data || [];
-    const pagination = journalData
-        ? {
-              current_page: journalData.current_page,
-              last_page: journalData.last_page,
-              per_page: journalData.per_page,
-              total: journalData.total,
-              from: journalData.from,
-              to: journalData.to,
-          }
-        : null;
-
-    // Fetch stores for filter dropdown
-    const fetchStores = async () => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stores`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
-            const data = await response.json();
-            if (data.success) {
-                setStores(data.data || []);
-            }
-        } catch (error) {
-            console.error('Error fetching stores:', error);
-        }
-    };
-
-    // Fetch all ledgers for filter dropdown
-    const fetchLedgers = async () => {
-        try {
-            // Try to fetch ledgers with pagination response structure
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/ledgers`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
-            const data = await response.json();
-
-            // Handle paginated response structure from Laravel
-            if (data.data && Array.isArray(data.data)) {
-                setLedgers(data.data);
-            } else if (data.success && data.data) {
-                setLedgers(data.data);
-            } else {
-                console.log('Unexpected ledger response structure:', data);
-                // If the above fails, try to fetch from each store individually
-                fetchLedgersByStore();
-            }
-        } catch (error) {
-            console.error('Error fetching ledgers:', error);
-            // If the above fails, try to fetch from each store individually
-            fetchLedgersByStore();
-        }
-    };
-
-    // Fallback method: fetch ledgers for each store
-    const fetchLedgersByStore = async () => {
-        try {
-            const allLedgers = [];
-
-            // Fetch stores first
-            const storesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stores`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
-            const storesData = await storesResponse.json();
-
-            if (storesData.success) {
-                // Fetch ledgers for each store
-                for (const store of storesData.data) {
-                    try {
-                        const ledgersResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/ledgers?store_id=${store.id}`, {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                                Accept: 'application/json',
-                            },
-                        });
-                        const ledgersData = await ledgersResponse.json();
-
-                        if (ledgersData.data && Array.isArray(ledgersData.data)) {
-                            // Add store information to each ledger
-                            const ledgersWithStore = ledgersData.data.map((ledger) => ({
-                                ...ledger,
-                                store_id: store.id,
-                                store_name: store.store_name,
-                            }));
-                            allLedgers.push(...ledgersWithStore);
-                        }
-                    } catch (error) {
-                        console.error(`Error fetching ledgers for store ${store.id}:`, error);
-                    }
-                }
-                setLedgers(allLedgers);
-            }
-        } catch (error) {
-            console.error('Error in fetchLedgersByStore:', error);
-        }
-    };
-
+    // Update filters when store changes
     useEffect(() => {
-        fetchStores();
-        fetchLedgers();
-    }, [token]);
+        setFilters((prev) => ({ ...prev, store_id: currentStoreId }));
+    }, [currentStoreId]);
 
-    const handleFilterChange = (newFilters) => {
-        setFilters((prev) => ({
-            ...prev,
-            ...newFilters,
-            page: newFilters.page !== undefined ? newFilters.page : 1,
-        }));
+    // Redux queries and mutations
+    const { data: ledgersData, isLoading: isLoadingLedgers } = useGetLedgersQuery({ store_id: currentStoreId });
+    const { data: journalsData, isLoading: isLoadingJournals, error } = useGetJournalsQuery(filters);
+    // const [deleteJournal, { isLoading: isDeleting }] = useDeleteJournalMutation();
+
+    const handleFiltersChange = (newFilters) => {
+        setFilters(newFilters);
     };
 
     const handlePageChange = (page) => {
@@ -148,93 +315,69 @@ const JournalList = () => {
     };
 
     const handleCreateSuccess = () => {
-        setShowCreateModal(false);
-        refetch();
-        // Refresh ledgers after creating a new journal entry
-        fetchLedgers();
+        setIsCreateModalOpen(false);
+        toast.success('Journal entry created successfully!');
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-            <div className="mx-auto max-w-7xl">
-                {/* Header */}
-                <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-xl">
-                    <div className="rounded-t-2xl bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-3xl font-bold">Journal Management</h1>
-                                <p className="mt-1 text-emerald-100">Track your accounting journal entries</p>
-                            </div>
-                            <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2 rounded-lg bg-white/20 px-4 py-2 transition-all duration-200 hover:bg-white/30">
-                                <Plus size={20} />
-                                Create Journal Entry
-                            </button>
-                        </div>
-                    </div>
+    // const handleDeleteJournal = async (journalId) => {
+    //     try {
+    //         await deleteJournal(journalId).unwrap();
+    //         toast.success('Journal entry deleted successfully!');
+    //     } catch (error) {
+    //         console.error('Failed to delete journal entry:', error);
+    //         toast.error('Failed to delete journal entry. Please try again.');
+    //     }
+    // };
 
-                    {/* Filters Section */}
-                    <JournalFilters filters={filters} ledgers={ledgers} stores={stores} onFilterChange={handleFilterChange} onRefresh={refetch} />
-                </div>
-
-                {/* Journal Table */}
-                <div className="rounded-2xl border border-slate-200 bg-white shadow-xl">
-                    <div className="p-6">
-                        {isLoading ? (
-                            <div className="flex h-64 items-center justify-center">
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-emerald-600"></div>
-                                    <p className="text-slate-600">Loading expenses entries...</p>
-                                </div>
-                            </div>
-                        ) : isError ? (
-                            <div className="py-12 text-center">
-                                <div className="mb-4 text-6xl">⚠️</div>
-                                <h3 className="mb-2 text-xl font-semibold text-slate-600">Error loading expenses</h3>
-                                <p className="mb-4 text-slate-400">Something went wrong while fetching expenses entries</p>
-                                <button onClick={refetch} className="mx-auto flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700">
-                                    <RefreshCw size={16} />
-                                    Try Again
-                                </button>
-                            </div>
-                        ) : journals.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <div className="mb-4 text-6xl">📚</div>
-                                <h3 className="mb-2 text-xl font-semibold text-slate-600">No expense entries found</h3>
-                                <p className="mb-4 text-slate-400">
-                                    {filters.search || filters.store_id || filters.ledger_id
-                                        ? 'No expense entries match your current filters. Try adjusting your search criteria.'
-                                        : 'Create your first expense entry to get started'}
-                                </p>
-                                <div className="flex justify-center gap-3">
-                                    {(filters.search || filters.store_id || filters.ledger_id) && (
-                                        <button
-                                            onClick={() => handleFilterChange({ search: '', store_id: '', ledger_id: '' })}
-                                            className="rounded-lg border border-slate-300 px-6 py-2 text-slate-600 hover:bg-slate-50"
-                                        >
-                                            Clear Filters
-                                        </button>
-                                    )}
-                                    <button onClick={() => setShowCreateModal(true)} className="rounded-lg bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700">
-                                        Create Expense Entry
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <JournalTable journals={journals} />
-
-                                {/* Pagination */}
-                                {pagination && pagination.last_page > 1 && <JournalPagination pagination={pagination} onPageChange={handlePageChange} />}
-                            </>
-                        )}
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 p-4">
+                <div className="mx-auto max-w-7xl">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                        <p className="text-red-800">Error loading journal entries. Please try again.</p>
                     </div>
                 </div>
             </div>
+        );
+    }
 
-            {/* Create Modal */}
-            {showCreateModal && <JournalCreateModal onClose={() => setShowCreateModal(false)} onSuccess={handleCreateSuccess} />}
+    return (
+        <div className="min-h-screen bg-gray-50 p-4">
+            <div className="mx-auto max-w-7xl">
+                {/* Header */}
+                <div className="mb-6 flex items-center justify-between">
+                    <div>
+                        <h1 className="flex items-center text-2xl font-bold text-gray-900">
+                            <BookOpen className="mr-2 h-6 w-6" />
+                            Journal Management
+                        </h1>
+                        <p className="mt-1 text-sm text-gray-600">Manage and view journal entries for your accounting records</p>
+                    </div>
+
+                    {/* Create Journal Button */}
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create Entry
+                    </button>
+                </div>
+
+                {/* Filters */}
+                <JournalFilters filters={filters} onFiltersChange={handleFiltersChange} ledgers={ledgersData} isLoadingLedgers={isLoadingLedgers} />
+
+                {/* Journal Table */}
+                <JournalTable journals={journalsData?.data} isLoading={isLoadingJournals} />
+
+                {/* Pagination */}
+                {journalsData?.meta && <Pagination meta={journalsData.meta} onPageChange={handlePageChange} />}
+
+                {/* Create Journal Modal */}
+                <CreateJournalModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
+            </div>
         </div>
     );
 };
 
-export default JournalList;
+export default JournalListSystem;

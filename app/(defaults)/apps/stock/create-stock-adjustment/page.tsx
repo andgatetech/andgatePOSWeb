@@ -1,35 +1,36 @@
 'use client';
-import { useGetAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adjustmentTypeApi';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useGetAdjustmentTypesQuery, useGetSingleAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adjustmentTypeApi';
 import { useCreateStockAdjustmentMutation } from '@/store/features/StockAdjustment/stockAdjustmentApi';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { useGetAllProductsQuery, useGetAllProductsWithStockQuery } from '@/store/Product/productApi';
-import { Minus, Plus, Save, Search, X } from 'lucide-react';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
+import { useGetAllProductsWithStockQuery } from '@/store/Product/productApi';
+import { Minus, Plus, Save, Search, Store, X } from 'lucide-react';
 import { useState } from 'react';
 
 // Store Selection Component
-const StoreSelector = ({ selectedStore, onStoreChange, stores, isLoading }) => (
-    <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-800">Select Store</h3>
-        <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-                Store <span className="text-red-500">*</span>
-            </label>
-            <select
-                value={selectedStore}
-                onChange={(e) => onStoreChange(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                disabled={isLoading}
-            >
-                <option value="">Select a store</option>
-                {stores?.map((store) => (
-                    <option key={store.id} value={store.id}>
-                        {store.store_name}
-                    </option>
-                ))}
-            </select>
-        </div>
-    </div>
-);
+// const StoreSelector = ({ selectedStore, onStoreChange, stores, isLoading }) => (
+//     <div className="rounded-lg border bg-white p-6 shadow-sm">
+//         <h3 className="mb-4 text-lg font-semibold text-gray-800">Select Store</h3>
+//         <div className="space-y-2">
+//             <label className="block text-sm font-medium text-gray-700">
+//                 Store <span className="text-red-500">*</span>
+//             </label>
+//             <select
+//                 value={selectedStore}
+//                 onChange={(e) => onStoreChange(e.target.value)}
+//                 className="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+//                 disabled={isLoading}
+//             >
+//                 <option value="">Select a store</option>
+//                 {stores?.map((store) => (
+//                     <option key={store.id} value={store.id}>
+//                         {store.store_name}
+//                     </option>
+//                 ))}
+//             </select>
+//         </div>
+//     </div>
+// );
 
 // Product Search Component
 const ProductSearch = ({ onAddProduct, selectedStore, products, selectedProductIds }) => {
@@ -115,8 +116,9 @@ const QuantityControl = ({ quantity, onQuantityChange, min = 1 }) => (
 
 // Selected Products Table Component
 const SelectedProductsTable = ({ selectedProducts, onUpdateProduct, onRemoveProduct }) => {
-    const { data: ads_type } = useGetAdjustmentTypesQuery();
-    const adjustmentTypes = ads_type?.adjustment_types || [];
+    const { currentStore, currentStoreId } = useCurrentStore();
+    const { data: ads_type } = useGetSingleAdjustmentTypesQuery(currentStoreId);
+    const adjustmentTypes = ads_type?.data || [];
     // console.log(adjustmentTypes);
     if (selectedProducts.length === 0) {
         return (
@@ -162,7 +164,7 @@ const SelectedProductsTable = ({ selectedProducts, onUpdateProduct, onRemoveProd
                                         <option value="" disabled>
                                             Select Adjustment Type
                                         </option>
-                                        {adjustmentTypes.map((type) => (
+                                        {adjustmentTypes?.map((type) => (
                                             <option key={type.id} value={type.id}>
                                                 {type.type}
                                             </option>
@@ -254,6 +256,7 @@ const AdjustmentForm = ({ formData, onFormChange, onSubmit, onCancel, isSubmitti
 
 // Main Stock Adjustment Page Component
 const StockAdjustmentPage = () => {
+    const { currentStore, currentStoreId } = useCurrentStore();
     const [selectedStore, setSelectedStore] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
     // console.log(selectedProducts);
@@ -265,9 +268,10 @@ const StockAdjustmentPage = () => {
     });
 
     // RTK Query hooks
-    const { data: st, isLoading: storesLoading } = useAllStoresQuery();
+    // const { data: st, isLoading: storesLoading } = useAllStoresQuery();
+    const { data: st, isLoading: storesLoading } = useFullStoreListWithFilterQuery();
     // const { data: pd } = useGetAllProductsQuery({ store_id: selectedStore });
-    const { data: pd } = useGetAllProductsWithStockQuery({ store_id: selectedStore });
+    const { data: pd } = useGetAllProductsWithStockQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     // const { data: pd_in_stock } = useGetAllProductsWithStockQuery();
     const [createStockAdjustment, { isLoading: isSubmitting }] = useCreateStockAdjustmentMutation();
     const stores = st?.data || [];
@@ -300,13 +304,13 @@ const StockAdjustmentPage = () => {
     };
 
     const handleSubmit = async () => {
-        if (!selectedStore || selectedProducts.length === 0 || !formData.reason.trim()) {
+        if (!currentStoreId || selectedProducts.length === 0 || !formData.reason.trim()) {
             alert('Please fill in all required fields and select at least one product');
             return;
         }
 
         const payload = {
-            store_id: parseInt(selectedStore),
+            store_id: parseInt(currentStoreId),
             product_adjustments: selectedProducts.map((product) => ({
                 product_id: product.id,
                 adjusted_stock: product.adjustedQuantity,
@@ -350,15 +354,26 @@ const StockAdjustmentPage = () => {
             <div className="mx-auto max-w-7xl">
                 <div className="mb-8">
                     <h1 className="mb-2 text-3xl font-bold text-gray-900">Stock Adjustment</h1>
-                    <p className="text-gray-600">Manage inventory adjustments for your stores</p>
+                    <p className="text-gray-600">
+                        Manage inventory adjustments for your store: <span className="font-semibold">{currentStore?.store_name}</span>
+                    </p>
                 </div>
 
                 <div className="space-y-6">
                     {/* Store Selection */}
-                    <StoreSelector selectedStore={selectedStore} onStoreChange={setSelectedStore} stores={stores} isLoading={storesLoading} />
+                    {/* <StoreSelector selectedStore={selectedStore} onStoreChange={setSelectedStore} stores={stores} isLoading={storesLoading} /> */}
+
+                    {/* Current Store Info */}
+                    <div className="flex items-center gap-3 rounded-lg border bg-white p-4 shadow-sm">
+                        <Store className="h-6 w-6 text-blue-600" />
+                        <div>
+                            <p className="text-sm text-gray-500">Current Store</p>
+                            <p className="text-lg font-semibold text-gray-800">{currentStore?.store_name || 'No store selected'}</p>
+                        </div>
+                    </div>
 
                     {/* Product Search */}
-                    <ProductSearch onAddProduct={handleAddProduct} selectedStore={selectedStore} products={products} selectedProductIds={selectedProductIds} />
+                    <ProductSearch onAddProduct={handleAddProduct} selectedStore={currentStoreId} products={products} selectedProductIds={selectedProductIds} />
 
                     {/* Selected Products Table */}
                     <SelectedProductsTable selectedProducts={selectedProducts} onUpdateProduct={handleUpdateProduct} onRemoveProduct={handleRemoveProduct} />

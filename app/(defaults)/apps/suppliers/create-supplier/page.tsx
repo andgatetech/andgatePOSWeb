@@ -1,339 +1,460 @@
 'use client';
 
-import { useCreateCustomerMutation } from '@/store/features/customer/customer';
-import { Award, Crown, Shield, Star, UserPlus, X } from 'lucide-react';
+import { useAllStoresQuery, useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
+import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
+import { Mail, MapPin, Phone, Store, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { toast } from 'react-toastify';
 
-const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
-    const [isClient, setIsClient] = useState(false);
-    const [createCustomer, { isLoading }] = useCreateCustomerMutation();
+// Toast function for notifications
+const showToast = (message: string, type: 'success' | 'error') => {
+    if (type === 'success') toast.success(message);
+    else toast.error(message);
+};
 
-    const [formData, setFormData] = useState({
+// SweetAlert function for modals
+// const showSweetAlert = async (config: any) => {
+//     return await Swal.fire(config);
+// };
+
+const showSweetAlert = async (config: any) => {
+    if (typeof window !== 'undefined') {
+        const Swal = (await import('sweetalert2')).default;
+        // run inside next tick so hydration finishes
+        return new Promise((resolve) => {
+            setTimeout(async () => {
+                const result = await Swal.fire(config);
+                resolve(result);
+            }, 0);
+        });
+    }
+};
+
+interface SupplierFormData {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    status: 'active' | 'inactive';
+    store_id: string;
+}
+
+const CreateSupplierPage = () => {
+    const router = useRouter();
+    const [isClient, setIsClient] = useState(false);
+
+    // RTK Query hooks
+    const [registerSupplier, { isLoading: createLoading }] = useRegisterSupplierMutation();
+    // const { data: storesData, isLoading: storesLoading, error: storesError } = useAllStoresQuery();
+    const { data: storesData, isLoading: storesLoading, error: storesError } = useFullStoreListWithFilterQuery();
+
+    console.log('Stores Data:', storesData);
+
+    const [formData, setFormData] = useState<SupplierFormData>({
         name: '',
         email: '',
         phone: '',
-        is_active: true,
-        points: 0,
-        balance: 0,
-        membership: 'normal',
-        details: '',
+        address: '',
+        status: 'active',
+        store_id: '',
     });
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<Partial<SupplierFormData>>({});
 
+    // Ensure client-side rendering
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-        if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Clear error when user starts typing
+        if (errors[name as keyof SupplierFormData]) {
+            setErrors((prev) => ({ ...prev, [name]: '' }));
+        }
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.name.trim()) newErrors.name = 'Name is required';
-        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email';
-        if (formData.phone && !/^\+?[\d\s-()]+$/.test(formData.phone.trim())) newErrors.phone = 'Invalid phone';
-        if (formData.points < 0) newErrors.points = 'Points cannot be negative';
+    const validateForm = (): boolean => {
+        const newErrors: Partial<SupplierFormData> = {};
+
+        // Name validation
+        if (!formData.name.trim()) {
+            newErrors.name = 'Supplier name is required';
+        } else if (formData.name.trim().length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim()) {
+            newErrors.email = 'Email is required';
+        } else if (!emailRegex.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+
+        // Phone validation
+        const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
+        if (!formData.phone.trim()) {
+            newErrors.phone = 'Phone number is required';
+        } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
+            newErrors.phone = 'Please enter a valid phone number';
+        }
+
+        // Address validation
+        if (!formData.address.trim()) {
+            newErrors.address = 'Address is required';
+        } else if (formData.address.trim().length < 10) {
+            newErrors.address = 'Address must be at least 10 characters';
+        }
+
+        // Store validation
+        if (!formData.store_id) {
+            newErrors.store_id = 'Please select a store';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if (!validateForm()) {
-            toast.error('Please fix the errors');
+            showToast('Please fix the errors below', 'error');
             return;
         }
 
         try {
             const submitData = {
-                ...formData,
-                points: parseInt(formData.points) || 0,
-                balance: parseFloat(formData.balance) || 0,
-                email: formData.email.trim() || null,
-                phone: formData.phone.trim() || null,
-                details: formData.details.trim() || null,
+                name: formData.name.trim(),
+                email: formData.email.trim().toLowerCase(),
+                phone: formData.phone.trim(),
+                address: formData.address.trim(),
+                status: formData.status,
+                store_id: parseInt(formData.store_id), // Convert to number as per schema
             };
 
-            await createCustomer(submitData).unwrap();
+            const result = await registerSupplier(submitData).unwrap();
 
-            resetForm();
-            toast.success('Customer created successfully!');
-            onSuccess?.();
-        } catch (error) {
-            const msg = error?.data?.message || 'Failed to create customer';
-            setErrors({ general: msg });
-            toast.error(msg);
+            // Reset form
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                address: '',
+                status: 'active',
+                store_id: '',
+            });
+            setErrors({});
+
+            // Success modal
+            const response = await showSweetAlert({
+                title: 'Success!',
+                text: 'Supplier has been created successfully',
+                icon: 'success',
+                confirmButtonText: 'Go to Suppliers',
+                showCancelButton: true,
+                cancelButtonText: 'Create Another',
+            });
+
+            // if (typeof window !== 'undefined') {
+            //     const Swal = (await import('sweetalert2')).default;
+            //     const response = await Swal.fire({
+            //         title: 'Success!',
+            //         text: 'Supplier has been created successfully',
+            //         icon: 'success',
+            //         confirmButtonText: 'Go to Suppliers',
+            //         showCancelButton: true,
+            //         cancelButtonText: 'Create Another',
+            //     });
+            // }
+
+            if (response.isConfirmed) {
+                router.push('/apps/suppliers');
+            }
+        } catch (error: any) {
+            console.error('Create supplier failed', error);
+            const errorMessage = error?.data?.message || 'Something went wrong while creating the supplier';
+
+            await showSweetAlert({
+                title: 'Error!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'Try Again',
+            });
         }
     };
 
-    const resetForm = () => {
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            is_active: true,
-            points: 0,
-            balance: 0,
-            membership: 'normal',
-            details: '',
-        });
-        setErrors({});
-    };
-
-    const handleClose = () => {
-        resetForm();
-        onClose?.();
-    };
-
-    const getMembershipIcon = (membership) => {
-        switch (membership) {
-            case 'platinum':
-                return Crown;
-            case 'gold':
-                return Award;
-            case 'silver':
-                return Star;
-            default:
-                return Shield;
-        }
-    };
-
-    const getMembershipColor = (membership) => {
-        switch (membership) {
-            case 'platinum':
-                return 'text-purple-600';
-            case 'gold':
-                return 'text-yellow-600';
-            case 'silver':
-                return 'text-gray-600';
-            default:
-                return 'text-blue-600';
-        }
-    };
-
-    if (!isClient || !isOpen) return null;
-
-    return createPortal(
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleClose}></div>
-            <div className="flex min-h-full items-center justify-center p-4">
-                <div className="relative w-full max-w-2xl rounded-lg bg-white shadow-xl">
-                    {/* header */}
-                    <div className="flex items-center justify-between border-b px-6 py-4">
-                        <div className="flex items-center">
-                            <UserPlus className="mr-2 h-5 w-5 text-blue-600" />
-                            <h3 className="text-lg font-semibold">Create New Customer</h3>
+    // Handle stores loading state
+    if (!isClient || storesLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+                <div className="mx-auto max-w-4xl">
+                    <div className="flex items-center justify-center py-12">
+                        <div className="flex items-center gap-2 text-gray-600">
+                            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                            </svg>
+                            Loading...
                         </div>
-                        <button onClick={handleClose} className="rounded-md p-1 text-gray-400 hover:bg-gray-100">
-                            <X className="h-5 w-5" />
-                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Handle stores error state
+    if (storesError) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+                <div className="mx-auto max-w-4xl">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
+                        <div className="text-red-800">
+                            <p className="font-medium">Error loading stores</p>
+                            <p className="mt-1 text-sm">Please refresh the page and try again.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="mx-auto max-w-4xl">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                    <h1 className="mb-2 text-3xl font-bold text-gray-900">Create New Supplier</h1>
+                    <p className="text-gray-600">Add a new supplier to your network</p>
+                </div>
+
+                {/* Main Form Card */}
+                <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                        <h2 className="text-xl font-semibold text-white">Supplier Information</h2>
                     </div>
 
-                    {/* form */}
-                    <form onSubmit={handleSubmit} className="p-6">
-                        {errors.general && (
-                            <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3">
-                                <p className="text-sm text-red-600">{errors.general}</p>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            {/* Name */}
-                            <div className="sm:col-span-2">
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                    Name <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
-                                    }`}
-                                    placeholder="Enter customer name"
-                                />
-                                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-                            </div>
-
-                            {/* Email */}
+                    <div className="p-8">
+                        <div className="space-y-8">
+                            {/* Basic Information Section */}
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
-                                    }`}
-                                    placeholder="customer@example.com"
-                                />
-                                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-                            </div>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h3>
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    {/* Supplier Name */}
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Supplier Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                id="name"
+                                                name="name"
+                                                type="text"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder="Enter supplier name"
+                                                className={`w-full rounded-lg border bg-gray-50 py-3 pl-12 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                                    errors.name ? 'border-red-300' : 'border-gray-300'
+                                                }`}
+                                            />
+                                        </div>
+                                        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                                    </div>
 
-                            {/* Phone */}
-                            <div>
-                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                                    Phone
-                                </label>
-                                <input
-                                    type="tel"
-                                    id="phone"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
-                                    }`}
-                                    placeholder="+880 1234 567890"
-                                />
-                                {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
-                            </div>
+                                    {/* Email */}
+                                    <div>
+                                        <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Email Address <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                id="email"
+                                                name="email"
+                                                type="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="supplier@example.com"
+                                                className={`w-full rounded-lg border bg-gray-50 py-3 pl-12 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                                    errors.email ? 'border-red-300' : 'border-gray-300'
+                                                }`}
+                                            />
+                                        </div>
+                                        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                                    </div>
 
-                            {/* Points */}
-                            <div>
-                                <label htmlFor="points" className="block text-sm font-medium text-gray-700">
-                                    Loyalty Points
-                                </label>
-                                <input
-                                    type="number"
-                                    id="points"
-                                    name="points"
-                                    min="0"
-                                    value={formData.points}
-                                    onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                                        errors.points ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
-                                    }`}
-                                    placeholder="0"
-                                />
-                                {errors.points && <p className="mt-1 text-sm text-red-600">{errors.points}</p>}
-                            </div>
+                                    {/* Phone */}
+                                    <div>
+                                        <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Phone Number <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                id="phone"
+                                                name="phone"
+                                                type="tel"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                placeholder="+1234567890"
+                                                className={`w-full rounded-lg border bg-gray-50 py-3 pl-12 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                                    errors.phone ? 'border-red-300' : 'border-gray-300'
+                                                }`}
+                                            />
+                                        </div>
+                                        {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                                    </div>
 
-                            {/* Balance */}
-                            <div>
-                                <label htmlFor="balance" className="block text-sm font-medium text-gray-700">
-                                    Balance (৳)
-                                </label>
-                                <input
-                                    type="number"
-                                    id="balance"
-                                    name="balance"
-                                    step="0.01"
-                                    value={formData.balance}
-                                    onChange={handleInputChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    placeholder="0.00"
-                                />
-                            </div>
+                                    {/* Store Selection */}
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="store_id" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Store <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <Store className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                            <select
+                                                id="store_id"
+                                                name="store_id"
+                                                value={formData.store_id}
+                                                onChange={handleChange}
+                                                className={`w-full appearance-none rounded-lg border bg-gray-50 py-3 pl-12 pr-10 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                                    errors.store_id ? 'border-red-300' : 'border-gray-300'
+                                                }`}
+                                            >
+                                                <option value="">Select a store</option>
+                                                {storesData?.data?.map((store: any) => (
+                                                    <option key={store.id} value={store.id}>
+                                                        {store.store_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                                <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                                    <path
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clipRule="evenodd"
+                                                        fillRule="evenodd"
+                                                    ></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        {errors.store_id && <p className="mt-1 text-sm text-red-600">{errors.store_id}</p>}
+                                        <p className="mt-1 text-sm text-gray-500">Total stores available: {storesData?.data?.length || 0}</p>
+                                    </div>
 
-                            {/* Membership */}
-                            <div>
-                                <label htmlFor="membership" className="block text-sm font-medium text-gray-700">
-                                    Membership Level
-                                </label>
-                                <div className="relative mt-1">
-                                    <select
-                                        id="membership"
-                                        name="membership"
-                                        value={formData.membership}
-                                        onChange={handleInputChange}
-                                        className="block w-full rounded-md border-gray-300 px-3 py-2 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    >
-                                        <option value="normal">Normal</option>
-                                        <option value="silver">Silver</option>
-                                        <option value="gold">Gold</option>
-                                        <option value="platinum">Platinum</option>
-                                    </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-8 flex items-center">
-                                        {(() => {
-                                            const IconComponent = getMembershipIcon(formData.membership);
-                                            return <IconComponent className={`h-4 w-4 ${getMembershipColor(formData.membership)}`} />;
-                                        })()}
+                                    {/* Status */}
+                                    <div>
+                                        <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Status
+                                        </label>
+                                        <select
+                                            id="status"
+                                            name="status"
+                                            value={formData.status}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Address */}
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Address <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
+                                            <textarea
+                                                id="address"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                                placeholder="Enter complete address"
+                                                rows={3}
+                                                maxLength={500}
+                                                className={`w-full resize-none rounded-lg border bg-gray-50 py-3 pl-12 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                                    errors.address ? 'border-red-300' : 'border-gray-300'
+                                                }`}
+                                            />
+                                        </div>
+                                        {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+                                        <p className="mt-1 text-sm text-gray-500">{formData.address.length}/500 characters</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Active */}
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id="is_active"
-                                    name="is_active"
-                                    checked={formData.is_active}
-                                    onChange={handleInputChange}
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
-                                    Active Customer
-                                </label>
-                            </div>
-
-                            {/* Details */}
-                            <div className="sm:col-span-2">
-                                <label htmlFor="details" className="block text-sm font-medium text-gray-700">
-                                    Additional Details
-                                </label>
-                                <textarea
-                                    id="details"
-                                    name="details"
-                                    rows={3}
-                                    value={formData.details}
-                                    onChange={handleInputChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    placeholder="Any additional information about the customer..."
-                                />
+                            {/* Submit Button */}
+                            <div className="border-t border-gray-200 pt-6">
+                                <div className="flex justify-end gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/apps/suppliers')}
+                                        className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSubmit}
+                                        disabled={createLoading}
+                                        className="flex min-w-[160px] items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        {createLoading ? (
+                                            <>
+                                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                    ></path>
+                                                </svg>
+                                                Creating...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <User className="h-4 w-4" />
+                                                Create Supplier
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        {/* Actions */}
-                        <div className="mt-6 flex justify-end space-x-3">
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                                disabled={isLoading}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
-                                        Creating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Create Customer
-                                    </>
-                                )}
-                            </button>
+                {/* Tips Card */}
+                <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+                    <div className="flex items-start gap-3">
+                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="text-sm text-blue-800">
+                            <p className="mb-1 font-medium">Supplier Creation Tips:</p>
+                            <ul className="space-y-1 text-blue-700">
+                                <li>• Ensure email address is valid and unique in the system</li>
+                                <li>• Provide complete address information for better communication</li>
+                                <li>• Phone number should include country code for international suppliers</li>
+                                <li>• Select the appropriate store that will work with this supplier</li>
+                                <li>• Set status to 'Active' to enable immediate operations</li>
+                                <li>• Keep supplier information updated for smooth business operations</li>
+                            </ul>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>,
-        document.body
+        </div>
     );
 };
 
-export default CreateCustomerModal;
+export default CreateSupplierPage;

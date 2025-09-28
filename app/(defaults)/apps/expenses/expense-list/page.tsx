@@ -1,8 +1,8 @@
 'use client';
 
 import { useGetExpensesQuery } from '@/store/features/expense/expenseApi';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { Calendar, CalendarRange, ChevronLeft, ChevronRight, Clock, CreditCard, Filter, Plus, RefreshCw, Search, Store, TrendingDown, User, X } from 'lucide-react';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
+import { Calendar, CalendarRange, Clock, CreditCard, Filter, Plus, RefreshCw, Search, Store, TrendingDown, User, X } from 'lucide-react';
 import { useState } from 'react';
 import CreateExpenseModal from './__component/create_expense_modal';
 
@@ -23,10 +23,11 @@ const ExpenseList = () => {
     const [dateFilterType, setDateFilterType] = useState('specific'); // 'specific' or 'range'
 
     const { data: expensesData, isLoading, error, refetch } = useGetExpensesQuery(filters);
-    const { data: storesData, isLoading: storesLoading } = useAllStoresQuery();
+    // const { data: storesData, isLoading: storesLoading } = useAllStoresQuery();
+    const { data: storesData, isLoading: storesLoading } = useFullStoreListWithFilterQuery();
 
     const stores = storesData?.data || [];
-    const expenses = expensesData?.data || [];
+    const expenses = expensesData?.data?.data || [];
     const pagination = {
         current_page: filters.page || 1,
         last_page: Math.ceil((expensesData?.total || 0) / (filters.per_page || 10)),

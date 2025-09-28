@@ -1,12 +1,14 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateCustomerMutation } from '@/store/features/customer/customer';
-import { Award, Crown, Shield, Star, UserPlus, X } from 'lucide-react';
+import { Award, Crown, Shield, Star, UserPlus, X, Store } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { toast } from 'react-toastify';
 
 const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [isClient, setIsClient] = useState(false);
     const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
     const [createCustomer, { isLoading }] = useCreateCustomerMutation();
@@ -23,9 +25,15 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
         balance: 0,
         membership: 'normal',
         details: '',
+        store_id: currentStoreId,
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // ✅ update store_id when currentStoreId changes
+    useEffect(() => {
+        setFormData((prev) => ({ ...prev, store_id: currentStoreId }));
+    }, [currentStoreId]);
 
     useEffect(() => {
         setIsClient(true);
@@ -86,6 +94,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                 email: formData.email.trim() || null,
                 phone: formData.phone.trim() || null,
                 details: formData.details.trim() || null,
+                store_id: currentStoreId,
             };
 
             await createCustomer(submitData).unwrap();
@@ -111,6 +120,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
             balance: 0,
             membership: 'normal',
             details: '',
+            store_id: currentStoreId,
         });
         setErrors({});
     };
@@ -172,6 +182,20 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                             </div>
                         )}
 
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Store</label>
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    value={currentStore?.store_name || 'No Store Selected'}
+                                    readOnly
+                                    className="block w-full cursor-not-allowed rounded-md border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-gray-900 focus:outline-none"
+                                />
+                                <Store className="absolute left-3 top-2.5 h-4 w-4 text-purple-500" />
+                            </div>
+                            {errors.store_id && <p className="mt-1 text-sm text-red-600">{errors.store_id}</p>}
+                        </div>
+
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             {/* Name */}
                             <div className="sm:col-span-2">
@@ -183,9 +207,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${
-                                        errors.name ? 'border-red-300' : ''
-                                    }`}
+                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${errors.name ? 'border-red-300' : ''}`}
                                     placeholder="Enter customer name"
                                 />
                                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -199,9 +221,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${
-                                        errors.email ? 'border-red-300' : ''
-                                    }`}
+                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${errors.email ? 'border-red-300' : ''}`}
                                     placeholder="customer@example.com"
                                 />
                                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -215,9 +235,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleInputChange}
-                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${
-                                        errors.phone ? 'border-red-300' : ''
-                                    }`}
+                                    className={`mt-1 block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm sm:text-sm ${errors.phone ? 'border-red-300' : ''}`}
                                     placeholder="+880 1234 567890"
                                 />
                                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
@@ -274,13 +292,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
 
                             {/* Active */}
                             <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    name="is_active"
-                                    checked={formData.is_active}
-                                    onChange={handleInputChange}
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600"
-                                />
+                                <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleInputChange} className="h-4 w-4 rounded border-gray-300 text-blue-600" />
                                 <label className="ml-2 text-sm text-gray-700">Active Customer</label>
                             </div>
 
@@ -299,19 +311,10 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
 
                         {/* Actions */}
                         <div className="mt-6 flex justify-end space-x-3">
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm"
-                                disabled={isLoading}
-                            >
+                            <button type="button" onClick={handleClose} className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm" disabled={isLoading}>
                                 Cancel
                             </button>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
-                            >
+                            <button type="submit" disabled={isLoading} className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50">
                                 {isLoading ? 'Creating...' : 'Create Customer'}
                             </button>
                         </div>
