@@ -1,10 +1,11 @@
 'use client';
 
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Edit, Filter, MoreVertical, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
@@ -32,6 +33,9 @@ interface Store {
 }
 
 const SuppliersPage = () => {
+    const currentStore = useSelector((state: any) => state.auth.currentStore);
+    const currentStoreId = useSelector((state: any) => state.auth.currentStoreId);
+
     // States
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -42,22 +46,26 @@ const SuppliersPage = () => {
     // Ref for dropdown handling
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    const storeIdParam = selectedStore !== '' ? Number(selectedStore) : currentStoreId != null && currentStoreId !== 0 ? Number(currentStoreId) : undefined;
+
+    const queryArgs = useMemo(
+        () => ({
+            search: searchTerm || undefined,
+            store_id: storeIdParam || undefined,
+            status: statusFilter || undefined,
+        }),
+        [searchTerm, storeIdParam, statusFilter]
+    );
+
     // API hooks
-    const {
-        data: suppliersResponse,
-        isLoading,
-        error,
-        refetch,
-    } = useGetSuppliersQuery({
-        search: searchTerm,
-        store_id: selectedStore,
-    });
+    const { data: suppliersResponse, isLoading, error, refetch } = useGetSuppliersQuery(queryArgs);
     const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
     const suppliers: Supplier[] = suppliersResponse?.data?.data || [];
 
     // API hook for all stores
-    const { data: storesResponse } = useAllStoresQuery();
+    // const { data: storesResponse } = useAllStoresQuery();
+    const { data: storesResponse } = useFullStoreListWithFilterQuery();
     const stores: Store[] = storesResponse?.data || [];
 
     // Close dropdown when clicking outside
@@ -75,17 +83,28 @@ const SuppliersPage = () => {
     }, []);
 
     // Filter suppliers based on search term, status, and store
+    // const filteredSuppliers = useMemo(() => {
+    //     return suppliers.filter((supplier) => {
+    //         const matchesSearch =
+    //             supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
+
+    //         const matchesStatus = !statusFilter || supplier.status === statusFilter;
+    //         const matchesStore = !selectedStore || supplier.store_id === Number(selectedStore);
+
+    //         return matchesSearch && matchesStatus && matchesStore;
+    //     });
+    // }, [suppliers, searchTerm, statusFilter, selectedStore]);
+
     const filteredSuppliers = useMemo(() => {
         return suppliers.filter((supplier) => {
             const matchesSearch =
                 supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
 
             const matchesStatus = !statusFilter || supplier.status === statusFilter;
-            const matchesStore = !selectedStore || supplier.store_id === Number(selectedStore);
 
-            return matchesSearch && matchesStatus && matchesStore;
+            return matchesSearch && matchesStatus;
         });
-    }, [suppliers, searchTerm, statusFilter, selectedStore]);
+    }, [suppliers, searchTerm, statusFilter]);
 
     // Handle delete supplier with SweetAlert2 and react-toastify
     const handleDeleteSupplier = async (supplier: Supplier) => {
@@ -254,7 +273,7 @@ const SuppliersPage = () => {
                                         <option value="">All Stores</option>
                                         {stores.map((store) => (
                                             <option key={store.id} value={store.id.toString()}>
-                                                {store.name}
+                                                {store.store_name}
                                             </option>
                                         ))}
                                     </select>
@@ -321,6 +340,7 @@ const SuppliersPage = () => {
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Store</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Address</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
@@ -383,6 +403,9 @@ const SuppliersPage = () => {
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900">{supplier.email}</div>
                                                 <div className="text-sm text-gray-500">{supplier.phone}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm text-gray-900">{supplier.store.store_name}</div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="max-w-xs truncate text-sm text-gray-900" title={supplier.address}>

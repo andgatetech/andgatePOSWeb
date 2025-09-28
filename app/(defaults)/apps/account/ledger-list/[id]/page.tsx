@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetLedgerJournalsQuery } from '@/store/features/ledger/ledger';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
+// import { useAllStoresQuery } from '@/store/features/store/storeApi';
 import { ArrowUpDown, Building2, Calendar, CalendarRange, ChevronLeft, ChevronRight, Clock, FileText, Filter, Search, Store, TrendingDown, TrendingUp, User, X, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -28,7 +28,7 @@ const JournalListPage = () => {
     const [dateFilterType, setDateFilterType] = useState('specific'); // 'specific' or 'range'
 
     // RTK Query calls
-    const { data: storesData, isLoading: storesLoading } = useAllStoresQuery();
+    // const { data: storesData, isLoading: storesLoading } = useAllStoresQuery();
     const {
         data: journalsData,
         isLoading: journalsLoading,
@@ -39,7 +39,7 @@ const JournalListPage = () => {
         params: filters,
     });
 
-    const stores = storesData?.data || [];
+    // const stores = storesData?.data || [];
     const journals = journalsData?.journals?.data || [];
     const pagination = journalsData?.journals || {};
     console.log(journals);
@@ -182,7 +182,7 @@ const JournalListPage = () => {
 
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                                 {/* Store Filter */}
-                                <div className="relative">
+                                {/* <div className="relative">
                                     <Building2 className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                                     <select
                                         value={filters.store_id}
@@ -197,7 +197,7 @@ const JournalListPage = () => {
                                             </option>
                                         ))}
                                     </select>
-                                </div>
+                                </div> */}
 
                                 {/* Type Filter */}
                                 <div className="relative">

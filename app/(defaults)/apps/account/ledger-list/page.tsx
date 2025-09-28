@@ -1,292 +1,393 @@
 'use client';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useDeleteLedgerMutation, useGetLedgersQuery } from '@/store/features/ledger/ledger';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
+import { BookText, ChevronLeft, ChevronRight, Eye, MoreVertical, Plus, Search, Store, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+import CreateLedgerModal from './__component/CreateLedgerModal';
 
-import { Building2, Edit, Eye, FileText, Filter, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
-import CreateLedgerModal from './__component/LedgerModal';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import Link from 'next/link';
+// Action Dropdown Component
+const ActionDropdown = ({ ledger, onView, onDelete }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
-const LedgerList = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStore, setSelectedStore] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [deleteModal, setDeleteModal] = useState({ show: false, ledger: null });
-    const { data: st } = useAllStoresQuery();
-
-    const stores = st?.data || [];
-
-    // Fetch ledgers with RTK Query
-    const {
-        data: ledgersResponse,
-        isLoading,
-        isError,
-        refetch,
-    } = useGetLedgersQuery({
-        search: searchTerm,
-        store_id: selectedStore,
-        page: currentPage,
-        per_page: 10,
-    });
-
-    const ledgers = ledgersResponse?.data || [];
-    const pagination = ledgersResponse?.meta || {};
-
-    // Reset page when search or filter changes
     useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, selectedStore]);
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
 
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleView = () => {
+        onView(ledger.id);
+        setIsOpen(false);
     };
 
-    const handleDelete = (ledger) => {
-        setDeleteModal({ show: true, ledger });
+    const handleDelete = () => {
+        if (window.confirm(`Are you sure you want to delete ledger "${ledger.title}"? This action cannot be undone.`)) {
+            onDelete(ledger.id);
+        }
+        setIsOpen(false);
     };
 
-    const confirmDelete = async () => {
-        // Implement delete logic here
-        console.log('Deleting ledger:', deleteModal.ledger);
-        setDeleteModal({ show: false, ledger: null });
-    };
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="inline-flex items-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <MoreVertical className="h-4 w-4" />
+            </button>
 
-    const renderPagination = () => {
-        if (!pagination.last_page || pagination.last_page <= 1) return null;
-
-        const pages = Array.from({ length: pagination.last_page }, (_, i) => i + 1);
-
-        return (
-            <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-6">
-                <div className="text-sm text-slate-600">
-                    Showing {pagination.from || 0} to {pagination.to || 0} of {pagination.total || 0} results
+            {isOpen && (
+                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <button onClick={handleView} className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Eye className="mr-3 h-4 w-4" />
+                        View Journals
+                    </button>
+                    <button onClick={handleDelete} className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50">
+                        <Trash2 className="mr-3 h-4 w-4" />
+                        Delete Ledger
+                    </button>
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            )}
+        </div>
+    );
+};
+
+// Filters Component
+const LedgerFilters = ({ filters, onFiltersChange, stores, isLoadingStores }) => {
+    const handleFilterChange = (key, value) => {
+        onFiltersChange({ ...filters, [key]: value, page: 1 }); // Reset to page 1 when filtering
+    };
+
+    return (
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {/* Search */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search ledgers..."
+                        value={filters.search || ''}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                {/* Store Filter */}
+                <div>
+                    <select
+                        value={filters.store_id || ''}
+                        onChange={(e) => handleFilterChange('store_id', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                        disabled={isLoadingStores}
                     >
-                        Previous
+                        <option value="">All Stores</option>
+                        {stores?.map((store) => (
+                            <option key={store.id} value={store.id}>
+                                {store.store_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Per Page */}
+                <div>
+                    <select
+                        value={filters.per_page || 10}
+                        onChange={(e) => handleFilterChange('per_page', parseInt(e.target.value))}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value={5}>5 per page</option>
+                        <option value={10}>10 per page</option>
+                        <option value={20}>20 per page</option>
+                        <option value={50}>50 per page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Ledger Table Component
+const LedgerTable = ({ ledgers, isLoading, onView, onDelete }) => {
+    if (isLoading) {
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                    <p className="mt-2 text-gray-600">Loading ledgers...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!ledgers || ledgers.length === 0) {
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <BookText className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No ledgers found</h3>
+                    <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                </div>
+            </div>
+        );
+    }
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    return (
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Ledger</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Store</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Journal Count</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created Date</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                        {ledgers.map((ledger) => (
+                            <tr key={ledger.id} className="hover:bg-gray-50">
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="flex items-center">
+                                        <BookText className="mr-3 h-5 w-5 text-blue-500" />
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-900">{ledger.title}</div>
+                                            <div className="text-sm text-gray-500">ID: {ledger.id}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <div className="flex items-center">
+                                        <Store className="mr-2 h-4 w-4 text-purple-500" />
+                                        <div className="text-sm text-gray-900">{ledger.store?.store_name}</div>
+                                    </div>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{ledger.journals?.length || 0} entries</span>
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{formatDate(ledger.created_at)}</td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    <ActionDropdown ledger={ledger} onView={onView} onDelete={onDelete} />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+// Pagination Component
+const Pagination = ({ meta, onPageChange }) => {
+    if (!meta || meta.last_page <= 1) {
+        return null;
+    }
+
+    const { current_page, last_page, total, per_page } = meta;
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const showPages = 5;
+        const halfShow = Math.floor(showPages / 2);
+
+        let start = Math.max(1, current_page - halfShow);
+        let end = Math.min(last_page, current_page + halfShow);
+
+        if (end - start < showPages - 1) {
+            if (start === 1) {
+                end = Math.min(last_page, start + showPages - 1);
+            } else {
+                start = Math.max(1, end - showPages + 1);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        return pages;
+    };
+
+    const startItem = (current_page - 1) * per_page + 1;
+    const endItem = Math.min(current_page * per_page, total);
+
+    return (
+        <div className="rounded-b-lg border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm text-gray-700">
+                    Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{total}</span> results
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={() => onPageChange(current_page - 1)}
+                        disabled={current_page === 1}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
                     </button>
 
-                    {pages.map((page) => (
+                    {getPageNumbers().map((page) => (
                         <button
                             key={page}
-                            onClick={() => handlePageChange(page)}
-                            className={`rounded-lg px-3 py-2 text-sm transition-colors ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-slate-300 hover:bg-slate-50'}`}
+                            onClick={() => onPageChange(page)}
+                            className={`relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
+                                page === current_page ? 'z-10 border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            }`}
                         >
                             {page}
                         </button>
                     ))}
 
                     <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === pagination.last_page}
-                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => onPageChange(current_page + 1)}
+                        disabled={current_page === last_page}
+                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        Next
+                        <ChevronRight className="h-5 w-5" />
                     </button>
                 </div>
-            </div>
-        );
-    };
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-            <div className="mx-auto max-w-7xl">
-                {/* Header */}
-                <div className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-xl">
-                    <div className="rounded-t-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="rounded-lg bg-white/20 p-3">
-                                    <FileText className="h-8 w-8" />
-                                </div>
-                                <div>
-                                    <h1 className="text-3xl font-bold">Ledger Management</h1>
-                                    <p className="mt-1 text-blue-100">Manage your accounting ledgers efficiently</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-medium transition-all duration-200 hover:scale-105 hover:bg-white/30"
-                            >
-                                <Plus size={20} />
-                                Create Ledger
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Filters */}
-                    <div className="border-b border-slate-200 p-6">
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                            {/* Search */}
-                            <div className="relative">
-                                <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search ledgers by title..."
-                                    className="w-full rounded-lg border border-slate-300 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-
-                            {/* Store Filter */}
-                            <div className="relative">
-                                <Building2 className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                <select
-                                    className="w-full rounded-lg border border-slate-300 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                    value={selectedStore}
-                                    onChange={(e) => setSelectedStore(e.target.value)}
-                                >
-                                    <option value="">All Stores</option>
-                                    {stores.map((store) => (
-                                        <option key={store.id} value={store.id}>
-                                            {store.store_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Clear Filters */}
-                            <button
-                                onClick={() => {
-                                    setSearchTerm('');
-                                    setSelectedStore('');
-                                }}
-                                className="flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-3 text-slate-700 transition-colors hover:bg-slate-200"
-                            >
-                                <Filter size={16} />
-                                Clear Filters
-                            </button>
-
-                            {/* Refresh */}
-                            <button onClick={() => refetch()} className="flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-3 text-slate-700 transition-colors hover:bg-slate-200">
-                                <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                                Refresh
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="rounded-2xl border border-slate-200 bg-white shadow-xl">
-                    <div className="p-6">
-                        {isLoading ? (
-                            <div className="flex h-64 items-center justify-center">
-                                <div className="text-center">
-                                    <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                                    <p className="text-slate-600">Loading ledgers...</p>
-                                </div>
-                            </div>
-                        ) : isError ? (
-                            <div className="py-12 text-center">
-                                <div className="mb-4 text-6xl">⚠️</div>
-                                <h3 className="mb-2 text-xl font-semibold text-slate-600">Error loading ledgers</h3>
-                                <p className="mb-4 text-slate-400">Something went wrong. Please try again.</p>
-                                <button onClick={() => refetch()} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
-                                    Retry
-                                </button>
-                            </div>
-                        ) : ledgers.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <div className="mb-4 text-6xl">📚</div>
-                                <h3 className="mb-2 text-xl font-semibold text-slate-600">No ledgers found</h3>
-                                <p className="mb-4 text-slate-400">{searchTerm || selectedStore ? 'Try adjusting your search criteria' : 'Create your first ledger to get started'}</p>
-                                <button onClick={() => setIsModalOpen(true)} className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
-                                    Create Ledger
-                                </button>
-                            </div>
-                        ) : (
-                            <>
-                                {/* Table */}
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr className="border-b border-slate-200">
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">ID</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Title</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Store</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Created</th>
-                                                <th className="px-4 py-4 text-left font-semibold text-slate-700">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {ledgers.map((ledger, index) => (
-                                                <tr key={ledger.id} className={`border-b border-slate-100 transition-colors hover:bg-slate-50 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}`}>
-                                                    <td className="px-4 py-4">
-                                                        <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">#{ledger.id}</span>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="rounded-lg bg-blue-100 p-2">
-                                                                <FileText className="h-4 w-4 text-blue-600" />
-                                                            </div>
-                                                            <span className="font-medium text-slate-900">{ledger.title}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <Building2 className="h-4 w-4 text-slate-400" />
-                                                            <span className="text-slate-600">{ledger.store?.store_name || 'N/A'}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4 text-sm text-slate-500">{ledger.created_at ? new Date(ledger.created_at).toLocaleDateString() : 'N/A'}</td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex gap-2">
-                                                            <Link href={`/apps/account/ledger-list/${ledger.id}`} className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50">
-                                                                <Eye size={16} />
-                                                            </Link>
-                                                            <button className="rounded-lg p-2 text-amber-600 transition-colors hover:bg-amber-50">
-                                                                <Edit size={16} />
-                                                            </button>
-                                                            <button onClick={() => handleDelete(ledger)} className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50">
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                {/* Pagination */}
-                                {renderPagination()}
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                {/* Create Ledger Modal */}
-                <CreateLedgerModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} stores={stores} />
-
-                {/* Delete Confirmation Modal */}
-                {deleteModal.show && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">Confirm Delete</h3>
-                            <p className="mb-6 text-slate-600">Are you sure you want to delete the ledger "{deleteModal.ledger?.title}"? This action cannot be undone.</p>
-                            <div className="flex justify-end gap-3">
-                                <button
-                                    onClick={() => setDeleteModal({ show: false, ledger: null })}
-                                    className="rounded-lg border border-slate-300 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button onClick={confirmDelete} className="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );
 };
 
-export default LedgerList;
+// Main Ledger List Component
+const LedgerListSystem = () => {
+    const router = useRouter();
+    const { currentStoreId, currentStore } = useCurrentStore();
+
+    const [filters, setFilters] = useState({
+        search: '',
+        store_id: currentStoreId || '',
+        per_page: 10,
+        page: 1,
+    });
+
+    useEffect(() => {
+        if (currentStoreId) {
+            setFilters((prev) => ({
+                ...prev,
+                store_id: currentStoreId,
+                page: 1,
+            }));
+        }
+    }, [currentStoreId]);
+
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    // Redux queries and mutations
+    const { data: storesData, isLoading: isLoadingStores } = useFullStoreListWithFilterQuery();
+    console.log('storesData', storesData);
+    const { data: ledgersData, isLoading: isLoadingLedgers, error } = useGetLedgersQuery(filters);
+    const [deleteLedger, { isLoading: isDeleting }] = useDeleteLedgerMutation();
+
+    const handleFiltersChange = (newFilters) => {
+        setFilters(newFilters);
+    };
+
+    const handlePageChange = (page) => {
+        setFilters((prev) => ({ ...prev, page }));
+    };
+
+    const handleCreateSuccess = () => {
+        setIsCreateModalOpen(false);
+        toast.success('Ledger created successfully!');
+    };
+
+    const handleViewLedger = (ledgerId) => {
+        router.push(`/apps/account/ledger-list/${ledgerId}`);
+    };
+
+    const handleDeleteLedger = async (ledgerId) => {
+        try {
+            await deleteLedger(ledgerId).unwrap();
+            toast.success('Ledger deleted successfully!');
+        } catch (error) {
+            console.error('Failed to delete ledger:', error);
+            toast.error('Failed to delete ledger. Please try again.');
+        }
+    };
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 p-4">
+                <div className="mx-auto max-w-7xl">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                        <p className="text-red-800">Error loading ledgers. Please try again.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-4">
+            <div className="mx-auto max-w-7xl">
+                {/* Header */}
+                <div className="mb-6 flex items-center justify-between">
+                    <div>
+                        <h1 className="flex items-center text-2xl font-bold text-gray-900">
+                            <BookText className="mr-2 h-6 w-6" />
+                            Ledger Management
+                        </h1>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Manage and organize your accounting ledgers
+                            {currentStore && (
+                                <span className="ml-2 inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+                                    <Store className="mr-1 h-3 w-3" />
+                                    {currentStore.store_name}
+                                </span>
+                            )}
+                        </p>
+                    </div>
+
+                    {/* Create Ledger Button */}
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create Ledger
+                    </button>
+                </div>
+
+                {/* Filters */}
+                <LedgerFilters filters={filters} onFiltersChange={handleFiltersChange} stores={storesData?.data} isLoadingStores={isLoadingStores} />
+
+                {/* Ledger Table */}
+                <LedgerTable ledgers={ledgersData?.data?.data} isLoading={isLoadingLedgers || isDeleting} onView={handleViewLedger} onDelete={handleDeleteLedger} />
+
+                {/* Pagination */}
+                {ledgersData?.data?.meta && <Pagination meta={ledgersData.data.meta} onPageChange={handlePageChange} />}
+
+                {/* Create Ledger Modal */}
+                <CreateLedgerModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
+            </div>
+        </div>
+    );
+};
+
+export default LedgerListSystem;

@@ -35,6 +35,7 @@ const CustomerApi = baseApi.injectEndpoints({
 
         // ✅ Store customers list endpoint for /customers
         getStoreCustomersList: builder.query({
+<<<<<<< HEAD
             query: ({
                 store_id,
                 search,
@@ -63,6 +64,7 @@ const CustomerApi = baseApi.injectEndpoints({
             },
             providesTags: (result) =>
                 result ? [...result.data.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }] : [{ type: 'Customers', id: 'LIST' }],
+
         }),
 
         // ✅ Update customer mutation to invalidate store customers list
