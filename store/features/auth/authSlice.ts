@@ -4,6 +4,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface Store {
     id: number;
     store_name: string;
+    logo_path?: string;
+    store_contact?: string;
+    store_location?: string;
+    is_active?: boolean;
 }
 
 export interface SubscriptionItem {

@@ -3,24 +3,65 @@
 import ImageShowModal from '@/__components/ImageShowModal';
 import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
-import { useUniversalFilter } from '@/hooks/useUniversalFilter';
-import { useDeleteProductMutation, useGetAllProductsQuery, useGetUnitsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import IconEye from '@/components/icon/icon-eye';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Percent, Tag, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import IconEye from '../icon/icon-eye';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const ProductTable = () => {
+    const { currentStoreId, userStores } = useCurrentStore();
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
 
-    // API calls - RTK Query will auto-refetch when apiParams change
-    const { data: pds, isLoading } = useGetAllProductsQuery(apiParams);
-    const products = useMemo(() => pds?.data || [], [pds]);
+    // Memoize query parameters to prevent infinite re-renders
+    const queryParams = useMemo(() => {
+        const params: Record<string, any> = {};
 
-    const { data: unitsResponse } = useGetUnitsQuery({});
-    const productUnits = unitsResponse?.data || [];
+        if (Object.keys(apiParams).length > 0) {
+            // Filter is active - build parameters from filter
+
+            // Handle store filtering
+            if (apiParams.storeId === 'all' || apiParams.store_ids === 'all') {
+                // "All Stores" selected - send all user's store IDs as comma-separated string
+                const allStoreIds = userStores.map((store: any) => store.id);
+                params.store_ids = allStoreIds.join(',');
+            } else if (apiParams.store_id) {
+                // Specific store ID from filter
+                params.store_id = apiParams.store_id;
+            } else if (apiParams.storeId && apiParams.storeId !== 'all') {
+                // Specific store selected in filter dropdown
+                params.store_id = apiParams.storeId;
+            } else {
+                // No specific store in filter - use current store from sidebar
+                if (currentStoreId) {
+                    params.store_id = currentStoreId;
+                }
+            }
+
+            // Handle other filters
+            if (apiParams.search) params.search = apiParams.search;
+            if (apiParams.status) params.status = apiParams.status;
+            if (apiParams.dateRange?.startDate) params.start_date = apiParams.dateRange.startDate;
+            if (apiParams.dateRange?.endDate) params.end_date = apiParams.dateRange.endDate;
+        } else {
+            // No filter active - use current store from sidebar (default behavior)
+            if (currentStoreId) {
+                params.store_id = currentStoreId;
+            }
+        }
+
+        return params;
+    }, [apiParams, currentStoreId, userStores]);
+
+    // API calls - RTK Query will auto-refetch when queryParams change
+    const { data: pds, isLoading, refetch } = useGetAllProductsQuery(queryParams);
+
+    const products = useMemo(() => pds?.data || [], [pds?.data]);
+
+    // Categories are now handled by ProductFilter component
 
     const [updateAvailability] = useUpdateAvailabilityMutation();
     const [deleteProduct] = useDeleteProductMutation();
@@ -31,23 +72,18 @@ const ProductTable = () => {
     const [sortField, setSortField] = useState('product_name');
     const [sortDirection, setSortDirection] = useState('asc');
 
-    // Universal filter hook
-    const { buildApiParams } = useUniversalFilter();
+    // Reset filter when current store changes from sidebar
+    useEffect(() => {
+        setApiParams({});
+    }, [currentStoreId]);
 
-    // Handle filter changes from UniversalFilter
-    const handleFilterChange = (newApiParams: Record<string, any>) => {
-        console.log('Filter params:', newApiParams);
-        setApiParams(newApiParams);
-        setCurrentPage(1); // Reset to first page when filters change
-    };
-
-    // Mock categories for the filter (you can replace this with real data)
-    const mockCategories = [
-        { id: 1, name: 'Electronics' },
-        { id: 2, name: 'Clothing' },
-        { id: 3, name: 'Food & Beverage' },
-        { id: 4, name: 'Home & Garden' },
-    ];
+    // Handle filter changes from UniversalFilter - RTK Query will auto-refetch when queryParams change
+    const handleFilterChange = useCallback(
+        (newApiParams: Record<string, any>) => {
+            setApiParams(newApiParams);
+        },
+        [] // Remove dependency to prevent infinite re-renders
+    );
 
     // Toast notification
     const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -113,41 +149,14 @@ const ProductTable = () => {
         return purchasePrice > 0 ? ((profit / purchasePrice) * 100).toFixed(1) : 0;
     };
 
-    // Filter and sort products
+    // Sort products (filtering is now done by backend)
     const filteredAndSortedProducts = useMemo(() => {
-        let filtered = products.filter((product: any) => {
-            // Search filter
-            const matchesSearch =
-                !apiParams.search ||
-                product.product_name.toLowerCase().includes(apiParams.search.toLowerCase()) ||
-                product.description?.toLowerCase().includes(apiParams.search.toLowerCase()) ||
-                product.sku?.toLowerCase().includes(apiParams.search.toLowerCase());
+        if (!products || products.length === 0) return [];
 
-            // Store filter (if you have store_id in product data)
-            const matchesStore = !apiParams.store_id || apiParams.store_id === 'all' || product.store_id === apiParams.store_id;
-
-            // Status filter (from custom filters)
-            const matchesStatus = !apiParams.status || apiParams.status === 'all' || product.available === apiParams.status;
-
-            // Category filter (from custom filters)
-            const matchesCategory = !apiParams.category_id || apiParams.category_id === 'all' || product.category_id === apiParams.category_id;
-
-            // Date filter (if you have created_at or updated_at in product data)
-            let matchesDate = true;
-            if (apiParams.start_date && apiParams.end_date) {
-                const productDate = new Date(product.created_at || product.updated_at);
-                const startDate = new Date(apiParams.start_date);
-                const endDate = new Date(apiParams.end_date);
-                matchesDate = productDate >= startDate && productDate <= endDate;
-            }
-
-            return matchesSearch && matchesStore && matchesStatus && matchesCategory && matchesDate;
-        });
-
-        // Sort products
-        filtered.sort((a: any, b: any) => {
-            let aValue = a[sortField];
-            let bValue = b[sortField];
+        // Sort products (no filtering needed since backend handles it)
+        let sorted = [...products].sort((a: any, b: any) => {
+            let aValue = a[sortField] || '';
+            let bValue = b[sortField] || '';
 
             if (typeof aValue === 'string') {
                 aValue = aValue.toLowerCase();
@@ -161,8 +170,8 @@ const ProductTable = () => {
             }
         });
 
-        return filtered;
-    }, [products, apiParams, sortField, sortDirection]);
+        return sorted;
+    }, [products, sortField, sortDirection]);
 
     // Pagination
     const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
@@ -199,21 +208,45 @@ const ProductTable = () => {
         setOpen(true);
     };
 
-    // Calculate stats
+    // Calculate stats based on filtered products (from backend)
     const totalProducts = products.length;
     const availableProducts = products.filter((p: any) => p.available === 'yes').length;
     const unavailableProducts = products.filter((p: any) => p.available === 'no').length;
-    const lowStockProducts = products.filter((p: any) => p.quantity <= 10).length;
-    const outOfStockProducts = products.filter((p: any) => p.quantity === 0).length;
-    const totalValue = products.reduce((sum: number, p: any) => sum + p.price * p.quantity, 0);
+    const lowStockProducts = products.filter((p: any) => {
+        // Calculate actual quantity from product_stocks if available
+        if (p.product_stocks && p.product_stocks.length > 0) {
+            const totalStock = p.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
+            return totalStock <= (p.low_stock_quantity || 10);
+        }
+        return (Number(p.quantity) || 0) <= (p.low_stock_quantity || 10);
+    }).length;
+    const outOfStockProducts = products.filter((p: any) => {
+        // Calculate actual quantity from product_stocks if available
+        if (p.product_stocks && p.product_stocks.length > 0) {
+            const totalStock = p.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
+            return totalStock === 0;
+        }
+        return (Number(p.quantity) || 0) === 0;
+    }).length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-            <div className="mx-auto max-w-[1600px]">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
+            <div className="">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="mb-2 text-3xl font-bold text-gray-900">Product Management</h1>
-                    <p className="text-gray-600">Manage your inventory with advanced filtering and sorting</p>
+                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 shadow-md">
+                                    <Package className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
+                                    <p className="text-sm text-gray-500">View and manage all your store products</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Enhanced Stats Cards */}
@@ -269,32 +302,11 @@ const ProductTable = () => {
                     </div>
                 </div>
 
-                {/* Universal Product Filter */}
-                <ProductFilter onFilterChange={handleFilterChange} categories={mockCategories} />
-
-                {/* Items per page and results info */}
-                <div className="mb-6 flex items-center justify-between rounded-xl border bg-white p-4 shadow-sm">
-                    <div className="text-sm text-gray-600">
-                        Showing <span className="font-medium">{filteredAndSortedProducts.length}</span> products
-                        {apiParams.search && <span> matching &quot;{apiParams.search}&quot;</span>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap text-sm text-gray-600">Show:</span>
-                        <select
-                            value={itemsPerPage}
-                            onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                            className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                        >
-                            <option value={10}>10</option>
-                            <option value={20}>20</option>
-                            <option value={50}>50</option>
-                            <option value={100}>100</option>
-                        </select>
-                    </div>
-                </div>
+                {/* Filter Bar */}
+                <ProductFilter key={`product-filter-${currentStoreId}`} onFilterChange={handleFilterChange} />
 
                 {/* Enhanced Table */}
-                <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+                <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
@@ -343,7 +355,12 @@ const ProductTable = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {currentProducts.map((product: any, index: number) => {
-                                    const stockStatus = getStockStatus(product.quantity, product.low_stock_quantity || 10);
+                                    // Calculate actual quantity from product_stocks if available
+                                    const actualQuantity =
+                                        product.product_stocks && product.product_stocks.length > 0
+                                            ? product.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
+                                            : Number(product.quantity) || 0;
+                                    const stockStatus = getStockStatus(actualQuantity, product.low_stock_quantity || 10);
                                     const profitMargin = getProfitMargin(product.price, product.purchase_price);
 
                                     return (
@@ -351,10 +368,16 @@ const ProductTable = () => {
                                             {/* Product Details */}
                                             {/* SKU & Unit */}
                                             <td className="px-4 py-4">
-                                                <div className="space-y-1">
+                                                <div className="space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <Tag className="h-4 w-4 text-gray-400" />
                                                         <span className="rounded bg-gray-100 px-2 py-1 font-mono text-sm">{product.sku || 'N/A'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Package className="h-4 w-4 text-blue-400" />
+                                                        <span className="rounded bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700">
+                                                            {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'No Unit')}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -375,8 +398,14 @@ const ProductTable = () => {
                                                                     style={{ width: `${stockStatus.percentage}%` }}
                                                                 ></div>
                                                             </div>
-                                                            <span className={`text-sm font-bold ${stockStatus.textColor}`}>{product.quantity}</span>
-                                                            <div className="text-sm font-bold text-gray-500">{product.unit}</div>
+                                                            <span className={`text-sm font-bold ${stockStatus.textColor}`}>
+                                                                {product.product_stocks && product.product_stocks.length > 0
+                                                                    ? product.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
+                                                                    : Number(product.quantity) || 0}
+                                                            </span>
+                                                            <div className="text-sm font-bold text-gray-500">
+                                                                {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'N/A')}
+                                                            </div>
                                                         </div>
                                                         <span
                                                             className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -494,64 +523,27 @@ const ProductTable = () => {
                                 })}
                             </tbody>
                         </table>
-                    </div>
-
-                    {/* Enhanced Pagination */}
-                    {totalPages > 1 && (
-                        <div className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4">
-                            <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-                                <div className="text-sm text-gray-700">
-                                    Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-                                    <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredAndSortedProducts.length)}</span> of{' '}
-                                    <span className="font-medium">{filteredAndSortedProducts.length}</span> products
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                        disabled={currentPage === 1}
-                                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        Previous
-                                    </button>
-
-                                    <div className="flex items-center gap-1">
-                                        {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                                            let pageNum;
-                                            if (totalPages <= 5) {
-                                                pageNum = i + 1;
-                                            } else if (currentPage <= 3) {
-                                                pageNum = i + 1;
-                                            } else if (currentPage >= totalPages - 2) {
-                                                pageNum = totalPages - 4 + i;
-                                            } else {
-                                                pageNum = currentPage - 2 + i;
-                                            }
-
-                                            return (
-                                                <button
-                                                    key={pageNum}
-                                                    onClick={() => setCurrentPage(pageNum)}
-                                                    className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                                        currentPage === pageNum ? 'bg-blue-600 text-white shadow-md' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                                    }`}
-                                                >
-                                                    {pageNum}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-
-                                    <button
-                                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                        disabled={currentPage === totalPages}
-                                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
+                        {/* Items per page and results info */}
+                        <div className="mb-6 mt-6 flex items-center justify-between rounded-xl border bg-white p-4 shadow-sm">
+                            <div className="text-sm text-gray-600">
+                                Showing <span className="font-medium">{filteredAndSortedProducts.length}</span> products
+                                {apiParams.search && <span> matching &quot;{apiParams.search}&quot;</span>}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="whitespace-nowrap text-sm text-gray-600">Show:</span>
+                                <select
+                                    value={itemsPerPage}
+                                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                                    className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={30}>30</option>
+                                    <option value={100}>100</option>
+                                </select>
                             </div>
                         </div>
-                    )}
+                    </div>
 
                     {/* Empty state */}
                     {currentProducts.length === 0 && (
