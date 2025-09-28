@@ -7,31 +7,6 @@ import { useGetAllProductsWithStockQuery } from '@/store/Product/productApi';
 import { Minus, Plus, Save, Search, Store, X } from 'lucide-react';
 import { useState } from 'react';
 
-// Store Selection Component
-// const StoreSelector = ({ selectedStore, onStoreChange, stores, isLoading }) => (
-//     <div className="rounded-lg border bg-white p-6 shadow-sm">
-//         <h3 className="mb-4 text-lg font-semibold text-gray-800">Select Store</h3>
-//         <div className="space-y-2">
-//             <label className="block text-sm font-medium text-gray-700">
-//                 Store <span className="text-red-500">*</span>
-//             </label>
-//             <select
-//                 value={selectedStore}
-//                 onChange={(e) => onStoreChange(e.target.value)}
-//                 className="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-//                 disabled={isLoading}
-//             >
-//                 <option value="">Select a store</option>
-//                 {stores?.map((store) => (
-//                     <option key={store.id} value={store.id}>
-//                         {store.store_name}
-//                     </option>
-//                 ))}
-//             </select>
-//         </div>
-//     </div>
-// );
-
 // Product Search Component
 const ProductSearch = ({ onAddProduct, selectedStore, products, selectedProductIds }) => {
     const [searchTerm, setSearchTerm] = useState('');
