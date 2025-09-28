@@ -12,10 +12,11 @@ import { RootState } from '@/store';
 import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 
+import Image from 'next/image';
 // Icons
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Image, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -49,9 +50,9 @@ const adminRoutes = [
 
     {
         label: 'Brand',
-        icon: <Image />,
-        // icon: <Tag />,
-        subMenu: [{ label: 'Brand List', href: '/apps/brand' }],
+
+        icon: <Tag />,
+        subMenu: [{ label: 'All Brand ', href: '/apps/brand' }],
     },
     {
         label: 'Product',
@@ -97,13 +98,13 @@ const adminRoutes = [
     {
         label: 'Customer',
         icon: <Users />,
-        subMenu: [{ label: 'All Customer ', href: '/apps/customer' }],
+        subMenu: [{ label: 'All Customers ', href: '/apps/customer' }],
     },
     {
         label: 'Report',
         icon: <BarChart />,
         subMenu: [
-            { label: 'Activity log', href: '/apps/ActivityLog' },
+            { label: 'All Activity Logs', href: '/apps/ActivityLog' },
             { label: 'Sales Report', href: '/apps/SalesReport' },
             { label: 'Customer-Behavior Report', href: '/apps/CustomerReport' },
             { label: 'Idle Inventory Report', href: '/apps/IdleInventoryReport' },
@@ -198,10 +199,15 @@ const Sidebar = () => {
                     {/* Logo */}
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center space-x-2">
-                            {/* Icon from public/images */}
-                            <img src="/images/andgatePOS.jpeg" alt="logo icon" className=" w-40 object-contain" />
-
-                            {/* Main site name */}
+                            <Image
+                                src="/images/andgatePOS.jpeg"
+                                alt="AndGate POS logo"
+                                width={160} // adjust as needed
+                                height={40} // adjust as needed
+                                className="object-contain"
+                                priority // ensures logo loads fast
+                            />
+                            {/* You can add site name text here if needed */}
                         </Link>
 
                         <button
@@ -254,8 +260,8 @@ const Sidebar = () => {
                     )}
 
                     {/* Sidebar Menu */}
-                    <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
-                        <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
+                    <PerfectScrollbar className="relative h-[calc(100vh-160px)] overflow-y-auto">
+                        <ul className="relative space-y-0.5 p-4 pb-8 font-semibold">
                             {menuRoutes.map((route) => (
                                 <li key={route.label} className="menu nav-item">
                                     <button
