@@ -56,22 +56,13 @@ const CategoryComponent = () => {
     // Handle filter changes from CategoryFilter - RTK Query will auto-refetch when queryParams change
     const handleFilterChange = useCallback(
         (newApiParams: Record<string, any>) => {
-            console.log('Categories - Filter changed:', newApiParams);
-            console.log('Categories - Current store from sidebar:', currentStoreId);
+           
             setApiParams(newApiParams);
         },
         [currentStoreId]
     );
 
-    console.log('Categories - API Params:', apiParams);
-    console.log('Categories - Current Store (Sidebar):', currentStoreId);
-    console.log(
-        'Categories - User Stores:',
-        userStores.map((s: any) => ({ id: s.id, name: s.name }))
-    );
-    console.log('Categories - Final Query Params:', queryParams);
-    console.log('Categories - API Response:', categoriesResponse);
-    console.log('Categories - Categories Data:', categoriesResponse?.data);
+  
 
     const categories = categoriesResponse?.data || [];
 

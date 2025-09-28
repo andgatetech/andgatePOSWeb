@@ -1,14 +1,13 @@
 import ComponentsFormsLayoutsActionsButtons from '@/components/forms/layouts/components-forms-layouts-actions-buttons';
 import ComponentsFormsLayoutsAutoSizing from '@/components/forms/layouts/components-forms-layouts-auto-sizing';
-import ComponentsFormsLayoutsGrid from '@/components/forms/layouts/components-forms-layouts-grid';
 import ComponentsFormsLayoutsHorizontal from '@/components/forms/layouts/components-forms-layouts-horizontal';
 import ComponentsFormsLayoutsInline from '@/components/forms/layouts/components-forms-layouts-inline';
 import ComponentsFormsLayoutsLogin from '@/components/forms/layouts/components-forms-layouts-login';
 import ComponentsFormsLayoutsRegistration from '@/components/forms/layouts/components-forms-layouts-registration';
 import ComponentsFormsLayoutsStack from '@/components/forms/layouts/components-forms-layouts-stack';
+
 import { Metadata } from 'next';
 import Link from 'next/link';
-import React from 'react';
 
 export const metadata: Metadata = {
     title: 'Layouts',
@@ -41,8 +40,7 @@ const Layouts = () => {
                 {/* Login */}
                 <ComponentsFormsLayoutsLogin />
 
-                {/* Grid */}
-                <ComponentsFormsLayoutsGrid />
+              
 
                 {/* Inline */}
                 <ComponentsFormsLayoutsInline />

@@ -1,17 +1,14 @@
-import ProductTable from '@/components/datatables/components-datatables-multiple-tables';
-import ComponentsDatatablesMultipleTables from '@/components/datatables/components-datatables-multiple-tables';
-import IconBell from '@/components/icon/icon-bell';
-import { Metadata } from 'next';
-import React from 'react';
+import { commonMetadata, generateMetadata } from '@/lib/seo';
+import ProductTable from './ProductTable';
 
-export const metadata: Metadata = {
-    title: 'POS Products',
-};
+export const metadata = generateMetadata({
+    ...commonMetadata.products,
+    image: '/images/products-og-image.jpg',
+});
 
 const MultipleTables = () => {
     return (
         <div>
-           
             <ProductTable />
         </div>
     );

@@ -1,18 +1,19 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
 import { Eye, GripVertical, Package, Search } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import BillToForm from './components-apps-invoice-right-billing';
+import PosRightSide from './PosRightSide';
 
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
 import Image from 'next/image';
 
-const ComponentsAppsInvoiceAdd = () => {
+const PosLeftSide = () => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +27,25 @@ const ComponentsAppsInvoiceAdd = () => {
     const dispatch = useDispatch();
     const itemsPerPage = 6;
 
-    const { data: productsData, isLoading } = useGetAllProductsQuery({ available: 'yes' });
+    // Get current store from hook
+    const { currentStoreId } = useCurrentStore();
+
+    // Build query parameters for current store only
+    const queryParams = useMemo(() => {
+        const params: Record<string, any> = {
+            available: 'yes', // Only show available products in POS
+        };
+
+        // Always use current store from sidebar for POS
+        if (currentStoreId) {
+            params.store_id = currentStoreId;
+        }
+
+        return params;
+    }, [currentStoreId]);
+
+    // Fetch products for current store only
+    const { data: productsData, isLoading } = useGetAllProductsQuery(queryParams);
     const products = productsData?.data || [];
     const reduxItems = useSelector((state: RootState) => state.invoice.items);
 
@@ -128,7 +147,7 @@ const ComponentsAppsInvoiceAdd = () => {
             PlaceholderQuantity: totalQuantity,
             tax_rate: parseFloat(product.tax_rate || '0'),
             tax_included: product.tax_included === 1,
-            unit: product.unit || 'piece',
+            unit: product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'piece'),
         };
 
         console.log('Adding item to Redux:', itemToAdd);
@@ -144,7 +163,7 @@ const ComponentsAppsInvoiceAdd = () => {
 
         // 🔑 Auto-add when SKU format detected
         if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
-            const foundProduct = products.find((p) => p.sku.toLowerCase() === value.toLowerCase());
+            const foundProduct = products.find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
             if (foundProduct) {
                 addToCart(foundProduct);
                 setSearchTerm(''); // clear after adding
@@ -166,7 +185,7 @@ const ComponentsAppsInvoiceAdd = () => {
     }
 
     const filteredProducts = products.filter(
-        (p) =>
+        (p: any) =>
             p.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase()) || p.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -203,7 +222,7 @@ const ComponentsAppsInvoiceAdd = () => {
                             leftWidth > 60 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : leftWidth > 45 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
                         }`}
                     >
-                        {currentProducts.map((product) => {
+                        {currentProducts.map((product: any) => {
                             // Calculate total quantity from product_stocks
                             const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
                             const isUnavailable = product.available === 'no' || totalQuantity <= 0;
@@ -245,6 +264,11 @@ const ComponentsAppsInvoiceAdd = () => {
 
                                         {/* SKU */}
                                         {product.sku && <div className="mb-1 text-xs text-gray-400">SKU: {product.sku}</div>}
+
+                                        {/* Unit */}
+                                        <div className="mb-1 text-xs font-medium text-blue-600">
+                                            Unit: {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'N/A')}
+                                        </div>
 
                                         <div className="mt-2 flex items-center justify-between">
                                             <span className="text-base font-bold text-primary">৳{parseFloat(product.price).toFixed(2)}</span>
@@ -292,7 +316,7 @@ const ComponentsAppsInvoiceAdd = () => {
             {/* Bill Form Section - Resizable Right Panel */}
             <div className="flex flex-col overflow-hidden" style={{ width: `${100 - leftWidth}%` }}>
                 <div className="flex-1 overflow-auto">
-                    <BillToForm />
+                    <PosRightSide />
                 </div>
             </div>
 
@@ -302,4 +326,4 @@ const ComponentsAppsInvoiceAdd = () => {
     );
 };
 
-export default ComponentsAppsInvoiceAdd;
+export default PosLeftSide;

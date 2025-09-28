@@ -1,10 +1,10 @@
 import ComponentsDashboardSales from '@/components/dashboard/components-dashboard-sales';
-import { Metadata } from 'next';
-import React from 'react';
+import { commonMetadata, generateMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: 'Admin',
-};
+export const metadata = generateMetadata({
+    ...commonMetadata.dashboard,
+    image: '/images/dashboard-og-image.jpg',
+});
 
 const Sales = () => {
     return <ComponentsDashboardSales />;
