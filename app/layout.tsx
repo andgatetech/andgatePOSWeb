@@ -1,5 +1,6 @@
 import WhatsAppButton from '@/__components/WhatsAppButton';
 import ProviderComponent from '@/components/layouts/provider-component';
+import { getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
 import Script from 'next/script';
@@ -9,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../styles/tailwind.css';
 
 export const metadata: Metadata = {
+    metadataBase: new URL(getAppUrl()),
     title: {
         template: '%s | AndgatePOS System',
         default: 'AndgatePOS - Complete Point of Sale System for Modern Businesses',

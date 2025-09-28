@@ -1,5 +1,6 @@
 // lib/seo.ts
 import { Metadata } from 'next';
+import { getAppUrl } from './seo-config';
 
 interface SeoMetaProps {
     title: string;
@@ -20,13 +21,14 @@ export function generateMetadata({
     noIndex = false,
     canonicalUrl,
 }: SeoMetaProps): Metadata {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andgatepos.com';
+    const baseUrl = getAppUrl();
     const fullUrl = `${baseUrl}${path}`;
     const canonical = canonicalUrl || fullUrl;
 
     const defaultKeywords = ['AndgatePOS', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'restaurant POS', 'cloud POS'];
 
     return {
+        metadataBase: new URL(baseUrl),
         title: `${title} | AndgatePOS System`,
         description,
         keywords: [...defaultKeywords, ...keywords],
