@@ -696,7 +696,7 @@ const Orders: React.FC = () => {
                         columns={columnsWithActions}
                         isLoading={isLoading}
                         emptyState={{
-                            icon: <ShoppingBag className="h-16 w-16" />,
+                            icon: <ShoppingBag className="mx-auto h-16 w-16 text-gray-400" />,
                             title: 'No orders found',
                             description: Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'No orders have been placed yet.',
                         }}

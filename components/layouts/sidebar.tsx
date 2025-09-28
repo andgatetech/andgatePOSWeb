@@ -44,7 +44,7 @@ const adminRoutes = [
     {
         label: 'Category',
         icon: <Layers />,
-        subMenu: [{ label: 'Category List', href: '/apps/category' }],
+        subMenu: [{ label: 'All Category ', href: '/apps/category' }],
     },
     {
         label: 'Product',
@@ -70,27 +70,27 @@ const adminRoutes = [
         label: 'Supplier',
         icon: <Truck />,
         subMenu: [
-            { label: 'Create Supplier', href: '/apps/suppliers/create-supplier' },
-            { label: 'Supplier List', href: '/apps/suppliers' },
+            { label: 'Add Supplier', href: '/apps/suppliers/create-supplier' },
+            { label: 'All Supplier', href: '/apps/suppliers' },
         ],
     },
     {
         label: 'Account',
         icon: <Wallet />,
         subMenu: [
-            { label: 'Ledger List', href: '/apps/account/ledger-list' },
-            { label: 'Journal List', href: '/apps/account/journal-list' },
+            { label: 'All Ledger', href: '/apps/account/ledger-list' },
+            { label: 'All Journal', href: '/apps/account/journal-list' },
         ],
     },
     {
         label: 'Expenses',
         icon: <Receipt />,
-        subMenu: [{ label: 'Expenses List', href: '/apps/expenses/expense-list' }],
+        subMenu: [{ label: 'All Expenses ', href: '/apps/expenses/expense-list' }],
     },
     {
         label: 'Customer',
         icon: <Users />,
-        subMenu: [{ label: 'Customer List', href: '/apps/customer' }],
+        subMenu: [{ label: 'All Customer ', href: '/apps/customer' }],
     },
     {
         label: 'Report',
@@ -103,8 +103,8 @@ const adminRoutes = [
             // { label: 'Stock Report ', href: '/apps/stock-report/stock' },
             // { label: 'Stock Report', href: '/apps/stock-report/stock' },
             { label: 'Tax Report', href: '/apps/TaxReport' },
-            { label: 'Stock Adjustment List', href: '/apps/stock/stock-adjustment-list' },
-            { label: 'Stock Report', href: '/apps/stock/stock-report' },
+            { label: 'All Stock Adjustment', href: '/apps/stock/stock-adjustment-list' },
+            { label: 'All Stock Report', href: '/apps/stock/stock-report' },
         ],
     },
     {
