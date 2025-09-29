@@ -1,6 +1,5 @@
-import React from 'react';
+import { useGetAllPurchasesTransactionsQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import dayjs from 'dayjs';
-import { useGetAllPurchasesTransactionsQuery } from '@/store/features/purchase/purchase';
 import Link from 'next/link';
 
 const Recent_Purchase_Transactions = () => {
