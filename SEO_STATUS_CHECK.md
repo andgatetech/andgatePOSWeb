@@ -66,7 +66,7 @@
 
 ```bash
 # Security headers: ✅ X-Frame-Options, X-Content-Type-Options
-# SEO redirects: ✅ /admin -> /dashboard, /pos -> /apps/pos
+# SEO redirects: ✅ /admin -> /dashboard, /pos ->/pos
 # Performance: ✅ Compression, ETags enabled
 # Images: ✅ Remote patterns configured
 ```

@@ -1,57 +1,53 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+// Public pages
+const PUBLIC_ROUTES = ['/', '/features', '/pos-overview', '/pricing', '/training', '/contact', '/login'];
+
+// Role-based allowed routes
+const ROLE_ROUTES: Record<string, string[]> = {
+    store_admin: ['*'], // full access
+    supplier: ['/supplier', '/supplier/purchase', '/supplierproducts'],
+    staff: ['/products', '/purchase', '/createpurchase', '/pos', '/orders'], // add /orders
+};
+
 export function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
-    const role = request.cookies.get('role')?.value; // must be set as a cookie at login
+    const role = request.cookies.get('role')?.value;
     const { pathname } = request.nextUrl;
 
-    const publicRoutes = ['/', '/login', '/register', '/privacy-policy', '/terms-of-service', '/cookie-policy', '/training'];
-
     // Allow public routes
-    if (publicRoutes.includes(pathname)) {
+    if (PUBLIC_ROUTES.includes(pathname.toLowerCase())) {
         return NextResponse.next();
     }
 
-    // Require login for protected routes
+    // Require login for everything else
     if (!token) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // ✅ Admin can access everything
-    if (role === 'store_admin') {
-        return NextResponse.next();
-    }
+    // Role-based access
+    if (role && ROLE_ROUTES[role]) {
+        const allowedRoutes = ROLE_ROUTES[role];
 
-    // ✅ Supplier allowed areas
-    if (role === 'supplier') {
-        const supplierAllowed =
-            pathname.startsWith('/supplier') || pathname.startsWith('/apps/supplier') || pathname.startsWith('/apps/supplier/purchase') || pathname.startsWith('/apps/supplierProducts');
+        if (allowedRoutes.includes('*')) return NextResponse.next();
 
-        if (supplierAllowed) {
-            return NextResponse.next();
+        const hasAccess = allowedRoutes.some((r) => pathname.toLowerCase().startsWith(r.toLowerCase()));
+
+        if (hasAccess) return NextResponse.next();
+
+        // Redirect based on role
+        switch (role) {
+            case 'supplier':
+                return NextResponse.redirect(new URL('/supplier', request.url));
+            case 'staff':
+                return NextResponse.redirect(new URL('/products', request.url));
+            default:
+                return NextResponse.redirect(new URL('/login', request.url));
         }
-
-        return NextResponse.redirect(new URL('/apps/supplier', request.url));
     }
 
-    // ✅ Staff allowed areas
-    if (role === 'staff') {
-        const staffAllowed =
-            pathname.startsWith('/apps/products') ||
-            pathname.startsWith('/apps/Purchase') ||
-            pathname.startsWith('/apps/createPurchase') ||
-            pathname.startsWith('/apps/pos') ||
-            pathname.startsWith('/apps/OrderView'); // optional: allow staff to create purchase
-
-        if (staffAllowed) {
-            return NextResponse.next();
-        }
-
-        return NextResponse.redirect(new URL('/apps/products', request.url));
-    }
-
-    // ❌ Default: deny everything else
+    // Default redirect to login
     return NextResponse.redirect(new URL('/login', request.url));
 }
 
@@ -59,9 +55,23 @@ export const config = {
     matcher: [
         '/dashboard/:path*',
         '/profile/:path*',
-        '/admin/:path*',
-        '/components/:path*',
-        '/apps/:path*',
-        '/supplier/:path*', // <-- supplier dashboard
+        '/supplier/:path*',
+        '/products/:path*',
+        '/purchase/:path*',
+        '/createpurchase/:path*',
+        '/pos/:path*',
+        '/orders/:path*',
+        '/account/:path*',
+        '/store/:path*',
+
+        '/settings/:path*',
+        '/staff/:path*',
+        '/create-adjustment/:path*',
+        '/category/:path*',
+        '/brands/:path*',
+        '/suppliers/:path*',
+        '/expenses/:path*',
+        '/reports/:path*',
+        
     ],
 };

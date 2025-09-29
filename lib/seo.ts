@@ -114,6 +114,6 @@ export const commonMetadata = {
         title: 'Point of Sale Terminal',
         description: 'Process sales transactions quickly and efficiently with our intuitive POS terminal interface designed for speed and accuracy.',
         keywords: ['POS terminal', 'sales processing', 'checkout system', 'transaction processing', 'retail terminal'],
-        path: '/apps/pos',
+        path: '/pos',
     },
 };

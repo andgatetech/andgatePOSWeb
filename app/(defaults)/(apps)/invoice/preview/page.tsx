@@ -1,12 +1,13 @@
-import ComponentsAppsInvoicePreview from '@/app/(defaults)/apps/pos/PosInvoicePreview';
+
 import { Metadata } from 'next';
+import PosInvoicePreview from '../../pos/PosInvoicePreview';
 
 export const metadata: Metadata = {
     title: 'Invoice Preview',
 };
 
 const InvoicePreview = () => {
-    return <ComponentsAppsInvoicePreview />;
+    return <></>;
 };
 
 export default InvoicePreview;
