@@ -75,9 +75,11 @@ const adminRoutes = [
         subMenu: [{ label: 'All Orders', href: '/orders' }],
     },
     {
-        label: 'Purchase',
+        label: 'Purchases Order',
         icon: <ShoppingCart />,
-        subMenu: [{ label: 'Create Purchase', href: '/purchase' }],
+        subMenu: [{ label: 'Add Purchase', href: '/purchases/create' },
+        { label: 'All Purchases', href: '/purchases/list' }
+        ],
     },
     {
         label: 'Supplier',
