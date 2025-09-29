@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const InvoiceEdit = () => {
-    return <ComponentsAppsInvoiceEdit />;
+    return <></>;
 };
 
 export default InvoiceEdit;

@@ -53,12 +53,12 @@ const ProductUpdatePage = () => {
 
     // Navigation handlers
     const handleBackToProducts = () => {
-        router.push('/apps/products'); // Adjust this path to your products table route
+        router.push('/products'); // Adjust this path to your products table route
     };
 
     const handleUpdateSuccess = (message) => {
         showToast(message, 'success');
-        router.push('/apps/products'); // Navigate back to products table
+        router.push('/products'); // Navigate back to products table
     };
 
     // Initialize form data when product loads
@@ -231,7 +231,7 @@ const ProductUpdatePage = () => {
 
             if (result.success) {
                 showToast('Product updated successfully!', 'success');
-                router.push('/apps/products');
+                router.push('/products');
             }
         } catch (error) {
             console.error('Update failed:', error);

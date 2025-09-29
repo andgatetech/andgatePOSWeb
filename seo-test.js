@@ -51,11 +51,11 @@ async function runTests() {
     const testPaths = [
         ['/', 'Homepage'],
         ['/dashboard', 'Dashboard'],
-        ['/apps/pos', 'POS Terminal'],
-        ['/apps/products', 'Products'],
-        ['/apps/orders', 'Orders'],
-        ['/sitemap.xml', 'Sitemap'],
-        ['/robots.txt', 'Robots.txt']
+        ['/(apps)/pos', 'POS Terminal'],
+        ['/(apps)/products', 'Products'],
+        ['/(apps)/orders', 'Orders'],
+        ['/(apps)/sitemap.xml', 'Sitemap'],
+        ['/(apps)/robots.txt', 'Robots.txt']
     ];
     
     for (const [path, description] of testPaths) {

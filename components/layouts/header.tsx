@@ -183,7 +183,7 @@ const Header = () => {
                         <ul className="flex items-center space-x-2 rtl:space-x-reverse">
                             <li>
                                 <Link
-                                    href="/apps/pos"
+                                    href="/pos"
                                     className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
                                 >
                                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -444,7 +444,7 @@ const Header = () => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/apps/mailbox" className="dark:hover:text-white">
+                                        <Link href="/mailbox" className="dark:hover:text-white">
                                             <IconMail className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                             Inbox
                                         </Link>
@@ -497,22 +497,22 @@ const Header = () => {
                         </button>
                         <ul className="sub-menu">
                             <li>
-                                <Link href="/apps/chat">{t('chat')}</Link>
+                                <Link href="/chat">{t('chat')}</Link>
                             </li>
                             <li>
-                                <Link href="/apps/mailbox">{t('mailbox')}</Link>
+                                <Link href="/mailbox">{t('mailbox')}</Link>
                             </li>
                             <li>
-                                <Link href="/apps/todolist">{t('todo_list')}</Link>
+                                <Link href="/todolist">{t('todo_list')}</Link>
                             </li>
                             <li>
-                                <Link href="/apps/notes">{t('notes')}</Link>
+                                <Link href="/notes">{t('notes')}</Link>
                             </li>
                             <li>
-                                <Link href="/apps/scrumboard">{t('scrumboard')}</Link>
+                                <Link href="/scrumboard">{t('scrumboard')}</Link>
                             </li>
                             <li>
-                                <Link href="/apps/contacts">{t('contacts')}</Link>
+                                <Link href="/contacts">{t('contacts')}</Link>
                             </li>
                             <li className="relative">
                                 <button type="button">
@@ -523,21 +523,21 @@ const Header = () => {
                                 </button>
                                 <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                                     <li>
-                                        <Link href="/apps/invoice/list">{t('list')}</Link>
+                                        <Link href="/invoice/list">{t('list')}</Link>
                                     </li>
                                     <li>
-                                        <Link href="/apps/invoice/preview">{t('preview')}</Link>
+                                        <Link href="/invoice/preview">{t('preview')}</Link>
                                     </li>
                                     <li>
-                                        <Link href="/apps/invoice/add">{t('add')}</Link>
+                                        <Link href="/invoice/add">{t('add')}</Link>
                                     </li>
                                     <li>
-                                        <Link href="/apps/invoice/edit">{t('edit')}</Link>
+                                        <Link href="/invoice/edit">{t('edit')}</Link>
                                     </li>
                                 </ul>
                             </li>
                             <li>
-                                <Link href="/apps/calendar">{t('calendar')}</Link>
+                                <Link href="/calendar">{t('calendar')}</Link>
                             </li>
                         </ul>
                     </li>
