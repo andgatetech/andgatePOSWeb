@@ -1,66 +1,41 @@
 'use client';
+import Dropdown from '@/components/dropdown';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useDeleteCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
-import { useAllStoresQuery } from '@/store/features/store/storeApi';
-import { Award, ChevronLeft, ChevronRight, Crown, Edit, MoreVertical, Plus, Search, Shield, Star, Store, Trash2, Users } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
+import {
+    Award,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ChevronUp,
+    Crown,
+    Edit,
+    Mail,
+    MoreVertical,
+    Phone,
+    Plus,
+    RotateCcw,
+    Search,
+    Shield,
+    Star,
+    Store,
+    Trash2,
+    TrendingUp,
+    Users,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import CreateCustomerModal from './__components/CreateCustomerModal';
 import UpdateCustomerModal from './__components/UpdateCustomerModal';
-import { useCurrentStore } from '@/hooks/useCurrentStore';
 
-// Action Dropdown Component
-const ActionDropdown = ({ customer, onEdit, onDelete }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    const handleEdit = () => {
-        onEdit(customer);
-        setIsOpen(false);
-    };
-
-    const handleDelete = () => {
-        if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
-            onDelete(customer.id);
-        }
-        setIsOpen(false);
-    };
-
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <MoreVertical className="h-4 w-4" />
-            </button>
-
-            {isOpen && (
-                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <button onClick={handleEdit} className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <Edit className="mr-3 h-4 w-4" />
-                        Edit Customer
-                    </button>
-                    <button onClick={handleDelete} className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50">
-                        <Trash2 className="mr-3 h-4 w-4" />
-                        Delete Customer
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
+interface FilterState {
+    search?: string;
+    store_id?: number;
+    membership?: string;
+    per_page?: number;
+    page?: number;
+}
 
 // Membership Badge Component
 const MembershipBadge = ({ membership }) => {
@@ -113,14 +88,25 @@ const MembershipBadge = ({ membership }) => {
 };
 
 // Filters Component
-const CustomerFilters = ({ filters, onFiltersChange, stores, isLoadingStores }) => {
+const CustomerFilters = ({ filters, onFiltersChange, stores, isLoadingStores, currentStoreId }) => {
     const handleFilterChange = (key, value) => {
-        onFiltersChange({ ...filters, [key]: value, page: 1 }); // Reset to page 1 when filtering
+        onFiltersChange({ ...filters, [key]: value, page: 1 });
+    };
+
+    const handleReset = () => {
+        const resetFilters = {
+            search: '',
+            store_id: currentStoreId || undefined,
+            membership: '',
+            per_page: 10,
+            page: 1,
+        };
+        onFiltersChange(resetFilters);
     };
 
     return (
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
                 {/* Search */}
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
@@ -136,12 +122,12 @@ const CustomerFilters = ({ filters, onFiltersChange, stores, isLoadingStores }) 
                 {/* Store Filter */}
                 <div>
                     <select
-                        value={filters.store_id || ''}
-                        onChange={(e) => handleFilterChange('store_id', e.target.value)}
+                        value={filters.store_id?.toString() || ''}
+                        onChange={(e) => handleFilterChange('store_id', e.target.value ? Number(e.target.value) : undefined)}
                         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                         disabled={isLoadingStores}
                     >
-                        <option value="">All Stores</option>
+                        <option value="all">All Stores</option>
                         {stores?.data?.map((store) => (
                             <option key={store.id} value={store.id}>
                                 {store.store_name}
@@ -178,16 +164,43 @@ const CustomerFilters = ({ filters, onFiltersChange, stores, isLoadingStores }) 
                         <option value={50}>50 per page</option>
                     </select>
                 </div>
+
+                {/* Reset Button */}
+                <div>
+                    <button
+                        onClick={handleReset}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        title="Reset Filters"
+                    >
+                        <RotateCcw className="h-4 w-4" />
+                        <span className="text-sm">Reset</span>
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 // Customer Table Component
-const CustomerTable = ({ customers, isLoading, onEdit, onDelete }) => {
+const CustomerTable = ({ customers, isLoading, filters, sortField, sortDirection, onSort, onEdit, onDelete }) => {
+    const formatCurrency = (amount) => {
+        return `৳${new Intl.NumberFormat('en-BD', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount || 0)}`;
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
     if (isLoading) {
         return (
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="rounded-xl border bg-white shadow-sm">
                 <div className="p-8 text-center">
                     <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading customers...</p>
@@ -198,7 +211,7 @@ const CustomerTable = ({ customers, isLoading, onEdit, onDelete }) => {
 
     if (!customers || customers.length === 0) {
         return (
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="rounded-xl border bg-white shadow-sm">
                 <div className="p-8 text-center">
                     <Users className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">No customers found</h3>
@@ -209,45 +222,128 @@ const CustomerTable = ({ customers, isLoading, onEdit, onDelete }) => {
     }
 
     return (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <table className="w-full">
+                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Customer</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Membership</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Points</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Balance</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">#</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Customer Info</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Contact</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Membership</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Points</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Balance</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Status</th>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('created_at')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Joined Date
+                                    {sortField === 'created_at' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                        {customers.map((customer) => (
-                            <tr key={customer.id} className="hover:bg-gray-50">
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                                    <div className="text-sm text-gray-500">ID: {customer.id}</div>
+                        {customers.map((customer, index) => (
+                            <tr key={customer.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                <td className="px-4 py-4">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 text-sm font-semibold text-blue-700">
+                                        {index + 1 + ((filters.page || 1) - 1) * (filters.per_page || 10)}
+                                    </div>
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <div className="text-sm text-gray-900">{customer.email}</div>
-                                    <div className="text-sm text-gray-500">{customer.phone}</div>
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center">
+                                        {/* <div className="h-12 w-12 flex-shrink-0">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                                                <User className="h-6 w-6 text-blue-600" />
+                                            </div>
+                                        </div> */}
+                                        <div className="ml-4">
+                                            <div className="text-sm font-semibold text-gray-900">{customer.name}</div>
+                                            <div className="text-xs text-gray-500">ID: {customer.id}</div>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4">
+                                <td className="px-4 py-4">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2 text-sm text-gray-900">
+                                            <Mail className="h-4 w-4 text-gray-400" />
+                                            {customer.email}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                                            <Phone className="h-4 w-4 text-gray-400" />
+                                            {customer.phone}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-4">
                                     <MembershipBadge membership={customer.membership} />
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{customer.points.toLocaleString()}</td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm">
-                                    <span className={`font-medium ${customer.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>৳{customer.balance}</span>
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4 text-green-500" />
+                                        <span className="text-sm font-semibold text-gray-900">{customer.points.toLocaleString()}</span>
+                                    </div>
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${customer.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                <td className="px-4 py-4">
+                                    <span
+                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            parseFloat(customer.balance) >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}
+                                    >
+                                        {formatCurrency(customer.balance)}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <span
+                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                            customer.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}
+                                    >
                                         {customer.is_active ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <ActionDropdown customer={customer} onEdit={onEdit} onDelete={onDelete} />
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center gap-2">
+                                        {/* <Clock className="h-4 w-4 text-gray-400" /> */}
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-900">{formatDate(customer.created_at)}</div>
+                                            <div className="text-xs text-gray-500">{new Date(customer.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <Dropdown
+                                        offset={[0, 5]}
+                                        placement="bottom-end"
+                                        btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                        button={<MoreVertical className="h-5 w-5" />}
+                                    >
+                                        <ul className="min-w-[140px] rounded-lg border bg-white shadow-lg">
+                                            <li>
+                                                <button onClick={() => onEdit(customer)} className="flex w-full items-center px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50">
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Edit Customer
+                                                </button>
+                                            </li>
+                                            <li className="border-t">
+                                                <button
+                                                    onClick={() => {
+                                                        if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
+                                                            onDelete(customer.id);
+                                                        }
+                                                    }}
+                                                    className="flex w-full items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                                                >
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Delete Customer
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </Dropdown>
                                 </td>
                             </tr>
                         ))}
@@ -274,7 +370,6 @@ const Pagination = ({ meta, onPageChange }) => {
         let start = Math.max(1, current_page - halfShow);
         let end = Math.min(last_page, current_page + halfShow);
 
-        // Adjust if we're near the beginning or end
         if (end - start < showPages - 1) {
             if (start === 1) {
                 end = Math.min(last_page, start + showPages - 1);
@@ -294,7 +389,7 @@ const Pagination = ({ meta, onPageChange }) => {
     const endItem = Math.min(current_page * per_page, total);
 
     return (
-        <div className="rounded-b-lg border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+        <div className="rounded-b-xl border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center text-sm text-gray-700">
                     Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{total}</span> results
@@ -304,17 +399,17 @@ const Pagination = ({ meta, onPageChange }) => {
                     <button
                         onClick={() => onPageChange(current_page - 1)}
                         disabled={current_page === 1}
-                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="relative inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-4 w-4" />
                     </button>
 
                     {getPageNumbers().map((page) => (
                         <button
                             key={page}
                             onClick={() => onPageChange(page)}
-                            className={`relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
-                                page === current_page ? 'z-10 border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            className={`relative inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                                page === current_page ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
                             {page}
@@ -324,9 +419,9 @@ const Pagination = ({ meta, onPageChange }) => {
                     <button
                         onClick={() => onPageChange(current_page + 1)}
                         disabled={current_page === last_page}
-                        className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="relative inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <ChevronRight className="h-5 w-5" />
+                        <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>
             </div>
@@ -337,13 +432,20 @@ const Pagination = ({ meta, onPageChange }) => {
 // Main Customer List Component
 const CustomerListSystem = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
+
     const [filters, setFilters] = useState({
         search: '',
-        store_id: currentStoreId || '',
+        store_id: currentStoreId || undefined,
         membership: '',
         per_page: 10,
         page: 1,
     });
+
+    const [sortField, setSortField] = useState('created_at');
+    const [sortDirection, setSortDirection] = useState('desc');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
 
     useEffect(() => {
         if (currentStoreId) {
@@ -355,14 +457,20 @@ const CustomerListSystem = () => {
         }
     }, [currentStoreId]);
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const { data: customersData, isLoading, error } = useGetStoreCustomersListQuery(filters);
+    // const { data: storesData, isLoading: storesLoading } = useAllStoresQuery();
+    const { data: storesData, isLoading: storesLoading } = useFullStoreListWithFilterQuery();
+    const [deleteCustomer] = useDeleteCustomerMutation();
 
-    // Redux queries and mutations
-    const { data: storesData, isLoading: isLoadingStores } = useAllStoresQuery();
-    const { data: customersData, isLoading: isLoadingCustomers, error } = useGetStoreCustomersListQuery(filters);
-    const [deleteCustomer, { isLoading: isDeleting }] = useDeleteCustomerMutation();
+    const stores = storesData;
+    const customers = customersData?.data || [];
+
+    const pagination = {
+        current_page: filters.page || 1,
+        last_page: customersData?.meta?.last_page || 1,
+        total: customersData?.meta?.total || 0,
+        per_page: filters.per_page || 10,
+    };
 
     const handleFiltersChange = (newFilters) => {
         setFilters(newFilters);
@@ -372,15 +480,41 @@ const CustomerListSystem = () => {
         setFilters((prev) => ({ ...prev, page }));
     };
 
+    // Sort customers
+    const sortedCustomers = [...customers].sort((a, b) => {
+        let aValue = a[sortField] || '';
+        let bValue = b[sortField] || '';
+
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    const handleSort = (field) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
+
     const handleCreateSuccess = () => {
         setIsCreateModalOpen(false);
-        // The table will automatically refresh due to RTK Query cache invalidation
+        toast.success('Customer created successfully!');
     };
 
     const handleUpdateSuccess = () => {
         setIsUpdateModalOpen(false);
         setSelectedCustomer(null);
-        // The table will automatically refresh due to RTK Query cache invalidation
+        toast.success('Customer updated successfully!');
     };
 
     const handleEditCustomer = (customer) => {
@@ -391,23 +525,17 @@ const CustomerListSystem = () => {
     const handleDeleteCustomer = async (customerId) => {
         try {
             await deleteCustomer(customerId).unwrap();
-            // Success feedback could be added here (toast notification, etc.)
+            toast.success('Customer deleted successfully!');
         } catch (error) {
             console.error('Failed to delete customer:', error);
-            // Error handling could be improved with user feedback
-            alert('Failed to delete customer. Please try again.');
+            toast.error('Failed to delete customer. Please try again.');
         }
     };
 
-    const selectedStore = useMemo(() => {
-        if (!filters.store_id || !storesData?.data) return null;
-        return storesData.data.find((store) => store.id == filters.store_id);
-    }, [filters.store_id, storesData]);
-
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 p-4">
-                <div className="mx-auto max-w-7xl">
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+                <div className="mx-auto">
                     <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                         <p className="text-red-800">Error loading customers. Please try again.</p>
                     </div>
@@ -417,44 +545,61 @@ const CustomerListSystem = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4">
-            <div className="mx-auto max-w-7xl">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
-                    <div>
-                        <h1 className="flex items-center text-2xl font-bold text-gray-900">
-                            <Users className="mr-2 h-6 w-6" />
-                            Customer Management
-                        </h1>
-                        <p className="mt-1 text-sm text-gray-600">
-                            Manage and view customer information across all stores
-                            {selectedStore && (
-                                <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                    <Store className="mr-1 h-3 w-3" />
-                                    {selectedStore.store_name}
-                                </span>
-                            )}
-                        </p>
+                <div className="mb-8">
+                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 shadow-md">
+                                    <Users className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">Customer Management</h1>
+                                    <p className="text-sm text-gray-500">{currentStore ? `Manage customers for ${currentStore.store_name}` : 'Manage and view all customers across stores'}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Create Customer
+                            </button>
+                        </div>
+                        {currentStore && (
+                            <div className="rounded-lg bg-blue-50 p-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                                        <Store className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-blue-900">Current Store: {currentStore.store_name}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-                    {/* Create Customer Button */}
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Customer
-                    </button>
                 </div>
 
                 {/* Filters */}
-                <CustomerFilters filters={filters} onFiltersChange={handleFiltersChange} stores={storesData} isLoadingStores={isLoadingStores} />
+                <CustomerFilters filters={filters} onFiltersChange={handleFiltersChange} stores={storesData} isLoadingStores={storesLoading} currentStoreId={currentStoreId} />
 
                 {/* Customer Table */}
-                <CustomerTable customers={customersData?.data} isLoading={isLoadingCustomers || isDeleting} onEdit={handleEditCustomer} onDelete={handleDeleteCustomer} />
+                <CustomerTable
+                    customers={sortedCustomers}
+                    isLoading={isLoading}
+                    filters={filters}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    onEdit={handleEditCustomer}
+                    onDelete={handleDeleteCustomer}
+                />
 
                 {/* Pagination */}
-                {customersData?.meta && <Pagination meta={customersData.meta} onPageChange={handlePageChange} />}
+                {customersData?.meta?.total && <Pagination meta={pagination} onPageChange={handlePageChange} />}
 
                 {/* Create Customer Modal */}
                 <CreateCustomerModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
