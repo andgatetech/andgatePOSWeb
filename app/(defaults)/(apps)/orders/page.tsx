@@ -1,5 +1,6 @@
-import Orders from '@/app/(defaults)/apps/orders/Orders';
+
 import { commonMetadata, generateMetadata } from '@/lib/seo';
+import Orders from './Orders';
 
 export const metadata = generateMetadata({
     ...commonMetadata.orders,

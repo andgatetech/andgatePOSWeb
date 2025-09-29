@@ -45,9 +45,9 @@ next.config.js              - SEO optimizations
 ```
 app/page.tsx                - Home page (client component)
 app/(defaults)/dashboard/page.tsx        - Dashboard metadata
-app/(defaults)/apps/pos/page.tsx         - POS terminal metadata
-app/(defaults)/apps/products/page.tsx    - Products metadata
-app/(defaults)/apps/orders/page.tsx      - Orders metadata
+app/(defaults)/(apps)/pos/page.tsx         - POS terminal metadata
+app/(defaults)/(apps)/products/page.tsx    - Products metadata
+app/(defaults)/(apps)/orders/page.tsx      - Orders metadata
 app/(auth)/layout.tsx                    - Auth pages metadata
 ```
 

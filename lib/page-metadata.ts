@@ -28,7 +28,7 @@ export const posMetadata: Metadata = {
         description:
             'Process sales transactions quickly and securely with our advanced POS terminal. Features barcode scanning, receipt printing, payment processing, and inventory updates in real-time.',
         keywords: 'pos terminal, point of sale, barcode scanner, receipt printing, payment processing, inventory management, retail pos',
-        path: '/(defaults)/apps/pos',
+        path: '/(defaults)/(apps)/pos',
     }),
     other: {
         'business-type': 'Point of Sale Terminal',
