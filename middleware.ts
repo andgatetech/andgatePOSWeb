@@ -70,7 +70,7 @@ export const config = {
         '/category/:path*',
         '/brands/:path*',
         '/suppliers/:path*',
-        'expenses/:path*',
+        '/expenses/:path*',
         '/reports/:path*',
         
     ],
