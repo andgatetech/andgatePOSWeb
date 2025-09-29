@@ -4,9 +4,11 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateFeedbackMutation } from '@/store/features/feedback/feedbackApi';
 import { TextInput } from '@mantine/core';
 import { AlertCircle, ArrowRight, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Store, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const FeedbackPage = () => {
+    const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
     const [createFeedback, { isLoading, isSuccess, error }] = useCreateFeedbackMutation();
 
@@ -178,14 +180,15 @@ const FeedbackPage = () => {
 
         try {
             await createFeedback(submitFormData);
-            // setSubmitted(true);
+            router('apps/feedbacks');
+            setSubmitted(true);
             // Reset form after successful submission
-            // setTimeout(() => {
-            //     setFormData({ title: '', message: '', rating: 0, category: '' });
-            //     setSelectedCategory('');
-            //     setSelectedFiles([]);
-            //     setSubmitted(false);
-            // }, 4000);
+            setTimeout(() => {
+                setFormData({ title: '', message: '', rating: 0, category: '' });
+                setSelectedCategory('');
+                setSelectedFiles([]);
+                setSubmitted(false);
+            }, 4000);
         } catch (err) {
             console.error('Failed to submit feedback:', err);
         }

@@ -1,61 +1,10 @@
 'use client';
+import Dropdown from '@/components/dropdown';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
-import { ChevronLeft, ChevronRight, Edit, Eye, Image, MoreVertical, Plus, Save, Search, Store, Trash2, Upload, X } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, Edit, Eye, Image, MoreVertical, Plus, RotateCcw, Save, Search, Store, Trash2, Upload, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-
-// Action Dropdown Component
-const ActionDropdown = ({ brand, onEdit, onView, onDelete }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    const handleAction = (action) => {
-        action();
-        setIsOpen(false);
-    };
-
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <MoreVertical className="h-4 w-4" />
-            </button>
-
-            {isOpen && (
-                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <button onClick={() => handleAction(() => onView(brand))} className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                        <Eye className="mr-3 h-4 w-4" />
-                        View Details
-                    </button>
-                    <button onClick={() => handleAction(() => onEdit(brand))} className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                        <Edit className="mr-3 h-4 w-4" />
-                        Edit Brand
-                    </button>
-                    <button onClick={() => handleAction(() => onDelete(brand.id))} className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50">
-                        <Trash2 className="mr-3 h-4 w-4" />
-                        Delete Brand
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
 
 // Brand Filter Component
 const BrandFilter = ({ onFilterChange, currentStoreId }) => {
@@ -69,7 +18,6 @@ const BrandFilter = ({ onFilterChange, currentStoreId }) => {
         const newFilters = { ...filters, [key]: value };
         setFilters(newFilters);
 
-        // Convert store_selection to appropriate API params
         const apiParams = { search: newFilters.search };
 
         if (newFilters.store_selection === 'all') {
@@ -91,7 +39,7 @@ const BrandFilter = ({ onFilterChange, currentStoreId }) => {
     };
 
     return (
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {/* Search */}
                 <div className="relative">
@@ -112,24 +60,32 @@ const BrandFilter = ({ onFilterChange, currentStoreId }) => {
                         onChange={(e) => handleFilterChange('store_selection', e.target.value)}
                         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     >
+                        <option value="all">All Stores</option>
                         <option value="">Select Store</option>
                         {userStores.map((store) => (
                             <option key={store.id} value={store.id}>
                                 {store.store_name}
                             </option>
                         ))}
-                        <option value="all">All Stores</option>
                     </select>
                 </div>
 
                 {/* Reset Button */}
                 <div>
-                    <button
+                    {/* <button
                         onClick={handleReset}
                         className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                     >
                         <X className="h-4 w-4" />
                         Reset Filters
+                    </button> */}
+                    <button
+                        onClick={handleReset}
+                        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        title="Reset Filters"
+                    >
+                        <RotateCcw className="h-4 w-4" />
+                        <span className="text-sm">Reset</span>
                     </button>
                 </div>
             </div>
@@ -138,10 +94,10 @@ const BrandFilter = ({ onFilterChange, currentStoreId }) => {
 };
 
 // Brand Table Component
-const BrandTable = ({ brands, isLoading, onEdit, onView, onDelete }) => {
+const BrandTable = ({ brands, isLoading, onEdit, onView, onDelete, sortField, sortDirection, onSort }) => {
     if (isLoading) {
         return (
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="rounded-xl border bg-white shadow-sm">
                 <div className="p-8 text-center">
                     <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading brands...</p>
@@ -152,7 +108,7 @@ const BrandTable = ({ brands, isLoading, onEdit, onView, onDelete }) => {
 
     if (!brands || brands.length === 0) {
         return (
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="rounded-xl border bg-white shadow-sm">
                 <div className="p-8 text-center">
                     <Image className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">No brands found</h3>
@@ -171,23 +127,47 @@ const BrandTable = ({ brands, isLoading, onEdit, onView, onDelete }) => {
     };
 
     return (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <table className="w-full">
+                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Brand</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Description</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Store</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Updated</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('name')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Brand
+                                    {sortField === 'name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Description</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Store</th>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('created_at')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Created
+                                    {sortField === 'created_at' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('updated_at')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Updated
+                                    {sortField === 'updated_at' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                        {brands.map((brand) => (
-                            <tr key={brand.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4">
+                        {brands.map((brand, index) => (
+                            <tr key={brand.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                <td className="px-4 py-4">
                                     <div className="flex items-center">
                                         <div className="h-12 w-12 flex-shrink-0">
                                             {brand.image_url ? (
@@ -199,23 +179,49 @@ const BrandTable = ({ brands, isLoading, onEdit, onView, onDelete }) => {
                                             )}
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">{brand.name}</div>
-                                            <div className="text-sm text-gray-500">ID: {brand.id}</div>
+                                            <div className="text-sm font-semibold text-gray-900">{brand.name}</div>
+                                            <div className="text-xs text-gray-500">ID: {brand.id}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <div className="max-w-xs truncate text-sm text-gray-900" title={brand.description}>
+                                <td className="px-4 py-4">
+                                    <div className="max-w-xs truncate text-sm text-gray-600" title={brand.description}>
                                         {brand.description || 'No description'}
                                     </div>
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <div className="text-sm font-medium text-gray-900">{brand.store?.name}</div>
+                                <td className="whitespace-nowrap px-4 py-4">
+                                    <div className="text-sm font-medium text-gray-900">{brand.store?.name || '-'}</div>
                                 </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{formatDate(brand.created_at)}</td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{brand.updated_at !== brand.created_at ? formatDate(brand.updated_at) : '-'}</td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <ActionDropdown brand={brand} onEdit={onEdit} onView={onView} onDelete={onDelete} />
+                                <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">{formatDate(brand.created_at)}</td>
+                                <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">{brand.updated_at !== brand.created_at ? formatDate(brand.updated_at) : '-'}</td>
+                                <td className="px-4 py-4">
+                                    <Dropdown
+                                        offset={[0, 5]}
+                                        placement="bottom-end"
+                                        btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                        button={<MoreVertical className="h-5 w-5" />}
+                                    >
+                                        <ul className="min-w-[140px] rounded-lg border bg-white shadow-lg">
+                                            <li>
+                                                <button onClick={() => onView(brand)} className="flex w-full items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                                    <Eye className="mr-2 h-4 w-4" />
+                                                    View Details
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button onClick={() => onEdit(brand)} className="flex w-full items-center px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50">
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Edit Brand
+                                                </button>
+                                            </li>
+                                            <li className="border-t">
+                                                <button onClick={() => onDelete(brand.id)} className="flex w-full items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Delete Brand
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </Dropdown>
                                 </td>
                             </tr>
                         ))}
@@ -226,7 +232,7 @@ const BrandTable = ({ brands, isLoading, onEdit, onView, onDelete }) => {
     );
 };
 
-// Brand Modal Component
+// Brand Modal Component (keep existing code)
 const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, loading }) => {
     const { currentStore, currentStoreId } = useCurrentStore();
     const [formData, setFormData] = useState({
@@ -281,24 +287,27 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white">
+            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-xl">
                 {/* Modal Header */}
-                <div className="flex items-center justify-between border-b border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        {modalType === 'create' && 'Create New Brand'}
-                        {modalType === 'edit' && 'Edit Brand'}
-                        {modalType === 'view' && 'Brand Details'}
-                    </h2>
-                    {/* Store info */}
-                    {currentStore && (
-                        <div className="mt-1 flex items-center text-sm text-gray-600">
-                            <Store className="mr-1 h-4 w-4 text-gray-500" />
-                            <span>{currentStore.store_name}</span>
+                <div className="border-b border-gray-200 p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-semibold text-gray-900">
+                                {modalType === 'create' && 'Create New Brand'}
+                                {modalType === 'edit' && 'Edit Brand'}
+                                {modalType === 'view' && 'Brand Details'}
+                            </h2>
+                            {currentStore && (
+                                <div className="mt-1 flex items-center text-sm text-gray-600">
+                                    <Store className="mr-1 h-4 w-4 text-gray-500" />
+                                    <span>{currentStore.store_name}</span>
+                                </div>
+                            )}
                         </div>
-                    )}
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                        <X className="h-5 w-5" />
-                    </button>
+                        <button onClick={onClose} className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700">
+                            <X className="h-5 w-5" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Modal Content */}
@@ -320,7 +329,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">Store</label>
-                                <p className="text-gray-900">{selectedBrand?.store?.name}</p>
+                                <p className="text-gray-900">{selectedBrand?.store?.name || '-'}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
@@ -397,16 +406,26 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 
                             {/* Form Actions */}
                             <div className="flex gap-3 pt-4">
-                                <button type="button" onClick={onClose} className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50">
+                                <button type="button" onClick={onClose} className="flex-1 rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50">
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 font-medium text-white transition-colors hover:from-blue-700 hover:to-purple-700 disabled:opacity-50"
                                 >
                                     {loading ? (
-                                        <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                                        <>
+                                            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path
+                                                    className="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            {modalType === 'create' ? 'Creating...' : 'Updating...'}
+                                        </>
                                     ) : (
                                         <>
                                             <Save className="h-4 w-4" />
@@ -425,20 +444,20 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 
 // Main Brand Management Component
 const BrandManagement = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore } = useCurrentStore();
     const [apiParams, setApiParams] = useState({});
+    const [sortField, setSortField] = useState('name');
+    const [sortDirection, setSortDirection] = useState('asc');
 
-    // Build query parameters based on filter state
+    // Build query parameters
     let queryParams = {};
     if (Object.keys(apiParams).length > 0) {
         if (apiParams.store_ids === 'all') {
-            // "All Stores" selected - let backend handle all user's stores
             queryParams = { ...apiParams, store_ids: 'all' };
         } else {
             queryParams = apiParams;
         }
     } else {
-        // No filter active - use current store from sidebar
         queryParams = currentStoreId ? { store_id: currentStoreId } : {};
     }
 
@@ -448,23 +467,45 @@ const BrandManagement = () => {
     const [deleteBrand] = useDeleteBrandMutation();
 
     const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState('create'); // 'create', 'edit', 'view'
+    const [modalType, setModalType] = useState('create');
     const [selectedBrand, setSelectedBrand] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Reset filter when current store changes from sidebar
     useEffect(() => {
-        console.log('Brands - Current store changed, resetting filters');
         setApiParams({});
     }, [currentStoreId]);
 
-    // Handle filter changes
     const handleFilterChange = useCallback((newApiParams) => {
-        console.log('Brands - Filter changed:', newApiParams);
         setApiParams(newApiParams);
     }, []);
 
     const brands = brandsResponse?.data || [];
+
+    // Sort brands
+    const sortedBrands = [...brands].sort((a, b) => {
+        let aValue = a[sortField] || '';
+        let bValue = b[sortField] || '';
+
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    const handleSort = (field) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
 
     const showMessage = (msg = '', type = 'success') => {
         Swal.fire({
@@ -528,7 +569,18 @@ const BrandManagement = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this brand?')) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result.isConfirmed) {
             try {
                 await deleteBrand(id).unwrap();
                 showMessage('Brand deleted successfully', 'success');
@@ -541,8 +593,8 @@ const BrandManagement = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 p-4">
-                <div className="mx-auto max-w-7xl">
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+                <div className="mx-auto">
                     <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                         <p className="text-red-800">Error loading brands. Please try again.</p>
                     </div>
@@ -552,33 +604,58 @@ const BrandManagement = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4">
-            <div className="mx-auto max-w-7xl">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
-                    <div>
-                        <h1 className="flex items-center text-2xl font-bold text-gray-900">
-                            <Image className="mr-2 h-6 w-6" />
-                            Brand Management
-                        </h1>
-                        <p className="mt-1 text-sm text-gray-600">Manage and view brands for your stores</p>
+                <div className="mb-8">
+                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-md">
+                                    <Image className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">Brand Management</h1>
+                                    <p className="text-sm text-gray-500">{currentStore ? `Manage brands for ${currentStore.store_name}` : 'Manage and view brands for your stores'}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => openModal('create')}
+                                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Add Brand
+                            </button>
+                        </div>
+                        {currentStore && (
+                            <div className="rounded-lg bg-purple-50 p-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+                                        <Store className="h-4 w-4 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-purple-900">Current Store: {currentStore.store_name}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-                    {/* Create Brand Button */}
-                    <button
-                        onClick={() => openModal('create')}
-                        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Brand
-                    </button>
                 </div>
 
                 {/* Filters */}
                 <BrandFilter onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
 
                 {/* Brand Table */}
-                <BrandTable brands={brands} isLoading={isLoading} onEdit={(brand) => openModal('edit', brand)} onView={(brand) => openModal('view', brand)} onDelete={handleDelete} />
+                <BrandTable
+                    brands={sortedBrands}
+                    isLoading={isLoading}
+                    onEdit={(brand) => openModal('edit', brand)}
+                    onView={(brand) => openModal('view', brand)}
+                    onDelete={handleDelete}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                />
 
                 {/* Brand Modal */}
                 <BrandModal showModal={showModal} modalType={modalType} selectedBrand={selectedBrand} onClose={closeModal} onSubmit={handleSubmit} loading={loading} />
