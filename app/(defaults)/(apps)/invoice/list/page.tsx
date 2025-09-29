@@ -1,12 +1,12 @@
 
-// import { Metadata } from 'next';
+import { Metadata } from 'next';
 
-// export const metadata: Metadata = {
-//     title: 'Invoice List',
-// };
+export const metadata: Metadata = {
+    title: 'Invoice List',
+};
 
-// const InvoiceList = () => {
-//     return <ComponentsAppsInvoiceList />;
-// };
+const InvoiceList = () => {
+   return <></>;
+};
 
-// export default InvoiceList;
+export default InvoiceList;

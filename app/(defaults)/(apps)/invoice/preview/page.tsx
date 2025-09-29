@@ -1,13 +1,13 @@
 
-// import { Metadata } from 'next';
-// import PosInvoicePreview from '../../pos/PosInvoicePreview';
+import { Metadata } from 'next';
+import PosInvoicePreview from '../../pos/PosInvoicePreview';
 
-// export const metadata: Metadata = {
-//     title: 'Invoice Preview',
-// };
+export const metadata: Metadata = {
+    title: 'Invoice Preview',
+};
 
-// const InvoicePreview = () => {
-//     return <PosInvoicePreview />;
-// };
+const InvoicePreview = () => {
+    return <></>;
+};
 
-// export default InvoicePreview;
+export default InvoicePreview;
