@@ -398,7 +398,8 @@ const PosRightSide: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        if (!formData.customerName.trim() || !formData.customerEmail.trim()) {
+        // Skip customer validation for walk-in customers
+        if (formData.customerId !== 'walk-in' && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
             showMessage('Name and email are required', 'error');
             return;
         }
@@ -448,11 +449,20 @@ const PosRightSide: React.FC = () => {
             }),
         };
 
-        // ✅ If existing customer is selected
-        if (formData.customerId) {
+        // ✅ Handle customer data based on selection
+        if (formData.customerId === 'walk-in') {
+            // Walk-in customer - send null customer_id and walk-in flag
+            orderData.customer_id = null;
+            orderData.is_walk_in = true; // Add walk-in flag for backend
+            // Don't send customer details for walk-in customers
+        } else if (formData.customerId && formData.customerId !== 'walk-in') {
+            // Existing customer from database
             orderData.customer_id = formData.customerId;
+            orderData.is_walk_in = false;
         } else {
-            // ✅ If new customer (not in DB)
+            // New customer (not in database) - send customer details
+            orderData.customer_id = null;
+            orderData.is_walk_in = false;
             orderData.customer_name = formData.customerName;
             orderData.customer_number = formData.customerPhone;
             orderData.customer_email = formData.customerEmail;
@@ -647,10 +657,48 @@ const PosRightSide: React.FC = () => {
                 <div className="mt-8 px-4">
                     <div className="flex flex-col justify-between lg:flex-row">
                         <div className="mb-6 w-full lg:w-full">
-                            <div className="mb-4 text-lg font-semibold text-gray-800">Bill To :-</div>
+                            <div className="mb-4 flex items-center justify-between">
+                                <div className="text-lg font-semibold text-gray-800">Bill To :-</div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        clearCustomerSelection();
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            customerId: 'walk-in', // Special flag for walk-in customer
+                                            customerName: '',
+                                            customerEmail: '',
+                                            customerPhone: '',
+                                        }));
+                                    }}
+                                    className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                                >
+                                    Walk-in Customer
+                                </button>
+                            </div>
+
+                            {/* Walk-in Customer Indicator */}
+                            {formData.customerId === 'walk-in' && (
+                                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-100 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500">
+                                                <IconUser className="h-5 w-5 text-white" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-orange-900">Walk-in Customer</p>
+                                                <p className="text-sm text-orange-700">No customer details required</p>
+                                            </div>
+                                        </div>
+                                        <button onClick={() => setFormData((prev) => ({ ...prev, customerId: null }))} className="text-orange-600 hover:text-orange-800">
+                                            <IconX className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Customer Search Section */}
-                            <div className="relative mb-6" ref={searchInputRef}>
+                            <div className="relative mb-6" ref={searchInputRef} style={{ display: formData.customerId === 'walk-in' ? 'none' : 'block' }}>
                                 <label className="mb-2 block text-sm font-medium">Customer Search</label>
                                 <div className="relative">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -832,77 +880,103 @@ const PosRightSide: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
+                    <div className="overflow-x-auto rounded-lg border border-gray-300">
+                        <table className="w-full border-collapse">
                             <thead>
-                                <tr className="border-b-2 border-gray-200">
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Item</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Qty</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Unit</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Rate</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Tax</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Amount</th>
-                                    <th className="p-3 text-left text-xs font-semibold text-gray-700">Action</th>
+                                <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                                    <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Items</th>
+                                    <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Qty</th>
+                                    <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
+                                    <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Rate</th>
+                                    <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Tax</th>
+                                    <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Amount</th>
+                                    <th className="border-b border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {invoiceItems.map((item) => (
-                                    <tr key={item.id} className="border-b border-gray-200">
-                                        <td className="p-3 text-sm">{item.title}</td>
-                                        <td className="p-3">
-                                            <div className="relative">
-                                                <input
-                                                    type="number"
-                                                    className={`form-input ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
-                                                    style={{ minWidth: '4rem', width: 'auto' }}
-                                                    min={0}
-                                                    max={item.PlaceholderQuantity || 9999}
-                                                    value={item.quantity === 0 ? '' : item.quantity}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value;
-                                                        handleQuantityChange(item.id, value);
-                                                    }}
-                                                    onBlur={() => {
-                                                        // Set minimum quantity to 1 if empty on blur
-                                                        if (item.quantity === 0) {
-                                                            const updatedItem = invoiceItems.find((invItem) => invItem.id === item.id);
-                                                            if (updatedItem) {
-                                                                dispatch(
-                                                                    updateItemRedux({
-                                                                        ...updatedItem,
-                                                                        quantity: 1,
-                                                                        amount: updatedItem.rate * 1,
-                                                                    })
-                                                                );
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-
-                                                {/* Soft message for empty/0 quantity */}
-                                                {item.quantity === 0 && <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>}
+                            <tbody className="bg-white">
+                                {invoiceItems.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="border-b border-gray-300 p-8 text-center text-gray-500">
+                                            <div className="flex flex-col items-center justify-center py-4">
+                                                <div className="mb-2 text-3xl">🛒</div>
+                                                <div className="font-medium">No items added yet</div>
+                                                <div className="text-sm">Add products from the left panel</div>
                                             </div>
                                         </td>
-                                        <td className="p-3 text-sm">{item.unit || 'piece'}</td>
-                                        <td className="p-3 text-sm">৳{item.rate.toFixed(2)}</td>
-                                        <td className="p-3 text-sm">
-                                            {item.tax_rate ? (
-                                                <div className="text-xs">
-                                                    <div>{item.tax_rate}%</div>
-                                                    <div className={`text-${item.tax_included ? 'green' : 'blue'}-600`}>{item.tax_included ? 'Incl.' : 'Excl.'}</div>
-                                                </div>
-                                            ) : (
-                                                <span className="text-gray-400">No tax</span>
-                                            )}
-                                        </td>
-                                        <td className="p-3 text-sm">৳{(item.rate * item.quantity).toFixed(2)}</td>
-                                        <td className="p-3">
-                                            <button type="button" className="text-red-600 hover:text-red-800" onClick={() => handleRemoveItem(item.id)}>
-                                                <IconX />
-                                            </button>
-                                        </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    invoiceItems.map((item, index) => (
+                                        <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                                            <td className="border-r border-gray-300 p-3 text-sm font-medium">{item.title}</td>
+                                            <td className="border-r border-gray-300 p-3 text-center">
+                                                <div className="relative">
+                                                    <input
+                                                        type="number"
+                                                        className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
+                                                        min={0}
+                                                        max={item.PlaceholderQuantity || 9999}
+                                                        value={item.quantity === 0 ? '' : item.quantity}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            handleQuantityChange(item.id, value);
+                                                        }}
+                                                        onBlur={() => {
+                                                            // Set minimum quantity to 1 if empty on blur
+                                                            if (item.quantity === 0) {
+                                                                const updatedItem = invoiceItems.find((invItem) => invItem.id === item.id);
+                                                                if (updatedItem) {
+                                                                    dispatch(
+                                                                        updateItemRedux({
+                                                                            ...updatedItem,
+                                                                            quantity: 1,
+                                                                            amount: updatedItem.rate * 1,
+                                                                        })
+                                                                    );
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+
+                                                    {/* Soft message for empty/0 quantity */}
+                                                    {item.quantity === 0 && (
+                                                        <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="border-r border-gray-300 p-3 text-center text-sm">
+                                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                            </td>
+                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">৳{item.rate.toFixed(2)}</td>
+                                            <td className="border-r border-gray-300 p-3 text-center text-sm">
+                                                {item.tax_rate ? (
+                                                    <div className="text-xs">
+                                                        <div className="font-medium">{item.tax_rate}%</div>
+                                                        <div
+                                                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${
+                                                                item.tax_included ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                                                            }`}
+                                                        >
+                                                            {item.tax_included ? 'Incl.' : 'Excl.'}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-gray-400">No tax</span>
+                                                )}
+                                            </td>
+                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{(item.rate * item.quantity).toFixed(2)}</td>
+                                            <td className="p-3 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveItem(item.id)}
+                                                    className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
+                                                    title="Remove item"
+                                                >
+                                                    <IconX className="h-4 w-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

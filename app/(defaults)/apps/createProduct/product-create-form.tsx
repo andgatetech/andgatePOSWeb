@@ -1,22 +1,23 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/Product/productApi';
 import { Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
 const ProductCreateForm = () => {
-
     const maxNumber = 10;
     const [images, setImages] = useState<any>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [categorySearchTerm, setCategorySearchTerm] = useState('');
+    const [showBrandDropdown, setShowBrandDropdown] = useState(false);
+    const [brandSearchTerm, setBrandSearchTerm] = useState('');
     const router = useRouter();
 
     const { currentStore } = useCurrentStore();
@@ -26,6 +27,8 @@ const ProductCreateForm = () => {
 
     const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams);
     const categories = categoriesResponse?.data || [];
+    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams);
+    const brands = brandsResponse?.data || [];
     const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
     const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams);
     const units = unitsResponse?.data || [];
@@ -33,6 +36,8 @@ const ProductCreateForm = () => {
     const [formData, setFormData] = useState({
         category_id: '',
         category_name: '',
+        brand_id: '',
+        brand_name: '',
         product_name: '',
         description: '',
         price: '',
@@ -45,11 +50,12 @@ const ProductCreateForm = () => {
         units: '',
         tax_rate: '',
         tax_included: false,
-        store_id: "",
+        store_id: '',
     });
 
     // Get recent 5 categories for dropdown and filter based on search
     const recentCategories = categories.slice(0, 5);
+    const recentBrands = brands.slice(0, 5);
 
     // Filter categories based on search term
     const filteredCategories = categorySearchTerm.trim()
@@ -57,6 +63,13 @@ const ProductCreateForm = () => {
               (cat: any) => cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase()) || (cat.description && cat.description.toLowerCase().includes(categorySearchTerm.toLowerCase()))
           )
         : recentCategories;
+
+    // Filter brands based on search term
+    const filteredBrands = brandSearchTerm.trim()
+        ? brands.filter(
+              (brand: any) => brand.name.toLowerCase().includes(brandSearchTerm.toLowerCase()) || (brand.description && brand.description.toLowerCase().includes(brandSearchTerm.toLowerCase()))
+          )
+        : recentBrands;
 
     const onChange2 = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
         setImages(imageList as never[]);
@@ -83,14 +96,20 @@ const ProductCreateForm = () => {
         setCategorySearchTerm(''); // Clear search when category is selected
     };
 
+    const handleBrandSelect = (brand: any) => {
+        setFormData((prev) => ({
+            ...prev,
+            brand_id: brand.id.toString(),
+            brand_name: brand.name,
+        }));
+        setShowBrandDropdown(false);
+        setBrandSearchTerm(''); // Clear search when brand is selected
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validation
-        if (!formData.category_id) {
-            toast.error('Please select a Category!');
-            return;
-        }
         if (!formData.product_name.trim()) {
             toast.error('Please enter Product Name!');
             return;
@@ -130,14 +149,19 @@ const ProductCreateForm = () => {
                 return;
             }
 
-            fd.append('category_id', formData.category_id);
+            if (formData.category_id) {
+                fd.append('category_id', formData.category_id);
+            }
+            if (formData.brand_id) {
+                fd.append('brand_id', formData.brand_id);
+            }
             fd.append('product_name', formData.product_name.trim());
             fd.append('description', formData.description.trim());
             fd.append('price', String(formData.price));
             fd.append('quantity', String(formData.quantity));
             fd.append('purchase_price', String(formData.purchase_price));
             fd.append('available', formData.available);
-            fd.append('store_id', (currentStore?.id ? String(currentStore.id) : ''));
+            fd.append('store_id', currentStore?.id ? String(currentStore.id) : '');
 
             // Add low stock quantity
             if (formData.low_stock_quantity) {
@@ -187,6 +211,8 @@ const ProductCreateForm = () => {
             setFormData({
                 category_id: '',
                 category_name: '',
+                brand_id: '',
+                brand_name: '',
                 product_name: '',
                 description: '',
                 price: '',
@@ -320,10 +346,8 @@ const ProductCreateForm = () => {
                                     </div>
 
                                     {/* Category Selection */}
-                                    <div className="md:col-span-2">
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Category <span className="text-red-500">*</span>
-                                        </label>
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Category</label>
                                         <div className="relative">
                                             <button
                                                 type="button"
@@ -409,6 +433,97 @@ const ProductCreateForm = () => {
                                                         setCategorySearchTerm('');
                                                     }}
                                                     className="ml-2 hover:text-blue-600"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Brand Selection */}
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Brand</label>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowBrandDropdown(!showBrandDropdown)}
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-left transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {formData.brand_name || 'Select a brand (optional)'}
+                                                <svg className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {/* Brand Dropdown */}
+                                            {showBrandDropdown && (
+                                                <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    {/* Search Input */}
+                                                    <div className="border-b border-gray-100 p-3">
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search brands..."
+                                                                value={brandSearchTerm}
+                                                                onChange={(e) => setBrandSearchTerm(e.target.value)}
+                                                                className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                autoFocus
+                                                            />
+                                                            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Brands List */}
+                                                    <div className="max-h-64 overflow-y-auto p-2">
+                                                        <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">{brandSearchTerm.trim() ? 'Search Results' : 'Recent Brands'}</p>
+                                                        {filteredBrands.length > 0 ? (
+                                                            filteredBrands.map((brand: any) => (
+                                                                <button
+                                                                    key={brand.id}
+                                                                    type="button"
+                                                                    onClick={() => handleBrandSelect(brand)}
+                                                                    className="w-full rounded-lg border border-transparent px-3 py-3 text-left transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50 focus:border-blue-200 focus:bg-blue-50"
+                                                                >
+                                                                    <div className="flex items-center space-x-3">
+                                                                        {brand.image_url && (
+                                                                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
+                                                                                <img
+                                                                                    src={brand.image_url}
+                                                                                    alt={brand.name}
+                                                                                    className="h-full w-full object-cover"
+                                                                                    onError={(e) => {
+                                                                                        (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="font-medium text-gray-900">{brand.name}</p>
+                                                                            {brand.description && <p className="truncate text-sm text-gray-500">{brand.description}</p>}
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <p className="px-3 py-2 text-sm text-gray-500">{brandSearchTerm.trim() ? 'No brands found matching your search' : 'No brands available'}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {formData.brand_id && (
+                                            <div className="mt-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">
+                                                <span>Selected: {formData.brand_name}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, brand_id: '', brand_name: '' }));
+                                                        setBrandSearchTerm('');
+                                                    }}
+                                                    className="ml-2 hover:text-green-600"
                                                 >
                                                     ×
                                                 </button>
