@@ -26,29 +26,29 @@ export function middleware(request: NextRequest) {
     // ✅ Supplier allowed areas
     if (role === 'supplier') {
         const supplierAllowed =
-            pathname.startsWith('/supplier') || pathname.startsWith('/apps/supplier') || pathname.startsWith('/apps/supplier/purchase') || pathname.startsWith('/apps/supplierProducts');
+            pathname.startsWith('/supplier') || pathname.startsWith('/supplier') || pathname.startsWith('/supplier/purchase') || pathname.startsWith('/supplierProducts');
 
         if (supplierAllowed) {
             return NextResponse.next();
         }
 
-        return NextResponse.redirect(new URL('/apps/supplier', request.url));
+        return NextResponse.redirect(new URL('/supplier', request.url));
     }
 
     // ✅ Staff allowed areas
     if (role === 'staff') {
         const staffAllowed =
-            pathname.startsWith('/apps/products') ||
-            pathname.startsWith('/apps/Purchase') ||
-            pathname.startsWith('/apps/createPurchase') ||
-            pathname.startsWith('/apps/pos') ||
-            pathname.startsWith('/apps/OrderView'); // optional: allow staff to create purchase
+            pathname.startsWith('/products') ||
+            pathname.startsWith('/Purchase') ||
+            pathname.startsWith('/createPurchase') ||
+            pathname.startsWith('/pos') ||
+            pathname.startsWith('/OrderView'); // optional: allow staff to create purchase
 
         if (staffAllowed) {
             return NextResponse.next();
         }
 
-        return NextResponse.redirect(new URL('/apps/products', request.url));
+        return NextResponse.redirect(new URL('/products', request.url));
     }
 
     // ❌ Default: deny everything else

@@ -71,7 +71,7 @@ const nextConfig = {
             },
             {
                 source: '/pos',
-                destination: '/apps/pos',
+                destination: '/pos',
                 permanent: true,
             },
         ];

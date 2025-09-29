@@ -1,5 +1,7 @@
-import PosLeftSide from '@/app/(defaults)/apps/pos/PosLeftSide';
+
 import { Metadata } from 'next';
+import PosLeftSide from './PosLeftSide';
+
 
 export const metadata: Metadata = {
     title: 'Point of Sale Terminal',

@@ -503,7 +503,7 @@ const ProductTable = () => {
                                                 >
                                                     <ul className="min-w-[120px] rounded-lg border bg-white shadow-lg">
                                                         <li>
-                                                            <Link href={`/apps/products/edit/${product.id}`}>
+                                                            <Link href={`/products/edit/${product.id}`}>
                                                                 <div className="cursor-pointer px-4 py-2 font-medium text-blue-600 hover:bg-blue-50">Edit Product</div>
                                                             </Link>
                                                         </li>
