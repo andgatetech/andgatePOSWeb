@@ -30,7 +30,7 @@ const adminRoutes = [
     {
         label: 'Dashboard',
         icon: <Home />,
-        subMenu: [{ label: 'Sales', href: '/dashboard' }],
+        href: '/dashboard',
     },
     {
         label: 'Store',
@@ -77,8 +77,9 @@ const adminRoutes = [
     {
         label: 'Purchases Order',
         icon: <ShoppingCart />,
-        subMenu: [{ label: 'Add Purchase', href: '/purchases/create' },
-        { label: 'All Purchases', href: '/purchases/list' }
+        subMenu: [
+            { label: 'Add Purchase', href: '/purchases/create' },
+            { label: 'All Purchases', href: '/purchases/list' },
         ],
     },
     {
@@ -111,15 +112,25 @@ const adminRoutes = [
         label: 'Report',
         icon: <BarChart />,
         subMenu: [
-            { label: 'All Activity Logs', href: '/ActivityLog' },
-            { label: 'Sales Report', href: '/SalesReport' },
-            { label: 'Customer-Behavior Report', href: '/CustomerReport' },
-            { label: 'Idle Inventory Report', href: '/IdleInventoryReport' },
-            // { label: 'Stock Report ', href: '/apps/stock-report/stock' },
-            // { label: 'Stock Report', href: '/apps/stock-report/stock' },
-            { label: 'Tax Report', href: '/TaxReport' },
-            { label: 'All Stock Adjustment', href: '/stock/stock-adjustment-list' },
-            { label: 'All Stock Report', href: '/stock/stock-report' },
+            { label: 'All Activity Logs', href: '/reports/activity' },
+            { label: 'Sales ', href: '/reports/sales' },
+
+            { label: 'Purchase ', href: '/reports/purchase' },
+            { label: 'Income', href: '/reports/income' },
+            { label: 'Expenses ', href: '/reports/expenses' },
+            { label: 'Profit & Loss', href: '/reports/profit-loss' },
+            { label: 'Tax', href: '/reports/tax' },
+
+            // ✅ No `href` here, only subMenu
+            {
+                label: 'Stock Reports',
+                subMenu: [
+                    { label: 'Current Stock', href: '/reports/stock/current' },
+                    { label: 'Stock Transactions', href: '/reports/stock/transactions' },
+                    { label: 'Idle Inventory', href: '/reports/stock/idle' },
+                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
+                ],
+            },
         ],
     },
     {
@@ -271,27 +282,66 @@ const Sidebar = () => {
                         <ul className="relative space-y-0.5 p-4 pb-8 font-semibold">
                             {menuRoutes.map((route) => (
                                 <li key={route.label} className="menu nav-item">
-                                    <button
-                                        type="button"
-                                        className={`${currentMenu === route.label ? 'active' : ''} nav-link group flex w-full items-center justify-between`}
-                                        onClick={() => toggleMenu(route.label)}
-                                    >
-                                        <div className="flex items-center">
-                                            {route.icon}
-                                            <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
-                                        </div>
-                                        <IconCaretDown className={`${currentMenu === route.label ? 'rotate-180' : ''}`} />
-                                    </button>
+                                    {route.subMenu ? (
+                                        // Route with submenu
+                                        <>
+                                            <button
+                                                type="button"
+                                                className={`${currentMenu === route.label ? 'active' : ''} nav-link group flex w-full items-center justify-between`}
+                                                onClick={() => toggleMenu(route.label)}
+                                            >
+                                                <div className="flex items-center">
+                                                    {route.icon}
+                                                    <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
+                                                </div>
+                                                <IconCaretDown className={`${currentMenu === route.label ? 'rotate-180' : ''}`} />
+                                            </button>
 
-                                    <AnimateHeight duration={300} height={currentMenu === route.label ? 'auto' : 0}>
-                                        <ul className="sub-menu text-gray-500">
-                                            {route.subMenu.map((sub) => (
-                                                <li key={sub.href}>
-                                                    <Link href={sub.href}>{t(sub.label)}</Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </AnimateHeight>
+                                            <AnimateHeight duration={300} height={currentMenu === route.label ? 'auto' : 0}>
+                                                <ul className="sub-menu pl-6 text-gray-500">
+                                                    {route.subMenu.map((sub) => (
+                                                        <li key={sub.label} className="py-1">
+                                                            {sub.href ? (
+                                                                <Link href={sub.href} className="flex items-center">
+                                                                    {sub.icon && sub.icon}
+                                                                    <span className="ltr:pl-2 rtl:pr-2">{t(sub.label)}</span>
+                                                                </Link>
+                                                            ) : sub.subMenu ? (
+                                                                // Handle nested submenu (like Stock Reports)
+                                                                <div>
+                                                                    <span className="block px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">{t(sub.label)}</span>
+                                                                    <ul className="ml-4 space-y-1">
+                                                                        {sub.subMenu.map((nested) => (
+                                                                            <li key={nested.label}>
+                                                                                {nested.href && (
+                                                                                    <Link
+                                                                                        href={nested.href}
+                                                                                        className="block px-3 py-1 text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary"
+                                                                                    >
+                                                                                        {t(nested.label)}
+                                                                                    </Link>
+                                                                                )}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">{t(sub.label)}</span>
+                                                            )}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </AnimateHeight>
+                                        </>
+                                    ) : (
+                                        // Direct link (like Dashboard)
+                                        <Link href={route.href!} className="nav-link group flex w-full items-center py-2 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                            <div className="flex items-center">
+                                                {route.icon}
+                                                <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
+                                            </div>
+                                        </Link>
+                                    )}
                                 </li>
                             ))}
                         </ul>
