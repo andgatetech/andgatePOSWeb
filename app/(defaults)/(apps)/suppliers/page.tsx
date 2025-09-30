@@ -1,19 +1,14 @@
 'use client';
 
+import Dropdown from '@/components/dropdown';
 import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
-import { Edit, Filter, MoreVertical, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Edit, Eye, MoreVertical, Plus, RotateCcw, Search, Store as StoreIcon, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-
-// Toast function for notifications
-const showToast = (message: string, type: 'success' | 'error') => {
-    if (type === 'success') toast.success(message);
-    else toast.error(message);
-};
 
 interface Supplier {
     id: number;
@@ -23,168 +18,420 @@ interface Supplier {
     address: string;
     status: 'active' | 'inactive';
     store_id?: number;
+    store?: {
+        id: number;
+        store_name: string;
+    };
     created_at: string;
     updated_at: string;
 }
 
 interface Store {
     id: number;
-    name: string;
+    store_name: string;
 }
 
+// Filters Component
+const SupplierFilters = ({ filters, onFiltersChange, stores, isLoadingStores, currentStoreId }) => {
+    const handleFilterChange = (key: string, value: any) => {
+        onFiltersChange({ ...filters, [key]: value, page: 1 });
+    };
+
+    const handleReset = () => {
+        const resetFilters = {
+            search: '',
+            store_id: currentStoreId || '',
+            status: '',
+            per_page: 10,
+            page: 1,
+        };
+        onFiltersChange(resetFilters);
+    };
+
+    return (
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+                {/* Search */}
+                <div className="relative md:col-span-2">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search suppliers..."
+                        value={filters.search || ''}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                {/* Store Filter */}
+                <div>
+                    <select
+                        value={filters.store_id || ''}
+                        onChange={(e) => handleFilterChange('store_id', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                        disabled={isLoadingStores}
+                    >
+                        <option value="">All Stores</option>
+                        {stores?.map((store) => (
+                            <option key={store.id} value={store.id}>
+                                {store.store_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                    <select
+                        value={filters.status || ''}
+                        onChange={(e) => handleFilterChange('status', e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                {/* Reset Button */}
+                <div>
+                    <button
+                        onClick={handleReset}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        title="Reset Filters"
+                    >
+                        <RotateCcw className="h-4 w-4" />
+                        <span className="text-sm">Reset</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Supplier Table Component
+const SupplierTable = ({ suppliers, isLoading, onEdit, onDelete, sortField, sortDirection, onSort }) => {
+    if (isLoading) {
+        return (
+            <div className="rounded-xl border bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                    <p className="mt-2 text-gray-600">Loading suppliers...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!suppliers || suppliers.length === 0) {
+        return (
+            <div className="rounded-xl border bg-white shadow-sm">
+                <div className="p-8 text-center">
+                    <Users className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No suppliers found</h3>
+                    <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                </div>
+            </div>
+        );
+    }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    return (
+        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('name')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Supplier
+                                    {sortField === 'name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Contact</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Store</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Address</th>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('status')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Status
+                                    {sortField === 'status' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th
+                                className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                onClick={() => onSort('created_at')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    Created
+                                    {sortField === 'created_at' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                </div>
+                            </th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                        {suppliers.map((supplier, index) => (
+                            <tr key={supplier.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center">
+                                        <div className="h-12 w-12 flex-shrink-0">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                                                <Users className="h-6 w-6 text-purple-600" />
+                                            </div>
+                                        </div>
+                                        <div className="ml-4">
+                                            <div className="text-sm font-semibold text-gray-900">{supplier.name}</div>
+                                            <div className="text-xs text-gray-500">ID: {supplier.id}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <div className="text-sm text-gray-900">{supplier.email}</div>
+                                    <div className="text-xs text-gray-500">{supplier.phone}</div>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center">
+                                        <StoreIcon className="mr-2 h-4 w-4 text-purple-500" />
+                                        <div className="text-sm font-medium text-gray-900">{supplier.store?.store_name || '-'}</div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <div className="max-w-xs truncate text-sm text-gray-900" title={supplier.address}>
+                                        {supplier.address}
+                                    </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <span
+                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            supplier.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}
+                                    >
+                                        {supplier.status}
+                                    </span>
+                                </td>
+                                <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">{formatDate(supplier.created_at)}</td>
+                                <td className="px-4 py-4">
+                                    <Dropdown
+                                        offset={[0, 5]}
+                                        placement="bottom-end"
+                                        btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                        button={<MoreVertical className="h-5 w-5" />}
+                                    >
+                                        <ul className="min-w-[140px] rounded-lg border bg-white shadow-lg">
+                                            <li>
+                                                <button onClick={() => onEdit(supplier.id)} className="flex w-full items-center px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50">
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Edit Supplier
+                                                </button>
+                                            </li>
+                                            <li className="border-t">
+                                                <button
+                                                    onClick={() => {
+                                                        if (window.confirm(`Are you sure you want to delete supplier "${supplier.name}"? This action cannot be undone.`)) {
+                                                            onDelete(supplier);
+                                                        }
+                                                    }}
+                                                    className="flex w-full items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                                                >
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Delete Supplier
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </Dropdown>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+// Pagination Component
+const Pagination = ({ meta, onPageChange }) => {
+    if (!meta || meta.last_page <= 1) {
+        return null;
+    }
+
+    const { current_page, last_page, total, per_page } = meta;
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const showPages = 5;
+        const halfShow = Math.floor(showPages / 2);
+
+        let start = Math.max(1, current_page - halfShow);
+        let end = Math.min(last_page, current_page + halfShow);
+
+        if (end - start < showPages - 1) {
+            if (start === 1) {
+                end = Math.min(last_page, start + showPages - 1);
+            } else {
+                start = Math.max(1, end - showPages + 1);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        return pages;
+    };
+
+    const startItem = (current_page - 1) * per_page + 1;
+    const endItem = Math.min(current_page * per_page, total);
+
+    return (
+        <div className="rounded-b-xl border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm text-gray-700">
+                    Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{total}</span> results
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={() => onPageChange(current_page - 1)}
+                        disabled={current_page === 1}
+                        className="relative inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+
+                    {getPageNumbers().map((page) => (
+                        <button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            className={`relative inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                                page === current_page ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => onPageChange(current_page + 1)}
+                        disabled={current_page === last_page}
+                        className="relative inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Main Suppliers Component
 const SuppliersPage = () => {
     const currentStore = useSelector((state: any) => state.auth.currentStore);
     const currentStoreId = useSelector((state: any) => state.auth.currentStoreId);
 
-    // States
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
-    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-    const [selectedStore, setSelectedStore] = useState('');
+    const [filters, setFilters] = useState({
+        search: '',
+        store_id: currentStoreId || '',
+        status: '',
+        per_page: 10,
+        page: 1,
+    });
 
-    // Ref for dropdown handling
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [sortField, setSortField] = useState('name');
+    const [sortDirection, setSortDirection] = useState('asc');
 
-    const storeIdParam = selectedStore !== '' ? Number(selectedStore) : currentStoreId != null && currentStoreId !== 0 ? Number(currentStoreId) : undefined;
+    useEffect(() => {
+        if (currentStoreId) {
+            setFilters((prev) => ({
+                ...prev,
+                store_id: currentStoreId,
+                page: 1,
+            }));
+        }
+    }, [currentStoreId]);
 
     const queryArgs = useMemo(
         () => ({
-            search: searchTerm || undefined,
-            store_id: storeIdParam || undefined,
-            status: statusFilter || undefined,
+            search: filters.search || undefined,
+            store_id: filters.store_id || undefined,
+            status: filters.status || undefined,
         }),
-        [searchTerm, storeIdParam, statusFilter]
+        [filters.search, filters.store_id, filters.status]
     );
 
     // API hooks
-    const { data: suppliersResponse, isLoading, error, refetch } = useGetSuppliersQuery(queryArgs);
+    const { data: suppliersResponse, isLoading, error } = useGetSuppliersQuery(queryArgs);
     const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
+    const { data: storesData, isLoading: isLoadingStores } = useFullStoreListWithFilterQuery();
 
     const suppliers: Supplier[] = suppliersResponse?.data?.data || [];
 
-    // API hook for all stores
-    // const { data: storesResponse } = useAllStoresQuery();
-    const { data: storesResponse } = useFullStoreListWithFilterQuery();
-    const stores: Store[] = storesResponse?.data || [];
+    const handleFiltersChange = (newFilters) => {
+        setFilters(newFilters);
+    };
 
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setOpenDropdown(null);
-            }
-        };
+    const handlePageChange = (page: number) => {
+        setFilters((prev) => ({ ...prev, page }));
+    };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const handleEditSupplier = (supplierId: number) => {
+        window.location.href = `/apps/suppliers/${supplierId}`;
+    };
 
-    // Filter suppliers based on search term, status, and store
-    // const filteredSuppliers = useMemo(() => {
-    //     return suppliers.filter((supplier) => {
-    //         const matchesSearch =
-    //             supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
-
-    //         const matchesStatus = !statusFilter || supplier.status === statusFilter;
-    //         const matchesStore = !selectedStore || supplier.store_id === Number(selectedStore);
-
-    //         return matchesSearch && matchesStatus && matchesStore;
-    //     });
-    // }, [suppliers, searchTerm, statusFilter, selectedStore]);
-
-    const filteredSuppliers = useMemo(() => {
-        return suppliers.filter((supplier) => {
-            const matchesSearch =
-                supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) || supplier.phone.includes(searchTerm);
-
-            const matchesStatus = !statusFilter || supplier.status === statusFilter;
-
-            return matchesSearch && matchesStatus;
-        });
-    }, [suppliers, searchTerm, statusFilter]);
-
-    // Handle delete supplier with SweetAlert2 and react-toastify
     const handleDeleteSupplier = async (supplier: Supplier) => {
         try {
-            const result = await Swal.fire({
-                title: 'Delete Supplier',
-                text: `Are you sure you want to delete "${supplier.name}"? This action cannot be undone.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, Delete',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true,
-                customClass: {
-                    confirmButton: 'bg-red-600 hover:bg-red-700',
-                    cancelButton: 'bg-gray-500 hover:bg-gray-600',
-                },
-            });
-
-            if (result.isConfirmed) {
-                await deleteSupplier(supplier.id).unwrap();
-
-                // Show success toast
-                showToast('Supplier deleted successfully!', 'success');
-
-                // Show success SweetAlert
-                await Swal.fire({
-                    title: 'Deleted!',
-                    text: `${supplier.name} has been deleted successfully.`,
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false,
-                });
-
-                // Refresh the list
-                refetch();
-            }
+            await deleteSupplier(supplier.id).unwrap();
+            toast.success('Supplier deleted successfully!');
         } catch (error: any) {
-            console.error('Delete supplier failed:', error);
-            const errorMessage = error?.data?.message || 'Failed to delete supplier. Please try again.';
-
-            // Show error toast
-            showToast(errorMessage, 'error');
-
-            // Show error SweetAlert
-            await Swal.fire({
-                title: 'Error!',
-                text: errorMessage,
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
+            console.error('Failed to delete supplier:', error);
+            toast.error('Failed to delete supplier. Please try again.');
         }
     };
 
-    // Clear all filters
-    const clearFilters = () => {
-        setSearchTerm('');
-        setStatusFilter('');
-        setSelectedStore('');
-    };
+    // Sort suppliers
+    const sortedSuppliers = [...suppliers].sort((a, b) => {
+        let aValue = a[sortField] || '';
+        let bValue = b[sortField] || '';
 
-    // Count active filters
-    const activeFiltersCount = useMemo(() => {
-        let count = 0;
-        if (searchTerm) count++;
-        if (statusFilter) count++;
-        if (selectedStore) count++;
-        return count;
-    }, [searchTerm, statusFilter, selectedStore]);
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    const handleSort = (field: string) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 p-8">
-                <div className="mx-auto max-w-7xl">
-                    <div className="rounded-md border border-red-200 bg-red-50 p-4">
-                        <div className="text-red-800">
-                            <h3 className="text-lg font-medium">Error Loading Suppliers</h3>
-                            <p className="mt-1">Please try again later.</p>
-                        </div>
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+                <div className="mx-auto">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                        <p className="text-red-800">Error loading suppliers. Please try again.</p>
                     </div>
                 </div>
             </div>
@@ -192,279 +439,60 @@ const SuppliersPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="mx-auto max-w-7xl p-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Suppliers</h1>
-                            <p className="mt-1 text-gray-600">Manage your suppliers and their information</p>
-                        </div>
-                        <Link
-                            href="/apps/suppliers/create-supplier"
-                            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Supplier
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Search and Filters */}
-                <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
-                    <div className="mb-4 flex flex-wrap items-center gap-4">
-                        {/* Search Input */}
-                        <div className="min-w-64 flex-1">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search suppliers by name, email, or phone..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Filter Toggle */}
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
-                                showFilters || activeFiltersCount > 0 ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                            }`}
-                        >
-                            <Filter className="mr-2 h-4 w-4" />
-                            Filters
-                            {activeFiltersCount > 0 && <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800">{activeFiltersCount}</span>}
-                        </button>
-
-                        {/* Clear Filters */}
-                        {activeFiltersCount > 0 && (
-                            <button onClick={clearFilters} className="inline-flex items-center rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
-                                <X className="mr-1 h-4 w-4" />
-                                Clear
-                            </button>
-                        )}
-
-                        {/* Refresh */}
-                        <button
-                            onClick={refetch}
-                            disabled={isLoading}
-                            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                        >
-                            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                            Refresh
-                        </button>
-                    </div>
-
-                    {/* Advanced Filters */}
-                    {showFilters && (
-                        <div className="border-t pt-4">
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">Store</label>
-                                    <select
-                                        value={selectedStore}
-                                        onChange={(e) => setSelectedStore(e.target.value)}
-                                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">All Stores</option>
-                                        {stores.map((store) => (
-                                            <option key={store.id} value={store.id.toString()}>
-                                                {store.store_name}
-                                            </option>
-                                        ))}
-                                    </select>
+                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
+                        <div className="mb-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-md">
+                                    <Users className="h-6 w-6 text-white" />
                                 </div>
-
-                                {/* Status Filter */}
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
-                                    <select
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">All Status</option>
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
+                                    <h1 className="text-2xl font-bold text-gray-900">Supplier Management</h1>
+                                    <p className="text-sm text-gray-500">{currentStore ? `Manage suppliers for ${currentStore.store_name}` : 'Manage and organize your suppliers'}</p>
                                 </div>
                             </div>
+                            <Link
+                                href="/suppliers/create-supplier"
+                                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Add Supplier
+                            </Link>
                         </div>
-                    )}
-                </div>
-
-                {/* Active Filters Display */}
-                {activeFiltersCount > 0 && (
-                    <div className="mb-4 flex flex-wrap gap-2">
-                        {searchTerm && (
-                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
-                                Search: "{searchTerm}"
-                                <button onClick={() => setSearchTerm('')} className="ml-2 text-blue-600 hover:text-blue-800">
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </span>
-                        )}
-                        {statusFilter && (
-                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
-                                Status: {statusFilter}
-                                <button onClick={() => setStatusFilter('')} className="ml-2 text-blue-600 hover:text-blue-800">
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </span>
-                        )}
-                        {selectedStore && (
-                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
-                                Store: {stores.find((s) => s.id.toString() === selectedStore)?.name || selectedStore}
-                                <button onClick={() => setSelectedStore('')} className="ml-2 text-blue-600 hover:text-blue-800">
-                                    <X className="h-3 w-3" />
-                                </button>
-                            </span>
+                        {currentStore && (
+                            <div className="rounded-lg bg-purple-50 p-4">
+                                <div className="flex items-center space-x-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+                                        <StoreIcon className="h-4 w-4 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-purple-900">Current Store: {currentStore.store_name}</p>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
-                )}
-
-                {/* Results Summary */}
-                <div className="mb-4 text-sm text-gray-600">
-                    Showing {filteredSuppliers.length} of {suppliers.length} suppliers
                 </div>
 
-                {/* Table */}
-                <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Contact</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Store</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Address</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
-                                {isLoading ? (
-                                    Array.from({ length: 5 }).map((_, index) => (
-                                        <tr key={`loading-${index}`} className="animate-pulse">
-                                            <td className="px-6 py-4">
-                                                <div className="h-4 w-32 rounded bg-gray-200"></div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="h-4 w-48 rounded bg-gray-200"></div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="h-4 w-64 rounded bg-gray-200"></div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="h-6 w-16 rounded bg-gray-200"></div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="h-4 w-24 rounded bg-gray-200"></div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="ml-auto h-8 w-8 rounded bg-gray-200"></div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : filteredSuppliers.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                                            <div className="flex flex-col items-center">
-                                                <Search className="mb-4 h-12 w-12 text-gray-300" />
-                                                <h3 className="mb-1 text-lg font-medium text-gray-900">No suppliers found</h3>
-                                                <p className="mb-4 text-gray-500">{activeFiltersCount > 0 ? 'Try adjusting your search or filters' : 'Get started by adding your first supplier'}</p>
-                                                {activeFiltersCount > 0 ? (
-                                                    <button onClick={clearFilters} className="font-medium text-blue-600 hover:text-blue-500">
-                                                        Clear all filters
-                                                    </button>
-                                                ) : (
-                                                    <Link
-                                                        href="/apps/suppliers/create-supplier"
-                                                        className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                                                    >
-                                                        <Plus className="mr-2 h-4 w-4" />
-                                                        Add First Supplier
-                                                    </Link>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filteredSuppliers.map((supplier) => (
-                                        <tr key={supplier.id} className="hover:bg-gray-50">
-                                            <td className="whitespace-nowrap px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">{supplier.name}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-900">{supplier.email}</div>
-                                                <div className="text-sm text-gray-500">{supplier.phone}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-900">{supplier.store.store_name}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="max-w-xs truncate text-sm text-gray-900" title={supplier.address}>
-                                                    {supplier.address}
-                                                </div>
-                                            </td>
-                                            <td className="whitespace-nowrap px-6 py-4">
-                                                <span
-                                                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                                                        supplier.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                    }`}
-                                                >
-                                                    {supplier.status}
-                                                </span>
-                                            </td>
-                                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{new Date(supplier.created_at).toLocaleDateString()}</td>
-                                            <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                                <div className="relative" ref={dropdownRef}>
-                                                    <button
-                                                        onClick={() => setOpenDropdown(openDropdown === supplier.id ? null : supplier.id)}
-                                                        className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </button>
+                {/* Filters */}
+                <SupplierFilters filters={filters} onFiltersChange={handleFiltersChange} stores={storesData?.data} isLoadingStores={isLoadingStores} currentStoreId={currentStoreId} />
 
-                                                    {openDropdown === supplier.id && (
-                                                        <div className="absolute right-0 z-10 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                                                            <div className="py-1">
-                                                                <Link
-                                                                    href={`/apps/suppliers/${supplier.id}`}
-                                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    onClick={() => setOpenDropdown(null)}
-                                                                >
-                                                                    <Edit className="mr-2 h-4 w-4" />
-                                                                    Edit
-                                                                </Link>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setOpenDropdown(null);
-                                                                        handleDeleteSupplier(supplier);
-                                                                    }}
-                                                                    className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
-                                                                    disabled={isDeleting}
-                                                                >
-                                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                                    Delete
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {/* Supplier Table */}
+                <SupplierTable
+                    suppliers={sortedSuppliers}
+                    isLoading={isLoading || isDeleting}
+                    onEdit={handleEditSupplier}
+                    onDelete={handleDeleteSupplier}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                />
+
+                {/* Pagination */}
+                {suppliersResponse?.data?.meta && <Pagination meta={suppliersResponse.data.meta} onPageChange={handlePageChange} />}
             </div>
         </div>
     );

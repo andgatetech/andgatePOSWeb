@@ -5,6 +5,7 @@ import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { Group, Modal, NumberInput, Textarea, TextInput } from '@mantine/core';
 import { FileText, Plus, Store, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 interface Props {
     opened: boolean;
@@ -33,8 +34,10 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
             setNotes('');
             setDebit(undefined);
             setStoreId(undefined);
+            toast.success('Expense created successfully');
             onClose();
         } catch (error) {
+            toast.error('Failed to create expense');
             console.error('Failed to create expense:', error);
         }
     };

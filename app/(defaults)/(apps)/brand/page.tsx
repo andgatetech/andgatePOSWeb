@@ -5,6 +5,7 @@ import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useU
 import { ChevronDown, ChevronUp, Edit, Eye, Image, MoreVertical, Plus, RotateCcw, Save, Search, Store, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 
 // Brand Filter Component
 const BrandFilter = ({ onFilterChange, currentStoreId }) => {
@@ -507,17 +508,17 @@ const BrandManagement = () => {
         }
     };
 
-    const showMessage = (msg = '', type = 'success') => {
-        Swal.fire({
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 3000,
-            icon: type,
-            title: msg,
-            padding: '10px 20px',
-        });
-    };
+    // const showMessage = (msg = '', type = 'success') => {
+    //     Swal.fire({
+    //         toast: true,
+    //         position: 'top',
+    //         showConfirmButton: false,
+    //         timer: 3000,
+    //         icon: type,
+    //         title: msg,
+    //         padding: '10px 20px',
+    //     });
+    // };
 
     const openModal = (type, brand = null) => {
         setModalType(type);
@@ -544,13 +545,17 @@ const BrandManagement = () => {
             if (modalType === 'create') {
                 brandFormData.append('store_id', currentStoreId);
                 await createBrand(brandFormData).unwrap();
-                showMessage('Brand created successfully', 'success');
+                // showMessage('Brand created successfully', 'success');
+                toast.dismiss();
+                toast.success('Brand created successfully', { toastId: 'create-brand' });
             } else if (modalType === 'edit' && selectedBrand) {
                 await updateBrand({
                     id: selectedBrand.id,
                     formData: brandFormData,
                 }).unwrap();
-                showMessage('Brand updated successfully', 'success');
+                toast.dismiss();
+                toast.success('Brand updated successfully', { toastId: 'create-brand' });
+                // showMessage('Brand updated successfully', 'success');
             }
 
             closeModal();
@@ -562,7 +567,8 @@ const BrandManagement = () => {
             } else if (err?.error) {
                 errorMessage = err.error;
             }
-            showMessage(errorMessage, 'error');
+            toast.dismiss();
+            toast.error('Something went wrong!', { toastId: 'create-brand' });
         } finally {
             setLoading(false);
         }
@@ -583,10 +589,14 @@ const BrandManagement = () => {
         if (result.isConfirmed) {
             try {
                 await deleteBrand(id).unwrap();
-                showMessage('Brand deleted successfully', 'success');
+                // showMessage('Brand deleted successfully', 'success');
+                toast.dismiss();
+                toast.successfully('Brand deleted successfully', { toastId: 'create-brand' });
             } catch (error) {
                 console.error('Error deleting brand:', error);
-                showMessage('Failed to delete brand', 'error');
+                // showMessage('Failed to delete brand', 'error');
+                toast.dismiss();
+                toast.error('Failed to delete brand', { toastId: 'create-brand' });
             }
         }
     };
