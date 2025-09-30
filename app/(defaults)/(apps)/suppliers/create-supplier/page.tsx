@@ -7,31 +7,31 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-const showSweetAlert = async (config: any) => {
-    if (typeof window !== 'undefined') {
-        const Swal = (await import('sweetalert2')).default;
-        return new Promise((resolve) => {
-            setTimeout(async () => {
-                const result = await Swal.fire({
-                    ...config,
-                    confirmButtonColor: config.icon === 'success' ? '#10b981' : '#ef4444',
-                    showCancelButton: config.icon === 'success',
-                    cancelButtonText: config.icon === 'success' ? 'Create Another' : undefined,
-                    cancelButtonColor: '#6b7280',
-                    background: '#ffffff',
-                    color: '#374151',
-                    customClass: {
-                        popup: 'rounded-xl shadow-2xl',
-                        title: 'text-xl font-semibold',
-                        confirmButton: 'rounded-lg px-4 py-2 font-medium',
-                        cancelButton: 'rounded-lg px-4 py-2 font-medium',
-                    },
-                });
-                resolve(result);
-            }, 0);
-        });
-    }
-};
+// const showSweetAlert = async (config: any) => {
+//     if (typeof window !== 'undefined') {
+//         const Swal = (await import('sweetalert2')).default;
+//         return new Promise((resolve) => {
+//             setTimeout(async () => {
+//                 const result = await Swal.fire({
+//                     ...config,
+//                     confirmButtonColor: config.icon === 'success' ? '#10b981' : '#ef4444',
+//                     showCancelButton: config.icon === 'success',
+//                     cancelButtonText: config.icon === 'success' ? 'Create Another' : undefined,
+//                     cancelButtonColor: '#6b7280',
+//                     background: '#ffffff',
+//                     color: '#374151',
+//                     customClass: {
+//                         popup: 'rounded-xl shadow-2xl',
+//                         title: 'text-xl font-semibold',
+//                         confirmButton: 'rounded-lg px-4 py-2 font-medium',
+//                         cancelButton: 'rounded-lg px-4 py-2 font-medium',
+//                     },
+//                 });
+//                 resolve(result);
+//             }, 0);
+//         });
+//     }
+// };
 
 interface SupplierFormData {
     name: string;
@@ -138,28 +138,31 @@ const CreateSupplierPage = () => {
                 status: 'active',
             });
             setErrors({});
+            toast.dismiss();
+            toast.success('Supplier created successfully', { toastId: 'create-supplier' });
 
             // Success modal
-            const response: any = await showSweetAlert({
-                title: 'Success!',
-                text: 'Supplier has been created successfully',
-                icon: 'success',
-                confirmButtonText: 'Go to Suppliers',
-            });
+            // const response: any = await showSweetAlert({
+            //     title: 'Success!',
+            //     text: 'Supplier has been created successfully',
+            //     icon: 'success',
+            //     confirmButtonText: 'Go to Suppliers',
+            // });
 
-            if (response.isConfirmed) {
-                router.push('/apps/suppliers');
-            }
+            router.push('/suppliers');
+            // if (response.isConfirmed) {
+            // }
         } catch (error: any) {
             console.error('Create supplier failed', error);
-            const errorMessage = error?.data?.message || 'Something went wrong while creating the supplier';
-
-            await showSweetAlert({
-                title: 'Error!',
-                text: errorMessage,
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-            });
+            // const errorMessage = error?.data?.message || 'Something went wrong while creating the supplier';
+            toast.dismiss();
+            toast.error(error?.data?.message || 'Something went wrong while creating the supplier');
+            // await showSweetAlert({
+            //     title: 'Error!',
+            //     text: errorMessage,
+            //     icon: 'error',
+            //     confirmButtonText: 'Try Again',
+            // });
         }
     };
 
