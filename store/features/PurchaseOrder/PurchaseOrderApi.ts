@@ -1,65 +1,65 @@
 import { baseApi } from '@/store/api/baseApi';
 
-const PurchaseApi = baseApi.injectEndpoints({
+const PurchaseOrderApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        createPurchase: builder.mutation({
-            query: (newPurchase: any) => ({
-                url: '/purchases',
+        // Create Purchase Order
+        createPurchaseOrder: builder.mutation({
+            query: (data: any) => ({
+                url: '/purchase-order/store',
                 method: 'POST',
-                body: newPurchase,
+                body: data,
             }),
-            invalidatesTags: ['Purchases'],
+            invalidatesTags: ['PurchaseOrders'],
         }),
 
-        getAllPurchases: builder.query({
-            query: () => ({
-                url: '/purchases',
+        // Get all Purchase Orders
+        getPurchaseOrders: builder.query({
+            query: (params: any = {}) => ({
+                url: '/purchase-order/list',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['PurchaseOrders'],
+        }),
+
+        // Get single Purchase Order
+        getPurchaseOrderById: builder.query({
+            query: (id: number | string) => ({
+                url: `/purchase-order/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['Purchases'],
+            providesTags: ['PurchaseOrders'],
         }),
 
-        getPurchaseById: builder.query({
-            query: (id: any) => ({
-                url: `/purchases/${id}`,
+        // Edit Purchase Order (fetch data for form)
+        editPurchaseOrder: builder.query({
+            query: (id: number | string) => ({
+                url: `/purchase-order/edit/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['Purchases'],
+            providesTags: ['PurchaseOrders'],
         }),
 
-        receivePurchase: builder.mutation({
-            query: (id: any) => ({
-                url: `/purchases/${id}/receive`,
+        // Update Purchase Order
+        updatePurchaseOrder: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/purchase-order/update/${id}`,
                 method: 'PUT',
+                body: data,
             }),
-            invalidatesTags: ['Purchases'],
+            invalidatesTags: ['PurchaseOrders'],
         }),
 
-        updatePurchaseStatus: builder.mutation({
-            query: ({ id, statusData }) => ({
-                url: `/purchases/${id}/status`,
-                method: 'PUT',
-                body: statusData, // status data object e.g. { status: 'approved' }
+        // Delete Purchase Order
+        deletePurchaseOrder: builder.mutation({
+            query: (id: number | string) => ({
+                url: `/purchase-order/delete/${id}`,
+                method: 'DELETE',
             }),
-            invalidatesTags: ['Purchases'],
-        }),
-
-        getAllPurchasesTransactions: builder.query({
-            query: () => ({
-                url: '/purchases/transactions ',
-                method: 'GET',
-            }),
-            providesTags: ['Purchases'],
-        }),
-        getPurchaseItems: builder.query({
-            query: (id) => ({
-                url: `/purchases/${id}/items`,
-                method: 'GET',
-            }),
-            providesTags: ['Purchases'],
+            invalidatesTags: ['PurchaseOrders'],
         }),
     }),
 });
 
-export const { useCreatePurchaseMutation, useGetAllPurchasesQuery, useGetPurchaseByIdQuery, useReceivePurchaseMutation, useUpdatePurchaseStatusMutation, useGetAllPurchasesTransactionsQuery, useGetPurchaseItemsQuery } =
-    PurchaseApi;
+export const { useCreatePurchaseOrderMutation, useGetPurchaseOrdersQuery, useGetPurchaseOrderByIdQuery, useEditPurchaseOrderQuery, useUpdatePurchaseOrderMutation, useDeletePurchaseOrderMutation } =
+    PurchaseOrderApi;
