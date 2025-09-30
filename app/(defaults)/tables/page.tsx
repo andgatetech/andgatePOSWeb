@@ -1,7 +1,7 @@
 import ComponentsTablesCaptions from '@/components/tables/components-tables-captions';
 import ComponentsTablesCheckboxes from '@/components/tables/components-tables-checkboxes';
 import ComponentsTablesContextual from '@/components/tables/components-tables-contextual';
-import ComponentsTablesDropdown from '@/components/tables/components-tables-dropdown';
+
 import ComponentsTablesFooter from '@/components/tables/components-tables-footer';
 import ComponentsTablesHover from '@/components/tables/components-tables-hover';
 import ComponentsTablesLight from '@/components/tables/components-tables-light';
@@ -32,8 +32,7 @@ const Tables = () => {
             <ComponentsTablesProgress />
             {/* Contextual */}
             <ComponentsTablesContextual />
-            {/* dropdown */}
-            <ComponentsTablesDropdown />
+          
             {/* footer Table  */}
             <ComponentsTablesFooter />
             {/* checkboxes */}
