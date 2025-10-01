@@ -2,20 +2,20 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
-import { addItemRedux } from '@/store/features/Order/OrderSlice';
+// ✅ Changed to use Purchase Order Redux instead of Order/Invoice
+import { addItemRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
 
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
-import { Award, Eye, GripVertical, Package, Search, Tag, X } from 'lucide-react';
+import { Award, Eye, Package, Plus, Search, Tag, X } from 'lucide-react';
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
-import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
-import PurchaseOrderRightSide from './PurchaseOrderRightSide';
-
+import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 
 const PurchaseOrderLeftSide = () => {
     const [open, setOpen] = useState(false);
@@ -30,11 +30,6 @@ const PurchaseOrderLeftSide = () => {
     const [brandPanelOpen, setBrandPanelOpen] = useState(false);
     const [categorySearchTerm, setCategorySearchTerm] = useState('');
     const [brandSearchTerm, setBrandSearchTerm] = useState('');
-
-    // Resizable layout state
-    const [leftWidth, setLeftWidth] = useState(40); // percentage
-    const [isDragging, setIsDragging] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
 
     const dispatch = useDispatch();
     const itemsPerPage = 6;
@@ -88,57 +83,13 @@ const PurchaseOrderLeftSide = () => {
         console.log('Current Store ID:', currentStoreId);
     }, [categoriesResponse, brandsResponse, currentStoreId]);
 
-    const reduxItems = useSelector((state: RootState) => state.invoice.items);
+    // ✅ Use purchaseOrder state instead of invoice state
+    const reduxItems = useSelector((state: RootState) => state.purchaseOrder.items);
     const beepRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         beepRef.current = new Audio('/assets/sound/store-scanner-beep-90395.mp3');
     }, []);
-
-    // Resizable functionality
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleMouseMove = useCallback(
-        (e: MouseEvent) => {
-            if (!isDragging || !containerRef.current) return;
-
-            const containerRect = containerRef.current.getBoundingClientRect();
-            const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-
-            // Constrain between 30% and 80%
-            const constrainedWidth = Math.max(30, Math.min(80, newLeftWidth));
-            setLeftWidth(constrainedWidth);
-        },
-        [isDragging]
-    );
-
-    const handleMouseUp = useCallback(() => {
-        setIsDragging(false);
-    }, []);
-
-    useEffect(() => {
-        if (isDragging) {
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';
-        } else {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-        }
-
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-        };
-    }, [isDragging, handleMouseMove, handleMouseUp]);
 
     const showMessage = (msg = '', type = 'success') => {
         const toast: any = Swal.mixin({
@@ -155,41 +106,40 @@ const PurchaseOrderLeftSide = () => {
         // Calculate total quantity from product_stocks
         const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
-        if (product.available === 'no' || totalQuantity <= 0) {
-            showMessage('Product is not available', 'error');
-            return;
-        }
-
-        // Check stock limit
-        const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
-
-        if (currentQuantityInCart >= totalQuantity) {
-            showMessage('Cannot add more, stock limit reached!', 'error');
-            return;
-        }
-
         if (beepRef.current) {
             beepRef.current.currentTime = 0;
             beepRef.current.play().catch(() => {});
         }
 
         const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+
+        // Get purchase price from product
+        const purchasePrice = parseFloat(product.purchase_price || product.price || '0');
+
+        console.log('Adding product to cart:', {
+            product_name: product.product_name,
+            purchase_price: product.purchase_price,
+            price: product.price,
+            final_purchase_price: purchasePrice,
+        });
+
+        // ✅ Purchase order item structure (different from sales invoice)
         const itemToAdd = {
             id: uniqueId,
             productId: product.id,
+            itemType: 'existing' as const, // Mark as existing product
             title: product.product_name,
-            description: product.description,
-            rate: parseFloat(product.price),
+            description: product.description || '',
+            purchasePrice: purchasePrice,
             quantity: 1,
-            amount: parseFloat(product.price),
-            PlaceholderQuantity: totalQuantity,
-            tax_rate: parseFloat(product.tax_rate || '0'),
-            tax_included: product.tax_included === 1,
+            amount: purchasePrice,
+            availableStock: totalQuantity, // Track current stock
             unit: product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'piece'),
+            status: 'ordered',
         };
 
         dispatch(addItemRedux(itemToAdd));
-        showMessage('Item added successfully!');
+        showMessage('Product added to purchase order!');
 
         // Reset filters and search after adding product
         setSearchTerm('');
@@ -260,7 +210,7 @@ const PurchaseOrderLeftSide = () => {
     const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
     return (
-        <div ref={containerRef} className="relative flex h-screen overflow-hidden" style={{ userSelect: isDragging ? 'none' : 'auto' }}>
+        <div className="relative flex overflow-hidden">
             {/* Category Panel Overlay */}
             {categoryPanelOpen && (
                 <div className="absolute inset-0 z-50 flex">
@@ -403,9 +353,9 @@ const PurchaseOrderLeftSide = () => {
                 </div>
             )}
 
-            {/* Products Section - Resizable Left Panel */}
-            <div className="flex flex-col overflow-hidden" style={{ width: `${leftWidth}%` }}>
-                <div className="panel flex-1 overflow-auto px-6 py-6">
+            {/* Products Section */}
+            <div className="flex w-full flex-col">
+                <div className="panel h-full overflow-auto px-6 py-6">
                     <div className="mb-6">
                         <h1 className="mb-1 text-2xl font-bold text-gray-900">Select Products</h1>
                         <p className="text-sm text-gray-600">Click or scan a product to add it to your order</p>
@@ -435,6 +385,12 @@ const PurchaseOrderLeftSide = () => {
                                 <span className="text-sm font-medium text-red-700">Clear</span>
                             </button>
                         )}
+
+                        {/* New Product Button */}
+                        <Link href="/products/create" className="flex items-center space-x-2 rounded-lg border border-purple-300 bg-purple-50 px-4 py-2 transition-colors hover:bg-purple-100">
+                            <Plus className="h-4 w-4 text-purple-600" />
+                            <span className="text-sm font-medium text-purple-700">New Product</span>
+                        </Link>
                     </div>
 
                     {/* Active Filters Display */}
@@ -471,11 +427,7 @@ const PurchaseOrderLeftSide = () => {
                     </div>
 
                     {/* Products Grid - Responsive based on width */}
-                    <div
-                        className={`grid gap-4 ${
-                            leftWidth > 60 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : leftWidth > 45 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
-                        }`}
-                    >
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {currentProducts.map((product: any) => {
                             // Calculate total quantity from product_stocks
                             const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
@@ -556,21 +508,6 @@ const PurchaseOrderLeftSide = () => {
                             </button>
                         </div>
                     )}
-                </div>
-            </div>
-
-            {/* Resizable Divider - WHITE COLOR */}
-            <div
-                className={`flex w-2 cursor-col-resize items-center justify-center border-l border-r border-white bg-white hover:bg-gray-50 ${isDragging ? 'bg-white' : ''}`}
-                onMouseDown={handleMouseDown}
-            >
-                <GripVertical className="h-6 w-6 text-white" />
-            </div>
-
-            {/* Bill Form Section - Resizable Right Panel */}
-            <div className="flex flex-col overflow-hidden" style={{ width: `${100 - leftWidth}%` }}>
-                <div className="flex-1 overflow-auto">
-                    <PurchaseOrderRightSide />
                 </div>
             </div>
 
