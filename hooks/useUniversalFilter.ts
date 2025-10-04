@@ -1,6 +1,8 @@
 'use client';
 import { FilterOptions } from '@/components/common/UniversalFilter';
-import { useCallback, useState } from 'react';
+import { RootState } from '@/store';
+import { useCallback, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 export interface UseUniversalFilterOptions {
     initialFilters?: FilterOptions;
@@ -11,6 +13,10 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
     const { initialFilters = {}, onFilterChange } = options;
 
     const [filters, setFilters] = useState<FilterOptions>(initialFilters);
+
+    // Get all user stores from Redux - memoized to prevent re-renders
+    const user = useSelector((state: RootState) => state.auth.user);
+    const userStores = useMemo(() => user?.stores || [], [user?.stores]);
 
     const handleFilterChange = useCallback(
         (newFilters: FilterOptions) => {
@@ -40,12 +46,17 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
                 params.search = filters.search;
             }
 
-            // Add store parameter
-            if (filters.storeId) {
+            // Add store parameter - FIXED for backend compatibility
+            if (filters.storeId !== undefined) {
                 if (filters.storeId === 'all') {
-                    // When 'all' stores selected, send all store IDs
-                    params.store_ids = 'all'; // Backend should handle this
+                    // When 'all' stores selected, send array of all user's store IDs
+                    const allStoreIds = userStores.map((store) => store.id);
+                    if (allStoreIds.length > 0) {
+                        // Backend expects comma-separated string or array
+                        params.store_ids = allStoreIds.join(',');
+                    }
                 } else {
+                    // Single store selected
                     params.store_id = filters.storeId;
                 }
             }
@@ -64,7 +75,7 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
 
             return params;
         },
-        [filters]
+        [filters, userStores]
     );
 
     return {
