@@ -8,17 +8,14 @@ import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Award, Camera, Eye, GripVertical, Package, Search, ShoppingCart, Tag, X } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
-
-// Dynamically import the barcode scanner to avoid SSR issues
-const BarcodeScannerComponent = dynamic(() => import('react-qr-barcode-scanner'), { ssr: false });
 
 const PosLeftSide = () => {
     const [open, setOpen] = useState(false);
@@ -82,7 +79,7 @@ const PosLeftSide = () => {
 
     // Fetch products for current store only
     const { data: productsData, isLoading } = useGetAllProductsQuery(queryParams);
-    const products = productsData?.data || [];
+    const products = useMemo(() => productsData?.data || [], [productsData]);
 
     // Fetch categories and brands for current store
     const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(filterQueryParams);
@@ -117,13 +114,10 @@ const PosLeftSide = () => {
     }, []);
 
     // Barcode scan handler (for both keyboard scanner and camera scanner)
-    const handleBarcodeScan = (data: string) => {
+    const handleBarcodeScan = useCallback((data: string) => {
         if (data) {
             setSearchTerm(data);
             setShowCameraScanner(false); // Close camera scanner after successful scan
-
-            // Auto-add logic already exists in handleSearchChange
-            handleSearchChange(data);
 
             // Play beep sound
             if (beepRef.current) {
@@ -131,17 +125,10 @@ const PosLeftSide = () => {
                 beepRef.current.play().catch(() => {});
             }
         }
-    };
+    }, []);
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
-    };
-
-    // Camera scanner update handler
-    const handleCameraScan = (err: any, result: any) => {
-        if (result) {
-            handleBarcodeScan(result.text);
-        }
     };
 
     // Toggle camera scanner
@@ -151,6 +138,60 @@ const PosLeftSide = () => {
             setBarcodeEnabled(false); // Disable keyboard scanner when camera is active
         }
     };
+
+    // Initialize html5-qrcode scanner
+    useEffect(() => {
+        let scanner: Html5QrcodeScanner | null = null;
+
+        if (showCameraScanner) {
+            console.log('🎥 Initializing camera scanner...');
+            // Small delay to ensure DOM element is ready
+            const timer = setTimeout(() => {
+                const element = document.getElementById('qr-reader');
+                if (!element) {
+                    console.error('❌ QR reader element not found!');
+                    return;
+                }
+
+                console.log('✅ QR reader element found, creating scanner...');
+                scanner = new Html5QrcodeScanner(
+                    'qr-reader',
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0,
+                    },
+                    false
+                );
+
+                scanner.render(
+                    (decodedText) => {
+                        console.log('📸 Barcode scanned:', decodedText);
+                        // Success callback
+                        handleBarcodeScan(decodedText);
+                        if (scanner) {
+                            scanner.clear().catch(console.error);
+                        }
+                        setShowCameraScanner(false);
+                    },
+                    (errorMessage) => {
+                        // Error callback (can be ignored for continuous scanning)
+                        // Don't log these as they happen constantly during scanning
+                    }
+                );
+            }, 100);
+
+            return () => {
+                clearTimeout(timer);
+                if (scanner) {
+                    console.log('🛑 Cleaning up scanner...');
+                    scanner.clear().catch((error) => {
+                        console.error('Failed to clear scanner:', error);
+                    });
+                }
+            };
+        }
+    }, [showCameraScanner, handleBarcodeScan]);
 
     // Resizable functionality
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -208,66 +249,72 @@ const PosLeftSide = () => {
         toast.fire({ icon: type, title: msg, padding: '8px 16px' });
     };
 
-    const addToCart = (product: any) => {
-        // Calculate total quantity from stocks
-        const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+    const addToCart = useCallback(
+        (product: any) => {
+            // Calculate total quantity from stocks
+            const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
-        if (product.available === false || totalQuantity <= 0) {
-            showMessage('Product is not available', 'error');
-            return;
-        }
-
-        // Check stock limit
-        const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
-
-        if (currentQuantityInCart >= totalQuantity) {
-            showMessage('Cannot add more, stock limit reached!', 'error');
-            return;
-        }
-
-        if (beepRef.current) {
-            beepRef.current.currentTime = 0;
-            beepRef.current.play().catch(() => {});
-        }
-
-        const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
-        const itemToAdd = {
-            id: uniqueId,
-            productId: product.id,
-            title: product.product_name,
-            description: product.description,
-            rate: parseFloat(product.price),
-            quantity: 1,
-            amount: parseFloat(product.price),
-            PlaceholderQuantity: totalQuantity,
-            tax_rate: product.tax?.rate ? parseFloat(product.tax.rate) : 0,
-            tax_included: product.tax?.included === true,
-            unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
-        };
-
-        dispatch(addItemRedux(itemToAdd));
-        showMessage('Item added successfully!');
-
-        // Reset filters and search after adding product
-        setSearchTerm('');
-        setSelectedCategory(null);
-        setSelectedBrand(null);
-        setCurrentPage(1);
-    };
-
-    const handleSearchChange = (value: string) => {
-        setSearchTerm(value);
-        setCurrentPage(1);
-
-        // 🔑 Auto-add when SKU format detected
-        if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
-            const foundProduct = products.find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
-            if (foundProduct) {
-                addToCart(foundProduct);
-                setSearchTerm(''); // clear after adding
+            if (product.available === false || totalQuantity <= 0) {
+                showMessage('Product is not available', 'error');
+                return;
             }
-        }
-    };
+
+            // Check stock limit
+            const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
+
+            if (currentQuantityInCart >= totalQuantity) {
+                showMessage('Cannot add more, stock limit reached!', 'error');
+                return;
+            }
+
+            if (beepRef.current) {
+                beepRef.current.currentTime = 0;
+                beepRef.current.play().catch(() => {});
+            }
+
+            const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+            const itemToAdd = {
+                id: uniqueId,
+                productId: product.id,
+                title: product.product_name,
+                description: product.description,
+                rate: parseFloat(product.price),
+                quantity: 1,
+                amount: parseFloat(product.price),
+                PlaceholderQuantity: totalQuantity,
+                tax_rate: product.tax?.rate ? parseFloat(product.tax.rate) : 0,
+                tax_included: product.tax?.included === true,
+                unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
+            };
+
+            dispatch(addItemRedux(itemToAdd));
+            showMessage('Item added successfully!');
+
+            // Reset filters and search after adding product
+            setSearchTerm('');
+            setSelectedCategory(null);
+            setSelectedBrand(null);
+            setCurrentPage(1);
+        },
+        [reduxItems, dispatch]
+    );
+
+    const handleSearchChange = useCallback(
+        (value: string) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+
+            // 🔑 Auto-add when SKU format detected
+            if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
+                const foundProduct = (productsData?.data || []).find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
+                if (foundProduct) {
+                    addToCart(foundProduct);
+                    setSearchTerm(''); // clear after adding
+                }
+            }
+        },
+        [productsData, addToCart]
+    );
 
     const handleImageShow = (product: any) => {
         setSelectedProduct(product);
@@ -318,6 +365,23 @@ const PosLeftSide = () => {
 
     return (
         <>
+            {/* Custom styles for html5-qrcode scanner */}
+            <style jsx global>{`
+                #qr-reader {
+                    border: none !important;
+                }
+                #qr-reader__dashboard_section {
+                    display: none !important;
+                }
+                #qr-reader__camera_selection {
+                    margin: 10px auto;
+                    text-align: center;
+                }
+                #qr-reader video {
+                    border-radius: 8px;
+                }
+            `}</style>
+
             {/* Barcode Reader - Hidden component that listens for scans */}
             {barcodeEnabled && <BarcodeReader onScan={handleBarcodeScan} onError={handleBarcodeError} />}
 
@@ -599,8 +663,9 @@ const PosLeftSide = () => {
                                     </button>
                                 </div>
 
-                                <div className="relative bg-black">
-                                    <BarcodeScannerComponent width="100%" height={isMobileView ? 250 : 300} onUpdate={handleCameraScan} />
+                                <div className="relative bg-gray-900">
+                                    {/* Html5-qrcode scanner will be rendered here */}
+                                    <div id="qr-reader" style={{ border: 'none' }}></div>
                                 </div>
 
                                 <div className="bg-gray-50 px-4 py-3 text-center text-sm text-gray-700">
