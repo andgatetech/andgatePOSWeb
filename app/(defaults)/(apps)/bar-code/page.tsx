@@ -69,8 +69,8 @@ export default function QrCode() {
         item.rate = Number(product.price) || 0;
         item.quantity = 1;
         item.images = product.images || [];
-        // Calculate total quantity from product_stocks
-        const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+        // Calculate total quantity from stocks
+        const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
         item.PlaceholderQuantity = totalQuantity;
         item.amount = item.rate * item.quantity;
         item.sku = product.sku || '';
