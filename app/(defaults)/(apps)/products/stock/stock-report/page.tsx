@@ -1,11 +1,14 @@
 'use client';
 
-import ReportHeader from '@/__components/ReportHeader';
+import UniversalFilter, { CustomFilterConfig, FilterOptions } from '@/__components/Universalfilters';
+
+import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useGetProductStocksQuery } from '@/store/features/ProductStock/productStockApi';
+import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { ChevronLeft, ChevronRight, Download, Eye, FileText, Printer, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Eye, FileText, Layers, Printer, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 
@@ -14,7 +17,8 @@ interface ProductStock {
     product_sku: string;
     product_name: string;
     category: string;
-    [key: string]: any; // Dynamic stock types
+    store_id: number;
+    [key: string]: any;
 }
 
 interface StockReportData {
@@ -47,14 +51,12 @@ interface StockReportResponse {
 const StockReportPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
-    const [search, setSearch] = useState('');
-    const [categoryId, setCategoryId] = useState('all');
+    const [filters, setFilters] = useState<FilterOptions>({});
     const [sortBy, setSortBy] = useState('');
     const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-    const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
 
     const printRef = useRef<HTMLDivElement>(null);
-    const headerRef = useRef<HTMLDivElement>(null);
+    const tableContainerRef = useRef<HTMLDivElement>(null);
 
     // API Queries
     const {
@@ -64,19 +66,57 @@ const StockReportPage = () => {
     } = useGetProductStocksQuery({
         page: currentPage,
         per_page: perPage,
-        search,
-        category_id: categoryId,
+        search: filters.search,
+        category_id: filters.categoryId,
+        brand_id: filters.brandId,
+        store_id: filters.storeId,
         sort_by: sortBy,
         order,
     });
 
     const { data: categoriesResponse, isLoading: categoriesLoading } = useGetCategoryQuery();
+    const { data: brandsResponse, isLoading: brandsLoading } = useGetBrandsQuery();
+    const { data: storesResponses } = useFullStoreListWithFilterQuery();
 
+    const stores = storesResponses?.data ?? [];
     const stockData = stockResponse as StockReportResponse;
     const categories = categoriesResponse?.data || [];
+    const brands = brandsResponse?.data || [];
     const products = stockData?.data?.data || [];
     const stockTypes = stockData?.stock_types || [];
     const pagination = stockData?.data;
+
+    // Custom filters configuration
+    const customFilters: CustomFilterConfig[] = [
+        {
+            key: 'categoryId',
+            label: 'Category',
+            type: 'select',
+            icon: <Layers className="h-5 w-5 text-gray-400" />,
+            options: categories.map((cat: any) => ({
+                value: cat.id,
+                label: cat.name,
+            })),
+            defaultValue: 'all',
+        },
+        {
+            key: 'brandId',
+            label: 'Brand',
+            type: 'select',
+            icon: <Tag className="h-5 w-5 text-gray-400" />,
+            options: brands.map((brand: any) => ({
+                value: brand.id,
+                label: brand.name,
+            })),
+            defaultValue: 'all',
+        },
+    ];
+
+    // Handle filter changes
+    const handleFilterChange = (newFilters: FilterOptions) => {
+        setFilters(newFilters);
+        setCurrentPage(1); // Reset to first page when filters change
+    };
 
     // Function to format stock information for a product
     const formatStockInfo = (product: ProductStock) => {
@@ -85,7 +125,6 @@ const StockReportPage = () => {
         stockTypes.forEach((stockType) => {
             const value = Number(product[stockType] || 0);
             if (value > 0) {
-                // Only show non-zero values
                 let label = stockType
                     .split('-')
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -119,9 +158,10 @@ const StockReportPage = () => {
         const printWindow = window.open('', '_blank');
         if (!printWindow) return;
 
-        // Get header and table content
-        const headerHtml = headerRef.current?.innerHTML || '';
         const tableHtml = printRef.current?.innerHTML || '';
+
+        // Get store info
+        const selectedStore = filters.storeId && filters.storeId !== 'all' ? stores.find((s: any) => s.id === filters.storeId) : null;
 
         const printContent = `
             <!DOCTYPE html>
@@ -134,6 +174,22 @@ const StockReportPage = () => {
                         margin: 0; 
                         padding: 20px; 
                         background: white; 
+                    }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        padding-bottom: 20px;
+                        border-bottom: 2px solid #e5e7eb;
+                    }
+                    .header h1 {
+                        font-size: 24px;
+                        margin: 0 0 10px 0;
+                        color: #111827;
+                    }
+                    .header p {
+                        font-size: 14px;
+                        color: #6b7280;
+                        margin: 5px 0;
                     }
                     table { 
                         width: 100%; 
@@ -148,54 +204,6 @@ const StockReportPage = () => {
                     th { 
                         background-color: #f9fafb; 
                         font-weight: bold; 
-                    }
-                    .header-content {
-                        border-bottom: 1px solid #e5e7eb;
-                        padding-bottom: 20px;
-                        margin-bottom: 20px;
-                    }
-                    .store-logo {
-                        width: 60px;
-                        height: 60px;
-                        object-fit: contain;
-                        border: 2px solid #e5e7eb;
-                        border-radius: 8px;
-                        margin-right: 12px;
-                    }
-                    .store-header {
-                        text-align: center;
-                        margin-bottom: 24px;
-                    }
-                    .store-title {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin-bottom: 12px;
-                    }
-                    .store-name {
-                        font-size: 28px;
-                        font-weight: bold;
-                        color: #111827;
-                        margin: 0;
-                    }
-                    .store-subtitle {
-                        font-size: 18px;
-                        font-weight: 500;
-                        color: #4b5563;
-                        margin-bottom: 8px;
-                    }
-                    .store-details {
-                        font-size: 14px;
-                        color: #4b5563;
-                        line-height: 1.4;
-                    }
-                    .report-title {
-                        font-size: 24px;
-                        font-weight: 600;
-                        color: #111827;
-                        margin-top: 16px;
-                        padding-top: 16px;
-                        border-top: 1px solid #e5e7eb;
                     }
                     .status-badge {
                         display: inline-block;
@@ -212,13 +220,17 @@ const StockReportPage = () => {
                     .stock-default { background-color: #f3f4f6; color: #374151; }
                     @media print {
                         body { margin: 0; }
-                        .no-print { display: none !important; }
                         .actions-column { display: none !important; }
                     }
                 </style>
             </head>
             <body>
-                <div class="header-content">${headerHtml}</div>
+                <div class="header">
+                    <h1>Stock Report</h1>
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    ${selectedStore ? `<p>Store: ${selectedStore.store_name}</p>` : ''}
+                    <p>Total Products: ${pagination?.total || 0}</p>
+                </div>
                 <div>${tableHtml}</div>
             </body>
             </html>
@@ -261,47 +273,49 @@ const StockReportPage = () => {
 
     // Download PDF functionality
     const handleDownloadPDF = async () => {
-        if (!printRef.current || !headerRef.current) return;
+        if (!printRef.current) return;
 
         try {
-            // Create a loading state
             const loadingToast = document.createElement('div');
             loadingToast.textContent = 'Generating PDF...';
             loadingToast.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
             document.body.appendChild(loadingToast);
 
-            // Create a temporary container with header and content
             const tempContainer = document.createElement('div');
             tempContainer.style.position = 'absolute';
             tempContainer.style.left = '-9999px';
             tempContainer.style.top = '0';
-            tempContainer.style.width = '210mm'; // A4 width
+            tempContainer.style.width = '210mm';
             tempContainer.style.backgroundColor = 'white';
             tempContainer.style.padding = '20px';
             tempContainer.style.fontFamily = 'Arial, sans-serif';
 
-            // Clone header and table content
-            const headerClone = headerRef.current.cloneNode(true) as HTMLElement;
+            // Create header
+            const selectedStore = filters.storeId && filters.storeId !== 'all' ? stores.find((s: any) => s.id === filters.storeId) : null;
+
+            const headerDiv = document.createElement('div');
+            headerDiv.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e5e7eb;">
+                    <h1 style="font-size: 24px; margin: 0 0 10px 0; color: #111827;">Stock Report</h1>
+                    <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">Generated on ${new Date().toLocaleDateString()}</p>
+                    ${selectedStore ? `<p style="font-size: 14px; color: #6b7280; margin: 5px 0;">Store: ${selectedStore.store_name}</p>` : ''}
+                    <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">Total Products: ${pagination?.total || 0}</p>
+                </div>
+            `;
+
             const tableClone = printRef.current.cloneNode(true) as HTMLElement;
 
-            // Style the header for PDF
-            headerClone.style.borderBottom = '1px solid #e5e7eb';
-            headerClone.style.paddingBottom = '20px';
-            headerClone.style.marginBottom = '20px';
-
-            // Hide actions column for PDF
             const actionsElements = tableClone.querySelectorAll('.actions-column');
             actionsElements.forEach((el) => {
                 (el as HTMLElement).style.display = 'none';
             });
 
-            tempContainer.appendChild(headerClone);
+            tempContainer.appendChild(headerDiv);
             tempContainer.appendChild(tableClone);
             document.body.appendChild(tempContainer);
 
-            // Configure html2canvas options for better quality
             const canvas = await html2canvas(tempContainer, {
-                scale: 2, // Higher resolution
+                scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
@@ -309,12 +323,10 @@ const StockReportPage = () => {
                 height: tempContainer.scrollHeight,
             });
 
-            // Remove temporary container
             document.body.removeChild(tempContainer);
 
             const imgData = canvas.toDataURL('image/png');
 
-            // Calculate PDF dimensions
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
@@ -329,17 +341,13 @@ const StockReportPage = () => {
             const imgX = (pdfWidth - imgWidth * ratio) / 2;
             const imgY = 10;
 
-            // Add the image to PDF
             pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
 
-            // Save the PDF
             const fileName = `stock-report-${new Date().toISOString().split('T')[0]}.pdf`;
             pdf.save(fileName);
 
-            // Remove loading toast
             document.body.removeChild(loadingToast);
 
-            // Success toast
             const successToast = document.createElement('div');
             successToast.textContent = 'PDF downloaded successfully!';
             successToast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
@@ -348,7 +356,6 @@ const StockReportPage = () => {
         } catch (error) {
             console.error('Error generating PDF:', error);
 
-            // Error toast
             const errorToast = document.createElement('div');
             errorToast.textContent = 'Failed to generate PDF. Please try again.';
             errorToast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
@@ -368,28 +375,19 @@ const StockReportPage = () => {
         setCurrentPage(1);
     };
 
-    // Handle search
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        setCurrentPage(1);
-    };
-
     // Handle page change
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
 
-    // Handle view action
-    const handleViewProduct = (productId: number) => {
-        // TODO: Implement navigation to product details
-        alert(`View product ${productId} - Navigation will be implemented`);
-    };
-
     if (stockError) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <ReportHeader title="Stock Report" subtitle="Current stock levels across all products" showStoreSelector={true} selectedStoreId={selectedStoreId} onStoreChange={setSelectedStoreId} />
                 <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                    <div className="mb-6">
+                        <h1 className="text-2xl font-bold text-gray-900">Stock Report</h1>
+                        <p className="mt-1 text-sm text-gray-500">Current stock levels across all products</p>
+                    </div>
                     <div className="rounded-lg bg-red-50 p-4">
                         <div className="text-red-800">
                             <h3 className="text-sm font-medium">Error loading stock data</h3>
@@ -403,11 +401,25 @@ const StockReportPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <div ref={headerRef}>
-                <ReportHeader title="Stock Report" subtitle="Current stock levels across all products" showStoreSelector={true} selectedStoreId={selectedStoreId} onStoreChange={setSelectedStoreId} />
-            </div>
-
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                {/* Page Header */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-900">Stock Report</h1>
+                    <p className="mt-1 text-sm text-gray-500">Current stock levels across all products</p>
+                </div>
+
+                {/* Universal Filter */}
+                <UniversalFilter
+                    onFilterChange={handleFilterChange}
+                    placeholder="Search by product name or SKU..."
+                    showStoreFilter={true}
+                    showDateFilter={false}
+                    showSearch={true}
+                    customFilters={customFilters}
+                    initialFilters={filters}
+                    className="mb-6"
+                />
+
                 {/* Action Buttons */}
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                     <div className="flex flex-wrap gap-2">
@@ -434,65 +446,21 @@ const StockReportPage = () => {
                         </button>
                     </div>
 
-                    <div className="text-sm text-gray-500">Total: {pagination?.total || 0} products</div>
-                </div>
-
-                {/* Filters */}
-                <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        {/* Search */}
-                        <form onSubmit={handleSearch}>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Search Products</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search by product or category name..."
-                                    className="block w-full rounded-md border border-gray-300 px-3 py-2 pl-10 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                                />
-                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                            </div>
-                        </form>
-
-                        {/* Category Filter */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-                            <select
-                                value={categoryId}
-                                onChange={(e) => {
-                                    setCategoryId(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                                disabled={categoriesLoading}
-                            >
-                                <option value="all">All Categories</option>
-                                {categories.map((category: any) => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Per Page */}
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Items per page</label>
-                            <select
-                                value={perPage}
-                                onChange={(e) => {
-                                    setPerPage(Number(e.target.value));
-                                    setCurrentPage(1);
-                                }}
-                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                            >
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
-                            </select>
-                        </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">Total: {pagination?.total || 0} products</span>
+                        <select
+                            value={perPage}
+                            onChange={(e) => {
+                                setPerPage(Number(e.target.value));
+                                setCurrentPage(1);
+                            }}
+                            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value={10}>10 / page</option>
+                            <option value={25}>25 / page</option>
+                            <option value={50}>50 / page</option>
+                            <option value={100}>100 / page</option>
+                        </select>
                     </div>
                 </div>
 
@@ -586,7 +554,7 @@ const StockReportPage = () => {
                                                 </td>
                                                 <td className="actions-column px-6 py-4 text-sm text-gray-500">
                                                     <Link
-                                                        href={`/apps/stores/${product.store_id}/product/${product.product_id}`}
+                                                        href={`/stores/${product.store_id}/product/${product.product_id}`}
                                                         className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                     >
                                                         <Eye className="mr-1 h-3 w-3" />
@@ -658,17 +626,17 @@ const StockReportPage = () => {
                                                         </button>,
                                                     ];
                                                 }
-                                                return (
-                                                    <button
-                                                        key={page}
-                                                        onClick={() => handlePageChange(page)}
-                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                                            currentPage === page ? 'z-10 bg-blue-600 text-white focus:ring-blue-500' : 'text-gray-900'
-                                                        }`}
-                                                    >
-                                                        {page}
-                                                    </button>
-                                                );
+                                                // return (
+                                                //     <button
+                                                //         key={page}
+                                                //         onClick={() => handlePageChange(page)}
+                                                //         className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                                //             currentPage === page ? 'z-10 bg-blue-600 text-white focus:ring-blue-500' : 'text-gray-900'
+                                                //         }`}
+                                                //     >
+                                                //         {page}
+                                                //     </button>
+                                                // );
                                             })}
                                         <button
                                             onClick={() => handlePageChange(currentPage + 1)}
