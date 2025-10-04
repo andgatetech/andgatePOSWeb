@@ -9,13 +9,16 @@ import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2'
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { Award, Camera, Eye, GripVertical, Package, Search, ShoppingCart, Tag, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
-import { BarcodeScannerComponent } from 'react-qr-barcode-scanner';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
+
+// Dynamically import the barcode scanner to avoid SSR issues
+const BarcodeScannerComponent = dynamic(() => import('react-qr-barcode-scanner'), { ssr: false });
 
 const PosLeftSide = () => {
     const [open, setOpen] = useState(false);

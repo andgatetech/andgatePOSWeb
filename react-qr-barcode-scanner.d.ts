@@ -14,4 +14,7 @@ declare module 'react-qr-barcode-scanner' {
     }
 
     export class BarcodeScannerComponent extends Component<BarcodeScannerComponentProps> {}
+
+    // Also support default export
+    export default BarcodeScannerComponent;
 }
