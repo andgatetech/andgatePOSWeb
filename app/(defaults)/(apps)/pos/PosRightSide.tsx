@@ -2,6 +2,7 @@
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import IconSearch from '@/components/icon/icon-search';
+import IconShoppingCart from '@/components/icon/icon-shopping-cart';
 import IconUser from '@/components/icon/icon-user';
 import IconX from '@/components/icon/icon-x';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
@@ -126,7 +127,7 @@ const PosRightSide: React.FC = () => {
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
     const [formData, setFormData] = useState({
-        customerId: null as number | null,
+        customerId: null as number | string | null, // Allow number, string ('walk-in'), or null
         customerName: '',
         customerEmail: '',
         customerPhone: '',
@@ -644,21 +645,21 @@ const PosRightSide: React.FC = () => {
     }
 
     return (
-        <div className="relative mt-6 w-full xl:mt-0 xl:w-full">
+        <div className="relative mt-4 w-full sm:mt-6 xl:mt-0 xl:w-full">
             {loading && (
                 <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black bg-opacity-50">
                     {/* Spinner */}
-                    <div className="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent"></div>
+                    <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent sm:h-16 sm:w-16"></div>
                     {/* Loading Text */}
-                    <span className="animate-pulse text-lg font-semibold text-white">Processing Order...</span>
+                    <span className="animate-pulse text-base font-semibold text-white sm:text-lg">Processing Order...</span>
                 </div>
             )}
             <div className="panel mb-5">
-                <div className="mt-8 px-4">
+                <div className="mt-4 px-3 sm:mt-8 sm:px-4">
                     <div className="flex flex-col justify-between lg:flex-row">
-                        <div className="mb-6 w-full lg:w-full">
-                            <div className="mb-4 flex items-center justify-between">
-                                <div className="text-lg font-semibold text-gray-800">Bill To :-</div>
+                        <div className="mb-4 w-full sm:mb-6 lg:w-full">
+                            <div className="mb-3 flex items-center justify-between sm:mb-4">
+                                <div className="text-base font-semibold text-gray-800 sm:text-lg">Bill To :-</div>
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -671,7 +672,7 @@ const PosRightSide: React.FC = () => {
                                             customerPhone: '',
                                         }));
                                     }}
-                                    className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                                    className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 sm:px-4 sm:py-2 sm:text-sm"
                                 >
                                     Walk-in Customer
                                 </button>
@@ -822,41 +823,41 @@ const PosRightSide: React.FC = () => {
                             )}
 
                             {/* Manual Customer Input */}
-                            <div className="space-y-4">
-                                <div className="flex items-center">
-                                    <label className="w-1/3 text-sm font-medium">
+                            <div className="space-y-3 sm:space-y-4">
+                                <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
+                                    <label className="text-sm font-medium sm:w-1/3">
                                         Name <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         name="customerName"
-                                        className="form-input flex-1"
+                                        className="form-input w-full flex-1"
                                         placeholder="Enter Name"
                                         value={formData.customerName}
                                         onChange={handleInputChange}
                                         disabled={!!selectedCustomer}
                                     />
                                 </div>
-                                <div className="flex items-center">
-                                    <label className="w-1/3 text-sm font-medium">
+                                <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
+                                    <label className="text-sm font-medium sm:w-1/3">
                                         Email <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="email"
                                         name="customerEmail"
-                                        className="form-input flex-1"
+                                        className="form-input w-full flex-1"
                                         placeholder="Enter Email"
                                         value={formData.customerEmail}
                                         onChange={handleInputChange}
                                         disabled={!!selectedCustomer}
                                     />
                                 </div>
-                                <div className="flex items-center">
-                                    <label className="w-1/3 text-sm font-medium">Phone Number</label>
+                                <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
+                                    <label className="text-sm font-medium sm:w-1/3">Phone Number</label>
                                     <input
                                         type="text"
                                         name="customerPhone"
-                                        className="form-input flex-1"
+                                        className="form-input w-full flex-1"
                                         placeholder="Enter Phone number"
                                         value={formData.customerPhone}
                                         onChange={handleInputChange}
@@ -870,17 +871,18 @@ const PosRightSide: React.FC = () => {
                 </div>
 
                 <div className="panel mb-5">
-                    <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-800">Order Details</h3>
+                    <div className="mb-3 flex items-center justify-between sm:mb-4">
+                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Order Details</h3>
                         <div className="flex items-center gap-2">
-                            <span className="text-sm">Items: {invoiceItems.length}</span>
-                            <button type="button" onClick={clearAllItems} className="text-sm text-red-600 hover:text-red-800">
+                            <span className="text-xs sm:text-sm">Items: {invoiceItems.length}</span>
+                            <button type="button" onClick={clearAllItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
                                 Clear all
                             </button>
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto rounded-lg border border-gray-300">
+                    {/* Desktop Table View */}
+                    <div className="hidden overflow-x-auto rounded-lg border border-gray-300 md:block">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -981,11 +983,73 @@ const PosRightSide: React.FC = () => {
                         </table>
                     </div>
 
-                    <div className="mt-6 flex flex-col gap-3">
+                    {/* Mobile Card View */}
+                    <div className="space-y-3 md:hidden">
+                        {invoiceItems.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-12">
+                                <IconShoppingCart className="mb-2 h-12 w-12 text-gray-400" />
+                                <p className="text-gray-500">No items added yet</p>
+                                <p className="text-xs text-gray-400">Add products to start your order</p>
+                            </div>
+                        ) : (
+                            invoiceItems.map((item) => (
+                                <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                                    <div className="mb-2 flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
+                                            {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
+                                        </div>
+                                        <button type="button" onClick={() => handleRemoveItem(item.id)} className="ml-2 flex-shrink-0 rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
+                                            <IconX className="h-4 w-4" />
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600">Qty:</span>
+                                            <input
+                                                type="number"
+                                                className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
+                                                placeholder="Quantity"
+                                                value={item.quantity === 0 ? '' : item.quantity}
+                                                onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                min="0"
+                                            />
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600">Unit:</span>
+                                            <span className="font-medium">{item.unit || 'N/A'}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600">Rate:</span>
+                                            <span className="font-medium">৳{item.rate.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600">Tax:</span>
+                                            {item.tax_rate ? (
+                                                <span className="font-medium">
+                                                    {item.tax_rate}% <span className={item.tax_included ? 'text-green-600' : 'text-blue-600'}>({item.tax_included ? 'Incl' : 'Excl'})</span>
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400">No tax</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2">
+                                        <span className="text-xs font-medium text-gray-600">Amount:</span>
+                                        <span className="text-base font-bold text-primary">৳{(item.rate * item.quantity).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">
                         {selectedCustomer && formData.membershipDiscount > 0 && (
                             <div className="flex justify-between rounded bg-green-50 p-2">
-                                <label className="font-semibold text-green-700">Membership Discount ({selectedCustomer.membership})</label>
-                                <span className="font-semibold text-green-700">{formData.membershipDiscount}%</span>
+                                <label className="text-sm font-semibold text-green-700 sm:text-base">Membership Discount ({selectedCustomer.membership})</label>
+                                <span className="text-sm font-semibold text-green-700 sm:text-base">{formData.membershipDiscount}%</span>
                             </div>
                         )}
 
@@ -1046,13 +1110,13 @@ const PosRightSide: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="flex justify-between">
-                            <label className="font-semibold">
+                        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                            <label className="text-sm font-semibold sm:text-base">
                                 Payment Method <span className="text-red-500">*</span>
                             </label>
                             <select
                                 name="paymentMethod"
-                                className="form-select w-40"
+                                className="form-select w-full sm:w-40"
                                 value={formData.paymentMethod}
                                 onChange={handleInputChange}
                                 required // ✅ HTML5 required
@@ -1064,13 +1128,13 @@ const PosRightSide: React.FC = () => {
                             </select>
                         </div>
 
-                        <div className="flex justify-between">
-                            <label className="font-semibold">
+                        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                            <label className="text-sm font-semibold sm:text-base">
                                 Payment Status <span className="text-red-500">*</span>
                             </label>
                             <select
                                 name="paymentStatus"
-                                className="form-select w-40"
+                                className="form-select w-full sm:w-40"
                                 value={formData.paymentStatus}
                                 onChange={handleInputChange}
                                 required // ✅ HTML5 required
@@ -1081,47 +1145,47 @@ const PosRightSide: React.FC = () => {
                             </select>
                         </div>
 
-                        <div className="flex justify-between border-t border-gray-300 pt-4 text-lg font-semibold">
+                        <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
                             <span>Subtotal (without tax)</span>
                             <span>৳{calculateSubtotalWithoutTax().toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm sm:text-base">
                             <span>Tax (from items)</span>
                             <span>৳{calculateTax().toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm sm:text-base">
                             <span>Discount</span>
                             <span>৳-{calculateDiscount().toFixed(2)}</span>
                         </div>
                         {selectedCustomer && formData.membershipDiscount > 0 && (
-                            <div className="flex justify-between text-green-600">
+                            <div className="flex justify-between text-sm text-green-600 sm:text-base">
                                 <span>Membership Discount</span>
                                 <span>৳-{calculateMembershipDiscount().toFixed(2)}</span>
                             </div>
                         )}
                         {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
-                            <div className="flex justify-between text-orange-600">
+                            <div className="flex justify-between text-sm text-orange-600 sm:text-base">
                                 <span>Points Payment ({formData.pointsToUse} pts)</span>
                                 <span>৳ -{calculatePointsDiscount().toFixed(2)}</span>
                             </div>
                         )}
                         {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
-                            <div className="flex justify-between text-teal-600">
+                            <div className="flex justify-between text-sm text-teal-600 sm:text-base">
                                 <span>Balance Payment</span>
                                 <span>৳-{calculateBalanceDiscount().toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between border-t border-gray-300 pt-4 text-xl font-bold">
+                        <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
                             <span>Total Payable</span>
                             <span>৳{calculateTotal().toFixed(2)}</span>
                         </div>
                     </div>
 
-                    <div className="mt-6 flex gap-4">
-                        <button type="button" className="btn btn-primary flex-1" onClick={handleSubmit} disabled={loading}>
+                    <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
+                        <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
                             Confirm Order <IconSave />
                         </button>
-                        <button type="button" className="btn btn-secondary flex-1" onClick={handlePreview}>
+                        <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
                             Preview <IconEye />
                         </button>
                     </div>
