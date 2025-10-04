@@ -2,7 +2,7 @@
 
 import UniversalFilter, { FilterOptions } from '@/__components/Universalfilters';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetProfitLossReportMutation } from '@/store/features/report/reportApi';
+import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ArrowDownCircle, ArrowUpCircle, Download, Package, Printer, ShoppingCart, TrendingDown, TrendingUp } from 'lucide-react';
