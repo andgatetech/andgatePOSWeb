@@ -101,6 +101,33 @@ const PosLeftSide = () => {
         beepRef.current = new Audio('/assets/sound/store-scanner-beep-90395.mp3');
     }, []);
 
+    // Global error handler for debugging mobile crashes
+    useEffect(() => {
+        const handleError = (event: ErrorEvent) => {
+            console.error('🚨 GLOBAL ERROR CAUGHT:', event.error);
+            console.error('Message:', event.message);
+            console.error('Filename:', event.filename);
+            console.error('Line:', event.lineno, 'Column:', event.colno);
+            console.error('Stack:', event.error?.stack);
+
+            // Show alert on mobile for debugging
+            alert(`🚨 APP ERROR!\n\nMessage: ${event.message}\n\nFile: ${event.filename}\n\nLine: ${event.lineno}\n\nStack: ${event.error?.stack?.substring(0, 200)}...`);
+        };
+
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            console.error('🚨 UNHANDLED PROMISE REJECTION:', event.reason);
+            alert(`🚨 PROMISE ERROR!\n\nReason: ${event.reason}\n\nCheck console for details`);
+        };
+
+        window.addEventListener('error', handleError);
+        window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+        return () => {
+            window.removeEventListener('error', handleError);
+            window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+        };
+    }, []);
+
     // Mobile view detection
     useEffect(() => {
         const checkMobileView = () => {
@@ -115,15 +142,25 @@ const PosLeftSide = () => {
 
     // Barcode scan handler (for both keyboard scanner and camera scanner)
     const handleBarcodeScan = useCallback((data: string) => {
-        if (data) {
-            setSearchTerm(data);
-            setShowCameraScanner(false); // Close camera scanner after successful scan
+        console.log('📥 handleBarcodeScan called with:', data);
+        try {
+            if (data) {
+                setSearchTerm(data);
+                // Note: Camera scanner closure is handled in the scanner callback
 
-            // Play beep sound
-            if (beepRef.current) {
-                beepRef.current.currentTime = 0;
-                beepRef.current.play().catch(() => {});
+                // Play beep sound
+                if (beepRef.current) {
+                    beepRef.current.currentTime = 0;
+                    beepRef.current.play().catch((err) => {
+                        console.warn('Beep sound failed:', err);
+                    });
+                }
+                console.log('✅ handleBarcodeScan completed successfully');
             }
+        } catch (err: any) {
+            console.error('❌ Error in handleBarcodeScan:', err);
+            console.error('Error stack:', err.stack);
+            alert(`Scan Handler Error: ${err.message}\n\nPlease refresh the page`);
         }
     }, []);
 
@@ -185,22 +222,54 @@ const PosLeftSide = () => {
                                 qrbox: { width: 250, height: 250 },
                             },
                             async (decodedText) => {
+                                console.log('📸 ============ BARCODE SCAN START ============');
                                 console.log('📸 Barcode scanned:', decodedText);
-                                
+
                                 try {
                                     // Stop scanner first to prevent multiple scans
                                     if (html5QrCode && html5QrCode.isScanning) {
+                                        console.log('⏸️ Stopping scanner...');
                                         await html5QrCode.stop();
-                                        console.log('✅ Scanner stopped');
+                                        console.log('✅ Scanner stopped successfully');
                                     }
-                                } catch (stopErr) {
-                                    console.error('Error stopping scanner:', stopErr);
+                                } catch (stopErr: any) {
+                                    console.error('❌ Error stopping scanner:', stopErr);
+                                    // Don't alert here, scanner might auto-stop
                                 }
-                                
+
                                 // Then handle the barcode and close
                                 setTimeout(() => {
-                                    handleBarcodeScan(decodedText);
-                                    setShowCameraScanner(false);
+                                    try {
+                                        console.log('🔄 Processing barcode:', decodedText);
+                                        handleBarcodeScan(decodedText);
+                                        console.log('✅ Barcode processed');
+
+                                        console.log('🚪 Closing camera scanner...');
+                                        setShowCameraScanner(false);
+                                        console.log('✅ Camera scanner closed');
+                                        console.log('📸 ============ BARCODE SCAN END ============');
+                                    } catch (handleErr: any) {
+                                        console.error('❌ ============ ERROR IN BARCODE HANDLING ============');
+                                        console.error('❌ Error:', handleErr);
+                                        console.error('❌ Message:', handleErr.message);
+                                        console.error('❌ Stack:', handleErr.stack);
+                                        console.error('❌ ================================================');
+
+                                        // Show error to user on mobile
+                                        alert(
+                                            `❌ Barcode Processing Error!\n\nError: ${handleErr.message}\n\nStack: ${handleErr.stack?.substring(
+                                                0,
+                                                200
+                                            )}...\n\nPlease take a screenshot and refresh the page`
+                                        );
+
+                                        // Try to close scanner anyway
+                                        try {
+                                            setShowCameraScanner(false);
+                                        } catch (closeErr) {
+                                            console.error('Failed to close scanner:', closeErr);
+                                        }
+                                    }
                                 }, 100);
                             },
                             (errorMessage) => {
