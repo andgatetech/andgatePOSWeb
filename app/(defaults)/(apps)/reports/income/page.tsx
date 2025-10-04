@@ -2,7 +2,7 @@
 
 import UniversalFilter, { FilterOptions } from '@/__components/Universalfilters';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetIncomeReportMutation } from '@/store/features/report/reportApi';
+import { useGetIncomeReportMutation } from '@/store/features/reports/reportApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ChevronLeft, ChevronRight, CreditCard, DollarSign, Download, FileText, Package, Printer, Store, TrendingUp } from 'lucide-react';
