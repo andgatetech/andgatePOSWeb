@@ -5,7 +5,7 @@ import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Percent, Tag, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -114,8 +114,8 @@ const ProductTable = () => {
     };
 
     // Handle availability toggle
-    const handleAvailabilityToggle = async (productId: number, currentAvailability: string) => {
-        const newAvailability = currentAvailability === 'yes' ? 'no' : 'yes';
+    const handleAvailabilityToggle = async (productId: number, currentAvailability: boolean) => {
+        const newAvailability = currentAvailability ? 'no' : 'yes';
 
         try {
             await updateAvailability({ id: productId, available: newAvailability }).unwrap();
@@ -128,8 +128,8 @@ const ProductTable = () => {
     // Get stock level status and percentage based on product's low_stock_quantity
     const getStockStatus = (quantity: number, low_stock_quantity: number) => {
         // Convert to numbers in case they're strings from API
-        const qty = parseFloat(quantity);
-        const lowQty = parseFloat(low_stock_quantity);
+        const qty = Number(quantity);
+        const lowQty = Number(low_stock_quantity);
 
         if (qty <= 0) {
             return { status: 'out', color: 'bg-gray-400', textColor: 'text-gray-600', percentage: 0 };
@@ -210,20 +210,20 @@ const ProductTable = () => {
 
     // Calculate stats based on filtered products (from backend)
     const totalProducts = products.length;
-    const availableProducts = products.filter((p: any) => p.available === 'yes').length;
-    const unavailableProducts = products.filter((p: any) => p.available === 'no').length;
+    const availableProducts = products.filter((p: any) => p.available === true).length;
+    const unavailableProducts = products.filter((p: any) => p.available === false).length;
     const lowStockProducts = products.filter((p: any) => {
-        // Calculate actual quantity from product_stocks if available
-        if (p.product_stocks && p.product_stocks.length > 0) {
-            const totalStock = p.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
+        // Calculate actual quantity from stocks if available
+        if (p.stocks && p.stocks.length > 0) {
+            const totalStock = p.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
             return totalStock <= (p.low_stock_quantity || 10);
         }
         return (Number(p.quantity) || 0) <= (p.low_stock_quantity || 10);
     }).length;
     const outOfStockProducts = products.filter((p: any) => {
-        // Calculate actual quantity from product_stocks if available
-        if (p.product_stocks && p.product_stocks.length > 0) {
-            const totalStock = p.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
+        // Calculate actual quantity from stocks if available
+        if (p.stocks && p.stocks.length > 0) {
+            const totalStock = p.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
             return totalStock === 0;
         }
         return (Number(p.quantity) || 0) === 0;
@@ -355,10 +355,10 @@ const ProductTable = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {currentProducts.map((product: any, index: number) => {
-                                    // Calculate actual quantity from product_stocks if available
+                                    // Calculate actual quantity from stocks if available
                                     const actualQuantity =
-                                        product.product_stocks && product.product_stocks.length > 0
-                                            ? product.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
+                                        product.stocks && product.stocks.length > 0
+                                            ? product.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
                                             : Number(product.quantity) || 0;
                                     const stockStatus = getStockStatus(actualQuantity, product.low_stock_quantity || 10);
                                     const profitMargin = getProfitMargin(product.price, product.purchase_price);
@@ -376,7 +376,7 @@ const ProductTable = () => {
                                                     <div className="flex items-center gap-2">
                                                         <Package className="h-4 w-4 text-blue-400" />
                                                         <span className="rounded bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700">
-                                                            {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'No Unit')}
+                                                            {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'No Unit')}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -399,12 +399,12 @@ const ProductTable = () => {
                                                                 ></div>
                                                             </div>
                                                             <span className={`text-sm font-bold ${stockStatus.textColor}`}>
-                                                                {product.product_stocks && product.product_stocks.length > 0
-                                                                    ? product.product_stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
+                                                                {product.stocks && product.stocks.length > 0
+                                                                    ? product.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
                                                                     : Number(product.quantity) || 0}
                                                             </span>
                                                             <div className="text-sm font-bold text-gray-500">
-                                                                {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'N/A')}
+                                                                {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}
                                                             </div>
                                                         </div>
                                                         <span
@@ -450,10 +450,10 @@ const ProductTable = () => {
                                                 <button
                                                     onClick={() => handleAvailabilityToggle(product.id, product.available)}
                                                     className={`inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${
-                                                        product.available === 'yes' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                                        product.available === true ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'
                                                     }`}
                                                 >
-                                                    {product.available === 'yes' ? (
+                                                    {product.available === true ? (
                                                         <>
                                                             <CheckCircle className="mr-2 h-4 w-4" />
                                                             Available
@@ -484,10 +484,10 @@ const ProductTable = () => {
                                                             +৳{(Number(product.price || 0) - Number(product.purchase_price || 0)).toFixed(2)} ({profitMargin}%)
                                                         </span>
                                                     </div>
-                                                    {product.tax_rate && Number(product.tax_rate) > 0 && (
+                                                    {product.tax && product.tax.rate && Number(product.tax.rate) > 0 && (
                                                         <div className="flex items-center gap-1 text-xs text-gray-600">
                                                             <Percent className="h-3 w-3" />
-                                                            Tax: {product.tax_rate}% {product.tax_included ? '(Inc)' : '(Exc)'}
+                                                            Tax: {product.tax.rate}% {product.tax.included ? '(Inc)' : '(Exc)'}
                                                         </div>
                                                     )}
                                                 </div>

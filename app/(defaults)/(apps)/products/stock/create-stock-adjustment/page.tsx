@@ -1,8 +1,8 @@
 'use client';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSingleAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adjustmentTypeApi';
+import { useGetAllProductsWithStockQuery } from '@/store/features/Product/productApi';
 import { useCreateStockAdjustmentMutation } from '@/store/features/StockAdjustment/stockAdjustmentApi';
-import { useGetAllProductsWithStockQuery } from '@/store/Product/productApi';
 import { Minus, Package, Plus, Save, Search, Store, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';

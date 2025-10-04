@@ -2,7 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface PurchaseItem {
     id: number; // Local row ID
-    productId?: number; // Product ID from backend
+    productId?: number; // Product ID from backend (for existing products)
+    itemType?: 'existing' | 'new'; // Track if product exists or needs to be created
     title: string; // Product name
     description?: string;
     purchasePrice: number; // Purchase price per unit
@@ -15,20 +16,40 @@ interface PurchaseItem {
     status?: string; // ordered, partially_received, received
 }
 
+interface Supplier {
+    id: number;
+    name: string;
+    email?: string;
+    phone?: string;
+    contact_person?: string;
+}
+
 interface PurchaseOrderState {
     items: PurchaseItem[];
     supplierId?: number; // Selected supplier for the entire PO
+    supplier?: Supplier | null; // Full supplier details
     storeId?: number; // Store for the purchase order
-    status: string; // draft, approved, ordered, etc.
+    status: string; // draft, preparing, ordered, partially_received, received
+    purchaseType: 'supplier' | 'walk_in' | 'own_purchase'; // Type of purchase
+    draftReference?: string; // Draft reference number
     invoiceNumber?: string; // Generated invoice number
     grandTotal: number;
+    estimatedTotal?: number; // Estimated total for drafts
     notes?: string;
+    // Payment tracking
+    paymentStatus?: 'pending' | 'partial' | 'paid';
+    amountPaid?: number;
+    amountDue?: number;
 }
 
 const initialState: PurchaseOrderState = {
     items: [],
     status: 'draft',
+    purchaseType: 'supplier',
     grandTotal: 0,
+    paymentStatus: 'pending',
+    amountPaid: 0,
+    amountDue: 0,
 };
 
 const purchaseOrderSlice = createSlice({
@@ -42,6 +63,7 @@ const purchaseOrderSlice = createSlice({
         },
 
         addItemRedux(state, action: PayloadAction<PurchaseItem>) {
+            // Handle existing products (with productId)
             if (action.payload.productId !== undefined) {
                 // Find existing product by productId (not by id)
                 const existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId);
@@ -57,10 +79,13 @@ const purchaseOrderSlice = createSlice({
                     // New product → add normally
                     state.items.push(action.payload);
                 }
-
-                // Recalculate grand total
-                state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+            } else {
+                // Handle new products (without productId) - they should still be added
+                state.items.push(action.payload);
             }
+
+            // Recalculate grand total
+            state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
         },
 
         updateItemRedux(state, action: PayloadAction<PurchaseItem>) {
@@ -134,6 +159,36 @@ const purchaseOrderSlice = createSlice({
             state.supplierId = action.payload;
         },
 
+        setSupplierDetailsRedux(state, action: PayloadAction<Supplier>) {
+            state.supplier = action.payload;
+            state.supplierId = action.payload.id;
+        },
+
+        setPurchaseTypeRedux(state, action: PayloadAction<'supplier' | 'walk_in' | 'own_purchase'>) {
+            state.purchaseType = action.payload;
+        },
+
+        setDraftReferenceRedux(state, action: PayloadAction<string>) {
+            state.draftReference = action.payload;
+        },
+
+        setPaymentStatusRedux(state, action: PayloadAction<'pending' | 'partial' | 'paid'>) {
+            state.paymentStatus = action.payload;
+        },
+
+        updatePaymentRedux(state, action: PayloadAction<{ amountPaid: number }>) {
+            state.amountPaid = (state.amountPaid || 0) + action.payload.amountPaid;
+            state.amountDue = state.grandTotal - state.amountPaid;
+
+            if (state.amountPaid >= state.grandTotal) {
+                state.paymentStatus = 'paid';
+            } else if (state.amountPaid > 0) {
+                state.paymentStatus = 'partial';
+            } else {
+                state.paymentStatus = 'pending';
+            }
+        },
+
         setStoreRedux(state, action: PayloadAction<number>) {
             state.storeId = action.payload;
         },
@@ -170,6 +225,11 @@ export const {
     updateItemPurchasePriceRedux,
     updateItemReceivedQuantityRedux,
     setSupplierRedux,
+    setSupplierDetailsRedux,
+    setPurchaseTypeRedux,
+    setDraftReferenceRedux,
+    setPaymentStatusRedux,
+    updatePaymentRedux,
     setStoreRedux,
     setStatusRedux,
     setInvoiceNumberRedux,

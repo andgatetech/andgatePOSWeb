@@ -1,6 +1,6 @@
+'use client'
 
-
-const page = () => {
+const TaxReportPage = () => {
     return (
         <div className="  ">
            This is page Page
@@ -8,4 +8,4 @@ const page = () => {
     );
 };
 
-export default page;
+export default TaxReportPage;
