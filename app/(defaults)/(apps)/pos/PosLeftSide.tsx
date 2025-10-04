@@ -321,17 +321,20 @@ const PosLeftSide = () => {
                 clearTimeout(timer);
                 if (html5QrCode) {
                     console.log('🛑 Cleaning up scanner...');
-                    html5QrCode
-                        .stop()
-                        .then(() => {
-                            console.log('✅ Scanner cleaned up successfully');
-                        })
-                        .catch((error) => {
-                            // Ignore errors if scanner was already stopped
-                            if (!error.message?.includes('not started')) {
-                                console.error('Failed to stop scanner:', error);
-                            }
-                        });
+
+                    // Check if scanner is actually running before trying to stop
+                    if (html5QrCode.isScanning) {
+                        html5QrCode
+                            .stop()
+                            .then(() => {
+                                console.log('✅ Scanner cleaned up successfully');
+                            })
+                            .catch((error) => {
+                                console.warn('Scanner cleanup warning:', error.message);
+                            });
+                    } else {
+                        console.log('ℹ️ Scanner already stopped, no cleanup needed');
+                    }
                 }
             };
         }
