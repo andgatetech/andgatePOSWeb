@@ -4,8 +4,8 @@ import { RootState } from '..';
 const baseQuery = fetchBaseQuery({
     baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
 
-    mode: 'cors',
-    credentials: 'include',
+    // mode: 'cors',
+    // credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
         const token = (getState() as RootState).auth.token;
 

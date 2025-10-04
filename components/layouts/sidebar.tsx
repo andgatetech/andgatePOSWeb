@@ -114,7 +114,6 @@ const adminRoutes = [
         subMenu: [
             { label: 'All Activity Logs', href: '/reports/activity' },
             { label: 'Sales ', href: '/reports/sales' },
-
             { label: 'Purchase ', href: '/reports/purchase' },
             { label: 'Income', href: '/reports/income' },
             { label: 'Expenses ', href: '/reports/expenses' },
@@ -125,10 +124,10 @@ const adminRoutes = [
             {
                 label: 'Stock Reports',
                 subMenu: [
-                    { label: 'Current Stock', href: '/reports/stock/current' },
+                    { label: 'Current Stock', href: '/products/stock/stock-report' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
                     { label: 'Idle Inventory', href: '/reports/stock/idle' },
-                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
+                    { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
                 ],
             },
         ],
