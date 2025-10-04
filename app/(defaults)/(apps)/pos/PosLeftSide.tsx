@@ -583,33 +583,29 @@ const PosLeftSide = () => {
                                     Keyboard scanner active - Ready to scan with USB/Bluetooth scanner
                                 </div>
                             )}
-                            {showCameraScanner && (
-                                <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
-                                    <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500"></span>
-                                    Camera scanner active - Point camera at barcode/QR code
-                                </div>
-                            )}
                         </div>
 
-                        {/* Camera Scanner Modal */}
+                        {/* Camera Scanner - Inline View */}
                         {showCameraScanner && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
-                                <div className="relative w-full max-w-md rounded-lg bg-white p-4 shadow-xl">
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold text-gray-900">Scan Barcode/QR Code</h3>
-                                        <button onClick={() => setShowCameraScanner(false)} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
-                                            <X className="h-5 w-5" />
-                                        </button>
+                            <div className="mb-4 overflow-hidden rounded-lg border-2 border-blue-500 bg-white shadow-lg">
+                                <div className="flex items-center justify-between border-b bg-blue-500 px-4 py-3">
+                                    <div className="flex items-center gap-2 text-white">
+                                        <Camera className="h-5 w-5" />
+                                        <span className="font-semibold">Camera Scanner Active</span>
+                                        <span className="h-2 w-2 animate-pulse rounded-full bg-white"></span>
                                     </div>
+                                    <button onClick={() => setShowCameraScanner(false)} className="rounded-full p-1.5 text-white hover:bg-blue-600">
+                                        <X className="h-5 w-5" />
+                                    </button>
+                                </div>
 
-                                    <div className="overflow-hidden rounded-lg">
-                                        <BarcodeScannerComponent width="100%" height={300} onUpdate={handleCameraScan} />
-                                    </div>
+                                <div className="relative bg-black">
+                                    <BarcodeScannerComponent width="100%" height={isMobileView ? 250 : 300} onUpdate={handleCameraScan} />
+                                </div>
 
-                                    <div className="mt-4 text-center text-sm text-gray-600">
-                                        <p>Position the barcode or QR code within the camera view</p>
-                                        <p className="mt-1 text-xs text-gray-500">The scanner will automatically detect and add the product</p>
-                                    </div>
+                                <div className="bg-gray-50 px-4 py-3 text-center text-sm text-gray-700">
+                                    <p className="font-medium">Point camera at barcode or QR code</p>
+                                    <p className="mt-1 text-xs text-gray-500">Scanner will automatically detect and add product to cart</p>
                                 </div>
                             </div>
                         )}
