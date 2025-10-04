@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetSingleProductQuery, useUpdateProductMutation } from '@/store/Product/productApi';
+import { useGetSingleProductQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { ArrowLeft, Loader2, Save, Upload, X } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';

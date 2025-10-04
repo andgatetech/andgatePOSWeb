@@ -3,8 +3,8 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 // ✅ Changed to use Purchase Order Redux instead of Order/Invoice
+import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
-import { useGetAllProductsQuery } from '@/store/Product/productApi';
 
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
 import { Award, Eye, Package, Plus, Search, Tag, X } from 'lucide-react';

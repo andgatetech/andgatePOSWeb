@@ -3,7 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
-import { useCreateProductMutation, useGetUnitsQuery } from '@/store/Product/productApi';
+import { useCreateProductMutation, useGetUnitsQuery } from '@/store/features/Product/productApi';
 import { Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
