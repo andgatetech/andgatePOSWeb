@@ -141,28 +141,32 @@ const PosLeftSide = () => {
     }, []);
 
     // Barcode scan handler (for both keyboard scanner and camera scanner)
-    const handleBarcodeScan = useCallback((data: string) => {
-        console.log('📥 handleBarcodeScan called with:', data);
-        try {
-            if (data) {
-                setSearchTerm(data);
-                // Note: Camera scanner closure is handled in the scanner callback
+    const handleBarcodeScan = useCallback(
+        (data: string) => {
+            console.log('📥 handleBarcodeScan called with:', data);
+            try {
+                if (data) {
+                    // Use handleSearchChange to trigger auto-add for SKU format
+                    handleSearchChange(data);
+                    // Note: Camera scanner closure is handled in the scanner callback
 
-                // Play beep sound
-                if (beepRef.current) {
-                    beepRef.current.currentTime = 0;
-                    beepRef.current.play().catch((err) => {
-                        console.warn('Beep sound failed:', err);
-                    });
+                    // Play beep sound
+                    if (beepRef.current) {
+                        beepRef.current.currentTime = 0;
+                        beepRef.current.play().catch((err) => {
+                            console.warn('Beep sound failed:', err);
+                        });
+                    }
+                    console.log('✅ handleBarcodeScan completed successfully');
                 }
-                console.log('✅ handleBarcodeScan completed successfully');
+            } catch (err: any) {
+                console.error('❌ Error in handleBarcodeScan:', err);
+                console.error('Error stack:', err.stack);
+                alert(`Scan Handler Error: ${err.message}\n\nPlease refresh the page`);
             }
-        } catch (err: any) {
-            console.error('❌ Error in handleBarcodeScan:', err);
-            console.error('Error stack:', err.stack);
-            alert(`Scan Handler Error: ${err.message}\n\nPlease refresh the page`);
-        }
-    }, []);
+        },
+        [handleSearchChange]
+    );
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
