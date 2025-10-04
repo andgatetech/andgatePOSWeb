@@ -140,6 +140,84 @@ const PosLeftSide = () => {
         return () => window.removeEventListener('resize', checkMobileView);
     }, []);
 
+    const showMessage = (msg = '', type = 'success') => {
+        const toast: any = Swal.mixin({
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 2000,
+            customClass: { container: 'toast' },
+        });
+        toast.fire({ icon: type, title: msg, padding: '8px 16px' });
+    };
+
+    const addToCart = useCallback(
+        (product: any) => {
+            // Calculate total quantity from stocks
+            const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+
+            if (product.available === false || totalQuantity <= 0) {
+                showMessage('Product is not available', 'error');
+                return;
+            }
+
+            // Check stock limit
+            const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
+
+            if (currentQuantityInCart >= totalQuantity) {
+                showMessage('Cannot add more, stock limit reached!', 'error');
+                return;
+            }
+
+            if (beepRef.current) {
+                beepRef.current.currentTime = 0;
+                beepRef.current.play().catch(() => {});
+            }
+
+            const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+            const itemToAdd = {
+                id: uniqueId,
+                productId: product.id,
+                title: product.product_name,
+                description: product.description,
+                rate: parseFloat(product.price),
+                quantity: 1,
+                amount: parseFloat(product.price),
+                PlaceholderQuantity: totalQuantity,
+                tax_rate: product.tax?.rate ? parseFloat(product.tax.rate) : 0,
+                tax_included: product.tax?.included === true,
+                unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
+            };
+
+            dispatch(addItemRedux(itemToAdd));
+            showMessage('Item added successfully!');
+
+            // Reset filters and search after adding product
+            setSearchTerm('');
+            setSelectedCategory(null);
+            setSelectedBrand(null);
+            setCurrentPage(1);
+        },
+        [reduxItems, dispatch]
+    );
+
+    const handleSearchChange = useCallback(
+        (value: string) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+
+            // 🔑 Auto-add when SKU format detected
+            if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
+                const foundProduct = (productsData?.data || []).find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
+                if (foundProduct) {
+                    addToCart(foundProduct);
+                    setSearchTerm(''); // clear after adding
+                }
+            }
+        },
+        [productsData, addToCart]
+    );
+
     // Barcode scan handler (for both keyboard scanner and camera scanner)
     const handleBarcodeScan = useCallback(
         (data: string) => {
@@ -388,84 +466,6 @@ const PosLeftSide = () => {
             document.body.style.userSelect = '';
         };
     }, [isDragging, handleMouseMove, handleMouseUp]);
-
-    const showMessage = (msg = '', type = 'success') => {
-        const toast: any = Swal.mixin({
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 2000,
-            customClass: { container: 'toast' },
-        });
-        toast.fire({ icon: type, title: msg, padding: '8px 16px' });
-    };
-
-    const addToCart = useCallback(
-        (product: any) => {
-            // Calculate total quantity from stocks
-            const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
-
-            if (product.available === false || totalQuantity <= 0) {
-                showMessage('Product is not available', 'error');
-                return;
-            }
-
-            // Check stock limit
-            const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
-
-            if (currentQuantityInCart >= totalQuantity) {
-                showMessage('Cannot add more, stock limit reached!', 'error');
-                return;
-            }
-
-            if (beepRef.current) {
-                beepRef.current.currentTime = 0;
-                beepRef.current.play().catch(() => {});
-            }
-
-            const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
-            const itemToAdd = {
-                id: uniqueId,
-                productId: product.id,
-                title: product.product_name,
-                description: product.description,
-                rate: parseFloat(product.price),
-                quantity: 1,
-                amount: parseFloat(product.price),
-                PlaceholderQuantity: totalQuantity,
-                tax_rate: product.tax?.rate ? parseFloat(product.tax.rate) : 0,
-                tax_included: product.tax?.included === true,
-                unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
-            };
-
-            dispatch(addItemRedux(itemToAdd));
-            showMessage('Item added successfully!');
-
-            // Reset filters and search after adding product
-            setSearchTerm('');
-            setSelectedCategory(null);
-            setSelectedBrand(null);
-            setCurrentPage(1);
-        },
-        [reduxItems, dispatch]
-    );
-
-    const handleSearchChange = useCallback(
-        (value: string) => {
-            setSearchTerm(value);
-            setCurrentPage(1);
-
-            // 🔑 Auto-add when SKU format detected
-            if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
-                const foundProduct = (productsData?.data || []).find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
-                if (foundProduct) {
-                    addToCart(foundProduct);
-                    setSearchTerm(''); // clear after adding
-                }
-            }
-        },
-        [productsData, addToCart]
-    );
 
     const handleImageShow = (product: any) => {
         setSelectedProduct(product);
