@@ -12,6 +12,7 @@ import { Award, Camera, Eye, GripVertical, Package, Search, ShoppingCart, Tag, X
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
+import { BarcodeScannerComponent } from 'react-qr-barcode-scanner';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
@@ -39,6 +40,7 @@ const PosLeftSide = () => {
     const [showMobileCart, setShowMobileCart] = useState(false);
     const [isMobileView, setIsMobileView] = useState(false);
     const [barcodeEnabled, setBarcodeEnabled] = useState(false);
+    const [showCameraScanner, setShowCameraScanner] = useState(false);
 
     const dispatch = useDispatch();
     const itemsPerPage = 6;
@@ -111,10 +113,12 @@ const PosLeftSide = () => {
         return () => window.removeEventListener('resize', checkMobileView);
     }, []);
 
-    // Barcode scan handler
+    // Barcode scan handler (for both keyboard scanner and camera scanner)
     const handleBarcodeScan = (data: string) => {
         if (data) {
             setSearchTerm(data);
+            setShowCameraScanner(false); // Close camera scanner after successful scan
+
             // Auto-add logic already exists in handleSearchChange
             handleSearchChange(data);
 
@@ -128,6 +132,21 @@ const PosLeftSide = () => {
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
+    };
+
+    // Camera scanner update handler
+    const handleCameraScan = (err: any, result: any) => {
+        if (result) {
+            handleBarcodeScan(result.text);
+        }
+    };
+
+    // Toggle camera scanner
+    const toggleCameraScanner = () => {
+        setShowCameraScanner(!showCameraScanner);
+        if (!showCameraScanner) {
+            setBarcodeEnabled(false); // Disable keyboard scanner when camera is active
+        }
     };
 
     // Resizable functionality
@@ -529,12 +548,28 @@ const PosLeftSide = () => {
                                         autoFocus
                                     />
                                 </div>
+                                {/* Keyboard Scanner Button */}
                                 <button
-                                    onClick={() => setBarcodeEnabled(!barcodeEnabled)}
+                                    onClick={() => {
+                                        setBarcodeEnabled(!barcodeEnabled);
+                                        if (showCameraScanner) setShowCameraScanner(false);
+                                    }}
                                     className={`flex items-center justify-center rounded-lg px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
-                                        barcodeEnabled ? 'bg-green-500 text-white hover:bg-green-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        barcodeEnabled ? 'bg-purple-500 text-white hover:bg-purple-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                     }`}
-                                    title={barcodeEnabled ? 'Barcode scanner active' : 'Enable barcode scanner'}
+                                    title={barcodeEnabled ? 'USB Scanner active' : 'Enable USB Scanner'}
+                                >
+                                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </button>
+                                {/* Camera Scanner Button */}
+                                <button
+                                    onClick={toggleCameraScanner}
+                                    className={`flex items-center justify-center rounded-lg px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
+                                        showCameraScanner ? 'bg-green-500 text-white hover:bg-green-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                    title={showCameraScanner ? 'Close camera scanner' : 'Open camera scanner'}
                                 >
                                     <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </button>
@@ -542,10 +577,39 @@ const PosLeftSide = () => {
                             {barcodeEnabled && (
                                 <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
                                     <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
-                                    Scanner active - Ready to scan
+                                    Keyboard scanner active - Ready to scan with USB/Bluetooth scanner
+                                </div>
+                            )}
+                            {showCameraScanner && (
+                                <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
+                                    <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500"></span>
+                                    Camera scanner active - Point camera at barcode/QR code
                                 </div>
                             )}
                         </div>
+
+                        {/* Camera Scanner Modal */}
+                        {showCameraScanner && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
+                                <div className="relative w-full max-w-md rounded-lg bg-white p-4 shadow-xl">
+                                    <div className="mb-4 flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold text-gray-900">Scan Barcode/QR Code</h3>
+                                        <button onClick={() => setShowCameraScanner(false)} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
+                                            <X className="h-5 w-5" />
+                                        </button>
+                                    </div>
+
+                                    <div className="overflow-hidden rounded-lg">
+                                        <BarcodeScannerComponent width="100%" height={300} onUpdate={handleCameraScan} />
+                                    </div>
+
+                                    <div className="mt-4 text-center text-sm text-gray-600">
+                                        <p>Position the barcode or QR code within the camera view</p>
+                                        <p className="mt-1 text-xs text-gray-500">The scanner will automatically detect and add the product</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Products Grid - Responsive based on width */}
                         <div
