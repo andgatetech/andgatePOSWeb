@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Filter, Calendar, User, Package, ArrowRight, Clock, TrendingUp, TrendingDown, Activity, ChevronDown, ChevronUp, Eye, RefreshCw } from 'lucide-react';
-import { useGetActivityLogsQuery } from '@/store/Product/productApi';
+import { useGetActivityLogsQuery } from '@/store/features/Product/productApi';
+import { Activity, ArrowRight, Calendar, Clock, Package, RefreshCw, Search, TrendingDown, TrendingUp, User } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 const ActivityLog = () => {
     const { data: apiResponse, isLoading: apiLoading, refetch } = useGetActivityLogsQuery();
@@ -234,7 +234,6 @@ const ActivityLog = () => {
                         <h1 className="text-3xl font-bold text-gray-900">Activity Log</h1>
                         <p className="mt-2 text-gray-600">Track all product changes and updates</p>
                     </div>
-                   
                 </div>
 
                 {/* Stats Cards */}
@@ -266,7 +265,6 @@ const ActivityLog = () => {
                             <Package className="h-8 w-8 text-purple-600" />
                         </div>
                     </div>
-                    
                 </div>
 
                 {/* Filters */}
@@ -283,10 +281,6 @@ const ActivityLog = () => {
                                     className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 md:w-64"
                                 />
                             </div>
-
-                            
-
-                           
 
                             <select
                                 value={dateFilter}

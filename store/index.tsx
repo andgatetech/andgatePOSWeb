@@ -4,8 +4,9 @@ import storage from 'redux-persist/lib/storage';
 
 import { baseApi } from '@/store/api/baseApi';
 import authReducer from '@/store/features/auth/authSlice';
-import supplierReducer from '@/store/features/supplier/supplierSlice';
 import invoiceReducer from '@/store/features/Order/OrderSlice';
+import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice'; // ✅ Added
+import supplierReducer from '@/store/features/supplier/supplierSlice';
 import themeConfigSlice from '@/store/themeConfigSlice';
 
 // --- persist config ---
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     supplier: supplierReducer,
     invoice: invoiceReducer,
+    purchaseOrder: purchaseOrderReducer, // ✅ Added
     [baseApi.reducerPath]: baseApi.reducer, // RTK Query
 });
 
