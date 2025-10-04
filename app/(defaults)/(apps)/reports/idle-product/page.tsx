@@ -1,53 +1,53 @@
 'use client';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
-import TaxReportFilter from '@/components/filters/TaxReportFilter';
+import IdleProductFilter from '@/components/filters/IdleProductFilter';
 import Loading from '@/components/layouts/loading';
 import { downloadBase64File } from '@/lib/downloadFile';
-import { useGetTaxReportMutation } from '@/store/features/reports/reportApi';
-import { DollarSign, FileDown, FileSpreadsheet, Percent, Printer, Receipt, TrendingUp } from 'lucide-react';
+import { useGetIdleProductReportMutation } from '@/store/features/reports/reportApi';
+import { DollarSign, FileDown, FileSpreadsheet, Package, PackageX, Printer } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
-interface TaxReportItem {
-    invoice: string;
-    store_name: string;
+interface IdleProductItem {
+    product_id: number;
     product_name: string;
-    quantity: number;
-    unit: string;
+    sku: string;
+    store_name: string;
+    category: string;
+    brand: string;
+    stock_quantity: number;
     unit_price: number;
-    tax_rate: number;
-    tax_type: string;
-    taxable_amount: number;
-    tax_amount: number;
-    gross_amount: number;
+    stock_value: number;
+    last_sale_date: string;
+    days_since_last_sale: number | string;
+    idle_days_threshold: number;
 }
 
-interface TaxReportData {
+interface IdleProductReportData {
     generated_at: string;
     filters: {
         store_ids: number[];
-        start_date?: string;
-        end_date?: string;
+        idle_days: number;
+        cutoff_date: string;
         format: string;
     };
     summary: {
-        items_count: number;
-        taxable_amount: number;
-        tax_amount: number;
-        gross_amount: number;
+        idle_products_count: number;
+        total_idle_stock_quantity: number;
+        total_idle_stock_value: number;
     };
-    items: TaxReportItem[];
+    items: IdleProductItem[];
 }
 
-const TaxReportPage = () => {
+const IdleProductReportPage = () => {
     const [filterParams, setFilterParams] = useState<Record<string, any>>({});
-    const [reportData, setReportData] = useState<TaxReportData | null>(null);
+    const [reportData, setReportData] = useState<IdleProductReportData | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
 
-    const [getTaxReport, { isLoading }] = useGetTaxReportMutation();
+    const [getIdleProductReport, { isLoading }] = useGetIdleProductReportMutation();
 
     // Fetch report data
     const fetchReport = useCallback(
@@ -58,21 +58,21 @@ const TaxReportPage = () => {
                     format,
                 };
 
-                const response = await getTaxReport(payload).unwrap();
+                const response = await getIdleProductReport(payload).unwrap();
 
                 if (format === 'json') {
                     setReportData(response.data);
                 }
             } catch (error: any) {
-                console.error('Error fetching tax report:', error);
+                console.error('Error fetching idle product report:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error?.data?.message || 'Failed to fetch tax report',
+                    text: error?.data?.message || 'Failed to fetch idle product report',
                 });
             }
         },
-        [getTaxReport]
+        [getIdleProductReport]
     );
 
     // Handle filter changes
@@ -93,11 +93,10 @@ const TaxReportPage = () => {
                 format: 'pdf',
             };
 
-            const response = await getTaxReport(payload).unwrap();
+            const response = await getIdleProductReport(payload).unwrap();
 
-            // Backend returns base64 encoded PDF
             if (response?.data?.file) {
-                downloadBase64File(response.data.file, response.data.filename || `tax-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
+                downloadBase64File(response.data.file, response.data.filename || `idle-product-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
 
                 Swal.fire({
                     icon: 'success',
@@ -123,13 +122,12 @@ const TaxReportPage = () => {
                 format: 'excel',
             };
 
-            const response = await getTaxReport(payload).unwrap();
+            const response = await getIdleProductReport(payload).unwrap();
 
-            // Backend returns base64 encoded Excel
             if (response?.data?.file) {
                 downloadBase64File(
                     response.data.file,
-                    response.data.filename || `tax-report-${new Date().getTime()}.xlsx`,
+                    response.data.filename || `idle-product-report-${new Date().getTime()}.xlsx`,
                     response.data.mime_type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 );
 
@@ -151,16 +149,22 @@ const TaxReportPage = () => {
     };
     const handlePrint = useReactToPrint({
         contentRef: printRef,
-        documentTitle: `Tax Report - ${new Date().toLocaleDateString()}`,
+        documentTitle: `Idle Product Report - ${new Date().toLocaleDateString()}`,
     });
 
     // Table columns
     const columns: TableColumn[] = [
         {
-            key: 'invoice',
-            label: 'Invoice',
+            key: 'product_name',
+            label: 'Product',
             sortable: true,
             render: (value) => <span className="font-medium text-blue-600">{value}</span>,
+        },
+        {
+            key: 'sku',
+            label: 'SKU',
+            sortable: true,
+            render: (value) => <span className="font-mono text-xs text-gray-600">{value}</span>,
         },
         {
             key: 'store_name',
@@ -168,14 +172,19 @@ const TaxReportPage = () => {
             sortable: true,
         },
         {
-            key: 'product_name',
-            label: 'Product',
-            sortable: true,
+            key: 'category',
+            label: 'Category',
+            render: (value) => <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">{value}</span>,
         },
         {
-            key: 'quantity',
-            label: 'Qty',
-            render: (value, row) => `${value} ${row.unit}`,
+            key: 'brand',
+            label: 'Brand',
+            render: (value) => <span className="rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">{value}</span>,
+        },
+        {
+            key: 'stock_quantity',
+            label: 'Stock',
+            render: (value) => <span className="font-semibold">{value}</span>,
         },
         {
             key: 'unit_price',
@@ -183,33 +192,34 @@ const TaxReportPage = () => {
             render: (value) => `৳${value.toFixed(2)}`,
         },
         {
-            key: 'tax_rate',
-            label: 'Tax Rate',
-            render: (value) => <span className="rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">{value}%</span>,
-        },
-        {
-            key: 'tax_type',
-            label: 'Tax Type',
-            render: (value) => (
-                <span className={`rounded px-2 py-1 text-xs font-medium ${value === 'inclusive' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
-                    {value === 'inclusive' ? 'Inclusive' : 'Exclusive'}
-                </span>
-            ),
-        },
-        {
-            key: 'taxable_amount',
-            label: 'Taxable Amount',
-            render: (value) => <span className="font-medium">৳{value.toFixed(2)}</span>,
-        },
-        {
-            key: 'tax_amount',
-            label: 'Tax Amount',
-            render: (value) => <span className="font-semibold text-red-600">৳{value.toFixed(2)}</span>,
-        },
-        {
-            key: 'gross_amount',
-            label: 'Gross Amount',
+            key: 'stock_value',
+            label: 'Stock Value',
             render: (value) => <span className="font-bold text-green-600">৳{value.toFixed(2)}</span>,
+        },
+        {
+            key: 'last_sale_date',
+            label: 'Last Sale',
+            render: (value) => {
+                if (value === 'Never') {
+                    return <span className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-800">Never</span>;
+                }
+                return <span className="text-sm text-gray-600">{new Date(value).toLocaleDateString()}</span>;
+            },
+        },
+        {
+            key: 'days_since_last_sale',
+            label: 'Days Idle',
+            render: (value) => {
+                if (value === 'Never') {
+                    return <span className="rounded bg-red-500 px-2 py-1 text-xs font-bold text-white">∞</span>;
+                }
+                const days = Number(value);
+                let colorClass = 'bg-yellow-100 text-yellow-800';
+                if (days > 90) colorClass = 'bg-red-100 text-red-800';
+                else if (days > 30) colorClass = 'bg-orange-100 text-orange-800';
+
+                return <span className={`rounded px-2 py-1 text-xs font-medium ${colorClass}`}>{days} days</span>;
+            },
         },
     ];
 
@@ -223,12 +233,12 @@ const TaxReportPage = () => {
             <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="mb-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
-                            <Receipt className="h-8 w-8 text-white" />
+                        <div className="rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-3 shadow-lg">
+                            <PackageX className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Tax Report</h1>
-                            <p className="text-sm text-gray-500">Comprehensive tax analysis and insights</p>
+                            <h1 className="text-3xl font-bold text-gray-900">Idle Product Report</h1>
+                            <p className="text-sm text-gray-500">Track slow-moving and stagnant inventory</p>
                         </div>
                     </div>
 
@@ -264,42 +274,34 @@ const TaxReportPage = () => {
 
             {/* Filters */}
             <div className="mb-6">
-                <TaxReportFilter onFilterChange={handleFilterChange} />
+                <IdleProductFilter onFilterChange={handleFilterChange} />
             </div>
 
             {/* Summary Cards */}
             {reportData && (
-                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-4">
-                    <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <div className="rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 text-white shadow-lg">
                         <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Total Items</p>
-                            <Receipt className="h-6 w-6 opacity-80" />
+                            <p className="text-sm font-medium opacity-90">Idle Products</p>
+                            <PackageX className="h-6 w-6 opacity-80" />
                         </div>
-                        <p className="text-3xl font-bold">{reportData.summary.items_count}</p>
+                        <p className="text-3xl font-bold">{reportData.summary.idle_products_count}</p>
                     </div>
 
-                    <div className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg">
+                    <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
                         <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Taxable Amount</p>
-                            <DollarSign className="h-6 w-6 opacity-80" />
+                            <p className="text-sm font-medium opacity-90">Total Idle Stock</p>
+                            <Package className="h-6 w-6 opacity-80" />
                         </div>
-                        <p className="text-3xl font-bold">৳{reportData.summary.taxable_amount.toFixed(2)}</p>
+                        <p className="text-3xl font-bold">{reportData.summary.total_idle_stock_quantity.toFixed(0)}</p>
                     </div>
 
                     <div className="rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-6 text-white shadow-lg">
                         <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Tax Amount</p>
-                            <Percent className="h-6 w-6 opacity-80" />
+                            <p className="text-sm font-medium opacity-90">Stock Value</p>
+                            <DollarSign className="h-6 w-6 opacity-80" />
                         </div>
-                        <p className="text-3xl font-bold">৳{reportData.summary.tax_amount.toFixed(2)}</p>
-                    </div>
-
-                    <div className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
-                        <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Gross Amount</p>
-                            <TrendingUp className="h-6 w-6 opacity-80" />
-                        </div>
-                        <p className="text-3xl font-bold">৳{reportData.summary.gross_amount.toFixed(2)}</p>
+                        <p className="text-3xl font-bold">৳{reportData.summary.total_idle_stock_value.toFixed(2)}</p>
                     </div>
                 </div>
             )}
@@ -315,9 +317,9 @@ const TaxReportPage = () => {
                         columns={columns}
                         isLoading={isLoading}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
-                            title: 'No Tax Data Found',
-                            description: 'Try adjusting your filters to see tax records.',
+                            icon: <PackageX className="h-16 w-16" />,
+                            title: 'No Idle Products Found',
+                            description: 'All products are selling well! Try adjusting your idle days threshold.',
                         }}
                         pagination={{
                             currentPage,
@@ -335,32 +337,24 @@ const TaxReportPage = () => {
             {!isLoading && reportData && (
                 <div ref={printRef} className="hidden print:block">
                     <div className="mb-6 text-center">
-                        <h1 className="text-2xl font-bold">Tax Report</h1>
+                        <h1 className="text-2xl font-bold">Idle Product Report</h1>
                         <p className="text-sm text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
-                        {reportData.filters.start_date && reportData.filters.end_date && (
-                            <p className="text-sm text-gray-600">
-                                Period: {reportData.filters.start_date} to {reportData.filters.end_date}
-                            </p>
-                        )}
+                        <p className="text-sm text-gray-600">Idle Days Threshold: {reportData.filters.idle_days} days</p>
                     </div>
 
                     {/* Summary Section */}
-                    <div className="mb-6 grid grid-cols-4 gap-4 border-b pb-4">
+                    <div className="mb-6 grid grid-cols-3 gap-4 border-b pb-4">
                         <div>
-                            <p className="text-xs text-gray-600">Total Items</p>
-                            <p className="text-lg font-bold">{reportData.summary.items_count}</p>
+                            <p className="text-xs text-gray-600">Idle Products</p>
+                            <p className="text-lg font-bold">{reportData.summary.idle_products_count}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600">Taxable Amount</p>
-                            <p className="text-lg font-bold">৳{reportData.summary.taxable_amount.toFixed(2)}</p>
+                            <p className="text-xs text-gray-600">Total Idle Stock</p>
+                            <p className="text-lg font-bold">{reportData.summary.total_idle_stock_quantity.toFixed(0)}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600">Tax Amount</p>
-                            <p className="text-lg font-bold">৳{reportData.summary.tax_amount.toFixed(2)}</p>
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-600">Gross Amount</p>
-                            <p className="text-lg font-bold">৳{reportData.summary.gross_amount.toFixed(2)}</p>
+                            <p className="text-xs text-gray-600">Stock Value</p>
+                            <p className="text-lg font-bold">৳{reportData.summary.total_idle_stock_value.toFixed(2)}</p>
                         </div>
                     </div>
 
@@ -370,9 +364,9 @@ const TaxReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
-                            title: 'No Tax Data Found',
-                            description: 'Try adjusting your filters to see tax records.',
+                            icon: <PackageX className="h-16 w-16" />,
+                            title: 'No Idle Products Found',
+                            description: 'All products are selling well! Try adjusting your idle days threshold.',
                         }}
                     />
                 </div>
@@ -381,4 +375,4 @@ const TaxReportPage = () => {
     );
 };
 
-export default TaxReportPage;
+export default IdleProductReportPage;

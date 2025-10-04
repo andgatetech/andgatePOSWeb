@@ -120,6 +120,8 @@ const adminRoutes = [
             { label: 'Expenses ', href: '/reports/expenses' },
             { label: 'Profit & Loss', href: '/reports/profit-loss' },
             { label: 'Tax', href: '/reports/tax' },
+            { label: 'Idle Products', href: '/reports/idle-product' },
+            { label: 'Transactions', href: '/reports/order-transaction' },
 
             // ✅ No `href` here, only subMenu
             {
@@ -127,7 +129,6 @@ const adminRoutes = [
                 subMenu: [
                     { label: 'Current Stock', href: '/reports/stock/current' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
-                    { label: 'Idle Inventory', href: '/reports/stock/idle' },
                     { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
                 ],
             },

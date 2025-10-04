@@ -1,53 +1,54 @@
 'use client';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
-import TaxReportFilter from '@/components/filters/TaxReportFilter';
+import TransactionReportFilter from '@/components/filters/TransactionReportFilter';
 import Loading from '@/components/layouts/loading';
 import { downloadBase64File } from '@/lib/downloadFile';
-import { useGetTaxReportMutation } from '@/store/features/reports/reportApi';
-import { DollarSign, FileDown, FileSpreadsheet, Percent, Printer, Receipt, TrendingUp } from 'lucide-react';
+import { useGetTransactionReportMutation } from '@/store/features/reports/reportApi';
+import { AlertCircle, CreditCard, DollarSign, FileDown, FileSpreadsheet, Printer, TrendingUp } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
-interface TaxReportItem {
+interface TransactionItem {
+    transaction_id: number;
+    order_id: number;
     invoice: string;
     store_name: string;
-    product_name: string;
-    quantity: number;
-    unit: string;
-    unit_price: number;
-    tax_rate: number;
-    tax_type: string;
-    taxable_amount: number;
-    tax_amount: number;
-    gross_amount: number;
+    user_name: string;
+    payment_status: string;
+    payment_method: string;
+    amount: number;
+    created_at: string;
 }
 
-interface TaxReportData {
+interface TransactionReportData {
     generated_at: string;
     filters: {
         store_ids: number[];
         start_date?: string;
         end_date?: string;
+        payment_status?: string;
+        payment_method?: string;
         format: string;
     };
     summary: {
-        items_count: number;
-        taxable_amount: number;
-        tax_amount: number;
-        gross_amount: number;
+        transactions_count: number;
+        total_amount: number;
+        paid_amount: number;
+        unpaid_amount: number;
+        partial_amount: number;
     };
-    items: TaxReportItem[];
+    items: TransactionItem[];
 }
 
-const TaxReportPage = () => {
+const OrderTransactionReportPage = () => {
     const [filterParams, setFilterParams] = useState<Record<string, any>>({});
-    const [reportData, setReportData] = useState<TaxReportData | null>(null);
+    const [reportData, setReportData] = useState<TransactionReportData | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
 
-    const [getTaxReport, { isLoading }] = useGetTaxReportMutation();
+    const [getTransactionReport, { isLoading }] = useGetTransactionReportMutation();
 
     // Fetch report data
     const fetchReport = useCallback(
@@ -58,21 +59,21 @@ const TaxReportPage = () => {
                     format,
                 };
 
-                const response = await getTaxReport(payload).unwrap();
+                const response = await getTransactionReport(payload).unwrap();
 
                 if (format === 'json') {
                     setReportData(response.data);
                 }
             } catch (error: any) {
-                console.error('Error fetching tax report:', error);
+                console.error('Error fetching transaction report:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error?.data?.message || 'Failed to fetch tax report',
+                    text: error?.data?.message || 'Failed to fetch transaction report',
                 });
             }
         },
-        [getTaxReport]
+        [getTransactionReport]
     );
 
     // Handle filter changes
@@ -93,11 +94,10 @@ const TaxReportPage = () => {
                 format: 'pdf',
             };
 
-            const response = await getTaxReport(payload).unwrap();
+            const response = await getTransactionReport(payload).unwrap();
 
-            // Backend returns base64 encoded PDF
             if (response?.data?.file) {
-                downloadBase64File(response.data.file, response.data.filename || `tax-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
+                downloadBase64File(response.data.file, response.data.filename || `transaction-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
 
                 Swal.fire({
                     icon: 'success',
@@ -123,13 +123,12 @@ const TaxReportPage = () => {
                 format: 'excel',
             };
 
-            const response = await getTaxReport(payload).unwrap();
+            const response = await getTransactionReport(payload).unwrap();
 
-            // Backend returns base64 encoded Excel
             if (response?.data?.file) {
                 downloadBase64File(
                     response.data.file,
-                    response.data.filename || `tax-report-${new Date().getTime()}.xlsx`,
+                    response.data.filename || `transaction-report-${new Date().getTime()}.xlsx`,
                     response.data.mime_type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 );
 
@@ -151,7 +150,7 @@ const TaxReportPage = () => {
     };
     const handlePrint = useReactToPrint({
         contentRef: printRef,
-        documentTitle: `Tax Report - ${new Date().toLocaleDateString()}`,
+        documentTitle: `Transaction Report - ${new Date().toLocaleDateString()}`,
     });
 
     // Table columns
@@ -168,48 +167,48 @@ const TaxReportPage = () => {
             sortable: true,
         },
         {
-            key: 'product_name',
-            label: 'Product',
+            key: 'user_name',
+            label: 'User',
             sortable: true,
         },
         {
-            key: 'quantity',
-            label: 'Qty',
-            render: (value, row) => `${value} ${row.unit}`,
+            key: 'payment_method',
+            label: 'Payment Method',
+            render: (value) => {
+                const methodColors: Record<string, string> = {
+                    cash: 'bg-green-100 text-green-800',
+                    card: 'bg-blue-100 text-blue-800',
+                    mobile: 'bg-purple-100 text-purple-800',
+                    bank_transfer: 'bg-indigo-100 text-indigo-800',
+                };
+                return <span className={`rounded px-2 py-1 text-xs font-medium ${methodColors[value] || 'bg-gray-100 text-gray-800'}`}>{value?.replace('_', ' ').toUpperCase()}</span>;
+            },
         },
         {
-            key: 'unit_price',
-            label: 'Unit Price',
-            render: (value) => `৳${value.toFixed(2)}`,
+            key: 'payment_status',
+            label: 'Status',
+            render: (value) => {
+                const statusColors: Record<string, string> = {
+                    paid: 'bg-green-100 text-green-800',
+                    unpaid: 'bg-red-100 text-red-800',
+                    partial: 'bg-yellow-100 text-yellow-800',
+                };
+                return <span className={`rounded px-2 py-1 text-xs font-medium ${statusColors[value] || 'bg-gray-100 text-gray-800'}`}>{value?.toUpperCase()}</span>;
+            },
         },
         {
-            key: 'tax_rate',
-            label: 'Tax Rate',
-            render: (value) => <span className="rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">{value}%</span>,
+            key: 'amount',
+            label: 'Amount',
+            render: (value) => <span className="font-bold text-green-600">৳{value.toFixed(2)}</span>,
         },
         {
-            key: 'tax_type',
-            label: 'Tax Type',
+            key: 'created_at',
+            label: 'Date',
             render: (value) => (
-                <span className={`rounded px-2 py-1 text-xs font-medium ${value === 'inclusive' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
-                    {value === 'inclusive' ? 'Inclusive' : 'Exclusive'}
+                <span className="text-sm text-gray-600">
+                    {new Date(value).toLocaleDateString()} {new Date(value).toLocaleTimeString()}
                 </span>
             ),
-        },
-        {
-            key: 'taxable_amount',
-            label: 'Taxable Amount',
-            render: (value) => <span className="font-medium">৳{value.toFixed(2)}</span>,
-        },
-        {
-            key: 'tax_amount',
-            label: 'Tax Amount',
-            render: (value) => <span className="font-semibold text-red-600">৳{value.toFixed(2)}</span>,
-        },
-        {
-            key: 'gross_amount',
-            label: 'Gross Amount',
-            render: (value) => <span className="font-bold text-green-600">৳{value.toFixed(2)}</span>,
         },
     ];
 
@@ -223,12 +222,12 @@ const TaxReportPage = () => {
             <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="mb-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
-                            <Receipt className="h-8 w-8 text-white" />
+                        <div className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-3 shadow-lg">
+                            <CreditCard className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Tax Report</h1>
-                            <p className="text-sm text-gray-500">Comprehensive tax analysis and insights</p>
+                            <h1 className="text-3xl font-bold text-gray-900">Transaction Report</h1>
+                            <p className="text-sm text-gray-500">Complete payment and transaction history</p>
                         </div>
                     </div>
 
@@ -264,42 +263,50 @@ const TaxReportPage = () => {
 
             {/* Filters */}
             <div className="mb-6">
-                <TaxReportFilter onFilterChange={handleFilterChange} />
+                <TransactionReportFilter onFilterChange={handleFilterChange} />
             </div>
 
             {/* Summary Cards */}
             {reportData && (
-                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-4">
+                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-5">
                     <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
                         <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Total Items</p>
-                            <Receipt className="h-6 w-6 opacity-80" />
+                            <p className="text-sm font-medium opacity-90">Total Transactions</p>
+                            <CreditCard className="h-6 w-6 opacity-80" />
                         </div>
-                        <p className="text-3xl font-bold">{reportData.summary.items_count}</p>
-                    </div>
-
-                    <div className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg">
-                        <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Taxable Amount</p>
-                            <DollarSign className="h-6 w-6 opacity-80" />
-                        </div>
-                        <p className="text-3xl font-bold">৳{reportData.summary.taxable_amount.toFixed(2)}</p>
-                    </div>
-
-                    <div className="rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-6 text-white shadow-lg">
-                        <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Tax Amount</p>
-                            <Percent className="h-6 w-6 opacity-80" />
-                        </div>
-                        <p className="text-3xl font-bold">৳{reportData.summary.tax_amount.toFixed(2)}</p>
+                        <p className="text-3xl font-bold">{reportData.summary.transactions_count}</p>
                     </div>
 
                     <div className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
                         <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm font-medium opacity-90">Gross Amount</p>
+                            <p className="text-sm font-medium opacity-90">Total Amount</p>
                             <TrendingUp className="h-6 w-6 opacity-80" />
                         </div>
-                        <p className="text-3xl font-bold">৳{reportData.summary.gross_amount.toFixed(2)}</p>
+                        <p className="text-3xl font-bold">৳{reportData.summary.total_amount.toFixed(2)}</p>
+                    </div>
+
+                    <div className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg">
+                        <div className="mb-2 flex items-center justify-between">
+                            <p className="text-sm font-medium opacity-90">Paid</p>
+                            <DollarSign className="h-6 w-6 opacity-80" />
+                        </div>
+                        <p className="text-3xl font-bold">৳{reportData.summary.paid_amount.toFixed(2)}</p>
+                    </div>
+
+                    <div className="rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 p-6 text-white shadow-lg">
+                        <div className="mb-2 flex items-center justify-between">
+                            <p className="text-sm font-medium opacity-90">Partial</p>
+                            <AlertCircle className="h-6 w-6 opacity-80" />
+                        </div>
+                        <p className="text-3xl font-bold">৳{reportData.summary.partial_amount.toFixed(2)}</p>
+                    </div>
+
+                    <div className="rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-6 text-white shadow-lg">
+                        <div className="mb-2 flex items-center justify-between">
+                            <p className="text-sm font-medium opacity-90">Unpaid</p>
+                            <AlertCircle className="h-6 w-6 opacity-80" />
+                        </div>
+                        <p className="text-3xl font-bold">৳{reportData.summary.unpaid_amount.toFixed(2)}</p>
                     </div>
                 </div>
             )}
@@ -315,9 +322,9 @@ const TaxReportPage = () => {
                         columns={columns}
                         isLoading={isLoading}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
-                            title: 'No Tax Data Found',
-                            description: 'Try adjusting your filters to see tax records.',
+                            icon: <CreditCard className="h-16 w-16" />,
+                            title: 'No Transactions Found',
+                            description: 'Try adjusting your filters to see transaction records.',
                         }}
                         pagination={{
                             currentPage,
@@ -335,7 +342,7 @@ const TaxReportPage = () => {
             {!isLoading && reportData && (
                 <div ref={printRef} className="hidden print:block">
                     <div className="mb-6 text-center">
-                        <h1 className="text-2xl font-bold">Tax Report</h1>
+                        <h1 className="text-2xl font-bold">Transaction Report</h1>
                         <p className="text-sm text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
                         {reportData.filters.start_date && reportData.filters.end_date && (
                             <p className="text-sm text-gray-600">
@@ -345,22 +352,26 @@ const TaxReportPage = () => {
                     </div>
 
                     {/* Summary Section */}
-                    <div className="mb-6 grid grid-cols-4 gap-4 border-b pb-4">
+                    <div className="mb-6 grid grid-cols-5 gap-4 border-b pb-4">
                         <div>
-                            <p className="text-xs text-gray-600">Total Items</p>
-                            <p className="text-lg font-bold">{reportData.summary.items_count}</p>
+                            <p className="text-xs text-gray-600">Total Transactions</p>
+                            <p className="text-lg font-bold">{reportData.summary.transactions_count}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600">Taxable Amount</p>
-                            <p className="text-lg font-bold">৳{reportData.summary.taxable_amount.toFixed(2)}</p>
+                            <p className="text-xs text-gray-600">Total Amount</p>
+                            <p className="text-lg font-bold">৳{reportData.summary.total_amount.toFixed(2)}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600">Tax Amount</p>
-                            <p className="text-lg font-bold">৳{reportData.summary.tax_amount.toFixed(2)}</p>
+                            <p className="text-xs text-gray-600">Paid</p>
+                            <p className="text-lg font-bold">৳{reportData.summary.paid_amount.toFixed(2)}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600">Gross Amount</p>
-                            <p className="text-lg font-bold">৳{reportData.summary.gross_amount.toFixed(2)}</p>
+                            <p className="text-xs text-gray-600">Partial</p>
+                            <p className="text-lg font-bold">৳{reportData.summary.partial_amount.toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-600">Unpaid</p>
+                            <p className="text-lg font-bold">৳{reportData.summary.unpaid_amount.toFixed(2)}</p>
                         </div>
                     </div>
 
@@ -370,9 +381,9 @@ const TaxReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
-                            title: 'No Tax Data Found',
-                            description: 'Try adjusting your filters to see tax records.',
+                            icon: <CreditCard className="h-16 w-16" />,
+                            title: 'No Transactions Found',
+                            description: 'Try adjusting your filters to see transaction records.',
                         }}
                     />
                 </div>
@@ -381,4 +392,4 @@ const TaxReportPage = () => {
     );
 };
 
-export default TaxReportPage;
+export default OrderTransactionReportPage;
