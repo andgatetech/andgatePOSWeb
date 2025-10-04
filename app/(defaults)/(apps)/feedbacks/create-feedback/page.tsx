@@ -6,6 +6,7 @@ import { TextInput } from '@mantine/core';
 import { AlertCircle, ArrowRight, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Store, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const FeedbackPage = () => {
     const router = useRouter();
@@ -180,7 +181,9 @@ const FeedbackPage = () => {
 
         try {
             await createFeedback(submitFormData);
-            router('apps/feedbacks');
+            toast.dismiss();
+            toast.success('Feedbac record successfully', { toastId: 'create-feedback' });
+            router.push('/feedbacks');
             setSubmitted(true);
             // Reset form after successful submission
             setTimeout(() => {
@@ -191,6 +194,8 @@ const FeedbackPage = () => {
             }, 4000);
         } catch (err) {
             console.error('Failed to submit feedback:', err);
+            toast.dismiss();
+            toast.error('something went wrong!');
         }
     };
 
