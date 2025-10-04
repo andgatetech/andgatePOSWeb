@@ -154,18 +154,29 @@ const PosLeftSide = () => {
                 }
 
                 console.log('✅ QR reader element found, creating scanner...');
-                html5QrCode = new Html5Qrcode('qr-reader');
 
                 try {
-                    console.log('📷 Requesting camera permission...');
+                    // First, request camera permission using getUserMedia
+                    console.log('📷 Requesting camera permission via getUserMedia...');
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'environment' } 
+                    });
+                    console.log('✅ Camera permission granted! Stream:', stream);
+                    
+                    // Stop the test stream
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Now initialize html5-qrcode
+                    html5QrCode = new Html5Qrcode('qr-reader');
 
-                    // Try to get camera devices first
+                    // Try to get camera devices
                     const devices = await Html5Qrcode.getCameras();
                     console.log('📹 Available cameras:', devices);
 
                     if (devices && devices.length > 0) {
-                        // Use the first available camera (or back camera if available)
-                        const cameraId = devices[devices.length - 1].id; // Last camera is usually back camera
+                        // Use the last camera (usually back camera on mobile)
+                        const cameraId = devices[devices.length - 1].id;
+                        console.log('🎯 Using camera:', devices[devices.length - 1].label || cameraId);
 
                         await html5QrCode.start(
                             cameraId,
@@ -193,8 +204,36 @@ const PosLeftSide = () => {
                     }
                 } catch (err: any) {
                     console.error('❌ Failed to start camera:', err);
-                    const message = err.message || 'Failed to access camera';
-                    alert(`Camera Error: ${message}\n\nPlease ensure:\n1. Your device has a camera\n2. Camera permissions are granted\n3. No other app is using the camera`);
+                    const errorName = err.name || '';
+                    const errorMessage = err.message || 'Failed to access camera';
+                    
+                    let userMessage = 'Camera Error: ' + errorMessage;
+                    
+                    if (errorName === 'NotAllowedError' || errorMessage.includes('Permission denied')) {
+                        // Check if on localhost vs production
+                        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                        const isHTTPS = window.location.protocol === 'https:';
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                        
+                        if (isLocalhost && !isHTTPS) {
+                            userMessage = `🚫 Camera Blocked on Mobile!\n\nMobile browsers require HTTPS for camera access.\n\n✅ SOLUTION:\n• This will work on your live site (andgatepos.com)\n• For local testing, use your laptop/desktop\n• Or use ngrok for HTTPS tunnel\n\nNote: USB barcode scanner still works!`;
+                        } else {
+                            // Different instructions for mobile vs desktop
+                            if (isMobile) {
+                                userMessage = `🚫 Camera Permission Needed!\n\n📱 MOBILE STEPS:\n\n1. Refresh this page (pull down)\n2. Look for camera permission popup\n3. Tap "Allow" or "While using"\n\nIf popup doesn't appear:\n• Open browser Settings\n• Find "Site Settings" or "Permissions"\n• Find this website\n• Enable Camera\n• Refresh page\n\nTIP: Close other camera apps first!`;
+                            } else {
+                                userMessage = `� Camera Permission Needed!\n\n💻 DESKTOP STEPS:\n\n1. Look for camera icon in address bar\n2. Click it and select "Allow"\n3. Refresh the page\n\nOR:\n1. Click the 🔒 lock icon\n2. Click "Site settings"\n3. Find "Camera"\n4. Select "Allow"\n5. Refresh page (F5)\n\nMake sure no other app is using camera!`;
+                            }
+                        }
+                    } else if (errorName === 'NotFoundError' || errorMessage.includes('not found')) {
+                        userMessage = `📷 No Camera Found!\n\nPlease check:\n1. Your device has a camera\n2. Camera is not being used by another app\n3. Try closing and reopening browser`;
+                    } else if (errorName === 'NotReadableError') {
+                        userMessage = `⚠️ Camera In Use!\n\nPlease:\n1. Close other apps using the camera\n2. Restart your browser\n3. Try again`;
+                    } else if (errorName === 'NotSupportedError' || errorMessage.includes('Only secure')) {
+                        userMessage = `🔒 HTTPS Required!\n\nCamera only works on HTTPS.\n\n✅ Your live site (andgatepos.com) will work!\n\nFor localhost testing:\n• Use desktop/laptop browser\n• Or use ngrok for HTTPS tunnel`;
+                    }
+                    
+                    alert(userMessage);
                     setShowCameraScanner(false);
                 }
             }, 100);
@@ -686,9 +725,19 @@ const PosLeftSide = () => {
                                     <div id="qr-reader" style={{ border: 'none' }}></div>
                                 </div>
 
-                                <div className="bg-gray-50 px-4 py-3 text-center text-sm text-gray-700">
-                                    <p className="font-medium">Point camera at barcode or QR code</p>
-                                    <p className="mt-1 text-xs text-gray-500">Scanner will automatically detect and add product to cart</p>
+                                <div className="bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                                    <p className="text-center font-medium">Point camera at barcode or QR code</p>
+                                    <p className="mt-1 text-center text-xs text-gray-500">Scanner will automatically detect and add product to cart</p>
+                                    
+                                    <div className="mt-3 border-t border-gray-200 pt-3">
+                                        <p className="mb-2 text-xs font-semibold text-gray-600">📷 Camera not showing?</p>
+                                        <ul className="space-y-1 text-xs text-gray-600">
+                                            <li>• Allow camera permission when prompted</li>
+                                            <li>• Check browser settings (🔒 icon in address bar)</li>
+                                            <li>• Close other apps using camera</li>
+                                            <li>• Refresh page after allowing permission</li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         )}
