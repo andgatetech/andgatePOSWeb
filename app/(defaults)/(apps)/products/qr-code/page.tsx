@@ -1,7 +1,7 @@
 'use client';
 
 import QrCodeTable from '@/__components/QrCodeTable';
-import { useGetAllProductsQuery } from '@/store/Product/productApi';
+import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 

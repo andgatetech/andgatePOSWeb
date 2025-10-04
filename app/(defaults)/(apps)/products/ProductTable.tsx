@@ -5,7 +5,7 @@ import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/Product/productApi';
+import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Percent, Tag, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';

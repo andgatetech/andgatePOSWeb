@@ -1,7 +1,7 @@
 'use client';
 
 import BrCodeTable from '@/__components/BarCodeTable';
-import { useGetAllProductsQuery, useGetProductBrCodeQuery } from '@/store/Product/productApi';
+import { useGetAllProductsQuery, useGetProductBrCodeQuery } from '@/store/features/Product/productApi';
 import { BarcodeIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
