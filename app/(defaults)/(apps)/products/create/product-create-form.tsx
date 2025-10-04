@@ -50,7 +50,6 @@ const ProductCreateForm = () => {
         units: '',
         tax_rate: '',
         tax_included: false,
-        store_id: '',
     });
 
     // Get recent 5 categories for dropdown and filter based on search
@@ -161,7 +160,7 @@ const ProductCreateForm = () => {
             fd.append('quantity', String(formData.quantity));
             fd.append('purchase_price', String(formData.purchase_price));
             fd.append('available', formData.available);
-            fd.append('store_id', currentStore?.id ? String(currentStore.id) : '');
+            // store_id already added above, don't duplicate it
 
             // Add low stock quantity
             if (formData.low_stock_quantity) {
@@ -248,7 +247,7 @@ const ProductCreateForm = () => {
                 },
             }).then((result) => {
                 if (result.isConfirmed) {
-                    router.push('/apps/products');
+                    router.push('/products');
                 }
             });
         } catch (error: any) {

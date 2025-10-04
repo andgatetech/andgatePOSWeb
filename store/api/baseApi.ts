@@ -13,8 +13,7 @@ const baseQuery = fetchBaseQuery({
             headers.set('authorization', `Bearer ${token}`);
         }
 
-         headers.set('Content-Type', 'application/json');
-
+       
         headers.set('Accept', 'application/json');
 
         return headers;
@@ -47,7 +46,7 @@ export const baseApi = createApi({
         'PurchaseDrafts',
         'TaxReport',
         'TransactionReport',
-        'IdleProductReport'
+        'IdleProductReport',
     ],
     endpoints: () => ({}),
 });
