@@ -158,14 +158,14 @@ const PosLeftSide = () => {
                 try {
                     // First, request camera permission using getUserMedia
                     console.log('📷 Requesting camera permission via getUserMedia...');
-                    const stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'environment' } 
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' },
                     });
                     console.log('✅ Camera permission granted! Stream:', stream);
-                    
+
                     // Stop the test stream
-                    stream.getTracks().forEach(track => track.stop());
-                    
+                    stream.getTracks().forEach((track) => track.stop());
+
                     // Now initialize html5-qrcode
                     html5QrCode = new Html5Qrcode('qr-reader');
 
@@ -184,14 +184,24 @@ const PosLeftSide = () => {
                                 fps: 10,
                                 qrbox: { width: 250, height: 250 },
                             },
-                            (decodedText) => {
+                            async (decodedText) => {
                                 console.log('📸 Barcode scanned:', decodedText);
-                                // Success callback
-                                handleBarcodeScan(decodedText);
-                                if (html5QrCode) {
-                                    html5QrCode.stop().catch(console.error);
+                                
+                                try {
+                                    // Stop scanner first to prevent multiple scans
+                                    if (html5QrCode && html5QrCode.isScanning) {
+                                        await html5QrCode.stop();
+                                        console.log('✅ Scanner stopped');
+                                    }
+                                } catch (stopErr) {
+                                    console.error('Error stopping scanner:', stopErr);
                                 }
-                                setShowCameraScanner(false);
+                                
+                                // Then handle the barcode and close
+                                setTimeout(() => {
+                                    handleBarcodeScan(decodedText);
+                                    setShowCameraScanner(false);
+                                }, 100);
                             },
                             (errorMessage) => {
                                 // Error callback (can be ignored for continuous scanning)
@@ -206,15 +216,15 @@ const PosLeftSide = () => {
                     console.error('❌ Failed to start camera:', err);
                     const errorName = err.name || '';
                     const errorMessage = err.message || 'Failed to access camera';
-                    
+
                     let userMessage = 'Camera Error: ' + errorMessage;
-                    
+
                     if (errorName === 'NotAllowedError' || errorMessage.includes('Permission denied')) {
                         // Check if on localhost vs production
                         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                         const isHTTPS = window.location.protocol === 'https:';
                         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                        
+
                         if (isLocalhost && !isHTTPS) {
                             userMessage = `🚫 Camera Blocked on Mobile!\n\nMobile browsers require HTTPS for camera access.\n\n✅ SOLUTION:\n• This will work on your live site (andgatepos.com)\n• For local testing, use your laptop/desktop\n• Or use ngrok for HTTPS tunnel\n\nNote: USB barcode scanner still works!`;
                         } else {
@@ -232,7 +242,7 @@ const PosLeftSide = () => {
                     } else if (errorName === 'NotSupportedError' || errorMessage.includes('Only secure')) {
                         userMessage = `🔒 HTTPS Required!\n\nCamera only works on HTTPS.\n\n✅ Your live site (andgatepos.com) will work!\n\nFor localhost testing:\n• Use desktop/laptop browser\n• Or use ngrok for HTTPS tunnel`;
                     }
-                    
+
                     alert(userMessage);
                     setShowCameraScanner(false);
                 }
@@ -242,9 +252,17 @@ const PosLeftSide = () => {
                 clearTimeout(timer);
                 if (html5QrCode) {
                     console.log('🛑 Cleaning up scanner...');
-                    html5QrCode.stop().catch((error) => {
-                        console.error('Failed to stop scanner:', error);
-                    });
+                    html5QrCode
+                        .stop()
+                        .then(() => {
+                            console.log('✅ Scanner cleaned up successfully');
+                        })
+                        .catch((error) => {
+                            // Ignore errors if scanner was already stopped
+                            if (!error.message?.includes('not started')) {
+                                console.error('Failed to stop scanner:', error);
+                            }
+                        });
                 }
             };
         }
@@ -728,7 +746,7 @@ const PosLeftSide = () => {
                                 <div className="bg-gray-50 px-4 py-3 text-sm text-gray-700">
                                     <p className="text-center font-medium">Point camera at barcode or QR code</p>
                                     <p className="mt-1 text-center text-xs text-gray-500">Scanner will automatically detect and add product to cart</p>
-                                    
+
                                     <div className="mt-3 border-t border-gray-200 pt-3">
                                         <p className="mb-2 text-xs font-semibold text-gray-600">📷 Camera not showing?</p>
                                         <ul className="space-y-1 text-xs text-gray-600">
