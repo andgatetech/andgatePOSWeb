@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Calendar, Filter, Download, AlertTriangle, Package, TrendingDown, DollarSign } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
-
+import { AlertTriangle, DollarSign, Download, Package, TrendingDown } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const IdleInventoryReport = () => {
     const { data: productsResponse, isLoading: productsLoading, error: productsError } = useGetAllProductsQuery();
@@ -280,10 +279,10 @@ const IdleInventoryReport = () => {
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <span
                                                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                    product.available === 'no' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                                                    product.available === false ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                                                 }`}
                                             >
-                                                {product.available === 'yes' ? 'Available' : 'Unavailable'}
+                                                {product.available === true ? 'Available' : 'Unavailable'}
                                             </span>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-red-600">-৳{product.revenueLost}</td>

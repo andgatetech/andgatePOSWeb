@@ -103,8 +103,8 @@ const PurchaseOrderLeftSide = () => {
     };
 
     const addToCart = (product: any) => {
-        // Calculate total quantity from product_stocks
-        const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+        // Calculate total quantity from stocks
+        const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
         if (beepRef.current) {
             beepRef.current.currentTime = 0;
@@ -134,7 +134,7 @@ const PurchaseOrderLeftSide = () => {
             quantity: 1,
             amount: purchasePrice,
             availableStock: totalQuantity, // Track current stock
-            unit: product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'piece'),
+            unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
             status: 'ordered',
         };
 
@@ -429,9 +429,9 @@ const PurchaseOrderLeftSide = () => {
                     {/* Products Grid - Responsive based on width */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {currentProducts.map((product: any) => {
-                            // Calculate total quantity from product_stocks
-                            const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
-                            const isUnavailable = product.available === 'no' || totalQuantity <= 0;
+                            // Calculate total quantity from stocks
+                            const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+                            const isUnavailable = product.available === false || totalQuantity <= 0;
 
                             return (
                                 <div
@@ -473,7 +473,7 @@ const PurchaseOrderLeftSide = () => {
 
                                         {/* Unit */}
                                         <div className="mb-1 text-xs font-medium text-blue-600">
-                                            Unit: {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'N/A')}
+                                            Unit: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}
                                         </div>
 
                                         <div className="mt-2 flex items-center justify-between">

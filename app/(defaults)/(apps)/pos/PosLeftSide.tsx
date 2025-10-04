@@ -6,15 +6,14 @@ import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/Product/productApi';
 
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
+import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
+import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { Award, Eye, GripVertical, Package, Search, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
-import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
-import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
-
 
 const PosLeftSide = () => {
     const [open, setOpen] = useState(false);
@@ -151,10 +150,10 @@ const PosLeftSide = () => {
     };
 
     const addToCart = (product: any) => {
-        // Calculate total quantity from product_stocks
-        const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+        // Calculate total quantity from stocks
+        const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
-        if (product.available === 'no' || totalQuantity <= 0) {
+        if (product.available === false || totalQuantity <= 0) {
             showMessage('Product is not available', 'error');
             return;
         }
@@ -182,9 +181,9 @@ const PosLeftSide = () => {
             quantity: 1,
             amount: parseFloat(product.price),
             PlaceholderQuantity: totalQuantity,
-            tax_rate: parseFloat(product.tax_rate || '0'),
-            tax_included: product.tax_included === 1,
-            unit: product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'piece'),
+            tax_rate: product.tax?.rate ? parseFloat(product.tax.rate) : 0,
+            tax_included: product.tax?.included === true,
+            unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
         };
 
         dispatch(addItemRedux(itemToAdd));
@@ -476,9 +475,9 @@ const PosLeftSide = () => {
                         }`}
                     >
                         {currentProducts.map((product: any) => {
-                            // Calculate total quantity from product_stocks
-                            const totalQuantity = product.product_stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
-                            const isUnavailable = product.available === 'no' || totalQuantity <= 0;
+                            // Calculate total quantity from stocks
+                            const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+                            const isUnavailable = product.available === false || totalQuantity <= 0;
 
                             return (
                                 <div
@@ -491,7 +490,16 @@ const PosLeftSide = () => {
                                     {/* Product Image */}
                                     <div className="relative h-44 overflow-hidden rounded-t-lg bg-gray-100">
                                         {product.images && product.images.length > 0 ? (
-                                            <Image src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${product.images[0].image_path}`} alt={product.product_name} fill className="object-cover" />
+                                            <Image
+                                                src={
+                                                    typeof product.images[0] === 'string'
+                                                        ? product.images[0]
+                                                        : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${product.images[0].image_path || product.images[0]}`
+                                                }
+                                                alt={product.product_name}
+                                                fill
+                                                className="object-cover"
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
                                                 <Package className="mb-2 h-12 w-12" />
@@ -520,7 +528,7 @@ const PosLeftSide = () => {
 
                                         {/* Unit */}
                                         <div className="mb-1 text-xs font-medium text-blue-600">
-                                            Unit: {product.unit || (product.product_stocks && product.product_stocks.length > 0 ? product.product_stocks[0].unit : 'N/A')}
+                                            Unit: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}
                                         </div>
 
                                         <div className="mt-2 flex items-center justify-between">

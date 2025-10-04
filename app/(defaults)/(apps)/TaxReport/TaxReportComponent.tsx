@@ -1,6 +1,6 @@
 'use client';
-import { useState, useRef, useMemo } from 'react';
-import { Download, Printer, Receipt, Filter } from 'lucide-react';
+import { Download, Filter, Printer, Receipt } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
 
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import ReportHeader from '../../components/Report Header/ReportHeader';
@@ -107,8 +107,8 @@ const TaxReportComponent = () => {
                     quantity: parseFloat(item.quantity),
                     unitPrice: parseFloat(item.unit_price),
                     taxAmount: parseFloat(item.tax),
-                    taxRate: parseFloat(item.product.tax_rate),
-                    taxIncluded: item.product.tax_included === 1,
+                    taxRate: item.product.tax?.rate ? parseFloat(item.product.tax.rate) : 0,
+                    taxIncluded: item.product.tax?.included === true,
                     subtotal: parseFloat(item.subtotal),
                     storeName: order.store.store_name,
                     customerName: order.customer.name,
