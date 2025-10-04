@@ -8,7 +8,7 @@ import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import { Award, Camera, Eye, GripVertical, Package, Search, ShoppingCart, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -141,12 +141,12 @@ const PosLeftSide = () => {
 
     // Initialize html5-qrcode scanner
     useEffect(() => {
-        let scanner: Html5QrcodeScanner | null = null;
+        let html5QrCode: Html5Qrcode | null = null;
 
         if (showCameraScanner) {
             console.log('🎥 Initializing camera scanner...');
             // Small delay to ensure DOM element is ready
-            const timer = setTimeout(() => {
+            const timer = setTimeout(async () => {
                 const element = document.getElementById('qr-reader');
                 if (!element) {
                     console.error('❌ QR reader element not found!');
@@ -154,39 +154,57 @@ const PosLeftSide = () => {
                 }
 
                 console.log('✅ QR reader element found, creating scanner...');
-                scanner = new Html5QrcodeScanner(
-                    'qr-reader',
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0,
-                    },
-                    false
-                );
+                html5QrCode = new Html5Qrcode('qr-reader');
 
-                scanner.render(
-                    (decodedText) => {
-                        console.log('📸 Barcode scanned:', decodedText);
-                        // Success callback
-                        handleBarcodeScan(decodedText);
-                        if (scanner) {
-                            scanner.clear().catch(console.error);
-                        }
-                        setShowCameraScanner(false);
-                    },
-                    (errorMessage) => {
-                        // Error callback (can be ignored for continuous scanning)
-                        // Don't log these as they happen constantly during scanning
+                try {
+                    console.log('📷 Requesting camera permission...');
+
+                    // Try to get camera devices first
+                    const devices = await Html5Qrcode.getCameras();
+                    console.log('📹 Available cameras:', devices);
+
+                    if (devices && devices.length > 0) {
+                        // Use the first available camera (or back camera if available)
+                        const cameraId = devices[devices.length - 1].id; // Last camera is usually back camera
+
+                        await html5QrCode.start(
+                            cameraId,
+                            {
+                                fps: 10,
+                                qrbox: { width: 250, height: 250 },
+                            },
+                            (decodedText) => {
+                                console.log('📸 Barcode scanned:', decodedText);
+                                // Success callback
+                                handleBarcodeScan(decodedText);
+                                if (html5QrCode) {
+                                    html5QrCode.stop().catch(console.error);
+                                }
+                                setShowCameraScanner(false);
+                            },
+                            (errorMessage) => {
+                                // Error callback (can be ignored for continuous scanning)
+                                // Don't log these as they happen constantly during scanning
+                            }
+                        );
+                        console.log('✅ Camera started successfully!');
+                    } else {
+                        throw new Error('No cameras found on this device');
                     }
-                );
+                } catch (err: any) {
+                    console.error('❌ Failed to start camera:', err);
+                    const message = err.message || 'Failed to access camera';
+                    alert(`Camera Error: ${message}\n\nPlease ensure:\n1. Your device has a camera\n2. Camera permissions are granted\n3. No other app is using the camera`);
+                    setShowCameraScanner(false);
+                }
             }, 100);
 
             return () => {
                 clearTimeout(timer);
-                if (scanner) {
+                if (html5QrCode) {
                     console.log('🛑 Cleaning up scanner...');
-                    scanner.clear().catch((error) => {
-                        console.error('Failed to clear scanner:', error);
+                    html5QrCode.stop().catch((error) => {
+                        console.error('Failed to stop scanner:', error);
                     });
                 }
             };
