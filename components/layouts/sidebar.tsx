@@ -303,7 +303,7 @@ const Sidebar = () => {
                                             </button>
 
                                             <AnimateHeight duration={300} height={currentMenu === route.label ? 'auto' : 0}>
-                                                <ul className="sub-menu pl-6 text-gray-500">
+                                                <ul className="sub-menu text-gray-500">
                                                     {route.subMenu.map((sub) => (
                                                         <li key={sub.label} className="py-1">
                                                             {sub.href ? (

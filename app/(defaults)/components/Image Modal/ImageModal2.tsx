@@ -1,14 +1,14 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { X } from 'lucide-react';
 import Image from 'next/image';
+import { Fragment } from 'react';
 import { Navigation, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { X } from 'lucide-react';
 
 interface ImageShowModalProps {
     isOpen: boolean;
@@ -36,17 +36,33 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
                         {product.images && product.images.length > 0 && (
                             <Swiper modules={[Navigation, Pagination]} navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full">
-                                {product.images.map((img: any, index: number) => (
-                                    <SwiperSlide key={index} className="flex items-center justify-center">
-                                        <Image
-                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${img.image_path}`}
-                                            alt={product.product_name}
-                                            width={800}
-                                            height={600}
-                                            className="object-contain"
-                                        />
-                                    </SwiperSlide>
-                                ))}
+                                {product.images.map((img: any, index: number) => {
+                                    // Handle both string and object formats
+                                    const imagePath = typeof img === 'string' ? img : img?.image_path || img?.url || '';
+
+                                    // Skip if no valid path
+                                    if (!imagePath) {
+                                        console.error('Invalid image data at index', index, ':', img);
+                                        return null;
+                                    }
+
+                                    return (
+                                        <SwiperSlide key={index} className="flex h-full items-center justify-center">
+                                            <div className="relative h-full w-full">
+                                                <Image
+                                                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`}
+                                                    alt={product.product_name}
+                                                    fill
+                                                    className="object-contain"
+                                                    onError={(e) => {
+                                                        console.error('Failed to load image:', `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`);
+                                                        console.error('Original image data:', img);
+                                                    }}
+                                                />
+                                            </div>
+                                        </SwiperSlide>
+                                    );
+                                })}
                             </Swiper>
                         )}
 

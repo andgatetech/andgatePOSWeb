@@ -1,81 +1,78 @@
 'use client';
-import IconCaretDown from '@/components/icon/icon-caret-down';
+
 import { Dialog, Transition } from '@headlessui/react';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 import { Fragment } from 'react';
-import { useSelector } from 'react-redux';
-import { Navigation, Pagination, Autoplay } from 'swiper';
+import { Navigation, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-export default function ImageShowModal({ isOpen, onClose, product }) {
-    console.log(product);
-    const themeConfig = useSelector((state: any) => state.themeConfig);
+interface ImageShowModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    product: any;
+}
 
+export default function ImageShowModal({ isOpen, onClose, product }: ImageShowModalProps) {
     if (!product) return null;
-
-    const handleButtonClick = (e) => {
-        e.stopPropagation();
-    };
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" open={isOpen} onClose={onClose}>
+            <Dialog as="div" className="relative z-50" onClose={onClose}>
                 {/* Overlay */}
                 <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-                    <div className="fixed inset-0 z-[999] " />
+                    <div className="fixed inset-0 bg-black/50" />
                 </Transition.Child>
 
                 {/* Modal Body */}
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center">
-                    <Dialog.Panel className="relative w-full max-w-lg overflow-hidden rounded-lg border-0 bg-white text-black dark:bg-[#121c2c] dark:text-white-dark">
-                        <div className="relative">
-                            <Swiper
-                                className="mx-auto mb-5 max-w-3xl"
-                                id="slider4"
-                                modules={[Navigation, Pagination, Autoplay]}
-                                slidesPerView={1}
-                                spaceBetween={30}
-                                loop={true}
-                                touchRatio={1}
-                                grabCursor={true}
-                                pagination={{
-                                    clickable: true,
-                                    type: 'fraction',
-                                }}
-                                navigation={{
-                                    nextEl: '.swiper-button-next-ex4',
-                                    prevEl: '.swiper-button-prev-ex4',
-                                }}
-                                autoplay={{
-                                    delay: 2000,
-                                    disableOnInteraction: false,
-                                }}
-                                dir={themeConfig.rtlClass}
-                                key={themeConfig.rtlClass === 'rtl' ? 'true' : 'false'}
-                            >
-                                {product.images.map((img, i) => (
-                                    <SwiperSlide key={i}>
-                                        <Image src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${img.image_path}`} alt={`Product image ${i + 1}`} width={800} height={600} objectFit="contain" />
-                                    </SwiperSlide>
-                                ))}
-                                <button
-                                    type="button"
-                                    className="swiper-button-prev-ex4 absolute top-1/2 z-[999] grid -translate-y-1/2 place-content-center rounded-full border border-primary p-1 text-primary transition hover:border-primary hover:bg-primary hover:text-white ltr:left-2 rtl:right-2"
-                                    onClick={handleButtonClick}
-                                >
-                                    <IconCaretDown className="h-5 w-5 rotate-90 rtl:-rotate-90" />
-                                </button>
-                                <button
-                                    type="button"
-                                    className="swiper-button-next-ex4 absolute top-1/2 z-[999] grid -translate-y-1/2 place-content-center rounded-full border border-primary p-1 text-primary transition hover:border-primary hover:bg-primary hover:text-white ltr:right-2 rtl:left-2"
-                                    onClick={handleButtonClick}
-                                >
-                                    <IconCaretDown className="h-5 w-5 -rotate-90 rtl:rotate-90" />
-                                </button>
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Dialog.Panel className="relative w-full max-w-3xl rounded bg-white p-4">
+                        <button onClick={onClose} className="absolute right-2 top-2 z-50 rounded-full bg-gray-200 p-2 hover:bg-gray-300">
+                            <X className="h-5 w-5" />
+                        </button>
+
+                        {product.images && product.images.length > 0 && (
+                            <Swiper modules={[Navigation, Pagination]} navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full">
+                                {product.images.map((img: any, index: number) => {
+                                    // Handle both string and object formats
+                                    const imagePath = typeof img === 'string' ? img : img?.image_path || img?.url || '';
+
+                                    // Skip if no valid path
+                                    if (!imagePath) {
+                                        console.error('Invalid image data at index', index, ':', img);
+                                        return null;
+                                    }
+
+                                    return (
+                                        <SwiperSlide key={index} className="flex h-full items-center justify-center">
+                                            <div className="relative h-full w-full">
+                                                <Image
+                                                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`}
+                                                    alt={product.product_name}
+                                                    fill
+                                                    className="object-contain"
+                                                    onError={(e) => {
+                                                        console.error('Failed to load image:', `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`);
+                                                        console.error('Original image data:', img);
+                                                    }}
+                                                />
+                                            </div>
+                                        </SwiperSlide>
+                                    );
+                                })}
                             </Swiper>
+                        )}
+
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold text-gray-900">{product.product_name}</h3>
+                            <p className="mt-1 text-sm text-gray-600">{product.description}</p>
+                            <div className="mt-2 flex items-center justify-between">
+                                <span className="text-base font-bold text-primary">৳{parseFloat(product.price).toFixed(2)}</span>
+                                <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">Stock: {product.quantity}</span>
+                            </div>
                         </div>
                     </Dialog.Panel>
                 </div>

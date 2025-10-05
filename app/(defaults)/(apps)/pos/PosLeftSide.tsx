@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
 
-const PosLeftSide = () => { 
+const PosLeftSide = () => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -468,6 +468,8 @@ const PosLeftSide = () => {
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
     const handleImageShow = (product: any) => {
+        console.log('Opening image modal for product:', product.product_name);
+        console.log('Product images:', product.images);
         setSelectedProduct(product);
         setOpen(true);
     };
@@ -868,8 +870,8 @@ const PosLeftSide = () => {
                                                 <Image
                                                     src={
                                                         typeof product.images[0] === 'string'
-                                                            ? product.images[0]
-                                                            : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${product.images[0].image_path || product.images[0]}`
+                                                            ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
+                                                            : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`
                                                     }
                                                     alt={product.product_name}
                                                     fill
