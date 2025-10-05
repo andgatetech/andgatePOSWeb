@@ -47,8 +47,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-           const result = await loginApi(credentials).unwrap();
-           const { user, token } = result.data;
+            const result = await loginApi(credentials).unwrap();
+            const { user, token } = result.data;
 
             // Save token + role in cookies
             document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
@@ -60,8 +60,11 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             toast.success('Login successful! Redirecting to dashboard...');
             router.push('/dashboard');
         } catch (error: any) {
-            console.error('Login failed:', error);
-            toast.error(error?.data || 'Login failed. Please check your credentials.');
+            console.error('Registration failed:', error);
+
+            // Show only the top-level message
+            const message = error?.data?.errors || 'Registration failed. Please try again.';
+            toast.error(message);
         }
     };
 

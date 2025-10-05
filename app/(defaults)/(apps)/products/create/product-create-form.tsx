@@ -590,7 +590,7 @@ const ProductCreateForm = () => {
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
                                         >
                                             <option value="">Select Unit</option>
-                                            <option value="piece">Piece</option>
+                                            
                                             {units.map((unit: any) => (
                                                 <option key={unit.id} value={unit.name}>
                                                     {unit.name}

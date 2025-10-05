@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
 
-const PosLeftSide = () => {
+const PosLeftSide = () => { 
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
