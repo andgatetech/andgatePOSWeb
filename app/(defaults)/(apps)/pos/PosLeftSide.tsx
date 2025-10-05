@@ -78,8 +78,17 @@ const PosLeftSide = () => {
     }, [currentStoreId]);
 
     // Fetch products for current store only
-    const { data: productsData, isLoading } = useGetAllProductsQuery(queryParams);
-    const products = useMemo(() => productsData?.data || [], [productsData]);
+    const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams);
+
+    // Handle both success and 404 "not found" responses
+    const products = useMemo(() => {
+        // If API returns data array, use it
+        if (productsData?.data && Array.isArray(productsData.data)) {
+            return productsData.data;
+        }
+        // If 404 or no products found, return empty array (don't show error)
+        return [];
+    }, [productsData]);
 
     // Fetch categories and brands for current store
     const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(filterQueryParams);
@@ -851,71 +860,111 @@ const PosLeftSide = () => {
                                     : 'repeat(auto-fill, minmax(160px, 1fr))',
                             }}
                         >
-                            {currentProducts.map((product: any) => {
-                                // Calculate total quantity from stocks
-                                const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
-                                const isUnavailable = product.available === false || totalQuantity <= 0;
+                            {currentProducts.length === 0 ? (
+                                <div className="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-12 sm:py-16">
+                                    <Package className="mb-4 h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
+                                    <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">No Products Found</h3>
+                                    <p className="mb-4 max-w-md text-center text-sm text-gray-600 sm:text-base">
+                                        {selectedCategory || selectedBrand ? (
+                                            <>
+                                                No products match your selected filters.
+                                                <br />
+                                                Try selecting different filters or clear them to see all products.
+                                            </>
+                                        ) : searchTerm ? (
+                                            <>
+                                                No products match your search &quot;{searchTerm}&quot;.
+                                                <br />
+                                                Try different keywords or check the spelling.
+                                            </>
+                                        ) : (
+                                            <>
+                                                No products available in this store.
+                                                <br />
+                                                Please add products to get started.
+                                            </>
+                                        )}
+                                    </p>
+                                    {(selectedCategory || selectedBrand || searchTerm) && (
+                                        <button
+                                            onClick={() => {
+                                                clearFilters();
+                                                setSearchTerm('');
+                                            }}
+                                            className="flex items-center space-x-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                                        >
+                                            <X className="h-4 w-4" />
+                                            <span>Clear All Filters</span>
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                currentProducts.map((product: any) => {
+                                    // Calculate total quantity from stocks
+                                    const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+                                    const isUnavailable = product.available === false || totalQuantity <= 0;
 
-                                return (
-                                    <div
-                                        key={product.id}
-                                        className={`relative cursor-pointer rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md ${
-                                            isUnavailable ? 'opacity-60' : 'hover:scale-[1.02]'
-                                        }`}
-                                        onClick={() => !isUnavailable && addToCart(product)}
-                                    >
-                                        {/* Product Image */}
-                                        <div className="relative h-32 overflow-hidden rounded-t-lg bg-gray-100 sm:h-40 md:h-44">
-                                            {product.images && product.images.length > 0 ? (
-                                                <Image
-                                                    src={
-                                                        typeof product.images[0] === 'string'
-                                                            ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
-                                                            : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`
-                                                    }
-                                                    alt={product.product_name}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            ) : (
-                                                <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
-                                                    <Package className="mb-1 h-8 w-8 sm:mb-2 sm:h-10 sm:w-10 md:h-12 md:w-12" />
-                                                    <span className="text-xs font-medium sm:text-sm">No Image</span>
+                                    return (
+                                        <div
+                                            key={product.id}
+                                            className={`relative cursor-pointer rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md ${
+                                                isUnavailable ? 'opacity-60' : 'hover:scale-[1.02]'
+                                            }`}
+                                            onClick={() => !isUnavailable && addToCart(product)}
+                                        >
+                                            {/* Product Image */}
+                                            <div className="relative h-32 overflow-hidden rounded-t-lg bg-gray-100 sm:h-40 md:h-44">
+                                                {product.images && product.images.length > 0 ? (
+                                                    <Image
+                                                        src={
+                                                            typeof product.images[0] === 'string'
+                                                                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
+                                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`
+                                                        }
+                                                        alt={product.product_name}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
+                                                        <Package className="mb-1 h-8 w-8 sm:mb-2 sm:h-10 sm:w-10 md:h-12 md:w-12" />
+                                                        <span className="text-xs font-medium sm:text-sm">No Image</span>
+                                                    </div>
+                                                )}
+
+                                                {/* Open modal */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleImageShow(product);
+                                                    }}
+                                                    className="absolute right-1.5 top-1.5 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70 sm:right-2 sm:top-2 sm:p-2"
+                                                >
+                                                    <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                </button>
+                                            </div>
+
+                                            {/* Info */}
+                                            <div className="p-2 sm:p-3">
+                                                <h3 className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm">{product.product_name}</h3>
+
+                                                {/* SKU */}
+                                                {product.sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">SKU: {product.sku}</div>}
+
+                                                {/* Unit */}
+                                                <div className="mb-1 text-[10px] font-medium text-blue-600 sm:text-xs">
+                                                    Unit: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}
                                                 </div>
-                                            )}
 
-                                            {/* Open modal */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleImageShow(product);
-                                                }}
-                                                className="absolute right-1.5 top-1.5 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70 sm:right-2 sm:top-2 sm:p-2"
-                                            >
-                                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-                                            </button>
-                                        </div>
-
-                                        {/* Info */}
-                                        <div className="p-2 sm:p-3">
-                                            <h3 className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm">{product.product_name}</h3>
-
-                                            {/* SKU */}
-                                            {product.sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">SKU: {product.sku}</div>}
-
-                                            {/* Unit */}
-                                            <div className="mb-1 text-[10px] font-medium text-blue-600 sm:text-xs">
-                                                Unit: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}
-                                            </div>
-
-                                            <div className="mt-1.5 flex items-center justify-between sm:mt-2">
-                                                <span className="text-sm font-bold text-primary sm:text-base">৳{parseFloat(product.price).toFixed(2)}</span>
-                                                <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">Stock: {totalQuantity}</span>
+                                                <div className="mt-1.5 flex items-center justify-between sm:mt-2">
+                                                    <span className="text-sm font-bold text-primary sm:text-base">৳{parseFloat(product.price).toFixed(2)}</span>
+                                                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">Stock: {totalQuantity}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })
+                            )}
                         </div>
 
                         {/* Pagination */}
