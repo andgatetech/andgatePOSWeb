@@ -8,6 +8,7 @@ const nextConfig = {
             'pos.api.andgatetech.net',
             'img.youtube.com', // for youtube thumbnails
             'pos.api.andgatetech.net', // ✅ Added API domain
+            'api.andgatepos.com'
         ],
         remotePatterns: [
             {
@@ -18,7 +19,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'pos.api.andgatetech.net',
+                hostname: 'api.andgatepos.com',
                 pathname: '/storage/**', // ✅ Allow Laravel storage images
             },
         ],
