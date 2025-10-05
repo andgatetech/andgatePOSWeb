@@ -1,4 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
+import { setUser } from '../auth/authSlice';
 
 const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -104,6 +105,26 @@ const StoreApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Stores'],
         }),
+
+        createStore: builder.mutation({
+            query: (storeData) => ({
+                url: '/store/create',
+                method: 'POST',
+                body: storeData,
+            }),
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    const response = await queryFulfilled;
+
+                    // For store creation, the response structure is { success, message, data: { user: {...}, token } }
+                    if (response.data?.data?.user) {
+                        dispatch(setUser({ user: response.data.data.user }));
+                    }
+                } catch (error) {
+                    console.error('Store creation failed:', error);
+                }
+            },
+        }),
     }),
 });
 
@@ -116,4 +137,5 @@ export const {
     useFullStoreListWithFilterQuery,
     useDeleteStoreMutation,
     useAllStoresQuery,
+    useCreateStoreMutation, // ← New hook for store registration
 } = StoreApi;

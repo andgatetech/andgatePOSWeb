@@ -1,13 +1,14 @@
 'use client';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
-import { useCreateStoreMutation } from '@/store/features/auth/authApi';
-import { useGetStoreQuery } from '@/store/features/store/storeApi';
+
+import { useCreateStoreMutation, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { Activity, Building2, Calendar, MapPin, Plus, Store, Tag, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import AllStoreComponent from './AllStoreComponent';
+
 
 const StoreComponent = () => {
     // Get current store from Redux
