@@ -1,54 +1,24 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Public pages
+// Public pages that can be accessed without token
 const PUBLIC_ROUTES = ['/', '/features', '/pos-overview', '/pricing', '/training', '/contact', '/login'];
-
-// Role-based allowed routes
-const ROLE_ROUTES: Record<string, string[]> = {
-    store_admin: ['*'], // full access
-    supplier: ['/supplier', '/supplier/purchase', '/supplierproducts'],
-    staff: ['/products', '/purchase', '/createpurchase', '/pos', '/orders'], // add /orders
-};
 
 export function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
-    const role = request.cookies.get('role')?.value;
     const { pathname } = request.nextUrl;
 
-    // Allow public routes
-    if (PUBLIC_ROUTES.includes(pathname.toLowerCase())) {
-        return NextResponse.next();
+    // 1️⃣ Logged-in users trying to access /login → redirect to /dashboard
+    if (token && pathname.toLowerCase() === '/login') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // Require login for everything else
-    if (!token) {
+    // 2️⃣ Not logged-in users trying to access private pages → redirect to /login
+    if (!token && !PUBLIC_ROUTES.includes(pathname.toLowerCase())) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // Role-based access
-    if (role && ROLE_ROUTES[role]) {
-        const allowedRoutes = ROLE_ROUTES[role];
-
-        if (allowedRoutes.includes('*')) return NextResponse.next();
-
-        const hasAccess = allowedRoutes.some((r) => pathname.toLowerCase().startsWith(r.toLowerCase()));
-
-        if (hasAccess) return NextResponse.next();
-
-        // Redirect based on role
-        switch (role) {
-            case 'supplier':
-                return NextResponse.redirect(new URL('/supplier', request.url));
-            case 'staff':
-                return NextResponse.redirect(new URL('/products', request.url));
-            default:
-                return NextResponse.redirect(new URL('/login', request.url));
-        }
-    }
-
-    // Default redirect to login
-    return NextResponse.redirect(new URL('/login', request.url));
+    // 3️⃣ All other cases → allow access
+    return NextResponse.next();
 }
 
 export const config = {
@@ -63,7 +33,6 @@ export const config = {
         '/orders/:path*',
         '/account/:path*',
         '/store/:path*',
-
         '/settings/:path*',
         '/staff/:path*',
         '/create-adjustment/:path*',
@@ -72,6 +41,5 @@ export const config = {
         '/suppliers/:path*',
         '/expenses/:path*',
         '/reports/:path*',
-        
     ],
 };
