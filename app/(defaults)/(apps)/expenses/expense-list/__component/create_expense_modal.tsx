@@ -2,8 +2,8 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
-import { Group, Modal, NumberInput, Textarea, TextInput } from '@mantine/core';
-import { FileText, Plus, Store, X } from 'lucide-react';
+import { Group, Modal, NumberInput, Select, Textarea, TextInput } from '@mantine/core';
+import { CreditCard, FileText, Plus, Store, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -18,6 +18,7 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
     const [debit, setDebit] = useState<number | undefined>();
     const { currentStoreId, currentStore } = useCurrentStore();
     const [storeId, setStoreId] = useState<number | undefined>();
+    const [paymentType, setPaymentType] = useState<string | null>(null);
     const [createExpense, { isLoading }] = useCreateExpenseMutation();
 
     // Update storeId dynamically when sidebar store changes
@@ -29,11 +30,12 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
         if (!title || !debit) return;
 
         try {
-            await createExpense({ title, notes, debit, store_id: currentStoreId }).unwrap();
+            await createExpense({ title, notes, debit, payment_type: paymentType, store_id: currentStoreId }).unwrap();
             setTitle('');
             setNotes('');
             setDebit(undefined);
             setStoreId(undefined);
+            setPaymentType(null);
             toast.success('Expense created successfully');
             onClose();
         } catch (error) {
@@ -128,6 +130,42 @@ const CreateExpenseModal: React.FC<Props> = ({ opened, onClose }) => {
                             },
                         }}
                     />
+                </div>
+
+                <div className="relative">
+                    <Select
+                        label="Payment Type"
+                        placeholder="Select payment type"
+                        required
+                        data={[
+                            { value: 'cash', label: 'Cash' },
+                            { value: 'bank', label: 'Bank' },
+                            { value: 'card', label: 'Card' },
+                            { value: 'others', label: 'Others' },
+                        ]}
+                        value={paymentType}
+                        onChange={setPaymentType}
+                        styles={{
+                            label: {
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '6px',
+                            },
+                            input: {
+                                borderRadius: '8px',
+                                border: '2px solid #e5e7eb',
+                                padding: '12px 16px 12px 44px',
+                                fontSize: '14px',
+                                transition: 'all 0.2s ease',
+                                '&:focus': {
+                                    borderColor: '#667eea',
+                                    boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                                },
+                            },
+                        }}
+                    />
+                    <CreditCard className="absolute left-3 top-9 h-4 w-4 text-indigo-500" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
