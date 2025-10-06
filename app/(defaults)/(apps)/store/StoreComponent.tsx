@@ -2,13 +2,14 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 
+import SubscriptionError from '@/components/common/SubscriptionError';
+import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { useCreateStoreMutation, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { Activity, Building2, Calendar, MapPin, Plus, Store, Tag, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import AllStoreComponent from './AllStoreComponent';
-
 
 const StoreComponent = () => {
     // Get current store from Redux
@@ -25,7 +26,7 @@ const StoreComponent = () => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [createStore] = useCreateStoreMutation();
+    const [createStore, { error: createError }] = useCreateStoreMutation();
 
     // Use the correct API query that calls your getStore endpoint
     const {
@@ -39,6 +40,9 @@ const StoreComponent = () => {
         // Skip the query if no store_id is available
         skip: !currentStoreId,
     });
+
+    // Check for subscription errors
+    const { hasSubscriptionError, subscriptionError } = useSubscriptionError(error || createError);
 
     // Extract store data from API response - data is directly in storeResponse.data
     const apiStore = storeResponse?.data || null;
@@ -72,15 +76,21 @@ const StoreComponent = () => {
         return Math.floor((new Date().getTime() - new Date(currentStore.created_at).getTime()) / (1000 * 60 * 60 * 24));
     };
 
-    const showMessage = (msg = '', type = 'success') => {
-        const toast: any = Swal.mixin({
+    const showMessage = (msg = '', type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+        const toast = Swal.mixin({
             toast: true,
-            position: 'top',
+            position: 'top-end',
             showConfirmButton: false,
             timer: 2000,
+            timerProgressBar: true,
             customClass: { container: 'toast' },
         });
-        toast.fire({ icon: type, title: msg, padding: '8px 16px' });
+
+        toast.fire({
+            icon: type,
+            title: msg,
+            padding: '8px 16px',
+        });
     };
 
     // Handle form input changes
@@ -123,9 +133,13 @@ const StoreComponent = () => {
             if (currentStoreId && refetch) refetch();
 
             showMessage('Store created successfully!', 'success');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating store:', error);
-            showMessage('Failed to create store. Please try again.', 'error');
+
+            // Don't show Swal toast for 403 subscription errors - SubscriptionError component will handle it
+            if (error?.status !== 403) {
+                showMessage('Failed to create store. Please try again.', 'error');
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -137,6 +151,11 @@ const StoreComponent = () => {
         setFormData({ store_name: '', address: '', store_phone: '' });
         setIsSubmitting(false);
     };
+
+    // Show subscription error component if subscription middleware error occurs
+    if (hasSubscriptionError) {
+        return <SubscriptionError errorType={subscriptionError.errorType!} message={subscriptionError.message} details={subscriptionError.details} />;
+    }
 
     if (isLoading) return <div className="flex min-h-screen items-center justify-center">Loading store data...</div>;
     if (error) return <div className="flex min-h-screen items-center justify-center">Error loading data</div>;
