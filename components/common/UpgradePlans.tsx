@@ -133,7 +133,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
             </div>
 
             {/* Pricing Cards */}
-            <div className="px-4 grid mx-auto max-w-7xl grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 md:grid-cols-3">
                 {tiers.map((tier) => {
                     const IconComponent = tier.icon;
                     const colors = colorClasses[tier.color as keyof typeof colorClasses];
@@ -203,7 +203,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                 </button>
                             ) : (
                                 <Link
-                                    href="/contact"
+                                    href={`/subscription?package=${tier.name}`}
                                     className={classNames(
                                         'mb-6 block w-full rounded-xl px-4 py-3 text-center text-sm font-semibold shadow-sm transition-all hover:shadow-md',
                                         tier.mostPopular
