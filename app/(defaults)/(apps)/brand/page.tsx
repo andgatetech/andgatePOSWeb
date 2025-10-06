@@ -4,8 +4,8 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { ChevronDown, ChevronUp, Edit, Eye, Image, MoreVertical, Plus, RotateCcw, Save, Search, Store, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 // Brand Filter Component
 const BrandFilter = ({ onFilterChange, currentStoreId }) => {
@@ -244,18 +244,20 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
-        if (modalType === 'create') {
-            setFormData({ name: '', description: '', image: null });
-            setImagePreview(null);
-        } else if ((modalType === 'edit' || modalType === 'view') && selectedBrand) {
-            setFormData({
-                name: selectedBrand.name || '',
-                description: selectedBrand.description || '',
-                image: null,
-            });
-            setImagePreview(selectedBrand.image_url || null);
+        if (showModal) {
+            if (modalType === 'create') {
+                setFormData({ name: '', description: '', image: null });
+                setImagePreview(null);
+            } else if ((modalType === 'edit' || modalType === 'view') && selectedBrand) {
+                setFormData({
+                    name: selectedBrand.name || '',
+                    description: selectedBrand.description || '',
+                    image: null,
+                });
+                setImagePreview(selectedBrand.image_url || null);
+            }
         }
-    }, [modalType, selectedBrand]);
+    }, [showModal, modalType, selectedBrand]);
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
@@ -545,6 +547,7 @@ const BrandManagement = () => {
             if (modalType === 'create') {
                 brandFormData.append('store_id', currentStoreId);
                 await createBrand(brandFormData).unwrap();
+                setSelectedBrand(null);
                 // showMessage('Brand created successfully', 'success');
                 toast.dismiss();
                 toast.success('Brand created successfully', { toastId: 'create-brand' });
@@ -591,7 +594,7 @@ const BrandManagement = () => {
                 await deleteBrand(id).unwrap();
                 // showMessage('Brand deleted successfully', 'success');
                 toast.dismiss();
-                toast.successfully('Brand deleted successfully', { toastId: 'create-brand' });
+                toast.success('Brand deleted successfully', { toastId: 'create-brand' });
             } catch (error) {
                 console.error('Error deleting brand:', error);
                 // showMessage('Failed to delete brand', 'error');
