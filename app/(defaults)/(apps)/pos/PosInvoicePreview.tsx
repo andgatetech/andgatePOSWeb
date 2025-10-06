@@ -8,9 +8,10 @@ import { useRef } from 'react';
 interface PosInvoicePreviewProps {
     data: any;
     storeId?: number;
+    onClose?: () => void;
 }
 
-const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
+const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) => {
     const invoiceRef = useRef(null);
     const posReceiptRef = useRef(null);
 
@@ -63,32 +64,32 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
         const ESC = '\x1B';
         const GS = '\x1D';
         const LF = '\n';
-        
+
         let data = '';
-        
+
         // Initialize printer
         data += ESC + '@';
-        
+
         // Center align
         data += ESC + 'a' + '\x01';
-        
+
         // Store name (bold, large)
         data += ESC + 'E' + '\x01'; // Bold ON
         data += GS + '!' + '\x11'; // Double height and width
         data += (currentStore?.store_name || 'AndGate POS') + LF;
         data += GS + '!' + '\x00'; // Normal size
         data += ESC + 'E' + '\x00'; // Bold OFF
-        
+
         // Store info
         data += (currentStore?.store_location || 'Dhaka, Bangladesh') + LF;
         data += (currentStore?.store_contact || '+880160000') + LF;
-        
+
         // Divider
         data += '--------------------------------' + LF;
-        
+
         // Left align for details
         data += ESC + 'a' + '\x00';
-        
+
         // Invoice info
         data += 'Receipt: ' + invoice + LF;
         data += 'Date: ' + currentDate + ' ' + currentTime + LF;
@@ -96,15 +97,15 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
         if (customer.name && customer.name !== 'Customer') {
             data += 'Customer: ' + customer.name + LF;
         }
-        
+
         data += '--------------------------------' + LF;
-        
+
         // Items header
         data += ESC + 'E' + '\x01'; // Bold
         data += 'ITEM            QTY      AMOUNT' + LF;
         data += ESC + 'E' + '\x00'; // Bold off
         data += '--------------------------------' + LF;
-        
+
         // Items
         items.forEach((item) => {
             const itemName = item.title.substring(0, 16).padEnd(16);
@@ -113,9 +114,9 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
             data += itemName + qty + amount + LF;
             data += '  ' + item.quantity + ' x ৳' + Number(item.price).toFixed(2) + LF;
         });
-        
+
         data += '--------------------------------' + LF;
-        
+
         // Totals
         data += 'Subtotal:' + ('৳' + subtotal.toFixed(2)).padStart(23) + LF;
         if (calculatedTax > 0) {
@@ -124,25 +125,25 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
         if (calculatedDiscount > 0) {
             data += 'Discount:' + ('-৳' + calculatedDiscount.toFixed(2)).padStart(23) + LF;
         }
-        
+
         data += '--------------------------------' + LF;
-        
+
         // Grand total (bold, large)
         data += ESC + 'E' + '\x01'; // Bold
         data += GS + '!' + '\x10'; // Double width
         data += 'TOTAL: ৳' + grandTotal.toFixed(2) + LF;
         data += GS + '!' + '\x00'; // Normal
         data += ESC + 'E' + '\x00'; // Bold off
-        
+
         data += '--------------------------------' + LF;
-        
+
         // Payment info
         data += ESC + 'a' + '\x01'; // Center
         data += 'Payment: ' + (payment_method || 'Cash') + LF;
         data += 'Status: ' + (payment_status || 'Paid') + LF;
-        
+
         data += '--------------------------------' + LF;
-        
+
         // Thank you message
         data += ESC + 'E' + '\x01'; // Bold
         data += 'THANK YOU!' + LF;
@@ -150,11 +151,11 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
         data += 'Please come again' + LF;
         data += LF;
         data += 'Powered by AndGate POS' + LF;
-        
+
         // Feed paper and cut
         data += LF + LF + LF;
         data += GS + 'V' + '\x41' + '\x03'; // Cut paper
-        
+
         return data;
     };
 
@@ -463,9 +464,11 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
                     <button className="btn btn-success px-5 py-2 text-sm hover:bg-green-600" onClick={printReceipt}>
                         �️ Print Receipt
                     </button>
-                    <button className="btn btn-outline px-5 py-2 text-sm hover:bg-gray-100" onClick={() => window.close()}>
-                        ✕ Close
-                    </button>
+                    {onClose && (
+                        <button className="btn btn-outline px-5 py-2 text-sm hover:bg-gray-100" onClick={onClose}>
+                            ✕ Close
+                        </button>
+                    )}
                 </div>
             )}
 

@@ -621,13 +621,11 @@ const PosRightSide: React.FC = () => {
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-2">
                 <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
                     {/* Close Button */}
-                    <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800">
-                        
-                    </button>
+                    <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800"></button>
 
                     {/* Invoice Preview */}
                     <div className="mb-4">
-                        <PosInvoicePreview data={getPreviewData()} storeId={currentStoreId || undefined} />
+                        <PosInvoicePreview data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
                     </div>
 
                     {/* Footer Buttons */}
