@@ -15,8 +15,24 @@ const ProductApi = baseApi.injectEndpoints({
             query: (filters = {}) => ({
                 url: '/products',
                 method: 'GET',
-                params: filters, // Let Laravel ignore empty ones
+                params: filters,
+                validateStatus: (response, result) => {
+                    // Treat 404 as a valid response (empty products)
+                    return response.status === 200 || response.status === 404;
+                },
             }),
+            transformResponse: (response: any) => {
+                // If data is null (404 response), return empty array
+                if (response && response.data === null) {
+                    return { data: [], success: false };
+                }
+                // If response has valid data array, return it
+                if (response && response.data) {
+                    return response;
+                }
+                // Default fallback: empty array
+                return { data: [], success: true };
+            },
             providesTags: ['Products', 'Orders'],
         }),
         getAllProductsWithStock: builder.query({

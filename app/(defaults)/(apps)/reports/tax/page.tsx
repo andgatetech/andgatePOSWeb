@@ -315,7 +315,11 @@ const TaxReportPage = () => {
                         columns={columns}
                         isLoading={isLoading}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
+                            icon: (
+                                <div className="flex justify-center">
+                                    <Receipt className="h-16 w-16" />
+                                </div>
+                            ),
                             title: 'No Tax Data Found',
                             description: 'Try adjusting your filters to see tax records.',
                         }}
@@ -370,7 +374,11 @@ const TaxReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
+                            icon: (
+                                <div className="flex justify-center">
+                                    <Receipt className="h-16 w-16" />
+                                </div>
+                            ),
                             title: 'No Tax Data Found',
                             description: 'Try adjusting your filters to see tax records.',
                         }}
