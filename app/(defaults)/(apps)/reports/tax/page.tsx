@@ -69,15 +69,8 @@ const TaxReportPage = () => {
                     setReportData(response.data);
                 }
             } catch (error: any) {
-                console.error('Error fetching tax report:', error);
-                // Don't show Swal error if it's a subscription error (will be handled by useSubscriptionError hook)
-                if (error?.status !== 403) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error?.data?.message || 'Failed to fetch tax report',
-                    });
-                }
+                
+                
             }
         },
         [getTaxReport]
