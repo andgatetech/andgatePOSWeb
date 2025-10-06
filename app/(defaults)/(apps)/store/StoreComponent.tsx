@@ -76,15 +76,21 @@ const StoreComponent = () => {
         return Math.floor((new Date().getTime() - new Date(currentStore.created_at).getTime()) / (1000 * 60 * 60 * 24));
     };
 
-    const showMessage = (msg = '', type = 'success') => {
-        const toast: any = Swal.mixin({
+    const showMessage = (msg = '', type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+        const toast = Swal.mixin({
             toast: true,
-            position: 'top',
+            position: 'top-end',
             showConfirmButton: false,
             timer: 2000,
+            timerProgressBar: true,
             customClass: { container: 'toast' },
         });
-        toast.fire({ icon: type, title: msg, padding: '8px 16px' });
+
+        toast.fire({
+            icon: type,
+            title: msg,
+            padding: '8px 16px',
+        });
     };
 
     // Handle form input changes
@@ -127,9 +133,13 @@ const StoreComponent = () => {
             if (currentStoreId && refetch) refetch();
 
             showMessage('Store created successfully!', 'success');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating store:', error);
-            showMessage('Failed to create store. Please try again.', 'error');
+
+            // Don't show Swal toast for 403 subscription errors - SubscriptionError component will handle it
+            if (error?.status !== 403) {
+                showMessage('Failed to create store. Please try again.', 'error');
+            }
         } finally {
             setIsSubmitting(false);
         }

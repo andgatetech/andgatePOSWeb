@@ -258,22 +258,25 @@ const ProductCreateForm = () => {
         } catch (error: any) {
             console.error('Create product failed', error);
 
-            const errorMessage = error?.data?.message || 'Something went wrong while creating the product';
+            // Don't show Swal for 403 subscription errors - SubscriptionError component will handle it
+            if (error?.status !== 403) {
+                const errorMessage = error?.data?.message || 'Something went wrong while creating the product';
 
-            await Swal.fire({
-                title: 'Error!',
-                text: errorMessage,
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#ef4444',
-                background: '#ffffff',
-                color: '#374151',
-                customClass: {
-                    popup: 'rounded-xl shadow-2xl',
-                    title: 'text-xl font-semibold',
-                    confirmButton: 'rounded-lg px-4 py-2 font-medium',
-                },
-            });
+                await Swal.fire({
+                    title: 'Error!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'Try Again',
+                    confirmButtonColor: '#ef4444',
+                    background: '#ffffff',
+                    color: '#374151',
+                    customClass: {
+                        popup: 'rounded-xl shadow-2xl',
+                        title: 'text-xl font-semibold',
+                        confirmButton: 'rounded-lg px-4 py-2 font-medium',
+                    },
+                });
+            }
         }
     };
 
