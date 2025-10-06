@@ -30,11 +30,14 @@ export const brandApi = baseApi.injectEndpoints({
 
         // ---------------- Update Brand ----------------
         updateBrand: builder.mutation({
-            query: ({ id, formData }) => ({
-                url: `/brands/${id}`,
-                method: 'PUT',
-                body: formData, // formData for file upload
-            }),
+            query: ({ id, formData }) => {
+                formData.append('_method', 'PUT'); // ✅ Important for Laravel
+                return {
+                    url: `/brands/${id}`,
+                    method: 'POST', // ✅ Laravel will treat it as PUT
+                    body: formData,
+                };
+            },
             invalidatesTags: (result, error, { id }) => [{ type: 'Brand', id }],
         }),
 
