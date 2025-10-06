@@ -57,6 +57,8 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
         );
     }
 
+    console.log(data);
+
     const handleSort = (field: string) => {
         if (sorting?.onSort) {
             sorting.onSort(field);
