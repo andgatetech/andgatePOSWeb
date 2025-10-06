@@ -1,7 +1,9 @@
 'use client';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
+import SubscriptionError from '@/components/common/SubscriptionError';
 import TaxReportFilter from '@/components/filters/TaxReportFilter';
 import Loading from '@/components/layouts/loading';
+import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { downloadBase64File } from '@/lib/downloadFile';
 import { useGetTaxReportMutation } from '@/store/features/reports/reportApi';
 import { DollarSign, FileDown, FileSpreadsheet, Percent, Printer, Receipt, TrendingUp } from 'lucide-react';
@@ -47,7 +49,10 @@ const TaxReportPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
 
-    const [getTaxReport, { isLoading }] = useGetTaxReportMutation();
+    const [getTaxReport, { isLoading, error }] = useGetTaxReportMutation();
+
+    // Check for subscription errors
+    const { hasSubscriptionError, subscriptionError } = useSubscriptionError(error);
 
     // Fetch report data
     const fetchReport = useCallback(
@@ -65,11 +70,14 @@ const TaxReportPage = () => {
                 }
             } catch (error: any) {
                 console.error('Error fetching tax report:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error?.data?.message || 'Failed to fetch tax report',
-                });
+                // Don't show Swal error if it's a subscription error (will be handled by useSubscriptionError hook)
+                if (error?.status !== 403) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error?.data?.message || 'Failed to fetch tax report',
+                    });
+                }
             }
         },
         [getTaxReport]
@@ -216,6 +224,11 @@ const TaxReportPage = () => {
     // Pagination
     const paginatedData = reportData?.items?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
     const totalPages = Math.ceil((reportData?.items?.length || 0) / itemsPerPage);
+
+    // Show subscription error component if subscription middleware error occurs
+    if (hasSubscriptionError) {
+        return <SubscriptionError errorType={subscriptionError.errorType!} message={subscriptionError.message} details={subscriptionError.details} />;
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
