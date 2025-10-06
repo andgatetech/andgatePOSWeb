@@ -58,8 +58,108 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
         });
     };
 
+    // Generate ESC/POS data for thermal printer
+    const generateESCPOSData = () => {
+        const ESC = '\x1B';
+        const GS = '\x1D';
+        const LF = '\n';
+        
+        let data = '';
+        
+        // Initialize printer
+        data += ESC + '@';
+        
+        // Center align
+        data += ESC + 'a' + '\x01';
+        
+        // Store name (bold, large)
+        data += ESC + 'E' + '\x01'; // Bold ON
+        data += GS + '!' + '\x11'; // Double height and width
+        data += (currentStore?.store_name || 'AndGate POS') + LF;
+        data += GS + '!' + '\x00'; // Normal size
+        data += ESC + 'E' + '\x00'; // Bold OFF
+        
+        // Store info
+        data += (currentStore?.store_location || 'Dhaka, Bangladesh') + LF;
+        data += (currentStore?.store_contact || '+880160000') + LF;
+        
+        // Divider
+        data += '--------------------------------' + LF;
+        
+        // Left align for details
+        data += ESC + 'a' + '\x00';
+        
+        // Invoice info
+        data += 'Receipt: ' + invoice + LF;
+        data += 'Date: ' + currentDate + ' ' + currentTime + LF;
+        if (order_id) data += 'Order: #' + order_id + LF;
+        if (customer.name && customer.name !== 'Customer') {
+            data += 'Customer: ' + customer.name + LF;
+        }
+        
+        data += '--------------------------------' + LF;
+        
+        // Items header
+        data += ESC + 'E' + '\x01'; // Bold
+        data += 'ITEM            QTY      AMOUNT' + LF;
+        data += ESC + 'E' + '\x00'; // Bold off
+        data += '--------------------------------' + LF;
+        
+        // Items
+        items.forEach((item) => {
+            const itemName = item.title.substring(0, 16).padEnd(16);
+            const qty = item.quantity.toString().padStart(3);
+            const amount = ('৳' + Number(item.amount).toFixed(2)).padStart(11);
+            data += itemName + qty + amount + LF;
+            data += '  ' + item.quantity + ' x ৳' + Number(item.price).toFixed(2) + LF;
+        });
+        
+        data += '--------------------------------' + LF;
+        
+        // Totals
+        data += 'Subtotal:' + ('৳' + subtotal.toFixed(2)).padStart(23) + LF;
+        if (calculatedTax > 0) {
+            data += 'Tax:' + ('৳' + calculatedTax.toFixed(2)).padStart(28) + LF;
+        }
+        if (calculatedDiscount > 0) {
+            data += 'Discount:' + ('-৳' + calculatedDiscount.toFixed(2)).padStart(23) + LF;
+        }
+        
+        data += '--------------------------------' + LF;
+        
+        // Grand total (bold, large)
+        data += ESC + 'E' + '\x01'; // Bold
+        data += GS + '!' + '\x10'; // Double width
+        data += 'TOTAL: ৳' + grandTotal.toFixed(2) + LF;
+        data += GS + '!' + '\x00'; // Normal
+        data += ESC + 'E' + '\x00'; // Bold off
+        
+        data += '--------------------------------' + LF;
+        
+        // Payment info
+        data += ESC + 'a' + '\x01'; // Center
+        data += 'Payment: ' + (payment_method || 'Cash') + LF;
+        data += 'Status: ' + (payment_status || 'Paid') + LF;
+        
+        data += '--------------------------------' + LF;
+        
+        // Thank you message
+        data += ESC + 'E' + '\x01'; // Bold
+        data += 'THANK YOU!' + LF;
+        data += ESC + 'E' + '\x00'; // Bold off
+        data += 'Please come again' + LF;
+        data += LF;
+        data += 'Powered by AndGate POS' + LF;
+        
+        // Feed paper and cut
+        data += LF + LF + LF;
+        data += GS + 'V' + '\x41' + '\x03'; // Cut paper
+        
+        return data;
+    };
+
     const printReceipt = () => {
-        // Create a new window for printing
+        // Create a new window for printing (works with USB/Bluetooth/Network printers)
         const printWindow = window.open('', '_blank', 'width=302,height=793');
 
         if (!printWindow) {
@@ -356,15 +456,15 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
 
             {/* Footer Buttons */}
             {isOrderCreated && (
-                <div className="mb-6 flex justify-end gap-4">
+                <div className="mb-6 flex flex-wrap justify-end gap-3">
                     <button className="btn btn-primary px-5 py-2 text-sm hover:bg-blue-600" onClick={exportPDF}>
-                        Download Receipt
+                        📄 Download PDF
                     </button>
-                    <button className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200" onClick={printReceipt}>
-                        Print Receipt
+                    <button className="btn btn-success px-5 py-2 text-sm hover:bg-green-600" onClick={printReceipt}>
+                        �️ Print Receipt
                     </button>
-                    <button className="btn btn-outline px-5 py-2  text-sm hover:bg-gray-100" onClick={() => window.close()}>
-                        Close
+                    <button className="btn btn-outline px-5 py-2 text-sm hover:bg-gray-100" onClick={() => window.close()}>
+                        ✕ Close
                     </button>
                 </div>
             )}
@@ -381,7 +481,7 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
                 <div className="relative z-10 flex items-center justify-between px-4">
                     <h2 className="text-2xl font-semibold uppercase">Invoice</h2>
                     {currentStore?.logo_path ? (
-                        <Image src={currentStore.logo_path} alt="Store Logo" className="h-14 w-14 rounded object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+                        <img src={currentStore.logo_path} alt="Store Logo" className="h-14 w-14 rounded object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
                     ) : (
                         <img src="/assets/images/Logo-PNG.png" alt="Default Logo" className="w-14" />
                     )}
