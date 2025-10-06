@@ -15,7 +15,7 @@ const ReportApi = baseApi.injectEndpoints({
             invalidatesTags: ['TaxReport'],
         }),
 
-        // Transaction Report 
+        // Transaction Report
         getTransactionReport: builder.mutation({
             query: (data: any) => ({
                 url: '/reports/transaction',
@@ -49,7 +49,29 @@ const ReportApi = baseApi.injectEndpoints({
                 body,
             }),
         }),
+        getSalesReport: builder.mutation({
+            query: (data: any) => ({
+                url: '/reports/sales',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        getExpensesReport: builder.mutation({
+            query: (data: any) => ({
+                url: '/reports/expense',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 });
 
-export const { useGetTaxReportMutation, useGetTransactionReportMutation, useGetIdleProductReportMutation, useGetIncomeReportMutation, useGetProfitLossReportMutation } = ReportApi;
+export const {
+    useGetTaxReportMutation,
+    useGetTransactionReportMutation,
+    useGetIdleProductReportMutation,
+    useGetIncomeReportMutation,
+    useGetProfitLossReportMutation,
+    useGetSalesReportMutation,
+    useGetExpensesReportMutation,
+} = ReportApi;
