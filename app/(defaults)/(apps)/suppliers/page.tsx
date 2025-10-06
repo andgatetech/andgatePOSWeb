@@ -3,12 +3,11 @@
 import Dropdown from '@/components/dropdown';
 import { useFullStoreListWithFilterQuery } from '@/store/features/store/storeApi';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Edit, Eye, MoreVertical, Plus, RotateCcw, Search, Store as StoreIcon, Trash2, Users } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Edit, MoreVertical, Plus, RotateCcw, Search, Store as StoreIcon, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
 
 interface Supplier {
     id: number;
@@ -50,9 +49,9 @@ const SupplierFilters = ({ filters, onFiltersChange, stores, isLoadingStores, cu
 
     return (
         <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 {/* Search */}
-                <div className="relative md:col-span-2">
+                <div className="relative sm:col-span-2 lg:col-span-2">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                     <input
                         type="text"
@@ -64,7 +63,7 @@ const SupplierFilters = ({ filters, onFiltersChange, stores, isLoadingStores, cu
                 </div>
 
                 {/* Store Filter */}
-                <div>
+                <div className="w-full">
                     <select
                         value={filters.store_id || ''}
                         onChange={(e) => handleFilterChange('store_id', e.target.value)}
@@ -81,7 +80,7 @@ const SupplierFilters = ({ filters, onFiltersChange, stores, isLoadingStores, cu
                 </div>
 
                 {/* Status Filter */}
-                <div>
+                <div className="w-full">
                     <select
                         value={filters.status || ''}
                         onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -94,7 +93,7 @@ const SupplierFilters = ({ filters, onFiltersChange, stores, isLoadingStores, cu
                 </div>
 
                 {/* Reset Button */}
-                <div>
+                <div className="w-full">
                     <button
                         onClick={handleReset}
                         className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -145,7 +144,7 @@ const SupplierTable = ({ suppliers, isLoading, onEdit, onDelete, sortField, sort
     return (
         <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
             <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[800px]">
                     <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
                             <th
@@ -297,12 +296,12 @@ const Pagination = ({ meta, onPageChange }) => {
 
     return (
         <div className="rounded-b-xl border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center text-sm text-gray-700">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-center text-sm text-gray-700 sm:text-left">
                     Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of <span className="font-medium">{total}</span> results
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center space-x-2">
                     <button
                         onClick={() => onPageChange(current_page - 1)}
                         disabled={current_page === 1}
@@ -311,17 +310,25 @@ const Pagination = ({ meta, onPageChange }) => {
                         <ChevronLeft className="h-4 w-4" />
                     </button>
 
-                    {getPageNumbers().map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => onPageChange(page)}
-                            className={`relative inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                                page === current_page ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-                            }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
+                    <div className="hidden sm:flex sm:items-center sm:space-x-2">
+                        {getPageNumbers().map((page) => (
+                            <button
+                                key={page}
+                                onClick={() => onPageChange(page)}
+                                className={`relative inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                                    page === current_page ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center sm:hidden">
+                        <span className="text-sm text-gray-700">
+                            Page {current_page} of {last_page}
+                        </span>
+                    </div>
 
                     <button
                         onClick={() => onPageChange(current_page + 1)}
@@ -429,7 +436,7 @@ const SuppliersPage = () => {
     if (error) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-                <div className="mx-auto">
+                <div className="mx-auto max-w-7xl">
                     <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                         <p className="text-red-800">Error loading suppliers. Please try again.</p>
                     </div>
@@ -439,37 +446,39 @@ const SuppliersPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-            <div className="mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
+            <div className="mx-auto max-w-7xl">
                 {/* Header */}
-                <div className="mb-8">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-md">
-                                    <Users className="h-6 w-6 text-white" />
+                <div className="mb-6 sm:mb-8">
+                    <div className="rounded-2xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:p-6">
+                        <div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center space-x-3 sm:space-x-4">
+                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-md sm:h-12 sm:w-12">
+                                    <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                                 </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Supplier Management</h1>
-                                    <p className="text-sm text-gray-500">{currentStore ? `Manage suppliers for ${currentStore.store_name}` : 'Manage and organize your suppliers'}</p>
+                                <div className="min-w-0 flex-1">
+                                    <h1 className="truncate text-xl font-bold text-gray-900 sm:text-2xl">Supplier Management</h1>
+                                    <p className="mt-1 truncate text-xs text-gray-500 sm:text-sm">
+                                        {currentStore ? `Manage suppliers for ${currentStore.store_name}` : 'Manage and organize your suppliers'}
+                                    </p>
                                 </div>
                             </div>
                             <Link
                                 href="/suppliers/create-supplier"
-                                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:w-auto"
                             >
                                 <Plus className="h-4 w-4" />
-                                Add Supplier
+                                <span>Add Supplier</span>
                             </Link>
                         </div>
                         {currentStore && (
-                            <div className="rounded-lg bg-purple-50 p-4">
-                                <div className="flex items-center space-x-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-                                        <StoreIcon className="h-4 w-4 text-purple-600" />
+                            <div className="rounded-lg bg-purple-50 p-3 sm:p-4">
+                                <div className="flex items-center space-x-2 sm:space-x-3">
+                                    <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 sm:h-8 sm:w-8">
+                                        <StoreIcon className="h-3.5 w-3.5 text-purple-600 sm:h-4 sm:w-4" />
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-purple-900">Current Store: {currentStore.store_name}</p>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-xs font-medium text-purple-900 sm:text-sm">Current Store: {currentStore.store_name}</p>
                                     </div>
                                 </div>
                             </div>
