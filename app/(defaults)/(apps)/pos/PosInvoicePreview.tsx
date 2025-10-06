@@ -59,16 +59,21 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
     };
 
     const printReceipt = () => {
-        if (!posReceiptRef.current) return;
-
         // Create a new window for printing
-        const printWindow = window.open('', '_blank');
+        const printWindow = window.open('', '_blank', 'width=302,height=793');
+
+        if (!printWindow) {
+            alert('Please allow pop-ups to print receipt');
+            return;
+        }
 
         const receiptContent = `
       <!DOCTYPE html>
       <html>
         <head>
           <title>Receipt Print</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=80mm">
           <style>
             * {
               margin: 0;
@@ -79,6 +84,18 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
             @page {
               size: 80mm auto;
               margin: 0;
+            }
+            
+            @media print {
+              @page {
+                size: 80mm auto;
+                margin: 0mm;
+              }
+              
+              body {
+                margin: 0;
+                padding: 2mm;
+              }
             }
             
             body {
@@ -311,10 +328,23 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
         // Wait for content to load, then print
         printWindow.onload = () => {
             setTimeout(() => {
+                printWindow.focus(); // Focus the window
                 printWindow.print();
-                printWindow.close();
-            }, 250);
+
+                // Close window after print dialog is closed (give user time)
+                setTimeout(() => {
+                    printWindow.close();
+                }, 1000);
+            }, 500);
         };
+
+        // Fallback: if onload doesn't fire
+        setTimeout(() => {
+            if (printWindow && !printWindow.closed) {
+                printWindow.focus();
+                printWindow.print();
+            }
+        }, 1000);
     };
 
     return (
@@ -333,25 +363,25 @@ const PosInvoicePreview = ({ data, storeId }: PosInvoicePreviewProps) => {
                     <button className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200" onClick={printReceipt}>
                         Print Receipt
                     </button>
-                    <button className="btn btn-outline px-5 py-2 text-sm hover:bg-gray-100" onClick={() => window.close()}>
+                    <button className="btn btn-outline px-5 py-2  text-sm hover:bg-gray-100" onClick={() => window.close()}>
                         Close
                     </button>
                 </div>
             )}
 
             <div className="panel relative" ref={invoiceRef}>
-                {/* PAID Watermark */}
+                {/* PAID Watermark
                 {isOrderCreated && (
                     <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 rotate-[-25deg] transform select-none text-6xl font-bold text-green-500 opacity-20">
                         PAID
                     </div>
-                )}
+                )} */}
 
                 {/* Header */}
                 <div className="relative z-10 flex items-center justify-between px-4">
                     <h2 className="text-2xl font-semibold uppercase">Invoice</h2>
                     {currentStore?.logo_path ? (
-                        <img src={currentStore.logo_path} alt="Store Logo" className="h-14 w-14 rounded object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+                        <Image src={currentStore.logo_path} alt="Store Logo" className="h-14 w-14 rounded object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
                     ) : (
                         <img src="/assets/images/Logo-PNG.png" alt="Default Logo" className="w-14" />
                     )}
