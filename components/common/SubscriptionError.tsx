@@ -120,7 +120,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                             {/* CTA Buttons */}
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <Link
-                                    href="/contact"
+                                    href="/subscription"
                                     className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     <Crown className="mr-2 h-5 w-5" />
@@ -139,7 +139,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                 </div>
 
                 {/* Pricing Plans Section */}
-                <UpgradePlans  showHeader={true} currentPlan={currentPlan} />
+                <UpgradePlans showHeader={true} currentPlan={currentPlan} />
             </div>
         </div>
     );
