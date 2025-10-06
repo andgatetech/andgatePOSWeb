@@ -2,7 +2,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateJournalMutation } from '@/store/features/journals/journals';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
-import { X, Store } from 'lucide-react';
+import { Store, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -90,8 +90,11 @@ const CreateJournalModal = ({ isOpen, onClose, onSuccess }) => {
             };
 
             await createJournal(submitData).unwrap();
-            onSuccess();
+            // onSuccess();
             handleClose();
+            setTimeout(() => {
+                onSuccess();
+            }, 50);
         } catch (error) {
             console.error('Failed to create journal entry:', error);
 
