@@ -19,10 +19,13 @@ const ProductEditForm = () => {
 
     const [images, setImages] = useState<any>([]);
     const [existingImages, setExistingImages] = useState<any>([]);
+    const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [categorySearchTerm, setCategorySearchTerm] = useState('');
     const [showBrandDropdown, setShowBrandDropdown] = useState(false);
     const [brandSearchTerm, setBrandSearchTerm] = useState('');
+    const [showUnitDropdown, setShowUnitDropdown] = useState(false);
+    const [unitSearchTerm, setUnitSearchTerm] = useState('');
 
     const { currentStore } = useCurrentStore();
 
@@ -75,17 +78,20 @@ const ProductEditForm = () => {
                 purchase_price: product.purchase_price?.toString() || '',
                 sku: product.sku || '',
                 skuOption: product.sku ? 'manual' : 'auto',
-                units: product.unit || '',
+                units: product.in_stock.unit || '',
                 tax_rate: product.tax_rate?.toString() || '',
-                tax_included: product.tax_included || false,
+                tax_included: product.tax_included === 1 || product.tax_included === true,
             });
 
             // Set existing images
             if (product.images && product.images.length > 0) {
                 setExistingImages(product.images);
             }
+            setImagesToDelete([]);
         }
     }, [product]);
+
+    console.log('Form Data:', formData);
 
     const recentCategories = categories.slice(0, 5);
     const recentBrands = brands.slice(0, 5);
@@ -137,6 +143,19 @@ const ProductEditForm = () => {
         setBrandSearchTerm('');
     };
 
+    const recentUnits = units.slice(0, 5);
+
+    const filteredUnits = unitSearchTerm.trim() ? units.filter((unit: any) => unit.name.toLowerCase().includes(unitSearchTerm.toLowerCase())) : recentUnits;
+
+    const handleUnitSelect = (unit: any) => {
+        setFormData((prev) => ({
+            ...prev,
+            units: unit.name,
+        }));
+        setShowUnitDropdown(false);
+        setUnitSearchTerm('');
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -147,10 +166,6 @@ const ProductEditForm = () => {
         }
         if (!formData.price || parseFloat(formData.price) <= 0) {
             toast.error('Please enter valid Price!');
-            return;
-        }
-        if (!formData.quantity || parseFloat(formData.quantity) < 0) {
-            toast.error('Please enter valid Quantity!');
             return;
         }
         if (!formData.purchase_price || parseFloat(formData.purchase_price) <= 0) {
@@ -227,6 +242,8 @@ const ProductEditForm = () => {
                     fd.append('images[]', img.file as File);
                 }
             }
+
+            fd.append('_method', 'PUT');
 
             const result = await updateProduct({ id: productId, data: fd }).unwrap();
 
@@ -355,25 +372,306 @@ const ProductEditForm = () => {
                                         />
                                     </div>
 
-                                    {/* Unit */}
+                                    {/* Description */}
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Description
+                                        </label>
+                                        <textarea
+                                            id="description"
+                                            name="description"
+                                            value={formData.description}
+                                            onChange={handleChange}
+                                            placeholder="Enter product description"
+                                            rows={3}
+                                            maxLength={1000}
+                                            className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                        />
+                                        <p className="mt-1 text-sm text-gray-500">{formData.description.length}/1000 characters</p>
+                                    </div>
+
+                                    {/* Category Selection */}
                                     <div>
-                                        <label htmlFor="units" className="mb-2 block text-sm font-medium text-gray-700">
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Category</label>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-left transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {formData.category_name || 'Select a category'}
+                                                <svg className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {showCategoryDropdown && (
+                                                <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    <div className="border-b border-gray-100 p-3">
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search categories..."
+                                                                value={categorySearchTerm}
+                                                                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                                                                className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                autoFocus
+                                                            />
+                                                            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="max-h-64 overflow-y-auto p-2">
+                                                        <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">
+                                                            {categorySearchTerm.trim() ? 'Search Results' : 'Recent Categories'}
+                                                        </p>
+                                                        {filteredCategories.length > 0 ? (
+                                                            filteredCategories.map((cat: any) => (
+                                                                <button
+                                                                    key={cat.id}
+                                                                    type="button"
+                                                                    onClick={() => handleCategorySelect(cat)}
+                                                                    className="w-full rounded-lg border border-transparent px-3 py-3 text-left transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50 focus:border-blue-200 focus:bg-blue-50"
+                                                                >
+                                                                    <div className="flex items-center space-x-3">
+                                                                        {cat.image_url && (
+                                                                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
+                                                                                <img
+                                                                                    src={cat.image_url}
+                                                                                    alt={cat.name}
+                                                                                    className="h-full w-full object-cover"
+                                                                                    onError={(e) => {
+                                                                                        (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="font-medium text-gray-900">{cat.name}</p>
+                                                                            {cat.description && <p className="truncate text-sm text-gray-500">{cat.description}</p>}
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <p className="px-3 py-2 text-sm text-gray-500">
+                                                                {categorySearchTerm.trim() ? 'No categories found matching your search' : 'No categories available'}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {formData.category_id && (
+                                            <div className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+                                                <span>Selected: {formData.category_name}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, category_id: '', category_name: '' }));
+                                                        setCategorySearchTerm('');
+                                                    }}
+                                                    className="ml-2 hover:text-blue-600"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Brand Selection */}
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Brand</label>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowBrandDropdown(!showBrandDropdown)}
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-left transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {formData.brand_name || 'Select a brand (optional)'}
+                                                <svg className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {showBrandDropdown && (
+                                                <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    <div className="border-b border-gray-100 p-3">
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search brands..."
+                                                                value={brandSearchTerm}
+                                                                onChange={(e) => setBrandSearchTerm(e.target.value)}
+                                                                className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                autoFocus
+                                                            />
+                                                            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="max-h-64 overflow-y-auto p-2">
+                                                        <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">{brandSearchTerm.trim() ? 'Search Results' : 'Recent Brands'}</p>
+                                                        {filteredBrands.length > 0 ? (
+                                                            filteredBrands.map((brand: any) => (
+                                                                <button
+                                                                    key={brand.id}
+                                                                    type="button"
+                                                                    onClick={() => handleBrandSelect(brand)}
+                                                                    className="w-full rounded-lg border border-transparent px-3 py-3 text-left transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50 focus:border-blue-200 focus:bg-blue-50"
+                                                                >
+                                                                    <div className="flex items-center space-x-3">
+                                                                        {brand.image_url && (
+                                                                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
+                                                                                <img
+                                                                                    src={brand.image_url}
+                                                                                    alt={brand.name}
+                                                                                    className="h-full w-full object-cover"
+                                                                                    onError={(e) => {
+                                                                                        (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="font-medium text-gray-900">{brand.name}</p>
+                                                                            {brand.description && <p className="truncate text-sm text-gray-500">{brand.description}</p>}
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <p className="px-3 py-2 text-sm text-gray-500">{brandSearchTerm.trim() ? 'No brands found matching your search' : 'No brands available'}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {formData.brand_id && (
+                                            <div className="mt-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">
+                                                <span>Selected: {formData.brand_name}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, brand_id: '', brand_name: '' }));
+                                                        setBrandSearchTerm('');
+                                                    }}
+                                                    className="ml-2 hover:text-green-600"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Pricing & Stock Section */}
+                            <div className="border-t border-gray-200 pt-6">
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Pricing & Stock</h3>
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
+                                    {/* Purchase Price */}
+                                    <div>
+                                        <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Purchase Price <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
+                                            <input
+                                                id="purchase_price"
+                                                name="purchase_price"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={formData.purchase_price}
+                                                onChange={handleChange}
+                                                placeholder="0.00"
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Unit Selection */}
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
                                             Unit <span className="text-red-500">*</span>
                                         </label>
-                                        <select
-                                            id="units"
-                                            name="units"
-                                            value={formData.units}
-                                            onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            <option value="">Select Unit</option>
-                                            {units.map((unit: any) => (
-                                                <option key={unit.id} value={unit.name}>
-                                                    {unit.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowUnitDropdown(!showUnitDropdown)}
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-left transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {formData.units || 'Select a unit'}
+                                                <svg className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {showUnitDropdown && (
+                                                <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    <div className="border-b border-gray-100 p-3">
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search units..."
+                                                                value={unitSearchTerm}
+                                                                onChange={(e) => setUnitSearchTerm(e.target.value)}
+                                                                className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                autoFocus
+                                                            />
+                                                            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="max-h-64 overflow-y-auto p-2">
+                                                        <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">{unitSearchTerm.trim() ? 'Search Results' : 'Available Units'}</p>
+                                                        {filteredUnits.length > 0 ? (
+                                                            filteredUnits.map((unit: any) => (
+                                                                <button
+                                                                    key={unit.id}
+                                                                    type="button"
+                                                                    onClick={() => handleUnitSelect(unit)}
+                                                                    className="w-full rounded-lg border border-transparent px-3 py-3 text-left transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50 focus:border-blue-200 focus:bg-blue-50"
+                                                                >
+                                                                    <div className="flex items-center space-x-3">
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="font-medium text-gray-900">{unit.name}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <p className="px-3 py-2 text-sm text-gray-500">{unitSearchTerm.trim() ? 'No units found matching your search' : 'No units available'}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {formData.units && (
+                                            <div className="mt-2 inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800">
+                                                <span>Selected: {formData.units}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, units: '' }));
+                                                        setUnitSearchTerm('');
+                                                    }}
+                                                    className="ml-2 hover:text-purple-600"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Low Stock Quantity */}
@@ -410,17 +708,6 @@ const ProductEditForm = () => {
                                             <option value="no">Out of Stock</option>
                                         </select>
                                     </div>
-
-                                    {/* Store Info (Read-only display) */}
-                                    <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Store</label>
-                                        <input
-                                            type="text"
-                                            value={currentStore?.store_name || 'Current Store'}
-                                            disabled
-                                            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600"
-                                        />
-                                    </div>
                                 </div>
 
                                 {/* Profit Margin Display */}
@@ -433,247 +720,6 @@ const ProductEditForm = () => {
                                         </p>
                                     </div>
                                 )}
-                            </div>
-
-                            {/* Description */}
-                            <div className="md:col-span-2">
-                                <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
-                                    Description
-                                </label>
-                                <textarea
-                                    id="description"
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    placeholder="Enter product description"
-                                    rows={3}
-                                    maxLength={1000}
-                                    className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                />
-                                <p className="mt-1 text-sm text-gray-500">{formData.description.length}/1000 characters</p>
-                            </div>
-
-                            {/* Category Selection */}
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">Category</label>
-                                <div className="relative">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-left transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        {formData.category_name || 'Select a category'}
-                                        <svg className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
-
-                                    {showCategoryDropdown && (
-                                        <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
-                                            <div className="border-b border-gray-100 p-3">
-                                                <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Search categories..."
-                                                        value={categorySearchTerm}
-                                                        onChange={(e) => setCategorySearchTerm(e.target.value)}
-                                                        className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                        autoFocus
-                                                    />
-                                                    <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-
-                                            <div className="max-h-64 overflow-y-auto p-2">
-                                                <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">{categorySearchTerm.trim() ? 'Search Results' : 'Recent Categories'}</p>
-                                                {filteredCategories.length > 0 ? (
-                                                    filteredCategories.map((cat: any) => (
-                                                        <button
-                                                            key={cat.id}
-                                                            type="button"
-                                                            onClick={() => handleCategorySelect(cat)}
-                                                            className="w-full rounded-lg border border-transparent px-3 py-3 text-left transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50 focus:border-blue-200 focus:bg-blue-50"
-                                                        >
-                                                            <div className="flex items-center space-x-3">
-                                                                {cat.image_url && (
-                                                                    <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
-                                                                        <img
-                                                                            src={cat.image_url}
-                                                                            alt={cat.name}
-                                                                            className="h-full w-full object-cover"
-                                                                            onError={(e) => {
-                                                                                (e.target as HTMLImageElement).src = '/placeholder-image.png';
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                )}
-                                                                <div className="min-w-0 flex-1">
-                                                                    <p className="font-medium text-gray-900">{cat.name}</p>
-                                                                    {cat.description && <p className="truncate text-sm text-gray-500">{cat.description}</p>}
-                                                                </div>
-                                                            </div>
-                                                        </button>
-                                                    ))
-                                                ) : (
-                                                    <p className="px-3 py-2 text-sm text-gray-500">
-                                                        {categorySearchTerm.trim() ? 'No categories found matching your search' : 'No categories available'}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {formData.category_id && (
-                                    <div className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
-                                        <span>Selected: {formData.category_name}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setFormData((prev) => ({ ...prev, category_id: '', category_name: '' }));
-                                                setCategorySearchTerm('');
-                                            }}
-                                            className="ml-2 hover:text-blue-600"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Brand Selection */}
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">Brand</label>
-                                <div className="relative">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowBrandDropdown(!showBrandDropdown)}
-                                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-left transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        {formData.brand_name || 'Select a brand (optional)'}
-                                        <svg className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
-
-                                    {showBrandDropdown && (
-                                        <div className="absolute z-20 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
-                                            <div className="border-b border-gray-100 p-3">
-                                                <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Search brands..."
-                                                        value={brandSearchTerm}
-                                                        onChange={(e) => setBrandSearchTerm(e.target.value)}
-                                                        className="w-full rounded-md border border-gray-300 px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                        autoFocus
-                                                    />
-                                                    <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-
-                                            <div className="max-h-64 overflow-y-auto p-2">
-                                                <p className="mb-2 px-3 py-1 text-xs font-semibold uppercase text-gray-500">{brandSearchTerm.trim() ? 'Search Results' : 'Recent Brands'}</p>
-                                                {filteredBrands.length > 0 ? (
-                                                    filteredBrands.map((brand: any) => (
-                                                        <button
-                                                            key={brand.id}
-                                                            type="button"
-                                                            onClick={() => handleBrandSelect(brand)}
-                                                            className="w-full rounded-lg border border-transparent px-3 py-3 text-left transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50 focus:border-blue-200 focus:bg-blue-50"
-                                                        >
-                                                            <div className="flex items-center space-x-3">
-                                                                {brand.image_url && (
-                                                                    <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
-                                                                        <img
-                                                                            src={brand.image_url}
-                                                                            alt={brand.name}
-                                                                            className="h-full w-full object-cover"
-                                                                            onError={(e) => {
-                                                                                (e.target as HTMLImageElement).src = '/placeholder-image.png';
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                )}
-                                                                <div className="min-w-0 flex-1">
-                                                                    <p className="font-medium text-gray-900">{brand.name}</p>
-                                                                    {brand.description && <p className="truncate text-sm text-gray-500">{brand.description}</p>}
-                                                                </div>
-                                                            </div>
-                                                        </button>
-                                                    ))
-                                                ) : (
-                                                    <p className="px-3 py-2 text-sm text-gray-500">{brandSearchTerm.trim() ? 'No brands found matching your search' : 'No brands available'}</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {formData.brand_id && (
-                                    <div className="mt-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">
-                                        <span>Selected: {formData.brand_name}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setFormData((prev) => ({ ...prev, brand_id: '', brand_name: '' }));
-                                                setBrandSearchTerm('');
-                                            }}
-                                            className="ml-2 hover:text-green-600"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Pricing & Stock Section */}
-                            <div className="border-t border-gray-200 pt-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Pricing & Stock</h3>
-                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
-                                    <div>
-                                        <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Purchase Price <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
-                                            <input
-                                                id="purchase_price"
-                                                name="purchase_price"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={formData.purchase_price}
-                                                onChange={handleChange}
-                                                placeholder="0.00"
-                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="price" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Selling Price <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
-                                            <input
-                                                id="price"
-                                                name="price"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={formData.price}
-                                                onChange={handleChange}
-                                                placeholder="0.00"
-                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Tax Information Section */}
@@ -734,29 +780,138 @@ const ProductEditForm = () => {
                                 </div>
                             </div>
 
-                            {/* Image Upload Section */}
+                            {/* SKU Section */}
+                            <div className="border-t border-gray-200 pt-6">
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">SKU Management</h3>
+
+                                <div className="mb-4 flex items-center gap-6">
+                                    <label className="flex cursor-pointer items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            name="skuOption"
+                                            value="auto"
+                                            checked={formData.skuOption === 'auto'}
+                                            onChange={() => setFormData((prev) => ({ ...prev, skuOption: 'auto', sku: '' }))}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm font-medium text-gray-700">Auto-generate</span>
+                                    </label>
+                                    <label className="flex cursor-pointer items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            name="skuOption"
+                                            value="manual"
+                                            checked={formData.skuOption === 'manual'}
+                                            onChange={() => setFormData((prev) => ({ ...prev, skuOption: 'manual' }))}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm font-medium text-gray-700">Manual input</span>
+                                    </label>
+                                </div>
+
+                                <input
+                                    id="sku"
+                                    name="sku"
+                                    type="text"
+                                    value={formData.sku}
+                                    onChange={handleChange}
+                                    placeholder={formData.skuOption === 'manual' ? 'Enter SKU code' : 'Will be generated automatically'}
+                                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                    disabled={formData.skuOption === 'auto'}
+                                    maxLength={100}
+                                />
+                                {formData.sku && (
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        Current SKU: <span className="font-medium text-gray-900">{formData.sku}</span>
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Image Upload Section - Add this to your form */}
                             <div className="border-t border-gray-200 pt-6">
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">Product Images</h3>
 
-                                {/* Existing Images */}
+                                {/* Existing Images Section */}
                                 {existingImages.length > 0 && (
                                     <div className="mb-6">
-                                        <p className="mb-3 text-sm font-medium text-gray-700">Current Images</p>
+                                        <p className="mb-3 text-sm font-medium text-gray-700">Current Images ({existingImages.length})</p>
                                         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                                            {existingImages.map((img: any, index: number) => (
-                                                <div key={index} className="group relative">
-                                                    <div className="aspect-square overflow-hidden rounded-lg border-2 border-gray-200 bg-gray-100">
-                                                        <img src={img.image_url} alt={`Product ${index + 1}`} className="h-full w-full object-cover" />
+                                            {existingImages.map((img: any, index: number) => {
+                                                const isMarkedForDeletion = imagesToDelete.includes(img.id);
+                                                return (
+                                                    <div key={img.id || index} className="group relative">
+                                                        <div
+                                                            className={`aspect-square overflow-hidden rounded-lg border-2 transition-all duration-200 ${
+                                                                isMarkedForDeletion ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-100'
+                                                            }`}
+                                                        >
+                                                            <img
+                                                                src={img.url}
+                                                                alt={`Product ${index + 1}`}
+                                                                className={`h-full w-full object-cover transition-opacity duration-200 ${isMarkedForDeletion ? 'opacity-40' : ''}`}
+                                                            />
+                                                        </div>
+
+                                                        {/* Hover overlay with action button */}
+                                                        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                                                            {!isMarkedForDeletion ? (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setImagesToDelete((prev) => [...prev, img.id])}
+                                                                    className="rounded-lg bg-red-600 p-2 text-white transition-colors hover:bg-red-700"
+                                                                    title="Mark for deletion"
+                                                                >
+                                                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setImagesToDelete((prev) => prev.filter((id) => id !== img.id))}
+                                                                    className="rounded-lg bg-green-600 p-2 text-white transition-colors hover:bg-green-700"
+                                                                    title="Keep this image"
+                                                                >
+                                                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Status badge */}
+                                                        <div
+                                                            className={`absolute left-2 top-2 rounded-full px-2 py-1 text-xs font-medium text-white ${
+                                                                isMarkedForDeletion ? 'bg-red-600' : 'bg-blue-600'
+                                                            }`}
+                                                        >
+                                                            {isMarkedForDeletion ? 'Will Delete' : 'Keep'}
+                                                        </div>
                                                     </div>
-                                                    <div className="absolute left-2 top-2 rounded-full bg-black bg-opacity-70 px-2 py-1 text-xs text-white">Existing</div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
-                                        <p className="mt-2 text-sm text-amber-600">Note: Uploading new images will replace existing ones</p>
+
+                                        {/* Deletion summary */}
+                                        {imagesToDelete.length > 0 && (
+                                            <div className="mt-3 rounded-lg bg-red-50 p-3">
+                                                <p className="text-sm text-red-700">
+                                                    <span className="font-medium">{imagesToDelete.length}</span> image{imagesToDelete.length > 1 ? 's' : ''} marked for deletion
+                                                    <button type="button" onClick={() => setImagesToDelete([])} className="ml-3 text-red-800 underline hover:text-red-900">
+                                                        Clear all
+                                                    </button>
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
-                                {/* New Images Upload */}
+                                {/* New Images Upload - Using ImageUploading component */}
                                 <ImageUploading multiple value={images} onChange={onChange2} maxNumber={maxNumber}>
                                     {({ imageList, onImageUpload, onImageRemove, onImageUpdate }) => (
                                         <div className="space-y-4">
@@ -766,26 +921,24 @@ const ProductEditForm = () => {
                                                     onClick={onImageUpload}
                                                     className="group flex h-32 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 transition-colors duration-200 hover:bg-gray-50"
                                                 >
-                                                    <div className="flex flex-col items-center justify-center">
-                                                        <svg className="mb-2 h-8 w-8 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                            />
-                                                        </svg>
-                                                        <p className="text-sm text-gray-600 group-hover:text-gray-800">
-                                                            <span className="font-semibold">Click to upload new images</span> or drag and drop
-                                                        </p>
-                                                        <p className="text-xs text-gray-500">PNG, JPG up to 2MB (Max {maxNumber} images)</p>
-                                                    </div>
+                                                    <svg className="mb-2 h-8 w-8 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                        />
+                                                    </svg>
+                                                    <p className="text-sm text-gray-600 group-hover:text-gray-800">
+                                                        <span className="font-semibold">Click to upload new images</span> or drag and drop
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">PNG, JPG up to 2MB (Max {maxNumber} images)</p>
                                                 </button>
                                             </div>
 
                                             {imageList.length > 0 && (
                                                 <div>
-                                                    <p className="mb-3 text-sm font-medium text-gray-700">New Images to Upload</p>
+                                                    <p className="mb-3 text-sm font-medium text-gray-700">New Images to Upload ({imageList.length})</p>
                                                     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                                                         {imageList.map((image, index) => (
                                                             <div key={index} className="group relative">
@@ -841,6 +994,19 @@ const ProductEditForm = () => {
                                         </div>
                                     )}
                                 </ImageUploading>
+
+                                {/* Summary Section */}
+                                {(existingImages.length > 0 || images.length > 0) && (
+                                    <div className="mt-6 rounded-lg bg-blue-50 p-4">
+                                        <h4 className="mb-2 font-medium text-blue-900">Image Summary</h4>
+                                        <ul className="space-y-1 text-sm text-blue-800">
+                                            <li>• Keeping: {existingImages.length - imagesToDelete.length} existing image(s)</li>
+                                            {imagesToDelete.length > 0 && <li>• Deleting: {imagesToDelete.length} existing image(s)</li>}
+                                            {images.length > 0 && <li>• Adding: {images.length} new image(s)</li>}
+                                            <li className="pt-1 font-medium">→ Final total: {existingImages.length - imagesToDelete.length + images.length} image(s)</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Submit Button */}
@@ -882,25 +1048,6 @@ const ProductEditForm = () => {
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-
-                {/* Tips Card */}
-                <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
-                    <div className="flex items-start gap-3">
-                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="text-sm text-blue-800">
-                            <p className="mb-1 font-medium">Product Update Tips:</p>
-                            <ul className="space-y-1 text-blue-700">
-                                <li>• Review all fields carefully before updating</li>
-                                <li>• Uploading new images will replace existing ones</li>
-                                <li>• Quantity changes are tracked in adjustment history</li>
-                                <li>• Ensure pricing remains competitive and profitable</li>
-                                <li>• Update low stock alerts based on product demand</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
