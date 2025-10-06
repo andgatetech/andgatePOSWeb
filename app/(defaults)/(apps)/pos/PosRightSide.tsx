@@ -622,7 +622,7 @@ const PosRightSide: React.FC = () => {
                 <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
                     {/* Close Button */}
                     <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800">
-                        <IconX className="h-6 w-6" />
+                        
                     </button>
 
                     {/* Invoice Preview */}
