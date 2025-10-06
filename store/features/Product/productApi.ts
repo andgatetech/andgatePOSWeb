@@ -35,12 +35,25 @@ const ProductApi = baseApi.injectEndpoints({
             },
             providesTags: ['Products', 'Orders'],
         }),
+        // getAllProductsWithStock: builder.query({
+        //     query: (params) => ({
+        //         url: '/products/in-stock',
+        //         method: 'GET',
+        //         params,
+        //     }),
+        //     providesTags: ['Products', 'Orders'],
+        // }),
+
         getAllProductsWithStock: builder.query({
-            query: (params) => ({
-                url: '/products/in-stock',
-                method: 'GET',
-                params,
-            }),
+            query: ({ store_id, search }) => {
+                const params = new URLSearchParams();
+                if (store_id) params.append('store_id', store_id);
+                if (search) params.append('search', search);
+                return {
+                    url: `/products/in-stock?${params.toString()}`,
+                    method: 'GET',
+                };
+            },
             providesTags: ['Products', 'Orders'],
         }),
         getSingleProduct: builder.query({
