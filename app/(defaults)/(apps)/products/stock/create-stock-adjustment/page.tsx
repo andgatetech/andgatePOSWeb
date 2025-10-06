@@ -9,14 +9,15 @@ import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
 // Product Search Component
-const ProductSearch = ({ onAddProduct, selectedStore, products, selectedProductIds }) => {
-    const [searchTerm, setSearchTerm] = useState('');
+const ProductSearch = ({ onAddProduct, selectedStore, products, selectedProductIds, searchTerm, setSearchTerm }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const filteredProducts =
-        products
-            ?.filter((product) => product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
-            .filter((product) => !selectedProductIds.includes(product.id)) || [];
+    // const filteredProducts =
+    //     products
+    //         ?.filter((product) => product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+    //         .filter((product) => !selectedProductIds.includes(product.id)) || [];
+
+    const filteredProducts = products?.filter((product) => !selectedProductIds.includes(product.id)) || [];
 
     const handleProductSelect = (product) => {
         onAddProduct(product);
@@ -260,8 +261,16 @@ const StockAdjustmentPage = () => {
         status: 'active',
     });
 
+    const [searchTerm, setSearchTerm] = useState('');
+    const { data: pd, isFetching } = useGetAllProductsWithStockQuery(
+        { store_id: currentStoreId, search: searchTerm },
+        {
+            skip: !currentStoreId || searchTerm.length < 1, // skip if no store or search too short
+        }
+    );
+
     // RTK Query hooks
-    const { data: pd } = useGetAllProductsWithStockQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    // const { data: pd } = useGetAllProductsWithStockQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const [createStockAdjustment, { isLoading: isSubmitting }] = useCreateStockAdjustmentMutation();
     const products = pd?.data || [];
     const selectedProductIds = selectedProducts.map((p) => p.id);
@@ -417,7 +426,14 @@ const StockAdjustmentPage = () => {
                 {/* Main Content */}
                 <div className="space-y-6">
                     {/* Product Search */}
-                    <ProductSearch onAddProduct={handleAddProduct} selectedStore={currentStoreId} products={products} selectedProductIds={selectedProductIds} />
+                    <ProductSearch
+                        onAddProduct={handleAddProduct}
+                        selectedStore={currentStoreId}
+                        products={products}
+                        selectedProductIds={selectedProductIds}
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                    />
 
                     {/* Selected Products Table */}
                     <SelectedProductsTable selectedProducts={selectedProducts} onUpdateProduct={handleUpdateProduct} onRemoveProduct={handleRemoveProduct} />
