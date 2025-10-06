@@ -123,7 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Script> */}
                 <ProviderComponent>
                     {children}
-                    <WhatsAppButton />
+                    {/* <WhatsAppButton /> */}
                 </ProviderComponent>
                 <ToastContainer position="top-right" autoClose={3000} />
             </body>
