@@ -1,6 +1,8 @@
 'use client';
 
+import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/features/Product/productApi';
@@ -29,9 +31,12 @@ const ProductCreateForm = () => {
     const categories = categoriesResponse?.data || [];
     const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams);
     const brands = brandsResponse?.data || [];
-    const [createProduct, { isLoading: createLoading }] = useCreateProductMutation();
+    const [createProduct, { isLoading: createLoading, error: createProductError }] = useCreateProductMutation();
     const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams);
     const units = unitsResponse?.data || [];
+
+    // Check for subscription errors
+    const { hasSubscriptionError, subscriptionError } = useSubscriptionError(createProductError);
 
     const [formData, setFormData] = useState({
         category_id: '',
@@ -271,6 +276,11 @@ const ProductCreateForm = () => {
             });
         }
     };
+
+    // Show subscription error component if subscription middleware error occurs
+    if (hasSubscriptionError) {
+        return <SubscriptionError errorType={subscriptionError.errorType!} message={subscriptionError.message} details={subscriptionError.details} />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -590,7 +600,7 @@ const ProductCreateForm = () => {
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
                                         >
                                             <option value="">Select Unit</option>
-                                            
+
                                             {units.map((unit: any) => (
                                                 <option key={unit.id} value={unit.name}>
                                                     {unit.name}
