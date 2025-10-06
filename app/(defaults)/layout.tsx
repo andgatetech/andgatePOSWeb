@@ -39,7 +39,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                         {/* END FOOTER */}
                         <Portals />
                     </div>
-                    <WhatsAppButton />
+                    {/* <WhatsAppButton /> */}
                 </MainContainer>
             </div>
         </>

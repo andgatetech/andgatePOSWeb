@@ -4,7 +4,7 @@ import { setItemsRedux, setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsR
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import PurchaseOrderLeftSide from '../../create/PurchaseOrderLeftSide';
 import PurchaseOrderRightSide from '../../create/PurchaseOrderRightSide';
@@ -15,8 +15,23 @@ const EditPurchaseDraftPage = () => {
     const dispatch = useDispatch();
     const draftId = params.id as string;
 
+    const [isMobileView, setIsMobileView] = useState(false);
+    const [showMobileCart, setShowMobileCart] = useState(false);
+
     // Fetch draft data
     const { data: draftResponse, isLoading, error } = useGetPurchaseDraftByIdQuery(draftId);
+
+    // Mobile view detection
+    useEffect(() => {
+        const checkMobileView = () => {
+            setIsMobileView(window.innerWidth < 1024);
+        };
+
+        checkMobileView();
+        window.addEventListener('resize', checkMobileView);
+
+        return () => window.removeEventListener('resize', checkMobileView);
+    }, []);
 
     useEffect(() => {
         if (draftResponse?.data) {
@@ -105,12 +120,21 @@ const EditPurchaseDraftPage = () => {
             </div>
 
             {/* Two Column Layout */}
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div className="relative flex overflow-hidden">
                 {/* Left Side - Product Selection */}
-                <PurchaseOrderLeftSide />
+                <PurchaseOrderLeftSide 
+                    isMobileView={isMobileView}
+                    showMobileCart={showMobileCart}
+                    setShowMobileCart={setShowMobileCart}
+                />
 
                 {/* Right Side - Draft Details & Items */}
-                <PurchaseOrderRightSide draftId={Number(draftId)} isEditMode={true} />
+                <PurchaseOrderRightSide 
+                    draftId={Number(draftId)} 
+                    isEditMode={true}
+                    isMobileView={isMobileView}
+                    showMobileCart={showMobileCart}
+                />
             </div>
         </div>
     );

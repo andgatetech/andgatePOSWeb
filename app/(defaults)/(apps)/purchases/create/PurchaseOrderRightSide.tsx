@@ -15,16 +15,18 @@ import {
 } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
 interface PurchaseOrderRightSideProps {
     draftId?: number;
     isEditMode?: boolean;
+    isMobileView?: boolean;
+    showMobileCart?: boolean;
 }
 
-const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId, isEditMode = false }) => {
+const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId, isEditMode = false, isMobileView: propIsMobileView, showMobileCart: propShowMobileCart }) => {
     const dispatch = useDispatch();
     const { currentStoreId } = useCurrentStore();
     const userId = useSelector((state: RootState) => state.auth.user?.id);
@@ -43,7 +45,12 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [newProductQty, setNewProductQty] = useState(1);
     const [newProductUnit, setNewProductUnit] = useState('piece');
     const [showAddNewProduct, setShowAddNewProduct] = useState(false);
+    const [localIsMobileView, setLocalIsMobileView] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // Use props if provided, otherwise use local state
+    const isMobileView = propIsMobileView !== undefined ? propIsMobileView : localIsMobileView;
+    const showMobileCart = propShowMobileCart !== undefined ? propShowMobileCart : false;
 
     // API mutations
     const [createDraft, { isLoading: isSavingDraft }] = useCreatePurchaseDraftMutation();
@@ -56,6 +63,20 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         per_page: 10,
     });
     const suppliers = suppliersResponse?.data || [];
+
+    // Mobile view detection (only if not using props)
+    useEffect(() => {
+        if (propIsMobileView === undefined) {
+            const checkMobileView = () => {
+                setLocalIsMobileView(window.innerWidth < 1024);
+            };
+
+            checkMobileView();
+            window.addEventListener('resize', checkMobileView);
+
+            return () => window.removeEventListener('resize', checkMobileView);
+        }
+    }, [propIsMobileView]);
 
     const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
         const toast = Swal.mixin({
@@ -225,9 +246,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 html: `
                     <p>Draft Reference: <strong>${response.data.draft_reference || response.data.draft_id}</strong></p>
                     <p>Total Items: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
-                    <p>Estimated Total: <strong>$${
-                        typeof response.data.estimated_total === 'number' ? response.data.estimated_total.toFixed(2) : Number(response.data.estimated_total || 0).toFixed(2)
-                    }</strong></p>
+                    <p>Estimated Total: <strong>৳${grandTotal.toFixed(2)}</strong></p>
                 `,
                 confirmButtonText: 'View Drafts',
                 showCancelButton: !isEditMode,
@@ -373,7 +392,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     };
 
     return (
-        <div className="relative w-full">
+        <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
             {(isSavingDraft || isUpdatingDraft || isCreatingPurchase) && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75">
                     <div className="flex flex-col items-center space-y-3">
@@ -385,22 +404,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
             <div className="panel">
                 <h2 className="mb-5 text-xl font-bold">{isEditMode ? 'Edit Purchase Draft' : 'Purchase Order Draft'}</h2>
-
-                {/* Debug Panel - Remove this after debugging */}
-                <div className="mb-4 rounded border border-yellow-300 bg-yellow-50 p-3 text-xs">
-                    <strong>Debug Info:</strong>
-                    <div>Store ID: {currentStoreId || '❌ Not selected'}</div>
-                    <div>User ID: {userId || '❌ Not logged in'}</div>
-                    <div>Purchase Type: {purchaseType}</div>
-                    <div>Supplier ID: {supplierId || '❌ Not selected'}</div>
-                    <div>Items Count: {purchaseItems.length}</div>
-                    <div className="mt-1">
-                        <strong>Buttons Status:</strong>
-                        <div>• Items check: {purchaseItems.length === 0 ? '❌ No items' : '✅ Has items'}</div>
-                        <div>• Supplier check: {purchaseType === 'supplier' && !supplierId ? '❌ Need supplier' : '✅ OK'}</div>
-                        <div>• Store check: {currentStoreId ? '✅ OK' : '❌ Need store'}</div>
-                    </div>
-                </div>
 
                 {/* Purchase Type Selection */}
                 <div className="mb-6">
@@ -527,61 +530,110 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         </div>
                     )}
 
-                    <div className="table-responsive">
-                        <table className="table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Type</th>
-                                    <th>Quantity</th>
-                                    <th>Purchase Price</th>
-                                    <th>Amount</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {purchaseItems.length === 0 ? (
+                    {/* Desktop Table View */}
+                    {!isMobileView ? (
+                        <div className="table-responsive">
+                            <table className="table-hover">
+                                <thead>
                                     <tr>
-                                        <td colSpan={6} className="text-center text-gray-500">
-                                            No items added. Select products from the left or add new products.
-                                        </td>
+                                        <th>Product</th>
+                                        <th>Type</th>
+                                        <th>Quantity</th>
+                                        <th>Purchase Price</th>
+                                        <th>Amount</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ) : (
-                                    purchaseItems.map((item) => (
-                                        <tr key={item.id}>
-                                            <td>
-                                                <div>
-                                                    <p className="font-semibold">{item.title}</p>
-                                                    {item.description && <p className="text-sm text-gray-500">{item.description}</p>}
-                                                    <p className="text-xs text-gray-400">Unit: {item.unit}</p>
+                                </thead>
+                                <tbody>
+                                    {purchaseItems.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={6} className="text-center text-gray-500">
+                                                No items added. Select products from the left or add new products.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        purchaseItems.map((item) => (
+                                            <tr key={item.id}>
+                                                <td>
+                                                    <div>
+                                                        <p className="font-semibold">{item.title}</p>
+                                                        {item.description && <p className="text-sm text-gray-500">{item.description}</p>}
+                                                        <p className="text-xs text-gray-400">Unit: {item.unit}</p>
+                                                    </div>
+                                                </td>
+                                                <td>{item.itemType === 'existing' ? <span className="badge bg-success">Existing</span> : <span className="badge bg-info">New</span>}</td>
+                                                <td>
+                                                    <input type="number" className="form-input w-24" min="1" value={item.quantity} onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="form-input w-28"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={item.purchasePrice}
+                                                        onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
+                                                    />
+                                                </td>
+                                                <td className="font-semibold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
+                                                <td>
+                                                    <button onClick={() => handleRemoveItem(item.id)} className="rounded p-2 hover:bg-red-100">
+                                                        <Trash2 className="h-5 w-5 text-red-600" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        /* Mobile Card View */
+                        <div className="space-y-3">
+                            {purchaseItems.length === 0 ? (
+                                <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center text-gray-500">No items added. Select products from the left or add new products.</div>
+                            ) : (
+                                purchaseItems.map((item) => (
+                                    <div key={item.id} className="rounded-lg border bg-white p-4 shadow-sm">
+                                        <div className="mb-3 flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-gray-900">{item.title}</p>
+                                                {item.description && <p className="text-sm text-gray-500">{item.description}</p>}
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    <span className="text-xs text-gray-400">Unit: {item.unit}</span>
+                                                    {item.itemType === 'existing' ? <span className="badge bg-success text-xs">Existing</span> : <span className="badge bg-info text-xs">New</span>}
                                                 </div>
-                                            </td>
-                                            <td>{item.itemType === 'existing' ? <span className="badge bg-success">Existing</span> : <span className="badge bg-info">New</span>}</td>
-                                            <td>
-                                                <input type="number" className="form-input w-24" min="1" value={item.quantity} onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
-                                            </td>
-                                            <td>
+                                            </div>
+                                            <button onClick={() => handleRemoveItem(item.id)} className="rounded p-2 hover:bg-red-100">
+                                                <Trash2 className="h-5 w-5 text-red-600" />
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="mb-1 block text-xs font-medium text-gray-600">Quantity</label>
+                                                <input type="number" className="form-input w-full" min="1" value={item.quantity} onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-medium text-gray-600">Purchase Price</label>
                                                 <input
                                                     type="number"
-                                                    className="form-input w-28"
+                                                    className="form-input w-full"
                                                     min="0"
                                                     step="0.01"
                                                     value={item.purchasePrice}
                                                     onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
                                                 />
-                                            </td>
-                                            <td className="font-semibold">${(item.quantity * item.purchasePrice).toFixed(2)}</td>
-                                            <td>
-                                                <button onClick={() => handleRemoveItem(item.id)} className="rounded p-2 hover:bg-red-100">
-                                                    <Trash2 className="h-5 w-5 text-red-600" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 flex items-center justify-between border-t pt-3">
+                                            <span className="text-sm font-medium text-gray-600">Amount</span>
+                                            <span className="text-lg font-bold text-primary">৳{(item.quantity * item.purchasePrice).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Notes */}
@@ -599,7 +651,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                     <button
                         onClick={(e) => {
                             console.log('Save Draft button click event', e);
