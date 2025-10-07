@@ -384,29 +384,56 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 </html>`;
     };
 
+    const [showReceipt, setShowReceipt] = useState(false);
+
     const printReceipt = async () => {
         if (isPrinting) return;
-
         setIsPrinting(true);
 
         try {
-            const isMobile = isMobileDevice();
             const receiptHTML = generateReceiptHTML();
+            const receiptContainer = document.createElement('div');
+            receiptContainer.innerHTML = receiptHTML;
+            receiptContainer.id = 'print-section';
+            document.body.appendChild(receiptContainer);
 
-            if (isMobile) {
-                // Mobile: Use iframe approach with better error handling
-                await printWithIframe(receiptHTML);
-            } else {
-                // Desktop: Use popup window
-                printWithPopup(receiptHTML);
-            }
+            // Small delay for DOM rendering
+            setTimeout(() => {
+            window.print();
+            document.body.removeChild(receiptContainer);
+            setIsPrinting(false);
+            }, 500);
         } catch (error) {
             console.error('Print error:', error);
-            alert('Failed to print. Please try downloading the PDF instead.');
-        } finally {
+            alert('Failed to print. Please try again.');
             setIsPrinting(false);
         }
     };
+
+
+    // const printReceipt = async () => {
+    //     if (isPrinting) return;
+
+    //     setIsPrinting(true);
+
+    //     try {
+    //         const isMobile = isMobileDevice();
+    //         const receiptHTML = generateReceiptHTML();
+
+    //         if (isMobile) {
+    //             // Mobile: Use iframe approach with better error handling
+    //             await printWithIframe(receiptHTML);
+    //         } else {
+    //             // Desktop: Use popup window
+    //             printWithPopup(receiptHTML);
+    //         }
+    //     } catch (error) {
+    //         console.error('Print error:', error);
+    //         alert('Failed to print. Please try downloading the PDF instead.');
+    //     } finally {
+    //         setIsPrinting(false);
+    //     }
+    // };
 
     const printWithPopup = (htmlContent: string) => {
         const printWindow = window.open('', '_blank', 'width=350,height=600,toolbar=no,menubar=no,scrollbars=yes');
