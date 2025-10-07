@@ -38,12 +38,14 @@ const CustomerApi = baseApi.injectEndpoints({
 
             query: ({
                 store_id,
+                store_ids,
                 search,
                 membership,
                 per_page,
                 page,
             }: {
                 store_id?: number | string;
+                 store_ids?: number[] | string;
                 search?: string;
                 membership?: 'normal' | 'silver' | 'gold' | 'platinum';
                 per_page?: number;
@@ -52,6 +54,11 @@ const CustomerApi = baseApi.injectEndpoints({
                 let params = new URLSearchParams();
 
                 if (store_id) params.append('store_id', String(store_id));
+                        if (store_ids) {
+            // Support both array and string
+            const ids = Array.isArray(store_ids) ? store_ids.join(',') : store_ids;
+            params.append('store_ids', ids);
+        }
                 if (search) params.append('search', search);
                 if (membership) params.append('membership', membership);
                 if (per_page) params.append('per_page', String(per_page));
