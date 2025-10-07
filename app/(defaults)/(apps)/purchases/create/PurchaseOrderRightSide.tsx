@@ -484,12 +484,15 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
                 {/* Items Table */}
                 <div className="mb-6">
-                    <div className="mb-3 flex items-center justify-between">
-                        <h3 className="font-semibold">Purchase Items</h3>
-                        <button onClick={() => setShowAddNewProduct(!showAddNewProduct)} className="btn btn-sm btn-outline-primary">
-                            <Plus className="mr-1 h-4 w-4" />
-                            Add New Product
-                        </button>
+                    <div className="mb-3 flex items-center justify-between sm:mb-4">
+                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Purchase Items</h3>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs sm:text-sm">Items: {purchaseItems.length}</span>
+                            <button onClick={() => setShowAddNewProduct(!showAddNewProduct)} className="btn btn-sm btn-outline-primary">
+                                <Plus className="mr-1 h-4 w-4" />
+                                Add New Product
+                            </button>
+                        </div>
                     </div>
 
                     {/* Add New Product Form */}
@@ -532,53 +535,76 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
                     {/* Desktop Table View */}
                     {!isMobileView ? (
-                        <div className="table-responsive">
-                            <table className="table-hover">
+                        <div className="overflow-x-auto rounded-lg border border-gray-300">
+                            <table className="w-full border-collapse">
                                 <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Type</th>
-                                        <th>Quantity</th>
-                                        <th>Purchase Price</th>
-                                        <th>Amount</th>
-                                        <th>Actions</th>
+                                    <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                                        <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Product</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Type</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Quantity</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Purchase Price</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Amount</th>
+                                        <th className="border-b border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="bg-white">
                                     {purchaseItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="text-center text-gray-500">
-                                                No items added. Select products from the left or add new products.
+                                            <td colSpan={7} className="border-b border-gray-300 p-8 text-center text-gray-500">
+                                                <div className="flex flex-col items-center justify-center py-4">
+                                                    <div className="mb-2 text-3xl">📦</div>
+                                                    <div className="font-medium">No items added yet</div>
+                                                    <div className="text-sm">Select products from the left or add new products</div>
+                                                </div>
                                             </td>
                                         </tr>
                                     ) : (
-                                        purchaseItems.map((item) => (
-                                            <tr key={item.id}>
-                                                <td>
+                                        purchaseItems.map((item, index) => (
+                                            <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < purchaseItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                                                <td className="border-r border-gray-300 p-3">
                                                     <div>
-                                                        <p className="font-semibold">{item.title}</p>
-                                                        {item.description && <p className="text-sm text-gray-500">{item.description}</p>}
-                                                        <p className="text-xs text-gray-400">Unit: {item.unit}</p>
+                                                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                                                        {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
                                                     </div>
                                                 </td>
-                                                <td>{item.itemType === 'existing' ? <span className="badge bg-success">Existing</span> : <span className="badge bg-info">New</span>}</td>
-                                                <td>
-                                                    <input type="number" className="form-input w-24" min="1" value={item.quantity} onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
+                                                <td className="border-r border-gray-300 p-3 text-center">
+                                                    {item.itemType === 'existing' ? (
+                                                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Existing</span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">New</span>
+                                                    )}
                                                 </td>
-                                                <td>
+                                                <td className="border-r border-gray-300 p-3 text-center text-sm">
+                                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                                </td>
+                                                <td className="border-r border-gray-300 p-3 text-center">
                                                     <input
                                                         type="number"
-                                                        className="form-input w-28"
+                                                        className="form-input w-20 text-center"
+                                                        min="1"
+                                                        value={item.quantity}
+                                                        onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                    />
+                                                </td>
+                                                <td className="border-r border-gray-300 p-3 text-right">
+                                                    <input
+                                                        type="number"
+                                                        className="form-input w-28 text-right"
                                                         min="0"
                                                         step="0.01"
                                                         value={item.purchasePrice}
                                                         onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
                                                     />
                                                 </td>
-                                                <td className="font-semibold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
-                                                <td>
-                                                    <button onClick={() => handleRemoveItem(item.id)} className="rounded p-2 hover:bg-red-100">
-                                                        <Trash2 className="h-5 w-5 text-red-600" />
+                                                <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
+                                                <td className="p-3 text-center">
+                                                    <button
+                                                        onClick={() => handleRemoveItem(item.id)}
+                                                        className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
+                                                        title="Remove item"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
                                                     </button>
                                                 </td>
                                             </tr>
