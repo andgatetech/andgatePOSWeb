@@ -88,7 +88,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         }
         
         @page {
-            size: 80mm auto;
+            size: 58mm auto;
             margin: 0;
         }
         
@@ -96,7 +96,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             font-family: 'Courier New', monospace;
             font-size: 11px;
             line-height: 1.3;
-            width: 80mm;
+            width: 58mm;
             margin: 0 auto;
             padding: 5mm;
             background: white;
@@ -223,7 +223,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             }
             
             @page {
-                size: 80mm auto;
+                size: 58mm auto;
                 margin: 0mm;
             }
         }
@@ -386,27 +386,81 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
     const printReceipt = async () => {
         if (isPrinting) return;
-
         setIsPrinting(true);
 
         try {
-            const isMobile = isMobileDevice();
             const receiptHTML = generateReceiptHTML();
 
-            if (isMobile) {
-                // Mobile: Use iframe approach with better error handling
-                await printWithIframe(receiptHTML);
-            } else {
-                // Desktop: Use popup window
-                printWithPopup(receiptHTML);
+            // ✅ Create hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+
+            const iframeDoc = iframe.contentWindow?.document;
+            if (!iframeDoc) {
+            throw new Error('Unable to access iframe document');
             }
+
+            iframeDoc.open();
+            iframeDoc.write(receiptHTML);
+            iframeDoc.close();
+
+            // ✅ Wait for content to render fully
+            iframe.onload = () => {
+            setTimeout(() => {
+                try {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+                } catch (err) {
+                console.error('Print failed:', err);
+                alert('Failed to print receipt.');
+                } finally {
+                // Clean up after short delay
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    setIsPrinting(false);
+                }, 1500);
+                }
+            }, 400);
+            };
         } catch (error) {
             console.error('Print error:', error);
-            alert('Failed to print. Please try downloading the PDF instead.');
-        } finally {
+            alert('Failed to print receipt.');
             setIsPrinting(false);
         }
     };
+
+
+
+
+    // const printReceipt = async () => {
+    //     if (isPrinting) return;
+
+    //     setIsPrinting(true);
+
+    //     try {
+    //         const isMobile = isMobileDevice();
+    //         const receiptHTML = generateReceiptHTML();
+
+    //         if (isMobile) {
+    //             // Mobile: Use iframe approach with better error handling
+    //             await printWithIframe(receiptHTML);
+    //         } else {
+    //             // Desktop: Use popup window
+    //             printWithPopup(receiptHTML);
+    //         }
+    //     } catch (error) {
+    //         console.error('Print error:', error);
+    //         alert('Failed to print. Please try downloading the PDF instead.');
+    //     } finally {
+    //         setIsPrinting(false);
+    //     }
+    // };
 
     const printWithPopup = (htmlContent: string) => {
         const printWindow = window.open('', '_blank', 'width=350,height=600,toolbar=no,menubar=no,scrollbars=yes');

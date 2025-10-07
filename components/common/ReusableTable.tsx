@@ -1,6 +1,6 @@
 'use client';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { ReactNode } from 'react';
+import { ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 export interface TableColumn {
     key: string;
@@ -45,7 +45,96 @@ export interface ReusableTableProps {
     rowClassName?: (row: any, index: number) => string;
 }
 
+// Actions Dropdown Component
+interface ActionsDropdownProps {
+    actions: TableAction[];
+    row: any;
+    isOpen: boolean;
+    onToggle: () => void;
+    onClose: () => void;
+}
+
+const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen, onToggle, onClose }) => {
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const [position, setPosition] = useState({ top: 0, left: 0 });
+
+    useEffect(() => {
+        if (isOpen && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            const dropdownWidth = 192; // w-48 = 12rem = 192px
+            const dropdownHeight = actions.length * 48; // Approximate height per item
+
+            // Calculate position
+            let top = rect.bottom + 5;
+            let left = rect.right - dropdownWidth;
+
+            // Adjust if dropdown goes below viewport
+            if (top + dropdownHeight > window.innerHeight) {
+                top = rect.top - dropdownHeight - 5;
+            }
+
+            // Adjust if dropdown goes off left edge
+            if (left < 10) {
+                left = 10;
+            }
+
+            setPosition({ top, left });
+        }
+    }, [isOpen, actions.length]);
+
+    return (
+        <div className="relative flex justify-center">
+            <button ref={buttonRef} onClick={onToggle} className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900" title="Actions">
+                <MoreVertical className="h-5 w-5" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isOpen && (
+                <>
+                    {/* Backdrop to close dropdown */}
+                    <div className="fixed inset-0 z-[100]" onClick={onClose} />
+
+                    {/* Dropdown */}
+                    <div
+                        ref={dropdownRef}
+                        className="fixed z-[101] w-48 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl"
+                        style={{
+                            top: `${position.top}px`,
+                            left: `${position.left}px`,
+                        }}
+                    >
+                        {actions.map((action, actionIndex) => (
+                            <button
+                                key={actionIndex}
+                                onClick={() => {
+                                    action.onClick(row);
+                                    onClose();
+                                }}
+                                className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-gray-50 ${
+                                    action.className?.includes('text-red')
+                                        ? 'text-red-700 hover:bg-red-50'
+                                        : action.className?.includes('text-green')
+                                        ? 'text-green-700 hover:bg-green-50'
+                                        : action.className?.includes('text-blue')
+                                        ? 'text-blue-700 hover:bg-blue-50'
+                                        : 'text-gray-700'
+                                }`}
+                            >
+                                {action.icon && <span>{action.icon}</span>}
+                                <span className="font-medium">{action.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
 const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, isLoading = false, emptyState, pagination, sorting, className = '', rowClassName }) => {
+    const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
+
     if (isLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
@@ -101,9 +190,11 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                     <tbody className="divide-y divide-gray-200 bg-white">
                         {data.map((row, index) => {
                             const finalRowClassName = rowClassName ? rowClassName(row, index) : getDefaultRowClassName(row, index);
+                            const rowId = row.id || index;
+                            const isDropdownOpen = openDropdownId === rowId;
 
                             return (
-                                <tr key={row.id || index} className={finalRowClassName}>
+                                <tr key={rowId} className={finalRowClassName}>
                                     {columns.map((column) => (
                                         <td key={column.key} className={`px-4 py-4 ${column.className || ''}`}>
                                             {column.render ? column.render(row[column.key], row) : row[column.key]}
@@ -111,18 +202,13 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                                     ))}
                                     {actions && actions.length > 0 && (
                                         <td className="px-4 py-4">
-                                            <div className="flex items-center gap-2">
-                                                {actions.map((action, actionIndex) => (
-                                                    <button
-                                                        key={actionIndex}
-                                                        onClick={() => action.onClick(row)}
-                                                        className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${action.className || 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-                                                    >
-                                                        {action.icon && <span className="mr-1">{action.icon}</span>}
-                                                        {action.label}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            <ActionsDropdown
+                                                actions={actions}
+                                                row={row}
+                                                isOpen={isDropdownOpen}
+                                                onToggle={() => setOpenDropdownId(isDropdownOpen ? null : rowId)}
+                                                onClose={() => setOpenDropdownId(null)}
+                                            />
                                         </td>
                                     )}
                                 </tr>
