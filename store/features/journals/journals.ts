@@ -29,7 +29,29 @@ export const journalApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Journal'],
         }),
+        getSingleJournals: builder.query({
+            query: (id) => ({
+                url: `/journals/${id}`,
+                method: 'GET',
+            }),
+            providesTags: ['Journal'],
+        }),
+        updateJournal: builder.mutation({
+            query: ({ journalId, data }) => ({
+                url: `/journals/${journalId}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Journal'],
+        }),
+        deleteJournal: builder.mutation({
+            query: (id) => ({
+                url: `/journals/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Journal'],
+        }),
     }),
 });
 
-export const { useGetJournalsQuery, useCreateJournalMutation } = journalApi;
+export const { useGetJournalsQuery, useCreateJournalMutation, useGetSingleJournalsQuery, useUpdateJournalMutation, useDeleteJournalMutation } = journalApi;
