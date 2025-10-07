@@ -821,7 +821,7 @@ const PosRightSide: React.FC = () => {
                             )}
 
                             {/* Manual Customer Input */}
-                            <div className="space-y-3 sm:space-y-4">
+                            <div className="space-y-3 sm:space-y-4" style={{ display: formData.customerId === 'walk-in' ? 'none' : 'block' }}>
                                 <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
                                     <label className="text-sm font-medium sm:w-1/3">
                                         Name <span className="text-red-500">*</span>
