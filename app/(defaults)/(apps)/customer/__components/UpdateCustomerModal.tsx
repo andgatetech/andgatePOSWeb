@@ -107,7 +107,6 @@ const UpdateCustomerModal = ({ isOpen, onClose, onSuccess, customer }) => {
 
             await updateCustomer({ customerId: customer.id, customerData }).unwrap();
 
-            toast.success('Customer updated successfully!');
             onSuccess?.();
             handleClose();
         } catch (error: any) {
