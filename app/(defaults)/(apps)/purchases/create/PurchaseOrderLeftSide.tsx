@@ -820,7 +820,11 @@ const PurchaseOrderLeftSide: React.FC<PurchaseOrderLeftSideProps> = ({ isMobileV
                                             <div className="relative h-44 overflow-hidden rounded-t-lg bg-gray-100">
                                                 {product.images && product.images.length > 0 ? (
                                                     <Image
-                                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${product.images[0].image_path}`}
+                                                        src={
+                                                            typeof product.images[0] === 'string'
+                                                                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
+                                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`
+                                                        }
                                                         alt={product.product_name}
                                                         fill
                                                         className="object-cover"
