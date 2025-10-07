@@ -384,56 +384,57 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 </html>`;
     };
 
-    const [showReceipt, setShowReceipt] = useState(false);
-
     const printReceipt = async () => {
-    if (isPrinting) return;
-    setIsPrinting(true);
+        if (isPrinting) return;
+        setIsPrinting(true);
 
-    try {
-        const receiptHTML = generateReceiptHTML();
+        try {
+            const receiptHTML = generateReceiptHTML();
 
-        // Create container
-        const receiptContainer = document.createElement('div');
-        receiptContainer.innerHTML = receiptHTML;
-        receiptContainer.id = 'print-section';
-        document.body.appendChild(receiptContainer);
+            // ✅ Create hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
 
-        // 🔹 Add print-only CSS dynamically
-        const style = document.createElement('style');
-        style.textContent = `
-        @media print {
-            body * {
-            visibility: hidden !important;
+            const iframeDoc = iframe.contentWindow?.document;
+            if (!iframeDoc) {
+            throw new Error('Unable to access iframe document');
             }
-            #print-section, #print-section * {
-            visibility: visible !important;
-            }
-            #print-section {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 58mm; /* POS receipt width */
-            }
+
+            iframeDoc.open();
+            iframeDoc.write(receiptHTML);
+            iframeDoc.close();
+
+            // ✅ Wait for content to render fully
+            iframe.onload = () => {
+            setTimeout(() => {
+                try {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+                } catch (err) {
+                console.error('Print failed:', err);
+                alert('Failed to print receipt.');
+                } finally {
+                // Clean up after short delay
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    setIsPrinting(false);
+                }, 1500);
+                }
+            }, 400);
+            };
+        } catch (error) {
+            console.error('Print error:', error);
+            alert('Failed to print receipt.');
+            setIsPrinting(false);
         }
-        `;
-        document.head.appendChild(style);
-
-        // Small delay to ensure DOM updates
-        setTimeout(() => {
-        window.print();
-
-        // Cleanup
-        document.body.removeChild(receiptContainer);
-        document.head.removeChild(style);
-        setIsPrinting(false);
-        }, 500);
-    } catch (error) {
-        console.error('Print error:', error);
-        alert('Failed to print. Please try again.');
-        setIsPrinting(false);
-    }
     };
+
 
 
 
