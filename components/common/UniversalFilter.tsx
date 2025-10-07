@@ -81,6 +81,14 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
         }
     }, [externalResetTrigger, resetFilters]);
 
+    // Update selected store when current store changes
+    useEffect(() => {
+        if (currentStoreId && selectedStore !== currentStoreId) {
+            setSelectedStore(currentStoreId);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStoreId]);
+
     // Helper function to get date range based on filter type
     const getDateRange = useCallback(
         (type: string) => {
