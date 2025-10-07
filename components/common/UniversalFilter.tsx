@@ -24,6 +24,8 @@ export interface UniversalFilterProps {
     customFilters?: React.ReactNode;
     initialFilters?: FilterOptions;
     className?: string;
+    onResetFilters?: () => void; // Callback when filters are reset
+    externalResetTrigger?: number; // External trigger to reset filters
 }
 
 const DATE_FILTER_OPTIONS = [
@@ -48,6 +50,8 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     customFilters,
     initialFilters = {},
     className = '',
+    onResetFilters,
+    externalResetTrigger = 0,
 }) => {
     const { currentStoreId, userStores } = useCurrentStore();
 
@@ -59,6 +63,31 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     const [customEndDate, setCustomEndDate] = useState(initialFilters.dateRange?.endDate || format(new Date(), 'yyyy-MM-dd'));
     const [showDateDropdown, setShowDateDropdown] = useState(false);
     const [showStoreDropdown, setShowStoreDropdown] = useState(false);
+
+    // Reset filters
+    const resetFilters = useCallback(() => {
+        setSearch('');
+        setSelectedStore(currentStoreId || 'all');
+        setDateFilterType('none');
+        setCustomStartDate(format(new Date(), 'yyyy-MM-dd'));
+        setCustomEndDate(format(new Date(), 'yyyy-MM-dd'));
+        onResetFilters?.(); // Call parent reset callback
+    }, [currentStoreId, onResetFilters]);
+
+    // Listen to external reset trigger
+    useEffect(() => {
+        if (externalResetTrigger > 0) {
+            resetFilters();
+        }
+    }, [externalResetTrigger, resetFilters]);
+
+    // Update selected store when current store changes
+    useEffect(() => {
+        if (currentStoreId && selectedStore !== currentStoreId) {
+            setSelectedStore(currentStoreId);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStoreId]);
 
     // Helper function to get date range based on filter type
     const getDateRange = useCallback(
@@ -151,15 +180,6 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
         const filters = buildFilters();
         onFilterChange(filters);
     }, [buildFilters, onFilterChange]);
-
-    // Reset filters
-    const resetFilters = () => {
-        setSearch('');
-        setSelectedStore(currentStoreId || 'all');
-        setDateFilterType('none');
-        setCustomStartDate(format(new Date(), 'yyyy-MM-dd'));
-        setCustomEndDate(format(new Date(), 'yyyy-MM-dd'));
-    };
 
     // Check if filters are active (not default)
     const hasActiveFilters = () => {

@@ -21,6 +21,8 @@ const ReceiveItemsPage = () => {
     const [receivedQuantities, setReceivedQuantities] = useState<Record<number, number>>({});
     const [purchasePrices, setPurchasePrices] = useState<Record<number, number>>({});
     const [paymentAmount, setPaymentAmount] = useState(0);
+    const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [paymentNotes, setPaymentNotes] = useState('');
 
     // Initialize received quantities and prices from PO data
     useEffect(() => {
@@ -99,6 +101,8 @@ const ReceiveItemsPage = () => {
                 purchase_price: purchasePrices[item.id] || 0,
             })),
             payment_amount: paymentAmount,
+            payment_method: paymentMethod,
+            payment_notes: paymentNotes,
         };
 
         try {
@@ -178,41 +182,54 @@ const ReceiveItemsPage = () => {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="panel">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <Link href="/purchases/list" className="mb-2 inline-flex items-center text-primary hover:underline">
-                            <ArrowLeft className="mr-1 h-4 w-4" />
-                            Back to Purchase Orders
-                        </Link>
-                        <h1 className="text-2xl font-bold">Receive Items - {purchaseOrder.invoice_number}</h1>
+            {/* Header Section */}
+            <section className="mb-8">
+                <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
+                    <div className="mb-6 flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 shadow-md">
+                                <CheckCircle className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <Link href="/purchases/list" className="mb-1 inline-flex items-center text-sm text-primary hover:underline">
+                                    <ArrowLeft className="mr-1 h-4 w-4" />
+                                    Back to Purchase Orders
+                                </Link>
+                                <h1 className="text-2xl font-bold text-gray-900">Receive Items</h1>
+                                <p className="text-sm text-gray-500">
+                                    Order: {purchaseOrder.invoice_number} | Supplier: {purchaseOrder.supplier?.name || 'N/A'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="rounded-lg bg-blue-50 px-4 py-3">
+                                <p className="text-xs text-gray-600">Order Total</p>
+                                <p className="text-2xl font-bold text-blue-600">৳{Number(purchaseOrder.grand_total || 0).toFixed(2)}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-500">Supplier</p>
-                        <p className="font-semibold">{purchaseOrder.supplier?.name}</p>
-                    </div>
-                </div>
 
-                <div className="mt-4 grid grid-cols-4 gap-4">
-                    <div className="rounded-lg border p-3">
-                        <p className="text-sm text-gray-500">Order Total</p>
-                        <p className="text-xl font-bold">৳{Number(purchaseOrder.grand_total || 0).toFixed(2)}</p>
-                    </div>
-                    <div className="rounded-lg border p-3">
-                        <p className="text-sm text-gray-500">Status</p>
-                        <p className="font-semibold text-blue-600">{purchaseOrder.status.replace('_', ' ').toUpperCase()}</p>
-                    </div>
-                    <div className="rounded-lg border p-3">
-                        <p className="text-sm text-gray-500">Payment Status</p>
-                        <p className="font-semibold text-orange-600">{purchaseOrder.payment_status?.toUpperCase()}</p>
-                    </div>
-                    <div className="rounded-lg border p-3">
-                        <p className="text-sm text-gray-500">Items</p>
-                        <p className="text-xl font-bold">{purchaseOrder.items?.length || 0}</p>
+                    {/* Status Cards */}
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-blue-50 to-white p-3">
+                            <p className="text-xs text-gray-600">Order Status</p>
+                            <p className="mt-1 text-sm font-semibold text-blue-600">{purchaseOrder.status.replace('_', ' ').toUpperCase()}</p>
+                        </div>
+                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-purple-50 to-white p-3">
+                            <p className="text-xs text-gray-600">Payment Status</p>
+                            <p className="mt-1 text-sm font-semibold text-purple-600">{purchaseOrder.payment_status?.toUpperCase()}</p>
+                        </div>
+                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-white p-3">
+                            <p className="text-xs text-gray-600">Amount Paid</p>
+                            <p className="mt-1 text-sm font-semibold text-green-600">৳{Number(purchaseOrder.amount_paid || 0).toFixed(2)}</p>
+                        </div>
+                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-orange-50 to-white p-3">
+                            <p className="text-xs text-gray-600">Amount Due</p>
+                            <p className="mt-1 text-sm font-semibold text-orange-600">৳{Number(purchaseOrder.amount_due || 0).toFixed(2)}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* Items to Receive */}
             <div className="panel">
@@ -288,23 +305,80 @@ const ReceiveItemsPage = () => {
 
             {/* Payment Section */}
             <div className="panel">
-                <h2 className="mb-5 text-xl font-bold">Payment</h2>
+                <h2 className="mb-5 text-xl font-bold">Payment Details</h2>
 
-                <div className="grid grid-cols-3 gap-6">
-                    <div>
-                        <label className="mb-2 block font-semibold">Payment Amount</label>
-                        <input type="number" className="form-input" step="0.01" min="0" max={grandTotal} value={paymentAmount} onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)} />
-                    </div>
-                    <div>
-                        <label className="mb-2 block font-semibold">Total Amount</label>
-                        <div className="flex h-11 items-center rounded-lg border bg-gray-50 px-3">
-                            <span className="text-2xl font-bold text-primary">৳{grandTotal.toFixed(2)}</span>
+                <div className="space-y-4">
+                    {/* Summary */}
+                    <div className="grid grid-cols-3 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <div>
+                            <p className="text-sm text-gray-600">Grand Total</p>
+                            <p className="text-2xl font-bold text-gray-900">৳{grandTotal.toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Already Paid</p>
+                            <p className="text-2xl font-bold text-blue-600">৳{Number(purchaseOrder.amount_paid || 0).toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Current Balance</p>
+                            <p className="text-2xl font-bold text-orange-600">৳{Number(purchaseOrder.amount_due || 0).toFixed(2)}</p>
                         </div>
                     </div>
+
+                    {/* Payment Input Grid */}
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
+                            <label className="mb-2 block text-sm font-semibold">Payment Amount</label>
+                            <input
+                                type="number"
+                                className="form-input"
+                                step="0.01"
+                                min="0"
+                                max={grandTotal}
+                                value={paymentAmount}
+                                onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
+                                placeholder="Enter payment amount"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Maximum: ৳{grandTotal.toFixed(2)}</p>
+                        </div>
+
+                        <div>
+                            <label className="mb-2 block text-sm font-semibold">Payment Method</label>
+                            <select className="form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                                <option value="cash">Cash</option>
+                                <option value="debit">Debit Card</option>
+                                <option value="credit">Credit Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="cheque">Cheque</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Payment Notes */}
                     <div>
-                        <label className="mb-2 block font-semibold">Balance Due</label>
-                        <div className="flex h-11 items-center rounded-lg border bg-gray-50 px-3">
-                            <span className={`text-2xl font-bold ${balanceDue > 0 ? 'text-orange-600' : 'text-green-600'}`}>৳{balanceDue.toFixed(2)}</span>
+                        <label className="mb-2 block text-sm font-semibold">Payment Notes (Optional)</label>
+                        <textarea className="form-textarea" rows={3} value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder="Add any notes about this payment..." />
+                    </div>
+
+                    {/* New Balance Preview */}
+                    <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-4">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">Receiving Now:</span>
+                                <span className="font-semibold">৳{grandTotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">Paying Now:</span>
+                                <span className="font-semibold text-blue-600">৳{paymentAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between border-t pt-2">
+                                <span className="text-gray-600">Previous Balance:</span>
+                                <span className="font-semibold">৳{Number(purchaseOrder.amount_due || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between border-t pt-2">
+                                <span className="font-bold">New Balance Due:</span>
+                                <span className={`text-lg font-bold ${grandTotal - paymentAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>৳{(grandTotal - paymentAmount).toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

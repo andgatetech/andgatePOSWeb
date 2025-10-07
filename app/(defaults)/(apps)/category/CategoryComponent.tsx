@@ -335,7 +335,11 @@ const CategoryComponent = () => {
                     columns={columnsWithActions}
                     isLoading={isLoading}
                     emptyState={{
-                        icon: <ImageIcon className="h-16 w-16" />,
+                        icon: (
+                            <div className="flex justify-center">
+                                <ImageIcon className="h-16 w-16 text-gray-400" />
+                            </div>
+                        ),
                         title: 'No categories yet',
                         description: 'Get started by creating your first category',
                         action: (
