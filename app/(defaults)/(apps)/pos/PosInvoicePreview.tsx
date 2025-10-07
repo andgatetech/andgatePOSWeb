@@ -88,7 +88,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         }
         
         @page {
-            size: 80mm auto;
+            size: 58mm auto;
             margin: 0;
         }
         
@@ -96,7 +96,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             font-family: 'Courier New', monospace;
             font-size: 11px;
             line-height: 1.3;
-            width: 80mm;
+            width: 58mm;
             margin: 0 auto;
             padding: 5mm;
             background: white;
@@ -223,7 +223,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             }
             
             @page {
-                size: 80mm auto;
+                size: 58mm auto;
                 margin: 0mm;
             }
         }
@@ -413,7 +413,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             position: absolute;
             left: 0;
             top: 0;
-            width: 80mm; /* POS receipt width */
+            width: 58mm; /* POS receipt width */
             }
         }
         `;
