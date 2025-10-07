@@ -1,9 +1,11 @@
 'use client';
+import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
+import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
-import { Edit, Eye, Image, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Edit, Eye, ImageIcon, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
 const CategoryComponent = () => {
@@ -54,17 +56,11 @@ const CategoryComponent = () => {
     }, [currentStoreId]);
 
     // Handle filter changes from CategoryFilter - RTK Query will auto-refetch when queryParams change
-    const handleFilterChange = useCallback(
-        (newApiParams: Record<string, any>) => {
-           
-            setApiParams(newApiParams);
-        },
-        [currentStoreId]
-    );
+    const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
+        setApiParams(newApiParams);
+    }, []);
 
-  
-
-    const categories = categoriesResponse?.data || [];
+    const categories = useMemo(() => categoriesResponse?.data || [], [categoriesResponse?.data]);
 
     const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
         Swal.fire({
@@ -155,17 +151,20 @@ const CategoryComponent = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
-            try {
-                await deleteCategory(id).unwrap();
-                showMessage('Category deleted successfully', 'success');
-            } catch (error) {
-                console.error('Error deleting category:', error);
-                showMessage('Failed to delete category', 'error');
+    const handleDelete = useCallback(
+        async (id: number) => {
+            if (window.confirm('Are you sure you want to delete this category?')) {
+                try {
+                    await deleteCategory(id).unwrap();
+                    showMessage('Category deleted successfully', 'success');
+                } catch (error) {
+                    console.error('Error deleting category:', error);
+                    showMessage('Failed to delete category', 'error');
+                }
             }
-        }
-    };
+        },
+        [deleteCategory]
+    );
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -176,6 +175,113 @@ const CategoryComponent = () => {
             minute: '2-digit',
         });
     };
+
+    // Define table columns
+    const columns: TableColumn[] = useMemo(
+        () => [
+            {
+                key: 'image_url',
+                label: 'Image',
+                render: (value, row) => (
+                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                        {value ? <img src={value} alt={row.name} className="h-full w-full object-cover" /> : <ImageIcon className="h-8 w-8 text-gray-400" />}
+                    </div>
+                ),
+            },
+            {
+                key: 'name',
+                label: 'Name',
+                sortable: true,
+                render: (value) => <span className="font-semibold text-gray-900">{value}</span>,
+            },
+            {
+                key: 'description',
+                label: 'Description',
+                render: (value) => <span className="line-clamp-2 text-sm text-gray-600">{value}</span>,
+                className: 'max-w-md',
+            },
+            {
+                key: 'created_at',
+                label: 'Created At',
+                sortable: true,
+                render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
+            },
+            {
+                key: 'updated_at',
+                label: 'Updated At',
+                sortable: true,
+                render: (value, row) => (value !== row.created_at ? <span className="text-sm text-gray-500">{formatDate(value)}</span> : <span className="text-sm text-gray-400">-</span>),
+            },
+        ],
+        []
+    );
+
+    // Add actions dropdown to categories
+    const categoriesWithActions = useMemo(
+        () =>
+            categories.map((category: any) => ({
+                ...category,
+                actions: (
+                    <div className="flex justify-center">
+                        <Dropdown
+                            offset={[0, 5]}
+                            placement="bottom-end"
+                            btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            button={
+                                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                                </svg>
+                            }
+                        >
+                            <ul className="min-w-[160px] rounded-lg border bg-white shadow-lg">
+                                <li>
+                                    <button
+                                        onClick={() => openModal('view', category)}
+                                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50"
+                                    >
+                                        <Eye className="h-4 w-4" />
+                                        View
+                                    </button>
+                                </li>
+                                <li className="border-t">
+                                    <button
+                                        onClick={() => openModal('edit', category)}
+                                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-green-600 transition-colors hover:bg-green-50"
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                        Edit
+                                    </button>
+                                </li>
+                                <li className="border-t">
+                                    <button
+                                        onClick={() => handleDelete(category.id)}
+                                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                        Delete
+                                    </button>
+                                </li>
+                            </ul>
+                        </Dropdown>
+                    </div>
+                ),
+            })),
+        [categories, handleDelete]
+    );
+
+    // Add Actions column
+    const columnsWithActions: TableColumn[] = useMemo(
+        () => [
+            ...columns,
+            {
+                key: 'actions',
+                label: 'Actions',
+                render: (value: any) => value,
+                className: 'w-20 text-center',
+            },
+        ],
+        [columns]
+    );
 
     if (isLoading) {
         return (
@@ -192,7 +298,7 @@ const CategoryComponent = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Category Page Header */}
-            
+
             <section className="mb-8">
                 <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
                     <div className="mb-6 flex items-center justify-between">
@@ -222,55 +328,25 @@ const CategoryComponent = () => {
             {/* Filter Bar */}
             <CategoryFilter key={`category-filter-${currentStoreId}`} onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
 
-            {/* Categories Grid */}
-            <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {categories.map((category: any) => (
-                    <div key={category.id} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-                        {/* Category Image */}
-                        <div className="flex h-48 items-center justify-center bg-gray-100">
-                            {category.image_url ? <img src={category.image_url} alt={category.name} className="h-full w-full object-cover" /> : <Image className="h-16 w-16 text-gray-400" />}
-                        </div>
-
-                        {/* Category Content */}
-                        <div className="p-4">
-                            <div className="mb-2 flex items-start justify-between">
-                                <h3 className="truncate text-lg font-semibold text-gray-900">{category.name}</h3>
-                                <div className="ml-2 flex gap-1">
-                                    <button onClick={() => openModal('view', category)} className="p-1 text-gray-500 transition-colors hover:text-blue-600" title="View Details">
-                                        <Eye className="h-4 w-4" />
-                                    </button>
-                                    <button onClick={() => openModal('edit', category)} className="p-1 text-gray-500 transition-colors hover:text-green-600" title="Edit Category">
-                                        <Edit className="h-4 w-4" />
-                                    </button>
-                                    <button onClick={() => handleDelete(category.id)} className="p-1 text-gray-500 transition-colors hover:text-red-600" title="Delete Category">
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <p className="mb-3 line-clamp-2 text-sm text-gray-600">{category.description}</p>
-
-                            <div className="text-xs text-gray-500">
-                                <p>Created: {formatDate(category.created_at)}</p>
-                                {category.updated_at !== category.created_at && <p>Updated: {formatDate(category.updated_at)}</p>}
-                            </div>
-                        </div>
-                    </div>
-                ))}
+            {/* Categories Table */}
+            <div className="mt-6">
+                <ReusableTable
+                    data={categoriesWithActions}
+                    columns={columnsWithActions}
+                    isLoading={isLoading}
+                    emptyState={{
+                        icon: <ImageIcon className="h-16 w-16" />,
+                        title: 'No categories yet',
+                        description: 'Get started by creating your first category',
+                        action: (
+                            <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                                <Plus className="h-4 w-4" />
+                                Add First Category
+                            </button>
+                        ),
+                    }}
+                />
             </div>
-
-            {/* Empty State */}
-            {categories.length === 0 && (
-                <div className="py-12 text-center">
-                    <Image className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-                    <h3 className="mb-2 text-lg font-medium text-gray-900">No categories yet</h3>
-                    <p className="mb-4 text-gray-500">Get started by creating your first category</p>
-                    <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                        <Plus className="h-4 w-4" />
-                        Add First Category
-                    </button>
-                </div>
-            )}
 
             {/* Modal */}
             {showModal && (
