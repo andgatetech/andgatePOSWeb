@@ -387,28 +387,54 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const [showReceipt, setShowReceipt] = useState(false);
 
     const printReceipt = async () => {
-        if (isPrinting) return;
-        setIsPrinting(true);
+    if (isPrinting) return;
+    setIsPrinting(true);
 
-        try {
-            const receiptHTML = generateReceiptHTML();
-            const receiptContainer = document.createElement('div');
-            receiptContainer.innerHTML = receiptHTML;
-            receiptContainer.id = 'print-section';
-            document.body.appendChild(receiptContainer);
+    try {
+        const receiptHTML = generateReceiptHTML();
 
-            // Small delay for DOM rendering
-            setTimeout(() => {
-            window.print();
-            document.body.removeChild(receiptContainer);
-            setIsPrinting(false);
-            }, 500);
-        } catch (error) {
-            console.error('Print error:', error);
-            alert('Failed to print. Please try again.');
-            setIsPrinting(false);
+        // Create container
+        const receiptContainer = document.createElement('div');
+        receiptContainer.innerHTML = receiptHTML;
+        receiptContainer.id = 'print-section';
+        document.body.appendChild(receiptContainer);
+
+        // 🔹 Add print-only CSS dynamically
+        const style = document.createElement('style');
+        style.textContent = `
+        @media print {
+            body * {
+            visibility: hidden !important;
+            }
+            #print-section, #print-section * {
+            visibility: visible !important;
+            }
+            #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 80mm; /* POS receipt width */
+            }
         }
+        `;
+        document.head.appendChild(style);
+
+        // Small delay to ensure DOM updates
+        setTimeout(() => {
+        window.print();
+
+        // Cleanup
+        document.body.removeChild(receiptContainer);
+        document.head.removeChild(style);
+        setIsPrinting(false);
+        }, 500);
+    } catch (error) {
+        console.error('Print error:', error);
+        alert('Failed to print. Please try again.');
+        setIsPrinting(false);
+    }
     };
+
 
 
     // const printReceipt = async () => {
