@@ -1,7 +1,7 @@
 'use client';
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
-import { Package, DollarSign } from 'lucide-react';
+import { DollarSign, Package } from 'lucide-react';
 import React from 'react';
 
 interface PurchaseOrderReportFilterProps {
