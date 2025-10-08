@@ -71,7 +71,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['PurchaseOrders'],
+            invalidatesTags: ['PurchaseOrders', 'Purchases'],
         }),
 
         // Get all Purchase Orders

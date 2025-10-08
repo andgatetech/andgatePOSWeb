@@ -4,7 +4,7 @@ import PurchaseOrderReportFilter from '@/components/filters/PurchaseOrderReportF
 import Loading from '@/components/layouts/loading';
 import { downloadBase64File } from '@/lib/downloadFile';
 import { useGetPurchaseReportMutation } from '@/store/features/reports/reportApi';
-import { AlertCircle, Package, FileDown, FileSpreadsheet, Printer, TrendingUp, ShoppingCart } from 'lucide-react';
+import { AlertCircle, FileDown, FileSpreadsheet, Package, Printer, ShoppingCart, TrendingUp } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
@@ -232,11 +232,7 @@ const PurchaseOrderReportPage = () => {
         {
             key: 'created_at',
             label: 'Date',
-            render: (value) => (
-                <span className="text-sm text-gray-600">
-                    {new Date(value).toLocaleDateString()}
-                </span>
-            ),
+            render: (value) => <span className="text-sm text-gray-600">{new Date(value).toLocaleDateString()}</span>,
         },
     ];
 
