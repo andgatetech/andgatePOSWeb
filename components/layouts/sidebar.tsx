@@ -128,12 +128,8 @@ const adminRoutes = [
                 subMenu: [
                     { label: 'Current Stock', href: '/products/stock/stock-report' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
-
-                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
-
-                    { label: 'Idle Inventory', href: '/reports/stock/idle' },
                     { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
-``
+                    { label: 'Idle Inventory', href: '/reports/stock/idle' },
                 ],
             },
         ],
