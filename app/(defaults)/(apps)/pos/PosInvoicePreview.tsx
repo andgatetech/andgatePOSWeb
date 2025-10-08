@@ -3,6 +3,7 @@
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import Image from 'next/image';
 import { useRef, useState } from 'react';
 
 interface PosInvoicePreviewProps {
@@ -19,9 +20,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const { data: storeData } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined);
     const currentStore = storeData?.data || {};
 
-    const { customer = {}, items = [], totals = {}, tax = 0, discount = 0, invoice = '#INV-PREVIEW', order_id, isOrderCreated = false, payment_status, payment_method } = data || {};
+    const { customer = {}, items = [], totals = {}, tax = 0, discount = 0, invoice = '#INV-PREVIEW', order_id, isOrderCreated = false, payment_status, paymentMethod } = data || {};
 
-    const subtotal = items.reduce((acc, item) => acc + Number(item.amount || 0), 0);
+    const subtotal = totals.subtotal ?? totals.total ?? items.reduce((acc, item) => acc + Number(item.amount || 0), 0);
     const calculatedTax = totals.tax ?? tax;
     const calculatedDiscount = totals.discount ?? discount;
     const grandTotal = totals.grand_total ?? subtotal + calculatedTax - calculatedDiscount;
@@ -334,7 +335,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         
         <!-- Payment Info -->
         <div class="center">
-            <div><strong>Payment:</strong> ${payment_method || 'Cash'}</div>
+            <div><strong>Payment:</strong> ${paymentMethod || 'Cash'}</div>
             <div><strong>Status:</strong> ${payment_status || 'Paid'}</div>
         </div>
         
@@ -403,7 +404,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             const iframeDoc = iframe.contentWindow?.document;
             if (!iframeDoc) {
-            throw new Error('Unable to access iframe document');
+                throw new Error('Unable to access iframe document');
             }
 
             iframeDoc.open();
@@ -412,21 +413,21 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             // ✅ Wait for content to render fully
             iframe.onload = () => {
-            setTimeout(() => {
-                try {
-                iframe.contentWindow?.focus();
-                iframe.contentWindow?.print();
-                } catch (err) {
-                console.error('Print failed:', err);
-                alert('Failed to print receipt.');
-                } finally {
-                // Clean up after short delay
                 setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    setIsPrinting(false);
-                }, 1500);
-                }
-            }, 400);
+                    try {
+                        iframe.contentWindow?.focus();
+                        iframe.contentWindow?.print();
+                    } catch (err) {
+                        console.error('Print failed:', err);
+                        alert('Failed to print receipt.');
+                    } finally {
+                        // Clean up after short delay
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                            setIsPrinting(false);
+                        }, 1500);
+                    }
+                }, 400);
             };
         } catch (error) {
             console.error('Print error:', error);
@@ -434,9 +435,6 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             setIsPrinting(false);
         }
     };
-
-
-
 
     // const printReceipt = async () => {
     //     if (isPrinting) return;
@@ -580,9 +578,24 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div className="relative z-10 flex items-center justify-between px-4">
                     <h2 className="text-2xl font-semibold uppercase">Invoice</h2>
                     {currentStore?.logo_path ? (
-                        <img src={currentStore.logo_path} alt="Store Logo" className="h-14 w-14 rounded object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+                        <Image
+                            src={currentStore.logo_path.startsWith('/') ? currentStore.logo_path : `/assets/images/${currentStore.logo_path}`}
+                            alt="Store Logo"
+                            width={56}
+                            height={56}
+                            className="h-14 w-14 rounded object-contain"
+                            onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                            priority={false}
+                        />
                     ) : (
-                        <img src="/assets/images/Logo-PNG.png" alt="Default Logo" className="w-14" />
+                        <Image
+                            src="/assets/images/Logo-PNG.png"
+                            alt="Default Logo"
+                            width={56}
+                            height={56}
+                            className="w-14"
+                            priority={false}
+                        />
                     )}
                 </div>
 
@@ -629,7 +642,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             </div>
                             <div className="mb-2 flex justify-between">
                                 <span>Payment Method:</span>
-                                <span>{payment_method || 'Cash'}</span>
+                                <span>{paymentMethod || 'Cash'}</span>
                             </div>
                         </div>
                     </div>
