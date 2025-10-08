@@ -112,15 +112,17 @@ const adminRoutes = [
         label: 'Report',
         icon: <BarChart />,
         subMenu: [
-            { label: 'All Activity Logs', href: '/reports/activity' },
+            { label: 'Activity Logs', href: '/reports/activity' },
             { label: 'Sales ', href: '/reports/sales' },
-            { label: 'Purchase ', href: '/reports/purchase' },
+            
             { label: 'Income', href: '/reports/income' },
             { label: 'Expenses ', href: '/reports/expenses' },
             { label: 'Profit & Loss', href: '/reports/profit-loss' },
             { label: 'Tax', href: '/reports/tax' },
             { label: 'Idle Products', href: '/reports/idle-product' },
-            { label: 'Transactions', href: '/reports/order-transaction' },
+            { label: 'Purchase', href: '/reports/purchase-order' },
+            { label: 'POS Transactions', href: '/reports/pos-transaction' },
+            { label: 'Purchase Transactions', href: '/reports/purchase-transaction' },
 
             // ✅ No `href` here, only subMenu
             {
@@ -129,7 +131,6 @@ const adminRoutes = [
                     { label: 'Current Stock', href: '/products/stock/stock-report' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
                     { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
-                    { label: 'Idle Inventory', href: '/reports/stock/idle' },
                 ],
             },
         ],
