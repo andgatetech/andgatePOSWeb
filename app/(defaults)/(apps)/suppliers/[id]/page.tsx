@@ -143,7 +143,7 @@ const UpdateSupplierPage = () => {
             });
 
             if (response.isConfirmed) {
-                router.push('/apps/suppliers');
+                router.push('/suppliers');
             }
         } catch (error: any) {
             console.error('Update supplier failed', error);
@@ -190,7 +190,7 @@ const UpdateSupplierPage = () => {
                         <div className="text-red-800">
                             <h3 className="text-lg font-medium">Error Loading Supplier</h3>
                             <p className="mt-2">Unable to load supplier data. Please check the supplier ID and try again.</p>
-                            <button onClick={() => router.push('/apps/suppliers')} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
+                            <button onClick={() => router.push('/suppliers')} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
                                 Back to Suppliers
                             </button>
                         </div>
@@ -209,7 +209,7 @@ const UpdateSupplierPage = () => {
                         <div className="text-yellow-800">
                             <h3 className="text-lg font-medium">Supplier Not Found</h3>
                             <p className="mt-2">The supplier with ID {supplierId} was not found.</p>
-                            <button onClick={() => router.push('/apps/suppliers')} className="mt-4 rounded-lg bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700">
+                            <button onClick={() => router.push('/suppliers')} className="mt-4 rounded-lg bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700">
                                 Back to Suppliers
                             </button>
                         </div>
@@ -354,7 +354,7 @@ const UpdateSupplierPage = () => {
                                 <div className="flex justify-end gap-4">
                                     <button
                                         type="button"
-                                        onClick={() => router.push('/apps/suppliers')}
+                                        onClick={() => router.push('/suppliers')}
                                         className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
                                     >
                                         Cancel

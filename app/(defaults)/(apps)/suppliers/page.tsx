@@ -238,9 +238,7 @@ const SupplierTable = ({ suppliers, isLoading, onEdit, onDelete, sortField, sort
                                             <li className="border-t">
                                                 <button
                                                     onClick={() => {
-                                                        if (window.confirm(`Are you sure you want to delete supplier "${supplier.name}"? This action cannot be undone.`)) {
-                                                            onDelete(supplier);
-                                                        }
+                                                        onDelete(supplier);
                                                     }}
                                                     className="flex w-full items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
                                                 >
@@ -394,7 +392,7 @@ const SuppliersPage = () => {
     };
 
     const handleEditSupplier = (supplierId: number) => {
-        window.location.href = `/apps/suppliers/${supplierId}`;
+        window.location.href = `/suppliers/${supplierId}`;
     };
 
     const handleDeleteSupplier = async (supplier: Supplier) => {

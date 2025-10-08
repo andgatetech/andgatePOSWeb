@@ -62,7 +62,7 @@ const SalesReportPage = () => {
 
                 if (format === 'json') {
                     const apiData = response.data;
-                    const apiSummary = apiData.summary || {};
+                    const apiSummary = apiData?.summary || {};
 
                     const transformedData = {
                         ...apiData,
