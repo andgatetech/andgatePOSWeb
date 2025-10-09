@@ -132,6 +132,8 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
                 ...(activeTab === 'barcode' && { type: config.codeType }),
             }));
 
+            console.log('Payload:', payload);
+
             const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
 
             if (response && Array.isArray(response.codes)) {
