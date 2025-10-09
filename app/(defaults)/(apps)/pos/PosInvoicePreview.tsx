@@ -51,14 +51,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         });
     };
 
-    // Improved mobile detection
-    const isMobileDevice = () => {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    };
-
     // Generate receipt HTML content
     const generateReceiptHTML = () => {
-        const storeName = currentStore?.store_name || 'AndGate POS';
+        const storeName = currentStore?.store_name || 'AndGatePOS';
         const storeLocation = currentStore?.store_location || 'Dhaka, Bangladesh, 1212';
         const storeContact = currentStore?.store_contact || '+8801600000';
 
@@ -78,9 +73,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Receipt Print</title>
+    <title>Receipt - ${invoice}</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
             margin: 0;
@@ -209,63 +204,16 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             margin-bottom: 2px;
         }
         
-        .no-print {
-            display: block;
-        }
-        
         @media print {
             body {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
             
-            .no-print {
-                display: none !important;
-            }
-            
             @page {
                 size: 58mm auto;
                 margin: 0mm;
             }
-        }
-        
-        /* Print button styling */
-        .print-buttons {
-            text-align: center;
-            margin-top: 5mm;
-            padding: 5mm;
-            background: #f5f5f5;
-            border-top: 2px solid #ddd;
-        }
-        
-        .print-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 0 5px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .close-btn {
-            background: #6b7280;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 0 5px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .print-btn:active, .close-btn:active {
-            transform: scale(0.98);
         }
     </style>
 </head>
@@ -350,37 +298,6 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             </div>
         </div>
     </div>
-    
-    <!-- Print/Close Buttons (hidden when printing) -->
-    <div class="print-buttons no-print">
-        <button class="print-btn" onclick="window.print()">
-            🖨️ Print Receipt
-        </button>
-        <button class="close-btn" onclick="window.close()">
-            ✕ Close
-        </button>
-    </div>
-    
-    <script>
-        // Auto-focus for better mobile experience
-        window.onload = function() {
-            // Small delay to ensure content is rendered
-            setTimeout(function() {
-                window.focus();
-            }, 100);
-        };
-        
-        // Handle after print event to close window automatically (desktop)
-        if (window.matchMedia) {
-            var mediaQueryList = window.matchMedia('print');
-            mediaQueryList.addListener(function(mql) {
-                if (!mql.matches) {
-                    // After printing, optionally close
-                    // window.close(); // Uncomment if you want auto-close
-                }
-            });
-        }
-    </script>
 </body>
 </html>`;
     };
@@ -391,158 +308,54 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
         try {
             const receiptHTML = generateReceiptHTML();
-
-            // ✅ Create hidden iframe
+            
+            // Create a hidden iframe for printing
             const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.right = '0';
-            iframe.style.bottom = '0';
+            iframe.style.position = 'absolute';
             iframe.style.width = '0';
             iframe.style.height = '0';
-            iframe.style.border = '0';
+            iframe.style.border = 'none';
+            iframe.style.visibility = 'hidden';
+            iframe.style.opacity = '0';
+            
             document.body.appendChild(iframe);
 
             const iframeDoc = iframe.contentWindow?.document;
             if (!iframeDoc) {
-                throw new Error('Unable to access iframe document');
+                throw new Error('Cannot access iframe document');
             }
 
+            // Write content to iframe
             iframeDoc.open();
             iframeDoc.write(receiptHTML);
             iframeDoc.close();
 
-            // ✅ Wait for content to render fully
-            iframe.onload = () => {
-                setTimeout(() => {
-                    try {
-                        iframe.contentWindow?.focus();
-                        iframe.contentWindow?.print();
-                    } catch (err) {
-                        console.error('Print failed:', err);
-                        alert('Failed to print receipt.');
-                    } finally {
-                        // Clean up after short delay
-                        setTimeout(() => {
-                            document.body.removeChild(iframe);
-                            setIsPrinting(false);
-                        }, 1500);
-                    }
-                }, 400);
-            };
-        } catch (error) {
-            console.error('Print error:', error);
-            alert('Failed to print receipt.');
-            setIsPrinting(false);
-        }
-    };
+            // Wait for content to load
+            await new Promise<void>((resolve) => {
+                iframe.onload = () => {
+                    setTimeout(() => {
+                        resolve();
+                    }, 300);
+                };
+            });
 
-    // const printReceipt = async () => {
-    //     if (isPrinting) return;
+            // Trigger print
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
 
-    //     setIsPrinting(true);
-
-    //     try {
-    //         const isMobile = isMobileDevice();
-    //         const receiptHTML = generateReceiptHTML();
-
-    //         if (isMobile) {
-    //             // Mobile: Use iframe approach with better error handling
-    //             await printWithIframe(receiptHTML);
-    //         } else {
-    //             // Desktop: Use popup window
-    //             printWithPopup(receiptHTML);
-    //         }
-    //     } catch (error) {
-    //         console.error('Print error:', error);
-    //         alert('Failed to print. Please try downloading the PDF instead.');
-    //     } finally {
-    //         setIsPrinting(false);
-    //     }
-    // };
-
-    const printWithPopup = (htmlContent: string) => {
-        const printWindow = window.open('', '_blank', 'width=350,height=600,toolbar=no,menubar=no,scrollbars=yes');
-
-        if (!printWindow) {
-            // Fallback to iframe if popup blocked
-            printWithIframe(htmlContent);
-            return;
-        }
-
-        printWindow.document.open();
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-
-        // Wait for content to load
-        setTimeout(() => {
-            printWindow.focus();
-        }, 250);
-    };
-
-    const printWithIframe = async (htmlContent: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.top = '-9999px';
-            iframe.style.left = '-9999px';
-            iframe.style.width = '80mm';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-
-            document.body.appendChild(iframe);
-
-            const iframeDoc = iframe.contentWindow?.document;
-            if (!iframeDoc) {
-                document.body.removeChild(iframe);
-                reject(new Error('Unable to access iframe document'));
-                return;
-            }
-
-            iframeDoc.open();
-            iframeDoc.write(htmlContent);
-            iframeDoc.close();
-
-            // Wait for content and images to load
-            iframe.onload = () => {
-                setTimeout(() => {
-                    try {
-                        if (iframe.contentWindow) {
-                            iframe.contentWindow.focus();
-                            iframe.contentWindow.print();
-
-                            // Clean up after print dialog is shown
-                            setTimeout(() => {
-                                try {
-                                    if (document.body.contains(iframe)) {
-                                        document.body.removeChild(iframe);
-                                    }
-                                    resolve();
-                                } catch (e) {
-                                    console.error('Cleanup error:', e);
-                                    resolve();
-                                }
-                            }, 1000);
-                        } else {
-                            throw new Error('iframe window not accessible');
-                        }
-                    } catch (error) {
-                        console.error('Print error:', error);
-                        if (document.body.contains(iframe)) {
-                            document.body.removeChild(iframe);
-                        }
-                        reject(error);
-                    }
-                }, 500); // Increased delay for mobile devices
-            };
-
-            // Timeout fallback
+            // Cleanup after a delay
             setTimeout(() => {
                 if (document.body.contains(iframe)) {
                     document.body.removeChild(iframe);
-                    reject(new Error('Print timeout'));
                 }
-            }, 10000);
-        });
+                setIsPrinting(false);
+            }, 1000);
+
+        } catch (error) {
+            console.error('Print error:', error);
+            alert('Failed to print receipt. Please try again.');
+            setIsPrinting(false);
+        }
     };
 
     const columns = [
