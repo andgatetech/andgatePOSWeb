@@ -91,10 +91,10 @@ const IncomeReportPage = () => {
 
                 if (format === 'json') {
                     // Set actual report data to state
-                    setReportData(response.data as IncomeReportData);
+                    setReportData(response as IncomeReportData);
                 } else {
                     // Handle file export
-                    const fileResponse = response.data as IncomeReportFileResponse;
+                    const fileResponse = response as IncomeReportFileResponse;
                     if (fileResponse?.file) {
                         const defaultName = format === 'pdf' ? `income-report-${new Date().getTime()}.pdf` : `income-report-${new Date().getTime()}.xlsx`;
 
@@ -288,6 +288,9 @@ const IncomeReportPage = () => {
           }
         : null;
 
+    console.log('Report Data:', reportData);
+    console.log('Summary:', summary);
+
     // Pagination
     const paginatedData = reportData?.items?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
     const totalPages = Math.ceil((reportData?.items?.length || 0) / itemsPerPage);
@@ -423,7 +426,7 @@ const IncomeReportPage = () => {
                     <div className="mb-6 text-center">
                         <h1 className="text-2xl font-bold">Income Report</h1>
                         <p className="text-sm text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
-                        {reportData.filters.from_date && reportData.filters.to_date && (
+                        {reportData?.filters?.from_date && reportData?.filters?.to_date && (
                             <p className="text-sm text-gray-600">
                                 Period: {reportData.filters.from_date} to {reportData.filters.to_date}
                             </p>

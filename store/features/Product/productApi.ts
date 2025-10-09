@@ -87,12 +87,22 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products'],
         }),
-        getProductQRCode: builder.query({
-            query: (id) => `/products/${id}/qrcode`,
+        generateBarcodes: builder.mutation({
+            query: (products) => ({
+                url: '/products/barcode',
+                method: 'POST',
+                body: { products },
+            }),
         }),
-        getProductBrCode: builder.query({
-            query: (id) => `/products/${id}/barcode`,
+
+        generateQRCodes: builder.mutation({
+            query: (products) => ({
+                url: '/products/qrcode',
+                method: 'POST',
+                body: { products },
+            }),
         }),
+
         updateAvailability: builder.mutation({
             query: ({ id, available }) => ({
                 url: `/products/${id}/availability`,
@@ -121,8 +131,8 @@ export const {
     useUpdateProductMutation,
     useDeleteProductMutation,
     useUpdateAvailabilityMutation,
-    useGetProductQRCodeQuery,
-    useGetProductBrCodeQuery,
+    useGenerateBarcodesMutation,
+    useGenerateQRCodesMutation,
     useGetActivityLogsQuery,
     useGetUnitsQuery,
 } = ProductApi;

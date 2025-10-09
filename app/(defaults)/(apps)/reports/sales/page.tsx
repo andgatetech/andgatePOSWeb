@@ -61,7 +61,7 @@ const SalesReportPage = () => {
                 const response = await getSalesReport(payload).unwrap();
 
                 if (format === 'json') {
-                    const apiData = response.data;
+                    const apiData = response;
                     const apiSummary = apiData?.summary || {};
 
                     const transformedData = {
@@ -76,18 +76,34 @@ const SalesReportPage = () => {
                             total_sales: Number(apiSummary.total_sales ?? 0),
                             avg_order_value: apiSummary.orders_count > 0 ? Number(apiSummary.total_grand ?? 0) / apiSummary.orders_count : 0,
                         },
+                        // items: apiData.items.map((item: any) => ({
+                        //     invoice: item.invoice,
+                        //     customer_name: item.customer,
+                        //     customer_phone: item.customer_phone || 'N/A',
+                        //     items_count: 1,
+                        //     payment_status: item.payment_status || 'paid',
+                        //     payment_method: item.payment_method || 'N/A',
+                        //     subtotal: Number(item.total || 0),
+                        //     tax: Number(item.tax || 0),
+                        //     discount: Number(item.discount || 0),
+                        //     grand_total: Number(item.grand_total || 0),
+                        //     order_date: item.sales_date,
+                        // })),
                         items: apiData.items.map((item: any) => ({
                             invoice: item.invoice,
-                            customer_name: item.customer,
+                            customer_name: item.customer_name || 'Walk-in Customer',
                             customer_phone: item.customer_phone || 'N/A',
-                            items_count: 1,
+                            items_count: Number(item.items_count || 0),
                             payment_status: item.payment_status || 'paid',
                             payment_method: item.payment_method || 'N/A',
-                            subtotal: Number(item.total || 0),
+                            subtotal: Number(item.subtotal || 0),
                             tax: Number(item.tax || 0),
                             discount: Number(item.discount || 0),
                             grand_total: Number(item.grand_total || 0),
-                            order_date: item.sales_date,
+                            order_date: item.order_date,
+                            store: item.store,
+                            category: item.category,
+                            brand: item.brand,
                         })),
                     };
 
@@ -390,7 +406,7 @@ const SalesReportPage = () => {
                     <div className="mb-6 text-center">
                         <h1 className="text-2xl font-bold">Sales Report</h1>
                         <p className="text-sm text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
-                        {reportData.filters.start_date && reportData.filters.end_date && (
+                        {reportData?.filters?.start_date && reportData?.filters?.end_date && (
                             <p className="text-sm text-gray-600">
                                 Period: {reportData.filters.start_date} to {reportData.filters.end_date}
                             </p>

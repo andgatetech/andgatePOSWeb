@@ -62,6 +62,7 @@ const adminRoutes = [
             { label: 'All Products', href: '/products' },
             { label: 'Stock Adjustment', href: '/products/stock/create-stock-adjustment' },
             { label: 'Product QrCode', href: '/products/qr-code' },
+            { label: 'Print Label', href: '/label' },
         ],
     },
     {
@@ -133,7 +134,7 @@ const adminRoutes = [
 
                     { label: 'Idle Inventory', href: '/reports/stock/idle' },
                     { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
-``
+                    ``,
                 ],
             },
         ],
