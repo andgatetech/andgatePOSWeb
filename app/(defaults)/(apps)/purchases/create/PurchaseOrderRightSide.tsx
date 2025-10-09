@@ -1,6 +1,7 @@
 'use client';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
+import { useGetUnitsQuery } from '@/store/features/Product/productApi';
 import { useCreatePurchaseDraftMutation, useCreatePurchaseOrderMutation, useUpdatePurchaseDraftMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import {
     addItemRedux,
@@ -43,7 +44,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
     const [newProductName, setNewProductName] = useState('');
     const [newProductQty, setNewProductQty] = useState(1);
-    const [newProductUnit, setNewProductUnit] = useState('piece');
+    const [newProductUnit, setNewProductUnit] = useState('');
     const [showAddNewProduct, setShowAddNewProduct] = useState(false);
     const [localIsMobileView, setLocalIsMobileView] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -57,12 +58,19 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [createPurchaseOrder, { isLoading: isCreatingPurchase }] = useCreatePurchaseOrderMutation();
     const [updateDraft, { isLoading: isUpdatingDraft }] = useUpdatePurchaseDraftMutation();
 
-    // Fetch suppliers
+    // Fetch suppliers - always fetch 5 for dropdown
     const { data: suppliersResponse } = useGetSuppliersQuery({
         search: supplierSearch,
-        per_page: 10,
+        per_page: 5,
+        store_id: currentStoreId,
     });
-    const suppliers = suppliersResponse?.data || [];
+    const suppliers = suppliersResponse?.data?.data || [];
+
+    // Fetch units
+    const { data: unitsResponse } = useGetUnitsQuery({
+        store_id: currentStoreId,
+    });
+    const units = unitsResponse?.data || [];
 
     // Mobile view detection (only if not using props)
     useEffect(() => {
@@ -139,6 +147,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             return;
         }
 
+        if (!newProductUnit) {
+            showMessage('Please select a unit', 'error');
+            return;
+        }
+
         if (newProductQty <= 0) {
             showMessage('Please enter valid quantity', 'error');
             return;
@@ -162,7 +175,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         dispatch(addItemRedux(newItem));
         setNewProductName('');
         setNewProductQty(1);
-        setNewProductUnit('piece');
+        setNewProductUnit('');
         setShowAddNewProduct(false);
         showMessage('New product added to draft');
     };
@@ -317,6 +330,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             store_id: currentStoreId,
             supplier_id: purchaseType === 'supplier' ? supplierId : null,
             purchase_type: purchaseType,
+            status: 'ordered', // Set status to ordered
             notes: notes || '',
             items: purchaseItems.map((item) => {
                 if (item.itemType === 'existing' && item.productId) {
@@ -506,7 +520,14 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-sm font-medium">Unit *</label>
-                                    <input type="text" placeholder="piece, kg, etc." className="form-input" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)} />
+                                    <select className="form-select" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
+                                        <option value="">Select Unit</option>
+                                        {units.map((unit: any) => (
+                                            <option key={unit.id} value={unit.name}>
+                                                {unit.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-sm font-medium">Ordered Quantity *</label>
@@ -522,7 +543,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     onClick={() => {
                                         setShowAddNewProduct(false);
                                         setNewProductName('');
-                                        setNewProductUnit('piece');
+                                        setNewProductUnit('');
                                         setNewProductQty(1);
                                     }}
                                     className="btn btn-sm btn-outline-secondary"
