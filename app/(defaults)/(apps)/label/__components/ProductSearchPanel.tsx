@@ -53,6 +53,7 @@ const ProductSearchPanel = ({ onProductSelect, selectedProducts }: ProductSearch
     const handleProductClick = (product: any) => {
         const code = product.product_code || product.sku;
         onProductSelect({
+            id: product.id,
             product_name: product.product_name,
             product_code: code,
             user_name: product.user_name || 'Guest',
