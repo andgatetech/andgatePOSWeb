@@ -385,7 +385,6 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 </html>`;
     };
 
-
     const printReceipt = async () => {
         if (isPrinting) return;
         setIsPrinting(true);
@@ -393,37 +392,46 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         try {
             const receiptHTML = generateReceiptHTML();
 
-            // ✅ Open a new window or tab (works better for mobile printing)
-            const printWindow = window.open('', '_blank');
+            // Create an invisible iframe only for printing the receipt
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            iframe.style.visibility = 'hidden';
+            document.body.appendChild(iframe);
 
-            if (!printWindow) {
-                alert('Please allow popups for this site to print the receipt.');
-                setIsPrinting(false);
-                return;
-            }
+            const iframeDoc = iframe.contentWindow?.document;
+            if (!iframeDoc) throw new Error('Cannot access iframe document');
 
-            printWindow.document.open();
-            printWindow.document.write(receiptHTML);
-            printWindow.document.close();
+            iframeDoc.open();
+            iframeDoc.write(receiptHTML);
+            iframeDoc.close();
 
-            // Wait for rendering
-            printWindow.onload = () => {
+            // Wait until content fully loads before printing
+            iframe.onload = () => {
                 setTimeout(() => {
-                    printWindow.focus();
-                    printWindow.print();
-                    // Auto-close after print (optional)
-                    setTimeout(() => {
-                        printWindow.close();
-                    }, 1500);
-                    setIsPrinting(false);
-                }, 500);
+                    try {
+                        iframe.contentWindow?.focus();
+                        iframe.contentWindow?.print();
+                    } catch (err) {
+                        console.error('Print failed:', err);
+                        alert('Failed to print receipt.');
+                    } finally {
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                            setIsPrinting(false);
+                        }, 1500);
+                    }
+                }, 400);
             };
-        } catch (err) {
-            console.error('Print error:', err);
-            alert('Failed to print receipt.');
+        } catch (error) {
+            console.error('Print error:', error);
+            alert('Printing failed. Please try again.');
             setIsPrinting(false);
         }
     };
+
 
 
     // const printReceipt = async () => {
@@ -552,7 +560,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     <button className="btn btn-primary px-5 py-2 text-sm hover:bg-blue-600" onClick={exportPDF} disabled={isPrinting}>
                         📄 Download PDF
                     </button>
-                    <button className="btn btn-success px-5 py-2 text-sm hover:bg-green-600" onClick={printReceipt} disabled={isPrinting}>
+                    <button className="btn btn-success px-5 py-2 text-sm hover:bg-green-600" onClick={() => printReceipt()} disabled={isPrinting}>
                         {isPrinting ? '⏳ Printing...' : '🖨️ Print Receipt'}
                     </button>
                     {onClose && (
