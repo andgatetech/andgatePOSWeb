@@ -55,13 +55,75 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
     //     }
     // };
 
+    const safeToast = {
+        success: (msg) => {
+            if (typeof window !== 'undefined') {
+                requestAnimationFrame(() => toast.success(msg));
+            }
+        },
+        error: (msg) => {
+            if (typeof window !== 'undefined') {
+                requestAnimationFrame(() => toast.error(msg));
+            }
+        },
+        info: (msg) => {
+            if (typeof window !== 'undefined') {
+                requestAnimationFrame(() => toast.info(msg));
+            }
+        },
+    };
+
     // ✅ Generate QR/Barcode (Fixed Version)
+    // const onGenerate = async () => {
+    //     if (selectedProducts.length === 0) return;
+
+    //     // setLoading(true);
+    //     // if (generatedCodes.length) {
+    //     //     setGeneratedCodes((prev) => [...prev]); // safe no-op refresh
+    //     // }
+    //     setLoading(true);
+
+    //     try {
+    //         const payload = selectedProducts.map((p) => ({
+    //             id: p.id,
+    //             quantity: p.quantity || 1,
+    //             product_code: p.product_code || p.sku,
+    //             ...(activeTab === 'barcode' && { type: config.codeType }),
+    //         }));
+
+    //         // ✅ small delay helps DOM stabilize before toast + render
+    //         await new Promise((res) => setTimeout(res, 100));
+
+    //         const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
+
+    //         // ✅ Defensive: ensure valid array
+    //         if (response && Array.isArray(response.codes)) {
+    //             setGeneratedCodes(response.codes);
+    //         } else {
+    //             console.error('Invalid response:', response);
+    //             // safeToast.error('Invalid response from server ❌');
+    //             requestAnimationFrame(() => safeToast.error('Invalid response from server ❌'));
+    //             return;
+    //         }
+
+    //         // ✅ Delay toast slightly after DOM update (avoid NotFoundError)
+    //         requestAnimationFrame(() => {
+    //             safeToast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
+    //         });
+    //     } catch (error) {
+    //         console.error(error);
+    //         setTimeout(() => safeToast.error('Failed to generate codes ❌'), 200);
+    //     } finally {
+    //         // ✅ delay reset to prevent race-condition
+    //         requestAnimationFrame(() => setLoading(false));
+    //     }
+    // };
+
+    // ✅ Generate QR/Barcode (Fixed Version - Prevents Toast DOM Errors)
     const onGenerate = async () => {
         if (selectedProducts.length === 0) return;
 
         setLoading(true);
-        setGeneratedCodes([]); // clear old codes first (prevents re-render conflict)
-
         try {
             const payload = selectedProducts.map((p) => ({
                 id: p.id,
@@ -70,29 +132,23 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
                 ...(activeTab === 'barcode' && { type: config.codeType }),
             }));
 
-            // ✅ small delay helps DOM stabilize before toast + render
-            await new Promise((res) => setTimeout(res, 100));
-
             const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
 
-            // ✅ Defensive: ensure valid array
             if (response && Array.isArray(response.codes)) {
                 setGeneratedCodes(response.codes);
+
+                // ✅ Safe toast (no DOM crash)
+                safeToast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
             } else {
                 console.error('Invalid response:', response);
-                toast.error('Invalid response from server');
+                safeToast.error('Invalid response from server ❌');
             }
-
-            // ✅ Delay toast slightly after DOM update (avoid NotFoundError)
-            setTimeout(() => {
-                toast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
-            }, 200);
         } catch (error) {
             console.error(error);
-            setTimeout(() => toast.error('Failed to generate codes ❌'), 200);
+            safeToast.error('Failed to generate codes ❌');
         } finally {
-            // ✅ delay reset to prevent race-condition
-            setTimeout(() => setLoading(false), 300);
+            // ✅ React-safe delay
+            requestAnimationFrame(() => setLoading(false));
         }
     };
 
@@ -319,25 +375,28 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
                         </div>
                     )}
                 </div>
+                <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">{activeTab === 'qrcode' ? 'QR Code Size' : 'Barcode Size'}</label>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">Width (px)</label>
-                        <input
-                            type="number"
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                            value={config.imageWidth}
-                            onChange={(e) => setConfig({ ...config, imageWidth: parseInt(e.target.value) || 100 })}
-                        />
-                    </div>
-                    <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">Height (px)</label>
-                        <input
-                            type="number"
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                            value={config.imageHeight}
-                            onChange={(e) => setConfig({ ...config, imageHeight: parseInt(e.target.value) || 100 })}
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">Width (px)</label>
+                            <input
+                                type="number"
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                value={config.imageWidth}
+                                onChange={(e) => setConfig({ ...config, imageWidth: parseInt(e.target.value) || 100 })}
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">Height (px)</label>
+                            <input
+                                type="number"
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                value={config.imageHeight}
+                                onChange={(e) => setConfig({ ...config, imageHeight: parseInt(e.target.value) || 100 })}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

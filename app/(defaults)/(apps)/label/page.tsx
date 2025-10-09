@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { GripVertical, QrCode, Barcode, Package } from 'lucide-react';
+import { Barcode, GripVertical, Package } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import CodeGeneratorPanel from './__components/CodeGeneratorPanel';
 import ProductSearchPanel from './__components/ProductSearchPanel';
 
@@ -114,7 +114,7 @@ const BarcodeGeneratorPage = () => {
             <div ref={containerRef} className="relative flex h-screen overflow-hidden">
                 {/* Left Panel - Product Selection */}
                 <div className={`flex flex-col overflow-hidden transition-all ${isMobileView ? (showRightPanel ? 'hidden' : 'w-full') : ''}`} style={!isMobileView ? { width: `${leftWidth}%` } : {}}>
-                    <ProductSearchPanel selectedProducts={selectedProducts} onSelectProduct={handleProductSelect} activeTab={activeTab} />
+                    <ProductSearchPanel selectedProducts={selectedProducts} onProductSelect={handleProductSelect} activeTab={activeTab} />
                 </div>
 
                 {/* Divider */}
