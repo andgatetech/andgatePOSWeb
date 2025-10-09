@@ -75,7 +75,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 <head>
     <title>Receipt - ${invoice}</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         * {
             margin: 0;
@@ -215,9 +215,74 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 margin: 0mm;
             }
         }
+        
+        @media screen {
+            body {
+                padding-top: 60px;
+            }
+            
+            .print-toolbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: #f3f4f6;
+                padding: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .print-btn, .close-btn {
+                padding: 10px 24px;
+                border: none;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.2s;
+            }
+            
+            .print-btn {
+                background: #10b981;
+                color: white;
+            }
+            
+            .print-btn:active {
+                transform: scale(0.98);
+            }
+            
+            .close-btn {
+                background: #6b7280;
+                color: white;
+            }
+            
+            .close-btn:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        @media print {
+            .print-toolbar {
+                display: none !important;
+            }
+            
+            body {
+                padding-top: 0;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="print-toolbar">
+        <button class="print-btn" onclick="window.print()">🖨️ Print Receipt</button>
+        <button class="close-btn" onclick="window.close()">✕ Close</button>
+    </div>
+    
     <div class="receipt-container">
         <!-- Store Header -->
         <div class="center">
@@ -298,62 +363,51 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             </div>
         </div>
     </div>
+    
+    <script>
+        // Auto-print on load for better mobile experience
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                // Auto-print can be enabled if needed
+                // window.print();
+            }, 500);
+        });
+    </script>
 </body>
 </html>`;
     };
 
-    const printReceipt = async () => {
+    const printReceipt = () => {
         if (isPrinting) return;
         setIsPrinting(true);
 
         try {
             const receiptHTML = generateReceiptHTML();
             
-            // Create a hidden iframe for printing
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'absolute';
-            iframe.style.width = '0';
-            iframe.style.height = '0';
-            iframe.style.border = 'none';
-            iframe.style.visibility = 'hidden';
-            iframe.style.opacity = '0';
+            // Create a Blob from the HTML
+            const blob = new Blob([receiptHTML], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
             
-            document.body.appendChild(iframe);
-
-            const iframeDoc = iframe.contentWindow?.document;
-            if (!iframeDoc) {
-                throw new Error('Cannot access iframe document');
-            }
-
-            // Write content to iframe
-            iframeDoc.open();
-            iframeDoc.write(receiptHTML);
-            iframeDoc.close();
-
-            // Wait for content to load
-            await new Promise<void>((resolve) => {
-                iframe.onload = () => {
-                    setTimeout(() => {
-                        resolve();
-                    }, 300);
-                };
-            });
-
-            // Trigger print
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-
-            // Cleanup after a delay
-            setTimeout(() => {
-                if (document.body.contains(iframe)) {
-                    document.body.removeChild(iframe);
-                }
+            // Open in a new window/tab
+            const printWindow = window.open(blobUrl, '_blank');
+            
+            if (!printWindow) {
+                // If popup blocked, try alternative method
+                alert('Please allow popups to print receipts. Or use the Download PDF option.');
+                URL.revokeObjectURL(blobUrl);
                 setIsPrinting(false);
-            }, 1000);
-
+                return;
+            }
+            
+            // Clean up the blob URL after a delay
+            setTimeout(() => {
+                URL.revokeObjectURL(blobUrl);
+                setIsPrinting(false);
+            }, 2000);
+            
         } catch (error) {
             console.error('Print error:', error);
-            alert('Failed to print receipt. Please try again.');
+            alert('Failed to open print window. Please try again.');
             setIsPrinting(false);
         }
     };
@@ -376,7 +430,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                         📄 Download PDF
                     </button>
                     <button className="btn btn-success px-5 py-2 text-sm hover:bg-green-600" onClick={printReceipt} disabled={isPrinting}>
-                        {isPrinting ? '⏳ Printing...' : '🖨️ Print Receipt'}
+                        {isPrinting ? '⏳ Opening...' : '🖨️ Print Receipt'}
                     </button>
                     {onClose && (
                         <button className="btn btn-outline px-5 py-2 text-sm hover:bg-gray-100" onClick={onClose} disabled={isPrinting}>
