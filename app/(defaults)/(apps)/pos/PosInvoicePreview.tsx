@@ -506,6 +506,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     try {
                         if (iframe.contentWindow) {
                             iframe.contentWindow.focus();
+                            document.body.style.display = 'none';
+                            iframe.style.display = 'block';
                             iframe.contentWindow.print();
 
                             // Clean up after print dialog is shown
