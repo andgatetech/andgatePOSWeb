@@ -103,6 +103,7 @@ const ProductSearchPanel = ({ onProductSelect, selectedProducts }: ProductSearch
             </div>
 
             {/* Product Grid */}
+            {/* Product Grid */}
             <div className="flex-1 overflow-y-auto p-4">
                 {productLoading ? (
                     <div className="flex justify-center py-10">
@@ -114,7 +115,8 @@ const ProductSearchPanel = ({ onProductSelect, selectedProducts }: ProductSearch
                         <p>No products found</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                    // ✅ Automatically responsive grid based on available width
+                    <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
                         {products.map((product: any) => {
                             const code = product.product_code || product.sku;
                             const selected = isSelected(code);

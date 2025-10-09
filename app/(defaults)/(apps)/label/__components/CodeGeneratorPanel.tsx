@@ -3,7 +3,7 @@
 import { useGenerateBarcodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { jsPDF } from 'jspdf';
 import { BarcodeIcon, Download, Package, Printer, QrCode, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 const CODE_TYPES = {
@@ -30,29 +30,33 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
     const [loading, setLoading] = useState(false);
 
     const totalCodes = selectedProducts.reduce((sum, p) => sum + (p.quantity || 1), 0);
+    useEffect(() => {
+        setGeneratedCodes([]);
+        setLoading(false);
+    }, [activeTab]);
 
     // ✅ Generate QR/Barcode
     // const onGenerate = async () => {
-    //     if (selectedProducts.length === 0) return;
-    //     setLoading(true);
+    // if (selectedProducts.length === 0) return;
+    // setLoading(true);
 
-    //     try {
-    //         const payload = selectedProducts.map((p) => ({
-    //             id: p.id,
-    //             quantity: p.quantity || 1,
-    //             product_code: p.product_code || p.sku,
-    //             ...(activeTab === 'barcode' && { type: config.codeType }),
-    //         }));
+    // try {
+    // const payload = selectedProducts.map((p) => ({
+    // id: p.id,
+    // quantity: p.quantity || 1,
+    // product_code: p.product_code || p.sku,
+    // ...(activeTab === 'barcode' && { type: config.codeType }),
+    // }));
 
-    //         const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
+    // const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
 
-    //         setGeneratedCodes(response.codes || []);
-    //         toast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
-    //     } catch (error) {
-    //         toast.error('Failed to generate codes ❌');
-    //     } finally {
-    //         setLoading(false);
-    //     }
+    // setGeneratedCodes(response.codes || []);
+    // toast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
+    // } catch (error) {
+    // toast.error('Failed to generate codes ❌');
+    // } finally {
+    // setLoading(false);
+    // }
     // };
 
     const safeToast = {
@@ -73,53 +77,6 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
         },
     };
 
-    // ✅ Generate QR/Barcode (Fixed Version)
-    // const onGenerate = async () => {
-    //     if (selectedProducts.length === 0) return;
-
-    //     // setLoading(true);
-    //     // if (generatedCodes.length) {
-    //     //     setGeneratedCodes((prev) => [...prev]); // safe no-op refresh
-    //     // }
-    //     setLoading(true);
-
-    //     try {
-    //         const payload = selectedProducts.map((p) => ({
-    //             id: p.id,
-    //             quantity: p.quantity || 1,
-    //             product_code: p.product_code || p.sku,
-    //             ...(activeTab === 'barcode' && { type: config.codeType }),
-    //         }));
-
-    //         // ✅ small delay helps DOM stabilize before toast + render
-    //         await new Promise((res) => setTimeout(res, 100));
-
-    //         const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
-
-    //         // ✅ Defensive: ensure valid array
-    //         if (response && Array.isArray(response.codes)) {
-    //             setGeneratedCodes(response.codes);
-    //         } else {
-    //             console.error('Invalid response:', response);
-    //             // safeToast.error('Invalid response from server ❌');
-    //             requestAnimationFrame(() => safeToast.error('Invalid response from server ❌'));
-    //             return;
-    //         }
-
-    //         // ✅ Delay toast slightly after DOM update (avoid NotFoundError)
-    //         requestAnimationFrame(() => {
-    //             safeToast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
-    //         });
-    //     } catch (error) {
-    //         console.error(error);
-    //         setTimeout(() => safeToast.error('Failed to generate codes ❌'), 200);
-    //     } finally {
-    //         // ✅ delay reset to prevent race-condition
-    //         requestAnimationFrame(() => setLoading(false));
-    //     }
-    // };
-
-    // ✅ Generate QR/Barcode (Fixed Version - Prevents Toast DOM Errors)
     const onGenerate = async () => {
         if (selectedProducts.length === 0) return;
 
@@ -229,36 +186,36 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
         const content = generatedCodes
             .map(
                 (item) => `
-        <div style="width:${itemWidth}; text-align:center; margin:10px;">
-            <img src="${item.url}" style="max-width:100%; height:${config.imageHeight}px; object-fit:contain;" />
-            <p style="margin:4px 0 0;font-size:12px;">${item.product_name}</p>
-            <p style="margin:0;font-size:10px;color:gray;">${item.product_code}</p>
-        </div>
-    `
+<div style="width:${itemWidth}; text-align:center; margin:10px;">
+<img src="${item.url}" style="max-width:100%; height:${config.imageHeight}px; object-fit:contain;" />
+<p style="margin:4px 0 0;font-size:12px;">${item.product_name}</p>
+<p style="margin:0;font-size:10px;color:gray;">${item.product_code}</p>
+</div>
+`
             )
             .join('');
 
         const html = `
-    <html>
-        <head>
-            <title>Print ${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'}</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    padding: 20px;
-                }
-                @media print {
-                    body { gap: 5px; }
-                    div { page-break-inside: avoid; }
-                }
-            </style>
-        </head>
-        <body>${content}</body>
-    </html>
-    `;
+<html>
+<head>
+<title>Print ${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'}</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+padding: 20px;
+}
+@media print {
+body { gap: 5px; }
+div { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>${content}</body>
+</html>
+`;
 
         const printWindow = window.open('', '_blank');
         if (!printWindow) return;
@@ -493,22 +450,6 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
                         </div>
                     )}
                 </div>
-
-                {/* Preview Section */}
-                {/* {generatedCodes.length > 0 && (
-                    <div className="max-h-[300px] overflow-y-auto border-t bg-white p-6">
-                        <h4 className="mb-3 font-semibold">Generated {activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'}</h4>
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                            {generatedCodes.map((item, idx) => (
-                                <div key={idx} className="rounded-lg border p-3 text-center">
-                                    <img src={item.url} alt={item.product_code} className="mx-auto mb-2 max-h-32 object-contain" />
-                                    <p className="text-xs font-medium">{item.product_name}</p>
-                                    <p className="text-[10px] text-gray-500">{item.product_code}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )} */}
             </div>
         </div>
     );
