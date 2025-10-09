@@ -59,7 +59,7 @@ const PurchaseOrderLeftSide: React.FC<PurchaseOrderLeftSideProps> = ({ isMobileV
     // Build query parameters for current store only
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
-            available: 'yes', // Only show available products in POS
+             
         };
 
         // Always use current store from sidebar for POS

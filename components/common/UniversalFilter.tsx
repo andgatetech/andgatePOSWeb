@@ -179,7 +179,8 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     useEffect(() => {
         const filters = buildFilters();
         onFilterChange(filters);
-    }, [buildFilters, onFilterChange]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [buildFilters]);
 
     // Check if filters are active (not default)
     const hasActiveFilters = () => {

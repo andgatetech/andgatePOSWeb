@@ -1,4 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
+import { get } from 'lodash';
 
 const ReportApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -63,6 +64,20 @@ const ReportApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+        getPurchaseReport: builder.mutation({
+            query: (data: any) => ({
+                url: '/reports/purchase-order',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        getPurchaseTransactionReport: builder.mutation({
+            query: (data: any) => ({
+                url: '/reports/purchase-transaction',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -74,4 +89,6 @@ export const {
     useGetProfitLossReportMutation,
     useGetSalesReportMutation,
     useGetExpensesReportMutation,
+    useGetPurchaseReportMutation,
+    useGetPurchaseTransactionReportMutation,
 } = ReportApi;

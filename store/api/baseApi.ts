@@ -46,6 +46,7 @@ export const baseApi = createApi({
         'TaxReport',
         'TransactionReport',
         'IdleProductReport',
+        'PurchaseDues',
     ],
     endpoints: () => ({}),
 });

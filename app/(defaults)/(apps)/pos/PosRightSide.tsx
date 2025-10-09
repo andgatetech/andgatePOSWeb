@@ -564,8 +564,8 @@ const PosRightSide: React.FC = () => {
                 tax: parseFloat(orderResponse.data.totals.tax),
                 discount: orderResponse.data.totals.discount,
                 membershipDiscount: formData.membershipDiscount,
-                paymentMethod: formData.paymentMethod,
-                paymentStatus: formData.paymentStatus,
+                paymentMethod: orderResponse.data.payment_method,
+                payment_status: orderResponse.data.payment_status,
                 totals: {
                     subtotal: parseFloat(orderResponse.data.totals.total),
                     tax: parseFloat(orderResponse.data.totals.tax),
@@ -625,7 +625,7 @@ const PosRightSide: React.FC = () => {
 
                     {/* Invoice Preview */}
                     <div className="mb-4">
-                        <PosInvoicePreview data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
+                        <PosInvoicePreview data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} paymentMethod={formData.paymentMethod} />
                     </div>
 
                     {/* Footer Buttons */}
@@ -963,7 +963,19 @@ const PosRightSide: React.FC = () => {
                                                     <span className="text-gray-400">No tax</span>
                                                 )}
                                             </td>
-                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{(item.rate * item.quantity).toFixed(2)}</td>
+                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">
+                                                ৳
+                                                {(() => {
+                                                    const basePrice = item.rate * item.quantity;
+                                                    if (item.tax_rate && !item.tax_included) {
+                                                        // Tax excluded: show base price + tax
+                                                        const taxAmount = basePrice * (item.tax_rate / 100);
+                                                        return (basePrice + taxAmount).toFixed(2);
+                                                    }
+                                                    // Tax included or no tax: show base price
+                                                    return basePrice.toFixed(2);
+                                                })()}
+                                            </td>
                                             <td className="p-3 text-center">
                                                 <button
                                                     type="button"
@@ -1139,7 +1151,6 @@ const PosRightSide: React.FC = () => {
                             >
                                 <option value="">Select</option>
                                 <option value="paid">Paid</option>
-                                <option value="unpaid">Unpaid</option>
                             </select>
                         </div>
 

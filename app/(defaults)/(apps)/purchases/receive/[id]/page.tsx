@@ -20,6 +20,7 @@ const ReceiveItemsPage = () => {
     // Local state for received quantities and prices
     const [receivedQuantities, setReceivedQuantities] = useState<Record<number, number>>({});
     const [purchasePrices, setPurchasePrices] = useState<Record<number, number>>({});
+    const [sellingPrices, setSellingPrices] = useState<Record<number, number>>({});
     const [paymentAmount, setPaymentAmount] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentNotes, setPaymentNotes] = useState('');
@@ -29,16 +30,20 @@ const ReceiveItemsPage = () => {
         if (purchaseOrder?.items) {
             const quantities: Record<number, number> = {};
             const prices: Record<number, number> = {};
+            const selling: Record<number, number> = {};
 
             purchaseOrder.items.forEach((item: any) => {
                 // Default to ordered quantity minus already received
                 quantities[item.id] = item.quantity_ordered - (item.quantity_received || 0);
                 // Convert purchase_price to number (backend might send string)
                 prices[item.id] = parseFloat(item.purchase_price) || 0;
+                // Initialize selling price (default to purchase price + 20% margin for new products)
+                selling[item.id] = item.product_id === null ? (parseFloat(item.purchase_price) || 0) * 1.2 : 0;
             });
 
             setReceivedQuantities(quantities);
             setPurchasePrices(prices);
+            setSellingPrices(selling);
         }
     }, [purchaseOrder]);
 
@@ -53,6 +58,14 @@ const ReceiveItemsPage = () => {
     const handlePriceChange = (itemId: number, value: string) => {
         const price = parseFloat(value) || 0;
         setPurchasePrices((prev) => ({
+            ...prev,
+            [itemId]: price,
+        }));
+    };
+
+    const handleSellingPriceChange = (itemId: number, value: string) => {
+        const price = parseFloat(value) || 0;
+        setSellingPrices((prev) => ({
             ...prev,
             [itemId]: price,
         }));
@@ -92,6 +105,14 @@ const ReceiveItemsPage = () => {
             return;
         }
 
+        // Check for new products without selling prices
+        const newProductsWithoutSellingPrice = purchaseOrder.items.filter((item: any) => item.product_id === null && (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
+
+        if (newProductsWithoutSellingPrice.length > 0) {
+            Swal.fire('Error', 'Please set selling prices for all new products', 'error');
+            return;
+        }
+
         // Prepare receive data
         const receiveData = {
             status: 'received',
@@ -99,11 +120,18 @@ const ReceiveItemsPage = () => {
                 id: item.id,
                 quantity_received: receivedQuantities[item.id] || 0,
                 purchase_price: purchasePrices[item.id] || 0,
+                selling_price: item.product_id === null ? sellingPrices[item.id] || 0 : undefined, // Only send selling price for new products
             })),
             payment_amount: paymentAmount,
             payment_method: paymentMethod,
             payment_notes: paymentNotes,
         };
+
+        // 📋 Log the data being sent to backend
+        console.log('=== RECEIVE PURCHASE ORDER DATA ===');
+        console.log('Purchase Order ID:', purchaseOrderId);
+        console.log('Data being sent to backend:', JSON.stringify(receiveData, null, 2));
+        console.log('===================================');
 
         try {
             const response = await updatePO({
@@ -111,47 +139,12 @@ const ReceiveItemsPage = () => {
                 ...receiveData,
             }).unwrap();
 
-            // Show success with details
-            const newProductsCreated = response.data?.new_products_created || [];
-            const updatedItems = response.data?.items?.filter((i: any) => i.stock_updated) || [];
-
+            // Simple success message
             Swal.fire({
                 icon: 'success',
                 title: 'Items Received Successfully!',
-                html: `
-                    <div class="text-left space-y-3">
-                        <div>
-                            <p class="font-semibold">✅ Stock Updated</p>
-                            <p class="text-sm text-gray-600">${updatedItems.length} products updated</p>
-                        </div>
-                        ${
-                            newProductsCreated.length > 0
-                                ? `
-                            <div class="mt-3 p-3 bg-blue-50 rounded">
-                                <p class="font-semibold text-blue-800">🆕 New Products Created:</p>
-                                <ul class="mt-2 space-y-1">
-                                    ${newProductsCreated
-                                        .map(
-                                            (p: any) => `
-                                        <li class="text-sm">
-                                            <strong>${p.name}</strong> (SKU: ${p.sku}) - ${p.initial_stock} units
-                                        </li>
-                                    `
-                                        )
-                                        .join('')}
-                                </ul>
-                            </div>
-                        `
-                                : ''
-                        }
-                        <div class="mt-3 pt-3 border-t">
-                            <p class="text-sm">💰 Payment: <strong>৳${Number(response.data.amount_paid || 0).toFixed(2)}</strong></p>
-                            <p class="text-sm">📊 Balance: <strong>৳${Number(response.data.amount_due || 0).toFixed(2)}</strong></p>
-                            <p class="text-sm">Status: <strong class="text-green-600">${response.data.payment_status.toUpperCase()}</strong></p>
-                        </div>
-                    </div>
-                `,
-                confirmButtonText: 'Back to Purchase Orders',
+                text: 'Purchase order has been updated.',
+                confirmButtonText: 'OK',
             }).then(() => {
                 router.push('/purchases/list');
             });
@@ -245,6 +238,7 @@ const ReceiveItemsPage = () => {
                                 <th>Already Received</th>
                                 <th>Receive Now</th>
                                 <th>Purchase Price</th>
+                                <th>Selling Price</th>
                                 <th>Total</th>
                             </tr>
                         </thead>
@@ -293,6 +287,24 @@ const ReceiveItemsPage = () => {
                                                 placeholder={isNewProduct ? 'Set price' : ''}
                                             />
                                             {isNewProduct && !purchasePrices[item.id] && <p className="mt-1 text-xs text-orange-600">Price required for new product</p>}
+                                        </td>
+                                        <td>
+                                            {isNewProduct ? (
+                                                <>
+                                                    <input
+                                                        type="number"
+                                                        className={`form-input w-32 ${!sellingPrices[item.id] ? 'border-green-400' : ''}`}
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={sellingPrices[item.id] || 0}
+                                                        onChange={(e) => handleSellingPriceChange(item.id, e.target.value)}
+                                                        placeholder="Selling price"
+                                                    />
+                                                    {!sellingPrices[item.id] && <p className="mt-1 text-xs text-green-600">Set selling price</p>}
+                                                </>
+                                            ) : (
+                                                <span className="text-sm text-gray-400">—</span>
+                                            )}
                                         </td>
                                         <td className="font-bold">৳{calculateItemTotal(item.id).toFixed(2)}</td>
                                     </tr>
