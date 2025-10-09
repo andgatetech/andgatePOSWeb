@@ -393,49 +393,38 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         try {
             const receiptHTML = generateReceiptHTML();
 
-            // ✅ Create hidden iframe
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.right = '0';
-            iframe.style.bottom = '0';
-            iframe.style.width = '0';
-            iframe.style.height = '0';
-            iframe.style.border = '0';
-            document.body.appendChild(iframe);
+            // ✅ Open a new window or tab (works better for mobile printing)
+            const printWindow = window.open('', '_blank');
 
-            const iframeDoc = iframe.contentWindow?.document;
-            if (!iframeDoc) {
-            throw new Error('Unable to access iframe document');
+            if (!printWindow) {
+                alert('Please allow popups for this site to print the receipt.');
+                setIsPrinting(false);
+                return;
             }
 
-            iframeDoc.open();
-            iframeDoc.write(receiptHTML);
-            iframeDoc.close();
+            printWindow.document.open();
+            printWindow.document.write(receiptHTML);
+            printWindow.document.close();
 
-            // ✅ Wait for content to render fully
-            iframe.onload = () => {
-            setTimeout(() => {
-                try {
-                iframe.contentWindow?.focus();
-                iframe.contentWindow?.print();
-                } catch (err) {
-                console.error('Print failed:', err);
-                alert('Failed to print receipt.');
-                } finally {
-                // Clean up after short delay
+            // Wait for rendering
+            printWindow.onload = () => {
                 setTimeout(() => {
-                    document.body.removeChild(iframe);
+                    printWindow.focus();
+                    printWindow.print();
+                    // Auto-close after print (optional)
+                    setTimeout(() => {
+                        printWindow.close();
+                    }, 1500);
                     setIsPrinting(false);
-                }, 1500);
-                }
-            }, 400);
+                }, 500);
             };
-        } catch (error) {
-            console.error('Print error:', error);
+        } catch (err) {
+            console.error('Print error:', err);
             alert('Failed to print receipt.');
             setIsPrinting(false);
         }
     };
+
 
     // const printReceipt = async () => {
     //     if (isPrinting) return;
