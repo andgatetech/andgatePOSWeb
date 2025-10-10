@@ -3,7 +3,7 @@
 import { useGenerateBarcodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { jsPDF } from 'jspdf';
 import { BarcodeIcon, Download, Package, Printer, QrCode, Trash2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
 const CODE_TYPES = {
@@ -30,9 +30,19 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
     const [loading, setLoading] = useState(false);
 
     const totalCodes = selectedProducts.reduce((sum, p) => sum + (p.quantity || 1), 0);
+    // useEffect(() => {
+    //     setGeneratedCodes([]);
+    //     setLoading(false);
+    // }, [activeTab]);
+
     useEffect(() => {
-        setGeneratedCodes([]);
-        setLoading(false);
+        if (!mounted.current) return;
+        setTimeout(() => {
+            if (mounted.current) {
+                setGeneratedCodes([]);
+                setLoading(false);
+            }
+        }, 50);
     }, [activeTab]);
 
     // ✅ Generate QR/Barcode
@@ -59,27 +69,34 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
     // }
     // };
 
+    const mounted = useRef(true);
+
+    useEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, []);
+
     const safeToast = {
         success: (msg) => {
-            if (typeof window !== 'undefined') {
-                requestAnimationFrame(() => toast.success(msg));
-            }
+            if (typeof window === 'undefined' || !mounted.current) return;
+            Promise.resolve().then(() => {
+                if (document.readyState === 'complete' && mounted.current) toast.success(msg, { autoClose: 2000 });
+            });
         },
         error: (msg) => {
-            if (typeof window !== 'undefined') {
-                requestAnimationFrame(() => toast.error(msg));
-            }
-        },
-        info: (msg) => {
-            if (typeof window !== 'undefined') {
-                requestAnimationFrame(() => toast.info(msg));
-            }
+            if (typeof window === 'undefined' || !mounted.current) return;
+            Promise.resolve().then(() => {
+                if (document.readyState === 'complete' && mounted.current) toast.error(msg, { autoClose: 2500 });
+            });
         },
     };
 
     const onGenerate = async () => {
         if (selectedProducts.length === 0) return;
-
+        if (!mounted.current) return;
+        setLoading(true);
         setLoading(true);
         try {
             const payload = selectedProducts.map((p) => ({
@@ -89,15 +106,14 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
                 ...(activeTab === 'barcode' && { type: config.codeType }),
             }));
 
-            console.log('Payload:', payload);
-
             const response = activeTab === 'qrcode' ? await generateQRCodes(payload).unwrap() : await generateBarcodes(payload).unwrap();
-
+            if (!mounted.current) return;
             if (response && Array.isArray(response.codes)) {
+                if (!mounted.current) return;
                 setGeneratedCodes(response.codes);
-
-                // ✅ Safe toast (no DOM crash)
-                safeToast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
+                setTimeout(() => {
+                    safeToast.success(`${activeTab === 'qrcode' ? 'QR Codes' : 'Barcodes'} generated successfully! ✅`);
+                }, 50);
             } else {
                 console.error('Invalid response:', response);
                 safeToast.error('Invalid response from server ❌');
@@ -107,7 +123,10 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
             safeToast.error('Failed to generate codes ❌');
         } finally {
             // ✅ React-safe delay
-            requestAnimationFrame(() => setLoading(false));
+            // requestAnimationFrame(() => setLoading(false));
+            if (mounted.current) {
+                requestAnimationFrame(() => setLoading(false));
+            }
         }
     };
 
@@ -187,7 +206,7 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
             .map(
                 (item) => `
 <div style="width:${itemWidth}; text-align:center; margin:10px;">
-<img src="${item.url}" style="max-width:100%; height:${config.imageHeight}px; object-fit:contain;" />
+<img src="${item.qrcode ? item.qrcode : item.url}" style="max-width:100%; height:${config.imageHeight}px; object-fit:contain;" />
 <p style="margin:4px 0 0;font-size:12px;">${item.product_name}</p>
 <p style="margin:0;font-size:10px;color:gray;">${item.product_code}</p>
 </div>
