@@ -5,6 +5,7 @@ import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useGetSingleProductQuery, useGetUnitsQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
 import { ArrowLeft, Store } from 'lucide-react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
@@ -596,6 +597,26 @@ const ProductEditForm = () => {
                                             />
                                         </div>
                                     </div>
+                                    {/* Selling Price */}
+                                    <div>
+                                        <label htmlFor="price" className="mb-2 block text-sm font-medium text-gray-700">
+                                            Selling Price <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
+                                            <input
+                                                id="price"
+                                                name="price"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={formData.price}
+                                                onChange={handleChange}
+                                                placeholder="0.00"
+                                                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
 
                                     {/* Unit Selection */}
                                     <div>
@@ -845,10 +866,12 @@ const ProductEditForm = () => {
                                                                 isMarkedForDeletion ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-100'
                                                             }`}
                                                         >
-                                                            <img
-                                                                src={img.url}
+                                                            <Image
+                                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${img.url}`}
                                                                 alt={`Product ${index + 1}`}
                                                                 className={`h-full w-full object-cover transition-opacity duration-200 ${isMarkedForDeletion ? 'opacity-40' : ''}`}
+                                                                width={200}
+                                                                height={200}
                                                             />
                                                         </div>
 
