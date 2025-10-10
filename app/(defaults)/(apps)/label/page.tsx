@@ -131,7 +131,7 @@ const BarcodeGeneratorPage = () => {
                 >
                     <CodeGeneratorPanel
                         selectedProducts={selectedProducts}
-                        onRemove={handleProductRemove}
+                        onProductRemove={handleProductRemove}
                         onQuantityChange={handleQuantityChange}
                         onClearAll={handleClearAll}
                         activeTab={activeTab}
