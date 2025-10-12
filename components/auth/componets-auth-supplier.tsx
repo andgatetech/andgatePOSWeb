@@ -1,10 +1,10 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
@@ -28,12 +28,14 @@ const SupplierLoginForm = () => {
             const result = await loginApi(credentials).unwrap();
             console.log(result);
 
-            // ✅ Set token in cookie (instead of localStorage)
-            document.cookie = `token=${result.token}; path=/; max-age=${60 * 60 * 24};`;
-            document.cookie = `role=${result.user.role}; path=/; max-age=${60 * 60 * 24};`;
+            const { user, token, permissions } = result.data || result;
 
-            // ✅ Optional: Save user in Redux
-            dispatch(login({ user: result.user, token: result.token }));
+            // ✅ Set token in cookie (instead of localStorage)
+            document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24};`;
+            document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24};`;
+
+            // ✅ Save user + permissions in Redux
+            dispatch(login({ user, token, permissions }));
 
             // ✅ Show success toast
             toast.success('Login successful! Redirecting to dashboard...');

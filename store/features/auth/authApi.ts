@@ -82,9 +82,29 @@ export const authApi = baseApi.injectEndpoints({
             }),
             providesTags: ['User'],
         }),
-        
+        getAllPermissions: builder.query({
+            query: () => ({
+                url: '/permissions/all',
+                method: 'GET',
+            }),
+        }),
+        updateUserPermission: builder.mutation({
+            query: ({ userId, permissionData }) => ({
+                url: `/permissions/${userId}/update`,
+                method: 'PUT',
+                body: permissionData,
+                invalidatesTags: ['Permissions'],
+            }),
+        }),
+        getUserPermissions: builder.query({
+            query: (userId) => ({
+                url: `/permissions/${userId}`,
+                method: 'GET',
+                providesTags: ['Permissions'],
+            }),
+        }),
     }),
     overrideExisting: true,
 });
 
-export const { useLoginMutation, useRegisterMutation, useLogoutMutation, useGetAllLeadsQuery, useCreateLeadMutation, useUpdateUserMutation, useGetUserInfoQuery } = authApi;
+export const { useLoginMutation, useRegisterMutation, useLogoutMutation, useGetAllLeadsQuery, useCreateLeadMutation, useUpdateUserMutation, useGetUserInfoQuery,useGetAllPermissionsQuery,useUpdateUserPermissionMutation, useGetUserPermissionsQuery} = authApi;

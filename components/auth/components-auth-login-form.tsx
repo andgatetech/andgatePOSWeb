@@ -1,11 +1,11 @@
 'use client';
 
 import { useLoginMutation } from '@/store/features/auth/authApi';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState, useImperativeHandle, forwardRef } from 'react';
+import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff } from 'lucide-react';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
@@ -48,22 +48,28 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
         e.preventDefault();
         try {
             const result = await loginApi(credentials).unwrap();
-            const { user, token } = result.data;
+            console.log('📦 Login API Response:', result);
+
+            const { user, token, permissions } = result.data;
+
+            console.log('👤 User:', user);
+            console.log('🔑 Token:', token ? 'Received' : 'Missing');
+            console.log('🔒 Permissions:', permissions?.length || 0, 'permissions');
 
             // Save token + role in cookies
             document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
             document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
 
-            // Save **full user details** in Redux
-            dispatch(login({ user, token }));
+            // Save **full user details + permissions** in Redux
+            dispatch(login({ user, token, permissions }));
 
             toast.success('Login successful! Redirecting to dashboard...');
             router.push('/dashboard');
         } catch (error: any) {
-            console.error('Registration failed:', error);
+            console.error('Login failed:', error);
 
             // Show only the top-level message
-            const message = error?.data?.errors || 'Registration failed. Please try again.';
+            const message = error?.data?.errors || 'Login failed. Please try again.';
             toast.error(message);
         }
     };
