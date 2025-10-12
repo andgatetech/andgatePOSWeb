@@ -403,28 +403,28 @@ const StaffManagement = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 p-2 sm:p-4 md:p-6">
             {/* Staff Page Header */}
-            <section className="mb-8">
-                <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                                <Users className="h-6 w-6 text-white" />
+            <section className="mb-4 sm:mb-6 md:mb-8">
+                <div className="rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:rounded-2xl sm:p-6">
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                                <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Employees Management</h1>
-                                <p className="text-sm text-gray-500">Manage your team members and their roles</p>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Employees Management</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">Manage your team members and their roles</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex w-full items-center space-x-3 sm:w-auto sm:space-x-4">
                             <button
                                 onClick={() => router.push('/employees/create')}
-                                className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="group relative inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-xs font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:rounded-xl sm:px-6 sm:py-3 sm:text-sm"
                             >
-                                <Plus className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                                <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
                                 Add Employee
-                                <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
+                                <div className="absolute inset-0 rounded-lg bg-white/20 opacity-0 transition-opacity group-hover:opacity-100 sm:rounded-xl" />
                             </button>
                         </div>
                     </div>
@@ -436,41 +436,41 @@ const StaffManagement = () => {
 
             <div className="mx-auto mt-4">
                 {/* Stats Cards */}
-                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-                    <div className="rounded-lg border bg-white p-6 shadow-sm">
+                <div className="mb-4 grid grid-cols-2 gap-3 sm:mb-6 sm:gap-4 md:mb-8 md:gap-6 lg:grid-cols-4">
+                    <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-600">Total Employees</p>
-                                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Total Employees</p>
+                                <p className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{stats.total}</p>
                             </div>
-                            <Users className="h-8 w-8 text-blue-600" />
+                            <Users className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
-                    <div className="rounded-lg border bg-white p-6 shadow-sm">
+                    <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-600">Administrators</p>
-                                <p className="text-2xl font-bold text-purple-600">{stats.admins}</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Administrators</p>
+                                <p className="text-lg font-bold text-purple-600 sm:text-xl md:text-2xl">{stats.admins}</p>
                             </div>
-                            <Shield className="h-8 w-8 text-purple-600" />
+                            <Shield className="h-6 w-6 text-purple-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
-                    <div className="rounded-lg border bg-white p-6 shadow-sm">
+                    <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-600">Employees</p>
-                                <p className="text-2xl font-bold text-green-600">{stats.staff}</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Employees</p>
+                                <p className="text-lg font-bold text-green-600 sm:text-xl md:text-2xl">{stats.staff}</p>
                             </div>
-                            <CheckCircle className="h-8 w-8 text-green-600" />
+                            <CheckCircle className="h-6 w-6 text-green-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
-                    <div className="rounded-lg border bg-white p-6 shadow-sm">
+                    <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-600">Managers</p>
-                                <p className="text-2xl font-bold text-blue-600">{stats.managers}</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Managers</p>
+                                <p className="text-lg font-bold text-blue-600 sm:text-xl md:text-2xl">{stats.managers}</p>
                             </div>
-                            <XCircle className="h-8 w-8 text-blue-600" />
+                            <XCircle className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
                 </div>
@@ -478,7 +478,7 @@ const StaffManagement = () => {
                 {/* Table */}
                 <div className="overflow-visible rounded-lg border bg-white shadow-sm">
                     <div className="relative overflow-x-auto overflow-y-visible">
-                        <table className="w-full">
+                        <table className="w-full min-w-[640px]">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('name')}>
@@ -604,9 +604,9 @@ const StaffManagement = () => {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="border-t border-gray-200 bg-white px-6 py-4">
-                            <div className="flex items-center justify-between">
-                                <div className="text-sm text-gray-700">
+                        <div className="border-t border-gray-200 bg-white px-3 py-3 sm:px-4 sm:py-4 md:px-6">
+                            <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
+                                <div className="text-center text-xs text-gray-700 sm:text-left sm:text-sm">
                                     Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedStaff.length)} of {filteredAndSortedStaff.length} staff
                                     members
                                 </div>
@@ -614,7 +614,7 @@ const StaffManagement = () => {
                                     <button
                                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                                         disabled={currentPage === 1}
-                                        className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
                                     >
                                         Previous
                                     </button>
@@ -636,7 +636,7 @@ const StaffManagement = () => {
                                     <button
                                         onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                                         disabled={currentPage === totalPages}
-                                        className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
                                     >
                                         Next
                                     </button>
@@ -647,10 +647,10 @@ const StaffManagement = () => {
 
                     {/* Empty state */}
                     {currentStaff.length === 0 && (
-                        <div className="py-12 text-center">
-                            <Users className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="px-4 py-8 text-center sm:py-12">
+                            <Users className="mx-auto h-10 w-10 text-gray-400 sm:h-12 sm:w-12" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">No staff members found</h3>
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
                                 {Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first staff member.'}
                             </p>
                         </div>
@@ -659,36 +659,36 @@ const StaffManagement = () => {
             </div>
 
             {permissionModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4">
                     <div className="absolute inset-0" onClick={closePermissionsModal} />
-                    <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-                        <div className="flex items-center justify-between border-b px-6 py-4">
+                    <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-2xl">
+                        <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">Edit Permissions{selectedStaff ? ` • ${selectedStaff.name}` : ''}</h3>
-                                <p className="text-sm text-gray-500">Adjust access controls for this employee in real time.</p>
+                                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Edit Permissions{selectedStaff ? ` • ${selectedStaff.name}` : ''}</h3>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">Adjust access controls for this employee in real time.</p>
                             </div>
                             <button type="button" onClick={closePermissionsModal} className="rounded-full p-1 text-gray-400 transition hover:text-gray-600">
                                 <XCircle className="h-5 w-5" />
                             </button>
                         </div>
-                        <div className="max-h-[60vh] overflow-y-auto px-6 py-6">
+                        <div className="max-h-[50vh] overflow-y-auto px-4 py-4 sm:max-h-[60vh] sm:px-6 sm:py-6">
                             {permissionFetchLoading ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                                <div className="flex items-center justify-center py-8 sm:py-12">
+                                    <Loader2 className="h-6 w-6 animate-spin text-blue-600 sm:h-8 sm:w-8" />
                                 </div>
                             ) : (
                                 <>
-                                    <div className="mb-6 flex flex-col gap-4 rounded-xl bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                                                <Shield className="h-5 w-5 text-blue-600" />
+                                    <div className="mb-4 flex flex-col gap-3 rounded-xl bg-blue-50 p-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-4">
+                                        <div className="flex items-center gap-2 sm:gap-3">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 sm:h-10 sm:w-10 sm:rounded-xl">
+                                                <Shield className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold text-blue-900">Permission Groups</p>
-                                                <p className="text-xs text-blue-700">Toggle entire modules or drill down to individual operations.</p>
+                                                <p className="text-xs font-semibold text-blue-900 sm:text-sm">Permission Groups</p>
+                                                <p className="text-[10px] text-blue-700 sm:text-xs">Toggle entire modules or drill down to individual operations.</p>
                                             </div>
                                         </div>
-                                        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-blue-900">
+                                        <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-blue-900 sm:text-sm">
                                             <input
                                                 type="checkbox"
                                                 checked={selectAllPermissions}
@@ -699,7 +699,7 @@ const StaffManagement = () => {
                                         </label>
                                     </div>
 
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                                         {Object.entries(groupedPermissions).map(([category, permissions]) => {
                                             const categoryNames = permissions.map((permission) => permission.name);
                                             const allSelected = categoryNames.every((name) => selectAllPermissions || selectedPermissions.includes(name));
@@ -743,15 +743,15 @@ const StaffManagement = () => {
                                 </>
                             )}
                         </div>
-                        <div className="flex flex-col gap-4 border-t px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-sm text-gray-500">
+                        <div className="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4">
+                            <p className="text-center text-xs text-gray-500 sm:text-left sm:text-sm">
                                 {selectAllPermissions ? 'All permissions selected' : `${selectedPermissionsCount} permission${selectedPermissionsCount === 1 ? '' : 's'} selected`}
                             </p>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 <button
                                     type="button"
                                     onClick={closePermissionsModal}
-                                    className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+                                    className="flex-1 rounded-lg border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50 sm:flex-none sm:text-sm"
                                 >
                                     Cancel
                                 </button>
@@ -759,7 +759,7 @@ const StaffManagement = () => {
                                     type="button"
                                     onClick={handleSavePermissions}
                                     disabled={isUpdatingPermission || permissionFetchLoading}
-                                    className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:text-sm"
                                 >
                                     {isUpdatingPermission ? (
                                         <>
