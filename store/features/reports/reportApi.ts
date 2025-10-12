@@ -81,6 +81,13 @@ const ReportApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+        getStockAdjustmentReport: builder.mutation({
+            query: (data: any) => ({
+                url: '/reports/adjustment',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -95,4 +102,5 @@ export const {
     useGetPurchaseReportMutation,
     useGetPurchaseTransactionReportMutation,
     useGetCurrentStockReportMutation,
+    useGetStockAdjustmentReportMutation,
 } = ReportApi;
