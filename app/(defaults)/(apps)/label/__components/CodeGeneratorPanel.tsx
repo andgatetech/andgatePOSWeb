@@ -120,7 +120,9 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
             }
         } catch (error) {
             console.error(error);
-            safeToast.error('Failed to generate codes ❌');
+            const message = error?.data?.message || error?.error || error?.message || 'Failed to generate codes ❌';
+
+            safeToast.error(message);
         } finally {
             // ✅ React-safe delay
             // requestAnimationFrame(() => setLoading(false));
@@ -162,14 +164,34 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
 
         for (let i = 0; i < generatedCodes.length; i++) {
             const item = generatedCodes[i];
-            const imgBlob = await fetch(item.url)
-                .then((r) => r.blob())
-                .then((b) => URL.createObjectURL(b));
+            let imgSrc = item.url;
 
+            // ✅ Convert SVG to PNG (for QR codes)
+            if (imgSrc.startsWith('data:image/svg+xml')) {
+                const svgText = atob(imgSrc.split(',')[1]);
+                const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(svgBlob);
+
+                const svgImg = new Image();
+                svgImg.src = url;
+                await new Promise((res) => (svgImg.onload = res));
+
+                // Draw onto a canvas to convert → PNG
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d')!;
+                canvas.width = svgImg.width || config.imageWidth;
+                canvas.height = svgImg.height || config.imageHeight;
+                ctx.drawImage(svgImg, 0, 0);
+                imgSrc = canvas.toDataURL('image/png'); // ✅ new PNG data
+                URL.revokeObjectURL(url);
+            }
+
+            // Load image (either PNG barcode or converted QR)
             const img = new Image();
-            img.src = imgBlob;
+            img.src = imgSrc;
             await new Promise((res) => (img.onload = res));
 
+            // Add to PDF as PNG
             pdf.addImage(img, 'PNG', x, y, imgW, imgH);
             pdf.setFontSize(9);
             pdf.text(item.product_name, x, y + imgH + 5);
@@ -177,13 +199,11 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
 
             x += imgW + gap;
 
-            // Next row
             if ((i + 1) % maxPerRow === 0) {
                 x = margin;
                 y += imgH + 20;
             }
 
-            // Next page
             if (y + imgH + 15 > pageH) {
                 pdf.addPage();
                 x = margin;
@@ -206,7 +226,7 @@ const CodeGeneratorPanel = ({ activeTab, setActiveTab, selectedProducts, onProdu
             .map(
                 (item) => `
 <div style="width:${itemWidth}; text-align:center; margin:10px;">
-<img src="${item.qrcode ? item.qrcode : item.url}" style="max-width:100%; height:${config.imageHeight}px; object-fit:contain;" />
+<img src="${item.url}" style="max-width:100%; height:${config.imageHeight}px; object-fit:contain;" />
 <p style="margin:4px 0 0;font-size:12px;">${item.product_name}</p>
 <p style="margin:0;font-size:10px;color:gray;">${item.product_code}</p>
 </div>
