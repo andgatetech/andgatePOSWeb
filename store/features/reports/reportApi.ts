@@ -1,5 +1,4 @@
 import { baseApi } from '@/store/api/baseApi';
-import { get } from 'lodash';
 
 const ReportApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -15,7 +14,6 @@ const ReportApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['TaxReport'],
         }),
-
         // Transaction Report
         getTransactionReport: builder.mutation({
             query: (data: any) => ({
@@ -25,7 +23,6 @@ const ReportApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['TransactionReport'],
         }),
-
         // Idle Product Report
         getIdleProductReport: builder.mutation({
             query: (data: any) => ({
@@ -35,7 +32,6 @@ const ReportApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['IdleProductReport'],
         }),
-
         getIncomeReport: builder.mutation({
             query: (body) => ({
                 url: '/reports/income',
@@ -78,6 +74,13 @@ const ReportApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+        getCurrentStockReport: builder.mutation({
+            query: (data: any) => ({
+                url: '/reports/stock',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -91,4 +94,5 @@ export const {
     useGetExpensesReportMutation,
     useGetPurchaseReportMutation,
     useGetPurchaseTransactionReportMutation,
+    useGetCurrentStockReportMutation,
 } = ReportApi;

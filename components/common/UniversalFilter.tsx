@@ -57,7 +57,9 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
 
     // State management
     const [search, setSearch] = useState(initialFilters.search || '');
-    const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || currentStoreId || 'all');
+    // const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || currentStoreId || 'all');
+    const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || 'all');
+
     const [dateFilterType, setDateFilterType] = useState(initialFilters.dateRange?.type || 'none');
     const [customStartDate, setCustomStartDate] = useState(initialFilters.dateRange?.startDate || format(new Date(), 'yyyy-MM-dd'));
     const [customEndDate, setCustomEndDate] = useState(initialFilters.dateRange?.endDate || format(new Date(), 'yyyy-MM-dd'));
@@ -67,7 +69,8 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     // Reset filters
     const resetFilters = useCallback(() => {
         setSearch('');
-        setSelectedStore(currentStoreId || 'all');
+        // setSelectedStore(currentStoreId || 'all');
+        setSelectedStore('all');
         setDateFilterType('none');
         setCustomStartDate(format(new Date(), 'yyyy-MM-dd'));
         setCustomEndDate(format(new Date(), 'yyyy-MM-dd'));
@@ -176,15 +179,19 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     }, [search, selectedStore, dateFilterType, showSearch, showStoreFilter, showDateFilter, getDateRange]);
 
     // Emit filter changes
+    // useEffect(() => {
+    //     const filters = buildFilters();
+    //     onFilterChange(filters);
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [buildFilters]);
     useEffect(() => {
         const filters = buildFilters();
         onFilterChange(filters);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [buildFilters]);
+    }, [search, selectedStore, dateFilterType, customStartDate, customEndDate]);
 
     // Check if filters are active (not default)
     const hasActiveFilters = () => {
-        return search !== '' || selectedStore !== (currentStoreId || 'all') || dateFilterType !== 'none';
+        return search !== '' || selectedStore !== 'all' || dateFilterType !== 'none';
     };
 
     return (
