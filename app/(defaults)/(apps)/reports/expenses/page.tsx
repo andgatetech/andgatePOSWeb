@@ -47,6 +47,10 @@ const ExpenseReportPage = () => {
         async (params: Record<string, any>, format: string = 'json') => {
             try {
                 const payload = { ...params, format };
+
+                if (payload.store_ids?.length === 0) delete payload.store_ids;
+                if (!payload.store_id) delete payload.store_id;
+
                 const response = await getExpensesReport(payload).unwrap();
 
                 if (format === 'json' && response?.data) {
