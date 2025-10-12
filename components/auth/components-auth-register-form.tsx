@@ -38,32 +38,29 @@ const ComponentsAuthRegisterForm = () => {
         }
     }, []);
 
-const submitForm = async (e: FormEvent) => {
-    e.preventDefault();
-    try {
-        const result = await registerApi(credentials).unwrap();
-        const { user, token } = result.data; // user already has store & subscription_user
+    const submitForm = async (e: FormEvent) => {
+        e.preventDefault();
+        try {
+            const result = await registerApi(credentials).unwrap();
+            const { user, token, permissions } = result.data; // user already has store & subscription_user
 
-        // Save token + role in cookies
-        document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
-        document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
+            // Save token + role in cookies
+            document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
+            document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24}; Secure; SameSite=Strict`;
 
-        // Save full user data in Redux
-        dispatch(login({ user, token }));
+            // Save full user data + permissions in Redux
+            dispatch(login({ user, token, permissions }));
 
-        toast.success('Registration successful! Redirecting to dashboard...');
-        setTimeout(() => router.push('/dashboard'), 800);
-    } catch (error: any) {
-        console.error('Registration failed:', error);
+            toast.success('Registration successful! Redirecting to dashboard...');
+            setTimeout(() => router.push('/dashboard'), 800);
+        } catch (error: any) {
+            console.error('Registration failed:', error);
 
-        // Show only the top-level message
-        const message = error?.data?.message || 'Registration failed. Please try again.';
-        toast.error(message);
-    }
-};
-
-
-
+            // Show only the top-level message
+            const message = error?.data?.message || 'Registration failed. Please try again.';
+            toast.error(message);
+        }
+    };
 
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
