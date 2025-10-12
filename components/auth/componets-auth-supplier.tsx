@@ -30,9 +30,20 @@ const SupplierLoginForm = () => {
 
             const { user, token, permissions } = result.data || result;
 
+            const maxAge = 60 * 60 * 24;
+            const encodedPermissions = (() => {
+                try {
+                    return btoa(JSON.stringify(permissions ?? []));
+                } catch (err) {
+                    console.error('Failed to encode permissions cookie', err);
+                    return btoa('[]');
+                }
+            })();
+
             // ✅ Set token in cookie (instead of localStorage)
-            document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24};`;
-            document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24};`;
+            document.cookie = `token=${token}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
+            document.cookie = `role=${user.role}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
+            document.cookie = `permissions=${encodedPermissions}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
 
             // ✅ Save user + permissions in Redux
             dispatch(login({ user, token, permissions }));

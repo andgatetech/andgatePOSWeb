@@ -2,7 +2,7 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
-import { useGetAllPermissionsQuery,  } from '@/store/features/auth/authApi';
+import { useGetAllPermissionsQuery } from '@/store/features/auth/authApi';
 import { useStaffRegisterMutation } from '@/store/features/store/storeApi';
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Shield, Store, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -237,37 +237,37 @@ const EmployeeCreateForm = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-            <div className="mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-2 sm:p-4 md:p-6">
+            <div className="mx-auto max-w-7xl">
                 {/* Header */}
-                <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                                <Users className="h-6 w-6 text-white" />
+                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                                <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Create New Employee</h1>
-                                <p className="text-sm text-gray-500">{currentStore ? `Add a new employee to ${currentStore.store_name}` : 'Add a new employee to your team'}</p>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Create New Employee</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `Add a new employee to ${currentStore.store_name}` : 'Add a new employee to your team'}</p>
                             </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => router.push('/employees')}
-                            className="flex items-center space-x-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
                         >
-                            <ArrowLeft className="h-4 w-4" />
+                            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span>Back to Employees</span>
                         </button>
                     </div>
                     {currentStore && (
-                        <div className="rounded-lg bg-blue-50 p-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-                                    <Store className="h-4 w-4 text-blue-600" />
+                        <div className="rounded-lg bg-blue-50 p-3 sm:p-4">
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 sm:h-8 sm:w-8">
+                                    <Store className="h-3.5 w-3.5 text-blue-600 sm:h-4 sm:w-4" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-blue-900">Current Store: {currentStore.store_name}</p>
+                                    <p className="text-xs font-medium text-blue-900 sm:text-sm">Current Store: {currentStore.store_name}</p>
                                 </div>
                             </div>
                         </div>
@@ -276,9 +276,9 @@ const EmployeeCreateForm = () => {
 
                 {/* Main Form Card */}
                 <form onSubmit={handleSubmit}>
-                    <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
-                        <div className="p-8">
-                            <h2 className="mb-6 text-xl font-semibold text-gray-900">Employee Information</h2>
+                    <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                        <div className="p-4 sm:p-6 md:p-8">
+                            <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">Employee Information</h2>
 
                             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 {/* Left Column */}
@@ -425,18 +425,18 @@ const EmployeeCreateForm = () => {
                             </div>
 
                             {/* Permissions Section */}
-                            <div className="mt-8 border-t pt-8">
-                                <div className="mb-6 flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
-                                        <Shield className="h-6 w-6 text-blue-600" />
+                            <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
+                                <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
+                                    <div className="flex items-center space-x-2 sm:space-x-3">
+                                        <Shield className="h-5 w-5 text-blue-600 sm:h-6 sm:w-6" />
                                         <div>
-                                            <h2 className="text-xl font-semibold text-gray-900">Permissions</h2>
-                                            <p className="text-sm text-gray-500">Select the permissions for this employee</p>
+                                            <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Permissions</h2>
+                                            <p className="text-xs text-gray-500 sm:text-sm">Select the permissions for this employee</p>
                                         </div>
                                     </div>
 
                                     {/* Select All Checkbox */}
-                                    <div className="flex items-center space-x-2 rounded-lg bg-blue-50 px-4 py-2">
+                                    <div className="flex w-full items-center justify-center space-x-2 rounded-lg bg-blue-50 px-3 py-2 sm:w-auto sm:justify-start sm:px-4">
                                         <input
                                             type="checkbox"
                                             id="selectAll"
@@ -444,14 +444,14 @@ const EmployeeCreateForm = () => {
                                             onChange={handleSelectAllToggle}
                                             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                                         />
-                                        <label htmlFor="selectAll" className="cursor-pointer text-sm font-medium text-blue-900">
+                                        <label htmlFor="selectAll" className="cursor-pointer text-xs font-medium text-blue-900 sm:text-sm">
                                             Select All Permissions
                                         </label>
                                     </div>
                                 </div>
 
                                 {/* Permissions Grid */}
-                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                                     {Object.entries(groupedPermissions).map(([category, permissions]) => {
                                         const categoryPermissionIds = permissions.map((p) => p.id);
                                         const allSelected = categoryPermissionIds.every((id) => formData.permissions.includes(id) || selectAll);
@@ -501,8 +501,8 @@ const EmployeeCreateForm = () => {
                                 </div>
 
                                 {/* Selected Count */}
-                                <div className="mt-4 rounded-lg bg-blue-50 p-4">
-                                    <p className="text-sm text-blue-900">
+                                <div className="mt-4 rounded-lg bg-blue-50 p-3 sm:p-4">
+                                    <p className="text-xs text-blue-900 sm:text-sm">
                                         <span className="font-semibold">{selectAll ? 'All' : formData.permissions.length}</span> permission{formData.permissions.length !== 1 ? 's' : ''} selected
                                         {selectAll && ` (${allPermissions.length} total)`}
                                     </p>
@@ -511,20 +511,20 @@ const EmployeeCreateForm = () => {
                         </div>
 
                         {/* Form Footer */}
-                        <div className="border-t bg-gray-50 px-8 py-6">
-                            <div className="flex items-center justify-end space-x-4">
+                        <div className="border-t bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 md:px-8">
+                            <div className="flex flex-col items-center justify-end space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0">
                                 <button
                                     type="button"
                                     onClick={() => router.push('/employees')}
                                     disabled={isSubmitting}
-                                    className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isSubmitting ? (
                                         <>
