@@ -78,8 +78,10 @@ const BarcodeGeneratorPage = () => {
     const handleProductSelect = (product: any) => {
         const exists = selectedProducts.find((p) => p.product_code === product.product_code);
         if (exists) {
-            setSelectedProducts(selectedProducts.filter((p) => p.product_code !== product.product_code));
+            // If already selected, increment quantity instead of removing
+            setSelectedProducts(selectedProducts.map((p) => (p.product_code === product.product_code ? { ...p, quantity: p.quantity + 1 } : p)));
         } else {
+            // First time selection - add with quantity 1
             setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
         }
     };

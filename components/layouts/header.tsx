@@ -1,4 +1,5 @@
 'use client';
+import CalculatorButton from '@/__components/CalculatorButton';
 import Dropdown from '@/components/dropdown';
 import IconBellBing from '@/components/icon/icon-bell-bing';
 import IconCaretDown from '@/components/icon/icon-caret-down';
@@ -24,6 +25,7 @@ import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
+import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -181,7 +183,7 @@ const Header = () => {
 
                     <div className="hidden sm:block ltr:mr-2 rtl:ml-2">
                         <ul className="flex items-center space-x-2 rtl:space-x-reverse">
-                            <li>
+                            {/* <li>
                                 <Link
                                     href="/pos"
                                     className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
@@ -196,6 +198,20 @@ const Header = () => {
                                     </svg>
                                     POS
                                 </Link>
+                            </li> */}
+                            <li>
+                                <Link
+                                    href="/pos"
+                                    className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
+                                >
+                                    <ShoppingCart className="h-5 w-5" />
+                                    POS
+                                </Link>
+                            </li>
+
+                            {/* Calculation Menu */}
+                            <li>
+                                <CalculatorButton />
                             </li>
                         </ul>
                     </div>

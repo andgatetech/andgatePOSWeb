@@ -61,7 +61,6 @@ const adminRoutes = [
             { label: 'Add Product', href: '/products/create' },
             { label: 'All Products', href: '/products' },
             { label: 'Stock Adjustment', href: '/products/stock/create-stock-adjustment' },
-            { label: 'Product QrCode', href: '/products/qr-code' },
             { label: 'Print Label', href: '/label' },
         ],
     },
