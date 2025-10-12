@@ -133,6 +133,7 @@ const adminRoutes = [
                     { label: 'Current Stock', href: '/reports/stock/current' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
                     { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
+                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
                     // ``,
                 ],
             },
