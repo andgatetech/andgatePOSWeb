@@ -281,7 +281,7 @@ const JournalManagement = () => {
 
     // Reset filter when current store changes
     useEffect(() => {
-        console.log('Journals - Current store changed, resetting filters');
+       
         setApiParams({
             store_ids: 'all',
             start_date: '',
@@ -295,7 +295,7 @@ const JournalManagement = () => {
 
     // Handle filter changes
     const handleFilterChange = useCallback((newApiParams) => {
-        console.log('Filter changed:', newApiParams);
+        
 
         if (newApiParams.store_id === 'all') {
             setApiParams({
@@ -360,7 +360,7 @@ const JournalManagement = () => {
                 toast.dismiss();
                 toast.success('Journal entry deleted successfully', { toastId: 'delete-journal' });
             } catch (error) {
-                console.error('Error deleting journal:', error);
+                
                 toast.dismiss();
                 toast.error('Failed to delete journal entry', { toastId: 'delete-journal-error' });
             }

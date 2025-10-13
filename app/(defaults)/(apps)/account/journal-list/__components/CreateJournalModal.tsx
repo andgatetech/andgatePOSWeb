@@ -22,7 +22,7 @@ const CreateJournalModal = ({ isOpen, onClose, onSuccess }) => {
     // Redux queries and mutations
     const { data: ledgersData, isLoading: isLoadingLedgers } = useGetLedgersQuery({ store_id: currentStoreId });
     const [createJournal, { isLoading }] = useCreateJournalMutation();
-    console.log('Ledgers Data:', ledgersData);
+  
 
     // Update store_id when currentStoreId changes
     useEffect(() => {
