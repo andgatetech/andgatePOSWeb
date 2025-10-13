@@ -26,12 +26,12 @@ const ShowCategory: React.FC<PanelCodeHighlightProps> = ({ children, title, code
         e.preventDefault();
         try {
             const res = await categoryCreate(formData).unwrap();
-            console.log('Category created successfully:', res);
+           
             setIsModalOpen(false);
             setFormData({ name: '', description: '' });
             setErrorMessage(null);
         } catch (error: any) {
-            console.error('Category creation failed:', error);
+         
             setErrorMessage(error?.data?.message || 'Failed to create category. Please try again.');
         }
     };

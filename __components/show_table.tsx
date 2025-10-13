@@ -26,12 +26,12 @@ const ShowTable = ({ children, title, codeHighlight, id, className = '', role }:
         e.preventDefault();
         try {
             const res = await createStore(formData).unwrap();
-            console.log('Store created successfully:', res);
+          
 
             setIsModalOpen(false);
             setFormData({ store_name: '', store_location: '', store_contact: '' });
         } catch (error) {
-            console.error('Store creation failed:', error);
+            
         }
     };
 

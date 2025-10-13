@@ -81,7 +81,7 @@ const UpdateJournalModal = ({ isOpen, onClose, onSuccess, journal }: UpdateJourn
             }).unwrap();
             onSuccess();
         } catch (error) {
-            console.error('Failed to update journal:', error);
+           
         }
     };
 

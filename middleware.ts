@@ -14,7 +14,7 @@ const decodePermissionsCookie = (value?: string): string[] => {
         const decoded = JSON.parse(atob(value));
         return Array.isArray(decoded) ? decoded : [];
     } catch (error) {
-        console.error('Failed to decode permissions cookie', error);
+        
         return [];
     }
 };
