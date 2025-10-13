@@ -2,21 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AnimateHeight from 'react-animate-height';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTranslation } from '@/i18n';
+import { buildMenuFromPermissions } from '@/lib/menu-builder';
 import { RootState } from '@/store';
 import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 
 import Image from 'next/image';
 // Icons
-import IconCaretDown from '@/components/icon/icon-caret-down';
-import IconCaretsDown from '@/components/icon/icon-carets-down';
-import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
+import IconCaretDown from '@/components/layouts/icon/icon-caret-down';
+import IconCaretsDown from '@/components/layouts/icon/icon-carets-down';
+import { Store } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -153,13 +154,12 @@ const Sidebar = () => {
     const { t } = getTranslation();
     const pathname = usePathname();
     const [currentMenu, setCurrentMenu] = useState<string>('');
-    const [role, setRole] = useState<string | null>(null);
     const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
 
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const semidark = useSelector((state: RootState) => state.themeConfig.semidark);
 
-    // Get user stores and current store from Redux
+    // Get user, permissions, and stores from Redux
     const user = useSelector((state: RootState) => state.auth.user);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const currentStoreId = useSelector((state: RootState) => state.auth.currentStoreId);
@@ -181,12 +181,6 @@ const Sidebar = () => {
         console.log('🔄 Store change dispatched successfully');
     };
 
-    // Load role from cookies
-    useEffect(() => {
-        const userRole = getCookieValue('role'); // "store_admin", "staff", "supplier"
-        setRole(userRole);
-    }, []);
-
     // Log store changes for verification
     useEffect(() => {
         if (currentStore && currentStoreId) {
@@ -203,6 +197,7 @@ const Sidebar = () => {
         if (window.innerWidth < 1024 && themeConfig.sidebar) {
             dispatch(toggleSidebar());
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pathname]);
 
     const setActiveRoute = () => {
@@ -211,7 +206,15 @@ const Sidebar = () => {
         selector?.classList.add('active');
     };
 
-    const menuRoutes = role === 'store_admin' ? adminRoutes : [];
+    // 🚀 Build menu dynamically based on user permissions
+    const menuRoutes = useMemo(() => {
+        const userPermissions = user?.permissions || [];
+        const userRole = user?.role;
+
+        console.log('🔧 Building menu with permissions:', userPermissions);
+        console.log('👤 User role:', userRole);
+        return buildMenuFromPermissions(userPermissions, userRole);
+    }, [user]);
 
     return (
         <div className={semidark ? 'dark' : ''}>
