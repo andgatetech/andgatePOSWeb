@@ -286,6 +286,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                         requiredPermissions: ['stock.summary', 'reports.stock'],
                     },
                     {
+                        label: 'Low Stock',
+                        href: '/reports/stock/low',
+                        requiredPermissions: ['stock.summary', 'reports.stock'],
+                    },
+                    {
                         label: 'Stock Transactions',
                         href: '/reports/stock/transactions',
                         requiredPermissions: ['stock.movement', 'reports.stock'],
