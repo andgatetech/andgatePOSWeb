@@ -6,8 +6,8 @@ import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import IconLockDots from '@/components/icon/icon-lock-dots';
-import IconMail from '@/components/icon/icon-mail';
+import IconLockDots from '@/components/layouts/icon/icon-lock-dots';
+import IconMail from '@/components/layouts/icon/icon-mail';
 import { RootState } from '@/store';
 import { login } from '@/store/features/auth/authSlice'; // ✅ import login action
 
