@@ -1,11 +1,12 @@
 'use client';
+import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetAllPermissionsQuery, useGetUserPermissionsQuery, useUpdateUserPermissionMutation } from '@/store/features/auth/authApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
-import { CheckCircle, ChevronDown, ChevronUp, Loader2, Mail, MoreVertical, Pencil, Plus, Shield, ShieldCheck, Trash2, User, Users, XCircle } from 'lucide-react';
+import { CheckCircle, Loader2, Mail, Pencil, Plus, Shield, ShieldCheck, Trash2, User, Users, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface StaffMember {
     id: number;
@@ -25,45 +26,39 @@ const StaffManagement = () => {
     const router = useRouter();
     const { currentStoreId, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
-    const [openActionId, setOpenActionId] = useState<number | null>(null);
     const [permissionModalOpen, setPermissionModalOpen] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
     const [selectAllPermissions, setSelectAllPermissions] = useState(false);
-    const actionMenuRef = useRef<HTMLDivElement | null>(null);
-    const [dropdownDirection, setDropdownDirection] = useState<'down' | 'up'>('down');
+
+    // Pagination & Sorting State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [sortField, setSortField] = useState('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
     // Build query parameters based on filter state
     let queryParams: Record<string, any> = {};
 
     if (Object.keys(apiParams).length > 0) {
-        // Filter is active - build parameters from filter
-
-        // Handle store filtering
         if (apiParams.storeId === 'all' || apiParams.store_ids === 'all') {
-            // "All Stores" selected - send all user's store IDs as comma-separated string
             const allStoreIds = userStores.map((store: any) => store.id);
             queryParams.store_ids = allStoreIds.join(',');
         } else if (apiParams.store_id) {
-            // Specific store ID from filter
             queryParams.store_id = apiParams.store_id;
         } else if (apiParams.storeId && apiParams.storeId !== 'all') {
-            // Specific store selected in filter dropdown
             queryParams.store_id = apiParams.storeId;
         } else {
-            // No specific store in filter - use current store from sidebar
             if (currentStoreId) {
                 queryParams.store_id = currentStoreId;
             }
         }
 
-        // Handle other filters
         if (apiParams.search) queryParams.search = apiParams.search;
         if (apiParams.role) queryParams.role = apiParams.role;
         if (apiParams.dateRange?.startDate) queryParams.start_date = apiParams.dateRange.startDate;
         if (apiParams.dateRange?.endDate) queryParams.end_date = apiParams.dateRange.endDate;
     } else {
-        // No filter active - use current store from sidebar (default behavior)
         if (currentStoreId) {
             queryParams.store_id = currentStoreId;
         }
@@ -72,19 +67,11 @@ const StaffManagement = () => {
     const { data: staffResponse, isLoading, refetch: refetchStaffMembers } = useGetStaffMemberQuery(queryParams);
     const staffMembers = useMemo(() => (staffResponse?.data || []) as StaffMember[], [staffResponse?.data]);
 
-    // State management
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [sortField, setSortField] = useState('name');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-    // Reset filter when current store changes from sidebar
     useEffect(() => {
         console.log('Staff - Current store changed, resetting filters');
         setApiParams({});
     }, [currentStoreId]);
 
-    // Handle filter changes from UniversalFilter - RTK Query will auto-refetch when queryParams change
     const handleFilterChange = useCallback(
         (newApiParams: Record<string, any>) => {
             console.log('Staff - Filter changed:', newApiParams);
@@ -130,47 +117,13 @@ const StaffManagement = () => {
     const permissionFetchLoading = permissionsLoading || (permissionModalOpen && userPermissionsLoading);
     const [updateUserPermission, { isLoading: isUpdatingPermission }] = useUpdateUserPermissionMutation();
 
+    // Reset filters when store changes
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
-                setOpenActionId(null);
-            }
-        };
+        console.log('Staff - Current store changed, resetting filters');
+        setApiParams({});
+    }, [currentStoreId]);
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        if (openActionId === null) {
-            setDropdownDirection('down');
-            return;
-        }
-
-        const measureDropdown = () => {
-            if (!actionMenuRef.current) return;
-
-            const triggerRect = actionMenuRef.current.getBoundingClientRect();
-            const menu = actionMenuRef.current.querySelector('[data-role="action-menu"]') as HTMLDivElement | null;
-            const menuHeight = menu?.getBoundingClientRect().height ?? 0;
-
-            const spaceBelow = window.innerHeight - triggerRect.bottom;
-            const shouldOpenUp = spaceBelow < Math.max(menuHeight, 160);
-
-            setDropdownDirection(shouldOpenUp ? 'up' : 'down');
-        };
-
-        const frame = requestAnimationFrame(measureDropdown);
-        window.addEventListener('resize', measureDropdown);
-        window.addEventListener('scroll', measureDropdown, true);
-
-        return () => {
-            cancelAnimationFrame(frame);
-            window.removeEventListener('resize', measureDropdown);
-            window.removeEventListener('scroll', measureDropdown, true);
-        };
-    }, [openActionId]);
-
+    // Load user permissions when modal opens
     useEffect(() => {
         if (!selectedStaff) {
             setSelectedPermissions([]);
@@ -268,7 +221,6 @@ const StaffManagement = () => {
     const openPermissionsModal = (staff: StaffMember) => {
         setSelectedStaff(staff);
         setPermissionModalOpen(true);
-        setOpenActionId(null);
     };
 
     const closePermissionsModal = () => {
@@ -302,7 +254,6 @@ const StaffManagement = () => {
 
     const selectedPermissionsCount = selectAllPermissions ? allPermissions.length : selectedPermissions.length;
 
-    // Toast notification
     const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
         const toast = document.createElement('div');
         toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-0 ${
@@ -317,7 +268,6 @@ const StaffManagement = () => {
         }, 3000);
     };
 
-    // Get role badge styling
     const getRoleBadge = (role: string) => {
         const roleStyles: Record<string, string> = {
             'store admin': 'bg-purple-100 text-purple-800',
@@ -329,40 +279,87 @@ const StaffManagement = () => {
         return roleStyles[role] || 'bg-gray-100 text-gray-800';
     };
 
-    // Get status badge styling
-    const getStatusBadge = (status: string) => {
-        return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-    };
+    // Define table columns
+    const columns: TableColumn[] = [
+        {
+            key: 'name',
+            label: 'Name',
+            sortable: true,
+            render: (_value, row) => (
+                <div className="flex items-center">
+                    <div className="h-10 w-10 flex-shrink-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
+                            <User className="h-6 w-6 text-gray-600" />
+                        </div>
+                    </div>
+                    <div className="ml-4">
+                        <div className="font-medium text-gray-900">{row.name}</div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: 'email',
+            label: 'Email',
+            sortable: true,
+            render: (value) => (
+                <div className="flex items-center text-sm text-gray-600">
+                    <Mail className="mr-2 h-4 w-4" />
+                    {value}
+                </div>
+            ),
+        },
+        {
+            key: 'role_in_store',
+            label: 'Role',
+            sortable: true,
+            render: (value) => <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadge(value)}`}>{value}</span>,
+        },
+        {
+            key: 'phone',
+            label: 'Phone',
+            sortable: false,
+            render: (value) => <span className="text-sm text-gray-500">{value || 'N/A'}</span>,
+        },
+        {
+            key: 'address',
+            label: 'Address',
+            sortable: false,
+            render: (value) => (
+                <div className="max-w-xs truncate text-sm text-gray-500" title={value}>
+                    {value || 'N/A'}
+                </div>
+            ),
+        },
+    ];
 
-    // Sort staff members (filtering is now done by backend)
-    const filteredAndSortedStaff = useMemo(() => {
-        if (!staffMembers || staffMembers.length === 0) return [];
+    // Define table actions
+    const actions: TableAction[] = [
+        {
+            label: 'Edit Employee',
+            icon: <Pencil className="h-4 w-4" />,
+            className: 'text-blue-700',
+            onClick: (row) => {
+                showToast('Employee editing is coming soon.', 'info');
+            },
+        },
+        {
+            label: 'Edit Permissions',
+            icon: <ShieldCheck className="h-4 w-4" />,
+            className: 'text-emerald-700',
+            onClick: (row) => openPermissionsModal(row),
+        },
+        {
+            label: 'Delete',
+            icon: <Trash2 className="h-4 w-4" />,
+            className: 'text-red-700',
+            onClick: (row) => {
+                showToast('Employee deletion is coming soon.', 'info');
+            },
+        },
+    ];
 
-        // Sort staff (no filtering needed since backend handles it)
-        let sorted = [...staffMembers].sort((a: StaffMember, b: StaffMember) => {
-            let aValue = (a as any)[sortField] || '';
-            let bValue = (b as any)[sortField] || '';
-
-            if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
-            }
-
-            if (sortDirection === 'asc') {
-                return aValue > bValue ? 1 : -1;
-            } else {
-                return aValue < bValue ? 1 : -1;
-            }
-        });
-
-        return sorted;
-    }, [staffMembers, sortField, sortDirection]);
-
-    // Pagination
-    const totalPages = Math.ceil(filteredAndSortedStaff.length / itemsPerPage);
-    const currentStaff = filteredAndSortedStaff.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    // Handle sorting
+    // Handle table sorting
     const handleSort = (field: string) => {
         if (sortField === field) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -377,7 +374,6 @@ const StaffManagement = () => {
         setCurrentPage(1);
     }, [apiParams]);
 
-    // Get stats
     const getStats = () => {
         if (!staffMembers || staffMembers.length === 0) return { total: 0, admins: 0, staff: 0, managers: 0 };
 
@@ -475,189 +471,34 @@ const StaffManagement = () => {
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="overflow-visible rounded-lg border bg-white shadow-sm">
-                    <div className="relative overflow-x-auto overflow-y-visible">
-                        <table className="w-full min-w-[640px]">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('name')}>
-                                        <div className="flex items-center gap-2">
-                                            Name
-                                            {sortField === 'name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                                        </div>
-                                    </th>
-                                    <th className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100" onClick={() => handleSort('email')}>
-                                        <div className="flex items-center gap-2">
-                                            Email
-                                            {sortField === 'email' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                                        </div>
-                                    </th>
-                                    <th
-                                        className="cursor-pointer px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
-                                        onClick={() => handleSort('role_in_store')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Role
-                                            {sortField === 'role_in_store' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Phone</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Address</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
-                                {currentStaff.map((staff: StaffMember, index: number) => (
-                                    <tr key={staff.id || index} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0">
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
-                                                        <User className="h-6 w-6 text-gray-600" />
-                                                    </div>
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="font-medium text-gray-900">{staff.name}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="flex items-center text-sm text-gray-600">
-                                                <Mail className="mr-2 h-4 w-4" />
-                                                {staff.email}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadge(staff.role_in_store)}`}>{staff.role_in_store}</span>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{staff.phone || 'N/A'}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            <div className="max-w-xs truncate" title={staff.address}>
-                                                {staff.address || 'N/A'}
-                                            </div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium" style={{ overflow: 'visible' }}>
-                                            <div className="relative inline-block text-left" ref={openActionId === staff.id ? actionMenuRef : undefined}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setOpenActionId((prev) => {
-                                                            const next = prev === staff.id ? null : staff.id;
-                                                            if (next !== null && next !== prev) {
-                                                                setDropdownDirection('down');
-                                                            }
-                                                            return next;
-                                                        })
-                                                    }
-                                                    className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                >
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </button>
-
-                                                {openActionId === staff.id && (
-                                                    <div
-                                                        data-role="action-menu"
-                                                        className={`absolute right-0 z-20 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl ${
-                                                            dropdownDirection === 'down' ? 'top-full mt-2 origin-top-right' : 'bottom-full mb-2 origin-bottom-right'
-                                                        }`}
-                                                    >
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                handlePlaceholderAction('Employee editing is coming soon.');
-                                                            }}
-                                                            className="flex w-full items-center gap-3 rounded-t-xl px-4 py-2 text-left text-sm text-gray-700 transition hover:bg-gray-50"
-                                                        >
-                                                            <Pencil className="h-4 w-4 text-blue-600" />
-                                                            <span>Edit Employee</span>
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => openPermissionsModal(staff)}
-                                                            className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-gray-700 transition hover:bg-gray-50"
-                                                        >
-                                                            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                                                            <span>Edit Permissions</span>
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setOpenActionId(null);
-                                                                handlePlaceholderAction('Employee deletion is coming soon.');
-                                                            }}
-                                                            className="flex w-full items-center gap-3 rounded-b-xl px-4 py-2 text-left text-sm text-red-600 transition hover:bg-red-50"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                            <span>Delete</span>
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="border-t border-gray-200 bg-white px-3 py-3 sm:px-4 sm:py-4 md:px-6">
-                            <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
-                                <div className="text-center text-xs text-gray-700 sm:text-left sm:text-sm">
-                                    Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedStaff.length)} of {filteredAndSortedStaff.length} staff
-                                    members
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                        disabled={currentPage === 1}
-                                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
-                                    >
-                                        Previous
-                                    </button>
-
-                                    <div className="flex items-center gap-1">
-                                        {[...Array(totalPages)].map((_, i) => (
-                                            <button
-                                                key={i + 1}
-                                                onClick={() => setCurrentPage(i + 1)}
-                                                className={`rounded-md px-3 py-1 text-sm font-medium ${
-                                                    currentPage === i + 1 ? 'bg-blue-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                                }`}
-                                            >
-                                                {i + 1}
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <button
-                                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                        disabled={currentPage === totalPages}
-                                        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Empty state */}
-                    {currentStaff.length === 0 && (
-                        <div className="px-4 py-8 text-center sm:py-12">
-                            <Users className="mx-auto h-10 w-10 text-gray-400 sm:h-12 sm:w-12" />
-                            <h3 className="mt-2 text-sm font-medium text-gray-900">No staff members found</h3>
-                            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-                                {Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first staff member.'}
-                            </p>
-                        </div>
-                    )}
-                </div>
+                {/* Reusable Table */}
+                <ReusableTable
+                    data={staffMembers}
+                    columns={columns}
+                    actions={actions}
+                    isLoading={isLoading}
+                    emptyState={{
+                        icon: <Users className="h-16 w-16" />,
+                        title: 'No staff members found',
+                        description: Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first staff member.',
+                    }}
+                    pagination={{
+                        currentPage,
+                        totalPages: Math.ceil(staffMembers.length / itemsPerPage),
+                        itemsPerPage,
+                        totalItems: staffMembers.length,
+                        onPageChange: setCurrentPage,
+                        onItemsPerPageChange: setItemsPerPage,
+                    }}
+                    sorting={{
+                        field: sortField,
+                        direction: sortDirection,
+                        onSort: handleSort,
+                    }}
+                />
             </div>
 
+            {/* Permission Modal */}
             {permissionModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4">
                     <div className="absolute inset-0" onClick={closePermissionsModal} />
