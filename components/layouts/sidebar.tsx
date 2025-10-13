@@ -132,6 +132,7 @@ const adminRoutes = [
                 subMenu: [
                     // { label: 'Current Stock', href: '/products/stock/stock-report' },
                     { label: 'Current Stock', href: '/reports/stock/current' },
+                    { label: 'Low Stock', href: '/reports/stock/low' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
                     { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
                     { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },

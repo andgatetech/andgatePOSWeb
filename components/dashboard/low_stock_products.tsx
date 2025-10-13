@@ -1,6 +1,6 @@
 'use client';
+import { AlertTriangle, Package } from 'lucide-react';
 import React from 'react';
-import { Package, AlertTriangle } from 'lucide-react';
 
 interface InStock {
     id: number;
@@ -58,10 +58,10 @@ interface LowStockProductsProps {
 
 const Low_Stock_Products: React.FC<LowStockProductsProps> = ({ lowStockProducts, isLoading = false }) => {
     const products = Array.isArray(lowStockProducts?.data) ? lowStockProducts.data : [];
-
+    // console.log(products);
     // Sort by lowest stock first and take top 7
-    const topLowStockProducts = products.sort((a, b) => parseFloat(a.in_stock.quantity) - parseFloat(b.in_stock.quantity)).slice(0, 7);
-
+    // const topLowStockProducts = products?.sort((a, b) => parseFloat(a.in_stock.quantity) - parseFloat(b.in_stock.quantity)).slice(0, 7);
+    const topLowStockProducts = [...products].sort((a, b) => parseFloat(a.in_stock.quantity) - parseFloat(b.in_stock.quantity)).slice(0, 7);
     // Skeleton row for loading state
     const SkeletonRow = () => (
         <tr>
