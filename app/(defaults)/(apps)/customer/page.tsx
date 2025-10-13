@@ -522,7 +522,7 @@ const CustomerListSystem = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-6 sm:mb-8">
                     <div className="rounded-2xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:p-6">
