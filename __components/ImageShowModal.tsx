@@ -42,7 +42,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
                                     // Skip if no valid path
                                     if (!imagePath) {
-                                        console.error('Invalid image data at index', index, ':', img);
+                                       
                                         return null;
                                     }
 
@@ -55,8 +55,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                     fill
                                                     className="object-contain"
                                                     onError={(e) => {
-                                                        console.error('Failed to load image:', `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`);
-                                                        console.error('Original image data:', img);
+                                                        
                                                     }}
                                                 />
                                             </div>

@@ -5,7 +5,6 @@ import IconBellBing from '@/components/icon/icon-bell-bing';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
 import IconLaptop from '@/components/icon/icon-laptop';
-import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMail from '@/components/icon/icon-mail';
 import IconMenu from '@/components/icon/icon-menu';
@@ -13,19 +12,13 @@ import IconMoon from '@/components/icon/icon-moon';
 import IconSun from '@/components/icon/icon-sun';
 import IconUser from '@/components/icon/icon-user';
 import IconXCircle from '@/components/icon/icon-x-circle';
-import IconMenuApps from '@/components/icon/menu/icon-menu-apps';
-import IconMenuComponents from '@/components/icon/menu/icon-menu-components';
 import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
-import IconMenuDatatables from '@/components/icon/menu/icon-menu-datatables';
-import IconMenuElements from '@/components/icon/menu/icon-menu-elements';
-import IconMenuForms from '@/components/icon/menu/icon-menu-forms';
-import IconMenuMore from '@/components/icon/menu/icon-menu-more';
-import IconMenuPages from '@/components/icon/menu/icon-menu-pages';
+
 import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Maximize, Minimize } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -38,10 +31,11 @@ const Header = () => {
     const router = useRouter();
     const { t, i18n } = getTranslation();
     const [logout] = useLogoutMutation();
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const handleLogout = async () => {
         try {
-            await logout(null); // Call API
+            await logout(null);
         } catch (err) {
             console.error('Logout API failed:', err);
         }
@@ -56,6 +50,31 @@ const Header = () => {
 
         router.push('/login');
     };
+
+    // Fullscreen toggle function
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch((err) => {
+                console.error(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
+
+    // Listen for fullscreen changes
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, []);
 
     useEffect(() => {
         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -86,8 +105,8 @@ const Header = () => {
     }, [pathname]);
 
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
-
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
+
     const setLocale = (flag: string) => {
         if (flag.toLowerCase() === 'ae') {
             dispatch(toggleRTL('rtl'));
@@ -100,6 +119,7 @@ const Header = () => {
     function createMarkup(messages: any) {
         return { __html: messages };
     }
+
     const [messages, setMessages] = useState([
         {
             id: 1,
@@ -119,7 +139,7 @@ const Header = () => {
             id: 3,
             image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>',
             title: 'Something went wrong!',
-            message: 'Send Reposrt',
+            message: 'Send Report',
             time: '2days',
         },
         {
@@ -131,9 +151,7 @@ const Header = () => {
         },
     ]);
 
-    const removeMessage = (value: number) => {
-        setMessages(messages.filter((user) => user.id !== value));
-    };
+    
 
     const [notifications, setNotifications] = useState([
         {
@@ -160,16 +178,16 @@ const Header = () => {
         setNotifications(notifications.filter((user) => user.id !== value));
     };
 
-    const [search, setSearch] = useState(false);
+    
 
     return (
         <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : ''}`}>
             <div className="shadow-sm">
-                <div className="relative flex w-full items-center bg-white px-5 py-2.5 dark:bg-black">
+                <div className="relative flex w-full items-center bg-white px-3 py-2.5 dark:bg-black sm:px-5">
+                    {/* Logo Section */}
                     <div className="horizontal-logo flex items-center justify-between lg:hidden ltr:mr-2 rtl:ml-2">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
-                            <img src="/images/andgatePOS.jpeg" alt="logo icon" className="inline w-40 object-contain" />
-                            {/* <Image src="/assets/images/logo.svg" alt="logo" width={32} height={32} className="inline ltr:-ml-1 rtl:-mr-1" /> */}
+                            <Image src="/images/andgatePOS.jpeg" alt="logo icon" width={160} height={40} className="h-8 w-auto object-contain sm:h-10" />
                         </Link>
 
                         <button
@@ -181,176 +199,77 @@ const Header = () => {
                         </button>
                     </div>
 
+                    {/* Left Action Buttons - Hidden on small screens, visible on sm and above */}
                     <div className="hidden sm:block ltr:mr-2 rtl:ml-2">
                         <ul className="flex items-center space-x-2 rtl:space-x-reverse">
-                            {/* <li>
-                                <Link
-                                    href="/pos"
-                                    className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
-                                >
-                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 14h.01M9 11h.01M12 11h.01M15 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                        />
-                                    </svg>
-                                    POS
-                                </Link>
-                            </li> */}
                             <li>
                                 <Link
                                     href="/pos"
-                                    className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
+                                    className="flex items-center gap-2 rounded-[5px] bg-primary px-3 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80 sm:px-4"
                                 >
-                                    <ShoppingCart className="h-5 w-5" />
-                                    POS
+                                    <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <span className="hidden sm:inline">POS</span>
                                 </Link>
                             </li>
-
-                            {/* Calculation Menu */}
                             <li>
                                 <CalculatorButton />
                             </li>
                         </ul>
                     </div>
 
-                    <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 lg:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
+                    {/* Right Side Actions */}
+                    <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 sm:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
                         <div className="sm:ltr:mr-auto sm:rtl:ml-auto"></div>
-                        <div>
+
+                        {/* Mobile POS Button - Visible only on small screens */}
+                        <div className="block sm:hidden">
+                            <Link href="/pos" className="flex items-center justify-center rounded-full bg-primary p-2 text-white shadow-md transition-colors hover:bg-primary/90">
+                                <ShoppingCart className="h-5 w-5" />
+                            </Link>
+                        </div>
+
+                        {/* Fullscreen Toggle Button */}
+                        <div className="shrink-0">
+                            <button
+                                type="button"
+                                className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary"
+                                onClick={toggleFullscreen}
+                                title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                            >
+                                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                            </button>
+                        </div>
+
+                        {/* Theme Toggle */}
+                        <div className="shrink-0">
                             {themeConfig.theme === 'light' ? (
                                 <button
-                                    className={`${
-                                        themeConfig.theme === 'light' &&
-                                        'flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60'
-                                    }`}
+                                    className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                                     onClick={() => dispatch(toggleTheme('dark'))}
+                                    title="Switch to Dark Mode"
                                 >
-                                    <IconSun />
+                                    <IconSun className="h-5 w-5" />
+                                </button>
+                            ) : themeConfig.theme === 'dark' ? (
+                                <button
+                                    className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
+                                    onClick={() => dispatch(toggleTheme('system'))}
+                                    title="Switch to System Theme"
+                                >
+                                    <IconMoon className="h-5 w-5" />
                                 </button>
                             ) : (
-                                ''
-                            )}
-                            {themeConfig.theme === 'dark' && (
                                 <button
-                                    className={`${
-                                        themeConfig.theme === 'dark' &&
-                                        'flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60'
-                                    }`}
-                                    onClick={() => dispatch(toggleTheme('system'))}
-                                >
-                                    <IconMoon />
-                                </button>
-                            )}
-                            {themeConfig.theme === 'system' && (
-                                <button
-                                    className={`${
-                                        themeConfig.theme === 'system' &&
-                                        'flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60'
-                                    }`}
+                                    className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
                                     onClick={() => dispatch(toggleTheme('light'))}
+                                    title="Switch to Light Mode"
                                 >
-                                    <IconLaptop />
+                                    <IconLaptop className="h-5 w-5" />
                                 </button>
                             )}
                         </div>
 
-                        {/* language switch */}
-                        {/* <div className="dropdown shrink-0">
-                            <Dropdown
-                                offset={[0, 8]}
-                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                button={
-                                    i18n.language && (
-                                        <Image className="h-5 w-5 rounded-full object-cover" src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt="flag" width={20} height={20} />
-                                    )
-                                }
-                            >
-                                <ul className="grid w-[280px] grid-cols-2 gap-2 !px-2 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
-                                    {themeConfig.languageList.map((item: any) => {
-                                        return (
-                                            <li key={item.code}>
-                                                <button
-                                                    type="button"
-                                                    className={`flex w-full hover:text-primary ${i18n.language === item.code ? 'bg-primary/10 text-primary' : ''}`}
-                                                    onClick={() => {
-                                                        i18n.changeLanguage(item.code);
-                                                        setLocale(item.code);
-                                                    }}
-                                                >
-                                                    <Image
-                                                        src={`/assets/images/flags/${item.code.toUpperCase()}.svg`}
-                                                        alt="flag"
-                                                        width={20}
-                                                        height={20}
-                                                        className="h-5 w-5 rounded-full object-cover"
-                                                    />
-                                                    <span className="ltr:ml-3 rtl:mr-3">{item.name}</span>
-                                                </button>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </Dropdown>
-                        </div> */}
-                        {/* <div className="dropdown shrink-0">
-                            <Dropdown
-                                offset={[0, 8]}
-                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                button={<IconMailDot />}
-                            >
-                                <ul className="w-[300px] !py-0 text-xs text-dark dark:text-white-dark sm:w-[375px]">
-                                    <li className="mb-5" onClick={(e) => e.stopPropagation()}>
-                                        <div className="relative !h-[68px] w-full overflow-hidden rounded-t-md p-5 text-white hover:!bg-transparent">
-                                            <div className="bg- absolute inset-0 h-full w-full bg-[url(/assets/images/menu-heade.jpg)] bg-cover bg-center bg-no-repeat"></div>
-                                            <h4 className="relative z-10 text-lg font-semibold">Messages</h4>
-                                        </div>
-                                    </li>
-                                    {messages.length > 0 ? (
-                                        <>
-                                            <li onClick={(e) => e.stopPropagation()}>
-                                                {messages.map((message) => {
-                                                    return (
-                                                        <div key={message.id} className="flex items-center px-5 py-3">
-                                                            <div dangerouslySetInnerHTML={createMarkup(message.image)}></div>
-                                                            <span className="px-3 dark:text-gray-500">
-                                                                <div className="text-sm font-semibold dark:text-white-light/90">{message.title}</div>
-                                                                <div>{message.message}</div>
-                                                            </span>
-                                                            <span className="whitespace-pre rounded bg-white-dark/20 px-1 font-semibold text-dark/60 dark:text-white-dark ltr:ml-auto ltr:mr-2 rtl:ml-2 rtl:mr-auto">
-                                                                {message.time}
-                                                            </span>
-                                                            <button type="button" className="text-neutral-300 hover:text-danger" onClick={() => removeMessage(message.id)}>
-                                                                <IconXCircle />
-                                                            </button>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </li>
-                                            <li className="mt-5 border-t border-white-light text-center dark:border-white/10">
-                                                <button type="button" className="group !h-[48px] justify-center !py-4 font-semibold text-primary dark:text-gray-400">
-                                                    <span className="group-hover:underline ltr:mr-1 rtl:ml-1">VIEW ALL ACTIVITIES</span>
-                                                    <IconArrowLeft className="transition duration-300 group-hover:translate-x-1 ltr:ml-1 rtl:mr-1" />
-                                                </button>
-                                            </li>
-                                        </>
-                                    ) : (
-                                        <li className="mb-5" onClick={(e) => e.stopPropagation()}>
-                                            <button type="button" className="!grid min-h-[200px] place-content-center text-lg hover:!bg-transparent">
-                                                <div className="mx-auto mb-4 rounded-full text-white ring-4 ring-primary/30">
-                                                    <IconInfoCircle fill={true} className="h-10 w-10" />
-                                                </div>
-                                                No data available.
-                                            </button>
-                                        </li>
-                                    )}
-                                </ul>
-                            </Dropdown>
-                        </div> */}
-
+                        {/* Notifications Dropdown */}
                         <div className="dropdown shrink-0">
                             <Dropdown
                                 offset={[0, 8]}
@@ -370,7 +289,7 @@ const Header = () => {
                                     <li onClick={(e) => e.stopPropagation()}>
                                         <div className="flex items-center justify-between px-4 py-2 font-semibold">
                                             <h4 className="text-lg">Notification</h4>
-                                            {notifications.length ? <span className="badge bg-primary/80">{notifications.length}New</span> : ''}
+                                            {notifications.length ? <span className="badge bg-primary/80">{notifications.length} New</span> : ''}
                                         </div>
                                     </li>
                                     {notifications.length > 0 ? (
@@ -393,11 +312,7 @@ const Header = () => {
                                                             </div>
                                                             <div className="flex flex-auto ltr:pl-3 rtl:pr-3">
                                                                 <div className="ltr:pr-3 rtl:pl-3">
-                                                                    <h6
-                                                                        dangerouslySetInnerHTML={{
-                                                                            __html: notification.message,
-                                                                        }}
-                                                                    ></h6>
+                                                                    <h6 dangerouslySetInnerHTML={{ __html: notification.message }}></h6>
                                                                     <span className="block text-xs font-normal dark:text-gray-500">{notification.time}</span>
                                                                 </div>
                                                                 <button
@@ -432,27 +347,10 @@ const Header = () => {
                             </Dropdown>
                         </div>
 
+                        {/* User Profile Dropdown */}
                         <div className="dropdown flex shrink-0">
-                            <Dropdown
-                                offset={[0, 8]}
-                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="relative group block"
-                                button={
-                                    <Image className="rounded-full object-cover saturate-50 group-hover:saturate-100" src="/assets/images/user-profile.jpeg" alt="userProfile" width={36} height={36} />
-                                }
-                            >
+                            <Dropdown offset={[0, 8]} placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`} btnClassName="relative group block" button={<IconUser className="h-7 w-7" />}>
                                 <ul className="w-[230px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
-                                    <li>
-                                        <div className="flex items-center px-4 py-4">
-                                            <Image src="/assets/images/user-profile.jpeg" alt="userProfile" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />
-                                            <div className="truncate ltr:pl-4 rtl:pr-4">
-                                                <h4 className="text-base">
-                                                    User
-                                                    <span className="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">Pro</span>
-                                                </h4>
-                                            </div>
-                                        </div>
-                                    </li>
                                     <li>
                                         <Link href="/users/profile" className="dark:hover:text-white">
                                             <IconUser className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
@@ -463,12 +361,6 @@ const Header = () => {
                                         <Link href="/mailbox" className="dark:hover:text-white">
                                             <IconMail className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                             Inbox
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/auth/boxed-lockscreen" className="dark:hover:text-white">
-                                            <IconLockDots className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
-                                            Lock Screen
                                         </Link>
                                     </li>
                                     <li className="border-t border-white-light dark:border-white-light/10">
@@ -483,7 +375,7 @@ const Header = () => {
                     </div>
                 </div>
 
-                {/* horizontal menu */}
+                {/* Horizontal Menu */}
                 <ul className="horizontal-menu hidden border-t border-[#ebedf2] bg-white px-6 py-1.5 font-semibold text-black dark:border-[#191e3a] dark:bg-black dark:text-white-dark lg:space-x-1.5 xl:space-x-8 rtl:space-x-reverse">
                     <li className="menu nav-item relative">
                         <button type="button" className="nav-link">
@@ -498,496 +390,6 @@ const Header = () => {
                         <ul className="sub-menu">
                             <li>
                                 <Link href="/dashboard">{t('sales')}</Link>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuApps className="shrink-0" />
-                                <span className="px-1">{t('apps')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/chat">{t('chat')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/mailbox">{t('mailbox')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/todolist">{t('todo_list')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/notes">{t('notes')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/scrumboard">{t('scrumboard')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/contacts">{t('contacts')}</Link>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('invoice')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/invoice/list">{t('list')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/invoice/preview">{t('preview')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/invoice/add">{t('add')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/invoice/edit">{t('edit')}</Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <Link href="/calendar">{t('calendar')}</Link>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuComponents className="shrink-0" />
-                                <span className="px-1">{t('components')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/components/tabs">{t('tabs')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/accordions">{t('accordions')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/modals">{t('modals')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/cards">{t('cards')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/carousel">{t('carousel')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/countdown">{t('countdown')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/counter">{t('counter')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/sweetalert">{t('sweet_alerts')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/timeline">{t('timeline')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/notifications">{t('notifications')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/media-object">{t('media_object')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/list-group">{t('list_group')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/pricing-table">{t('pricing_tables')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/components/lightbox">{t('lightbox')}</Link>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuElements className="shrink-0" />
-                                <span className="px-1">{t('elements')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/elements/alerts">{t('alerts')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/avatar">{t('avatar')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/badges">{t('badges')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/breadcrumbs">{t('breadcrumbs')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/buttons">{t('buttons')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/buttons-group">{t('button_groups')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/color-library">{t('color_library')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/dropdown">{t('dropdown')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/infobox">{t('infobox')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/jumbotron">{t('jumbotron')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/loader">{t('loader')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/pagination">{t('pagination')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/popovers">{t('popovers')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/progress-bar">{t('progress_bar')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/search">{t('search')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/tooltips">{t('tooltips')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/treeview">{t('treeview')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/elements/typography">{t('typography')}</Link>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuDatatables className="shrink-0" />
-                                <span className="px-1">{t('tables')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/tables">{t('tables')}</Link>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('datatables')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/datatables/basic">{t('basic')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/advanced">{t('advanced')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/skin">{t('skin')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/order-sorting">{t('order_sorting')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/multi-column">{t('multi_column')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/multiple-tables">{t('multiple_tables')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/alt-pagination">{t('alt_pagination')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/checkbox">{t('checkbox')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/range-search">{t('range_search')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/export">{t('export')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/datatables/column-chooser">{t('column_chooser')}</Link>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuForms className="shrink-0" />
-                                <span className="px-1">{t('forms')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/forms/basic">{t('basic')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/input-group">{t('input_group')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/layouts">{t('layouts')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/validation">{t('validation')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/input-mask">{t('input_mask')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/select2">{t('select2')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/touchspin">{t('touchspin')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/checkbox-radio">{t('checkbox_and_radio')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/switches">{t('switches')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/wizards">{t('wizards')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/file-upload">{t('file_upload')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/quill-editor">{t('quill_editor')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/markdown-editor">{t('markdown_editor')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/date-picker">{t('date_and_range_picker')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/forms/clipboard">{t('clipboard')}</Link>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuPages className="shrink-0" />
-                                <span className="px-1">{t('pages')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li className="relative">
-                                <button type="button">
-                                    {t('users')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/users/profile">{t('profile')}</Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/users/user-account-settings">{t('account_settings')}</Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <Link href="/pages/knowledge-base">{t('knowledge_base')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/pages/contact-us-boxed" target="_blank">
-                                    {t('contact_us_boxed')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/pages/contact-us-cover" target="_blank">
-                                    {t('contact_us_cover')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/pages/faq">{t('faq')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/pages/coming-soon-boxed" target="_blank">
-                                    {t('coming_soon_boxed')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/pages/coming-soon-cover" target="_blank">
-                                    {t('coming_soon_cover')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/pages/maintenence" target="_blank">
-                                    {t('maintenence')}
-                                </Link>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('error')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/pages/error404" target="_blank">
-                                            {t('404')}
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/pages/error500" target="_blank">
-                                            {t('500')}
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/pages/error503" target="_blank">
-                                            {t('503')}
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('login')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/auth/cover-login" target="_blank">
-                                            {t('login_cover')}
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/auth/boxed-signin" target="_blank">
-                                            {t('login_boxed')}
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('register')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="register" target="_blank">
-                                            {t('register_cover')}
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="signup" target="_blank">
-                                            {t('register_boxed')}
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('password_recovery')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/auth/cover-password-reset" target="_blank">
-                                            {t('recover_id_cover')}
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/auth/boxed-password-reset" target="_blank">
-                                            {t('recover_id_boxed')}
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li className="relative">
-                                <button type="button">
-                                    {t('lockscreen')}
-                                    <div className="-rotate-90 ltr:ml-auto rtl:mr-auto rtl:rotate-90">
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-                                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
-                                    <li>
-                                        <Link href="/auth/cover-lockscreen" target="_blank">
-                                            {t('unlock_cover')}
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/auth/boxed-lockscreen" target="_blank">
-                                            {t('unlock_boxed')}
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuMore className="shrink-0" />
-                                <span className="px-1">{t('more')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/dragndrop">{t('drag_and_drop')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/charts">{t('charts')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/font-icons">{t('font_icons')}</Link>
-                            </li>
-                            <li>
-                                <Link href="/widgets">{t('widgets')}</Link>
-                            </li>
-                            <li>
-                                <Link href="https://AndGate.sbthemes.com" target="_blank">
-                                    {t('documentation')}
-                                </Link>
                             </li>
                         </ul>
                     </li>

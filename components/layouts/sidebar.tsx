@@ -16,9 +16,9 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 import Image from 'next/image';
 // Icons
 
-import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
-import IconCaretsDown from '../icon/icon-carets-down';
+import { BarChart, FileText, MessagesSquare, Package, Receipt, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
 import IconCaretDown from '../icon/icon-caret-down';
+import IconCaretsDown from '../icon/icon-carets-down';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
@@ -27,32 +27,9 @@ function getCookieValue(name: string): string | null {
     return match ? decodeURIComponent(match[2]) : null;
 }
 
-// Sidebar routes
-const adminRoutes = [
-    {
-        label: 'Dashboard',
-        icon: <Home />,
-        href: '/dashboard',
-    },
-    {
-        label: 'Store',
-        icon: <ShoppingBag />,
-        subMenu: [
-            { label: 'Store', href: '/store' },
-            { label: 'Settings', href: '/store/setting' },
-            { label: 'Staff Management', href: '/staff' },
-            { label: 'Adjustment Type', href: '/create-adjustment' },
-        ],
-    },
-    {
-        label: 'Category',
-        icon: <Layers />,
-        subMenu: [{ label: 'All Category ', href: '/category' }],
-    },
-
+const menuRoutes = [
     {
         label: 'Brand',
-
         icon: <Tag />,
         subMenu: [{ label: 'All Brand ', href: '/brand' }],
     },
