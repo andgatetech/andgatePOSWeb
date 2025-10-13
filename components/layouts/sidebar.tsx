@@ -17,7 +17,7 @@ import Image from 'next/image';
 // Icons
 import IconCaretDown from '@/components/layouts/icon/icon-caret-down';
 import IconCaretsDown from '@/components/layouts/icon/icon-carets-down';
-import { Store } from 'lucide-react';
+import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
