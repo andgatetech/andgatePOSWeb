@@ -30,115 +30,98 @@ const toBase64 = (str: string) =>
     : window.btoa(str);
 
 const sectionsData = [
-  {
-    title: "Powerful Dashboard",
-    subtitle: "Analytics",
-    icon: <BarChart3 className="h-8 w-8 text-white" />,
-    features: [
-      'Real-time analytics dashboard',
-      'Sales performance tracking',
-      'Customer behavior insights',
-      'Inventory movement reports'
-    ],
-    images: [
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-    ],
-    
-    colorClass: "bg-blue-600 text-white",
-    ctaText: "View Dashboard",
-    ctaLink: "/register"
-  },
-  {
-    title: "Advanced Product Management",
-    subtitle: "Products",
-    icon: <Package className="h-8 w-8 text-white" />,
-    features: [
-      'Advanced product management',
-      'Inventory tracking & alerts',
-      'Bulk import/export tools',
-      'Category & variant management'
-    ],
-    images: [
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-    ],
-    colorClass: "bg-emerald-600 text-white",
-    ctaText: "Manage Products",
-    ctaLink: "/register"
-  },
-  {
-    title: "Multi-Store Management",
-    subtitle: "Store",
-    icon: <Store className="h-8 w-8 text-white" />,
-    features: [
-      'Multi-store management',
-      'Staff role permissions',
-      'Store performance metrics',
-      'Centralized control panel'
-    ],
-    images: [
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-    ],
-    colorClass: "bg-purple-600 text-white",
-    ctaText: "Manage Stores",
-    ctaLink: "/register"
-  },
-  {
-    title: "Customer Management",
-    subtitle: "Customers",
-    icon: <Users className="h-8 w-8 text-white" />,
-    features: [
-      'Customer database',
-      'Loyalty & reward programs',
-      'Customer segmentation',
-      'CRM integration'
-    ],
-    images: [
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-    ],
-    colorClass: "bg-orange-600 text-white",
-    ctaText: "Manage Customers",
-    ctaLink: "/register"
-  },
-  {
-    title: "Sales & Payment",
-    subtitle: "Sales",
-    icon: <CreditCard className="h-8 w-8 text-white" />,
-    features: [
-      'Multi-payment support',
-      'Invoice generation',
-      'Refund management',
-      'Sales analytics'
-    ],
-    images: [
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-    ],
-    colorClass: "bg-red-600 text-white",
-    ctaText: "Track Sales",
-    ctaLink: "/register"
-  },
-  {
-    title: "Reports & Insights",
-    subtitle: "Reports",
-    icon: <FileText className="h-8 w-8 text-white" />,
-    features: [
-      'Comprehensive reports',
-      'Export PDF/Excel',
-      'Business insights',
-      'Custom report builder'
-    ],
-    images: [
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-        { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
-    ],
-    colorClass: "bg-indigo-600 text-white",
-    ctaText: "View Reports",
-    ctaLink: "/register"
-  },
+    {
+        title: 'Powerful Dashboard',
+        subtitle: 'Analytics',
+        icon: <BarChart3 className="h-8 w-8 text-white" />,
+        features: ['Real-time analytics dashboard', 'Sales performance tracking', 'Customer behavior insights', 'Inventory movement reports'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+
+        colorClass: 'bg-blue-600 text-white',
+        ctaText: 'View Dashboard',
+        ctaLink: '/register',
+    },
+    {
+        title: 'Advanced Store Management',
+        subtitle: 'Products',
+        icon: <Package className="h-8 w-8 text-white" />,
+        features: ['Advanced product management', 'Inventory tracking & alerts', 'Bulk import/export tools', 'Category & variant management'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+        colorClass: 'bg-emerald-600 text-white',
+        ctaText: 'Manage Products',
+        ctaLink: '/register',
+    },
+    {
+        title: 'Advanced Product Management',
+        subtitle: 'Products',
+        icon: <Package className="h-8 w-8 text-white" />,
+        features: ['Advanced product management', 'Inventory tracking & alerts', 'Bulk import/export tools', 'Category & variant management'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+        colorClass: 'bg-emerald-600 text-white',
+        ctaText: 'Manage Products',
+        ctaLink: '/register',
+    },
+    {
+        title: 'Multi-Store Management',
+        subtitle: 'Store',
+        icon: <Store className="h-8 w-8 text-white" />,
+        features: ['Multi-store management', 'Staff role permissions', 'Store performance metrics', 'Centralized control panel'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+        colorClass: 'bg-purple-600 text-white',
+        ctaText: 'Manage Stores',
+        ctaLink: '/register',
+    },
+    {
+        title: 'Customer Management',
+        subtitle: 'Customers',
+        icon: <Users className="h-8 w-8 text-white" />,
+        features: ['Customer database', 'Loyalty & reward programs', 'Customer segmentation', 'CRM integration'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+        colorClass: 'bg-orange-600 text-white',
+        ctaText: 'Manage Customers',
+        ctaLink: '/register',
+    },
+    {
+        title: 'Sales & Payment',
+        subtitle: 'Sales',
+        icon: <CreditCard className="h-8 w-8 text-white" />,
+        features: ['Multi-payment support', 'Invoice generation', 'Refund management', 'Sales analytics'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+        colorClass: 'bg-red-600 text-white',
+        ctaText: 'Track Sales',
+        ctaLink: '/register',
+    },
+    {
+        title: 'Reports & Insights',
+        subtitle: 'Reports',
+        icon: <FileText className="h-8 w-8 text-white" />,
+        features: ['Comprehensive reports', 'Export PDF/Excel', 'Business insights', 'Custom report builder'],
+        images: [
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+            { src: '/images/dashboard.png', alt: 'Analytics Dashboard', width: 700, height: 500 },
+        ],
+        colorClass: 'bg-indigo-600 text-white',
+        ctaText: 'View Reports',
+        ctaLink: '/register',
+    },
 ];
 
 const SectionBlock = ({
