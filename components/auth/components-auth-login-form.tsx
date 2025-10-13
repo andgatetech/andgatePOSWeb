@@ -7,9 +7,10 @@ import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import IconLockDots from '@/components/layouts/icon/icon-lock-dots';
-import IconMail from '@/components/layouts/icon/icon-mail';
+
 import { login } from '@/store/features/auth/authSlice';
+import IconMail from '../icon/icon-mail';
+import IconLockDots from '../icon/icon-lock-dots';
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
