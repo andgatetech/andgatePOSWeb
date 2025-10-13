@@ -15,9 +15,10 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 
 import Image from 'next/image';
 // Icons
-import IconCaretDown from '@/components/layouts/icon/icon-caret-down';
-import IconCaretsDown from '@/components/layouts/icon/icon-carets-down';
+
 import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
+import IconCaretsDown from '../icon/icon-carets-down';
+import IconCaretDown from '../icon/icon-caret-down';
 
 // Helper: read cookie
 function getCookieValue(name: string): string | null {
