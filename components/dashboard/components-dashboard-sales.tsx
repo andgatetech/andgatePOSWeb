@@ -11,6 +11,8 @@ import { RootState } from '@/store';
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Calendar, DollarSign, Eye, Package, ShoppingCart, Store, Users } from 'lucide-react';
 
 // Components
+import { useGetAllLowStockProductsQuery } from '@/store/features/Product/productApi';
+import Low_Stock_Products from './low_stock_products';
 import Recent_Orders from './Recent_Orders';
 import Revenue from './Revenue';
 import Sale_by from './Sale_by';
@@ -19,6 +21,8 @@ import Top_Selling_Products from './top_selling_products';
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
+    const { data: lowStockProducts, isLoading: isLoadingLowStock } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    console.log('Low Stock Product', lowStockProducts);
 
     const [dateRange, setDateRange] = useState('today');
     const [isMounted, setIsMounted] = useState(false);
@@ -33,6 +37,7 @@ const ComponentsDashboardSales = () => {
         total_orders: '156',
         total_products: '89',
         total_customers: '234',
+        total_low_stock_products: lowStockProducts ? lowStockProducts.data.length : 0,
     };
 
     const statCards = [
@@ -71,6 +76,15 @@ const ComponentsDashboardSales = () => {
             icon: <Users className="h-6 w-6" />,
             color: 'bg-gradient-to-r from-orange-500 to-orange-600',
             href: '/customer',
+        },
+        {
+            title: 'Low Stock Products',
+            value: stats.total_low_stock_products,
+            change: '-5.4%',
+            trend: 'down',
+            icon: <AlertTriangle className="h-6 w-6" />,
+            color: 'bg-gradient-to-r from-red-500 to-red-600',
+            href: '/products/low-stock',
         },
     ];
 
@@ -264,6 +278,7 @@ const ComponentsDashboardSales = () => {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <Recent_Orders />
                 <Top_Selling_Products />
+                <Low_Stock_Products lowStockProducts={lowStockProducts} isLoading={!lowStockProducts} />
             </div>
         </div>
     );
