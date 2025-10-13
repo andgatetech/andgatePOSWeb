@@ -53,7 +53,7 @@ const LowStockReportPage = () => {
                 const response = await getLowStockReport(payload).unwrap();
 
                 if (format === 'json') {
-                    setReportData(response);
+                    setReportData(response.data);
                 }
             } catch (error: any) {
                 console.error('Error fetching low stock report:', error);

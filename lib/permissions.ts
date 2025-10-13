@@ -157,6 +157,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/pos-transaction': ['reports.pos-transaction'],
     '/reports/purchase-transaction': ['reports.purchase-transaction'],
     '/reports/stock/current': ['reports.stock-current'],
+    '/reports/stock/low': ['reports.low-stock'],
     '/reports/stock/transactions': ['reports.stock-transactions'],
     '/products/stock/stock-adjustment-list': ['reports.stock-adjustments'],
     '/reports/stock/adjustments': ['reports.stock-adjustments'],
