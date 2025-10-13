@@ -98,11 +98,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['stock.adjustments'],
             },
             {
-                label: 'Product QrCode',
-                href: '/products/qr-code',
-                requiredPermissions: ['products.view'],
-            },
-            {
                 label: 'Print Label',
                 href: '/label',
                 requiredPermissions: ['products.view'],
