@@ -50,6 +50,7 @@ export interface User {
     updated_at?: string;
     stores: Store[];
     subscription_user: SubscriptionUser;
+    permissions?: string[]; // Add permissions array
 }
 
 interface AuthState {
@@ -72,16 +73,34 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        login(state, action: PayloadAction<{ user: User; token: string }>) {
-            state.user = action.payload.user;
+        login(state, action: PayloadAction<{ user: User; token: string; permissions?: string[] }>) {
+            // Validate that user object exists (ignore persist rehydration calls)
+            if (!action.payload?.user) {
+                // Silently ignore - this happens during Redux persist rehydration
+                return;
+            }
+
+            // Get permissions from either the separate permissions field or from user object
+            const permissions = action.payload.permissions || action.payload.user?.permissions || [];
+
+            // Merge permissions into user object
+            state.user = {
+                ...action.payload.user,
+                permissions: permissions,
+            };
             state.token = action.payload.token;
             state.isAuthenticated = true;
 
+            console.log('✅ Login successful - User:', state.user?.name);
+            console.log('✅ Role:', state.user?.role);
+            console.log('✅ Permissions loaded:', permissions.length, 'permissions');
+
             // 👇 Set default store (first store) on login
-            if (action.payload.user.stores?.length > 0) {
+            if (action.payload.user?.stores?.length > 0) {
                 const defaultStore = action.payload.user.stores[0];
                 state.currentStore = defaultStore;
                 state.currentStoreId = defaultStore.id;
+                console.log('🏪 Default store set:', defaultStore.store_name);
             } else {
                 state.currentStore = null;
                 state.currentStoreId = null;
