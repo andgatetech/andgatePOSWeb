@@ -37,7 +37,7 @@ const UpdateLedgerModal = ({ isOpen, onClose, onSuccess, ledger }: UpdateLedgerM
             }).unwrap();
             onSuccess();
         } catch (error) {
-            console.error('Failed to update ledger:', error);
+           
         }
     };
 

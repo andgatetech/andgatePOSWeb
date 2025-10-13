@@ -72,7 +72,7 @@ const UpdateExpenseModal = ({ isOpen, onClose, onSuccess, expense }: UpdateExpen
             }).unwrap();
             onSuccess();
         } catch (error) {
-            console.error('Failed to update expense:', error);
+          
         }
     };
 
