@@ -11,7 +11,9 @@ import { RootState } from '@/store';
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Calendar, DollarSign, Eye, Package, ShoppingCart, Store, Users } from 'lucide-react';
 
 // Components
-import { useGetAllLowStockProductsQuery } from '@/store/features/Product/productApi';
+import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
+import { useGetAllLowStockProductsQuery, useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import Low_Stock_Products from './low_stock_products';
 import Recent_Orders from './Recent_Orders';
 import Revenue from './Revenue';
@@ -21,8 +23,24 @@ import Top_Selling_Products from './top_selling_products';
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
-    const { data: lowStockProducts, isLoading: isLoadingLowStock } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
-    console.log('Low Stock Product', lowStockProducts);
+    const { data: lowStockProducts, isLoading: isLoadingLowStock, isError: isErrorLowStock } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+
+    // ✅ Fetch customers (store_id filter only)
+    const { data: customersData, isLoading: isLoadingCustomers } = useGetStoreCustomersListQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+
+    // ✅ Fetch products (store_id filter only)
+    const { data: productsData, isLoading: isLoadingProducts } = useGetAllProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+
+    const { data: orderData, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetAllOrdersQuery();
+    const orders = Array.isArray(orderData?.data) ? orderData.data : [];
+
+    // ✅ Extract totals safely
+    const totalCustomers = customersData?.data?.length || 0;
+    const totalProducts = productsData?.data?.length || 0;
+
+    // Calculate total revenue and total orders
+    const totalRevenue = orders.reduce((sum, order) => sum + Number(order.grand_total || 0), 0);
+    const totalOrders = orders.length;
 
     const [dateRange, setDateRange] = useState('today');
     const [isMounted, setIsMounted] = useState(false);
@@ -33,10 +51,10 @@ const ComponentsDashboardSales = () => {
 
     // Mock stats data (replace with actual API)
     const stats = {
-        total_revenue: '45,250',
-        total_orders: '156',
-        total_products: '89',
-        total_customers: '234',
+        total_revenue: totalRevenue,
+        total_orders: totalOrders,
+        total_products: totalProducts,
+        total_customers: totalCustomers,
         total_low_stock_products: lowStockProducts ? lowStockProducts.data.length : 0,
     };
 
@@ -192,8 +210,9 @@ const ComponentsDashboardSales = () => {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-                <Revenue />
-                <Sale_by />
+                <Revenue orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
+                {/* <Sale_by /> */}
+                <Sale_by orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
             </div>
 
             {/* Quick Actions & Recent Activity */}
@@ -276,8 +295,10 @@ const ComponentsDashboardSales = () => {
 
             {/* Recent Orders & Top Products */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Recent_Orders />
-                <Top_Selling_Products />
+                <Recent_Orders orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
+                {/* <Top_Selling_Products /> */}
+                <Top_Selling_Products orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
+
                 <Low_Stock_Products lowStockProducts={lowStockProducts} isLoading={!lowStockProducts} />
             </div>
         </div>

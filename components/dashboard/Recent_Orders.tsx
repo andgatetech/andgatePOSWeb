@@ -1,8 +1,7 @@
-import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import Link from 'next/link';
 
-const Recent_Orders = () => {
-    const { data, isLoading, isError } = useGetAllOrdersQuery();
+const Recent_Orders = ({ orders = [], isLoading = false, isError = false }) => {
+    // const { data, isLoading, isError } = useGetAllOrdersQuery();
 
     // Skeleton loader component
     const SkeletonRow = () => (
@@ -28,7 +27,8 @@ const Recent_Orders = () => {
     if (isError) return <p>Failed to load orders</p>;
 
     // Ensure we have an array
-    const ordersArray = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+    // const ordersArray = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+    const ordersArray = Array.isArray(orders) ? orders : [];
 
     // Sort descending by date
     const sortedOrders = ordersArray.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));

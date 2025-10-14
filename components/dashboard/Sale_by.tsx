@@ -1,15 +1,12 @@
 'use client';
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
-import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 
-const SaleByCategory = () => {
+const SaleByCategory = ({ orders = [], isLoading = false, isError = false }) => {
     const { data: categoriesData, isLoading: isLoadingCategories, isError: isErrorCategories } = useGetCategoryQuery();
-    const { data: ordersData, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetAllOrdersQuery();
 
     const categories = Array.isArray(categoriesData?.data) ? categoriesData.data : [];
-    const orders = Array.isArray(ordersData?.data) ? ordersData.data : [];
 
     // Calculate sales per category
     const categorySales: Record<number, number> = {};
@@ -67,7 +64,7 @@ const SaleByCategory = () => {
     };
 
     // Loading skeleton
-    if (isLoadingOrders || isLoadingCategories) {
+    if (isLoading || isLoadingCategories) {
         return (
             <div className="grid min-h-[460px] animate-pulse place-content-center rounded-lg bg-gray-200 dark:bg-gray-700">
                 <div className="mb-4 h-12 w-40 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
@@ -77,7 +74,7 @@ const SaleByCategory = () => {
     }
 
     // Error
-    if (isErrorOrders || isErrorCategories) return <div className="panel grid h-32 place-content-center text-center text-red-500 dark:text-red-400">Error loading sales data</div>;
+    if (isError || isErrorCategories) return <div className="panel grid h-32 place-content-center text-center text-red-500 dark:text-red-400">Error loading sales data</div>;
 
     // No data
     if (!orders.length || !categories.length) return <div className="panel grid h-32 place-content-center text-center text-gray-500 dark:text-gray-400">No sales data available.</div>;
