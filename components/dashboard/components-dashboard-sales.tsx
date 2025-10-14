@@ -61,7 +61,8 @@ const ComponentsDashboardSales = () => {
     const statCards = [
         {
             title: 'Total Revenue',
-            value: `৳${stats.total_revenue}`,
+            // value: `৳${stats.total_revenue}`,
+            value: `৳${Number(stats.total_revenue).toFixed(2)}`,
             change: '+12.5%',
             trend: 'up',
             icon: <DollarSign className="h-6 w-6" />,
