@@ -1,16 +1,15 @@
 'use client';
 import React from 'react';
 import { Package } from 'lucide-react';
-import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 
-const Top_Selling_Products = () => {
-    const { data: ordersResponse, isLoading, isError } = useGetAllOrdersQuery();
+const Top_Selling_Products = ({ orders = [], isLoading = false, isError = false }) => {
+    // const { data: ordersResponse, isLoading, isError } = useGetAllOrdersQuery();
     const { data: categoriesResponse, isLoading: isLoadingCategories, error: categoriesError } = useGetCategoryQuery();
 
     if (isError || categoriesError) return <p>Failed to load data.</p>;
 
-    const orders = Array.isArray(ordersResponse?.data) ? ordersResponse.data : [];
+    // const orders = Array.isArray(ordersResponse?.data) ? ordersResponse.data : [];
     const categories = Array.isArray(categoriesResponse?.data) ? categoriesResponse.data : [];
 
     // Count sales for each product
