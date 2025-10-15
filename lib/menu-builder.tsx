@@ -143,6 +143,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/purchases/list',
                 requiredPermissions: ['purchase-orders.view', 'purchase-orders.index', 'purchases.view', 'purchases.index'],
             },
+
+            { label: 'Purchase Dues', href: '/purchase-dues', requiredPermissions: ['purchase-dues.index', 'purchase-dues.view', 'purchase-dues.update-payment', 'purchase-dues.clear-due'] },
         ],
     },
     {
@@ -221,11 +223,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             'reports.purchase-transaction',
         ],
         subMenu: [
-            {
-                label: 'Activity Logs',
-                href: '/reports/activity',
-                requiredPermissions: ['view-dashboard'], // Usually accessible to all
-            },
+            // {
+            //     label: 'Activity Logs',
+            //     href: '/reports/activity',
+            //     requiredPermissions: ['view-dashboard'], // Usually accessible to all
+            // },
             {
                 label: 'Sales',
                 href: '/reports/sales',
@@ -285,7 +287,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                         href: '/reports/stock/low',
                         requiredPermissions: ['stock.summary', 'reports.stock'],
                     },
-                    
+
                     {
                         label: 'Stock Adjustments',
                         href: '/products/stock/stock-adjustment-list',
