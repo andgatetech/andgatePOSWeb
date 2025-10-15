@@ -88,7 +88,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             <Link href="/login" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                 Login
                             </Link>
-                            <Link href="/contact" className="block px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <Link href="/register" className="block px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700">
                                 Get Started
                             </Link>
                         </div>
