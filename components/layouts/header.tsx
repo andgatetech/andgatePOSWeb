@@ -4,7 +4,6 @@ import Dropdown from '@/components/dropdown';
 import IconBellBing from '@/components/icon/icon-bell-bing';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
-import IconLaptop from '@/components/icon/icon-laptop';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMail from '@/components/icon/icon-mail';
 import IconMenu from '@/components/icon/icon-menu';

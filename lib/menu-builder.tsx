@@ -144,7 +144,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['purchase-orders.view', 'purchase-orders.index', 'purchases.view', 'purchases.index'],
             },
 
-            { label: 'Purchase Dues', href: '/purchase-dues', requiredPermissions: ['purchase-dues.index', 'purchase-dues.view', 'purchase-dues.update-payment', 'purchase-dues.clear-due'] },
+            { label: 'Purchase Dues', href: '/purchases/dues', requiredPermissions: ['purchase-dues.index', 'purchase-dues.view', 'purchase-dues.update-payment', 'purchase-dues.clear-due'] },
         ],
     },
     {
