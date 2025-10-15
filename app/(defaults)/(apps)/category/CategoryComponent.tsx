@@ -300,24 +300,24 @@ const CategoryComponent = () => {
             {/* Category Page Header */}
 
             <section className="mb-8">
-                <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                                <Layers className="h-6 w-6 text-white" />
+                <div className="rounded-2xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:p-6">
+                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md sm:h-12 sm:w-12">
+                                <Layers className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Category Management</h1>
-                                <p className="text-sm text-gray-500">Manage your store categories efficiently</p>
+                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Category Management</h1>
+                                <p className="text-xs text-gray-500 sm:text-sm">Manage your store categories efficiently</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center justify-start sm:justify-end">
                             <button
                                 onClick={() => openModal('create')}
-                                className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                             >
-                                <Plus className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                                Add Category
+                                <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
+                                <span className="whitespace-nowrap">Add Category</span>
                                 <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                             </button>
                         </div>
