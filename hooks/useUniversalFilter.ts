@@ -61,11 +61,14 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
                 }
             }
 
-            // Add date range parameters
-            if (filters.dateRange) {
-                params.start_date = filters.dateRange.startDate;
-                params.end_date = filters.dateRange.endDate;
-                params.date_filter_type = filters.dateRange.type;
+            // Add date range parameters - only if not 'none'
+            if (filters.dateRange && filters.dateRange.type !== 'none') {
+                if (filters.dateRange.startDate) {
+                    params.start_date = filters.dateRange.startDate;
+                }
+                if (filters.dateRange.endDate) {
+                    params.end_date = filters.dateRange.endDate;
+                }
             }
 
             // Add custom filters
