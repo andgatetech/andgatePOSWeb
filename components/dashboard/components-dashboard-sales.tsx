@@ -32,7 +32,7 @@ const ComponentsDashboardSales = () => {
     // ✅ Fetch products (store_id filter only)
     const { data: productsData, isLoading: isLoadingProducts } = useGetAllProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
 
-    const { data: orderData, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetAllOrdersQuery();
+    const { data: orderData, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetAllOrdersQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const orders = Array.isArray(orderData?.data) ? orderData.data : [];
 
     const today = new Date();
