@@ -20,6 +20,15 @@ const OrderApi = baseApi.injectEndpoints({
             providesTags: ['Orders'],
         }),
 
+        getTopSellingProducts: builder.query({
+            query: (filters = {}) => ({
+                url: '/orders/top-selling-products',
+                method: 'GET',
+                params: filters,
+            }),
+            providesTags: ['Orders'],
+        }),
+
         getOrderById: builder.query({
             query: (id: any) => ({
                 url: `/orders/${id}`,
@@ -37,4 +46,4 @@ const OrderApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useCreateOrderMutation, useGetAllOrdersQuery, useGetOrderByIdQuery, useGetOrderItemsQuery } = OrderApi;
+export const { useCreateOrderMutation, useGetAllOrdersQuery, useGetOrderByIdQuery, useGetOrderItemsQuery, useGetTopSellingProductsQuery } = OrderApi;

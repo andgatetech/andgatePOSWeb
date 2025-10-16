@@ -1,4 +1,6 @@
 'use client';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useGetAllLowStockProductsQuery } from '@/store/features/Product/productApi';
 import { AlertTriangle, Package } from 'lucide-react';
 import React from 'react';
 
@@ -56,11 +58,15 @@ interface LowStockProductsProps {
     isLoading?: boolean;
 }
 
-const Low_Stock_Products: React.FC<LowStockProductsProps> = ({ lowStockProducts, isLoading = false }) => {
+const Low_Stock_Products: React.FC<LowStockProductsProps> = () => {
+    const { currentStoreId } = useCurrentStore();
+
+    // ✅ Fetch directly from API
+    const { data: lowStockProducts, isLoading, isError } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+
     const products = Array.isArray(lowStockProducts?.data) ? lowStockProducts.data : [];
-    // console.log(products);
-    // Sort by lowest stock first and take top 7
-    // const topLowStockProducts = products?.sort((a, b) => parseFloat(a.in_stock.quantity) - parseFloat(b.in_stock.quantity)).slice(0, 7);
+
+    // ✅ Sort by lowest stock first and take top 7
     const topLowStockProducts = [...products].sort((a, b) => parseFloat(a.in_stock.quantity) - parseFloat(b.in_stock.quantity)).slice(0, 7);
     // Skeleton row for loading state
     const SkeletonRow = () => (

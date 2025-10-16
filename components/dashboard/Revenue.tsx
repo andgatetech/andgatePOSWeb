@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import Dropdown from '../dropdown';
 import IconHorizontalDots from '../icon/icon-horizontal-dots';
+import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 
-const Revenue = ({ isRtl = false, orders, isLoading, isError }) => {
+const Revenue = ({ isRtl = false }) => {
     const [isMounted, setIsMounted] = useState(false);
+    const { data: ordersData, isLoading, isError } = useGetAllOrdersQuery();
 
     useEffect(() => {
         setIsMounted(true);
@@ -37,7 +39,7 @@ const Revenue = ({ isRtl = false, orders, isLoading, isError }) => {
             </div>
         );
 
-    // const orders = Array.isArray(data?.data) ? data.data : [];
+    const orders = Array.isArray(ordersData?.data) ? ordersData.data : [];
 
     if (orders.length === 0) {
         return (

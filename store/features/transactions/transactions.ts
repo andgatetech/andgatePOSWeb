@@ -1,11 +1,12 @@
-import { baseApi } from "@/store/api/baseApi";
+import { baseApi } from '@/store/api/baseApi';
 
 const TransactionApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getAllTransactions: builder.query({
-            query: () => ({
+            query: (params) => ({
                 url: '/transactions',
                 method: 'GET',
+                params,
             }),
             providesTags: ['Transactions'],
         }),
