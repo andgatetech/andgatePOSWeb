@@ -84,6 +84,16 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             providesTags: ['PurchaseOrders'],
         }),
 
+        // Get purchase order bar chart data
+        getPurchaseOrderChartData: builder.query({
+            query: (params: any = {}) => ({
+                url: '/purchase-order',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['PurchaseOrders'],
+        }),
+
         // Get single Purchase Order
         getPurchaseOrderById: builder.query({
             query: (id: number | string) => ({
@@ -132,6 +142,9 @@ export const {
     useGetPurchaseDraftByIdQuery,
     useUpdatePurchaseDraftMutation,
     useDeletePurchaseDraftMutation,
+
+    // Purchase Order Chart Data
+    useGetPurchaseOrderChartDataQuery,
 
     // Purchase Order endpoints
     useConvertDraftToPurchaseOrderMutation,

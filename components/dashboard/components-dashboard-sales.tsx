@@ -15,6 +15,7 @@ import { useGetStoreCustomersListQuery } from '@/store/features/customer/custome
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { useGetAllLowStockProductsQuery, useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import Low_Stock_Products from './low_stock_products';
+import PurchaseSaleChart from './PurchaseSaleChart';
 import Recent_Orders from './Recent_Orders';
 import Revenue from './Revenue';
 import Sale_by from './Sale_by';
@@ -33,6 +34,18 @@ const ComponentsDashboardSales = () => {
 
     const { data: orderData, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetAllOrdersQuery();
     const orders = Array.isArray(orderData?.data) ? orderData.data : [];
+
+    const today = new Date();
+    const isToday = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
+    };
+
+    const todaysOrders = orders.filter((order) => isToday(order.created_at));
+    const todaysOrderCount = todaysOrders.length;
+
+    const todaysCustomers = customersData?.data?.filter((customer) => isToday(customer.created_at)) || [];
+    const totalTodaysCustomers = todaysCustomers.length;
 
     // ✅ Extract totals safely
     const totalCustomers = customersData?.data?.length || 0;
@@ -148,17 +161,6 @@ const ComponentsDashboardSales = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <select
-                        value={dateRange}
-                        onChange={(e) => setDateRange(e.target.value)}
-                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
-                    >
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
-                        <option value="year">This Year</option>
-                    </select>
-
                     <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
                         <Calendar className="h-4 w-4" />
                         Export
@@ -213,7 +215,7 @@ const ComponentsDashboardSales = () => {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                 <Revenue orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
                 {/* <Sale_by /> */}
-                <Sale_by orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
+                <Sale_by />
             </div>
 
             {/* Quick Actions & Recent Activity */}
@@ -257,10 +259,10 @@ const ComponentsDashboardSales = () => {
                                 </div>
                                 <div>
                                     <p className="font-medium text-green-900 dark:text-green-200">Sales Today</p>
-                                    <p className="text-sm text-green-700 dark:text-green-300">23 orders completed</p>
+                                    <p className="text-sm text-green-700 dark:text-green-300">{todaysOrderCount} orders completed</p>
                                 </div>
                             </div>
-                            <p className="font-bold text-green-900 dark:text-green-200">৳12,340</p>
+                            <p className="font-bold text-green-900 dark:text-green-200">৳ {todaysOrders.reduce((total, order) => total + order.total, 0)}</p>
                         </div>
 
                         <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
@@ -270,10 +272,10 @@ const ComponentsDashboardSales = () => {
                                 </div>
                                 <div>
                                     <p className="font-medium text-blue-900 dark:text-blue-200">New Customers</p>
-                                    <p className="text-sm text-blue-700 dark:text-blue-300">5 customers registered</p>
+                                    <p className="text-sm text-blue-700 dark:text-blue-300">{totalTodaysCustomers} customers registered</p>
                                 </div>
                             </div>
-                            <p className="font-bold text-blue-900 dark:text-blue-200">+5</p>
+                            <p className="font-bold text-blue-900 dark:text-blue-200">+{totalTodaysCustomers}</p>
                         </div>
 
                         <div className="flex items-center justify-between rounded-lg bg-orange-50 p-3 dark:bg-orange-900/20">
@@ -283,7 +285,7 @@ const ComponentsDashboardSales = () => {
                                 </div>
                                 <div>
                                     <p className="font-medium text-orange-900 dark:text-orange-200">Low Stock Items</p>
-                                    <p className="text-sm text-orange-700 dark:text-orange-300">3 items need restocking</p>
+                                    <p className="text-sm text-orange-700 dark:text-orange-300">{lowStockProducts?.data?.length || 0} items need restocking</p>
                                 </div>
                             </div>
                             <Link href="/products?filter=low-stock" className="text-sm font-medium text-orange-600 hover:text-orange-700">
@@ -296,11 +298,11 @@ const ComponentsDashboardSales = () => {
 
             {/* Recent Orders & Top Products */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Recent_Orders orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
-                {/* <Top_Selling_Products /> */}
-                <Top_Selling_Products orders={orders} isLoading={isLoadingOrders} isError={isErrorOrders} />
+                <Recent_Orders />
+                <Top_Selling_Products />
 
-                <Low_Stock_Products lowStockProducts={lowStockProducts} isLoading={!lowStockProducts} />
+                <Low_Stock_Products />
+                <PurchaseSaleChart />
             </div>
         </div>
     );
