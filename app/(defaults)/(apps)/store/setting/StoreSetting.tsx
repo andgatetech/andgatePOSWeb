@@ -477,11 +477,11 @@ const StoreSetting = () => {
                             <button
                                 type="button"
                                 onClick={addUnit}
-                                className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-green-700 hover:to-green-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                className="xs:w-auto group relative inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-green-700 hover:to-green-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:rounded-xl sm:px-6 sm:py-3 sm:text-base"
                             >
-                                <Plus className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                                Add Unit
-                                <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
+                                <Plus className="mr-1.5 h-4 w-4 transition-transform group-hover:scale-110 sm:mr-2 sm:h-5 sm:w-5" />
+                                <span>Add Unit</span>
+                                <div className="absolute inset-0 rounded-lg bg-white/20 opacity-0 transition-opacity group-hover:opacity-100 sm:rounded-xl" />
                             </button>
                         </div>
 

@@ -242,44 +242,45 @@ const LowStockReportPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header Section */}
-            <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm">
-                <div className="mb-6 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-3 shadow-lg">
-                            <Package className="h-8 w-8 text-white" />
+            {/* Header Section - Fully Responsive */}
+            <div className="mb-4 rounded-xl bg-white p-4 shadow-sm sm:mb-6 sm:rounded-2xl sm:p-5 md:mb-8 md:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Title Section */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 p-2 shadow-lg sm:rounded-xl sm:p-3">
+                            <Package className="h-6 w-6 text-white sm:h-8 sm:w-8" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Low Stock Report</h1>
-                            <p className="text-sm text-gray-500">Monitor products with low inventory levels</p>
+                            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl md:text-3xl">Low Stock Report</h1>
+                            <p className="text-xs text-gray-500 sm:text-sm">Monitor products with low inventory levels</p>
                         </div>
                     </div>
 
-                    {/* Export Buttons */}
-                    <div className="flex gap-3">
+                    {/* Export Buttons - Responsive */}
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                         <button
                             onClick={handlePrint}
                             disabled={!reportData || isLoading}
-                            className="flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2.5 text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-sm text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
-                            <Printer className="h-5 w-5" />
-                            Print
+                            <Printer className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span>Print</span>
                         </button>
                         <button
                             onClick={handleExportPDF}
                             disabled={!reportData || isLoading}
-                            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
-                            <FileDown className="h-5 w-5" />
-                            PDF
+                            <FileDown className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span>PDF</span>
                         </button>
                         <button
                             onClick={handleExportExcel}
                             disabled={!reportData || isLoading}
-                            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
-                            <FileSpreadsheet className="h-5 w-5" />
-                            Excel
+                            <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span>Excel</span>
                         </button>
                     </div>
                 </div>

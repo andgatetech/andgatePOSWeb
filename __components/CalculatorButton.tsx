@@ -112,15 +112,15 @@ export default function CalculatorButton() {
 
     return (
         <>
-            <li>
+            
                 <button
                     onClick={() => setIsOpen(true)}
                     className="flex items-center gap-2 rounded-[5px] bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80"
                 >
-                    <Calculator className="h-5 w-5" />
-                    Calculator
+                    <Calculator className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden sm:inline">Calculator</span>
                 </button>
-            </li>
+            
 
             {isOpen && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>

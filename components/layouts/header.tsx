@@ -4,7 +4,6 @@ import Dropdown from '@/components/dropdown';
 import IconBellBing from '@/components/icon/icon-bell-bing';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
-import IconLaptop from '@/components/icon/icon-laptop';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMail from '@/components/icon/icon-mail';
 import IconMenu from '@/components/icon/icon-menu';
@@ -199,34 +198,25 @@ const Header = () => {
                         </button>
                     </div>
 
-                    {/* Left Action Buttons - Hidden on small screens, visible on sm and above */}
-                    <div className="hidden sm:block ltr:mr-2 rtl:ml-2">
-                        <ul className="flex items-center space-x-2 rtl:space-x-reverse">
-                            <li>
-                                <Link
-                                    href="/pos"
-                                    className="flex items-center gap-2 rounded-[5px] bg-primary px-3 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80 sm:px-4"
-                                >
-                                    <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                                    <span className="hidden sm:inline">POS</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <CalculatorButton />
-                            </li>
-                        </ul>
+                    {/* Left Action Buttons - POS and Calculator */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2">
+                       
+                            <Link
+                                href="/pos"
+                                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg sm:gap-2 sm:px-4"
+                            >
+                                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <span className="hidden sm:inline">POS</span>
+                            </Link>
+                      
+                      
+                            <CalculatorButton />
+                       
                     </div>
 
                     {/* Right Side Actions */}
                     <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 sm:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
                         <div className="sm:ltr:mr-auto sm:rtl:ml-auto"></div>
-
-                        {/* Mobile POS Button - Visible only on small screens */}
-                        <div className="block sm:hidden">
-                            <Link href="/pos" className="flex items-center justify-center rounded-full bg-primary p-2 text-white shadow-md transition-colors hover:bg-primary/90">
-                                <ShoppingCart className="h-5 w-5" />
-                            </Link>
-                        </div>
 
                         {/* Fullscreen Toggle Button */}
                         <div className="shrink-0">
@@ -238,35 +228,6 @@ const Header = () => {
                             >
                                 {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
                             </button>
-                        </div>
-
-                        {/* Theme Toggle */}
-                        <div className="shrink-0">
-                            {themeConfig.theme === 'light' ? (
-                                <button
-                                    className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
-                                    onClick={() => dispatch(toggleTheme('dark'))}
-                                    title="Switch to Dark Mode"
-                                >
-                                    <IconSun className="h-5 w-5" />
-                                </button>
-                            ) : themeConfig.theme === 'dark' ? (
-                                <button
-                                    className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
-                                    onClick={() => dispatch(toggleTheme('system'))}
-                                    title="Switch to System Theme"
-                                >
-                                    <IconMoon className="h-5 w-5" />
-                                </button>
-                            ) : (
-                                <button
-                                    className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60"
-                                    onClick={() => dispatch(toggleTheme('light'))}
-                                    title="Switch to Light Mode"
-                                >
-                                    <IconLaptop className="h-5 w-5" />
-                                </button>
-                            )}
                         </div>
 
                         {/* Notifications Dropdown */}

@@ -211,16 +211,16 @@ const ExpenseReportPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
             {/* Header Section - Fully Responsive */}
-            <div className="mb-6 rounded-xl bg-white p-4 shadow-sm sm:mb-8 sm:rounded-2xl sm:p-5 md:p-6">
-                <div className="mb-4 flex flex-col gap-4 sm:mb-6 md:flex-row md:items-center md:justify-between">
+            <div className="mb-4 rounded-xl bg-white p-4 shadow-sm sm:mb-6 sm:rounded-2xl sm:p-5 md:mb-8 md:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     {/* Title Section */}
                     <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="rounded-lg bg-gradient-to-br from-red-500 to-red-600 p-2 shadow-lg sm:rounded-xl sm:p-2.5 md:p-3">
-                            <Receipt className="h-6 w-6 text-white sm:h-7 sm:w-7 md:h-8 md:w-8" />
+                        <div className="rounded-lg bg-gradient-to-br from-red-500 to-red-600 p-2 shadow-lg sm:rounded-xl sm:p-3">
+                            <Receipt className="h-6 w-6 text-white sm:h-8 sm:w-8" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-gray-900 sm:text-2xl md:text-3xl">Expense Report</h1>
-                            <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">Track and analyze all business expenses</p>
+                            <p className="text-xs text-gray-500 sm:text-sm">Track and analyze all business expenses</p>
                         </div>
                     </div>
 
@@ -229,26 +229,26 @@ const ExpenseReportPage = () => {
                         <button
                             onClick={handlePrint}
                             disabled={!reportData || isLoading}
-                            className="flex items-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+                            className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-sm text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
                             <Printer className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="xs:inline hidden">Print</span>
+                            <span>Print</span>
                         </button>
                         <button
                             onClick={handleExportPDF}
                             disabled={!reportData || isLoading}
-                            className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+                            className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
                             <FileDown className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="xs:inline hidden">PDF</span>
+                            <span>PDF</span>
                         </button>
                         <button
                             onClick={handleExportExcel}
                             disabled={!reportData || isLoading}
-                            className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+                            className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
                             <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="xs:inline hidden">Excel</span>
+                            <span>Excel</span>
                         </button>
                     </div>
                 </div>
