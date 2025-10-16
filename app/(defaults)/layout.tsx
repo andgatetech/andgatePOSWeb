@@ -18,7 +18,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                 <ScrollToTop />
 
                 {/* BEGIN APP SETTING LAUNCHER */}
-                <Setting />
+                {/* <Setting /> */}
                 {/* END APP SETTING LAUNCHER */}
 
                 <MainContainer>
@@ -31,7 +31,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                         {/* END TOP NAVBAR */}
 
                         {/* BEGIN CONTENT AREA */}
-                        <ContentAnimation>{children}</ContentAnimation>
+                        <>{children}</>
                         {/* END CONTENT AREA */}
 
                         {/* BEGIN FOOTER */}
