@@ -2,22 +2,18 @@
 import CalculatorButton from '@/__components/CalculatorButton';
 import Dropdown from '@/components/dropdown';
 import IconBellBing from '@/components/icon/icon-bell-bing';
-import IconCaretDown from '@/components/icon/icon-caret-down';
 import IconInfoCircle from '@/components/icon/icon-info-circle';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMail from '@/components/icon/icon-mail';
 import IconMenu from '@/components/icon/icon-menu';
-import IconMoon from '@/components/icon/icon-moon';
-import IconSun from '@/components/icon/icon-sun';
 import IconUser from '@/components/icon/icon-user';
 import IconXCircle from '@/components/icon/icon-x-circle';
-import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
 
 import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
-import { toggleRTL, toggleSidebar, toggleTheme } from '@/store/themeConfigSlice';
-import { ShoppingCart, Maximize, Minimize } from 'lucide-react';
+import { toggleRTL, toggleSidebar } from '@/store/themeConfigSlice';
+import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -104,7 +100,6 @@ const Header = () => {
     }, [pathname]);
 
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
-    const themeConfig = useSelector((state: IRootState) => state.themeConfig);
 
     const setLocale = (flag: string) => {
         if (flag.toLowerCase() === 'ae') {
@@ -114,43 +109,6 @@ const Header = () => {
         }
         router.refresh();
     };
-
-    function createMarkup(messages: any) {
-        return { __html: messages };
-    }
-
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-success-light dark:bg-success text-success dark:text-success-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>',
-            title: 'Congratulations!',
-            message: 'Your OS has been updated.',
-            time: '1hr',
-        },
-        {
-            id: 2,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-info-light dark:bg-info text-info dark:text-info-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>',
-            title: 'Did you know?',
-            message: 'You can switch between artboards.',
-            time: '2hr',
-        },
-        {
-            id: 3,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>',
-            title: 'Something went wrong!',
-            message: 'Send Report',
-            time: '2days',
-        },
-        {
-            id: 4,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-warning-light dark:bg-warning text-warning dark:text-warning-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">    <circle cx="12" cy="12" r="10"></circle>    <line x1="12" y1="8" x2="12" y2="12"></line>    <line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>',
-            title: 'Warning',
-            message: 'Your password strength is low.',
-            time: '5days',
-        },
-    ]);
-
-    
 
     const [notifications, setNotifications] = useState([
         {
@@ -177,21 +135,19 @@ const Header = () => {
         setNotifications(notifications.filter((user) => user.id !== value));
     };
 
-    
-
     return (
-        <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : ''}`}>
+        <header>
             <div className="shadow-sm">
                 <div className="relative flex w-full items-center bg-white px-3 py-2.5 dark:bg-black sm:px-5">
                     {/* Logo Section */}
-                    <div className="horizontal-logo flex items-center justify-between lg:hidden ltr:mr-2 rtl:ml-2">
+                    <div className="horizontal-logo mr-2 flex items-center justify-between lg:hidden">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
-                            <Image src="/images/andgatePOS.jpeg" alt="logo icon" width={160} height={40} className="h-8 w-auto object-contain sm:h-10" />
+                            <Image src="/images/andgatePOS.jpeg" alt="logo icon" width={120} height={32} className="h-6 w-auto object-contain sm:h-8 sm:w-auto md:h-10" />
                         </Link>
 
                         <button
                             type="button"
-                            className="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden ltr:ml-2 rtl:mr-2"
+                            className="collapse-icon ml-2 flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden"
                             onClick={() => dispatch(toggleSidebar())}
                         >
                             <IconMenu className="h-5 w-5" />
@@ -200,18 +156,15 @@ const Header = () => {
 
                     {/* Left Action Buttons - POS and Calculator */}
                     <div className="flex items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2">
-                       
-                            <Link
-                                href="/pos"
-                                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg sm:gap-2 sm:px-4"
-                            >
-                                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                                <span className="hidden sm:inline">POS</span>
-                            </Link>
-                      
-                      
-                            <CalculatorButton />
-                       
+                        <Link
+                            href="/pos"
+                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg sm:gap-2 sm:px-4"
+                        >
+                            <ShoppingCart className="h-3 w-3 sm:h-5 sm:w-5" />
+                            <span className="hidden sm:inline">POS</span>
+                        </Link>
+
+                        <CalculatorButton />
                     </div>
 
                     {/* Right Side Actions */}
@@ -335,26 +288,6 @@ const Header = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* Horizontal Menu */}
-                <ul className="horizontal-menu hidden border-t border-[#ebedf2] bg-white px-6 py-1.5 font-semibold text-black dark:border-[#191e3a] dark:bg-black dark:text-white-dark lg:space-x-1.5 xl:space-x-8 rtl:space-x-reverse">
-                    <li className="menu nav-item relative">
-                        <button type="button" className="nav-link">
-                            <div className="flex items-center">
-                                <IconMenuDashboard className="shrink-0" />
-                                <span className="px-1">{t('dashboard')}</span>
-                            </div>
-                            <div className="right_arrow">
-                                <IconCaretDown />
-                            </div>
-                        </button>
-                        <ul className="sub-menu">
-                            <li>
-                                <Link href="/dashboard">{t('sales')}</Link>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
             </div>
         </header>
     );
