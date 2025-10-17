@@ -5,7 +5,7 @@ import StockAdjustmentReportFilter from '@/components/filters/StockAdjustmentRep
 import Loading from '@/components/layouts/loading';
 import { downloadBase64File } from '@/lib/downloadFile';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
-import { FileText, FileDown, FileSpreadsheet, Printer, TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { Activity, FileDown, FileSpreadsheet, FileText, Printer, TrendingDown, TrendingUp } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
@@ -235,7 +235,7 @@ const StockAdjustmentReportPage = () => {
             render: (value) => <span className="font-medium text-gray-700">{value}</span>,
         },
         {
-            key: 'adjustment_quantity',
+            key: 'change',
             label: 'Change',
             render: (value, row) => (
                 <span className={`font-bold ${row.direction === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
@@ -245,16 +245,7 @@ const StockAdjustmentReportPage = () => {
             ),
         },
         {
-            key: 'reason',
-            label: 'Reason',
-            render: (value) => (
-                <span className="max-w-xs truncate text-sm text-gray-600" title={value || 'N/A'}>
-                    {value || '-'}
-                </span>
-            ),
-        },
-        {
-            key: 'user_name',
+            key: 'user',
             label: 'User',
             sortable: true,
             render: (value) => <span className="text-sm text-gray-600">{value || 'N/A'}</span>,

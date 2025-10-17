@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
@@ -16,6 +17,7 @@ const ProductSearchPanel = ({ onProductSelect, selectedProducts }: ProductSearch
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
     const [selectedBrand, setSelectedBrand] = useState<any>(null);
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [categoryPanelOpen, setCategoryPanelOpen] = useState(false);
     const [brandPanelOpen, setBrandPanelOpen] = useState(false);
@@ -25,6 +27,7 @@ const ProductSearchPanel = ({ onProductSelect, selectedProducts }: ProductSearch
         search: searchTerm,
         category_id: selectedCategory?.id,
         brand_id: selectedBrand?.id,
+        store_id: currentStoreId,
     });
 
     const { data: brandsData, isLoading: brandLoading } = useGetBrandsQuery({});
