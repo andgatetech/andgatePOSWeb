@@ -11,6 +11,7 @@ import { RootState } from '@/store';
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Calendar, DollarSign, Eye, Package, ShoppingCart, Store, Users } from 'lucide-react';
 
 // Components
+import { useGetBrandCountByStoreQuery } from '@/store/features/brand/brandApi';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { useGetAllLowStockProductsQuery, useGetAllProductsQuery } from '@/store/features/Product/productApi';
@@ -20,6 +21,8 @@ import Recent_Orders from './Recent_Orders';
 import Revenue from './Revenue';
 import Sale_by from './Sale_by';
 import Top_Selling_Products from './top_selling_products';
+import TopInStockProductsChart from './TopInStockProductsChart';
+import TopPerformingBrandsChart from './TopPerformingBrandsChart';
 
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -34,6 +37,11 @@ const ComponentsDashboardSales = () => {
 
     const { data: orderData, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetAllOrdersQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const orders = Array.isArray(orderData?.data) ? orderData.data : [];
+
+    const { data: brandCountData, isLoading: isLoadingBrands } = useGetBrandCountByStoreQuery(currentStoreId, { skip: !currentStoreId });
+
+    // ✅ Add total brands count to stats
+    const totalBrands = brandCountData?.total_brands || 0;
 
     const today = new Date();
     const isToday = (dateString: string) => {
@@ -69,6 +77,7 @@ const ComponentsDashboardSales = () => {
         total_products: totalProducts,
         total_customers: totalCustomers,
         total_low_stock_products: lowStockProducts ? lowStockProducts.data.length : 0,
+        total_brands: totalBrands,
     };
 
     const statCards = [
@@ -117,6 +126,15 @@ const ComponentsDashboardSales = () => {
             icon: <AlertTriangle className="h-6 w-6" />,
             color: 'bg-gradient-to-r from-red-500 to-red-600',
             href: '/products/low-stock',
+        },
+        {
+            title: 'Total Brands',
+            value: stats.total_brands,
+            change: '+6.8%',
+            trend: 'up',
+            icon: <BarChart3 className="h-6 w-6" />, // you can swap for another Lucide icon if you prefer
+            color: 'bg-gradient-to-r from-indigo-500 to-indigo-600',
+            href: '/brands',
         },
     ];
 
@@ -303,6 +321,8 @@ const ComponentsDashboardSales = () => {
 
                 <Low_Stock_Products />
                 <PurchaseSaleChart />
+                <TopInStockProductsChart />
+                <TopPerformingBrandsChart />
             </div>
         </div>
     );
