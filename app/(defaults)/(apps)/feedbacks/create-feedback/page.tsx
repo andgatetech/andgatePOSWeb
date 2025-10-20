@@ -213,7 +213,7 @@ const FeedbackPage = () => {
                 </div>
 
                 <div className="flex min-h-screen items-center justify-center p-4">
-                    <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white p-12 text-center shadow-2xl">
+                    <div className="relative w-full overflow-hidden rounded-3xl bg-white p-12 text-center shadow-2xl">
                         {/* Success Animation Background */}
                         <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-green-50 to-emerald-50 opacity-50"></div>
 

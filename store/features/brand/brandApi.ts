@@ -52,8 +52,42 @@ export const brandApi = baseApi.injectEndpoints({
                 { type: 'Brand', id: 'LIST' },
             ],
         }),
+        // ---------------- Get Brand Count by Store ----------------
+        getBrandCountByStore: builder.query({
+            query: (store_id) => ({
+                url: `/brands/count`,
+                method: 'GET',
+                params: { store_id }, // Send as query param ?store_id=1
+            }),
+            providesTags: [{ type: 'Brand', id: 'COUNT' }],
+        }),
+        getTopBrandsByStock: builder.query({
+            query: (store_id) => ({
+                url: `/brands/top-in-stock`,
+                method: 'GET',
+                params: { store_id }, // Send as query param ?store_id=1
+            }),
+            providesTags: [{ type: 'Brand', id: 'COUNT' }],
+        }),
+        getTopPerformerBrands: builder.query({
+            query: ({ store_id, start_date, end_date }) => ({
+                url: `/brands/top-performers`,
+                method: 'GET',
+                params: { store_id, start_date, end_date }, // Send as query param ?store_id=1
+            }),
+            providesTags: [{ type: 'Brand', id: 'COUNT' }],
+        }),
     }),
     overrideExisting: false,
 });
 
-export const { useCreateBrandMutation, useGetBrandsQuery, useGetBrandQuery, useUpdateBrandMutation, useDeleteBrandMutation } = brandApi;
+export const {
+    useCreateBrandMutation,
+    useGetBrandsQuery,
+    useGetBrandQuery,
+    useUpdateBrandMutation,
+    useDeleteBrandMutation,
+    useGetBrandCountByStoreQuery,
+    useGetTopBrandsByStockQuery,
+    useGetTopPerformerBrandsQuery,
+} = brandApi;
