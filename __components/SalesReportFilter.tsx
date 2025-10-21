@@ -78,10 +78,10 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
             customFilters={[
                 // ✅ FIX: Use JSX instead of object
                 <div key="payment_status" className="flex flex-col">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    {/* <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                         <CheckCircle className="h-5 w-5 text-gray-400" />
                         Payment Status
-                    </label>
+                    </label> */}
                     <select
                         defaultValue="all"
                         onChange={(e) => handleFilterChange({ payment_status: e.target.value })}

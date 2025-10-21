@@ -5,7 +5,7 @@ import Loading from '@/components/layouts/loading';
 import { downloadBase64File } from '@/lib/downloadFile';
 import { useGetSalesReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, CheckCircle, DollarSign, FileDown, FileSpreadsheet, Printer, ShoppingCart, TrendingUp, XCircle } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
@@ -21,11 +21,14 @@ interface SalesReportItem {
     discount: number;
     grand_total: number;
     order_date: string;
+    store?: string;
+    category?: string;
+    brand?: string;
 }
 
 interface SalesReportData {
-    generated_at: string;
-    filters: {
+    generated_at?: string;
+    filters?: {
         store_ids: number[];
         start_date?: string;
         end_date?: string;
@@ -42,6 +45,12 @@ interface SalesReportData {
         avg_order_value: number;
     };
     items: SalesReportItem[];
+    pagination?: {
+        current_page: number;
+        per_page: number;
+        total: number;
+        total_pages: number;
+    };
 }
 
 const SalesReportPage = () => {
@@ -53,42 +62,34 @@ const SalesReportPage = () => {
 
     const [getSalesReport, { isLoading }] = useGetSalesReportMutation();
 
-    // Fetch report data
+    // Fetch report data with pagination
     const fetchReport = useCallback(
         async (params: Record<string, any>, format: string = 'json') => {
             try {
-                const payload = { ...params, format };
+                const payload = {
+                    ...params,
+                    format,
+                    page: currentPage,
+                    per_page: itemsPerPage,
+                };
+
                 const response = await getSalesReport(payload).unwrap();
 
                 if (format === 'json') {
                     const apiData = response;
                     const apiSummary = apiData?.summary || {};
 
-                    const transformedData = {
+                    const transformedData: SalesReportData = {
                         ...apiData,
                         summary: {
-                            // 🟢 Support both old and new field names for UI
                             total_orders: apiSummary.orders_count ?? 0,
-                            paid_orders: apiSummary.orders_count ?? 0,
-                            pending_orders: 0,
-                            failed_orders: 0,
+                            paid_orders: apiSummary.paid_orders ?? 0,
+                            pending_orders: apiSummary.pending_orders ?? 0,
+                            failed_orders: apiSummary.failed_orders ?? 0,
                             total_revenue: Number(apiSummary.total_grand ?? apiSummary.total_revenue ?? 0),
                             total_sales: Number(apiSummary.total_sales ?? 0),
                             avg_order_value: apiSummary.orders_count > 0 ? Number(apiSummary.total_grand ?? 0) / apiSummary.orders_count : 0,
                         },
-                        // items: apiData.items.map((item: any) => ({
-                        //     invoice: item.invoice,
-                        //     customer_name: item.customer,
-                        //     customer_phone: item.customer_phone || 'N/A',
-                        //     items_count: 1,
-                        //     payment_status: item.payment_status || 'paid',
-                        //     payment_method: item.payment_method || 'N/A',
-                        //     subtotal: Number(item.total || 0),
-                        //     tax: Number(item.tax || 0),
-                        //     discount: Number(item.discount || 0),
-                        //     grand_total: Number(item.grand_total || 0),
-                        //     order_date: item.sales_date,
-                        // })),
                         items: apiData.items.map((item: any) => ({
                             invoice: item.invoice,
                             customer_name: item.customer_name || 'Walk-in Customer',
@@ -118,18 +119,90 @@ const SalesReportPage = () => {
                 });
             }
         },
-        [getSalesReport]
+        [getSalesReport, currentPage, itemsPerPage]
     );
+
+    // Trigger API call when pagination changes
+    useEffect(() => {
+        if (Object.keys(filterParams).length > 0) {
+            fetchReport(filterParams);
+        }
+    }, [currentPage, itemsPerPage]);
 
     // Handle filter changes
     const handleFilterChange = useCallback(
         (params: Record<string, any>) => {
             setFilterParams(params);
-            setCurrentPage(1);
-            fetchReport(params);
+            setCurrentPage(1); // Reset to first page when filters change
+
+            // Create a temp fetch function with page 1
+            const fetchWithNewFilters = async () => {
+                try {
+                    const payload = {
+                        ...params,
+                        format: 'json',
+                        page: 1,
+                        per_page: itemsPerPage,
+                    };
+
+                    const response = await getSalesReport(payload).unwrap();
+                    const apiData = response;
+                    const apiSummary = apiData?.summary || {};
+
+                    const transformedData: SalesReportData = {
+                        ...apiData,
+                        summary: {
+                            total_orders: apiSummary.orders_count ?? 0,
+                            paid_orders: apiSummary.paid_orders ?? 0,
+                            pending_orders: apiSummary.pending_orders ?? 0,
+                            failed_orders: apiSummary.failed_orders ?? 0,
+                            total_revenue: Number(apiSummary.total_grand ?? apiSummary.total_revenue ?? 0),
+                            total_sales: Number(apiSummary.total_sales ?? 0),
+                            avg_order_value: apiSummary.orders_count > 0 ? Number(apiSummary.total_grand ?? 0) / apiSummary.orders_count : 0,
+                        },
+                        items: apiData.items.map((item: any) => ({
+                            invoice: item.invoice,
+                            customer_name: item.customer_name || 'Walk-in Customer',
+                            customer_phone: item.customer_phone || 'N/A',
+                            items_count: Number(item.items_count || 0),
+                            payment_status: item.payment_status || 'paid',
+                            payment_method: item.payment_method || 'N/A',
+                            subtotal: Number(item.subtotal || 0),
+                            tax: Number(item.tax || 0),
+                            discount: Number(item.discount || 0),
+                            grand_total: Number(item.grand_total || 0),
+                            order_date: item.order_date,
+                            store: item.store,
+                            category: item.category,
+                            brand: item.brand,
+                        })),
+                    };
+
+                    setReportData(transformedData);
+                } catch (error: any) {
+                    console.error('Error fetching sales report:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error?.data?.message || 'Failed to fetch sales report',
+                    });
+                }
+            };
+
+            fetchWithNewFilters();
         },
-        [fetchReport]
+        [getSalesReport, itemsPerPage]
     );
+
+    // Handle page changes
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleItemsPerPageChange = (perPage: number) => {
+        setItemsPerPage(perPage);
+        setCurrentPage(1); // Reset to first page when changing items per page
+    };
 
     // Export handlers
     const handleExportPDF = async () => {
@@ -276,9 +349,11 @@ const SalesReportPage = () => {
         },
     ];
 
-    // Pagination
-    const paginatedData = reportData?.items?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
-    const totalPages = Math.ceil((reportData?.items?.length || 0) / itemsPerPage);
+    // Use data from API (server-side pagination)
+    const paginatedData = reportData?.items || [];
+
+    // Calculate total pages from API response or summary
+    const totalPages = reportData?.pagination?.total_pages || Math.ceil((reportData?.summary?.total_orders || 0) / itemsPerPage);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -363,43 +438,41 @@ const SalesReportPage = () => {
                             <p className="text-sm font-medium opacity-90">Avg Order Value</p>
                             <TrendingUp className="h-6 w-6 opacity-80" />
                         </div>
-                        <p className="text-3xl font-bold">
-                            ৳{' '}
-                            {(
-                                reportData?.summary?.avg_order_value ??
-                                (reportData?.summary?.total_revenue && reportData?.summary?.total_orders ? reportData.summary.total_revenue / reportData.summary.total_orders : 0)
-                            ).toFixed(2)}
-                        </p>
+                        <p className="text-3xl font-bold">৳{reportData.summary.avg_order_value.toFixed(2)}</p>
                     </div>
                 </div>
             )}
 
-            {/* Loading State */}
-            {isLoading && <Loading />}
+            <div className="relative">
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+                        <Loading />
+                    </div>
+                )}
 
-            {/* Table - Screen View (Paginated) */}
-            {!isLoading && reportData && (
-                <div className="print:hidden">
+                {!isLoading && reportData && (
                     <ReusableTable
                         data={paginatedData}
                         columns={columns}
-                        isLoading={isLoading}
-                        emptyState={{
-                            icon: <ShoppingCart className="h-16 w-16" />,
-                            title: 'No Sales Data Found',
-                            description: 'Try adjusting your filters to see sales records.',
-                        }}
                         pagination={{
                             currentPage,
                             totalPages,
                             itemsPerPage,
-                            totalItems: reportData.items.length,
+                            totalItems: reportData?.pagination?.total || reportData?.summary?.total_orders || 0,
                             onPageChange: setCurrentPage,
-                            onItemsPerPageChange: setItemsPerPage,
+                            onItemsPerPageChange: (n) => {
+                                setItemsPerPage(n);
+                                setCurrentPage(1);
+                            },
+                        }}
+                        emptyState={{
+                            icon: <ShoppingCart className="h-16 w-16" />,
+                            title: 'No Sales Data Found',
+                            description: 'Try adjusting your filters to see results.',
                         }}
                     />
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Print-Only View (Full Data) */}
             {!isLoading && reportData && (
@@ -426,13 +499,11 @@ const SalesReportPage = () => {
                         </div>
                         <div>
                             <p className="text-xs text-gray-600">Total Revenue</p>
-                            {/* <p className="text-lg font-bold">৳{reportData.summary.total_revenue.toFixed(2)}</p> */}
                             <p className="text-lg font-bold">৳{Number(reportData?.summary?.total_revenue ?? 0).toFixed(2)}</p>
                         </div>
                         <div>
                             <p className="text-xs text-gray-600">Avg Order Value</p>
-                            {/* <p className="text-lg font-bold">৳{reportData.summary.avg_order_value.toFixed(2)}</p> */}
-                            <p className="text-lg font-bold">৳{(Number(reportData?.summary?.total_grand ?? 0) / Number(reportData?.summary?.orders_count ?? 1) || 0).toFixed(2)}</p>
+                            <p className="text-lg font-bold">৳{reportData.summary.avg_order_value.toFixed(2)}</p>
                         </div>
                     </div>
 

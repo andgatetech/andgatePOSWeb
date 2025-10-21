@@ -5,7 +5,7 @@ import Loading from '@/components/layouts/loading';
 import { downloadBase64File } from '@/lib/downloadFile';
 import { useGetIncomeReportMutation } from '@/store/features/reports/reportApi';
 import { CreditCard, DollarSign, FileDown, FileSpreadsheet, Package, Printer, Store, TrendingUp } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
@@ -22,8 +22,8 @@ interface IncomeReportItem {
 }
 
 interface IncomeReportData {
-    generated_at: string;
-    filters: {
+    generated_at?: string;
+    filters?: {
         store_ids: number[];
         from_date?: string;
         to_date?: string;
@@ -36,18 +36,19 @@ interface IncomeReportData {
         transactions: number;
     };
     items: IncomeReportItem[];
+    pagination?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        total_pages: number;
+    };
 }
 
 interface IncomeReportFileResponse {
     file: string;
     filename: string;
     mime_type: string;
-}
-
-interface IncomeReportResponse {
-    success: boolean;
-    message: string;
-    data: IncomeReportData | IncomeReportFileResponse;
 }
 
 const IncomeReportPage = () => {
@@ -57,40 +58,24 @@ const IncomeReportPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
 
-    // const reportData = reportDatas?.data;
-
     const [getIncomeReport, { isLoading }] = useGetIncomeReportMutation();
 
-    // Fetch report data
-    // const fetchReport = useCallback(
-    //     async (params: Record<string, any>, format: string = 'json') => {
-    //         try {
-    //             const payload = { ...params, format };
-    //             const response = await getIncomeReport(payload).unwrap();
-
-    //             if (format === 'json') {
-    //                 setReportData(response);
-    //             }
-    //         } catch (error: any) {
-    //             console.error('Error fetching income report:', error);
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Error',
-    //                 text: error?.data?.message || 'Failed to fetch income report',
-    //             });
-    //         }
-    //     },
-    //     [getIncomeReport]
-    // );
-
+    // Fetch report data with pagination
     const fetchReport = useCallback(
         async (params: Record<string, any>, format: string = 'json') => {
             try {
-                const payload = { ...params, format };
-                const response: IncomeReportResponse = await getIncomeReport(payload).unwrap();
+                const payload = {
+                    ...params,
+                    format,
+                    ...(format === 'json' && {
+                        page: currentPage,
+                        per_page: itemsPerPage,
+                    }),
+                };
+
+                const response = await getIncomeReport(payload).unwrap();
 
                 if (format === 'json') {
-                    // Set actual report data to state
                     setReportData(response as IncomeReportData);
                 } else {
                     // Handle file export
@@ -119,82 +104,60 @@ const IncomeReportPage = () => {
                 });
             }
         },
-        [getIncomeReport]
+        [getIncomeReport, currentPage, itemsPerPage]
     );
+
+    // Trigger API call when pagination changes (but not on initial mount)
+    useEffect(() => {
+        if (Object.keys(filterParams).length > 0) {
+            fetchReport(filterParams);
+        }
+    }, [currentPage, itemsPerPage]);
 
     // Handle filter changes
     const handleFilterChange = useCallback(
         (params: Record<string, any>) => {
             setFilterParams(params);
-            setCurrentPage(1);
-            fetchReport(params);
+            setCurrentPage(1); // Reset to first page
+
+            // Fetch with new filters immediately
+            const fetchWithNewFilters = async () => {
+                try {
+                    const payload = {
+                        ...params,
+                        format: 'json',
+                        page: 1,
+                        per_page: itemsPerPage,
+                    };
+
+                    const response = await getIncomeReport(payload).unwrap();
+                    setReportData(response as IncomeReportData);
+                } catch (error: any) {
+                    console.error('Error fetching income report:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error?.data?.message || 'Failed to fetch income report',
+                    });
+                }
+            };
+
+            fetchWithNewFilters();
         },
-        [fetchReport]
+        [getIncomeReport, itemsPerPage]
     );
 
-    // Export handlers
-    // const handleExportPDF = async () => {
-    //     try {
-    //         const payload = {
-    //             ...filterParams,
-    //             format: 'pdf',
-    //         };
+    // Handle page changes
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
-    //         const response = await getIncomeReport(payload).unwrap();
+    const handleItemsPerPageChange = (perPage: number) => {
+        setItemsPerPage(perPage);
+        setCurrentPage(1); // Reset to first page
+    };
 
-    //         if (response?.data?.file) {
-    //             downloadBase64File(response.data.file, response.data.filename || `income-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
-
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Success',
-    //                 text: 'PDF downloaded successfully',
-    //                 timer: 2000,
-    //             });
-    //         }
-    //     } catch (error: any) {
-    //         console.error('Failed to export PDF:', error);
-    //         Swal.fire({
-    //             icon: 'error',
-    //             title: 'Error',
-    //             text: error?.data?.message || 'Failed to export PDF',
-    //         });
-    //     }
-    // };
-
-    // const handleExportExcel = async () => {
-    //     try {
-    //         const payload = {
-    //             ...filterParams,
-    //             format: 'excel',
-    //         };
-
-    //         const response = await getIncomeReport(payload).unwrap();
-
-    //         if (response?.data?.file) {
-    //             downloadBase64File(
-    //                 response.data.file,
-    //                 response.data.filename || `income-report-${new Date().getTime()}.xlsx`,
-    //                 response.data.mime_type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    //             );
-
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Success',
-    //                 text: 'Excel downloaded successfully',
-    //                 timer: 2000,
-    //             });
-    //         }
-    //     } catch (error: any) {
-    //         console.error('Failed to export Excel:', error);
-    //         Swal.fire({
-    //             icon: 'error',
-    //             title: 'Error',
-    //             text: error?.data?.message || 'Failed to export Excel',
-    //         });
-    //     }
-    // };
-
+    // Export handlers (export all data, not paginated)
     const handleExportPDF = () => fetchReport(filterParams, 'pdf');
     const handleExportExcel = () => fetchReport(filterParams, 'excel');
 
@@ -277,7 +240,7 @@ const IncomeReportPage = () => {
         },
     ];
 
-    // Calculate summary statistics
+    // Calculate summary statistics from current page data
     const summary = reportData
         ? {
               totalIncome: reportData.summary.total_income,
@@ -288,12 +251,11 @@ const IncomeReportPage = () => {
           }
         : null;
 
-    console.log('Report Data:', reportData);
-    console.log('Summary:', summary);
+    // Use data from API (server-side pagination)
+    const paginatedData = reportData?.items || [];
 
-    // Pagination
-    const paginatedData = reportData?.items?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
-    const totalPages = Math.ceil((reportData?.items?.length || 0) / itemsPerPage);
+    // Calculate total pages from API response
+    const totalPages = reportData?.pagination?.total_pages || Math.ceil((reportData?.summary?.transactions || 0) / itemsPerPage);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -395,10 +357,10 @@ const IncomeReportPage = () => {
             )}
 
             {/* Loading State */}
-            {isLoading && <Loading />}
+            {/* {isLoading && <Loading />} */}
 
-            {/* Table - Screen View (Paginated) */}
-            {!isLoading && reportData && (
+            {/* Table - Screen View (Server-side Paginated) */}
+            {/* {!isLoading && reportData && (
                 <div className="print:hidden">
                     <ReusableTable
                         data={paginatedData}
@@ -413,13 +375,37 @@ const IncomeReportPage = () => {
                             currentPage,
                             totalPages,
                             itemsPerPage,
-                            totalItems: reportData.items.length,
-                            onPageChange: setCurrentPage,
-                            onItemsPerPageChange: setItemsPerPage,
+                            totalItems: reportData?.pagination?.total || reportData?.summary?.transactions || 0,
+                            onPageChange: handlePageChange,
+                            onItemsPerPageChange: handleItemsPerPageChange,
                         }}
                     />
                 </div>
-            )}
+            )} */}
+
+            {/* Table Section Only */}
+            <div className="relative">
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+                        <Loading />
+                    </div>
+                )}
+
+                {!isLoading && reportData && (
+                    <ReusableTable
+                        data={paginatedData}
+                        columns={columns}
+                        pagination={{
+                            currentPage,
+                            totalPages,
+                            itemsPerPage,
+                            totalItems: reportData?.pagination?.total || 0,
+                            onPageChange: handlePageChange,
+                            onItemsPerPageChange: handleItemsPerPageChange,
+                        }}
+                    />
+                )}
+            </div>
 
             {/* Print-Only View (Full Data) */}
             {!isLoading && reportData && (
