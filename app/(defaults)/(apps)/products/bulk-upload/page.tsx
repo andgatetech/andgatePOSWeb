@@ -1,6 +1,6 @@
 'use client';
 import { useProductBulkUploadMutation } from '@/store/features/Product/productApi';
-import { AlertCircle, CheckCircle, Download, Upload } from 'lucide-react';
+import { AlertCircle, CheckCircle, Download, Upload, X, AlertTriangle, XCircle } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { toast } from 'react-toastify';
@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 const ProductBulkUpload = () => {
     const [file, setFile] = useState<File | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [showResultModal, setShowResultModal] = useState(false);
+    const [uploadResult, setUploadResult] = useState<any>(null);
     const [productBulkUpload, { isLoading }] = useProductBulkUploadMutation();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +35,10 @@ const ProductBulkUpload = () => {
 
         try {
             const response = await productBulkUpload(formData).unwrap();
-            toast.success(`Successfully uploaded ${response.success_count || 0} products`);
+            // Check if data is in errors or data field
+            const resultData = response.errors || response.data;
+            setUploadResult(resultData);
+            setShowResultModal(true);
             setFile(null);
             setUploadProgress(100);
 
@@ -42,15 +47,22 @@ const ProductBulkUpload = () => {
             if (fileInput) fileInput.value = '';
         } catch (error: any) {
             console.error('Upload error:', error);
-            toast.error(error?.data?.message || 'Failed to upload products');
+            const errorData = error?.data?.errors || error?.data?.data || error?.data;
+            setUploadResult({
+                success_count: errorData?.success_count || 0,
+                failed_count: errorData?.failed_count || 0,
+                failures: errorData?.failures || [],
+                message: error?.data?.message || 'Failed to upload products',
+            });
+            setShowResultModal(true);
             setUploadProgress(0);
         }
     };
 
     const downloadTemplate = () => {
-        const csvContent = `store_id,product_name,description,category_name,brand_name,price,purchase_price,sku,tax_rate,low_stock_quantity,available,tax_included
-123,Premium Wireless Headphones,"High-quality noise-cancelling headphones with 30-hour battery life",Electronics,Sony,299.99,150.00,WH-PRO-001,15.00,10,yes,true
-123,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high-altitude gardens",Beverages,Lipton,12.99,6.50,TEA-GRN-002,5.00,20,yes,true`;
+        const csvContent = `store_name,product_name,description,category_name,brand_name,price,purchase_price,sku,tax_rate,low_stock_quantity,quantity,available,tax_included
+Agora,Premium Wireless Headphones,"High-quality noise-cancelling headphones with 30-hour battery life",Electronics,Sony,299.99,150.00,WH-PRO-001,15.00,10,12,yes,true
+Agora,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high-altitude gardens",Beverages,Lipton,12.99,6.50,TEA-GRN-002,5.00,20,25,yes,true`;
 
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -262,6 +274,87 @@ const ProductBulkUpload = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Result Modal */}
+            {showResultModal && uploadResult && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                    <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl">
+                        {/* Modal Header */}
+                        <div
+                            className={`flex items-center justify-between p-6 ${
+                                uploadResult.failed_count === 0
+                                    ? 'border-b border-green-200 bg-green-50'
+                                    : uploadResult.success_count === 0
+                                    ? 'border-b border-red-200 bg-red-50'
+                                    : 'border-b border-yellow-200 bg-yellow-50'
+                            }`}
+                        >
+                            <div className="flex items-center gap-3">
+                                {uploadResult.failed_count === 0 ? (
+                                    <CheckCircle className="text-3xl text-green-600" />
+                                ) : uploadResult.success_count === 0 ? (
+                                    <XCircle className="text-3xl text-red-600" />
+                                ) : (
+                                    <AlertTriangle className="text-3xl text-yellow-600" />
+                                )}
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900">
+                                        {uploadResult.failed_count === 0 ? 'Upload Successful!' : uploadResult.success_count === 0 ? 'Upload Failed' : 'Partial Success'}
+                                    </h3>
+                                    <p className="text-sm text-gray-600">
+                                        {uploadResult.success_count} succeeded, {uploadResult.failed_count} failed
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowResultModal(false)} className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-200">
+                                <X className="text-xl" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="max-h-[60vh] overflow-y-auto p-6">
+                            {/* Success Summary */}
+                            {uploadResult.success_count > 0 && (
+                                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="text-xl text-green-600" />
+                                        <p className="font-semibold text-green-800">
+                                            {uploadResult.success_count} product{uploadResult.success_count > 1 ? 's' : ''} uploaded successfully
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Failures List */}
+                            {uploadResult.failures && uploadResult.failures.length > 0 && (
+                                <div>
+                                    <h4 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
+                                        <AlertCircle className="text-xl text-red-600" />
+                                        Failed Rows ({uploadResult.failures.length})
+                                    </h4>
+                                    <div className="space-y-2">
+                                        {uploadResult.failures.map((failure: any, index: number) => (
+                                            <div key={index} className="rounded-lg border border-red-200 bg-red-50 p-3">
+                                                <div className="flex items-start gap-3">
+                                                    <span className="flex-shrink-0 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">Row {failure.row}</span>
+                                                    <p className="text-sm text-red-800">{failure.error}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="border-t border-gray-200 p-6">
+                            <button onClick={() => setShowResultModal(false)} className="w-full rounded-lg bg-gray-800 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-900">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
