@@ -128,6 +128,14 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Products'],
         }),
+        productBulkUpload: builder.mutation({
+            query: (formData) => ({
+                url: '/products/bulk-upload',
+                method: 'POST',
+                body: formData,
+            }),
+            invalidatesTags: ['Products'],
+        }),
     }),
 });
 
@@ -144,4 +152,5 @@ export const {
     useGenerateQRCodesMutation,
     useGetActivityLogsQuery,
     useGetUnitsQuery,
+    useProductBulkUploadMutation,
 } = ProductApi;

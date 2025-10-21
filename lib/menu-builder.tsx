@@ -98,6 +98,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['stock.adjustments'],
             },
             {
+                label: 'Bulk Upload',
+                href: '/products/bulk-upload',
+                requiredPermissions: ['products.view'],
+            },
+            {
                 label: 'Print Label',
                 href: '/label',
                 requiredPermissions: ['products.view'],
