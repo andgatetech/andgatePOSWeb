@@ -1,11 +1,13 @@
 'use client';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useProductBulkUploadMutation } from '@/store/features/Product/productApi';
-import { AlertCircle, CheckCircle, Download, Upload, X, AlertTriangle, XCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, Download, Upload, X, XCircle } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { toast } from 'react-toastify';
 
 const ProductBulkUpload = () => {
+    const { currentStore, currentStoreId } = useCurrentStore();
     const [file, setFile] = useState<File | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [showResultModal, setShowResultModal] = useState(false);
@@ -32,6 +34,7 @@ const ProductBulkUpload = () => {
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('store_id', currentStoreId);
 
         try {
             const response = await productBulkUpload(formData).unwrap();
@@ -60,9 +63,9 @@ const ProductBulkUpload = () => {
     };
 
     const downloadTemplate = () => {
-        const csvContent = `store_name,product_name,description,category_name,brand_name,price,purchase_price,sku,tax_rate,low_stock_quantity,quantity,available,tax_included
-Agora,Premium Wireless Headphones,"High-quality noise-cancelling headphones with 30-hour battery life",Electronics,Sony,299.99,150.00,WH-PRO-001,15.00,10,12,yes,true
-Agora,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high-altitude gardens",Beverages,Lipton,12.99,6.50,TEA-GRN-002,5.00,20,25,yes,true`;
+        const csvContent = `product_name,description,category_name,brand_name,price,purchase_price,tax_rate,low_stock_quantity,quantity,available,tax_included
+Premium Wireless Headphones,"High-quality noise-cancelling headphones with 30-hour battery life",Electronics,Sony,299.99,150.00,15.00,10,12,yes,true
+Organic Green Tea 100g,"Premium organic green tea leaves sourced from high-altitude gardens",Beverages,Lipton,12.99,6.50,5.00,20,25,yes,true`;
 
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -92,10 +95,10 @@ Agora,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high
                         <div>
                             <h3 className="mb-2 text-lg font-semibold text-blue-900">Instructions</h3>
                             <ul className="space-y-2 text-sm text-blue-800">
+                                <li>• Product insert only your current selected store only</li>
                                 <li>• Download the CSV template below to see the required format</li>
                                 <li>• Products images will be uploaded separately in product edit page</li>
                                 <li>• Fill in all required fields: product_name, price, purchase_price, and sku</li>
-                                <li>• Store ID must be included for each product; And it is your registered Store ID</li>
                                 <li>• Use category_name, brand_name (not IDs) - the system will match them automatically</li>
                                 <li>• SKU must be unique for each product</li>
                                 <li>• Available field accepts: "yes" or "no"</li>
@@ -105,6 +108,21 @@ Agora,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high
                         </div>
                     </div>
                 </div>
+
+                {/* Store Info Badge */}
+                {currentStore && (
+                    <div className="mb-6 flex items-center justify-between rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-2 rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-semibold text-blue-700 shadow-sm">
+                                <span className="text-base">🏬</span>
+                                {currentStore?.store_name || 'Unknown Store'}
+                            </span>
+                            <p className="text-sm text-gray-700">
+                                Please create products <span className="font-semibold text-blue-700">only for this store.</span>
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Template Download Card */}
                 <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
@@ -220,11 +238,6 @@ Agora,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high
                                     <td className="px-4 py-2">High-quality noise-cancelling headphones</td>
                                 </tr>
                                 <tr>
-                                    <td className="px-4 py-2 font-mono">store_id</td>
-                                    <td className="px-4 py-2 text-gray-600">Yes</td>
-                                    <td className="px-4 py-2">123</td>
-                                </tr>
-                                <tr>
                                     <td className="px-4 py-2 font-mono">category_name</td>
                                     <td className="px-4 py-2 text-gray-600">No</td>
                                     <td className="px-4 py-2">Electronics</td>
@@ -243,11 +256,6 @@ Agora,Organic Green Tea 100g,"Premium organic green tea leaves sourced from high
                                     <td className="px-4 py-2 font-mono">purchase_price</td>
                                     <td className="px-4 py-2 text-red-600">Yes</td>
                                     <td className="px-4 py-2">150.00</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-4 py-2 font-mono">sku</td>
-                                    <td className="px-4 py-2 text-red-600">Yes</td>
-                                    <td className="px-4 py-2">WH-PRO-001</td>
                                 </tr>
                                 <tr>
                                     <td className="px-4 py-2 font-mono">tax_rate</td>

@@ -262,7 +262,7 @@ const FeedbackPage = () => {
             <div className="absolute bottom-1/4 left-1/4 h-12 w-12 animate-pulse rounded-full bg-indigo-200 opacity-20 delay-150"></div>
 
             <div className="relative px-4 py-12 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-4xl">
+                <div className="mx-auto">
                     {/* Header */}
                     <div className="mb-12 text-center">
                         <div className="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
