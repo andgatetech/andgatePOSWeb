@@ -290,6 +290,31 @@ const PosRightSide: React.FC = () => {
         );
     };
 
+
+    const handleUnitPriceChange = (itemId: number, value: string) => {
+        const item = invoiceItems.find((item) => item.id === itemId);
+        if (!item) return;
+
+        // If input is empty, temporarily set rate to 0
+        if (value === '') {
+            dispatch(updateItemRedux({ ...item, rate: 0, amount: 0 }));
+            return;
+        }
+
+        const newRate = Number(value);
+
+        if (newRate < 0) return; // prevent negatives
+
+        // Update rate and recalculate amount
+        dispatch(
+            updateItemRedux({
+                ...item,
+                rate: newRate,
+                amount: item.quantity * newRate,
+            })
+        );
+    };
+
     const calculateSubtotal = () => invoiceItems.reduce((total, item) => total + item.rate * item.quantity, 0);
 
     // Calculate tax for each item individually based on tax_included flag
@@ -946,7 +971,36 @@ const PosRightSide: React.FC = () => {
                                             <td className="border-r border-gray-300 p-3 text-center text-sm">
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
                                             </td>
-                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">৳{item.rate.toFixed(2)}</td>
+                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">
+                                                    <div className="relative">
+                                                        <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        className="form-input w-24 text-right border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md"
+                                                        value={item.rate}
+                                                        onChange={(e) => {
+                                                            const newRate = e.target.value;
+                                                            handleUnitPriceChange(item.id, newRate);
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            if (item.quantity === 0) {
+                                                                const updatedItem = invoiceItems.find((invItem) => invItem.id === item.id);
+                                                                if (updatedItem) {
+                                                                    dispatch(
+                                                                        updateItemRedux({
+                                                                            ...updatedItem,
+                                                                            quantity: 1,
+                                                                            amount: updatedItem.rate * 1,
+                                                                        })
+                                                                    );
+                                                                }
+                                                            }
+                                                        }}
+                                                        />
+                                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">৳</span>
+                                                    </div>
+                                                </td>
+
                                             <td className="border-r border-gray-300 p-3 text-center text-sm">
                                                 {item.tax_rate ? (
                                                     <div className="text-xs">
