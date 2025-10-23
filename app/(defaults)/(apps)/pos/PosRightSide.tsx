@@ -1086,7 +1086,14 @@ const PosRightSide: React.FC = () => {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Rate:</span>
-                                            <span className="font-medium">৳{item.rate.toFixed(2)}</span>
+                                            <input
+                                                type="number"
+                                                className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
+                                                placeholder="Quantity"
+                                                value={item.rate === 0 ? '' : item.rate}
+                                                onChange={(e) => handleUnitPriceChange(item.id, e.target.value)}
+                                                min="0"
+                                            />
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Tax:</span>
