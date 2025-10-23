@@ -1087,7 +1087,6 @@ const PosRightSide: React.FC = () => {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Rate:</span>
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">৳</span>
                                             <input
                                                 type="number"
                                                 className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
