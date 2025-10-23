@@ -134,7 +134,7 @@ const ComponentsDashboardSales = () => {
             trend: 'up',
             icon: <BarChart3 className="h-6 w-6" />, // you can swap for another Lucide icon if you prefer
             color: 'bg-gradient-to-r from-indigo-500 to-indigo-600',
-            href: '/brands',
+            href: '/brand',
         },
     ];
 
