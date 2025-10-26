@@ -124,5 +124,633 @@
     "coming_soon_boxed": "Coming Soon Boxed",
     "coming_soon_cover": "Coming Soon Cover",
     "contact_us_boxed": "Contact Us Boxed",
-    "contact_us_cover": "Contact Us Cover"
+    "contact_us_cover": "Contact Us Cover",
+    "upcoming_feature": "Coming Soon: AI-Powered Sales Analytics",
+    "hero_title": "Easy POS for Your Shop",
+    "hero_subtitle": "Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock & Customers Easily",
+    "hero_description": "From small shops to growing businesses, our cloud-based POS helps you track sales, control inventory, and grow profits — anytime, anywhere.",
+    "get_started": "Get Started Free",
+    "no_payment": "No prepayment required",
+    "free_package": "Free package available",
+    "cancel_anytime": "Cancel anytime",
+
+    "stats_businesses": "Active Businesses",
+    "stats_order": "Orders Processed",
+    "stats_uptime": "Uptime Guarantee",
+    "stats_support": "Customer Support",
+
+    "features_heading": "Manage Sales, Stock, and Growth Effortlessly",
+    "features_description": "From billing to reporting, our POS takes care of the hard work so you can focus on running your business.",
+
+    "feature_dashboard": "Smart Dashboard",
+    "feature_dashboard_desc": "Get a clear overview of sales, stock, and business performance on one screen.",
+
+    "feature_checkout": "Easy Checkout",
+    "feature_checkout_desc": "Process sales quickly — cash, bKash, or card, all in one place.",
+
+    "feature_reporting": "Simple Reporting",
+    "feature_reporting_desc": "View daily sales, revenue trends, and stock status in a clear dashboard.",
+
+    "feature_supplier": "Supplier Management",
+    "feature_supplier_desc": "Easily track suppliers, purchase orders, and stock transfers.",
+
+    "feature_product": "Product & Category Management",
+    "feature_product_desc": "Organize products into categories, manage variants, and keep inventory updated.",
+
+    "feature_order": "Order Management",
+    "feature_order_desc": "Track orders, sales, and invoices easily.",
+
+    "feature_expense": "Expense Management",
+    "feature_expense_desc": "Record and track daily expenses like rent, bills, and other costs.",
+
+    "feature_accounts": "Accounts & Payments",
+    "feature_accounts_desc": "Track income, payments, and balances to keep finances organized.",
+
+    "feature_customer": "Customer Management",
+    "feature_customer_desc": "Store customer information, contacts, and purchase history for better service.",
+
+    "feature_inventory": "Inventory Management",
+    "feature_inventory_desc": "Monitor stock, damaged products, or transfers easily.",
+
+    "feature_multistore": "Multi-Store Management",
+    "feature_multistore_desc": "Manage multiple shops from one dashboard — track sales, stock, and expenses.",
+
+    "feature_barcode": "Barcode Generation & Printing",
+    "feature_barcode_desc": "Generate and print barcodes for your products easily.",
+
+    "quick_start_title": "Quick Start Guide",
+    "quick_start_desc": "Get started in just 4 steps. Perfect for new users.",
+
+    "quick_step_1": "Create Account",
+    "quick_step_1_desc": "Sign up and verify your business information.",
+
+    "quick_step_2": "Configure Settings",
+    "quick_step_2_desc": "Set payment methods, tax rates, and business preferences.",
+
+    "quick_step_3": "Add Products",
+    "quick_step_3_desc": "Import inventory or add products manually.",
+
+    "quick_step_4": "Start Selling",
+    "quick_step_4_desc": "Complete your first transaction and explore features.",
+
+    "watch_video": "Watch Quick Start Video",
+
+    "cta_title": "Ready to Transform Your Business?",
+    "cta_desc": "Join over 300 businesses using AndgatePOS for success. Start free today and see the difference in 24 hours.",
+    "cta_start": "Start Free Journey Now",
+    "cta_signin": "Sign In",
+    "cta_benefits": "✓ No setup fees ✓ Cancel anytime ✓ 24/7 support included",
+
+    "contact": {
+        "page_title": "Get Started with AndgatePOS",
+        "page_subtitle": "Ready to transform your business? Fill out the form below and our team will contact you to set up your personalized POS solution.",
+        "form": {
+            "name": "Full Name *",
+            "email": "Email Address *",
+            "phone": "Phone Number *",
+            "business_name": "Business Name *",
+            "business_location": "Business Location *",
+            "store_size": "Number of Stores *",
+            "package": "Interest Package *",
+            "store_options": {
+                "1": "1 Store",
+                "2": "2 Stores",
+                "5": "5 Stores",
+                "10+": "10+ Stores"
+            },
+            "package_options": {
+                "starter": "Starter Package - ৳2,500/month",
+                "professional": "Professional Package - ৳5,000/month",
+                "premium": "Premium Package - ৳8,000/month",
+                "enterprise": "Enterprise Package - Custom Pricing"
+            },
+            "submit_button": "Send Message",
+            "submitting": "Sending...",
+            "privacy_policy": "Privacy Policy",
+            "terms_of_service": "Terms of Service"
+        },
+        "contact_info": {
+            "title": "Get in Touch",
+            "visit": {
+                "title": "Visit Us",
+                "address": "House: 34, Road: 3, Block: B, Aftabnagar, Badda, Dhaka, Bangladesh"
+            },
+            "call": {
+                "title": "Call Us",
+                "phone": "+880 1838680434"
+            },
+            "email": {
+                "title": "Email Us",
+                "email": "support@andgatetech.net"
+            }
+        },
+        "next_steps": {
+            "title": "What Happens Next?",
+            "steps": [
+                {
+                    "step": "1",
+                    "title": "We Review Your Request",
+                    "description": "Our team reviews your requirements within 2 hours"
+                },
+                {
+                    "step": "2",
+                    "title": "Schedule a Demo",
+                    "description": "We schedule a personalized demo at your convenience"
+                },
+                {
+                    "step": "3",
+                    "title": "Start Your Trial",
+                    "description": "Begin your 30-day free trial with full support"
+                }
+            ]
+        },
+        "success_modal": {
+            "title": "Thank You!",
+            "description": "Your request has been submitted successfully. Our team will contact you within 2 hours to discuss your POS solution.",
+            "back_home": "Back to Home",
+            "sign_in": "Sign In to Dashboard",
+            "continue": "Continue browsing"
+        }
+    },
+
+    "footer": {
+        "brand": {
+            "name": "AndgatePOS",
+            "description": "Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with AndGatePOS."
+        },
+        "social": {
+            "facebook": "f",
+            "twitter": "t",
+            "linkedin": "in"
+        },
+        "links": {
+            "product": {
+                "title": "Product",
+                "items": [
+                    { "label": "Features", "href": "#features" },
+                    { "label": "Pricing", "href": "#pricing" }
+                ]
+            },
+            "support": {
+                "title": "Support",
+                "items": [
+                    { "label": "Help Center", "href": "/contact" },
+                    { "label": "Contact Us", "href": "/contact" },
+                    { "label": "Training", "href": "/training" }
+                ]
+            }
+        },
+        "footerNote": "© 2024 AndGate Technologies. All rights reserved. Empowering businesses worldwide.",
+        "policies": [
+            { "label": "Privacy Policy", "href": "/privacy-policy" },
+            { "label": "Terms of Service", "href": "/terms-of-service" },
+            { "label": "Cookie Policy", "href": "/cookie-policy" }
+        ]
+    },
+
+    "layout": {
+        "nav": {
+            "home": "Home",
+            "features": "Features",
+            "overview": "POS Overview",
+            "pricing": "Pricing",
+            "training": "Training",
+            "contact": "Contact",
+            "login": "Login",
+            "get_started": "Get Started"
+        }
+    },
+
+    "overview": {
+        "sectionTitle": "System Overview",
+        "sectionSubtitle": "Discover the powerful features that make our POS system the perfect solution for your business.",
+        "sections": [
+            {
+                "title": "Real-Time Business Insights",
+                "subtitle": "Dashboard",
+                "features": ["Real-time analytics dashboard", "Sales performance tracking", "Revenue & profit analysis", "Key business metrics at a glance"],
+                "ctaText": "View Dashboard"
+            },
+            {
+                "title": "Complete Store Management",
+                "subtitle": "Store",
+                "features": ["Multi-store management system", "Store settings & configuration", "Employee management & permissions", "Stock adjustment & inventory control"],
+                "ctaText": "Manage Store"
+            },
+            {
+                "title": "Organize Your Products",
+                "subtitle": "Categories & Brands",
+                "features": ["Category management system", "Brand organization & tracking", "Hierarchical product structure", "Easy product categorization"],
+                "ctaText": "Organize Products"
+            },
+            {
+                "title": "Advanced Product Management",
+                "subtitle": "Products",
+                "features": ["Easy product addition & management", "Stock adjustment & tracking", "Product QR code generation", "Barcode label printing"],
+                "ctaText": "Manage Products"
+            },
+            {
+                "title": "Fast & Efficient POS",
+                "subtitle": "POS",
+                "features": ["Quick POS interface", "Barcode scanning support", "Multiple payment methods", "Fast checkout process"],
+                "ctaText": "Try POS"
+            },
+            {
+                "title": "Mobile & Tablet Responsive Design",
+                "subtitle": "Responsive",
+                "features": ["Fully responsive on all devices", "Mobile-optimized interface", "Tablet-friendly layout", "Works seamlessly on any screen"],
+                "ctaText": "Try on Mobile"
+            },
+            {
+                "title": "No Barcode Scanner Needed - Use Mobile!",
+                "subtitle": "Mobile Scanning",
+                "features": ["Scan barcodes with phone camera", "No expensive scanner hardware needed", "Automatic barcode recognition", "Works on any smartphone or tablet"],
+                "ctaText": "Try Mobile Scanning"
+            },
+            {
+                "title": "Streamlined Order Management",
+                "subtitle": "Orders",
+                "features": ["View all orders in one place", "Order status tracking", "Invoice generation", "Order history & analytics"],
+                "ctaText": "Manage Orders"
+            },
+            {
+                "title": "Purchase Order System",
+                "subtitle": "Purchases",
+                "features": ["Create purchase orders easily", "Track all purchases", "Supplier management", "Purchase history & reports"],
+                "ctaText": "Manage Purchases"
+            },
+            {
+                "title": "Supplier Management",
+                "subtitle": "Suppliers",
+                "features": ["Add & manage suppliers", "Supplier contact information", "Supplier history tracking", "Supplier performance metrics"],
+                "ctaText": "Manage Suppliers"
+            },
+            {
+                "title": "Financial Accounting",
+                "subtitle": "Accounts",
+                "features": ["Ledger management system", "Journal entry tracking", "Financial reports", "Account reconciliation"],
+                "ctaText": "Manage Accounts"
+            },
+            {
+                "title": "Expense Tracking",
+                "subtitle": "Expenses",
+                "features": ["Track all business expenses", "Expense categorization", "Receipt management", "Expense reports & analysis"],
+                "ctaText": "Track Expenses"
+            },
+            {
+                "title": "Customer Relationship Management",
+                "subtitle": "Customers",
+                "features": ["Complete customer database", "Customer purchase history", "Loyalty program support", "Customer analytics & insights"],
+                "ctaText": "Manage Customers"
+            }
+        ]
+    },
+
+    "pricing-section": {
+        "header": {
+            "subtitle": "Pricing Plans",
+            "title": "Choose the Right Plan for Your Business",
+            "description": "Start with our free trial. Upgrade anytime as your business grows."
+        },
+        "frequencies": [
+            { "value": "monthly", "label": "Monthly", "priceSuffix": "/month" },
+            { "value": "annually", "label": "Annually", "priceSuffix": "/year", "discount": "Save 20%" }
+        ],
+        "tiers": [
+            {
+                "name": "Free",
+                "description": "Perfect for small businesses and startups getting started with POS.",
+                "features": ["Up to 1 Store", "50 Products", "Basic Inventory Management", "Basic Accounting", "Basic Reporting", "Basic Support"],
+                "ctaText": "Get Started",
+                "mostPopular": false
+            },
+            {
+                "name": "SME",
+                "description": "Advanced features for growing businesses that need more control.",
+                "features": [
+                    "Up to 1 Store",
+                    "200 Products",
+                    "Advanced Inventory Management",
+                    "Advanced Accounting",
+                    "Priority Support",
+                    "Advanced Analytics",
+                    "Customer Management",
+                    "Staff Management"
+                ],
+                "ctaText": "Get Started",
+                "mostPopular": true
+            },
+            {
+                "name": "Enterprise",
+                "description": "Complete solution for large businesses with multiple locations.",
+                "features": [
+                    "Unlimited Stores",
+                    "Unlimited Products",
+                    "Multi-location Support",
+                    "Advanced Inventory Management",
+                    "Advanced Accounting",
+                    "Advanced Analytics",
+                    "Custom Reporting",
+                    "Custom Integrations",
+                    "24/7 Phone Support",
+                    "API Access",
+                    "Priority Support",
+                    "Training & Onboarding"
+                ],
+                "ctaText": "Get Started",
+                "mostPopular": false
+            }
+        ],
+        "bottomCTA": {
+            "text": "Need a custom solution? We offer tailored plans for large enterprises.",
+            "buttonText": "Contact Sales"
+        }
+    },
+
+    "pricing_page": {
+        "hero": {
+            "badge_text": "Transparent Pricing • No Hidden Costs",
+            "title": "Simple, Transparent Pricing Plans",
+            "subtitle": "Choose the perfect plan for your business. Start free and upgrade as you grow. All plans include a 14-day money-back guarantee.",
+            "benefits": {
+                "no_setup": "No setup fees",
+                "cancel_anytime": "Cancel anytime",
+                "support": "24/7 support"
+            }
+        },
+        "frequency": {
+            "monthly": "Monthly",
+            "annually": "Annually",
+            "save": "Save 20%",
+            "per_month": "/month",
+            "per_year": "/year"
+        },
+        "tiers": {
+            "free": {
+                "name": "Free",
+                "badge": "Get Started",
+                "description": "Perfect for small businesses and startups getting started with POS.",
+                "cta": "Start Free",
+                "features": ["Up to 1 Store", "50 Products", "Basic Inventory Management", "Basic Accounting", "Basic Reporting", "Email Support", "Mobile Access", "Sales Tracking"]
+            },
+            "starter": {
+                "name": "Starter",
+                "badge": "Best Value",
+                "description": "Ideal for small shops growing with essential tools.",
+                "cta": "Get Started",
+                "features": [
+                    "Up to 1 Store",
+                    "100 Products",
+                    "Standard Inventory Management",
+                    "Standard Accounting",
+                    "Sales Analytics",
+                    "Customer Database",
+                    "Email & Chat Support",
+                    "Barcode Scanning",
+                    "Receipt Printing"
+                ]
+            },
+            "sme": {
+                "name": "SME",
+                "badge": "Most Popular",
+                "description": "Advanced features for growing businesses needing more control.",
+                "cta": "Get Started",
+                "features": [
+                    "Up to 1 Store",
+                    "200 Products",
+                    "Advanced Inventory Management",
+                    "Advanced Accounting",
+                    "Priority Support",
+                    "Advanced Analytics",
+                    "Customer Management",
+                    "Staff Management",
+                    "Expense Tracking",
+                    "Purchase Orders",
+                    "Multi-Payment Options"
+                ]
+            },
+            "professional": {
+                "name": "Professional",
+                "badge": "Professional",
+                "description": "For established businesses requiring powerful features and insights.",
+                "cta": "Get Started",
+                "features": [
+                    "Up to 3 Stores",
+                    "500 Products",
+                    "Multi-Store Management",
+                    "Advanced Analytics & Reports",
+                    "Complete Accounting Suite",
+                    "Staff Management with Permissions",
+                    "Customer Loyalty Program",
+                    "Supplier Management",
+                    "Low Stock Alerts",
+                    "Custom Reports",
+                    "Dedicated Account Manager",
+                    "Priority Phone Support"
+                ]
+            },
+            "enterprise": {
+                "name": "Enterprise",
+                "badge": "Enterprise",
+                "description": "Complete solution for large businesses with multiple locations.",
+                "cta": "Get Started",
+                "features": [
+                    "Unlimited Stores",
+                    "Unlimited Products",
+                    "Multi-location Support",
+                    "Advanced Inventory Management",
+                    "Complete Accounting System",
+                    "Advanced Analytics & BI",
+                    "Custom Reporting",
+                    "Custom Integrations",
+                    "24/7 Phone Support",
+                    "API Access",
+                    "White Label Option",
+                    "Training & Onboarding",
+                    "Data Migration Assistance",
+                    "SLA Guarantee"
+                ]
+            }
+        },
+        "features_included": "What's included:",
+        "comparison": {
+            "title": "Compare All Features",
+            "subtitle": "See what's included in each plan",
+            "features": "Features",
+            "stores": "Number of Stores",
+            "products": "Product Limit",
+            "priority_support": "Priority Support",
+            "api_access": "API Access",
+            "unlimited": "Unlimited",
+            "up_to": "Up to"
+        },
+        "faq": {
+            "title": "Frequently Asked Questions",
+            "subtitle": "Everything you need to know about our pricing",
+            "questions": [
+                {
+                    "q": "Can I change plans anytime?",
+                    "a": "Yes! You can upgrade or downgrade your plan anytime. Changes will be reflected in your next billing cycle."
+                },
+                {
+                    "q": "What payment methods do you accept?",
+                    "a": "We accept bKash, Nagad, credit/debit cards, and bank transfers for annual subscriptions."
+                },
+                {
+                    "q": "Are there any setup fees?",
+                    "a": "No setup fees! All plans include free onboarding and setup assistance."
+                },
+                {
+                    "q": "Can I cancel my subscription?",
+                    "a": "Yes, you can cancel anytime. No questions asked, no hidden fees."
+                },
+                {
+                    "q": "Do you offer refunds?",
+                    "a": "We offer a 14-day money-back guarantee on all paid plans if you're not satisfied."
+                },
+                {
+                    "q": "Is my data secure?",
+                    "a": "Absolutely! We use bank-level encryption and regular backups to keep your data safe and secure."
+                }
+            ]
+        },
+        "trust": {
+            "secure_title": "Secure & Reliable",
+            "secure_subtitle": "Bank-level security with 99.9% uptime guarantee",
+            "support_title": "24/7 Support",
+            "support_subtitle": "Round-the-clock assistance whenever you need help",
+            "trusted_title": "Trusted by 100+",
+            "trusted_subtitle": "Join hundreds of businesses across Bangladesh"
+        },
+        "cta": {
+            "title": "Ready to Get Started?",
+            "subtitle": "Start your free trial today. No credit card required. Upgrade anytime.",
+            "start_trial": "Start Free Trial",
+            "contact_sales": "Contact Sales",
+            "guarantee": "✓ 14-day money-back guarantee ✓ No setup fees ✓ Cancel anytime"
+        },
+        "save_percent": "Save"
+    },
+
+    "testimonials": {
+        "header": {
+            "title": "Loved by Business Owners in Bangladesh",
+            "subtitle": "See how entrepreneurs across Bangladesh are growing with AndGatePOS."
+        },
+        "testimonials": [
+            {
+                "name": "Md. Rakib Hossain",
+                "business": "Dhaka Mart",
+                "image": "https://img.icons8.com/color/96/shop.png",
+                "review": "AndGatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
+                "rating": 5
+            },
+            {
+                "name": "Shamima Akter",
+                "business": "Chattogram Fashion House",
+                "image": "https://img.icons8.com/color/96/clothes.png",
+                "review": "Before AndGatePOS, I was struggling with manual calculations. Now everything is digital and customers are happier.",
+                "rating": 5
+            },
+            {
+                "name": "Jahidul Islam",
+                "business": "Sylhet Electronics",
+                "image": "https://img.icons8.com/color/96/electronics.png",
+                "review": "The reporting dashboard is very helpful. I can track profit and expenses daily without hiring an accountant.",
+                "rating": 5
+            },
+            {
+                "name": "Farhana Rahman",
+                "business": "Rajshahi Grocery",
+                "image": "https://img.icons8.com/color/96/grocery-store.png",
+                "review": "AndGatePOS is easy to use for everyone in my shop. Sales increased after using the system because checkout is much faster.",
+                "rating": 5
+            }
+        ]
+    },
+
+    "training": {
+        "page_title": "How Our POS Works",
+        "page_subtitle": "Our POS system operates seamlessly across all devices. From quick product selection to instant checkout, real-time inventory tracking, and multiple payment options — everything is designed to make your business run smoother and faster.",
+
+        "category_getting_started": "Getting Started",
+        "category_getting_started_desc": "Essential basics to set up and start using your POS system",
+
+        "category_pos_operations": "POS Operations",
+        "category_pos_operations_desc": "Master daily sales operations and transactions",
+
+        "category_inventory": "Inventory Management",
+        "category_inventory_desc": "Efficiently manage products, stock levels, and suppliers",
+
+        "category_customers": "Customer Management",
+        "category_customers_desc": "Build customer relationships and loyalty programs",
+
+        "category_reports": "Reports & Analytics",
+        "category_reports_desc": "Generate business insights with powerful reporting tools",
+
+        "category_multi_store": "Multi-Store Operations",
+        "category_multi_store_desc": "Manage multiple branches from one central system",
+
+        "video_complete_setup": "Complete Setup Guide",
+        "video_complete_setup_desc": "Step-by-step setup from account creation to first sale",
+        "video_dashboard_overview": "Dashboard Overview",
+        "video_dashboard_overview_desc": "Navigate the dashboard and understand key metrics",
+        "video_user_roles": "User Management & Roles",
+        "video_user_roles_desc": "Add staff, assign roles, and manage permissions",
+
+        "video_processing_sales": "Processing Sales",
+        "video_processing_sales_desc": "Handle customer transactions efficiently",
+        "video_payment_methods": "Payment Methods",
+        "video_payment_methods_desc": "Accept cash, card, and digital payments",
+        "video_refunds": "Refunds & Returns",
+        "video_refunds_desc": "Process refunds and handle return transactions",
+        "video_discounts": "Discounts & Promotions",
+        "video_discounts_desc": "Apply discounts and manage promotional codes",
+
+        "video_add_products": "Adding Products",
+        "video_add_products_desc": "Add new products with variants, pricing, and images",
+        "video_stock_management": "Stock Management",
+        "video_stock_management_desc": "Track inventory levels and set reorder alerts",
+        "video_bulk_import": "Bulk Import/Export",
+        "video_bulk_import_desc": "Import products in bulk using CSV files",
+        "video_categories": "Categories & Variants",
+        "video_categories_desc": "Organize products by category and manage variants",
+
+        "video_customer_profiles": "Customer Profiles",
+        "video_customer_profiles_desc": "Create and manage customer information",
+        "video_loyalty": "Loyalty Programs",
+        "video_loyalty_desc": "Set up and manage customer loyalty rewards",
+        "video_customer_analytics": "Customer Analytics",
+        "video_customer_analytics_desc": "Analyze customer behavior and purchase patterns",
+
+        "video_sales_reports": "Sales Reports",
+        "video_sales_reports_desc": "Generate and understand daily, weekly, and monthly sales reports",
+        "video_inventory_reports": "Inventory Reports",
+        "video_inventory_reports_desc": "Track stock movements and inventory valuation",
+        "video_financial_reports": "Financial Reports",
+        "video_financial_reports_desc": "Understand profit margins, tax reports, and financial insights",
+        "video_custom_reports": "Custom Reports",
+        "video_custom_reports_desc": "Create custom reports for specific business needs",
+
+        "video_store_setup": "Store Setup",
+        "video_store_setup_desc": "Add and configure multiple store locations",
+        "video_inventory_sync": "Inventory Sync",
+        "video_inventory_sync_desc": "Synchronize inventory across multiple stores",
+        "video_store_performance": "Store Performance",
+        "video_store_performance_desc": "Compare and analyze performance across locations",
+
+        "resources_title": "Additional Learning Resources",
+        "resources_subtitle": "Expand your knowledge with our comprehensive learning materials and support resources.",
+        "resource_manual": "User Manual (PDF)",
+        "resource_manual_desc": "Complete written guide covering all features and functionalities",
+        "resource_manual_action": "Download PDF",
+
+        "resource_best_practices": "Best Practices Guide",
+        "resource_best_practices_desc": "Expert tips and industry best practices for maximizing efficiency",
+        "resource_best_practices_action": "Read Guide",
+
+        "resource_support": "24/7 Support",
+        "resource_support_desc": "Get help from our expert support team whenever you need it",
+        "resource_support_action": "Get Support"
+    }
 }

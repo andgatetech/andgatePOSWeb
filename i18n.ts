@@ -1,12 +1,12 @@
-// i18n.ts
 import UniversalCookie from 'universal-cookie';
 
 // Import all locales
-import en from '@/public/locales/en.json';
 import ae from '@/public/locales/ae.json';
+import bn from '@/public/locales/bn.json';
 import da from '@/public/locales/da.json';
 import de from '@/public/locales/de.json';
 import el from '@/public/locales/el.json';
+import en from '@/public/locales/en.json';
 import es from '@/public/locales/es.json';
 import fr from '@/public/locales/fr.json';
 import hu from '@/public/locales/hu.json';
@@ -20,7 +20,7 @@ import tr from '@/public/locales/tr.json';
 import zh from '@/public/locales/zh.json';
 
 // Mapping locale codes to JSON data
-const langObj: Record<string, Record<string, string>> = {
+const langObj: Record<string, any> = {
     en,
     ae,
     da,
@@ -37,6 +37,7 @@ const langObj: Record<string, Record<string, string>> = {
     sv,
     tr,
     zh,
+    bn,
 };
 
 // Get current language (server or client)
@@ -53,12 +54,39 @@ const getLang = (): string => {
     }
 };
 
+// Helper function to get nested value from object using dot notation
+const getNestedValue = (obj: any, path: string): any => {
+    const keys = path.split('.');
+    let current = obj;
+
+    for (const key of keys) {
+        if (current && typeof current === 'object' && key in current) {
+            current = current[key];
+        } else {
+            return undefined;
+        }
+    }
+
+    return current;
+};
+
 export const getTranslation = () => {
     const lang = getLang();
-    const data: Record<string, string> = langObj[lang] || langObj['en'];
+    const data: any = langObj[lang] || langObj['en'];
 
-    // Translation function
-    const t = (key: string) => data[key] ?? key;
+    // Translation function that supports both flat and nested keys
+    const t = (key: string): string => {
+        // First try direct access (for flat keys like "hero_title")
+        if (key in data) {
+            return data[key];
+        }
+
+        // Then try nested access (for keys like "footer.brand.name")
+        const value = getNestedValue(data, key);
+
+        // Return the value if found, otherwise return the key itself
+        return value !== undefined ? value : key;
+    };
 
     // i18n object for language management
     const i18n = {
@@ -66,7 +94,13 @@ export const getTranslation = () => {
         changeLanguage: (newLang: string) => {
             if (typeof window !== 'undefined') {
                 const cookies = new UniversalCookie();
-                cookies.set('i18nextLng', newLang, { path: '/' });
+                const currentLang = cookies.get('i18nextLng');
+
+                // Only update and reload if the language actually changed
+                if (currentLang !== newLang) {
+                    cookies.set('i18nextLng', newLang, { path: '/' });
+                    window.location.reload();
+                }
             }
         },
     };
@@ -76,5 +110,5 @@ export const getTranslation = () => {
         i18n.changeLanguage(lang || defaultLocale);
     };
 
-    return { t, i18n, initLocale };
+    return { t, i18n, initLocale, data };
 };
