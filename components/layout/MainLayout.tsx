@@ -3,6 +3,7 @@ import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import LanguageDropdown from '../language-dropdown';
 import AndGate from '/public/images/andgatePOS.jpeg';
 
 interface MainLayoutProps {
@@ -37,7 +38,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             <Link href="/#overview" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 POS Overview
                             </Link>
-                            <Link href="/#pricing" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+                            <Link href="/pricing" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Pricing
                             </Link>
                             <Link href="/training" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
@@ -46,6 +47,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             <Link href="/contact" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Contact
                             </Link>
+                            <div className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+                                <LanguageDropdown />
+                            </div>
                             <Link href="/login" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Login
                             </Link>
@@ -76,7 +80,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             <Link href="/#overview" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                 POS Overview
                             </Link>
-                            <Link href="/#pricing" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <Link href="/pricing" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                 Pricing
                             </Link>
                             <Link href="/training" className="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
