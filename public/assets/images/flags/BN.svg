@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="21px" height="15px" viewBox="0 0 21 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: sketchtool 46 (44423) - http://www.bohemiancoding.com/sketch -->
-    <title>BN</title>
-    <desc>Created with sketchtool.</desc>
-    <defs>
-        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
-            <stop stop-color="#FFFFFF" offset="0%"></stop>
-            <stop stop-color="#F0F0F0" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
-            <stop stop-color="#F7E250" offset="0%"></stop>
-            <stop stop-color="#F7DF38" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
-            <stop stop-color="#262626" offset="0%"></stop>
-            <stop stop-color="#0D0D0D" offset="100%"></stop>
-        </linearGradient>
-    </defs>
-    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="BN">
-            <rect id="FlagBackground" fill="url(#linearGradient-1)" x="0" y="0" width="21" height="15"></rect>
-            <rect id="Mask-Copy" fill="url(#linearGradient-2)" x="0" y="0" width="21" height="15"></rect>
-            <rect id="Rectangle-2-Copy-4" fill="url(#linearGradient-1)" transform="translate(11.013030, 6.090461) rotate(20.000000) translate(-11.013030, -6.090461) " x="-3.48696979" y="4.59046107" width="29" height="3"></rect>
-            <rect id="Rectangle-2-Copy-4" fill="url(#linearGradient-3)" transform="translate(9.986970, 8.909539) rotate(20.000000) translate(-9.986970, -8.909539) " x="-4.51303021" y="7.40953893" width="29" height="3"></rect>
-        </g>
-    </g>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="290" height="174">
+<path d="M0 0 C95.7 0 191.4 0 290 0 C290 57.42 290 114.84 290 174 C194.3 174 98.6 174 0 174 C0 116.58 0 59.16 0 0 Z " fill="#006646" transform="translate(0,0)"/>
+<path d="M0 0 C11.96278188 8.53746736 20.58176089 21.53050823 23.71484375 35.9375 C25.34475752 55.60581392 22.51692232 71.7205855 9.7578125 87.33203125 C-1.5284518 99.62338031 -16.98667102 105.65515137 -33.44311523 106.40576172 C-49.34047213 106.65436708 -63.5143502 100.26750051 -74.93359375 89.41015625 C-88.3735508 75.27810839 -91.8015927 60.50359322 -91.5625 41.67578125 C-91.35173646 35.18824895 -90.21667603 29.75487726 -87.28515625 23.9375 C-86.86105469 23.08542969 -86.43695313 22.23335937 -86 21.35546875 C-77.59523189 6.11451042 -64.12964963 -4.28235894 -47.515625 -9.171875 C-30.72433087 -13.14844854 -14.43373206 -8.98959956 0 0 Z " fill="#D9291C" transform="translate(164.28515625,39.0625)"/>
 </svg>

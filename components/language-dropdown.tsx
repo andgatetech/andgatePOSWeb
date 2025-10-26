@@ -5,7 +5,6 @@ import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { toggleRTL } from '@/store/themeConfigSlice';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 interface LanguageDropdownProps {
