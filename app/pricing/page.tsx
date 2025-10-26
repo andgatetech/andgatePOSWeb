@@ -3,6 +3,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import { ArrowRight, Building2, Check, Clock, HelpCircle, Rocket, Shield, Star, TrendingUp, Users, Zap } from 'lucide-react';
 import { useState } from 'react';
 import Footer from '../terms-of-service/Footer';
+
 const frequencies = [
     { value: 'monthly', label: 'Monthly', priceSuffix: '/month' },
     { value: 'annually', label: 'Annually', priceSuffix: '/year', discount: 'Save 20%' },
@@ -12,7 +13,7 @@ const tiers = [
     {
         name: 'Free',
         id: 'tier-free',
-        href: '#',
+        href: '/register',
         price: { monthly: '৳0', annually: '৳0' },
         originalPrice: { annually: '৳3600' },
         description: 'Perfect for small businesses and startups getting started with POS.',
@@ -25,7 +26,7 @@ const tiers = [
     {
         name: 'Starter',
         id: 'tier-starter',
-        href: '#',
+        href: '/contact',
         price: { monthly: '৳99', annually: '৳950' },
         originalPrice: { annually: '৳1188' },
         description: 'Ideal for small shops looking to scale with essential tools.',
@@ -48,7 +49,7 @@ const tiers = [
     {
         name: 'SME',
         id: 'tier-sme',
-        href: '#',
+        href: '/contact',
         price: { monthly: '৳299', annually: '৳4800' },
         originalPrice: { annually: '৳6000' },
         description: 'Advanced features for growing businesses that need more control.',
@@ -73,7 +74,7 @@ const tiers = [
     {
         name: 'Professional',
         id: 'tier-professional',
-        href: '#',
+        href: '/contact',
         price: { monthly: '৳499', annually: '৳14390' },
         originalPrice: { annually: '৳17988' },
         description: 'For established businesses needing powerful features and insights.',
@@ -99,7 +100,7 @@ const tiers = [
     {
         name: 'Enterprise',
         id: 'tier-enterprise',
-        href: '#',
+        href: '/contact',
         price: { monthly: '1999', annually: '৳19200' },
         originalPrice: { annually: '৳24000' },
         description: 'Complete solution for large businesses with multiple locations.',
@@ -199,23 +200,28 @@ export default function PricingPage() {
     const [frequency, setFrequency] = useState(frequencies[0]);
     const [openFaq, setOpenFaq] = useState(null);
 
+    const handleGetStarted = (href) => {
+        // In a real app, this would use Next.js router
+        window.location.href = href;
+    };
+
     return (
         <MainLayout>
             <div className="min-h-screen bg-white">
                 {/* Hero Section */}
                 <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pb-20 pt-16">
                     <div className="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
-                    <div className="relative mx-auto  px-4 sm:px-6 lg:px-8">
+                    <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="text-center">
                             <div className="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
                                 <Shield className="mr-2 h-4 w-4" />
                                 Transparent Pricing • No Hidden Fees
                             </div>
-                            <h1 className="mb-6 text-5xl font-black leading-tight text-gray-900 md:text-6xl">Simple, Transparent Pricing</h1>
-                            <p className="mx-auto mb-8 max-w-3xl text-xl leading-relaxed text-gray-600">
+                            <h1 className="mb-6 text-4xl font-black leading-tight text-gray-900 sm:text-5xl md:text-6xl">Simple, Transparent Pricing</h1>
+                            <p className="mx-auto mb-8 max-w-3xl text-lg leading-relaxed text-gray-600 sm:text-xl">
                                 Choose the perfect plan for your business. Start free and upgrade as you grow. All plans include 14-day money-back guarantee.
                             </p>
-                            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                            <div className="flex flex-col items-center justify-center space-y-3 text-sm text-gray-600 sm:flex-row sm:space-x-6 sm:space-y-0">
                                 <div className="flex items-center">
                                     <Check className="mr-2 h-4 w-4 text-green-500" />
                                     No setup fees
@@ -234,8 +240,8 @@ export default function PricingPage() {
                 </section>
 
                 {/* Pricing Section */}
-                <section className="bg-gradient-to-b from-slate-50 to-white py-16">
-                    <div className="mx-auto  px-6 lg:px-8">
+                <section className="bg-gradient-to-b from-slate-50 to-white py-16 sm:py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         {/* Frequency Toggle */}
                         <div className="mb-12 flex justify-center">
                             <div className="relative rounded-xl bg-gray-100 p-1">
@@ -244,7 +250,7 @@ export default function PricingPage() {
                                         key={option.value}
                                         onClick={() => setFrequency(option)}
                                         className={classNames(
-                                            'relative rounded-lg px-6 py-2 text-sm font-medium transition-all duration-200',
+                                            'relative rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 sm:px-6',
                                             frequency.value === option.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                                         )}
                                     >
@@ -258,7 +264,7 @@ export default function PricingPage() {
                         </div>
 
                         {/* Pricing Cards */}
-                        <div className="grid grid-cols-1 place-items-center justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
                             {tiers.map((tier) => {
                                 const IconComponent = tier.icon;
                                 const colors = colorClasses[tier.color];
@@ -277,7 +283,7 @@ export default function PricingPage() {
                                             </div>
                                         )}
 
-                                        <div className="flex flex-1 flex-col p-8">
+                                        <div className="flex flex-1 flex-col p-6 sm:p-8">
                                             {/* Icon and Title */}
                                             <div className="mb-4 flex items-center gap-3">
                                                 <div className={classNames('rounded-lg bg-gray-50 p-2', colors.icon)}>
@@ -292,7 +298,7 @@ export default function PricingPage() {
                                             {/* Price */}
                                             <div className="mb-6">
                                                 <div className="flex items-baseline gap-2">
-                                                    <span className="text-4xl font-bold text-gray-900">{tier.price[frequency.value]}</span>
+                                                    <span className="text-3xl font-bold text-gray-900 sm:text-4xl">{tier.price[frequency.value]}</span>
                                                     <span className="text-sm font-medium text-gray-500">{frequency.priceSuffix}</span>
                                                 </div>
                                                 {frequency.value === 'annually' && tier.originalPrice && (
@@ -312,7 +318,10 @@ export default function PricingPage() {
                                             </div>
 
                                             {/* CTA Button */}
-                                            <button className={classNames('mb-6 w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}>
+                                            <button
+                                                onClick={() => handleGetStarted(tier.href)}
+                                                className={classNames('mb-6 w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}
+                                            >
                                                 {tier.name === 'Free' ? 'Start Free' : 'Get Started'}
                                             </button>
 
@@ -338,18 +347,18 @@ export default function PricingPage() {
 
                 {/* Comparison Table */}
                 <section className="bg-white py-16">
-                    <div className="mx-auto  px-6 lg:px-8">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mb-12 text-center">
-                            <h2 className="mb-4 text-3xl font-bold text-gray-900">Compare All Features</h2>
-                            <p className="text-lg text-gray-600">See what's included in each plan</p>
+                            <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">Compare All Features</h2>
+                            <p className="text-base text-gray-600 sm:text-lg">See what's included in each plan</p>
                         </div>
                         <div className="overflow-x-auto rounded-xl border border-gray-200">
-                            <table className="w-full">
+                            <table className="w-full min-w-[640px]">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Features</th>
+                                        <th className="px-4 py-4 text-left text-sm font-semibold text-gray-900 sm:px-6">Features</th>
                                         {tiers.map((tier) => (
-                                            <th key={tier.id} className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
+                                            <th key={tier.id} className="px-3 py-4 text-center text-sm font-semibold text-gray-900 sm:px-6">
                                                 {tier.name}
                                             </th>
                                         ))}
@@ -357,54 +366,54 @@ export default function PricingPage() {
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     <tr>
-                                        <td className="px-6 py-4 text-sm text-gray-600">Number of Stores</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">1</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">1</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">1</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">Up to 3</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">Unlimited</td>
+                                        <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">Number of Stores</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">Up to 3</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">Unlimited</td>
                                     </tr>
                                     <tr className="bg-gray-50">
-                                        <td className="px-6 py-4 text-sm text-gray-600">Products Limit</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">50</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">100</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">200</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">500</td>
-                                        <td className="px-6 py-4 text-center text-sm text-gray-900">Unlimited</td>
+                                        <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">Products Limit</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">50</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">100</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">200</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">500</td>
+                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">Unlimited</td>
                                     </tr>
                                     <tr>
-                                        <td className="px-6 py-4 text-sm text-gray-600">Priority Support</td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">Priority Support</td>
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <Check className="mx-auto h-5 w-5 text-green-500" />
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <Check className="mx-auto h-5 w-5 text-green-500" />
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <Check className="mx-auto h-5 w-5 text-green-500" />
                                         </td>
                                     </tr>
                                     <tr className="bg-gray-50">
-                                        <td className="px-6 py-4 text-sm text-gray-600">API Access</td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">API Access</td>
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center sm:px-6">
                                             <Check className="mx-auto h-5 w-5 text-green-500" />
                                         </td>
                                     </tr>
@@ -416,20 +425,20 @@ export default function PricingPage() {
 
                 {/* FAQ Section */}
                 <section className="bg-gradient-to-b from-slate-50 to-white py-16">
-                    <div className="mx-auto  px-6 lg:px-8">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mb-12 text-center">
-                            <h2 className="mb-4 text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
-                            <p className="text-lg text-gray-600">Everything you need to know about our pricing</p>
+                            <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">Frequently Asked Questions</h2>
+                            <p className="text-base text-gray-600 sm:text-lg">Everything you need to know about our pricing</p>
                         </div>
-                        <div className="space-y-4">
+                        <div className="mx-auto max-w-3xl space-y-4">
                             {faqs.map((faq, index) => (
                                 <div key={index} className="rounded-xl border border-gray-200 bg-white">
-                                    <button onClick={() => setOpenFaq(openFaq === index ? null : index)} className="flex w-full items-center justify-between px-6 py-4 text-left">
+                                    <button onClick={() => setOpenFaq(openFaq === index ? null : index)} className="flex w-full items-center justify-between px-4 py-4 text-left sm:px-6">
                                         <span className="font-semibold text-gray-900">{faq.question}</span>
-                                        <HelpCircle className={classNames('h-5 w-5 text-gray-400 transition-transform', openFaq === index && 'rotate-180')} />
+                                        <HelpCircle className={classNames('h-5 w-5 flex-shrink-0 text-gray-400 transition-transform', openFaq === index && 'rotate-180')} />
                                     </button>
                                     {openFaq === index && (
-                                        <div className="border-t border-gray-100 px-6 py-4">
+                                        <div className="border-t border-gray-100 px-4 py-4 sm:px-6">
                                             <p className="text-gray-600">{faq.answer}</p>
                                         </div>
                                     )}
@@ -441,8 +450,8 @@ export default function PricingPage() {
 
                 {/* Trust Indicators */}
                 <section className="bg-white py-16">
-                    <div className="mx-auto  px-6 lg:px-8">
-                        <div className="grid gap-8 md:grid-cols-3">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                             <div className="text-center">
                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
                                     <Shield className="h-8 w-8 text-blue-600" />
@@ -457,7 +466,7 @@ export default function PricingPage() {
                                 <h3 className="mb-2 text-lg font-semibold text-gray-900">24/7 Support</h3>
                                 <p className="text-gray-600">Round-the-clock assistance whenever you need help</p>
                             </div>
-                            <div className="text-center">
+                            <div className="text-center sm:col-span-2 lg:col-span-1">
                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
                                     <Users className="h-8 w-8 text-purple-600" />
                                 </div>
@@ -469,17 +478,25 @@ export default function PricingPage() {
                 </section>
 
                 {/* CTA Section */}
-                <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 py-20">
+                <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 py-16 sm:py-20">
                     <div className="absolute inset-0 bg-black opacity-10"></div>
-                    <div className="relative mx-auto  px-4 text-center sm:px-6 lg:px-8">
-                        <h2 className="mb-6 text-4xl font-bold text-white">Ready to Get Started?</h2>
-                        <p className="mb-8 text-xl text-blue-100">Start your free trial today. No credit card required. Upgrade anytime.</p>
+                    <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+                        <h2 className="mb-6 text-3xl font-bold text-white sm:text-4xl">Ready to Get Started?</h2>
+                        <p className="mb-8 text-lg text-blue-100 sm:text-xl">Start your free trial today. No credit card required. Upgrade anytime.</p>
                         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                            <button className="group flex transform items-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-100">
+                            <button
+                                onClick={() => handleGetStarted('/register')}
+                                className="group flex w-full transform items-center justify-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-100 sm:w-auto"
+                            >
                                 Start Free Trial
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </button>
-                            <button className="rounded-full border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600">Contact Sales</button>
+                            <button
+                                onClick={() => handleGetStarted('/contact')}
+                                className="w-full rounded-full border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-blue-600 sm:w-auto"
+                            >
+                                Contact Sales
+                            </button>
                         </div>
                         <div className="mt-6 text-sm text-blue-100">✓ 14-day money-back guarantee ✓ No setup fees ✓ Cancel anytime</div>
                     </div>
