@@ -85,11 +85,14 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
             // Move to next index
             const nextIndex = currentScanIndex + 1;
             if (nextIndex < quantity) {
-                // Auto-focus next field
+                // Update index FIRST, then auto-focus
+                setCurrentScanIndex(nextIndex);
                 setTimeout(() => {
                     inputRefs.current[nextIndex]?.focus();
-                    setCurrentScanIndex(nextIndex);
-                }, 100);
+                }, 200);
+
+                // Keep scanner running - don't restart
+                console.log(`✅ Serial ${currentScanIndex + 1} scanned, ready for #${nextIndex + 1}`);
             } else {
                 // All serials scanned, close scanner
                 console.log('✅ All serials scanned!');
@@ -248,12 +251,17 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                 </div>
 
                 {/* Same Serial Checkbox */}
-                <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
-                    <label className="flex cursor-pointer items-center gap-3">
-                        <input type="checkbox" checked={sameSerialForAll} onChange={handleSameSerialChange} className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500" />
+                <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 sm:p-4">
+                    <label className="flex cursor-pointer items-start gap-2 sm:items-center sm:gap-3">
+                        <input
+                            type="checkbox"
+                            checked={sameSerialForAll}
+                            onChange={handleSameSerialChange}
+                            className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
+                        />
                         <div>
-                            <span className="font-medium text-gray-900">Use same serial for all products</span>
-                            <p className="text-sm text-gray-600">One serial number will be applied to all {quantity} units</p>
+                            <span className="block text-sm font-medium text-gray-900 sm:text-base">Use same serial for all products</span>
+                            <p className="text-xs text-gray-600 sm:text-sm">One serial number will be applied to all {quantity} units</p>
                         </div>
                     </label>
                 </div>
@@ -263,10 +271,10 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                     <button
                         type="button"
                         onClick={openScanner}
-                        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-purple-800 hover:shadow-xl"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-purple-800 hover:shadow-xl sm:w-auto sm:px-6 sm:py-3 sm:text-base"
                     >
-                        <Camera className="h-5 w-5" />
-                        {sameSerialForAll ? 'Scan Serial Number' : `Scan All ${quantity} Serials`}
+                        <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="truncate">{sameSerialForAll ? 'Scan Serial Number' : `Scan All ${quantity} Serials`}</span>
                     </button>
                 </div>
 
@@ -274,13 +282,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                 <div className="space-y-3">
                     {sameSerialForAll ? (
                         // Single Serial Input
-                        <div className="rounded-lg border border-gray-300 bg-white p-4">
+                        <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                             <div className="mb-2">
-                                <label className="text-sm font-medium text-gray-700">Serial Number (for all {quantity} units)</label>
+                                <label className="text-xs font-medium text-gray-700 sm:text-sm">Serial Number (for all {quantity} units)</label>
                             </div>
-                            <div className="flex gap-2">
-                                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                                    <span className="text-sm text-gray-600">{formData.product_name || 'Product'}</span>
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
+                                    <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
                                 </div>
                                 <input
                                     ref={(el) => (inputRefs.current[0] = el)}
@@ -288,58 +296,62 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                                     value={productSerials[0]?.serial_number || ''}
                                     onChange={(e) => handleSingleSerialChange('serial_number', e.target.value)}
                                     placeholder="Enter or scan serial"
-                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                 />
                                 <input
                                     type="text"
                                     value={productSerials[0]?.notes || ''}
                                     onChange={(e) => handleSingleSerialChange('notes', e.target.value)}
                                     placeholder="Notes (optional)"
-                                    className="w-48 rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-48"
                                 />
                             </div>
                         </div>
                     ) : (
                         // Multiple Serial Inputs
-                        <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
                             {Array.from({ length: quantity }).map((_, index) => (
                                 <div
                                     key={index}
-                                    className={`flex items-center gap-2 rounded-lg border ${
+                                    className={`flex flex-col gap-2 rounded-lg border p-2 transition-all sm:flex-row sm:items-center sm:gap-2 sm:p-3 ${
                                         currentScanIndex === index && showCameraScanner ? 'border-purple-500 bg-purple-50 shadow-lg' : 'border-gray-300 bg-white'
-                                    } p-3 transition-all`}
+                                    }`}
                                 >
-                                    {/* Serial Label - Left Side */}
-                                    <div className="flex items-center gap-2">
-                                        <label className={`whitespace-nowrap text-sm font-medium ${currentScanIndex === index && showCameraScanner ? 'text-purple-700' : 'text-gray-700'}`}>
-                                            Serial #{index + 1}
-                                        </label>
-                                        {currentScanIndex === index && showCameraScanner && <span className="text-xs font-semibold text-purple-600">← Scanning</span>}
-                                        {productSerials[index]?.serial_number && <span className="text-xs font-medium text-green-600">✓</span>}
+                                    {/* Serial Label & Status - Mobile: Full Width, Desktop: Auto */}
+                                    <div className="flex items-center justify-between gap-2 sm:justify-start">
+                                        <div className="flex items-center gap-2">
+                                            <label
+                                                className={`whitespace-nowrap text-xs font-medium sm:text-sm ${currentScanIndex === index && showCameraScanner ? 'text-purple-700' : 'text-gray-700'}`}
+                                            >
+                                                Serial #{index + 1}
+                                            </label>
+                                            {productSerials[index]?.serial_number && <span className="text-xs font-medium text-green-600">✓</span>}
+                                        </div>
+                                        {currentScanIndex === index && showCameraScanner && <span className="text-xs font-semibold text-purple-600">Scanning</span>}
                                     </div>
 
-                                    {/* Product Name */}
-                                    <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                                        <span className="text-sm text-gray-600">{formData.product_name || 'Product'}</span>
+                                    {/* Product Name - Mobile: Full Width */}
+                                    <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
+                                        <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
                                     </div>
 
-                                    {/* Serial Input */}
+                                    {/* Serial Input - Mobile: Full Width */}
                                     <input
                                         ref={(el) => (inputRefs.current[index] = el)}
                                         type="text"
                                         value={productSerials[index]?.serial_number || ''}
                                         onChange={(e) => handleSerialChange(index, 'serial_number', e.target.value)}
                                         placeholder={`Enter or scan serial ${index + 1}`}
-                                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                        className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:flex-1 sm:px-3 sm:text-sm"
                                     />
 
-                                    {/* Notes Field - Inline */}
+                                    {/* Notes Field - Mobile: Full Width */}
                                     <input
                                         type="text"
                                         value={productSerials[index]?.notes || ''}
                                         onChange={(e) => handleSerialChange(index, 'notes', e.target.value)}
                                         placeholder="Notes (optional)"
-                                        className="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                        className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-40 sm:px-3 sm:text-sm"
                                     />
                                 </div>
                             ))}
@@ -349,16 +361,21 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
 
                 {/* Camera Scanner Modal */}
                 {showCameraScanner && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                        <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-                            <button onClick={closeScanner} className="absolute right-4 top-4 z-10 rounded-full bg-red-500 p-2 text-white transition-colors hover:bg-red-600">
-                                <X className="h-5 w-5" />
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+                        <div className="relative w-full max-w-lg rounded-2xl bg-white p-4 shadow-2xl sm:p-6">
+                            <button
+                                onClick={closeScanner}
+                                className="absolute right-2 top-2 z-10 rounded-full bg-red-500 p-1.5 text-white transition-colors hover:bg-red-600 sm:right-4 sm:top-4 sm:p-2"
+                            >
+                                <X className="h-4 w-4 sm:h-5 sm:w-5" />
                             </button>
-                            <div className="mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">{sameSerialForAll ? 'Scan Serial Number' : `Scanning Serial #${currentScanIndex + 1} of ${quantity}`}</h3>
+                            <div className="mb-3 sm:mb-4">
+                                <h3 className="pr-8 text-base font-semibold text-gray-900 sm:text-lg">
+                                    {sameSerialForAll ? 'Scan Serial Number' : `Scanning Serial #${currentScanIndex + 1} of ${quantity}`}
+                                </h3>
                                 {!sameSerialForAll && (
                                     <div className="mt-2">
-                                        <div className="flex items-center justify-between text-sm text-gray-600">
+                                        <div className="flex items-center justify-between text-xs text-gray-600 sm:text-sm">
                                             <span>
                                                 Progress: {productSerials.filter((s) => s.serial_number?.trim() !== '').length} / {quantity}
                                             </span>
@@ -373,20 +390,20 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                                     </div>
                                 )}
                             </div>
-                            <div id="serial-qr-reader" style={{ border: 'none' }}></div>
-                            <p className="mt-3 text-center text-sm text-gray-600">
-                                {sameSerialForAll ? 'Point camera at QR code or barcode' : `Scan code for Serial #${currentScanIndex + 1} - Scanner will continue to next serial automatically`}
+                            <div id="serial-qr-reader" className="overflow-hidden rounded-lg" style={{ border: 'none' }}></div>
+                            <p className="mt-2 text-center text-xs text-gray-600 sm:mt-3 sm:text-sm">
+                                {sameSerialForAll ? 'Point camera at QR code or barcode' : `Scan code for Serial #${currentScanIndex + 1} - Scanner will continue automatically`}
                             </p>
                         </div>
                     </div>
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-6">
+                <div className="flex flex-col gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-6">
                     <button
                         type="button"
                         onClick={onPrevious}
-                        className="flex items-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                        className="flex items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:px-6 sm:py-2.5"
                     >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -398,7 +415,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                         type="button"
                         onClick={onCreateProduct}
                         disabled={isCreating}
-                        className="flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-emerald-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:bg-emerald-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-2.5"
                     >
                         {isCreating ? (
                             <>
