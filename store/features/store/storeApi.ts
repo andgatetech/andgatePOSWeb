@@ -22,7 +22,16 @@ const StoreApi = baseApi.injectEndpoints({
                 // ✅ Append units
                 if (updateData.units && Array.isArray(updateData.units)) {
                     updateData.units.forEach((unit: any, index: number) => {
+                        // Include ID for existing units (for update/delete)
+                        if (unit.id !== undefined && unit.id !== null) {
+                            formData.append(`units[${index}][id]`, unit.id.toString());
+                        }
                         formData.append(`units[${index}][name]`, unit.name);
+                        if (unit.is_active !== undefined && unit.is_active !== null) {
+                            // Convert to boolean string "true" or "false"
+                            const isActiveValue = unit.is_active === true || unit.is_active === 1 || unit.is_active === '1' || unit.is_active === 'true';
+                            formData.append(`units[${index}][is_active]`, isActiveValue ? '1' : '0');
+                        }
                     });
                 }
 
