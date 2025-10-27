@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
 import themeConfig from '@/theme.config';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     isDarkMode: false,
@@ -12,43 +12,9 @@ const initialState = {
     navbar: themeConfig.navbar,
     locale: themeConfig.locale,
     semidark: themeConfig.semidark,
-    // languageList: [
-    //     { code: 'zh', name: 'Chinese' },
-    //     { code: 'bn', name: 'Bengali' },
-    //     { code: 'da', name: 'Danish' },
-    //     { code: 'en', name: 'English' },
-    //     { code: 'fr', name: 'French' },
-    //     { code: 'de', name: 'German' },
-    //     { code: 'el', name: 'Greek' },
-    //     { code: 'hu', name: 'Hungarian' },
-    //     { code: 'it', name: 'Italian' },
-    //     { code: 'ja', name: 'Japanese' },
-    //     { code: 'pl', name: 'Polish' },
-    //     { code: 'pt', name: 'Portuguese' },
-    //     { code: 'ru', name: 'Russian' },
-    //     { code: 'es', name: 'Spanish' },
-    //     { code: 'sv', name: 'Swedish' },
-    //     { code: 'tr', name: 'Turkish' },
-    //     { code: 'ae', name: 'Arabic' },
-    // ],
     languageList: [
-        { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
         { code: 'bn', name: 'Bengali', flag: '🇧🇩' },
-        { code: 'da', name: 'Danish', flag: '🇩🇰' },
         { code: 'en', name: 'English', flag: '🇬🇧' },
-        { code: 'fr', name: 'French', flag: '🇫🇷' },
-        { code: 'de', name: 'German', flag: '🇩🇪' },
-        { code: 'el', name: 'Greek', flag: '🇬🇷' },
-        { code: 'hu', name: 'Hungarian', flag: '🇭🇺' },
-        { code: 'it', name: 'Italian', flag: '🇮🇹' },
-        { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-        { code: 'pl', name: 'Polish', flag: '🇵🇱' },
-        { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
-        { code: 'ru', name: 'Russian', flag: '🇷🇺' },
-        { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-        { code: 'sv', name: 'Swedish', flag: '🇸🇪' },
-        { code: 'tr', name: 'Turkish', flag: '🇹🇷' },
-        { code: 'ae', name: 'Arabic', flag: '🇦🇪' },
     ],
 };
 
