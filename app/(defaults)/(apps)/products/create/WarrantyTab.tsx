@@ -79,17 +79,17 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
                 </div>
             </div>
             {/* Same Warranty Checkbox */}
-            <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
-                <label className="flex cursor-pointer items-center gap-3">
+            <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 sm:p-4">
+                <label className="flex cursor-pointer items-start gap-2 sm:items-center sm:gap-3">
                     <input
                         type="checkbox"
                         checked={sameWarrantyForAll}
                         onChange={handleSameWarrantyChange}
-                        className="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+                        className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
                     />
                     <div>
-                        <p className="font-medium text-purple-900">Use same warranty for all products</p>
-                        <p className="text-sm text-purple-700">One warranty will be applied to all {quantity} units</p>
+                        <p className="text-sm font-medium text-purple-900 sm:text-base">Use same warranty for all products</p>
+                        <p className="text-xs text-purple-700 sm:text-sm">One warranty will be applied to all {quantity} units</p>
                     </div>
                 </label>
             </div>
@@ -112,18 +112,18 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
                     </div>
                 ) : sameWarrantyForAll ? (
                     // Single Warranty Selection
-                    <div className="rounded-lg border border-gray-300 bg-white p-4">
+                    <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                         <div className="mb-2">
-                            <label className="text-sm font-medium text-gray-700">Warranty (for all {quantity} units)</label>
+                            <label className="text-xs font-medium text-gray-700 sm:text-sm">Warranty (for all {quantity} units)</label>
                         </div>
-                        <div className="flex gap-2">
-                            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                                <span className="text-sm text-gray-600">{formData.product_name || 'Product'}</span>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
+                                <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
                             </div>
                             <select
                                 value={productWarranties[0]?.warranty_type_id || ''}
                                 onChange={(e) => handleSingleWarrantyChange(parseInt(e.target.value) || 0)}
-                                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
                             >
                                 <option value="">Select warranty type</option>
                                 {warrantyTypes.map((type: any) => (
@@ -138,20 +138,22 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
                     </div>
                 ) : (
                     // Multiple Warranty Selections
-                    <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
                         {Array.from({ length: quantity }).map((_, index) => (
-                            <div key={index} className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-3">
-                                <div className="flex items-center gap-2">
-                                    <label className="whitespace-nowrap text-sm font-medium text-gray-700">Warranty #{index + 1}</label>
-                                    {productWarranties[index]?.warranty_type_id > 0 && <span className="text-xs font-medium text-green-600">✓</span>}
+                            <div key={index} className="flex flex-col gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:flex-row sm:items-center sm:gap-2 sm:p-3">
+                                <div className="flex items-center justify-between gap-2 sm:justify-start">
+                                    <div className="flex items-center gap-2">
+                                        <label className="whitespace-nowrap text-xs font-medium text-gray-700 sm:text-sm">Warranty #{index + 1}</label>
+                                        {productWarranties[index]?.warranty_type_id > 0 && <span className="text-xs font-medium text-green-600">✓</span>}
+                                    </div>
                                 </div>
-                                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                                    <span className="text-sm text-gray-600">{formData.product_name || 'Product'}</span>
+                                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
+                                    <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
                                 </div>
                                 <select
                                     value={productWarranties[index]?.warranty_type_id || ''}
                                     onChange={(e) => handleWarrantyChange(index, parseInt(e.target.value) || 0)}
-                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:flex-1 sm:px-3 sm:text-sm"
                                 >
                                     <option value="">Select warranty type</option>
                                     {warrantyTypes.map((type: any) => (
@@ -203,16 +205,20 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-end gap-3 border-t border-gray-200 pt-6">
-                <button type="button" onClick={onPrevious} className="flex items-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-medium text-gray-700">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex flex-col gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-6">
+                <button
+                    type="button"
+                    onClick={onPrevious}
+                    className="flex items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 sm:px-6 sm:py-3"
+                >
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                     <span>Previous</span>
                 </button>
-                <button type="button" onClick={onNext} className="flex items-center gap-2 rounded-lg bg-gray-600 px-6 py-3 font-medium text-white">
+                <button type="button" onClick={onNext} className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white sm:px-6 sm:py-3">
                     <span>Next</span>
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
@@ -220,7 +226,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 font-medium text-white disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
