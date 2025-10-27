@@ -751,6 +751,12 @@
 
         "resource_support": "24/7 Support",
         "resource_support_desc": "Get help from our expert support team whenever you need it",
-        "resource_support_action": "Get Support"
+        "resource_support_action": "Get Support",
+        "difficulty": {
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced"
+        },
+        "tutorials_available": "tutorials available"
     }
 }
