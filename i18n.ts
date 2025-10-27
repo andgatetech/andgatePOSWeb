@@ -1,43 +1,13 @@
 import UniversalCookie from 'universal-cookie';
 
 // Import all locales
-import ae from '@/public/locales/ae.json';
 import bn from '@/public/locales/bn.json';
-import da from '@/public/locales/da.json';
-import de from '@/public/locales/de.json';
-import el from '@/public/locales/el.json';
 import en from '@/public/locales/en.json';
-import es from '@/public/locales/es.json';
-import fr from '@/public/locales/fr.json';
-import hu from '@/public/locales/hu.json';
-import it from '@/public/locales/it.json';
-import ja from '@/public/locales/ja.json';
-import pl from '@/public/locales/pl.json';
-import pt from '@/public/locales/pt.json';
-import ru from '@/public/locales/ru.json';
-import sv from '@/public/locales/sv.json';
-import tr from '@/public/locales/tr.json';
-import zh from '@/public/locales/zh.json';
 
 // Mapping locale codes to JSON data
 const langObj: Record<string, any> = {
     en,
-    ae,
-    da,
-    de,
-    el,
-    es,
-    fr,
-    hu,
-    it,
-    ja,
-    pl,
-    pt,
-    ru,
-    sv,
-    tr,
-    zh,
-    bn,
+    bn
 };
 
 // Get current language (server or client)

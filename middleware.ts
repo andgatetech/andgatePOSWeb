@@ -14,12 +14,25 @@ const decodePermissionsCookie = (value?: string): string[] => {
         const decoded = JSON.parse(atob(value));
         return Array.isArray(decoded) ? decoded : [];
     } catch (error) {
-        
         return [];
     }
 };
 
 export function middleware(request: NextRequest) {
+    const { geo } = request;
+    const country = geo?.country || 'Unknown';
+    const response = NextResponse.next();
+    // 🔹 Language auto detect and set cookie
+    const lang = country === 'BD' ? 'bn' : 'en';
+    const currentLang = request.cookies.get('i18nextLng')?.value;
+
+    // যদি ইউজারের কুকিতে ভাষা আগে থেকে সেট না থাকে, তাহলে নতুন করে সেট করো
+    if (!currentLang || currentLang !== lang) {
+        response.cookies.set('i18nextLng', lang, {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 365, // ১ বছর
+        });
+    }
     const token = request.cookies.get('token')?.value;
     const role = request.cookies.get('role')?.value || null;
     const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
@@ -50,7 +63,7 @@ export function middleware(request: NextRequest) {
     }
 
     // 4️⃣ All other cases → allow access
-    return NextResponse.next();
+    return response;
 }
 
 export const config = {

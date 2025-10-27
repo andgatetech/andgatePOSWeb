@@ -47,9 +47,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             <Link href="/contact" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Contact
                             </Link>
-                            <div className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
-                                <LanguageDropdown />
-                            </div>
+
                             <Link href="/login" className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
                                 Login
                             </Link>
@@ -59,6 +57,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             >
                                 Get Started
                             </Link>
+                            <div className="px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600">
+                                <LanguageDropdown />
+                            </div>
                         </div>
 
                         {/* Mobile menu button */}
