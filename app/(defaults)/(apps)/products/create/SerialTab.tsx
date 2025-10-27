@@ -23,19 +23,71 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
     const currentScanIndexRef = useRef<number>(0); // Use ref to track current index for scanner
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+    const isProcessingScanRef = useRef<boolean>(false); // Prevent duplicate scans
+    const lastScannedCodeRef = useRef<string>(''); // Track last scanned code
+    const lastScanTimeRef = useRef<number>(0); // Track last scan timestamp
+
+    // Use a ref to store serials to prevent parent re-renders from clearing data
+    const serialsRef = useRef<Array<{ serial_number: string; notes: string }>>(productSerials);
 
     const quantity = parseInt(formData.quantity || '0');
 
+    // Audio beep for successful scan
+    const playBeep = () => {
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        } catch (error) {
+            // Silently fail if audio not supported
+        }
+    };
+
+    // Sync ref with prop on mount and when prop changes externally
+    useEffect(() => {
+        if (!showCameraScanner) {
+            serialsRef.current = productSerials;
+        }
+    }, [productSerials, showCameraScanner]);
+
     // Initialize serial numbers array based on quantity
     useEffect(() => {
-        if (quantity > 0 && productSerials.length !== quantity) {
-            setProductSerials(new Array(quantity).fill({ serial_number: '', notes: '' }).map(() => ({ serial_number: '', notes: '' })));
+        if (quantity > 0 && serialsRef.current.length === 0) {
+            const initialized = Array.from({ length: quantity }, () => ({ serial_number: '', notes: '' }));
+            serialsRef.current = initialized;
+            setProductSerials(initialized);
+        } else if (quantity > 0 && serialsRef.current.length !== quantity) {
+            const newSerials = Array.from({ length: quantity }, (_, index) => serialsRef.current[index] || { serial_number: '', notes: '' });
+            serialsRef.current = newSerials;
+            setProductSerials(newSerials);
         }
-    }, [quantity, productSerials.length, setProductSerials]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [quantity]);
 
     const handleSerialChange = (index: number, field: 'serial_number' | 'notes', value: string) => {
-        const newSerials = [...productSerials];
+        const newSerials = [...serialsRef.current];
+
+        if (newSerials.length !== quantity) {
+            while (newSerials.length < quantity) {
+                newSerials.push({ serial_number: '', notes: '' });
+            }
+        }
+
         newSerials[index] = { ...newSerials[index], [field]: value };
+
+        serialsRef.current = newSerials;
         setProductSerials(newSerials);
     };
 
@@ -43,20 +95,30 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
         setSameSerialForAll(e.target.checked);
         if (e.target.checked) {
             // Apply first serial to all
-            const firstSerial = productSerials[0] || { serial_number: '', notes: '' };
-            setProductSerials(new Array(quantity).fill(null).map(() => ({ ...firstSerial })));
+            const firstSerial = serialsRef.current[0] || { serial_number: '', notes: '' };
+            const newSerials = new Array(quantity).fill(null).map(() => ({ ...firstSerial }));
+            serialsRef.current = newSerials;
+            setProductSerials(newSerials);
         }
     };
 
     const handleSingleSerialChange = (field: 'serial_number' | 'notes', value: string) => {
         // When same serial for all, update all entries
-        const updated = { ...productSerials[0], [field]: value };
-        setProductSerials(new Array(quantity).fill(null).map(() => ({ ...updated })));
+        const updated = { ...serialsRef.current[0], [field]: value };
+        const newSerials = new Array(quantity).fill(null).map(() => ({ ...updated }));
+        serialsRef.current = newSerials;
+        setProductSerials(newSerials);
     };
 
     const openScanner = () => {
-        setCurrentScanIndex(0);
-        currentScanIndexRef.current = 0; // Reset ref
+        const firstEmptyIndex = serialsRef.current.findIndex((s) => !s.serial_number || s.serial_number.trim() === '');
+        const startIndex = firstEmptyIndex === -1 ? 0 : firstEmptyIndex;
+
+        setCurrentScanIndex(startIndex);
+        currentScanIndexRef.current = startIndex;
+        isProcessingScanRef.current = false;
+        lastScannedCodeRef.current = '';
+        lastScanTimeRef.current = 0;
         setShowCameraScanner(true);
     };
 
@@ -64,44 +126,79 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
         if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
             try {
                 await html5QrCodeRef.current.stop();
-                console.log('✅ Scanner stopped');
             } catch (err) {
-                console.error('Error stopping scanner:', err);
+                // Silently handle scanner stop errors
             }
         }
         setShowCameraScanner(false);
         setCurrentScanIndex(0);
-        currentScanIndexRef.current = 0; // Reset ref
+        currentScanIndexRef.current = 0;
+        isProcessingScanRef.current = false;
+        lastScannedCodeRef.current = '';
+        lastScanTimeRef.current = 0;
     };
 
     const handleScanSuccess = (decodedText: string) => {
-        const scanIndex = currentScanIndexRef.current; // Get current index from ref
-        console.log('📸 Serial scanned:', decodedText, 'for index:', scanIndex);
+        if (isProcessingScanRef.current) {
+            return;
+        }
+
+        const now = Date.now();
+        const scanIndex = currentScanIndexRef.current;
+
+        if ((lastScannedCodeRef.current === decodedText && now - lastScanTimeRef.current < 1000) || now - lastScanTimeRef.current < 500) {
+            return;
+        }
+
+        // Check if this serial number already exists
+        const duplicateIndex = serialsRef.current.findIndex((s, idx) => idx !== scanIndex && s.serial_number.trim() === decodedText.trim());
+
+        if (duplicateIndex !== -1) {
+            const shouldReplace = window.confirm(
+                `⚠️ Duplicate Serial Number!\n\n` +
+                    `Serial "${decodedText}" is already assigned to Serial #${duplicateIndex + 1}.\n\n` +
+                    `Do you want to:\n` +
+                    `• Click "OK" to REPLACE Serial #${duplicateIndex + 1} with this scan\n` +
+                    `• Click "Cancel" to KEEP the existing one and scan a different serial`
+            );
+
+            if (shouldReplace) {
+                // Play beep for replacement action
+                playBeep();
+
+                // Clear the duplicate entry
+                const newSerials = [...serialsRef.current];
+                newSerials[duplicateIndex] = { serial_number: '', notes: '' };
+                serialsRef.current = newSerials;
+                setProductSerials(newSerials);
+            } else {
+                // Don't process this scan, allow retry
+                return;
+            }
+        }
+
+        isProcessingScanRef.current = true;
+        lastScannedCodeRef.current = decodedText;
+        lastScanTimeRef.current = now;
+
+        playBeep();
 
         if (sameSerialForAll) {
-            // Fill all serials with the same value and close
             handleSingleSerialChange('serial_number', decodedText);
             closeScanner();
         } else {
-            // Fill current index
             handleSerialChange(scanIndex, 'serial_number', decodedText);
 
-            // Move to next index
             const nextIndex = scanIndex + 1;
             if (nextIndex < quantity) {
-                // Update both state and ref
                 currentScanIndexRef.current = nextIndex;
                 setCurrentScanIndex(nextIndex);
 
                 setTimeout(() => {
                     inputRefs.current[nextIndex]?.focus();
-                }, 200);
-
-                // Keep scanner running - don't restart
-                console.log(`✅ Serial ${scanIndex + 1} scanned, ready for #${nextIndex + 1}`);
+                    isProcessingScanRef.current = false;
+                }, 800);
             } else {
-                // All serials scanned, close scanner
-                console.log('✅ All serials scanned!');
                 closeScanner();
             }
         }
@@ -110,38 +207,22 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
     // Initialize html5-qrcode scanner
     useEffect(() => {
         if (showCameraScanner) {
-            console.log('🎥 Initializing serial scanner...');
             const timer = setTimeout(async () => {
                 const element = document.getElementById('serial-qr-reader');
-                if (!element) {
-                    console.error('❌ Serial QR reader element not found!');
-                    return;
-                }
-
-                console.log('✅ Serial QR reader element found, creating scanner...');
+                if (!element) return;
 
                 try {
-                    // Request camera permission first
-                    console.log('📷 Requesting camera permission via getUserMedia...');
                     const stream = await navigator.mediaDevices.getUserMedia({
                         video: { facingMode: 'environment' },
                     });
-                    console.log('✅ Camera permission granted!');
-
-                    // Stop the test stream
                     stream.getTracks().forEach((track) => track.stop());
 
-                    // Initialize html5-qrcode
                     html5QrCodeRef.current = new Html5Qrcode('serial-qr-reader');
 
-                    // Get available cameras
                     const devices = await Html5Qrcode.getCameras();
-                    console.log('📹 Available cameras:', devices);
 
                     if (devices && devices.length > 0) {
-                        // Use the last camera (usually back camera on mobile)
                         const cameraId = devices[devices.length - 1].id;
-                        console.log('🎯 Using camera:', devices[devices.length - 1].label || cameraId);
 
                         await html5QrCodeRef.current.start(
                             cameraId,
@@ -150,20 +231,16 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
                                 qrbox: { width: 250, height: 250 },
                             },
                             (decodedText) => {
-                                // Don't stop scanner, just process and continue
-                                console.log('🔄 Processing serial:', decodedText);
                                 handleScanSuccess(decodedText);
                             },
                             (errorMessage) => {
-                                // Continuous scanning errors - ignore
+                                // Ignore scanning errors
                             }
                         );
-                        console.log('✅ Camera started successfully!');
                     } else {
                         throw new Error('No cameras found on this device');
                     }
                 } catch (err: any) {
-                    console.error('❌ Failed to start camera:', err);
                     const errorName = err.name || '';
                     const errorMessage = err.message || 'Failed to access camera';
 
@@ -198,20 +275,8 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
 
             return () => {
                 clearTimeout(timer);
-                if (html5QrCodeRef.current) {
-                    console.log('🛑 Cleaning up serial scanner...');
-                    if (html5QrCodeRef.current.isScanning) {
-                        html5QrCodeRef.current
-                            .stop()
-                            .then(() => {
-                                console.log('✅ Serial scanner cleaned up');
-                            })
-                            .catch((error) => {
-                                console.warn('Scanner cleanup warning:', error.message);
-                            });
-                    } else {
-                        console.log('ℹ️ Scanner already stopped');
-                    }
+                if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
+                    html5QrCodeRef.current.stop().catch(() => {});
                 }
             };
         }
