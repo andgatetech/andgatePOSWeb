@@ -20,7 +20,7 @@ const decodePermissionsCookie = (value?: string): string[] => {
 
 export function middleware(request: NextRequest) {
     const { geo } = request;
-    const country = geo?.country || 'Unknown';
+    const country = geo?.country || 'BD';
     const response = NextResponse.next();
     // 🔹 Language auto detect and set cookie
     const lang = country === 'BD' ? 'bn' : 'en';
