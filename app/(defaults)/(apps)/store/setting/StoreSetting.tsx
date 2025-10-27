@@ -3,26 +3,40 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
 import { useGetStoreQuery, useUpdateStoreMutation } from '@/store/features/store/storeApi';
-import { AlertCircle, Building2, Camera, Check, CheckCircle, Clock, Edit3, Gift, Loader2, MapPin, Package, Percent, Phone, Plus, Save, Settings, Store, Trash2, Upload, X } from 'lucide-react';
-import Image from 'next/image';
+import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
+import Swal from 'sweetalert2';
+
+// Import Tab Components
+import MobileStoreSettingFAB from './MobileStoreSettingFAB';
+import StoreSettingTabs from './StoreSettingTabs';
+import AttributesTab from './tabs/AttributesTab';
+import BasicInfoTab from './tabs/BasicInfoTab';
+import BrandingTab from './tabs/BrandingTab';
+import LoyaltyProgramTab from './tabs/LoyaltyProgramTab';
+import OperatingHoursTab from './tabs/OperatingHoursTab';
+import StoreStatusTab from './tabs/StoreStatusTab';
+
+import UnitsTab from './tabs/UnitsTab';
+import WarrantyTypesTab from './tabs/WarrantyTypesTab';
 
 const StoreSetting = () => {
     const searchParams = useSearchParams();
-    const { currentStoreId } = useCurrentStore();
+    const { currentStore } = useCurrentStore();
+    const storeId = currentStore?.id;
 
     // Get store ID from URL search params or fall back to current store
-    const storeId = searchParams.get('store_id') ? parseInt(searchParams.get('store_id') as string) : currentStoreId;
-
     const {
         data: storeData,
         isLoading,
         error,
     } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined, {
-        skip: !storeId, // Skip query if no store ID available
+        skip: !storeId,
     });
     const [updateStore, { isLoading: isUpdating }] = useUpdateStoreMutation();
 
+    const [activeTab, setActiveTab] = useState('basic');
     const [formData, setFormData] = useState({
         store_name: '',
         store_location: '',
@@ -33,13 +47,26 @@ const StoreSetting = () => {
         loyalty_points_enabled: false,
         loyalty_points_rate: '',
         is_active: true,
-        units: [] as { name: string }[],
+        units: [] as { name: string; is_active?: number | boolean }[],
     });
 
-    const [logoFile, setLogoFile] = useState(null);
-    const [logoPreview, setLogoPreview] = useState(null);
+    const [logoFile, setLogoFile] = useState<any>(null);
+    const [logoPreview, setLogoPreview] = useState<any>(null);
     const [message, setMessage] = useState({ type: '', text: '' });
-    const [editingUnitIndex, setEditingUnitIndex] = useState(-1);
+    const [unitName, setUnitName] = useState('');
+
+    // Use store data directly instead of separate API calls
+    const attributesData = storeData?.data?.product_attributes || [];
+    const warrantyTypesData = storeData?.data?.warranty_types || [];
+
+    // Keep mutation APIs for CRUD operations
+    const [createAttribute] = useCreateProductAttributeMutation();
+    const [updateAttribute] = useUpdateProductAttributeMutation();
+    const [deleteAttribute] = useDeleteProductAttributeMutation();
+
+    const [attributeName, setAttributeName] = useState('');
+    const [editingAttributeId, setEditingAttributeId] = useState<number | null>(null);
+    const [editingAttributeName, setEditingAttributeName] = useState('');
 
     // Clear messages after 5 seconds
     useEffect(() => {
@@ -65,13 +92,14 @@ const StoreSetting = () => {
                 loyalty_points_enabled: store.loyalty_points_enabled === 1,
                 loyalty_points_rate: store.loyalty_points_rate || '',
                 is_active: store.is_active === 1,
-                // Fix units handling - convert string units to objects if needed
-                units: Array.isArray(store.units) ? store.units.map((unit) => (typeof unit === 'string' ? { name: unit } : { name: unit.name || unit })) : [],
+                units: Array.isArray(store.units)
+                    ? store.units.map((unit: any) => (typeof unit === 'string' ? { name: unit, is_active: 1 } : { name: unit.name || unit, is_active: unit.is_active ?? 1 }))
+                    : [],
             });
         }
     }, [storeData]);
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: any) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -79,48 +107,231 @@ const StoreSetting = () => {
         }));
     };
 
-    // Enhanced Units management functions
-    const addUnit = () => {
-        setFormData((prev) => ({
-            ...prev,
-            units: [...prev.units, { name: '' }],
-        }));
-        // Auto-focus on the new unit input
-        setTimeout(() => {
-            setEditingUnitIndex(formData.units.length);
-        }, 100);
-    };
+    // Units management functions
+    const handleCreateUnit = async () => {
+        if (!unitName.trim()) {
+            setMessage({ type: 'error', text: 'Please enter unit name' });
+            return;
+        }
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected. Cannot create unit.' });
+            return;
+        }
 
-    const updateUnit = (index, name) => {
-        setFormData((prev) => ({
-            ...prev,
-            units: prev.units.map((unit, i) => (i === index ? { ...unit, name } : unit)),
-        }));
-    };
+        try {
+            // Get current units from store data
+            const currentUnits = storeData?.data?.units || [];
+            const unitsToSend = [
+                ...currentUnits.map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active })),
+                { name: unitName.trim(), is_active: true }, // New unit without ID
+            ];
 
-    const removeUnit = (index) => {
-        setFormData((prev) => ({
-            ...prev,
-            units: prev.units.filter((_, i) => i !== index),
-        }));
-        setEditingUnitIndex(-1);
-    };
+            await updateStore({
+                updateData: { units: unitsToSend },
+                storeId: storeId,
+            }).unwrap();
 
-    const startEditingUnit = (index) => {
-        setEditingUnitIndex(index);
-    };
-
-    const stopEditingUnit = () => {
-        setEditingUnitIndex(-1);
-    };
-
-    const handleUnitKeyPress = (e, index) => {
-        if (e.key === 'Enter') {
-            stopEditingUnit();
+            setUnitName('');
+            setMessage({ type: 'success', text: 'Unit created successfully!' });
+        } catch (error: any) {
+            console.error('Create unit error:', error);
+            const errorMessage = error?.data?.message || 'Failed to create unit';
+            setMessage({ type: 'error', text: errorMessage });
         }
     };
 
-    const handleLogoChange = (e) => {
+    const handleUpdateUnit = async (id: number, name: string) => {
+        if (!name.trim()) {
+            setMessage({ type: 'error', text: 'Unit name cannot be empty' });
+            return;
+        }
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected.' });
+            return;
+        }
+
+        try {
+            // Get current units and update the specific one
+            const currentUnits = storeData?.data?.units || [];
+            const unitsToSend = currentUnits.map((u: any) => ({
+                id: u.id,
+                name: u.id === id ? name.trim() : u.name,
+                is_active: u.is_active,
+            }));
+
+            await updateStore({
+                updateData: { units: unitsToSend },
+                storeId: storeId,
+            }).unwrap();
+
+            setMessage({ type: 'success', text: 'Unit updated successfully!' });
+        } catch (error: any) {
+            console.error('Update unit error:', error);
+            const errorMessage = error?.data?.message || 'Failed to update unit';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleDeleteUnit = async (id: number, name: string) => {
+        const result = await Swal.fire({
+            title: 'Delete Unit?',
+            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) return;
+
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected.' });
+            return;
+        }
+
+        try {
+            // Get current units and filter out the deleted one
+            const currentUnits = storeData?.data?.units || [];
+            const unitsToSend = currentUnits.filter((u: any) => u.id !== id).map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active }));
+
+            await updateStore({
+                updateData: { units: unitsToSend },
+                storeId: storeId,
+            }).unwrap();
+
+            setMessage({ type: 'success', text: 'Unit deleted successfully!' });
+        } catch (error: any) {
+            console.error('Delete unit error:', error);
+            const errorMessage = error?.data?.message || 'Failed to delete unit. It may be in use by products.';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleToggleUnitActive = async (id: number, isActive: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected.' });
+            return;
+        }
+
+        try {
+            // Get current units and update the is_active status
+            const currentUnits = storeData?.data?.units || [];
+            const unitsToSend = currentUnits.map((u: any) => ({
+                id: u.id,
+                name: u.name,
+                is_active: u.id === id ? isActive : u.is_active,
+            }));
+
+            await updateStore({
+                updateData: { units: unitsToSend },
+                storeId: storeId,
+            }).unwrap();
+
+            setMessage({ type: 'success', text: 'Unit status updated successfully!' });
+        } catch (error: any) {
+            console.error('Toggle unit error:', error);
+            const errorMessage = error?.data?.message || 'Failed to update unit status';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    // Product Attributes Management Functions
+    const handleCreateAttribute = async () => {
+        if (!attributeName.trim()) {
+            setMessage({ type: 'error', text: 'Please enter attribute name' });
+            return;
+        }
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected. Cannot create attribute.' });
+            return;
+        }
+        const payload = { name: attributeName.trim(), store_id: storeId };
+        try {
+            await createAttribute(payload).unwrap();
+            setAttributeName('');
+            setMessage({ type: 'success', text: 'Attribute created successfully!' });
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to create attribute';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const startEditingAttribute = (id: number, name: string) => {
+        setEditingAttributeId(id);
+        setEditingAttributeName(name);
+    };
+
+    const cancelEditingAttribute = () => {
+        setEditingAttributeId(null);
+        setEditingAttributeName('');
+    };
+
+    const handleUpdateAttribute = async (id: number) => {
+        if (!editingAttributeName.trim()) {
+            setMessage({ type: 'error', text: 'Please enter attribute name' });
+            return;
+        }
+
+        try {
+            await updateAttribute({ id, name: editingAttributeName.trim() }).unwrap();
+            setEditingAttributeId(null);
+            setEditingAttributeName('');
+            setMessage({ type: 'success', text: 'Attribute updated successfully!' });
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update attribute';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleDeleteAttribute = async (id: number, name: string) => {
+        const result = await Swal.fire({
+            title: 'Delete Attribute?',
+            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteAttribute(id).unwrap();
+                setMessage({ type: 'success', text: 'Attribute deleted successfully!' });
+            } catch (error: any) {
+                const errorMessage = error?.data?.message || 'Failed to delete attribute. It may be in use by products.';
+                setMessage({ type: 'error', text: errorMessage });
+            }
+        }
+    };
+
+    const handleToggleAttributeActive = async (id: number, isActive: boolean) => {
+        try {
+            // Get current attribute
+            const currentAttribute = attributesData.find((attr: any) => attr.id === id);
+            if (!currentAttribute) {
+                setMessage({ type: 'error', text: 'Attribute not found' });
+                return;
+            }
+
+            await updateAttribute({
+                id,
+                name: currentAttribute.name,
+                store_id: storeId,
+                is_active: isActive ? 1 : 0, // Convert boolean to number
+            }).unwrap();
+            setMessage({ type: 'success', text: 'Attribute status updated successfully!' });
+        } catch (error: any) {
+            console.error('Toggle attribute error:', error);
+            const errorMessage = error?.data?.message || 'Failed to update attribute status';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleLogoChange = (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.type.startsWith('image/')) {
@@ -144,13 +355,13 @@ const StoreSetting = () => {
     const clearLogo = () => {
         setLogoFile(null);
         setLogoPreview(null);
-        const fileInput = document.getElementById('logo-upload');
+        const fileInput = document.getElementById('logo-upload') as HTMLInputElement;
         if (fileInput) {
             fileInput.value = '';
         }
     };
 
-    const formatTimeToHi = (timeString) => {
+    const formatTimeToHi = (timeString: string) => {
         if (!timeString) return '';
         if (timeString.length === 5 && timeString.includes(':')) {
             return timeString;
@@ -160,7 +371,7 @@ const StoreSetting = () => {
         return time.toTimeString().slice(0, 5);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
         setMessage({ type: '', text: '' });
 
@@ -185,7 +396,7 @@ const StoreSetting = () => {
         const validUnits = formData.units.filter((unit) => unit.name && unit.name.trim()).map((unit) => ({ name: unit.name.trim() }));
 
         // Prepare update data
-        const updateData = { ...formData };
+        const updateData: any = { ...formData };
         updateData.units = validUnits;
 
         if (updateData.opening_time) {
@@ -209,24 +420,24 @@ const StoreSetting = () => {
         try {
             const response = await updateStore({
                 updateData,
-                storeId: storeId || undefined, // Include store ID in the update mutation
+                storeId: storeId || undefined,
             }).unwrap();
             setMessage({ type: 'success', text: response.message || 'Store updated successfully!' });
 
             if (logoFile) {
                 setLogoFile(null);
                 setLogoPreview(null);
-                const fileInput = document.getElementById('logo-upload');
+                const fileInput = document.getElementById('logo-upload') as HTMLInputElement;
                 if (fileInput) {
                     fileInput.value = '';
                 }
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Update error:', err);
 
             if (err?.data?.errors) {
                 const errors = err.data.errors;
-                const errorMessages = [];
+                const errorMessages: string[] = [];
 
                 Object.keys(errors).forEach((field) => {
                     if (Array.isArray(errors[field])) {
@@ -248,7 +459,7 @@ const StoreSetting = () => {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
                 <div className="text-center">
-                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-600" />
+                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-emerald-600" />
                     <p className="mt-4 text-gray-600">Loading store settings...</p>
                 </div>
             </div>
@@ -279,508 +490,124 @@ const StoreSetting = () => {
         );
     }
 
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'basic':
+                return <BasicInfoTab formData={formData} handleInputChange={handleInputChange} />;
+            case 'hours':
+                return <OperatingHoursTab formData={formData} handleInputChange={handleInputChange} />;
+            case 'units':
+                return (
+                    <UnitsTab
+                        storeId={storeId}
+                        unitsData={storeData?.data?.units || []}
+                        unitName={unitName}
+                        setUnitName={setUnitName}
+                        handleCreateUnit={handleCreateUnit}
+                        handleUpdateUnit={handleUpdateUnit}
+                        handleDeleteUnit={handleDeleteUnit}
+                        handleToggleUnitActive={handleToggleUnitActive}
+                        setMessage={setMessage}
+                    />
+                );
+            case 'attributes':
+                return (
+                    <AttributesTab
+                        storeId={storeId}
+                        attributesData={attributesData}
+                        attributesLoading={isLoading}
+                        attributeName={attributeName}
+                        setAttributeName={setAttributeName}
+                        handleCreateAttribute={handleCreateAttribute}
+                        editingAttributeId={editingAttributeId}
+                        editingAttributeName={editingAttributeName}
+                        setEditingAttributeName={setEditingAttributeName}
+                        startEditingAttribute={startEditingAttribute}
+                        cancelEditingAttribute={cancelEditingAttribute}
+                        handleUpdateAttribute={handleUpdateAttribute}
+                        handleDeleteAttribute={handleDeleteAttribute}
+                        handleToggleActive={handleToggleAttributeActive}
+                    />
+                );
+            case 'warranty':
+                return <WarrantyTypesTab storeId={storeId} warrantyTypesData={warrantyTypesData} warrantyTypesLoading={isLoading} setMessage={setMessage} />;
+            case 'loyalty':
+                return <LoyaltyProgramTab formData={formData} handleInputChange={handleInputChange} />;
+            case 'branding':
+                return <BrandingTab storeData={storeData} logoFile={logoFile} logoPreview={logoPreview} handleLogoChange={handleLogoChange} clearLogo={clearLogo} />;
+            case 'status':
+                return <StoreStatusTab formData={formData} handleInputChange={handleInputChange} />;
+            default:
+                return <BasicInfoTab formData={formData} handleInputChange={handleInputChange} />;
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Page Title Section */}
-            <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                <div className="mb-6 flex items-center justify-between">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Header Section */}
+            <div className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                            <Settings className="h-6 w-6 text-white" />
+                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 shadow-lg">
+                            <Settings className="h-7 w-7 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{storeData?.data?.store_name ? `${storeData.data.store_name} - Settings` : 'Store Settings'}</h1>
-                            <p className="text-sm text-gray-500">{storeId ? `Configure settings for Store ID: ${storeId}` : 'Configure your store preferences and options'}</p>
+                            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{storeData?.data?.store_name || 'Store'} Settings</h1>
+                            <p className="text-sm text-gray-500">Manage your store configuration and preferences</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <main className="min-h-screen py-8">
-                {/* Enhanced Alert Messages */}
-                {message.text && (
-                    <div
-                        className={`mb-8 flex items-center space-x-3 rounded-xl border p-4 shadow-sm ${
-                            message.type === 'success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-800'
-                        }`}
-                    >
-                        <div className={`rounded-full p-1 ${message.type === 'success' ? 'bg-green-200' : 'bg-red-200'}`}>
-                            {message.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
-                        </div>
-                        <span className="flex-1 font-medium">{message.text}</span>
-                        <button onClick={() => setMessage({ type: '', text: '' })} className="rounded-full p-1 transition-colors hover:bg-gray-200/50">
-                            <X className="h-4 w-4" />
-                        </button>
+            {/* Alert Messages */}
+            {message.text && (
+                <div
+                    className={`mb-6 flex items-center space-x-3 rounded-xl border p-4 shadow-sm ${
+                        message.type === 'success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-800'
+                    }`}
+                >
+                    <div className={`rounded-full p-1 ${message.type === 'success' ? 'bg-green-200' : 'bg-red-200'}`}>
+                        {message.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                     </div>
-                )}
-
-                {/* Main Form Container */}
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Store Information Card */}
-                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-sm">
-                                    <Store className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">Store Information</h2>
-                                    <p className="text-sm text-gray-500">Basic details about your store</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                                    <Building2 className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-sm text-gray-500">Store Name *</label>
-                                    <input
-                                        type="text"
-                                        name="store_name"
-                                        value={formData.store_name}
-                                        onChange={handleInputChange}
-                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
-                                        placeholder="Enter store name"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-green-600">
-                                    <MapPin className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-sm text-gray-500">Store Location</label>
-                                    <input
-                                        type="text"
-                                        name="store_location"
-                                        value={formData.store_location}
-                                        onChange={handleInputChange}
-                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
-                                        placeholder="Enter complete address"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                                    <Phone className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-sm text-gray-500">Contact Number</label>
-                                    <input
-                                        type="tel"
-                                        name="store_contact"
-                                        value={formData.store_contact}
-                                        onChange={handleInputChange}
-                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
-                                        placeholder="Enter phone number"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50 text-yellow-600">
-                                    <Percent className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-sm text-gray-500">Max Discount (%)</label>
-                                    <input
-                                        type="number"
-                                        name="max_discount"
-                                        value={formData.max_discount}
-                                        onChange={handleInputChange}
-                                        min="0"
-                                        max="100"
-                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
-                                        placeholder="0"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Store Hours Card */}
-                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-600 shadow-sm">
-                                    <Clock className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">Operating Hours</h2>
-                                    <p className="text-sm text-gray-500">Set your store operating schedule</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                                    <Clock className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-sm text-gray-500">Opening Time</label>
-                                    <input
-                                        type="time"
-                                        name="opening_time"
-                                        value={formData.opening_time}
-                                        onChange={handleInputChange}
-                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center space-x-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                                    <Clock className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-sm text-gray-500">Closing Time</label>
-                                    <input
-                                        type="time"
-                                        name="closing_time"
-                                        value={formData.closing_time}
-                                        onChange={handleInputChange}
-                                        className="w-full border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 focus:ring-0"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {formData.opening_time && formData.closing_time && (
-                            <div className="mt-6 rounded-xl bg-purple-50 p-4">
-                                <p className="text-center text-purple-800">
-                                    <Clock className="mr-2 inline h-4 w-4" />
-                                    Store Hours: {formData.opening_time} - {formData.closing_time}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Units Management Card */}
-                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 shadow-sm">
-                                    <Package className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">Units Management</h2>
-                                    <p className="text-sm text-gray-500">Manage measurement units for products</p>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={addUnit}
-                                className="xs:w-auto group relative inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-green-700 hover:to-green-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:rounded-xl sm:px-6 sm:py-3 sm:text-base"
-                            >
-                                <Plus className="mr-1.5 h-4 w-4 transition-transform group-hover:scale-110 sm:mr-2 sm:h-5 sm:w-5" />
-                                <span>Add Unit</span>
-                                <div className="absolute inset-0 rounded-lg bg-white/20 opacity-0 transition-opacity group-hover:opacity-100 sm:rounded-xl" />
-                            </button>
-                        </div>
-
-                        {/* Units Display */}
-                        <div className="space-y-4">
-                            {formData.units && formData.units.length > 0 ? (
-                                <div className="space-y-3">
-                                    {formData.units.map((unit, index) => (
-                                        <div key={index} className="group rounded-xl border-2 border-gray-200 bg-gray-50 p-4 transition-all hover:border-green-300 hover:bg-green-50">
-                                            <div className="flex items-center space-x-4">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 font-semibold text-green-600">{index + 1}</div>
-
-                                                <div className="flex-1">
-                                                    {editingUnitIndex === index ? (
-                                                        <input
-                                                            type="text"
-                                                            value={unit.name || ''}
-                                                            onChange={(e) => updateUnit(index, e.target.value)}
-                                                            onBlur={stopEditingUnit}
-                                                            onKeyPress={(e) => handleUnitKeyPress(e, index)}
-                                                            className="w-full rounded-lg border border-green-300 bg-white px-3 py-2 text-lg font-medium transition-all focus:border-green-500 focus:ring-4 focus:ring-green-100"
-                                                            placeholder="Enter unit name (e.g., kg, ltr, pcs)"
-                                                            autoFocus
-                                                        />
-                                                    ) : (
-                                                        <div
-                                                            onClick={() => startEditingUnit(index)}
-                                                            className="cursor-pointer rounded-lg bg-white px-3 py-2 text-lg font-medium text-gray-800 transition-colors hover:bg-gray-100"
-                                                        >
-                                                            {unit.name || 'Click to edit...'}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex items-center space-x-2">
-                                                    {editingUnitIndex === index ? (
-                                                        <button
-                                                            type="button"
-                                                            onClick={stopEditingUnit}
-                                                            className="rounded-lg bg-green-500 p-2 text-white transition-colors hover:bg-green-600"
-                                                            title="Save unit"
-                                                        >
-                                                            <Check className="h-4 w-4" />
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => startEditingUnit(index)}
-                                                            className="rounded-lg bg-blue-500 p-2 text-white opacity-0 transition-all hover:bg-blue-600 group-hover:opacity-100"
-                                                            title="Edit unit"
-                                                        >
-                                                            <Edit3 className="h-4 w-4" />
-                                                        </button>
-                                                    )}
-
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeUnit(index)}
-                                                        className="rounded-lg bg-red-500 p-2 text-white opacity-0 transition-all hover:bg-red-600 group-hover:opacity-100"
-                                                        title="Remove unit"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
-                                    <Package className="mx-auto h-16 w-16 text-gray-400" />
-                                    <h3 className="mt-4 text-lg font-semibold text-gray-600">No Units Added</h3>
-                                    <p className="mt-2 text-gray-500">Start by adding measurement units for your products</p>
-                                    <button type="button" onClick={addUnit} className="mt-4 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition-all hover:bg-green-700">
-                                        Add Your First Unit
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Units Info */}
-                            {formData.units && formData.units.length > 0 && (
-                                <div className="rounded-xl border border-green-200 bg-green-50 p-6">
-                                    <div className="flex items-start space-x-3">
-                                        <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                                        <div className="text-green-800">
-                                            <h4 className="font-semibold">Units Usage Tips</h4>
-                                            <ul className="mt-2 space-y-1 text-sm">
-                                                <li>• These units will be available when adding products</li>
-                                                <li>• Common examples: kg, gm, ltr, ml, pcs, dozen, box</li>
-                                                <li>• Click on any unit to edit it</li>
-                                                <li>• Keep unit names short and clear</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Loyalty Program Card */}
-                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-100 text-yellow-600 shadow-sm">
-                                    <Gift className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">Loyalty Program</h2>
-                                    <p className="text-sm text-gray-500">Reward your customers with points</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="flex items-center space-x-4 rounded-xl bg-gray-50 p-4">
-                                <input
-                                    type="checkbox"
-                                    id="loyalty_points_enabled"
-                                    name="loyalty_points_enabled"
-                                    checked={formData.loyalty_points_enabled}
-                                    onChange={handleInputChange}
-                                    className="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
-                                />
-                                <label htmlFor="loyalty_points_enabled" className="cursor-pointer text-lg font-semibold text-gray-700">
-                                    Enable Loyalty Points Program
-                                </label>
-                            </div>
-
-                            {formData.loyalty_points_enabled && (
-                                <div className="animate-fade-in rounded-xl border border-yellow-200 bg-yellow-50 p-6">
-                                    <label className="mb-3 block text-sm font-semibold text-gray-700">Points Rate (% of purchase amount)</label>
-                                    <input
-                                        type="number"
-                                        name="loyalty_points_rate"
-                                        value={formData.loyalty_points_rate}
-                                        onChange={handleInputChange}
-                                        min="0"
-                                        step="0.1"
-                                        className="w-full max-w-md rounded-xl border border-yellow-300 px-4 py-3 text-lg transition-all focus:border-yellow-500 focus:ring-4 focus:ring-yellow-100"
-                                        placeholder="e.g., 5.0"
-                                    />
-                                    <p className="mt-2 text-sm text-yellow-700">For every 100 BDT spent, customer will earn BDT{formData.loyalty_points_rate || '0'} in points</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Store Logo Card */}
-                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-pink-600 shadow-sm">
-                                    <Camera className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">Store Logo</h2>
-                                    <p className="text-sm text-gray-500">Upload your store logo</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                            {/* Current/Preview Logo */}
-                            <div className="space-y-4">
-                                {storeData?.data?.logo_path && !logoPreview && (
-                                    <div>
-                                        <p className="mb-3 text-sm font-semibold text-gray-700">Current Logo</p>
-                                        <div className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-6">
-                                            <Image
-                                                src={storeData.data.logo_path}
-                                                alt="Current store logo"
-                                                width={200}
-                                                height={200}
-                                                className="mx-auto h-40 w-40 rounded-xl border border-gray-300 bg-white object-contain"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {logoPreview && (
-                                    <div>
-                                        <p className="mb-3 text-sm font-semibold text-gray-700">New Logo Preview</p>
-                                        <div className="relative rounded-2xl border-2 border-pink-200 bg-pink-50 p-6">
-                                            <Image
-                                                src={logoPreview}
-                                                alt="Logo preview"
-                                                width={160}
-                                                height={160}
-                                                className="mx-auto h-40 w-40 rounded-xl border border-gray-300 bg-white object-contain"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={clearLogo}
-                                                className="absolute -right-2 -top-2 rounded-full bg-red-500 p-2 text-white shadow-lg transition-colors hover:bg-red-600"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Upload Section */}
-                            <div className="space-y-4">
-                                <p className="text-sm font-semibold text-gray-700">Upload New Logo</p>
-
-                                <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition-all hover:border-pink-300 hover:bg-pink-50">
-                                    <input type="file" id="logo-upload" accept="image/*" onChange={handleLogoChange} className="hidden" />
-                                    <label htmlFor="logo-upload" className="cursor-pointer">
-                                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                        <p className="mt-4 text-lg font-semibold text-gray-600">Click to upload logo</p>
-                                        <p className="mt-2 text-sm text-gray-500">JPG, PNG, WEBP up to 2MB</p>
-                                        <div className="mt-4 inline-flex items-center rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-pink-700">
-                                            <Upload className="mr-2 h-5 w-5" />
-                                            Choose Image
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Store Status Card */}
-                    <div className="rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-lg transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className={`flex h-12 w-12 items-center justify-center rounded-xl shadow-sm ${formData.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                    <Store className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">Store Status</h2>
-                                    <p className="text-sm text-gray-500">Control your store availability</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl bg-gray-50 p-6">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-4">
-                                    <input
-                                        type="checkbox"
-                                        id="is_active"
-                                        name="is_active"
-                                        checked={formData.is_active}
-                                        onChange={handleInputChange}
-                                        className="h-6 w-6 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                                    />
-                                    <div>
-                                        <label htmlFor="is_active" className="cursor-pointer text-lg font-semibold text-gray-700">
-                                            Store is Active
-                                        </label>
-                                        <p className="text-sm text-gray-600">
-                                            {formData.is_active
-                                                ? 'Your store is currently active and available for transactions'
-                                                : 'Your store is currently inactive and not available for transactions'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className={`rounded-full px-4 py-2 text-sm font-semibold ${formData.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                    {formData.is_active ? 'Active' : 'Inactive'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex justify-center pt-8">
-                        <button
-                            type="submit"
-                            disabled={isUpdating}
-                            className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-                        >
-                            {isUpdating ? (
-                                <>
-                                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                                    Updating Store...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="mr-3 h-6 w-6 transition-transform group-hover:scale-110" />
-                                    Save All Changes
-                                </>
-                            )}
-                            <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
-                        </button>
-                    </div>
-                </form>
-
-                {/* Footer Info */}
-                <div className="mt-12 rounded-2xl border border-blue-200 bg-blue-50 p-6 text-center">
-                    <div className="flex items-center justify-center space-x-2 text-blue-800">
-                        <AlertCircle className="h-5 w-5" />
-                        <p className="font-medium">Changes will be automatically saved and applied to your store immediately.</p>
-                    </div>
+                    <span className="flex-1 font-medium">{message.text}</span>
+                    <button onClick={() => setMessage({ type: '', text: '' })} className="rounded-full p-1 transition-colors hover:bg-gray-200/50">
+                        <X className="h-4 w-4" />
+                    </button>
                 </div>
-            </main>
+            )}
+
+            {/* Main Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Tabs Navigation */}
+                <StoreSettingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+                {/* Tab Content */}
+                <div className="min-h-[400px]">{renderTabContent()}</div>
+
+                {/* Save Button */}
+                <div className="flex justify-center pt-4">
+                    <button
+                        type="submit"
+                        disabled={isUpdating}
+                        className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                    >
+                        {isUpdating ? (
+                            <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Updating...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                                Save Settings
+                            </>
+                        )}
+                    </button>
+                </div>
+            </form>
+
+            {/* Mobile FAB */}
+            <MobileStoreSettingFAB activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
     );
 };

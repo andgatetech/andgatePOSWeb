@@ -1,6 +1,6 @@
 'use client';
 
-import ImageShowModal from '@/__components/ImageShowModal';
+import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
 import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
@@ -326,7 +326,7 @@ const ProductTable = () => {
                                         onClick={() => handleSort('product_name')}
                                     >
                                         <div className="flex items-center gap-2">
-                                            Product Details
+                                            Product name
                                             {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
@@ -339,7 +339,7 @@ const ProductTable = () => {
                                             {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Images</th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Details</th>
                                     <th
                                         className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
                                         onClick={() => handleSort('available')}
@@ -373,17 +373,11 @@ const ProductTable = () => {
                                                         <Tag className="h-4 w-4 text-gray-400" />
                                                         <span className="rounded bg-gray-100 px-2 py-1 font-mono text-sm">{product.sku || 'N/A'}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Package className="h-4 w-4 text-blue-400" />
-                                                        <span className="rounded bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700">
-                                                            {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'No Unit')}
-                                                        </span>
-                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="space-y-1">
-                                                    <div className="font-semibold text-gray-900">{product.product_name}</div>
+                                                    <div className="max-w-[150px] truncate font-semibold text-gray-900">{product.product_name}</div>
                                                 </div>
                                             </td>
 
