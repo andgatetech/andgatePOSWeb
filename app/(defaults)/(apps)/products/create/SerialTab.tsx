@@ -20,6 +20,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
     const [sameSerialForAll, setSameSerialForAll] = useState(true);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
     const [currentScanIndex, setCurrentScanIndex] = useState<number>(0);
+    const currentScanIndexRef = useRef<number>(0); // Use ref to track current index for scanner
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
@@ -55,6 +56,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
 
     const openScanner = () => {
         setCurrentScanIndex(0);
+        currentScanIndexRef.current = 0; // Reset ref
         setShowCameraScanner(true);
     };
 
@@ -69,10 +71,12 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
         }
         setShowCameraScanner(false);
         setCurrentScanIndex(0);
+        currentScanIndexRef.current = 0; // Reset ref
     };
 
     const handleScanSuccess = (decodedText: string) => {
-        console.log('📸 Serial scanned:', decodedText, 'for index:', currentScanIndex);
+        const scanIndex = currentScanIndexRef.current; // Get current index from ref
+        console.log('📸 Serial scanned:', decodedText, 'for index:', scanIndex);
 
         if (sameSerialForAll) {
             // Fill all serials with the same value and close
@@ -80,19 +84,21 @@ const SerialTab = ({ formData, productSerials, setProductSerials, onPrevious, on
             closeScanner();
         } else {
             // Fill current index
-            handleSerialChange(currentScanIndex, 'serial_number', decodedText);
+            handleSerialChange(scanIndex, 'serial_number', decodedText);
 
             // Move to next index
-            const nextIndex = currentScanIndex + 1;
+            const nextIndex = scanIndex + 1;
             if (nextIndex < quantity) {
-                // Update index FIRST, then auto-focus
+                // Update both state and ref
+                currentScanIndexRef.current = nextIndex;
                 setCurrentScanIndex(nextIndex);
+
                 setTimeout(() => {
                     inputRefs.current[nextIndex]?.focus();
                 }, 200);
 
                 // Keep scanner running - don't restart
-                console.log(`✅ Serial ${currentScanIndex + 1} scanned, ready for #${nextIndex + 1}`);
+                console.log(`✅ Serial ${scanIndex + 1} scanned, ready for #${nextIndex + 1}`);
             } else {
                 // All serials scanned, close scanner
                 console.log('✅ All serials scanned!');
