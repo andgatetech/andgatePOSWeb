@@ -3,6 +3,7 @@
 import SupplierLoginForm from '@/__components/supplier_login_form';
 import ComponentsAuthLoginForm from '@/components/auth/components-auth-login-form';
 import MainLayout from '@/components/layout/MainLayout';
+import { getTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
@@ -10,6 +11,7 @@ import { useState, useRef } from 'react';
 const LoginPage = () => {
     const [activeTab, setActiveTab] = useState<'login' | 'supplier'>('login');
     const loginFormRef = useRef<any>(null);
+    const { t } = getTranslation();
 
     // Function to handle demo credential filling
     const fillDemoCredentials = (email: string, password: string) => {
@@ -42,8 +44,8 @@ const LoginPage = () => {
                         <div className="relative flex w-full flex-col items-center justify-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:max-w-[667px]">
                             <div className="w-full max-w-[440px] lg:mt-16">
                                 <div className="mb-10">
-                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Sign in</h1>
-                                    <p className="text-base font-bold leading-normal text-white-dark">Enter your email and password to login</p>
+                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">{t('login-page.title')}</h1>
+                                    <p className="text-base font-bold leading-normal text-white-dark">{t('login-page.subtitle')}</p>
                                 </div>
                                 <div className="mb-6 flex border-b border-white-light dark:border-white-dark">
                                     <button
@@ -52,7 +54,7 @@ const LoginPage = () => {
                                         }`}
                                         onClick={() => setActiveTab('login')}
                                     >
-                                        Login
+                                        {t('login-page.login_tab')}
                                     </button>
                                 </div>
 
@@ -60,34 +62,34 @@ const LoginPage = () => {
 
                                 <div className="relative my-7 text-center md:mb-9">
                                     <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
-                                    <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">or</span>
+                                    <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">{t('login-page.or')}</span>
                                 </div>
 
                                 <div className="mb-10 md:mb-[60px]">
                                     <div className="rounded-lg border border-white-light bg-white/50 p-4 dark:border-white-dark dark:bg-black/20">
-                                        <h3 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Demo Credential (Click to auto-fill)</h3>
+                                        <h3 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{t('login-page.demo_credentials.title')}</h3>
                                         <div className="space-y-2">
                                             <button
                                                 type="button"
                                                 onClick={() => fillDemoCredentials('user@demo.com', 'user123')}
                                                 className="w-full rounded bg-green-50 px-3 py-2 text-left text-sm transition hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50"
                                             >
-                                                <div className="font-medium text-green-700 dark:text-green-300">Demo Store Admin Credentials</div>
-                                                <div className="text-xs text-green-600 dark:text-green-400">Email: user@demo.com | Password: user123</div>
+                                                <div className="font-medium text-green-700 dark:text-green-300">{t('login-page.demo_credentials.store_admin')}</div>
+                                                <div className="text-xs text-green-600 dark:text-green-400">{t('login-page.demo_credentials.email_password')}</div>
                                             </button>
                                         </div>
-                                        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">💡 Click credential above to automatically fill the login form</div>
+                                        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">{t('login-page.demo_credentials.hint')}</div>
                                     </div>
                                 </div>
 
                                 <div className="text-center dark:text-white">
-                                    Don&apos;t have an account ?&nbsp;
+                                    {t('login-page.dont_have_account')}&nbsp;
                                     <Link href="register" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                        SIGN UP
+                                        {t('login-page.sign_up')}
                                     </Link>
                                 </div>
                             </div>
-                            <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()}.Andgate All Rights Reserved.</p>
+                            <p className="absolute bottom-6 w-full text-center dark:text-white">{t('login-page.copyright').replace('{year}', new Date().getFullYear().toString())}</p>
                         </div>
                     </div>
                 </div>

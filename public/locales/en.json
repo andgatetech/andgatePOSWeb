@@ -312,7 +312,7 @@
         "nav": {
             "home": "Home",
             "features": "Features",
-            "overview": "POS Overview",
+            "overview": "Overview",
             "pricing": "Pricing",
             "training": "Training",
             "contact": "Contact",
@@ -758,5 +758,559 @@
             "advanced": "Advanced"
         },
         "tutorials_available": "tutorials available"
+    },
+    "register-page": {
+        "title": "Store Sign Up",
+        "subtitle": "Fill up the form to get free access",
+        "or": "or",
+        "already_have_account": "Already have an account ?",
+        "sign_in": "SIGN IN",
+        "register_tab": "Register",
+        "supplier_tab": "Supplier Register",
+        "form": {
+            "name_label": "Name",
+            "name_placeholder": "Enter Name",
+            "email_label": "Email",
+            "email_placeholder": "Enter Email",
+            "phone_label": "Phone",
+            "phone_placeholder": "Enter Phone Number",
+            "store_name_label": "Store Name",
+            "store_name_placeholder": "Enter Store Name",
+            "password_label": "Password",
+            "password_placeholder": "Enter Password",
+            "repeat_password_label": "Repeat Password",
+            "repeat_password_placeholder": "Repeat Password",
+            "sign_up_button": "Sign Up",
+            "signing_up": "Signing up..."
+        }
+    },
+    "login-page": {
+        "title": "Sign in",
+        "subtitle": "Enter your email and password to login",
+        "login_tab": "Login",
+        "supplier_tab": "Supplier Login",
+        "or": "or",
+        "demo_credentials": {
+            "title": "Demo Credential (Click to auto-fill)",
+            "store_admin": "Demo Store Admin Credentials",
+            "email_password": "Email: user@demo.com | Password: user123",
+            "hint": "💡 Click credential above to automatically fill the login form"
+        },
+        "dont_have_account": "Don't have an account ?",
+        "sign_up": "SIGN UP",
+        "copyright": "© {year}.Andgate All Rights Reserved.",
+        "form": {
+            "email_label": "Email",
+            "email_placeholder": "Enter Email",
+            "password_label": "Password",
+            "password_placeholder": "Enter Password",
+            "sign_in_button": "Sign in",
+            "signing_in": "Signing in...",
+            "show_password": "Show password",
+            "hide_password": "Hide password"
+        }
+    },
+    "cookie-policy": {
+        "badge": "Transparent Cookie Usage",
+        "title": "Cookie Policy",
+        "description": "This Cookie Policy explains how Andgate Technologies uses cookies and similar technologies to enhance your experience on our website and platform.",
+        "last_updated": "Last updated: September 17, 2025",
+
+        "overview": {
+            "title": "Cookie Usage Overview",
+            "essential": {
+                "title": "Essential Cookies",
+                "description": "Required for basic website functionality and security."
+            },
+            "analytics": {
+                "title": "Analytics Cookies",
+                "description": "Help us understand how users interact with our platform."
+            },
+            "functional": {
+                "title": "Functional Cookies",
+                "description": "Remember your preferences and personalize experience."
+            },
+            "control": {
+                "title": "Your Control",
+                "description": "Manage cookie preferences through your browser settings."
+            }
+        },
+
+        "what_are_cookies": {
+            "title": "What Are Cookies?",
+            "description": "Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our platform.",
+            "first_party": {
+                "title": "First-Party Cookies",
+                "description": "Set directly by AndgatePOS to enhance functionality and user experience."
+            },
+            "third_party": {
+                "title": "Third-Party Cookies",
+                "description": "Set by our trusted partners for analytics, security, and service improvements."
+            }
+        },
+
+        "types": {
+            "title": "Types of Cookies We Use",
+            "essential": {
+                "title": "Essential Cookies (Always Active)",
+                "description": "These cookies are necessary for the website to function and cannot be switched off. They are usually only set in response to actions made by you.",
+                "table": {
+                    "cookie_name": "Cookie Name",
+                    "purpose": "Purpose",
+                    "duration": "Duration",
+                    "session_id": {
+                        "name": "session_id",
+                        "purpose": "Maintains user session",
+                        "duration": "Session"
+                    },
+                    "csrf_token": {
+                        "name": "csrf_token",
+                        "purpose": "Security protection",
+                        "duration": "Session"
+                    },
+                    "auth_token": {
+                        "name": "auth_token",
+                        "purpose": "User authentication",
+                        "duration": "30 days"
+                    }
+                }
+            },
+            "functional": {
+                "title": "Functional Cookies",
+                "description": "These cookies enable enhanced functionality and personalization. They may be set by us or third parties.",
+                "table": {
+                    "user_preferences": {
+                        "name": "user_preferences",
+                        "purpose": "Remember dashboard layout",
+                        "duration": "1 year"
+                    },
+                    "theme_settings": {
+                        "name": "theme_settings",
+                        "purpose": "Remember theme preferences",
+                        "duration": "1 year"
+                    },
+                    "language_pref": {
+                        "name": "language_pref",
+                        "purpose": "Remember language selection",
+                        "duration": "1 year"
+                    }
+                }
+            },
+            "analytics": {
+                "title": "Analytics Cookies",
+                "description": "These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.",
+                "table": {
+                    "service": "Service",
+                    "google_analytics": {
+                        "name": "Google Analytics",
+                        "purpose": "Website usage analytics",
+                        "duration": "2 years"
+                    },
+                    "hotjar": {
+                        "name": "Hotjar",
+                        "purpose": "User behavior analysis",
+                        "duration": "1 year"
+                    },
+                    "internal": {
+                        "name": "Internal Analytics",
+                        "purpose": "Performance monitoring",
+                        "duration": "90 days"
+                    }
+                }
+            }
+        },
+
+        "managing": {
+            "title": "Managing Your Cookie Preferences",
+            "consent": {
+                "title": "Cookie Consent Management",
+                "description": "When you first visit our website, you'll see a cookie consent banner. You can:",
+                "options": [
+                    "Accept all cookies for the full website experience",
+                    "Customize your preferences by cookie category",
+                    "Reject optional cookies (essential cookies will still be used)",
+                    "Change your preferences anytime through the cookie settings"
+                ]
+            },
+            "browser": {
+                "title": "Browser Settings",
+                "description": "You can control cookies through your browser settings:",
+                "options": ["Block all cookies", "Block third-party cookies only", "Delete existing cookies", "Set up automatic cookie deletion"]
+            },
+            "opt_out": {
+                "title": "Opt-Out Links",
+                "description": "Direct opt-out for analytics services:",
+                "options": ["Google Analytics Opt-out", "Hotjar Opt-out", "Marketing cookies opt-out", "All optional cookies opt-out"]
+            }
+        },
+
+        "impact": {
+            "title": "Impact of Disabling Cookies",
+            "description": "While we respect your choice to disable cookies, please note that some functionality may be affected:",
+            "without_essential": {
+                "title": "Without Essential Cookies",
+                "items": ["Cannot maintain login sessions", "Security features may not work", "Shopping cart functionality disabled", "Account settings cannot be saved"]
+            },
+            "without_optional": {
+                "title": "Without Optional Cookies",
+                "items": ["Preferences reset each visit", "Limited personalization", "Cannot improve user experience", "Less relevant content"]
+            }
+        },
+
+        "third_party": {
+            "title": "Third-Party Cookies",
+            "description": "We work with trusted third-party services that may set their own cookies. These partners help us provide better service:",
+            "analytics_partners": {
+                "title": "Analytics Partners",
+                "description": "Help us understand usage patterns and improve our service."
+            },
+            "security_services": {
+                "title": "Security Services",
+                "description": "Protect against fraud and malicious activities."
+            },
+            "support_tools": {
+                "title": "Support Tools",
+                "description": "Enable customer support features and live chat."
+            }
+        },
+
+        "updates": {
+            "title": "Updates to Cookie Policy",
+            "description": "We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons.",
+            "notification": {
+                "title": "How We Notify You",
+                "methods": [
+                    "Website banner notification for significant changes",
+                    "Email notification to registered users",
+                    "Updated \"Last Modified\" date on this page",
+                    "In-app notifications for active users"
+                ]
+            }
+        },
+
+        "contact": {
+            "title": "Questions About Cookies?",
+            "description": "Contact our privacy team for questions about cookies or to request changes to your cookie preferences.",
+            "email": "support@andgatetech.net",
+            "button_primary": "support@andgatetech.net",
+            "button_secondary": "Contact Support",
+            "compliance": "✓ GDPR Compliant ✓ CCPA Compliant ✓ Regular Privacy Audits"
+        }
+    },
+    "privacy_policy": {
+        "hero": {
+            "badge": "Your Privacy Matters",
+            "title": "Privacy Policy",
+            "description": "At Andgate Technologies, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data.",
+            "last_updated": "Last updated: September 17, 2025"
+        },
+        "commitments": {
+            "title": "Our Privacy Commitments",
+            "secure_storage": {
+                "title": "Secure Data Storage",
+                "description": "Your data is encrypted and stored securely with bank-level protection."
+            },
+            "transparent": {
+                "title": "Transparent Practices",
+                "description": "We clearly explain what data we collect and how we use it."
+            },
+            "your_control": {
+                "title": "Your Control",
+                "description": "You can access, modify, or delete your personal data at any time."
+            },
+            "minimal_data": {
+                "title": "Minimal Data Collection",
+                "description": "We only collect data necessary to provide our services."
+            }
+        },
+        "information_collect": {
+            "title": "Information We Collect",
+            "personal_info": {
+                "title": "Personal Information",
+                "items": [
+                    "Name, email address, and contact information",
+                    "Business information (company name, address, tax ID)",
+                    "Payment information (processed securely by our payment partners)",
+                    "Account preferences and settings"
+                ]
+            },
+            "usage_info": {
+                "title": "Usage Information",
+                "items": ["Transaction data and sales analytics", "System usage patterns and feature interactions", "Device information and IP addresses", "Log files and error reports"]
+            },
+            "customer_data": {
+                "title": "Customer Data",
+                "items": ["Customer information you input into the system", "Purchase history and preferences", "Loyalty program data"]
+            }
+        },
+        "how_we_use": {
+            "title": "How We Use Your Information",
+            "service_delivery": {
+                "title": "Service Delivery",
+                "items": ["Process transactions and payments", "Provide customer support", "Maintain and improve our services", "Generate analytics and reports"]
+            },
+            "communication": {
+                "title": "Communication",
+                "items": ["Send service updates and notifications", "Provide technical support", "Share important account information", "Marketing communications (with consent)"]
+            }
+        },
+        "data_security": {
+            "title": "Data Security",
+            "subtitle": "Our Security Measures",
+            "measures": [
+                "256-bit SSL encryption for all data transmission",
+                "PCI DSS compliance for payment processing",
+                "Regular security audits and penetration testing",
+                "Multi-factor authentication",
+                "Secure cloud infrastructure with redundancy",
+                "Employee security training and background checks",
+                "24/7 security monitoring",
+                "Regular data backups"
+            ]
+        },
+        "your_rights": {
+            "title": "Your Rights and Choices",
+            "access_control": {
+                "title": "Access and Control",
+                "items": ["View and download your personal data", "Update or correct your information", "Delete your account and data", "Opt-out of marketing communications"]
+            },
+            "data_portability": {
+                "title": "Data Portability",
+                "items": ["Export your data in standard formats", "Transfer data to other services", "Restrict certain data processing", "File complaints with supervisory authorities"]
+            }
+        },
+        "data_retention": {
+            "title": "Data Retention",
+            "description": "We retain your personal information only for as long as necessary to provide our services and comply with legal obligations:",
+            "items": [
+                {
+                    "label": "Account Information:",
+                    "text": "Retained while your account is active and for 7 years after closure for legal compliance"
+                },
+                {
+                    "label": "Transaction Records:",
+                    "text": "Retained for 7 years as required by financial regulations"
+                },
+                {
+                    "label": "Usage Data:",
+                    "text": "Aggregated and anonymized data may be retained indefinitely for analytics"
+                },
+                {
+                    "label": "Marketing Data:",
+                    "text": "Deleted immediately upon opt-out request"
+                }
+            ]
+        },
+        "third_party": {
+            "title": "Third-Party Services",
+            "description": "We work with trusted third-party service providers to deliver our services:",
+            "payment": {
+                "title": "Payment Processors",
+                "description": "Secure payment processing partners"
+            },
+            "cloud": {
+                "title": "Cloud Storage",
+                "description": "Secure data hosting providers"
+            },
+            "communication": {
+                "title": "Communication",
+                "description": "Email and messaging services"
+            }
+        },
+        "contact": {
+            "title": "Questions About Privacy?",
+            "description": "We're here to help. Contact our privacy team for any questions or concerns about your data.",
+            "email": "support@andgatetech.net",
+            "contact_us": "Contact Us"
+        }
+    },
+    "terms-service": {
+        "meta": {
+            "title": "Terms of Service",
+            "lastUpdated": "Last updated: September 17, 2025"
+        },
+        "hero": {
+            "badge": "Legal Terms & Conditions",
+            "title": "Terms of Service",
+            "description": "These Terms of Service govern your use of AndgatePOS services. By using our platform, you agree to these terms and conditions."
+        },
+        "summary": {
+            "title": "Key Terms Summary",
+            "items": {
+                "serviceAgreement": {
+                    "title": "Service Agreement",
+                    "description": "Your rights and responsibilities when using AndgatePOS."
+                },
+                "paymentTerms": {
+                    "title": "Payment Terms",
+                    "description": "Billing, subscriptions, and payment processing details."
+                },
+                "dataProtection": {
+                    "title": "Data Protection",
+                    "description": "How we handle and protect your business data."
+                },
+                "userResponsibilities": {
+                    "title": "User Responsibilities",
+                    "description": "Acceptable use policies and account obligations."
+                }
+            }
+        },
+        "sections": {
+            "acceptance": {
+                "title": "1. Acceptance of Terms",
+                "paragraph1": "By accessing or using AndgatePOS (\"Service\"), you agree to be bound by these Terms of Service (\"Terms\"). If you disagree with any part of these terms, you may not access the Service.",
+                "paragraph2": "These Terms apply to all visitors, users, and others who access or use the Service, including businesses, merchants, and individual users (\"Users\" or \"you\").",
+                "notice": {
+                    "title": "Important Notice",
+                    "text": "By using our Service, you represent that you are at least 18 years old and have the legal capacity to enter into these Terms."
+                }
+            },
+            "description": {
+                "title": "2. Service Description",
+                "intro": "AndgatePOS provides cloud-based point-of-sale software and related services including:",
+                "coreFeatures": {
+                    "title": "Core Features",
+                    "items": [
+                        "Transaction processing and payment acceptance",
+                        "Inventory management and tracking",
+                        "Sales reporting and analytics",
+                        "Customer relationship management",
+                        "Multi-location support"
+                    ]
+                },
+                "additionalServices": {
+                    "title": "Additional Services",
+                    "items": ["24/7 customer support", "Regular software updates", "Data backup and security", "Integration with third-party services", "Training and onboarding"]
+                }
+            },
+            "registration": {
+                "title": "3. Account Registration",
+                "requirements": {
+                    "title": "Account Requirements",
+                    "intro": "To access certain features of the Service, you must register for an account. You agree to:",
+                    "items": [
+                        "Provide accurate, current, and complete information during registration",
+                        "Maintain and promptly update your account information",
+                        "Maintain the security of your password and account",
+                        "Accept responsibility for all activities under your account",
+                        "Notify us immediately of any unauthorized access or security breach"
+                    ]
+                },
+                "suspension": {
+                    "title": "Account Suspension",
+                    "text": "We reserve the right to suspend or terminate accounts that violate these Terms, engage in fraudulent activities, or pose a risk to other users or our Service."
+                }
+            },
+            "payment": {
+                "title": "4. Payment Terms",
+                "subtitle": "Billing and Subscriptions",
+                "subscriptionPlans": {
+                    "title": "Subscription Plans",
+                    "items": ["Monthly and annual billing cycles available", "Prices subject to change with 30 days notice", "Auto-renewal unless cancelled", "Pro-rated billing for plan changes"]
+                },
+                "transactionFees": {
+                    "title": "Transaction Fees",
+                    "items": ["Processing fees apply to card transactions", "Rates vary by payment method and volume", "No hidden fees or setup costs", "Transparent fee structure provided"]
+                },
+                "refundPolicy": {
+                    "title": "Refund Policy",
+                    "text": "Subscription fees are non-refundable except as required by law. Transaction processing fees are non-refundable. You may cancel your subscription at any time."
+                }
+            },
+            "acceptableUse": {
+                "title": "5. Acceptable Use Policy",
+                "permitted": {
+                    "title": "Permitted Uses",
+                    "intro": "You may use our Service for lawful business purposes including:",
+                    "items": [
+                        "Processing legitimate sales transactions",
+                        "Managing inventory and customer data",
+                        "Generating business reports and analytics",
+                        "Integrating with compatible third-party services"
+                    ]
+                },
+                "prohibited": {
+                    "title": "Prohibited Activities",
+                    "items": [
+                        "Processing fraudulent or unauthorized transactions",
+                        "Violating applicable laws or regulations",
+                        "Attempting to hack, disrupt, or damage our systems",
+                        "Sharing account credentials with unauthorized parties",
+                        "Using the Service for illegal activities",
+                        "Reverse engineering or copying our software"
+                    ]
+                }
+            },
+            "dataPrivacy": {
+                "title": "6. Data and Privacy",
+                "yourData": {
+                    "title": "Your Data",
+                    "intro": "You retain ownership of all data you input into our Service. We serve as a data processor and will handle your data according to our Privacy Policy and applicable data protection laws.",
+                    "items": [
+                        "You are responsible for the accuracy and legality of your data",
+                        "We will not access your data except as necessary to provide the Service",
+                        "You can export your data at any time",
+                        "Data deletion requests will be processed promptly"
+                    ]
+                },
+                "security": {
+                    "title": "Data Security Commitment",
+                    "text": "We implement industry-standard security measures to protect your data, including encryption, access controls, and regular security audits. See our Privacy Policy for detailed information."
+                }
+            },
+            "availability": {
+                "title": "7. Service Availability",
+                "uptime": {
+                    "title": "Uptime Commitment",
+                    "items": ["99.9% uptime service level agreement", "24/7 system monitoring and support", "Scheduled maintenance with advance notice", "Redundant systems and data backups"]
+                },
+                "updates": {
+                    "title": "Service Updates",
+                    "items": ["Regular feature updates and improvements", "Security patches applied automatically", "Advance notice for major changes", "Optional beta testing programs"]
+                }
+            },
+            "termination": {
+                "title": "8. Termination",
+                "byYou": {
+                    "title": "Termination by You",
+                    "intro": "You may terminate your account at any time by cancelling your subscription through your account settings or by contacting our support team.",
+                    "items": [
+                        "Cancellation takes effect at the end of your current billing period",
+                        "You can export your data before termination",
+                        "No refunds for unused subscription time",
+                        "Account reactivation available within 30 days"
+                    ]
+                },
+                "byUs": {
+                    "title": "Termination by Us",
+                    "text": "We may suspend or terminate your account for violations of these Terms, non-payment, or other legitimate business reasons with appropriate notice."
+                }
+            },
+            "liability": {
+                "title": "9. Limitation of Liability",
+                "paragraph1": "TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ANDGATE TECHNOLOGIES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.",
+                "paragraph2": "OUR TOTAL LIABILITY TO YOU FOR ANY DAMAGES ARISING FROM OR RELATED TO THESE TERMS OR YOUR USE OF THE SERVICE SHALL NOT EXCEED THE AMOUNT PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.",
+                "serviceLevel": {
+                    "title": "Service Level Remedies",
+                    "text": "For service level failures, our liability is limited to service credits as outlined in our SLA, which constitutes your sole and exclusive remedy for such failures."
+                }
+            },
+            "changes": {
+                "title": "10. Changes to Terms",
+                "paragraph1": "We reserve the right to modify these Terms at any time. We will notify you of material changes by email or through our Service at least 30 days before the changes take effect.",
+                "paragraph2": "Your continued use of the Service after the changes take effect constitutes acceptance of the new Terms. If you do not agree to the new Terms, you must stop using the Service.",
+                "notification": {
+                    "title": "Notification Methods",
+                    "items": ["Email notifications to registered account email", "In-app notifications and announcements", "Updates posted on our website"]
+                }
+            }
+        },
+        "contact": {
+            "title": "Questions About Our Terms?",
+            "description": "Our legal team is available to clarify any questions about these Terms of Service.",
+            "email": "support@andgatetech.net",
+            "contactButton": "Contact Legal Team",
+            "availability": "Available Monday-Friday, 9:00 AM - 6:00 PM"
+        }
     }
 }
