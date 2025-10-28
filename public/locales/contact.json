@@ -1,0 +1,144 @@
+{
+    "en": {
+        "page_title": "Get Started with AndgatePOS",
+        "page_subtitle": "Ready to transform your business? Fill out the form below and our team will contact you to set up your personalized POS solution.",
+        "form": {
+            "name": "Full Name *",
+            "email": "Email Address *",
+            "phone": "Phone Number *",
+            "business_name": "Business Name *",
+            "business_location": "Business Location *",
+            "store_size": "Number of Stores *",
+            "package": "Interest Package *",
+            "store_options": {
+                "1": "1 Store",
+                "2": "2 Stores",
+                "5": "5 Stores",
+                "10+": "10+ Stores"
+            },
+            "package_options": {
+                "starter": "Starter Package - ৳2,500/month",
+                "professional": "Professional Package - ৳5,000/month",
+                "premium": "Premium Package - ৳8,000/month",
+                "enterprise": "Enterprise Package - Custom Pricing"
+            },
+            "submit_button": "Send Message",
+            "submitting": "Sending...",
+            "privacy_policy": "Privacy Policy",
+            "terms_of_service": "Terms of Service"
+        },
+        "contact_info": {
+            "title": "Get in Touch",
+            "visit": {
+                "title": "Visit Us",
+                "address": "House: 34, Road: 3, Block: B, Aftabnagar, Badda, Dhaka, Bangladesh"
+            },
+            "call": {
+                "title": "Call Us",
+                "phone": "+880 1838680434"
+            },
+            "email": {
+                "title": "Email Us",
+                "email": "support@andgatetech.net"
+            }
+        },
+        "next_steps": {
+            "title": "What Happens Next?",
+            "steps": [
+                {
+                    "step": "1",
+                    "title": "We Review Your Request",
+                    "description": "Our team reviews your requirements within 2 hours"
+                },
+                {
+                    "step": "2",
+                    "title": "Schedule a Demo",
+                    "description": "We schedule a personalized demo at your convenience"
+                },
+                {
+                    "step": "3",
+                    "title": "Start Your Trial",
+                    "description": "Begin your 30-day free trial with full support"
+                }
+            ]
+        },
+        "success_modal": {
+            "title": "Thank You!",
+            "description": "Your request has been submitted successfully. Our team will contact you within 2 hours to discuss your POS solution.",
+            "back_home": "Back to Home",
+            "sign_in": "Sign In to Dashboard",
+            "continue": "Continue browsing"
+        }
+    },
+    "bn": {
+        "page_title": "AndgatePOS এর সঙ্গে শুরু করুন",
+        "page_subtitle": "আপনার ব্যবসা রূপান্তরের জন্য প্রস্তুত? নিচের ফর্মটি পূরণ করুন, আমাদের দল আপনার জন্য কাস্টমাইজড POS সমাধান সেটআপ করতে যোগাযোগ করবে।",
+        "form": {
+            "name": "পূর্ণ নাম *",
+            "email": "ইমেইল ঠিকানা *",
+            "phone": "ফোন নম্বর *",
+            "business_name": "ব্যবসার নাম *",
+            "business_location": "ব্যবসার অবস্থান *",
+            "store_size": "দোকানের সংখ্যা *",
+            "package": "পছন্দের প্যাকেজ *",
+            "store_options": {
+                "1": "1 টি দোকান",
+                "2": "2 টি দোকান",
+                "5": "5 টি দোকান",
+                "10+": "10+ টি দোকান"
+            },
+            "package_options": {
+                "starter": "স্টার্টার প্যাকেজ - ৳2,500/মাস",
+                "professional": "প্রফেশনাল প্যাকেজ - ৳5,000/মাস",
+                "premium": "প্রিমিয়াম প্যাকেজ - ৳8,000/মাস",
+                "enterprise": "এন্টারপ্রাইজ প্যাকেজ - কাস্টম প্রাইসিং"
+            },
+            "submit_button": "মেসেজ পাঠান",
+            "submitting": "পাঠানো হচ্ছে...",
+            "privacy_policy": "গোপনীয়তা নীতি",
+            "terms_of_service": "সেবা শর্তাবলী"
+        },
+        "contact_info": {
+            "title": "যোগাযোগ করুন",
+            "visit": {
+                "title": "আমাদের দেখুন",
+                "address": "হাউস: 34, রোড: 3, ব্লক: B, আফতাবনগর, বাদ্দা, ঢাকা, বাংলাদেশ"
+            },
+            "call": {
+                "title": "আমাদের কল করুন",
+                "phone": "+880 1838680434"
+            },
+            "email": {
+                "title": "ইমেইল করুন",
+                "email": "support@andgatetech.net"
+            }
+        },
+        "next_steps": {
+            "title": "পরবর্তী ধাপগুলো",
+            "steps": [
+                {
+                    "step": "1",
+                    "title": "আমরা আপনার রিকোয়েস্ট রিভিউ করি",
+                    "description": "আমাদের দল ২ ঘণ্টার মধ্যে আপনার প্রয়োজনসমূহ পর্যালোচনা করবে"
+                },
+                {
+                    "step": "2",
+                    "title": "ডেমো নির্ধারণ করুন",
+                    "description": "আমরা আপনার সুবিধামত একটি পার্সোনালাইজড ডেমো শিডিউল করি"
+                },
+                {
+                    "step": "3",
+                    "title": "আপনার ট্রায়াল শুরু করুন",
+                    "description": "পূর্ণ সহায়তার সঙ্গে ৩০ দিনের ফ্রি ট্রায়াল শুরু করুন"
+                }
+            ]
+        },
+        "success_modal": {
+            "title": "ধন্যবাদ!",
+            "description": "আপনার রিকোয়েস্ট সফলভাবে জমা দেওয়া হয়েছে। আমাদের দল ২ ঘণ্টার মধ্যে আপনার সঙ্গে যোগাযোগ করবে।",
+            "back_home": "হোমে ফিরে যান",
+            "sign_in": "ড্যাশবোর্ডে সাইন ইন করুন",
+            "continue": "ব্রাউজ চালিয়ে যান"
+        }
+    }
+}

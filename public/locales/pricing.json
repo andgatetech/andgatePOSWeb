@@ -1,0 +1,131 @@
+{
+    "en": {
+        "pricing_title": "Simple, Transparent Pricing",
+        "pricing_subtitle": "Choose a plan that fits your business — start free, upgrade anytime.",
+        "pricing_description": "Whether you’re running a single shop or managing multiple branches, our plans are designed to help you grow effortlessly.",
+
+        "toggle_monthly": "Monthly",
+        "toggle_annual": "Annually (Save 20%)",
+
+        "plan_free": "Free Plan",
+        "plan_starter": "Starter",
+        "plan_business": "Business",
+        "plan_enterprise": "Enterprise",
+
+        "plan_free_price": "৳0",
+        "plan_starter_price": "৳499",
+        "plan_business_price": "৳999",
+        "plan_enterprise_price": "৳2499",
+
+        "plan_free_period": "/month",
+        "plan_starter_period": "/month",
+        "plan_business_period": "/month",
+        "plan_enterprise_period": "/month",
+
+        "plan_free_desc": "Perfect for new or small shops just starting out.",
+        "plan_starter_desc": "For growing businesses managing regular sales and inventory.",
+        "plan_business_desc": "Ideal for established stores managing multiple employees and branches.",
+        "plan_enterprise_desc": "For large businesses that need advanced tools, insights, and support.",
+
+        "feature_sales": "Sales & Billing Management",
+        "feature_inventory": "Inventory Control & Stock Alerts",
+        "feature_customer": "Customer Records & Loyalty Tracking",
+        "feature_expense": "Expense & Cash Flow Tracking",
+        "feature_reports": "Sales & Profit Reports",
+        "feature_multistore": "Multi-Store Dashboard",
+        "feature_user_roles": "User Roles & Permissions",
+        "feature_supplier": "Supplier & Purchase Management",
+        "feature_barcode": "Barcode Generator & Printing",
+        "feature_support": "Priority Customer Support",
+        "feature_backup": "Daily Cloud Backup",
+        "feature_ai": "AI-Powered Analytics (Coming Soon)",
+
+        "button_get_started": "Get Started Free",
+        "button_upgrade": "Upgrade Now",
+        "button_contact": "Contact Sales",
+
+        "guarantee_title": "No Hidden Fees, Ever",
+        "guarantee_list": ["✓ 14-day money-back guarantee", "✓ Cancel anytime — no contracts", "✓ 24/7 customer support"],
+
+        "faq_title": "Frequently Asked Questions",
+        "faq_1_q": "Can I try the POS for free?",
+        "faq_1_a": "Yes! You can use our Free Plan with essential features — no credit card required.",
+        "faq_2_q": "Can I switch or cancel my plan anytime?",
+        "faq_2_a": "Absolutely. You can upgrade, downgrade, or cancel your plan at any time.",
+        "faq_3_q": "What payment methods do you accept?",
+        "faq_3_a": "We accept bKash, Nagad, Rocket, and all major debit/credit cards.",
+        "faq_4_q": "Do I need to install anything?",
+        "faq_4_a": "No installation needed. It’s 100% cloud-based — access from any device.",
+        "faq_5_q": "Is my data secure?",
+        "faq_5_a": "Yes, we use end-to-end encryption and automatic daily backups for maximum security.",
+
+        "cta_title": "Start Managing Smarter Today",
+        "cta_desc": "Join over 300 Bangladeshi businesses using AndgatePOS to manage sales, stock, and growth.",
+        "cta_button": "Start Free Journey Now"
+    },
+
+    "bn": {
+        "pricing_title": "সহজ ও স্বচ্ছ মূল্য পরিকল্পনা",
+        "pricing_subtitle": "আপনার ব্যবসার উপযোগী প্ল্যান বেছে নিন — ফ্রি শুরু করুন, যেকোনো সময় আপগ্রেড করুন।",
+        "pricing_description": "একটি দোকান হোক বা একাধিক শাখা, আমাদের পরিকল্পনাগুলো তৈরি করা হয়েছে আপনার ব্যবসার প্রবৃদ্ধি সহজ করতে।",
+
+        "toggle_monthly": "মাসিক",
+        "toggle_annual": "বার্ষিক (২০% সাশ্রয়)",
+
+        "plan_free": "ফ্রি প্ল্যান",
+        "plan_starter": "স্টার্টার",
+        "plan_business": "বিজনেস",
+        "plan_enterprise": "এন্টারপ্রাইজ",
+
+        "plan_free_price": "৳০",
+        "plan_starter_price": "৳৪৯৯",
+        "plan_business_price": "৳৯৯৯",
+        "plan_enterprise_price": "৳২৪৯৯",
+
+        "plan_free_period": "/মাস",
+        "plan_starter_period": "/মাস",
+        "plan_business_period": "/মাস",
+        "plan_enterprise_period": "/মাস",
+
+        "plan_free_desc": "নতুন বা ছোট দোকানের জন্য উপযুক্ত যারা শুরু করছেন।",
+        "plan_starter_desc": "বিক্রি ও স্টক পরিচালনার জন্য বাড়তে থাকা ব্যবসার জন্য আদর্শ।",
+        "plan_business_desc": "বহু কর্মী বা শাখা পরিচালনাকারী প্রতিষ্ঠানের জন্য উপযুক্ত।",
+        "plan_enterprise_desc": "বড় ব্যবসার জন্য উন্নত ফিচার, ইনসাইট ও সাপোর্ট সহ।",
+
+        "feature_sales": "বিক্রি ও বিলিং ম্যানেজমেন্ট",
+        "feature_inventory": "ইনভেন্টরি নিয়ন্ত্রণ ও স্টক অ্যালার্ট",
+        "feature_customer": "গ্রাহক তথ্য ও লয়্যালটি ট্র্যাকিং",
+        "feature_expense": "খরচ ও নগদ প্রবাহ ট্র্যাকিং",
+        "feature_reports": "বিক্রি ও মুনাফা রিপোর্ট",
+        "feature_multistore": "মাল্টি-স্টোর ড্যাশবোর্ড",
+        "feature_user_roles": "ইউজার রোল ও পারমিশন",
+        "feature_supplier": "সরবরাহকারী ও ক্রয় ব্যবস্থাপনা",
+        "feature_barcode": "বারকোড তৈরি ও প্রিন্ট",
+        "feature_support": "প্রায়োরিটি গ্রাহক সহায়তা",
+        "feature_backup": "দৈনিক ক্লাউড ব্যাকআপ",
+        "feature_ai": "এআই-চালিত বিশ্লেষণ (আসছে শিগগিরই)",
+
+        "button_get_started": "ফ্রি শুরু করুন",
+        "button_upgrade": "এখনই আপগ্রেড করুন",
+        "button_contact": "বিক্রয় টিমের সাথে যোগাযোগ করুন",
+
+        "guarantee_title": "কোনো গোপন ফি নেই",
+        "guarantee_list": ["✓ ১৪ দিনের মানি-ব্যাক গ্যারান্টি", "✓ যেকোনো সময় বাতিলযোগ্য — কোনো চুক্তি নেই", "✓ ২৪/৭ গ্রাহক সহায়তা"],
+
+        "faq_title": "প্রায় জিজ্ঞাসিত প্রশ্ন",
+        "faq_1_q": "আমি কি ফ্রি তে POS ব্যবহার করতে পারি?",
+        "faq_1_a": "হ্যাঁ! আপনি ফ্রি প্ল্যানে প্রাথমিক ফিচার ব্যবহার করতে পারবেন — কোনো কার্ড প্রয়োজন নেই।",
+        "faq_2_q": "আমি কি যেকোনো সময় প্ল্যান পরিবর্তন বা বাতিল করতে পারি?",
+        "faq_2_a": "অবশ্যই। আপনি যেকোনো সময় আপগ্রেড, ডাউনগ্রেড বা বাতিল করতে পারেন।",
+        "faq_3_q": "আপনারা কোন পেমেন্ট মেথড গ্রহণ করেন?",
+        "faq_3_a": "আমরা বিকাশ, নগদ, রকেট ও সব ডেবিট/ক্রেডিট কার্ড গ্রহণ করি।",
+        "faq_4_q": "আমাকে কি কিছু ইনস্টল করতে হবে?",
+        "faq_4_a": "না, কিছু ইনস্টল করার প্রয়োজন নেই। এটি সম্পূর্ণ ক্লাউড-ভিত্তিক — যেকোনো ডিভাইস থেকে ব্যবহারযোগ্য।",
+        "faq_5_q": "আমার ডেটা কি নিরাপদ?",
+        "faq_5_a": "হ্যাঁ, আমরা এন্ড-টু-এন্ড এনক্রিপশন ও দৈনিক স্বয়ংক্রিয় ব্যাকআপ ব্যবহার করি সর্বোচ্চ নিরাপত্তার জন্য।",
+
+        "cta_title": "আজই স্মার্টভাবে ব্যবসা পরিচালনা শুরু করুন",
+        "cta_desc": "৩০০+ বাংলাদেশি ব্যবসার সাথে যোগ দিন যারা AndgatePOS ব্যবহার করছে বিক্রি ও প্রবৃদ্ধি বৃদ্ধিতে।",
+        "cta_button": "এখনই ফ্রি যাত্রা শুরু করুন"
+    }
+}
