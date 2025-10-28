@@ -1,43 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 
-const PUBLIC_FILE = /\.(.*)$/;
+const PUBLIC_ROUTES = new Set(['/', '/features', '/pos-overview', '/pricing', '/training', '/contact', '/login'].map((route) => normalizeRoutePath(route)));
 
-// The locales you support in your app
-const supportedLocales = ['en', 'bn'];
-// The default locale
-const defaultLocale = 'en';
+const decodePermissionsCookie = (value?: string): string[] => {
+    if (!value) return [];
+    try {
+        const decoded = JSON.parse(atob(value));
+        return Array.isArray(decoded) ? decoded : [];
+    } catch {
+        return [];
+    }
+};
 
-export function middleware(req: NextRequest) {
-  // Skip middleware for static files and Next.js internals
-  if (
-    req.nextUrl.pathname.startsWith('/_next') ||
-    req.nextUrl.pathname.includes('/api/') ||
-    PUBLIC_FILE.test(req.nextUrl.pathname)
-  ) {
-    return;
-  }
+export function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
 
-  // Check if there is any supported locale in the pathname
-  const pathnameHasLocale = supportedLocales.some(
-    (locale) => req.nextUrl.pathname.startsWith(`/${locale}/`) || req.nextUrl.pathname === `/${locale}`
-  );
+    // Skip processing for static files and API routes
+    if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {
+        return NextResponse.next();
+    }
 
-  if (pathnameHasLocale) return;
+    // 🔹 Detect language based on geo-location
+    const country = request.geo?.country;
+    const lang = country === 'BD' ? 'bn' : 'en';
+    const currentLang = request.cookies.get('i18nextLng')?.value;
 
-  // Get country from Vercel's edge network header
-  const country = req.geo?.country || 'US';
+    const response = NextResponse.next();
 
-  // If the user is from Bangladesh (BD), redirect to the 'bn' locale
-  if (country === 'BD') {
-    const url = req.nextUrl.clone();
-    url.pathname = `/bn${url.pathname}`;
-    return NextResponse.redirect(url);
-  }
+    // 🔹 Set language cookie if not set or different
+    if (!currentLang || currentLang !== lang) {
+        response.cookies.set('i18nextLng', lang, {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+        });
+    }
 
-  // For all other users, you can redirect to the default locale or handle as needed
-  // This part is optional and depends on your desired behavior for other users.
-  // For example, to redirect to English:
-  // const url = req.nextUrl.clone();
-  // url.pathname = `/${defaultLocale}${url.pathname}`;
-  // return NextResponse.redirect(url);
+    const token = request.cookies.get('token')?.value;
+    const role = request.cookies.get('role')?.value || null;
+    const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
+    const normalizedPath = normalizeRoutePath(pathname);
+
+    // 1️⃣ Redirect logged-in user from /login → /dashboard
+    if (token && normalizedPath === '/login') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    // 2️⃣ Guest accessing private route → redirect to /login
+    if (!token && !PUBLIC_ROUTES.has(normalizedPath)) {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    // 3️⃣ Permission-based access check for authenticated users
+    if (token) {
+        const matchedRoute = findMatchingRouteKey(normalizedPath);
+        if (!matchedRoute || !canAccessRoute(role, permissions, matchedRoute)) {
+            return NextResponse.redirect(new URL('/login', request.url));
+        }
+    }
+
+    return response;
 }
+
+export const config = {
+    matcher: [
+        '/dashboard/:path*',
+        '/profile/:path*',
+        '/supplier/:path*',
+        '/products/:path*',
+        '/purchase/:path*',
+        '/createpurchase/:path*',
+        '/pos/:path*',
+        '/orders/:path*',
+        '/account/:path*',
+        '/store/:path*',
+        '/settings/:path*',
+        '/staff/:path*',
+        '/create-adjustment/:path*',
+        '/category/:path*',
+        '/brands/:path*',
+        '/suppliers/:path*',
+        '/expenses/:path*',
+        '/reports/:path*',
+    ],
+};
