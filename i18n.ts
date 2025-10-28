@@ -7,20 +7,32 @@ import en from '@/public/locales/en.json';
 // Mapping locale codes to JSON data
 const langObj: Record<string, any> = {
     en,
-    bn
+    bn,
 };
 
 // Get current language (server or client)
-const getLang = (): string => {
+// const getLang = (): string => {
+//     if (typeof window === 'undefined') {
+//         // Server-side
+//         const { cookies } = require('next/headers');
+//         const langCookie = cookies().get('i18nextLng');
+//         return langCookie?.value || 'en';
+//     } else {
+//         // Client-side
+//         const cookies = new UniversalCookie();
+//         return cookies.get('i18nextLng') || 'en';
+//     }
+// };
+
+export const getLang = (): string => {
     if (typeof window === 'undefined') {
-        // Server-side
-        const { cookies } = require('next/headers');
+        // ✅ SSR (middleware already set cookie)
         const langCookie = cookies().get('i18nextLng');
         return langCookie?.value || 'en';
     } else {
-        // Client-side
-        const cookies = new UniversalCookie();
-        return cookies.get('i18nextLng') || 'en';
+        // ✅ Client-side
+        const cookie = new UniversalCookie();
+        return cookie.get('i18nextLng') || 'en';
     }
 };
 
