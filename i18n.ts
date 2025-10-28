@@ -23,16 +23,6 @@ const getLang = (): string => {
     }
 };
 
-// export const getLang = (): string => {
-//     if (typeof window === 'undefined') {
-//         const langCookie = cookies().get('i18nextLng');
-//         return langCookie?.value || 'en';
-//     } else {
-//         const cookie = new (require('universal-cookie').default)();
-//         return cookie.get('i18nextLng') || 'en';
-//     }
-// };
-
 // Helper function to get nested value from object using dot notation
 const getNestedValue = (obj: any, path: string): any => {
     const keys = path.split('.');

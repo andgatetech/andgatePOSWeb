@@ -1,0 +1,170 @@
+{
+    "en": {
+        "sectionTitle": "System Overview",
+        "sectionSubtitle": "Discover the powerful features that make our POS system the perfect solution for your business.",
+        "sections": [
+            {
+                "title": "Real-Time Business Insights",
+                "subtitle": "Dashboard",
+                "features": ["Real-time analytics dashboard", "Sales performance tracking", "Revenue & profit insights", "Key business metrics at a glance"],
+                "ctaText": "View Dashboard"
+            },
+            {
+                "title": "Complete Store Management",
+                "subtitle": "Store",
+                "features": ["Multi-store management system", "Store settings & configuration", "Employee management & permissions", "Stock adjustments & inventory control"],
+                "ctaText": "Manage Stores"
+            },
+            {
+                "title": "Organize Your Products",
+                "subtitle": "Category & Brand",
+                "features": ["Category management system", "Brand organization & tracking", "Hierarchical product structure", "Easy product categorization"],
+                "ctaText": "Organize Products"
+            },
+            {
+                "title": "Advanced Product Management",
+                "subtitle": "Products",
+                "features": ["Add & manage products easily", "Stock adjustment & tracking", "Generate product QR codes", "Print barcode labels"],
+                "ctaText": "Manage Products"
+            },
+            {
+                "title": "Fast & Efficient Point of Sale",
+                "subtitle": "POS",
+                "features": ["Lightning-fast POS interface", "Barcode scanning support", "Multiple payment methods", "Quick checkout process"],
+                "ctaText": "Try POS"
+            },
+            {
+                "title": "Mobile & Tablet Responsive Design",
+                "subtitle": "Responsive",
+                "features": ["Fully responsive on all devices", "Mobile-optimized interface", "Tablet-friendly layouts", "Works seamlessly on any screen size"],
+                "ctaText": "Try on Mobile"
+            },
+            {
+                "title": "No Barcode Scanner Needed - Use Your Mobile!",
+                "subtitle": "Mobile Scanning",
+                "features": ["Scan barcodes with your phone camera", "No expensive scanner hardware needed", "Automatic barcode recognition", "Works on any smartphone or tablet"],
+                "ctaText": "Try Mobile Scanning"
+            },
+            {
+                "title": "Streamlined Order Management",
+                "subtitle": "Orders",
+                "features": ["View all orders in one place", "Order status tracking", "Invoice generation", "Order history & analytics"],
+                "ctaText": "Manage Orders"
+            },
+            {
+                "title": "Purchase Order System",
+                "subtitle": "Purchases",
+                "features": ["Create purchase orders easily", "Track all purchases", "Supplier management", "Purchase history & reports"],
+                "ctaText": "Manage Purchases"
+            },
+            {
+                "title": "Supplier Management",
+                "subtitle": "Suppliers",
+                "features": ["Add & manage suppliers", "Supplier contact information", "Track supplier history", "Supplier performance metrics"],
+                "ctaText": "Manage Suppliers"
+            },
+            {
+                "title": "Financial Accounting",
+                "subtitle": "Accounts",
+                "features": ["Ledger management system", "Journal entry tracking", "Financial reports", "Account reconciliation"],
+                "ctaText": "Manage Accounts"
+            },
+            {
+                "title": "Expense Tracking",
+                "subtitle": "Expenses",
+                "features": ["Track all business expenses", "Expense categorization", "Receipt management", "Expense reports & analytics"],
+                "ctaText": "Track Expenses"
+            },
+            {
+                "title": "Customer Relationship Management",
+                "subtitle": "Customers",
+                "features": ["Complete customer database", "Customer purchase history", "Loyalty program support", "Customer analytics & insights"],
+                "ctaText": "Manage Customers"
+            }
+        ]
+    },
+    "bn": {
+        "sectionTitle": "সিস্টেম ওভারভিউ",
+        "sectionSubtitle": "শক্তিশালী ফিচারগুলো খুঁজুন যা আমাদের POS সিস্টেমকে আপনার ব্যবসার জন্য নিখুঁত সমাধান করে।",
+        "sections": [
+            {
+                "title": "রিয়েল-টাইম বিজনেস ইনসাইটস",
+                "subtitle": "ড্যাশবোর্ড",
+                "features": ["রিয়েল-টাইম বিশ্লেষণ ড্যাশবোর্ড", "বিক্রয় পারফরম্যান্স ট্র্যাকিং", "আয় ও লাভের বিশ্লেষণ", "মূল ব্যবসায়িক সূচক এক নজরে"],
+                "ctaText": "ড্যাশবোর্ড দেখুন"
+            },
+            {
+                "title": "পূর্ণ স্টোর ম্যানেজমেন্ট",
+                "subtitle": "স্টোর",
+                "features": ["মাল্টি-স্টোর ম্যানেজমেন্ট সিস্টেম", "স্টোর সেটিংস ও কনফিগারেশন", "কর্মচারী ব্যবস্থাপনা ও অনুমতি", "স্টক সমন্বয় ও ইনভেন্টরি নিয়ন্ত্রণ"],
+                "ctaText": "স্টোর পরিচালনা করুন"
+            },
+            {
+                "title": "আপনার প্রোডাক্টগুলো সজ্জিত করুন",
+                "subtitle": "ক্যাটাগরি & ব্র্যান্ড",
+                "features": ["ক্যাটাগরি ম্যানেজমেন্ট সিস্টেম", "ব্র্যান্ড অর্গানাইজেশন & ট্র্যাকিং", "হায়ারার্কিকাল প্রোডাক্ট স্ট্রাকচার", "সহজ প্রোডাক্ট ক্যাটাগরাইজেশন"],
+                "ctaText": "প্রোডাক্ট সাজান"
+            },
+            {
+                "title": "অ্যাডভান্সড প্রোডাক্ট ম্যানেজমেন্ট",
+                "subtitle": "প্রোডাক্টস",
+                "features": ["সহজে প্রোডাক্ট যোগ ও পরিচালনা", "স্টক সমন্বয় & ট্র্যাকিং", "প্রোডাক্ট QR কোড তৈরি", "বারকোড লেবেল প্রিন্ট"],
+                "ctaText": "প্রোডাক্ট পরিচালনা"
+            },
+            {
+                "title": "দ্রুত ও কার্যকর POS",
+                "subtitle": "POS",
+                "features": ["দ্রুত POS ইন্টারফেস", "বারকোড স্ক্যানিং সাপোর্ট", "বিভিন্ন পেমেন্ট পদ্ধতি", "দ্রুত চেকআউট প্রক্রিয়া"],
+                "ctaText": "POS চেষ্টা করুন"
+            },
+            {
+                "title": "মোবাইল & ট্যাবলেট রেসপন্সিভ ডিজাইন",
+                "subtitle": "রেসপন্সিভ",
+                "features": ["সমস্ত ডিভাইসে সম্পূর্ণ রেসপন্সিভ", "মোবাইল-অপ্টিমাইজড ইন্টারফেস", "ট্যাবলেট-বান্ধব লেআউট", "যেকোনো স্ক্রিনে নির্বিঘ্নে কাজ করে"],
+                "ctaText": "মোবাইলে চেষ্টা করুন"
+            },
+            {
+                "title": "বারকোড স্ক্যানার প্রয়োজন নেই - মোবাইল ব্যবহার করুন!",
+                "subtitle": "মোবাইল স্ক্যানিং",
+                "features": ["ফোন ক্যামেরা দিয়ে বারকোড স্ক্যান করুন", "দামী স্ক্যানার হার্ডওয়্যার প্রয়োজন নেই", "স্বয়ংক্রিয় বারকোড শনাক্তকরণ", "যেকোনো স্মার্টফোন বা ট্যাবলেটে কাজ করে"],
+                "ctaText": "মোবাইল স্ক্যানিং চেষ্টা করুন"
+            },
+            {
+                "title": "স্ট্রিমলাইনড অর্ডার ম্যানেজমেন্ট",
+                "subtitle": "অর্ডারস",
+                "features": ["এক জায়গায় সব অর্ডার দেখুন", "অর্ডার স্ট্যাটাস ট্র্যাকিং", "ইনভয়েস জেনারেশন", "অর্ডার হিস্ট্রি & বিশ্লেষণ"],
+                "ctaText": "অর্ডার পরিচালনা"
+            },
+            {
+                "title": "পারচেজ অর্ডার সিস্টেম",
+                "subtitle": "পারচেসেস",
+                "features": ["সহজে পারচেজ অর্ডার তৈরি", "সব পারচেস ট্র্যাক করুন", "সাপ্লায়ার ম্যানেজমেন্ট", "পারচেস হিস্ট্রি & রিপোর্ট"],
+                "ctaText": "পারচেস পরিচালনা"
+            },
+            {
+                "title": "সাপ্লায়ার ম্যানেজমেন্ট",
+                "subtitle": "সাপ্লায়ারস",
+                "features": ["সাপ্লায়ার যোগ ও পরিচালনা", "সাপ্লায়ারের যোগাযোগের তথ্য", "সাপ্লায়ার ইতিহাস ট্র্যাকিং", "সাপ্লায়ার পারফরম্যান্স সূচক"],
+                "ctaText": "সাপ্লায়ার পরিচালনা"
+            },
+            {
+                "title": "ফাইনান্সিয়াল একাউন্টিং",
+                "subtitle": "অ্যাকাউন্টস",
+                "features": ["লেজার ম্যানেজমেন্ট সিস্টেম", "জার্নাল এন্ট্রি ট্র্যাকিং", "ফাইনান্সিয়াল রিপোর্ট", "অ্যাকাউন্ট রিকনসিলিয়েশন"],
+                "ctaText": "অ্যাকাউন্ট পরিচালনা"
+            },
+            {
+                "title": "খরচ ট্র্যাকিং",
+                "subtitle": "এক্সপেন্সেস",
+                "features": ["সব ব্যবসায়িক খরচ ট্র্যাক করুন", "এক্সপেন্স ক্যাটাগরাইজেশন", "রসিদ ম্যানেজমেন্ট", "এক্সপেন্স রিপোর্ট & বিশ্লেষণ"],
+                "ctaText": "খরচ ট্র্যাক করুন"
+            },
+            {
+                "title": "কাস্টমার রিলেশনশিপ ম্যানেজমেন্ট",
+                "subtitle": "কাস্টমার্স",
+                "features": ["পূর্ণ কাস্টমার ডাটাবেস", "কাস্টমার ক্রয় ইতিহাস", "লয়্যালটি প্রোগ্রাম সাপোর্ট", "কাস্টমার বিশ্লেষণ & ইনসাইটস"],
+                "ctaText": "কাস্টমার পরিচালনা"
+            }
+        ]
+    }
+}

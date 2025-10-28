@@ -1,0 +1,74 @@
+{
+    "en": {
+        "header": {
+            "title": "Loved by Business Owners in Bangladesh",
+            "subtitle": "See how entrepreneurs across Bangladesh are growing with AndGatePOS."
+        },
+        "testimonials": [
+            {
+                "name": "Md. Rakib Hossain",
+                "business": "Dhaka Mart",
+                "image": "https://img.icons8.com/color/96/shop.png",
+                "review": "AndGatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
+                "rating": 5
+            },
+            {
+                "name": "Shamima Akter",
+                "business": "Chattogram Fashion House",
+                "image": "https://img.icons8.com/color/96/clothes.png",
+                "review": "Before AndGatePOS, I was struggling with manual calculation. Now everything is digital and customers are happier.",
+                "rating": 5
+            },
+            {
+                "name": "Jahidul Islam",
+                "business": "Sylhet Electronics",
+                "image": "https://img.icons8.com/color/96/electronics.png",
+                "review": "The reporting dashboard is very helpful. I can track profit and expenses daily without hiring an accountant.",
+                "rating": 5
+            },
+            {
+                "name": "Farhana Rahman",
+                "business": "Rajshahi Grocery",
+                "image": "https://img.icons8.com/color/96/grocery-store.png",
+                "review": "AndGatePOS is easy to use for everyone in my shop. Our sales increased after using the system because checkout is much faster.",
+                "rating": 5
+            }
+        ]
+    },
+    "bn": {
+        "header": {
+            "title": "বাংলাদেশের ব্যবসায়ীদের ভালোবাসা পেয়েছে",
+            "subtitle": "বাংলাদেশের উদ্যোক্তারা কীভাবে AndGatePOS দিয়ে তাদের ব্যবসা বাড়াচ্ছে তা দেখুন।"
+        },
+        "testimonials": [
+            {
+                "name": "মোঃ রাকিব হোসেন",
+                "business": "ঢাকা মার্ট",
+                "image": "https://img.icons8.com/color/96/shop.png",
+                "review": "AndGatePOS আমাদের দোকানের পরিচালনা অনেক সহজ করে দিয়েছে। স্টক, বিক্রয় এবং হিসাব সব এক জায়গায়। আমাদের দক্ষতা অনেক বাড়িয়েছে।",
+                "rating": 5
+            },
+            {
+                "name": "শামীমা আক্তার",
+                "business": "চট্টগ্রাম ফ্যাশন হাউস",
+                "image": "https://img.icons8.com/color/96/clothes.png",
+                "review": "AndGatePOS এর আগে, আমি ম্যানুয়াল হিসাব নিয়ে সমস্যায় ছিলাম। এখন সবকিছু ডিজিটাল এবং গ্রাহকরা আরও খুশি।",
+                "rating": 5
+            },
+            {
+                "name": "জাহিদুল ইসলাম",
+                "business": "সিলেট ইলেকট্রনিক্স",
+                "image": "https://img.icons8.com/color/96/electronics.png",
+                "review": "রিপোর্টিং ড্যাশবোর্ড খুবই সহায়ক। আমি প্রতিদিন লাভ এবং ব্যয় ট্র্যাক করতে পারি কোন হিসাবরক্ষক ছাড়াই।",
+                "rating": 5
+            },
+            {
+                "name": "ফারহানা রহমান",
+                "business": "রাজশাহী গ্রোসারি",
+                "image": "https://img.icons8.com/color/96/grocery-store.png",
+                "review": "আমাদের দোকানের সবাইকে জন্য AndGatePOS ব্যবহার করা সহজ। সিস্টেম ব্যবহার করার পরে বিক্রয় বাড়লো কারণ চেকআউট অনেক দ্রুত।",
+                "rating": 5
+            }
+        ]
+    }
+}
