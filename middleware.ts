@@ -36,14 +36,6 @@ export function middleware(request: NextRequest) {
         });
     }
 
-    // 🔹 Remove /en or /bn from URL if present (redirect to clean URL)
-    if (pathname.startsWith('/bn') || pathname.startsWith('/en')) {
-        const cleanPath = pathname.replace(/^\/(bn|en)/, '') || '/';
-        const cleanUrl = request.nextUrl.clone();
-        cleanUrl.pathname = cleanPath;
-        return NextResponse.redirect(cleanUrl);
-    }
-
     const token = request.cookies.get('token')?.value;
     const role = request.cookies.get('role')?.value || null;
     const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
@@ -80,9 +72,6 @@ export const config = {
         '/training',
         '/contact',
         '/login',
-        // Language prefixed routes (to redirect to clean URLs)
-        '/bn/:path*',
-        '/en/:path*',
         // Protected routes
         '/dashboard/:path*',
         '/profile/:path*',
