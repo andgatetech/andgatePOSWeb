@@ -1,16 +1,15 @@
 'use client';
 
 import ComponentsAuthRegisterForm from '@/components/auth/components-auth-register-form';
-import IconGoogle from '@/components/icon/icon-google';
 import MainLayout from '@/components/layout/MainLayout';
-import { ShoppingCart } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import Footer from '../terms-of-service/Footer';
 
 const CoverRegister = () => {
     const [activeTab, setActiveTab] = useState<'register' | 'supplier'>('register');
+    const { t } = getTranslation();
 
     return (
         <MainLayout>
@@ -39,8 +38,8 @@ const CoverRegister = () => {
                         <div className="relative flex w-full flex-col items-center justify-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:max-w-[667px]">
                             <div className="w-full max-w-[440px] lg:mt-16">
                                 <div className="mb-10">
-                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl"> Store Sign Up</h1>
-                                    <p className="text-base font-bold leading-normal text-white-dark">Fill up the form to get free access</p>
+                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">{t('register-page.title')}</h1>
+                                    <p className="text-base font-bold leading-normal text-white-dark">{t('register-page.subtitle')}</p>
                                 </div>
                                 {/* <div className="mb-6 flex border-b border-white-light dark:border-white-dark">
                                 <button
@@ -49,7 +48,7 @@ const CoverRegister = () => {
                                     }`}
                                     onClick={() => setActiveTab('register')}
                                 >
-                                    Register
+                                    {t('register-page.register_tab')}
                                 </button>
                                 <button
                                     className={`flex-1 py-2 text-center text-lg font-medium transition-colors ${
@@ -57,14 +56,14 @@ const CoverRegister = () => {
                                     }`}
                                     onClick={() => setActiveTab('supplier')}
                                 >
-                                    Supplier Register
+                                    {t('register-page.supplier_tab')}
                                 </button>
                             </div> */}
                                 <ComponentsAuthRegisterForm />
                                 {/* {activeTab === 'register' ? <ComponentsAuthRegisterForm /> : <SupplierRegisterForm />} */}
                                 <div className="relative my-7 text-center md:mb-9">
                                     <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
-                                    <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">or</span>
+                                    <span className="relative bg-white px-2 font-bold uppercase text-white-dark dark:bg-dark dark:text-white-light">{t('register-page.or')}</span>
                                 </div>
                                 {/* <div className="mb-10 md:mb-[60px]">
                                     <ul className="flex justify-center gap-3.5 text-white">
@@ -80,9 +79,9 @@ const CoverRegister = () => {
                                     </ul>
                                 </div> */}
                                 <div className="text-center dark:text-white">
-                                    Already have an account ?&nbsp;
+                                    {t('register-page.already_have_account')}&nbsp;
                                     <Link href="/login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                        SIGN IN
+                                        {t('register-page.sign_in')}
                                     </Link>
                                 </div>
                             </div>
@@ -90,7 +89,6 @@ const CoverRegister = () => {
                     </div>
                 </div>
                 {/* Footer */}
-                
             </div>
         </MainLayout>
     );

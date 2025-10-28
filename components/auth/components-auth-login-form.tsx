@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -7,14 +8,14 @@ import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-
 import { login } from '@/store/features/auth/authSlice';
-import IconMail from '../icon/icon-mail';
 import IconLockDots from '../icon/icon-lock-dots';
+import IconMail from '../icon/icon-mail';
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
     const dispatch = useDispatch();
+    const { t } = getTranslation();
 
     const [loginApi, { isLoading }] = useLoginMutation();
 
@@ -89,14 +90,14 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
             <div>
-                <label htmlFor="Email">Email</label>
+                <label htmlFor="Email">{t('login-page.form.email_label')}</label>
                 <div className="relative text-white-dark">
                     <input
                         id="Email"
                         value={credentials.email}
                         onChange={handleEmailChange}
                         type="email"
-                        placeholder="Enter Email"
+                        placeholder={t('login-page.form.email_placeholder')}
                         className="form-input ps-10 placeholder:text-white-dark"
                         required
                         autoComplete="email"
@@ -108,14 +109,14 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             </div>
 
             <div>
-                <label htmlFor="Password">Password</label>
+                <label htmlFor="Password">{t('login-page.form.password_label')}</label>
                 <div className="relative text-white-dark">
                     <input
                         id="Password"
                         value={credentials.password}
                         onChange={handlePasswordChange}
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter Password"
+                        placeholder={t('login-page.form.password_placeholder')}
                         className="form-input pe-10 ps-10 placeholder:text-white-dark"
                         required
                         autoComplete="current-password"
@@ -127,7 +128,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
                         type="button"
                         onClick={togglePasswordVisibility}
                         className="absolute end-4 top-1/2 -translate-y-1/2 text-white-dark transition-colors duration-200 hover:text-primary focus:outline-none"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showPassword ? t('login-page.form.hide_password') : t('login-page.form.show_password')}
                     >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -135,7 +136,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             </div>
 
             <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {isLoading ? t('login-page.form.signing_in') : t('login-page.form.sign_in_button')}
             </button>
         </form>
     );
