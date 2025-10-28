@@ -11,30 +11,30 @@ const langObj: Record<string, any> = {
 };
 
 // Get current language (server or client)
-// const getLang = (): string => {
-//     if (typeof window === 'undefined') {
-//         // Server-side
-//         const { cookies } = require('next/headers');
-//         const langCookie = cookies().get('i18nextLng');
-//         return langCookie?.value || 'en';
-//     } else {
-//         // Client-side
-//         const cookies = new UniversalCookie();
-//         return cookies.get('i18nextLng') || 'en';
-//     }
-// };
-
-export const getLang = (): string => {
+const getLang = (): string => {
     if (typeof window === 'undefined') {
-        // ✅ SSR (middleware already set cookie)
+        // Server-side
+        const { cookies } = require('next/headers');
         const langCookie = cookies().get('i18nextLng');
         return langCookie?.value || 'en';
     } else {
-        // ✅ Client-side
-        const cookie = new UniversalCookie();
-        return cookie.get('i18nextLng') || 'en';
+        // Client-side
+        const cookies = new UniversalCookie();
+        return cookies.get('i18nextLng') || 'en';
     }
 };
+
+// export const getLang = (): string => {
+//     if (typeof window === 'undefined') {
+//         // ✅ SSR (middleware already set cookie)
+//         const langCookie = cookies().get('i18nextLng');
+//         return langCookie?.value || 'en';
+//     } else {
+//         // ✅ Client-side
+//         const cookie = new UniversalCookie();
+//         return cookie.get('i18nextLng') || 'en';
+//     }
+// };
 
 // Helper function to get nested value from object using dot notation
 const getNestedValue = (obj: any, path: string): any => {
