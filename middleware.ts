@@ -108,6 +108,13 @@ export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const normalizedPath = normalizeRoutePath(pathname);
 
+    // ✅ Auto redirect to localized path (only for public pages)
+    if (!pathname.startsWith('/bn') && !pathname.startsWith('/en') && PUBLIC_ROUTES.has(normalizedPath)) {
+        const localizedUrl = request.nextUrl.clone();
+        localizedUrl.pathname = `/${lang}${pathname}`;
+        return NextResponse.redirect(localizedUrl);
+    }
+
     // 1️⃣ Redirect logged-in user from /login → /dashboard
     if (token && normalizedPath === '/login') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
