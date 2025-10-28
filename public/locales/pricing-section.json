@@ -1,0 +1,122 @@
+{
+    "en": {
+        "header": {
+            "subtitle": "PRICING PLANS",
+            "title": "Choose the right plan for your business",
+            "description": "Start with our free trial. Upgrade anytime as your business grows."
+        },
+        "frequencies": [
+            { "value": "monthly", "label": "Monthly", "priceSuffix": "/month" },
+            { "value": "annually", "label": "Annually", "priceSuffix": "/year", "discount": "Save 20%" }
+        ],
+        "tiers": [
+            {
+                "name": "Free",
+                "description": "Perfect for small businesses and startups getting started with POS.",
+                "features": ["Up to 1 Store", "50 products", "Basic Inventory Management", "Basic Accounting", "Basic Reporting", "Basic Support"],
+                "ctaText": "Get Started",
+                "mostPopular": false
+            },
+            {
+                "name": "SME",
+                "description": "Advanced features for growing businesses that need more control.",
+                "features": [
+                    "Up to 1 Store",
+                    "200 products",
+                    "Advanced Inventory Management",
+                    "Advance Accounting",
+                    "Priority support",
+                    "Advanced Analytics",
+                    "Customer Management",
+                    "Staff management"
+                ],
+                "ctaText": "Get Started",
+                "mostPopular": true
+            },
+            {
+                "name": "Enterprise",
+                "description": "Complete solution for large businesses with multiple locations.",
+                "features": [
+                    "Unlimited Stores",
+                    "Unlimited Products",
+                    "Multi-location support",
+                    "Advanced Inventory Management",
+                    "Advanced Accounting",
+                    "Advanced Analytics",
+                    "Custom reporting",
+                    "Custom integrations",
+                    "24/7 phone support",
+                    "API access",
+                    "Priority Support",
+                    "Training & Onboarding"
+                ],
+                "ctaText": "Get Started",
+                "mostPopular": false
+            }
+        ],
+        "bottomCTA": {
+            "text": "Need a custom solution? We offer tailored plans for large enterprises.",
+            "buttonText": "Contact Sales"
+        }
+    },
+    "bn": {
+        "header": {
+            "subtitle": "মূল্য পরিকল্পনা",
+            "title": "আপনার ব্যবসার জন্য সঠিক প্ল্যান নির্বাচন করুন",
+            "description": "আমাদের ফ্রি ট্রায়াল দিয়ে শুরু করুন। আপনার ব্যবসা বাড়লে যেকোন সময় আপগ্রেড করুন।"
+        },
+        "frequencies": [
+            { "value": "monthly", "label": "মাসিক", "priceSuffix": "/মাস" },
+            { "value": "annually", "label": "বার্ষিক", "priceSuffix": "/বছর", "discount": "২০% সাশ্রয়" }
+        ],
+        "tiers": [
+            {
+                "name": "ফ্রি",
+                "description": "ছোট ব্যবসা এবং স্টার্টআপের জন্য উপযুক্ত, যারা POS দিয়ে শুরু করছে।",
+                "features": ["১টি স্টোর পর্যন্ত", "৫০টি প্রোডাক্ট", "বেসিক ইনভেন্টরি ম্যানেজমেন্ট", "বেসিক অ্যাকাউন্টিং", "বেসিক রিপোর্টিং", "বেসিক সাপোর্ট"],
+                "ctaText": "শুরু করুন",
+                "mostPopular": false
+            },
+            {
+                "name": "SME",
+                "description": "বর্ধিত ফিচার যা উন্নয়নশীল ব্যবসায়ের জন্য আরও নিয়ন্ত্রণ দেয়।",
+                "features": [
+                    "১টি স্টোর পর্যন্ত",
+                    "২০০টি প্রোডাক্ট",
+                    "অ্যাডভান্সড ইনভেন্টরি ম্যানেজমেন্ট",
+                    "অ্যাডভান্সড অ্যাকাউন্টিং",
+                    "প্রায়োরিটি সাপোর্ট",
+                    "অ্যাডভান্সড অ্যানালিটিক্স",
+                    "কাস্টমার ম্যানেজমেন্ট",
+                    "স্টাফ ম্যানেজমেন্ট"
+                ],
+                "ctaText": "শুরু করুন",
+                "mostPopular": true
+            },
+            {
+                "name": "এন্টারপ্রাইজ",
+                "description": "বৃহৎ ব্যবসার জন্য সম্পূর্ণ সমাধান, যেখানে একাধিক লোকেশন রয়েছে।",
+                "features": [
+                    "অসীম স্টোর",
+                    "অসীম প্রোডাক্ট",
+                    "মাল্টি-লোকেশন সাপোর্ট",
+                    "অ্যাডভান্সড ইনভেন্টরি ম্যানেজমেন্ট",
+                    "অ্যাডভান্সড অ্যাকাউন্টিং",
+                    "অ্যাডভান্সড অ্যানালিটিক্স",
+                    "কাস্টম রিপোর্টিং",
+                    "কাস্টম ইন্টিগ্রেশন",
+                    "২৪/৭ ফোন সাপোর্ট",
+                    "API অ্যাক্সেস",
+                    "প্রায়োরিটি সাপোর্ট",
+                    "ট্রেনিং & অনবোর্ডিং"
+                ],
+                "ctaText": "শুরু করুন",
+                "mostPopular": false
+            }
+        ],
+        "bottomCTA": {
+            "text": "একটি কাস্টম সমাধানের প্রয়োজন? আমরা বড় এন্টারপ্রাইজের জন্য কাস্টম পরিকল্পনা প্রদান করি।",
+            "buttonText": "সেলস কন্টাক্ট করুন"
+        }
+    }
+}
