@@ -23,7 +23,8 @@ export function middleware(request: NextRequest) {
 
     // 🔹 Detect language based on geo-location
     const country = request.geo?.country;
-    const lang = (country === 'BD') ? 'bn' : 'en';
+    console.log('User country:', country);
+    const lang = (country == 'BD') ? 'bn' : 'en';
     const currentLang = request.cookies.get('i18nextLng')?.value;
 
     const response = NextResponse.next();
