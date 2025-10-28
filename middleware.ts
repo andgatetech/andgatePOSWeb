@@ -64,15 +64,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        // Public routes
-        '/',
-        '/features',
-        '/pos-overview',
-        '/pricing',
-        '/training',
-        '/contact',
-        '/login',
-        // Protected routes
         '/dashboard/:path*',
         '/profile/:path*',
         '/supplier/:path*',
