@@ -47,6 +47,11 @@ export const baseApi = createApi({
         'TransactionReport',
         'IdleProductReport',
         'PurchaseDues',
+        'ProductAttributeValues',
+        'ProductAttributes',
+        'WarrantyTypes',
+        'ProductSerials',
+        'ProductWarranties',
     ],
     endpoints: () => ({}),
 });
