@@ -1,5 +1,4 @@
 import UniversalCookie from 'universal-cookie';
-
 // Import all locales
 import bn from '@/public/locales/bn.json';
 import en from '@/public/locales/en.json';
@@ -24,18 +23,6 @@ const getLang = (): string => {
     }
 };
 
-// export const getLang = (): string => {
-//     if (typeof window === 'undefined') {
-//         // ✅ SSR (middleware already set cookie)
-//         const langCookie = cookies().get('i18nextLng');
-//         return langCookie?.value || 'en';
-//     } else {
-//         // ✅ Client-side
-//         const cookie = new UniversalCookie();
-//         return cookie.get('i18nextLng') || 'en';
-//     }
-// };
-
 // Helper function to get nested value from object using dot notation
 const getNestedValue = (obj: any, path: string): any => {
     const keys = path.split('.');
@@ -54,7 +41,7 @@ const getNestedValue = (obj: any, path: string): any => {
 
 export const getTranslation = () => {
     const lang = getLang();
-    const data: any = langObj[lang] || langObj['en'];
+    const data: any = langObj[lang];
 
     // Translation function that supports both flat and nested keys
     const t = (key: string): string => {
