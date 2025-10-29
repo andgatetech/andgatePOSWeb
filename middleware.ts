@@ -26,6 +26,8 @@ export function middleware(request: NextRequest) {
     const lang = (country == 'BD') ? 'bn' : 'en';
     const currentLang = request.cookies.get('i18nextLng')?.value;
 
+    console.log(`Middleware detected country: ${country}, setting language to: ${lang}`);
+
     const response = NextResponse.next();
 
     // 🔹 Set language cookie if not set or different
