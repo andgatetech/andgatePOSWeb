@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
+import { getTranslation } from '@/i18n';
 
 const PUBLIC_ROUTES = new Set(['/', '/features', '/pos-overview', '/pricing', '/training', '/contact', '/login'].map((route) => normalizeRoutePath(route)));
 
@@ -14,6 +15,7 @@ const decodePermissionsCookie = (value?: string): string[] => {
 };
 
 export function middleware(request: NextRequest) {
+    const { i18n } = getTranslation()
     const { pathname } = request.nextUrl;
 
     // Skip processing for static files and API routes
@@ -26,16 +28,18 @@ export function middleware(request: NextRequest) {
     const lang = (country == 'BD') ? 'bn' : 'en';
     const currentLang = request.cookies.get('i18nextLng')?.value;
 
-    console.log(`Middleware detected country: ${country}, setting language to: ${lang}`);
+    console.log('Middleware detected country: ${country}, setting language to: ${lang}');
 
     const response = NextResponse.next();
 
     // 🔹 Set language cookie if not set or different
     if (!currentLang || currentLang !== lang) {
-        response.cookies.set('i18nextLng', lang, {
-            path: '/',
-            maxAge: 60 * 60 * 24 * 365, // 1 year
-        });
+        i18n.changeLanguage(lang);
+
+        // response.cookies.set('i18nextLng', lang, {
+        //     path: '/',
+        //     maxAge: 60 * 60 * 24 * 365, // 1 year
+        // });
     }
 
     const token = request.cookies.get('token')?.value;
