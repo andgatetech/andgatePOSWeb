@@ -6,7 +6,7 @@ import type { RootState } from '@/store';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 
-import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
+import ImageShowModal from '@/app/(defaults)/(apps)/products/component/Image Modal/ImageModal2';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Award, Camera, Eye, Package, Plus, Search, ShoppingCart, Tag, X } from 'lucide-react';
 import Image from 'next/image';
@@ -58,9 +58,7 @@ const PurchaseOrderLeftSide: React.FC<PurchaseOrderLeftSideProps> = ({ isMobileV
 
     // Build query parameters for current store only
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
-             
-        };
+        const params: Record<string, any> = {};
 
         // Always use current store from sidebar for POS
         if (currentStoreId) {

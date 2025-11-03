@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-import AttributesTab from './AttributesTab';
+import AttributesTab, { ProductAttribute } from './AttributesTab';
 import BasicInfoTab from './BasicInfoTab';
 import ImagesTab from './ImagesTab';
 import MobileTabFAB from './MobileTabFAB';
@@ -22,6 +22,7 @@ import SerialTab from './SerialTab';
 import SKUTab from './SKUTab';
 import StockTab from './StockTab';
 import TaxTab from './TaxTab';
+import VariantsTab, { ProductStock } from './VariantsTab';
 import WarrantyTab from './WarrantyTab';
 
 const ProductCreateForm = () => {
@@ -53,7 +54,10 @@ const ProductCreateForm = () => {
     const { hasSubscriptionError, subscriptionError } = useSubscriptionError(createProductError as any);
 
     // Product Attributes State
-    const [productAttributes, setProductAttributes] = useState<Array<{ attribute_id: number; value: string }>>([]);
+    const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>([]);
+
+    // Product Stocks/Variants State
+    const [productStocks, setProductStocks] = useState<ProductStock[]>([]);
 
     // Product Serials State
     const [productSerials, setProductSerials] = useState<Array<{ serial_number: string; notes: string }>>([]);
@@ -70,7 +74,7 @@ const ProductCreateForm = () => {
         description: '',
         price: '',
         wholesale_price: '',
-        available: 'yes',
+        available: 'yes' as 'yes' | 'no',
         quantity: '',
         low_stock_quantity: '',
         purchase_price: '',
@@ -101,6 +105,26 @@ const ProductCreateForm = () => {
     const getVisibleTabs = () => {
         const tabs = ['basic']; // Basic is always visible
 
+        // If "Has Attributes" is enabled, show variant workflow (hide price/stock/tax/images tabs)
+        if (formData.has_attributes) {
+            // Show: Basic → Attributes → Variants (all pricing, stock, tax, images configured per variant)
+            tabs.push('attributes', 'variants');
+
+            // SKU is still separate (optional)
+            tabs.push('sku');
+
+            // Optional tabs
+            if (formData.has_warranty) {
+                tabs.push('warranty');
+            }
+            if (formData.has_serial) {
+                tabs.push('serial');
+            }
+
+            return tabs;
+        }
+
+        // Standard workflow for products WITHOUT variants
         // Pricing unlocks after basic info is complete
         if (isBasicInfoComplete()) {
             tabs.push('pricing');
@@ -117,10 +141,7 @@ const ProductCreateForm = () => {
         if (stockCompleted) {
             tabs.push('tax', 'sku', 'images');
 
-            // All optional tabs also unlock after stock completion
-            if (formData.has_attributes) {
-                tabs.push('attributes');
-            }
+            // Optional tabs
             if (formData.has_warranty) {
                 tabs.push('warranty');
             }
@@ -212,30 +233,99 @@ const ProductCreateForm = () => {
             toast.error('Please enter Product Name!');
             return;
         }
-        if (!formData.price || parseFloat(formData.price) <= 0) {
-            toast.error('Please enter valid Price!');
+
+        // Check if product has variants (has_attributes enabled)
+        if (formData.has_attributes) {
+            // For variant products, validate stocks/variants
+            if (!productStocks || productStocks.length === 0) {
+                toast.error('Please configure at least one variant in the Variants tab!');
+                setActiveTab('variants');
+                return;
+            }
+
+            // Validate each stock entry
+            for (let i = 0; i < productStocks.length; i++) {
+                const stock = productStocks[i];
+                const variantName = stock.variant_data && Object.keys(stock.variant_data).length > 0 ? Object.values(stock.variant_data).join('-') : `Variant ${i + 1}`;
+
+                if (!stock.price || parseFloat(stock.price) <= 0) {
+                    toast.error(`${variantName}: Please enter valid selling price!`);
+                    setActiveTab('variants');
+                    return;
+                }
+                if (!stock.purchase_price || parseFloat(stock.purchase_price) <= 0) {
+                    toast.error(`${variantName}: Please enter valid purchase price!`);
+                    setActiveTab('variants');
+                    return;
+                }
+                if (!stock.quantity || parseFloat(stock.quantity) < 0) {
+                    toast.error(`${variantName}: Please enter valid quantity!`);
+                    setActiveTab('variants');
+                    return;
+                }
+                if (!stock.unit || stock.unit.trim() === '') {
+                    toast.error(`${variantName}: Please enter a unit (e.g., pcs, kg, ltr)!`);
+                    setActiveTab('variants');
+                    return;
+                }
+                if (stock.low_stock_quantity && parseFloat(stock.low_stock_quantity) < 0) {
+                    toast.error(`${variantName}: Low stock quantity cannot be negative!`);
+                    setActiveTab('variants');
+                    return;
+                }
+                if (stock.tax_rate && (parseFloat(stock.tax_rate) < 0 || parseFloat(stock.tax_rate) > 100)) {
+                    toast.error(`${variantName}: Tax rate must be between 0 and 100!`);
+                    setActiveTab('variants');
+                    return;
+                }
+            }
+
+            // Submit with variant stocks
+            await submitProductData(productStocks);
             return;
         }
-        if (!formData.quantity || parseFloat(formData.quantity) < 0) {
-            toast.error('Please enter valid Quantity!');
+
+        // For simple products (no variants), validate and auto-create single stock from formData
+        // Validate simple product pricing & stock
+        if (!formData.price || parseFloat(formData.price) <= 0) {
+            toast.error('Please enter valid selling price!');
+            setActiveTab('pricing');
             return;
         }
         if (!formData.purchase_price || parseFloat(formData.purchase_price) <= 0) {
-            toast.error('Please enter valid Purchase Price!');
+            toast.error('Please enter valid purchase price!');
+            setActiveTab('pricing');
+            return;
+        }
+        if (!formData.quantity || parseFloat(formData.quantity) < 0) {
+            toast.error('Please enter valid quantity!');
+            setActiveTab('stock');
             return;
         }
 
-        // Additional validations
-        if (formData.low_stock_quantity && parseFloat(formData.low_stock_quantity) < 0) {
-            toast.error('Low stock quantity cannot be negative!');
-            return;
-        }
+        // Auto-create single stock entry from formData
+        const singleStock: ProductStock = {
+            price: formData.price,
+            purchase_price: formData.purchase_price,
+            wholesale_price: formData.wholesale_price || '0',
+            quantity: formData.quantity,
+            low_stock_quantity: formData.low_stock_quantity || '0',
+            tax_rate: formData.tax_rate || '0',
+            tax_included: formData.tax_included || false,
+            available: formData.available,
+            batch_no: '',
+            purchase_date: '',
+            unit: formData.units || 'pcs',
+            variant_data: {},
+            images: images || [], // Use general product images
+        };
 
-        if (formData.tax_rate && (parseFloat(formData.tax_rate) < 0 || parseFloat(formData.tax_rate) > 100)) {
-            toast.error('Tax rate must be between 0 and 100!');
-            return;
-        }
+        // Continue with submission using this single stock
+        await submitProductData([singleStock]);
+    };
 
+    // Extracted submission logic
+    const submitProductData = async (stocks: ProductStock[]) => {
         try {
             const fd = new FormData();
 
@@ -255,20 +345,10 @@ const ProductCreateForm = () => {
             }
             fd.append('product_name', formData.product_name.trim());
             fd.append('description', formData.description.trim());
-            fd.append('price', String(formData.price));
-            fd.append('quantity', String(formData.quantity));
-            fd.append('purchase_price', String(formData.purchase_price));
-            fd.append('available', formData.available);
-            // store_id already added above, don't duplicate it
 
-            // Add wholesale price if provided
-            if (formData.wholesale_price) {
-                fd.append('wholesale_price', String(formData.wholesale_price));
-            }
-
-            // Add low stock quantity
-            if (formData.low_stock_quantity) {
-                fd.append('low_stock_quantity', String(formData.low_stock_quantity));
+            // Add SKU if manual
+            if (formData.skuOption === 'manual' && formData.sku.trim()) {
+                fd.append('sku', formData.sku.trim());
             }
 
             // Add unit field as units array (backend expects units array)
@@ -276,29 +356,74 @@ const ProductCreateForm = () => {
                 fd.append('units[0][name]', formData.units);
             }
 
-            // Add tax fields
-            if (formData.tax_rate) {
-                fd.append('tax_rate', String(formData.tax_rate));
-            }
-            // Send tax_included as string boolean that backend can parse
-            fd.append('tax_included', formData.tax_included ? '1' : '0');
+            // Add flags
+            fd.append('has_serial', formData.has_serial ? '1' : '0');
+            fd.append('has_warranty', formData.has_warranty ? '1' : '0');
+            fd.append('has_attribute', formData.has_attributes ? '1' : '0');
 
-            // Add SKU if manual
-            if (formData.skuOption === 'manual' && formData.sku.trim()) {
-                fd.append('sku', formData.sku.trim());
-            }
-
-            // Add product attributes
+            // Add product attributes (for UI/filtering, not variant data)
             if (productAttributes && productAttributes.length > 0) {
                 productAttributes.forEach((attr, index) => {
-                    if (attr.attribute_id && attr.value.trim()) {
-                        fd.append(`attributes[${index}][attribute_id]`, String(attr.attribute_id));
+                    if (attr.value.trim()) {
+                        if (attr.attribute_id > 0) {
+                            fd.append(`attributes[${index}][attribute_id]`, String(attr.attribute_id));
+                        } else if (attr.attribute_name) {
+                            fd.append(`attributes[${index}][attribute_name]`, attr.attribute_name);
+                        }
                         fd.append(`attributes[${index}][value]`, attr.value.trim());
                     }
                 });
             }
 
-            // Validate and add images
+            // Add stocks/variants array (NEW - replaces single product pricing)
+            stocks.forEach((stock, index) => {
+                fd.append(`stocks[${index}][price]`, String(stock.price));
+                fd.append(`stocks[${index}][purchase_price]`, String(stock.purchase_price));
+                fd.append(`stocks[${index}][wholesale_price]`, stock.wholesale_price || '0');
+                fd.append(`stocks[${index}][quantity]`, String(stock.quantity));
+                fd.append(`stocks[${index}][low_stock_quantity]`, stock.low_stock_quantity || '0');
+                fd.append(`stocks[${index}][tax_rate]`, stock.tax_rate || '0');
+                fd.append(`stocks[${index}][tax_included]`, stock.tax_included ? '1' : '0');
+                fd.append(`stocks[${index}][available]`, stock.available);
+                fd.append(`stocks[${index}][unit]`, stock.unit || formData.units || 'pcs');
+
+                if (stock.batch_no) {
+                    fd.append(`stocks[${index}][batch_no]`, stock.batch_no);
+                }
+                if (stock.purchase_date) {
+                    fd.append(`stocks[${index}][purchase_date]`, stock.purchase_date);
+                }
+
+                // Add variant_data as array (backend expects array, not JSON string)
+                if (stock.variant_data && Object.keys(stock.variant_data).length > 0) {
+                    Object.entries(stock.variant_data).forEach(([key, value]) => {
+                        fd.append(`stocks[${index}][variant_data][${key}]`, value);
+                    });
+                }
+
+                // Add variant-specific images
+                if (stock.images && stock.images.length > 0) {
+                    stock.images.forEach((img, imgIndex) => {
+                        if (img.file) {
+                            const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+                            if (!validMimes.includes(img.file.type)) {
+                                toast.error(`Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`);
+                                throw new Error('Invalid image type');
+                            }
+
+                            if (img.file.size > 2 * 1024 * 1024) {
+                                toast.error(`Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
+                                throw new Error('Image too large');
+                            }
+
+                            fd.append(`stocks[${index}][images][]`, img.file as File);
+                        }
+                    });
+                }
+            });
+
+            // Add general product images (not linked to specific variant)
             if (images && images.length > 0) {
                 for (let i = 0; i < images.length; i++) {
                     const img = images[i];
@@ -378,9 +503,10 @@ const ProductCreateForm = () => {
                 has_serial: false,
             });
             setImages([]);
-            setProductAttributes([]); // Clear attributes
-            setProductSerials([]); // Clear serials
-            setProductWarranties([]); // Clear warranties
+            setProductAttributes([]);
+            setProductStocks([]);
+            setProductSerials([]);
+            setProductWarranties([]);
 
             // Success modal
             await Swal.fire({
@@ -543,6 +669,21 @@ const ProductCreateForm = () => {
                             />
                         )}
 
+                        {activeTab === 'variants' && (
+                            <VariantsTab
+                                productAttributes={productAttributes}
+                                productStocks={productStocks}
+                                setProductStocks={setProductStocks}
+                                units={units}
+                                defaultUnit={formData.units}
+                                formData={formData}
+                                onPrevious={handlePrevious}
+                                onNext={handleNext}
+                                onCreateProduct={handleSubmit}
+                                isCreating={createLoading}
+                            />
+                        )}
+
                         {activeTab === 'warranty' && (
                             <WarrantyTab
                                 formData={formData}
@@ -615,16 +756,21 @@ const ProductCreateForm = () => {
                             <p className="mb-1 font-medium">Product Creation Guide:</p>
                             <ul className="space-y-1 text-blue-700">
                                 <li>
-                                    • Complete <strong>Basic Info</strong> (name & category) to unlock Pricing tab
+                                    <strong>Simple Product (no variants):</strong>
                                 </li>
-                                <li>
-                                    • Enter <strong>Price</strong> to unlock Stock tab
+                                <li className="ml-4">• Basic Info → Pricing → Stock → Tax → Images → SKU</li>
+                                <li className="mt-2">
+                                    <strong>Product with Variants:</strong>
                                 </li>
-                                <li>
-                                    • Complete <strong>Stock</strong> (unit & quantity) to unlock all remaining tabs
+                                <li className="ml-4">• Enable &quot;Has Attributes&quot; in Basic Info</li>
+                                <li className="ml-4">• Go to Attributes tab → Select attributes (e.g., Color, Size)</li>
+                                <li className="ml-4">• Go to Variants tab → Click &quot;Add Variant&quot;</li>
+                                <li className="ml-4">• For each variant: Enter attribute values (Red, Blue, etc.)</li>
+                                <li className="ml-4">• Configure Price, Stock, Tax, Images for each variant</li>
+                                <li className="ml-4">• Click &quot;Save & Close&quot; to save variant and add another</li>
+                                <li className="ml-4">
+                                    • <strong>Price/Stock/Tax/Images tabs are hidden</strong> - all data entered in Variants tab!
                                 </li>
-                                <li>• Check feature boxes in Basic Info to enable Attributes, Warranty & Serial tabs</li>
-                                <li>• Use Save button to keep progress, Create Product when ready</li>
                             </ul>
                         </div>
                     </div>

@@ -5,7 +5,7 @@ import type { RootState } from '@/store';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 
-import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
+import ImageShowModal from '@/app/(defaults)/(apps)/products/component/Image Modal/ImageModal2';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { Html5Qrcode } from 'html5-qrcode';
