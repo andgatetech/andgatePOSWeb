@@ -1,113 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  canAccessRoute,
-  findMatchingRouteKey,
-  normalizeRoutePath,
-} from './lib/permissions';
-import { getTranslation } from '@/i18n';
+import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 
-const PUBLIC_ROUTES = new Set(
-  [
-    '/',
-    '/features',
-    '/pos-overview',
-    '/pricing',
-    '/training',
-    '/contact',
-    '/login',
-  ].map((route) => normalizeRoutePath(route))
-);
-
+// 🔹 Decode permissions cookie safely
 const decodePermissionsCookie = (value?: string): string[] => {
-  if (!value) return [];
-  try {
-    const decoded = JSON.parse(atob(value));
-    return Array.isArray(decoded) ? decoded : [];
-  } catch {
-    return [];
-  }
+    if (!value) return [];
+    try {
+        const decoded = JSON.parse(atob(value));
+        return Array.isArray(decoded) ? decoded : [];
+    } catch {
+        return [];
+    }
 };
 
 export function middleware(request: NextRequest) {
-  const { i18n } = getTranslation();
-  const { pathname } = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
-  // 🚫 Skip static and API routes
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.')
-  ) {
-    return NextResponse.next();
-  }
+    // 🚫 Skip static files and API routes
+    if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {
+        return NextResponse.next();
+    }
 
-  // 🌍 Detect language based on Geo-IP
-  const country = request.geo?.country || 'US';
-  const lang = country === 'BD' ? 'bn' : 'en';
-  const currentLang = request.cookies.get('i18nextLng')?.value;
+    // 🌍 Detect language (BD → Bangla, otherwise English)
+    const country = request.geo?.country || 'US';
+    const lang = country === 'BD' ? 'bn' : 'en';
+    const currentLang = request.cookies.get('i18nextLng')?.value;
+    const response = NextResponse.next();
 
-  console.log(`Middleware detected country: ${country}, setting language to: ${lang}`);
+    if (!currentLang || currentLang !== lang) {
+        response.cookies.set('i18nextLng', lang, {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+        });
+    }
 
-  const response = NextResponse.next();
+    // 🔑 Extract user info from cookies
+    const token = request.cookies.get('token')?.value;
+    const role = request.cookies.get('role')?.value || null;
+    const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
+    const normalizedPath = normalizeRoutePath(pathname);
 
-  // 🌐 Set language cookie if not set or different
-  if (!currentLang || currentLang !== lang) {
-    // ⚠️ Middleware runs in Edge Runtime (no i18n context here)
-    // So calling i18n.changeLanguage() will fail.
-    // You should only set the cookie and handle i18n client-side or via server component.
-    response.cookies.set('i18nextLng', lang, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-    });
-  }
+    // 1️⃣ Redirect logged-in users away from login
+    if (token && normalizedPath === '/login') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
 
-  const token = request.cookies.get('token')?.value;
-  const role = request.cookies.get('role')?.value || null;
-  const permissions = decodePermissionsCookie(
-    request.cookies.get('permissions')?.value
-  );
-  const normalizedPath = normalizeRoutePath(pathname);
+    // 2️⃣ Redirect guests trying to access private routes
+    if (!token) {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
 
-  // 🔒 Redirect logged-in user away from login page
-  if (token && normalizedPath === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  // 🔐 Guest accessing private route → redirect to login
-  if (!token && !PUBLIC_ROUTES.has(normalizedPath)) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  // 🧩 Permission-based access check for authenticated users
-  if (token) {
+    // 3️⃣ Enforce permission-based access
     const matchedRoute = findMatchingRouteKey(normalizedPath);
     if (!matchedRoute || !canAccessRoute(role, permissions, matchedRoute)) {
-      return NextResponse.redirect(new URL('/login', request.url));
+        return NextResponse.redirect(new URL('/login', request.url));
     }
-  }
 
-  return response;
+    // ✅ Allow access
+    return response;
 }
 
+// ✅ Only apply middleware to protected areas
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/profile/:path*',
-    '/supplier/:path*',
-    '/products/:path*',
-    '/purchase/:path*',
-    '/createpurchase/:path*',
-    '/pos/:path*',
-    '/orders/:path*',
-    '/account/:path*',
-    '/store/:path*',
-    '/settings/:path*',
-    '/staff/:path*',
-    '/create-adjustment/:path*',
-    '/category/:path*',
-    '/brands/:path*',
-    '/suppliers/:path*',
-    '/expenses/:path*',
-    '/reports/:path*',
-  ],
+    matcher: [
+        '/dashboard/:path*',
+        '/profile/:path*',
+        '/store/:path*',
+        '/products/:path*',
+        '/purchase/:path*',
+        '/orders/:path*',
+        '/account/:path*',
+        '/expenses/:path*',
+        '/reports/:path*',
+        '/staff/:path*',
+        '/category/:path*',
+        '/brands/:path*',
+        '/suppliers/:path*',
+        '/pos/:path*',
+        '/settings/:path*',
+        '/create-adjustment/:path*',
+    ],
 };

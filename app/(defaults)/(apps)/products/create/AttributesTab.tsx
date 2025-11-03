@@ -2,16 +2,22 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
-import { Tag } from 'lucide-react';
+import { Check, Plus, Tag, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+
+export interface ProductAttribute {
+    attribute_id: number;
+    value: string;
+    attribute_name?: string;
+}
 
 interface AttributesTabProps {
     formData: {
         product_name: string;
         quantity: string;
     };
-    productAttributes: Array<{ attribute_id: number; value: string }>;
-    setProductAttributes: React.Dispatch<React.SetStateAction<Array<{ attribute_id: number; value: string }>>>;
+    productAttributes: ProductAttribute[];
+    setProductAttributes: React.Dispatch<React.SetStateAction<ProductAttribute[]>>;
     onPrevious: () => void;
     onNext: () => void;
     onCreateProduct: () => void;
@@ -23,175 +29,248 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
     const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams);
     const attributes = attributesResponse?.data || [];
-    const [sameAttributeForAll, setSameAttributeForAll] = useState(true);
+
+    // Selected attributes: can be from DB (has id) or custom (has name only)
+    const [selectedAttributes, setSelectedAttributes] = useState<Array<{ id: number | string; name: string; isCustom: boolean }>>([]);
+
+    // For search/input functionality
+    const [searchQueries, setSearchQueries] = useState<{ [key: string]: string }>({});
+    const [showDropdowns, setShowDropdowns] = useState<{ [key: string]: boolean }>({});
 
     const quantity = parseInt(formData.quantity) || 0;
 
-    // Initialize attributes based on quantity
+    // Initialize selected attributes from productAttributes prop
     useEffect(() => {
-        if (quantity > 0 && productAttributes.length !== quantity) {
-            setProductAttributes(new Array(quantity).fill({ attribute_id: 0, value: '' }).map(() => ({ attribute_id: 0, value: '' })));
+        if (productAttributes.length > 0 && selectedAttributes.length === 0) {
+            const attrs = productAttributes
+                .map((attr) => {
+                    if (attr.attribute_id > 0) {
+                        // DB attribute
+                        const dbAttr = attributes.find((a: any) => a.id === attr.attribute_id);
+                        return {
+                            id: attr.attribute_id,
+                            name: dbAttr?.name || '',
+                            isCustom: false,
+                        };
+                    } else if (attr.attribute_name) {
+                        // Custom attribute (just name, no DB id)
+                        return {
+                            id: `custom_${attr.attribute_name}`,
+                            name: attr.attribute_name,
+                            isCustom: true,
+                        };
+                    }
+                    return null;
+                })
+                .filter(Boolean) as Array<{ id: number | string; name: string; isCustom: boolean }>;
+            setSelectedAttributes(attrs);
         }
-    }, [quantity, productAttributes.length, setProductAttributes]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [attributes]);
 
-    const handleSameAttributeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSameAttributeForAll(e.target.checked);
-        if (e.target.checked && productAttributes[0]) {
-            // Apply first attribute to all
-            setProductAttributes(new Array(quantity).fill(null).map(() => ({ ...productAttributes[0] })));
+    // Sync selected attributes to parent component
+    useEffect(() => {
+        const attributesData = selectedAttributes.map((attr) => {
+            if (attr.isCustom) {
+                // Custom attribute: no ID, just name
+                return {
+                    attribute_id: 0,
+                    attribute_name: attr.name,
+                    value: '',
+                };
+            } else {
+                // DB attribute: has ID
+                return {
+                    attribute_id: typeof attr.id === 'number' ? attr.id : 0,
+                    value: '',
+                };
+            }
+        });
+        setProductAttributes(attributesData);
+    }, [selectedAttributes, setProductAttributes]);
+
+    // Add new attribute field
+    const handleAddAttributeField = () => {
+        const tempId = `temp_${Date.now()}`;
+        setSelectedAttributes([...selectedAttributes, { id: tempId, name: '', isCustom: false }]);
+        setSearchQueries({ ...searchQueries, [tempId]: '' });
+        setShowDropdowns({ ...showDropdowns, [tempId]: false });
+    };
+
+    // Handle search input change
+    const handleSearchChange = (attrId: string | number, value: string) => {
+        setSearchQueries({ ...searchQueries, [attrId]: value });
+        setShowDropdowns({ ...showDropdowns, [attrId]: true });
+    };
+
+    // Select attribute from dropdown (DB attribute)
+    const handleSelectAttribute = (tempId: string | number, attribute: any) => {
+        const updated = selectedAttributes.map((attr) => (attr.id === tempId ? { id: attribute.id, name: attribute.name, isCustom: false } : attr));
+        setSelectedAttributes(updated);
+        setSearchQueries({ ...searchQueries, [tempId]: '' });
+        setShowDropdowns({ ...showDropdowns, [tempId]: false });
+    };
+
+    // Add custom attribute (NO API call, just save name)
+    const handleAddCustomAttribute = (tempId: string | number, attributeName: string) => {
+        if (!attributeName.trim()) return;
+
+        // Just save the name, NO database creation
+        const updated = selectedAttributes.map((attr) => (attr.id === tempId ? { id: `custom_${attributeName}`, name: attributeName.trim(), isCustom: true } : attr));
+        setSelectedAttributes(updated);
+        setSearchQueries({ ...searchQueries, [tempId]: '' });
+        setShowDropdowns({ ...showDropdowns, [tempId]: false });
+    };
+
+    // Remove attribute field
+    const handleRemoveAttribute = (attrId: number | string) => {
+        setSelectedAttributes(selectedAttributes.filter((attr) => attr.id !== attrId));
+        const newSearchQueries = { ...searchQueries };
+        const newShowDropdowns = { ...showDropdowns };
+        delete newSearchQueries[attrId];
+        delete newShowDropdowns[attrId];
+        setSearchQueries(newSearchQueries);
+        setShowDropdowns(newShowDropdowns);
+    };
+
+    // Filter attributes based on search for each field
+    const getFilteredAttributes = (searchQuery: string) => {
+        const availableAttributes = attributes.filter((attr: any) => !selectedAttributes.some((selected) => selected.id === attr.id));
+
+        // If no search query, return first 5 available attributes
+        if (!searchQuery || searchQuery.trim() === '') {
+            return availableAttributes.slice(0, 5);
         }
-    };
 
-    const handleSingleAttributeChange = (field: 'attribute_id' | 'value', value: string | number) => {
-        const newAttribute = {
-            attribute_id: field === 'attribute_id' ? (typeof value === 'number' ? value : parseInt(value as string) || 0) : productAttributes[0]?.attribute_id || 0,
-            value: field === 'value' ? (value as string) : productAttributes[0]?.value || '',
-        };
-        // Update all entries with same attribute
-        setProductAttributes(new Array(quantity).fill(null).map(() => ({ ...newAttribute })));
+        // Otherwise, filter by search query
+        return availableAttributes.filter((attr: any) => attr.name.toLowerCase().includes(searchQuery.toLowerCase()));
     };
-
-    const handleAttributeChange = (index: number, field: 'attribute_id' | 'value', value: string | number) => {
-        const updated = [...productAttributes];
-        updated[index] = {
-            ...updated[index],
-            [field]: field === 'attribute_id' ? (typeof value === 'number' ? value : parseInt(value as string) || 0) : value,
-        };
-        setProductAttributes(updated);
-    };
-
-    const filledAttributes = productAttributes.filter((attr) => attr.attribute_id > 0 && attr.value.trim() !== '');
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <Tag className="h-6 w-6 text-emerald-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">Product Attributes</h3>
+            {/* Header with Add Button */}
+            <div className="border-b border-gray-200 pb-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-emerald-100 p-2">
+                            <Tag className="h-5 w-5 text-emerald-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900">Product Attributes</h3>
+                            <p className="text-sm text-gray-600">
+                                Product: <span className="font-semibold text-emerald-700">{formData.product_name || 'Not Set'}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleAddAttributeField}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:px-6 sm:py-3"
+                    >
+                        <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span>Add Attribute</span>
+                    </button>
                 </div>
+                <p className="mt-2 text-xs text-gray-500">Select from suggestions or type custom attribute names</p>
             </div>
 
-            {/* Same Attribute Checkbox */}
-            <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 sm:p-4">
-                <label className="flex cursor-pointer items-start gap-2 sm:items-center sm:gap-3">
-                    <input
-                        type="checkbox"
-                        checked={sameAttributeForAll}
-                        onChange={handleSameAttributeChange}
-                        className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
-                    />
-                    <div>
-                        <p className="text-sm font-medium text-purple-900 sm:text-base">Use same attribute for all products</p>
-                        <p className="text-xs text-purple-700 sm:text-sm">One attribute will be applied to all {quantity} units</p>
+            {/* Selected Attributes Display */}
+            {selectedAttributes.length > 0 && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-emerald-900">Product Attributes ({selectedAttributes.length})</h4>
+                        <p className="text-xs text-emerald-700">These attributes will be used for variants</p>
                     </div>
-                </label>
-            </div>
+                    <div className="space-y-3">
+                        {selectedAttributes.map((attr) => (
+                            <div key={attr.id} className="flex items-center gap-2">
+                                <div className="flex-1">
+                                    <div className="relative">
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                value={searchQueries[attr.id] || attr.name}
+                                                onChange={(e) => handleSearchChange(attr.id, e.target.value)}
+                                                onFocus={() => {
+                                                    setShowDropdowns({ ...showDropdowns, [attr.id]: true });
+                                                }}
+                                                onBlur={() => {
+                                                    setTimeout(() => {
+                                                        setShowDropdowns({ ...showDropdowns, [attr.id]: false });
+                                                    }, 200);
+                                                }}
+                                                placeholder="Select from dropdown or type custom attribute (e.g., Size, Color, Material)"
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                                                disabled={attr.name !== '' && (attr.isCustom || typeof attr.id === 'number')}
+                                            />
 
-            <div className="space-y-3">
-                {attributesLoading ? (
-                    <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
-                        <div className="text-center">
-                            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
-                            <p className="text-sm text-gray-600">Loading attributes...</p>
-                        </div>
-                    </div>
-                ) : attributes.length === 0 ? (
-                    <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8">
-                        <div className="text-center">
-                            <Tag className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-                            <h4 className="mb-1 text-sm font-semibold text-gray-700">No Attributes Available</h4>
-                            <p className="text-xs text-gray-500">Please create attributes in Store Settings first.</p>
-                        </div>
-                    </div>
-                ) : sameAttributeForAll ? (
-                    // Single Attribute Selection
-                    <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
-                        <div className="mb-2">
-                            <label className="text-xs font-medium text-gray-700 sm:text-sm">Attribute (for all {quantity} units)</label>
-                        </div>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
-                                <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
-                            </div>
-                            <select
-                                value={productAttributes[0]?.attribute_id || ''}
-                                onChange={(e) => handleSingleAttributeChange('attribute_id', parseInt(e.target.value) || 0)}
-                                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                            >
-                                <option value="">Select attribute type</option>
-                                {attributes.map((attribute: any) => (
-                                    <option key={attribute.id} value={attribute.id}>
-                                        {attribute.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <input
-                                type="text"
-                                value={productAttributes[0]?.value || ''}
-                                onChange={(e) => handleSingleAttributeChange('value', e.target.value)}
-                                placeholder="e.g., Red, Large, Cotton"
-                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 sm:w-48"
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    // Multiple Attribute Selections
-                    <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
-                        {Array.from({ length: quantity }).map((_, index) => (
-                            <div key={index} className="flex flex-col gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:flex-row sm:items-center sm:gap-2 sm:p-3">
-                                <div className="flex items-center justify-between gap-2 sm:justify-start">
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap text-xs font-medium text-gray-700 sm:text-sm">Attribute #{index + 1}</label>
-                                        {productAttributes[index]?.attribute_id > 0 && productAttributes[index]?.value.trim() && <span className="text-xs font-medium text-emerald-600">✓</span>}
+                                            {/* Tick/Check button for custom input */}
+                                            {!attr.isCustom && typeof attr.id === 'string' && attr.id.startsWith('temp_') && searchQueries[attr.id] && searchQueries[attr.id].trim() !== '' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAddCustomAttribute(attr.id, searchQueries[attr.id])}
+                                                    className="flex items-center justify-center rounded-lg bg-emerald-600 p-2.5 text-white transition-colors hover:bg-emerald-700"
+                                                    title="Add this custom attribute"
+                                                >
+                                                    <Check className="h-5 w-5" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Dropdown for suggestions and search results */}
+                                        {showDropdowns[attr.id] && (
+                                            <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                {getFilteredAttributes(searchQueries[attr.id] || '').length > 0 ? (
+                                                    <div className="max-h-60 overflow-y-auto p-1">
+                                                        <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                            {searchQueries[attr.id] ? 'Search Results' : 'Suggestions'}
+                                                        </div>
+                                                        {getFilteredAttributes(searchQueries[attr.id] || '').map((dbAttr: any) => (
+                                                            <button
+                                                                key={dbAttr.id}
+                                                                type="button"
+                                                                onMouseDown={() => handleSelectAttribute(attr.id, dbAttr)}
+                                                                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-emerald-50"
+                                                            >
+                                                                <Tag className="h-4 w-4 text-emerald-600" />
+                                                                <span className="font-medium text-gray-900">{dbAttr.name}</span>
+                                                            </button>
+                                                        ))}
+                                                        {searchQueries[attr.id] && (
+                                                            <div className="border-t border-gray-100 px-3 py-2">
+                                                                <p className="text-xs text-gray-500">
+                                                                    💡 Or type custom name and click the <strong>✓ tick button</strong> to add
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : searchQueries[attr.id] ? (
+                                                    <div className="p-4 text-center">
+                                                        <p className="text-sm font-medium text-gray-700">No matches found for &quot;{searchQueries[attr.id]}&quot;</p>
+                                                        <p className="mt-1 text-xs text-gray-500">
+                                                            Click the <strong>✓ tick button</strong> to add as custom attribute
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-4 text-center">
+                                                        <Tag className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+                                                        <p className="text-sm text-gray-600">No attributes available</p>
+                                                        <p className="mt-1 text-xs text-gray-500">Type a custom attribute name and click the ✓ button</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
-                                    <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
-                                </div>
-                                <select
-                                    value={productAttributes[index]?.attribute_id || ''}
-                                    onChange={(e) => handleAttributeChange(index, 'attribute_id', parseInt(e.target.value) || 0)}
-                                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 sm:flex-1 sm:px-3 sm:text-sm"
-                                >
-                                    <option value="">Select attribute type</option>
-                                    {attributes.map((attribute: any) => (
-                                        <option key={attribute.id} value={attribute.id}>
-                                            {attribute.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <input
-                                    type="text"
-                                    value={productAttributes[index]?.value || ''}
-                                    onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
-                                    placeholder="Value"
-                                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 sm:w-40 sm:px-3 sm:text-sm"
-                                />
+                                <button type="button" onClick={() => handleRemoveAttribute(attr.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600">
+                                    <X className="h-5 w-5" />
+                                </button>
                             </div>
                         ))}
-                    </div>
-                )}
-            </div>
-
-            {/* Summary */}
-            {!sameAttributeForAll && filledAttributes.length > 0 && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                    <div className="mb-2 flex items-center justify-between text-sm text-gray-600">
-                        <span>
-                            Progress: {filledAttributes.length} / {quantity}
-                        </span>
-                        <span className="font-medium text-emerald-600">{Math.round((filledAttributes.length / quantity) * 100)}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-gray-200">
-                        <div
-                            className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-300"
-                            style={{ width: `${(filledAttributes.length / quantity) * 100}%` }}
-                        ></div>
                     </div>
                 </div>
             )}
 
-            {/* Info Card */}
             {/* Info Card */}
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <div className="flex items-start gap-3">
@@ -199,12 +278,22 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
-                        <p className="mb-1 font-medium">About Product Attributes:</p>
+                        <p className="mb-1 font-medium">How Product Attributes Work:</p>
                         <ul className="space-y-1 text-blue-700">
-                            <li>• Select attribute type (Color, Size, Material) and enter its value</li>
-                            <li>• Use &quot;same attribute for all&quot; to assign one attribute to all {quantity} units</li>
-                            <li>• Or assign individual attributes to each product unit</li>
-                            <li>• Make sure to configure attributes in Store Settings first</li>
+                            <li>
+                                • Click <strong>&quot;+ Add Attribute&quot;</strong> button at the top to add a new field
+                            </li>
+                            <li>
+                                • <strong>From dropdown:</strong> Select existing attribute (saved in database with ID)
+                            </li>
+                            <li>
+                                • <strong>Custom attribute:</strong> Type name (e.g., &quot;Size&quot;, &quot;GSM&quot;) and click <strong>✓</strong> (NOT saved to database, just attribute name for
+                                this product)
+                            </li>
+                            <li>• A product can have multiple attributes (Size + Color + Material)</li>
+                            <li>
+                                • <strong>Attribute values</strong> (XL, Red, Cotton, etc.) will be added in the Variants tab
+                            </li>
                         </ul>
                     </div>
                 </div>
