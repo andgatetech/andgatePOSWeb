@@ -79,9 +79,10 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                     value: '',
                 };
             } else {
-                // DB attribute: has ID
+                // DB attribute: has ID and name
                 return {
                     attribute_id: typeof attr.id === 'number' ? attr.id : 0,
+                    attribute_name: attr.name, // Include name for VariantsTab to use
                     value: '',
                 };
             }
@@ -103,9 +104,17 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
         setShowDropdowns({ ...showDropdowns, [attrId]: true });
     };
 
-    // Select attribute from dropdown (DB attribute)
+    // Select attribute from dropdown (DB attribute) - Just take the name
     const handleSelectAttribute = (tempId: string | number, attribute: any) => {
-        const updated = selectedAttributes.map((attr) => (attr.id === tempId ? { id: attribute.id, name: attribute.name, isCustom: false } : attr));
+        const updated = selectedAttributes.map((attr) =>
+            attr.id === tempId
+                ? {
+                      id: attribute.id,
+                      name: attribute.name,
+                      isCustom: false,
+                  }
+                : attr
+        );
         setSelectedAttributes(updated);
         setSearchQueries({ ...searchQueries, [tempId]: '' });
         setShowDropdowns({ ...showDropdowns, [tempId]: false });

@@ -21,6 +21,15 @@ const ProductAttributeApi = baseApi.injectEndpoints({
             providesTags: ['ProductAttributes'],
         }),
 
+        // Get attribute values for a specific attribute
+        getAttributeValues: builder.query({
+            query: (attributeId: number) => ({
+                url: `/product-attributes/${attributeId}/values`,
+                method: 'GET',
+            }),
+            providesTags: ['ProductAttributeValues'],
+        }),
+
         // Create product attribute
         createProductAttribute: builder.mutation({
             query: ({ name, store_id }: { name: string; store_id: number }) => ({
@@ -98,6 +107,7 @@ const ProductAttributeApi = baseApi.injectEndpoints({
 export const {
     useGetStoreAttributesQuery,
     useGetProductAttributeQuery,
+    useGetAttributeValuesQuery,
     useCreateProductAttributeMutation,
     useUpdateProductAttributeMutation,
     useDeleteProductAttributeMutation,
