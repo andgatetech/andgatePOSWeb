@@ -8,6 +8,7 @@ const supplierApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
+            providesTags: ['Suppliers'],
         }),
         loginSupplier: builder.mutation({
             query: (data) => ({

@@ -19,7 +19,6 @@ const OrderApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Orders'],
         }),
-
         getTopSellingProducts: builder.query({
             query: (filters = {}) => ({
                 url: '/orders/top-selling-products',
