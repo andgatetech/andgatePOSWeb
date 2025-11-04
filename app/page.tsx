@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { convertNumberByLanguage } from '@/__components/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
 import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
 import PriceSection from './(defaults)/components/price/PriceSection';
@@ -203,7 +204,7 @@ export default function HomePage() {
                             <div key={index} className="group">
                                 <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-8 transition-all hover:shadow-lg group-hover:scale-105">
                                     <div className="mb-4 flex justify-center text-blue-600 transition-transform group-hover:scale-110">{stat.icon}</div>
-                                    <div className="mb-2 text-3xl font-bold text-gray-900">{stat.number}</div>
+                                    <div className="mb-2 text-3xl font-bold text-gray-900">{convertNumberByLanguage(stat.number)}</div>
                                     <div className="font-medium text-gray-600">{stat.label}</div>
                                 </div>
                             </div>

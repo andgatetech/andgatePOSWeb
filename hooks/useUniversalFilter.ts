@@ -50,11 +50,11 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
             if (filters.storeId !== undefined) {
                 if (filters.storeId === 'all') {
                     // When 'all' stores selected, send array of all user's store IDs
-                    const allStoreIds = userStores.map((store) => store.id);
-                    if (allStoreIds.length > 0) {
-                        // Backend expects comma-separated string or array
-                        params.store_ids = allStoreIds.join(',');
-                    }
+                    // const allStoreIds = userStores.map((store) => store.id);
+                    // if (allStoreIds.length > 0) {
+                    //     // Backend expects comma-separated string or array
+                    //     params.store_ids = allStoreIds.join(',');
+                    // }
                 } else {
                     // Single store selected
                     params.store_id = filters.storeId;

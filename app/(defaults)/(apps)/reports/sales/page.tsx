@@ -1,12 +1,12 @@
 'use client';
 import SalesReportFilter from '@/__components/SalesReportFilter';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/salesReportHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Loading from '@/components/layouts/loading';
-import { downloadBase64File } from '@/lib/downloadFile';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSalesReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, CheckCircle, DollarSign, FileDown, FileSpreadsheet, Printer, ShoppingCart, TrendingUp, XCircle } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
 interface SalesReportItem {
@@ -59,6 +59,8 @@ const SalesReportPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
+
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [getSalesReport, { isLoading }] = useGetSalesReportMutation();
 
@@ -127,7 +129,7 @@ const SalesReportPage = () => {
         if (Object.keys(filterParams).length > 0) {
             fetchReport(filterParams);
         }
-    }, [currentPage, itemsPerPage]);
+    }, [currentPage, itemsPerPage, filterParams, fetchReport]);
 
     // Handle filter changes
     const handleFilterChange = useCallback(
@@ -204,73 +206,83 @@ const SalesReportPage = () => {
         setCurrentPage(1); // Reset to first page when changing items per page
     };
 
-    // Export handlers
-    const handleExportPDF = async () => {
+    /**
+     * Generate Print/PDF Content with Store Header
+     * Professional POS-style black & white layout
+     */
+    const handlePrintReport = async () => {
+        if (!reportData) return;
+
         try {
-            const payload = {
-                ...filterParams,
-                format: 'pdf',
-            };
-
-            const response = await getSalesReport(payload).unwrap();
-
-            if (response?.data?.file) {
-                downloadBase64File(response.data.file, response.data.filename || `sales-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'PDF downloaded successfully',
-                    timer: 2000,
-                });
-            }
-        } catch (error: any) {
-            console.error('Failed to export PDF:', error);
+            await handlePrint(reportData, currentStore);
+        } catch (error) {
+            console.error('Print failed:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error?.data?.message || 'Failed to export PDF',
+                title: 'Print Failed',
+                text: 'Failed to print the report. Please try again.',
             });
         }
     };
 
-    const handleExportExcel = async () => {
+    const handleExportPDFReport = async () => {
+        if (!reportData) return;
+
         try {
-            const payload = {
-                ...filterParams,
-                format: 'excel',
-            };
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while we create your PDF',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
 
-            const response = await getSalesReport(payload).unwrap();
+            await handleExportPDF(reportData, currentStore);
 
-            if (response?.data?.file) {
-                downloadBase64File(
-                    response.data.file,
-                    response.data.filename || `sales-report-${new Date().getTime()}.xlsx`,
-                    response.data.mime_type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                );
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Excel downloaded successfully',
-                    timer: 2000,
-                });
-            }
-        } catch (error: any) {
-            console.error('Failed to export Excel:', error);
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'PDF downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            console.error('PDF export failed:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error?.data?.message || 'Failed to export Excel',
+                title: 'Export Failed',
+                text: 'Failed to export PDF. Please try again.',
             });
         }
     };
 
-    const handlePrint = useReactToPrint({
-        contentRef: printRef,
-        documentTitle: `Sales Report - ${new Date().toLocaleDateString()}`,
-    });
+    const handleExportCSVReport = async () => {
+        if (!reportData) return;
+
+        try {
+            Swal.fire({
+                title: 'Generating CSV...',
+                text: 'Please wait...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            await handleExportCSV(reportData, currentStore);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'CSV downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Failed to export CSV',
+            });
+        }
+    };
 
     // Table columns
     const columns: TableColumn[] = [
@@ -354,7 +366,6 @@ const SalesReportPage = () => {
 
     // Calculate total pages from API response or summary
     const totalPages = reportData?.pagination?.total_pages || Math.ceil((reportData?.summary?.total_orders || 0) / itemsPerPage);
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header Section - Responsive */}
@@ -374,7 +385,7 @@ const SalesReportPage = () => {
                     {/* Export Buttons - Responsive */}
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                         <button
-                            onClick={handlePrint}
+                            onClick={handlePrintReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-sm text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -382,7 +393,7 @@ const SalesReportPage = () => {
                             <span>Print</span>
                         </button>
                         <button
-                            onClick={handleExportPDF}
+                            onClick={handleExportPDFReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -390,7 +401,7 @@ const SalesReportPage = () => {
                             <span>PDF</span>
                         </button>
                         <button
-                            onClick={handleExportExcel}
+                            onClick={handleExportCSVReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
