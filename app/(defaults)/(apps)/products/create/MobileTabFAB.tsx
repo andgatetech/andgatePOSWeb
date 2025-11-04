@@ -1,6 +1,6 @@
 'use client';
 
-import { Barcode, DollarSign, Hash, Image as ImageIcon, Info, Package, Receipt, Shield, Tag, X } from 'lucide-react';
+import { Barcode, DollarSign, Hash, Image as ImageIcon, Info, Package, Receipt, Shield, Sliders, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
@@ -15,6 +15,7 @@ const tabs: Tab[] = [
     { id: 'pricing', label: 'Pricing', icon: DollarSign },
     { id: 'stock', label: 'Stock', icon: Package },
     { id: 'attributes', label: 'Attributes', icon: Tag },
+    { id: 'variants', label: 'Variants', icon: Sliders },
     { id: 'warranty', label: 'Warranty', icon: Shield },
     { id: 'serial', label: 'Serial', icon: Hash },
     { id: 'tax', label: 'Tax', icon: Receipt },

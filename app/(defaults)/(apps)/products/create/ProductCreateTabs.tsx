@@ -1,5 +1,5 @@
 'use client';
-import { Barcode, DollarSign, Hash, Image as ImageIcon, Info, Package, Receipt, Shield, Tag } from 'lucide-react';
+import { Barcode, DollarSign, Hash, Image as ImageIcon, Info, Package, Receipt, Shield, Sliders, Tag } from 'lucide-react';
 
 interface Tab {
     id: string;
@@ -13,6 +13,7 @@ const tabs: Tab[] = [
     { id: 'pricing', label: 'Pricing', icon: DollarSign, description: 'Purchase, selling, wholesale price' },
     { id: 'stock', label: 'Stock', icon: Package, description: 'Quantity, unit, availability' },
     { id: 'attributes', label: 'Attributes', icon: Tag, description: 'Color, size, variants' },
+    { id: 'variants', label: 'Variants', icon: Sliders, description: 'Configure variant details' },
     { id: 'warranty', label: 'Warranty', icon: Shield, description: 'Warranty terms & period' },
     { id: 'serial', label: 'Serial', icon: Hash, description: 'Serial number tracking' },
     { id: 'tax', label: 'Tax', icon: Receipt, description: 'Tax rate & inclusion' },
@@ -33,7 +34,7 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
     return (
         <>
             {/* Desktop & Tablet Tabs */}
-            <div className="mb-8 hidden overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
+            <div className="sticky top-16 z-10 mb-8 hidden overflow-x-auto bg-white pb-4 pt-4 [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
                 <div className="m-1 grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-8">
                     {displayTabs.map((tab) => {
                         const Icon = tab.icon;
