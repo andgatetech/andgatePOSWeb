@@ -689,6 +689,8 @@ const ProductCreateForm = () => {
                                 formData={formData}
                                 productWarranties={productWarranties}
                                 setProductWarranties={setProductWarranties}
+                                productStocks={productStocks}
+                                productAttributes={productAttributes}
                                 onPrevious={handlePrevious}
                                 onNext={handleNext}
                                 onCreateProduct={handleSubmit}
@@ -701,6 +703,8 @@ const ProductCreateForm = () => {
                                 formData={formData}
                                 productSerials={productSerials}
                                 setProductSerials={setProductSerials}
+                                productStocks={productStocks}
+                                productAttributes={productAttributes}
                                 onPrevious={handlePrevious}
                                 onNext={handleNext}
                                 onCreateProduct={handleSubmit}

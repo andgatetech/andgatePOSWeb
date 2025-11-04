@@ -16,12 +16,17 @@ import BarcodeReader from 'react-barcode-reader';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PosRightSide from './PosRightSide';
+import VariantSelectionModal from './VariantSelectionModal';
 
 const PosLeftSide = () => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+
+    // Variant selection modal
+    const [variantModalOpen, setVariantModalOpen] = useState(false);
+    const [variantProduct, setVariantProduct] = useState<any>(null);
 
     // Filter states
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -162,7 +167,17 @@ const PosLeftSide = () => {
 
     const addToCart = useCallback(
         (product: any) => {
-            // Calculate total quantity from stocks
+            // Check if product has variants
+            const hasVariants = product.stocks && product.stocks.length > 0 && product.stocks.some((s: any) => s.is_variant);
+
+            if (hasVariants) {
+                // Open variant selection modal
+                setVariantProduct(product);
+                setVariantModalOpen(true);
+                return;
+            }
+
+            // Simple product (no variants) - original logic
             const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
             if (product.available === false || totalQuantity <= 0) {
@@ -183,19 +198,28 @@ const PosLeftSide = () => {
                 beepRef.current.play().catch(() => {});
             }
 
+            // Get primary stock for simple product
+            const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
+            const regularPrice = parseFloat(primaryStock?.price || product.price || 0);
+            const wholesalePrice = parseFloat(primaryStock?.wholesale_price || 0);
+
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const itemToAdd = {
                 id: uniqueId,
                 productId: product.id,
+                stockId: primaryStock?.id,
                 title: product.product_name,
                 description: product.description,
-                rate: parseFloat(product.price),
+                rate: regularPrice,
+                regularPrice: regularPrice,
+                wholesalePrice: wholesalePrice > 0 ? wholesalePrice : regularPrice,
                 quantity: 1,
-                amount: parseFloat(product.price),
+                amount: regularPrice,
                 PlaceholderQuantity: totalQuantity,
-                tax_rate: product.tax?.rate ? parseFloat(product.tax.rate) : 0,
-                tax_included: product.tax?.included === true,
-                unit: product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'piece'),
+                tax_rate: primaryStock?.tax_rate ? parseFloat(primaryStock.tax_rate) : 0,
+                tax_included: primaryStock?.tax_included === true,
+                unit: primaryStock?.unit || product.unit || 'piece',
+                isWholesale: false,
             };
 
             dispatch(addItemRedux(itemToAdd));
@@ -208,6 +232,61 @@ const PosLeftSide = () => {
             setCurrentPage(1);
         },
         [reduxItems, dispatch]
+    );
+
+    // Handle variant selection from modal
+    const handleVariantSelect = useCallback(
+        (variant: any, useWholesale: boolean) => {
+            if (!variantProduct) return;
+
+            const regularPrice = parseFloat(variant.price);
+            const wholesalePrice = parseFloat(variant.wholesale_price);
+            const price = useWholesale ? wholesalePrice : regularPrice;
+
+            // Check stock limit for this specific variant
+            const currentQuantityInCart = reduxItems.filter((item) => item.productId === variantProduct.id && item.stockId === variant.id).reduce((sum, item) => sum + item.quantity, 0);
+
+            if (currentQuantityInCart >= parseFloat(variant.quantity)) {
+                showMessage('Cannot add more, stock limit reached for this variant!', 'error');
+                return;
+            }
+
+            if (beepRef.current) {
+                beepRef.current.currentTime = 0;
+                beepRef.current.play().catch(() => {});
+            }
+
+            const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+            const itemToAdd = {
+                id: uniqueId,
+                productId: variantProduct.id,
+                stockId: variant.id,
+                title: variantProduct.product_name,
+                description: variantProduct.description,
+                variantName: variant.variant_name,
+                variantData: variant.variant_data,
+                rate: price,
+                regularPrice: regularPrice,
+                wholesalePrice: wholesalePrice,
+                quantity: 1,
+                amount: price,
+                PlaceholderQuantity: parseFloat(variant.quantity),
+                tax_rate: variant.tax_rate ? parseFloat(variant.tax_rate) : 0,
+                tax_included: variant.tax_included === true,
+                unit: variant.unit || 'piece',
+                isWholesale: useWholesale,
+            };
+
+            dispatch(addItemRedux(itemToAdd));
+            showMessage(`${variant.variant_name} added successfully!`);
+
+            // Reset filters and search
+            setSearchTerm('');
+            setSelectedCategory(null);
+            setSelectedBrand(null);
+            setCurrentPage(1);
+        },
+        [variantProduct, reduxItems, dispatch]
     );
 
     const handleSearchChange = useCallback(
@@ -914,23 +993,42 @@ const PosLeftSide = () => {
                                         >
                                             {/* Product Image */}
                                             <div className="relative h-32 overflow-hidden rounded-t-lg bg-gray-100 sm:h-40 md:h-44">
-                                                {product.images && product.images.length > 0 ? (
-                                                    <Image
-                                                        src={
+                                                {(() => {
+                                                    // Try product-level images first
+                                                    if (product.images && product.images.length > 0) {
+                                                        const imgSrc =
                                                             typeof product.images[0] === 'string'
                                                                 ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
-                                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`
+                                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`;
+                                                        return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" />;
+                                                    }
+
+                                                    // If no product images, try first variant's first image
+                                                    const firstVariant = product.stocks?.find((s: any) => s.is_variant && s.images && s.images.length > 0);
+                                                    if (firstVariant && firstVariant.images && firstVariant.images.length > 0) {
+                                                        const variantImg = firstVariant.images[0];
+                                                        // Handle both string and object formats
+                                                        let imgPath = '';
+                                                        if (typeof variantImg === 'string') {
+                                                            imgPath = variantImg;
+                                                        } else {
+                                                            // Use path or url (both work, path is the full path)
+                                                            imgPath = variantImg.path || variantImg.url || '';
                                                         }
-                                                        alt={product.product_name}
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
-                                                        <Package className="mb-1 h-8 w-8 sm:mb-2 sm:h-10 sm:w-10 md:h-12 md:w-12" />
-                                                        <span className="text-xs font-medium sm:text-sm">No Image</span>
-                                                    </div>
-                                                )}
+                                                        // Remove leading slash if present, then add storage prefix
+                                                        const cleanPath = imgPath.startsWith('/') ? imgPath.substring(1) : imgPath;
+                                                        const imgSrc = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${cleanPath}`;
+                                                        return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" />;
+                                                    }
+
+                                                    // No images - show placeholder
+                                                    return (
+                                                        <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
+                                                            <Package className="mb-1 h-8 w-8 sm:mb-2 sm:h-10 sm:w-10 md:h-12 md:w-12" />
+                                                            <span className="text-xs font-medium sm:text-sm">No Image</span>
+                                                        </div>
+                                                    );
+                                                })()}
 
                                                 {/* Open modal */}
                                                 <button
@@ -957,7 +1055,24 @@ const PosLeftSide = () => {
                                                 </div>
 
                                                 <div className="mt-1.5 flex items-center justify-between sm:mt-2">
-                                                    <span className="text-sm font-bold text-primary sm:text-base">৳{parseFloat(product.price).toFixed(2)}</span>
+                                                    {(() => {
+                                                        // Check if product has variants
+                                                        const hasVariants = product.stocks && product.stocks.some((s: any) => s.is_variant);
+                                                        if (hasVariants) {
+                                                            // Show price range for variants
+                                                            const prices = product.stocks.filter((s: any) => s.is_variant).map((s: any) => parseFloat(s.price));
+                                                            const minPrice = Math.min(...prices);
+                                                            const maxPrice = Math.max(...prices);
+                                                            return (
+                                                                <span className="text-sm font-bold text-primary sm:text-base">
+                                                                    ৳{minPrice.toFixed(0)}
+                                                                    {minPrice !== maxPrice && ` - ৳${maxPrice.toFixed(0)}`}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        // Simple product - show regular price
+                                                        return <span className="text-sm font-bold text-primary sm:text-base">৳{parseFloat(product.price || '0').toFixed(2)}</span>;
+                                                    })()}
                                                     <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">Stock: {totalQuantity}</span>
                                                 </div>
                                             </div>
@@ -1014,6 +1129,15 @@ const PosLeftSide = () => {
 
                 {/* Modal for all images & description */}
                 <ImageShowModal isOpen={open} onClose={() => setOpen(false)} product={selectedProduct} />
+                <VariantSelectionModal
+                    isOpen={variantModalOpen}
+                    onClose={() => {
+                        setVariantModalOpen(false);
+                        setVariantProduct(null);
+                    }}
+                    product={variantProduct}
+                    onSelectVariant={handleVariantSelect}
+                />
             </div>
         </>
     );

@@ -1,6 +1,6 @@
 'use client';
 
-import SupplierLoginForm from '@/__components/supplier_login_form';
+
 import ComponentsAuthLoginForm from '@/components/auth/components-auth-login-form';
 import MainLayout from '@/components/layout/MainLayout';
 import { getTranslation } from '@/i18n';
@@ -58,7 +58,7 @@ const LoginPage = () => {
                                     </button>
                                 </div>
 
-                                {activeTab === 'login' ? <ComponentsAuthLoginForm ref={loginFormRef} /> : <SupplierLoginForm />}
+                                {activeTab === 'login' ? <ComponentsAuthLoginForm ref={loginFormRef} /> : null}
 
                                 <div className="relative my-7 text-center md:mb-9">
                                     <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>

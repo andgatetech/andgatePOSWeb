@@ -140,6 +140,11 @@ const PosRightSide: React.FC = () => {
         useBalance: false,
         pointsToUse: 0,
         balanceToUse: 0,
+        // Wholesale toggle
+        useWholesale: false,
+        // Cash handling fields
+        amountPaid: 0, // Amount customer gives (cash received)
+        changeAmount: 0, // Change to return (calculated automatically)
     });
 
     const [createOrder] = useCreateOrderMutation();
@@ -254,6 +259,40 @@ const PosRightSide: React.FC = () => {
 
     useEffect(() => {}, [invoiceItems]);
 
+    // Update all items when wholesale toggle changes
+    useEffect(() => {
+        if (invoiceItems.length === 0) return;
+
+        invoiceItems.forEach((item) => {
+            if (!item.regularPrice || !item.wholesalePrice) return; // Skip items without both prices
+
+            const newRate = formData.useWholesale ? item.wholesalePrice : item.regularPrice;
+
+            // Only update if rate actually changes
+            if (item.rate !== newRate) {
+                dispatch(
+                    updateItemRedux({
+                        ...item,
+                        rate: newRate,
+                        amount: newRate * item.quantity,
+                        isWholesale: formData.useWholesale,
+                    })
+                );
+            }
+        });
+    }, [formData.useWholesale, invoiceItems, dispatch]);
+
+    // Auto-calculate change when amount paid changes
+    useEffect(() => {
+        const total = calculateTotal();
+        const change = formData.amountPaid - total;
+        setFormData((prev) => ({
+            ...prev,
+            changeAmount: change > 0 ? change : 0,
+        }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
+
     const handleRemoveItem = (itemId: number) => {
         if (invoiceItems.length <= 1) {
             showMessage('At least one item is required', 'error');
@@ -289,7 +328,6 @@ const PosRightSide: React.FC = () => {
             })
         );
     };
-
 
     const handleUnitPriceChange = (itemId: number, value: string) => {
         const item = invoiceItems.find((item) => item.id === itemId);
@@ -372,7 +410,7 @@ const PosRightSide: React.FC = () => {
     // New calculation functions for payment
     const calculatePointsDiscount = () => {
         if (!formData.usePoints || !selectedCustomer) return 0;
-        // Assuming 1 point = $0.01 (adjust this conversion rate as needed)
+        // Assuming 1 point = ৳0.01 (adjust this conversion rate as needed)
         return Math.min(formData.pointsToUse * 0.01, calculateBaseTotal());
     };
 
@@ -414,6 +452,8 @@ const PosRightSide: React.FC = () => {
             } else if (name === 'balanceToUse') {
                 const maxBalance = parseFloat(selectedCustomer?.balance || '0');
                 processedValue = Math.min(Number(value), maxBalance);
+            } else if (name === 'amountPaid') {
+                processedValue = Number(value) || 0;
             }
 
             setFormData((prev) => ({
@@ -451,6 +491,9 @@ const PosRightSide: React.FC = () => {
             discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0),
             total: calculateSubtotalWithoutTax(), // Subtotal without tax
             grand_total: grandTotal, //  already excludes membership, points, and balance
+            // Cash handling fields
+            amount_paid: formData.amountPaid, // Amount customer gave
+            change_amount: formData.changeAmount, // Change to return
             items: invoiceItems.map((item) => {
                 const itemBasePrice = item.rate * item.quantity;
                 const itemTax = calculateItemTax(item);
@@ -524,6 +567,9 @@ const PosRightSide: React.FC = () => {
                 useBalance: false,
                 pointsToUse: 0,
                 balanceToUse: 0,
+                useWholesale: false,
+                amountPaid: 0,
+                changeAmount: 0,
             });
         } catch (err: any) {
             setLoading(false);
@@ -896,7 +942,18 @@ const PosRightSide: React.FC = () => {
                 <div className="panel mb-5">
                     <div className="mb-3 flex items-center justify-between sm:mb-4">
                         <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Order Details</h3>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
+                            {/* Wholesale Toggle */}
+                            <label className="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-blue-200 bg-blue-50 px-3 py-1.5 transition-colors hover:bg-blue-100">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.useWholesale}
+                                    onChange={(e) => setFormData({ ...formData, useWholesale: e.target.checked })}
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                                />
+                                <span className="text-xs font-semibold text-blue-900 sm:text-sm">Wholesale</span>
+                            </label>
+
                             <span className="text-xs sm:text-sm">Items: {invoiceItems.length}</span>
                             <button type="button" onClick={clearAllItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
                                 Clear all
@@ -910,6 +967,7 @@ const PosRightSide: React.FC = () => {
                             <thead>
                                 <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
                                     <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Items</th>
+                                    <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Variant</th>
                                     <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Qty</th>
                                     <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
                                     <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Rate</th>
@@ -921,7 +979,7 @@ const PosRightSide: React.FC = () => {
                             <tbody className="bg-white">
                                 {invoiceItems.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="border-b border-gray-300 p-8 text-center text-gray-500">
+                                        <td colSpan={8} className="border-b border-gray-300 p-8 text-center text-gray-500">
                                             <div className="flex flex-col items-center justify-center py-4">
                                                 <div className="mb-2 text-3xl">🛒</div>
                                                 <div className="font-medium">No items added yet</div>
@@ -932,7 +990,30 @@ const PosRightSide: React.FC = () => {
                                 ) : (
                                     invoiceItems.map((item, index) => (
                                         <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
-                                            <td className="border-r border-gray-300 p-3 text-sm font-medium">{item.title}</td>
+                                            <td className="border-r border-gray-300 p-3 text-sm font-medium">
+                                                <span title={item.title}>{item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title}</span>
+                                                {item.isWholesale && <span className="ml-2 inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
+                                            </td>
+                                            <td className="border-r border-gray-300 p-3">
+                                                {item.variantName ? (
+                                                    <div>
+                                                        <div className="text-xs font-medium text-gray-900" title={item.variantName}>
+                                                            {item.variantName.length > 10 ? `${item.variantName.substring(0, 10)}...` : item.variantName}
+                                                        </div>
+                                                        {item.variantData && (
+                                                            <div className="mt-1 flex flex-wrap gap-1">
+                                                                {Object.entries(item.variantData).map(([key, value]: [string, any]) => (
+                                                                    <span key={key} className="inline-block rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-700">
+                                                                        {value}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400">-</span>
+                                                )}
+                                            </td>
                                             <td className="border-r border-gray-300 p-3 text-center">
                                                 <div className="relative">
                                                     <input
@@ -972,12 +1053,12 @@ const PosRightSide: React.FC = () => {
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
                                             </td>
                                             <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">
-                                                    <div className="relative">
-                                                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">৳</span>
-                                                        <input
+                                                <div className="relative">
+                                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">৳</span>
+                                                    <input
                                                         type="number"
                                                         step="0.01"
-                                                        className="form-input w-24 text-right border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md"
+                                                        className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
                                                         value={item.rate}
                                                         onChange={(e) => {
                                                             const newRate = e.target.value;
@@ -997,10 +1078,9 @@ const PosRightSide: React.FC = () => {
                                                                 }
                                                             }
                                                         }}
-                                                        />
-                                            
-                                                    </div>
-                                                </td>
+                                                    />
+                                                </div>
+                                            </td>
 
                                             <td className="border-r border-gray-300 p-3 text-center text-sm">
                                                 {item.tax_rate ? (
@@ -1251,6 +1331,77 @@ const PosRightSide: React.FC = () => {
                             <span>৳{calculateTotal().toFixed(2)}</span>
                         </div>
                     </div>
+
+                    {/* Cash Payment Section - After Total */}
+                    {formData.paymentMethod === 'cash' && (
+                        <div className="mt-4 rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4 shadow-md">
+                            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-green-800">
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                                    />
+                                </svg>
+                                Cash Payment Details
+                            </h4>
+
+                            <div className="space-y-3">
+                                {/* Amount Paid Input */}
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <label className="text-sm font-semibold text-green-700">Amount Received:</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-green-600">৳</span>
+                                        <input
+                                            type="number"
+                                            name="amountPaid"
+                                            step="0.01"
+                                            min="0"
+                                            className="form-input w-full border-green-300 pl-8 pr-4 text-lg font-semibold focus:border-green-500 focus:ring-green-500 sm:w-48"
+                                            placeholder="0.00"
+                                            value={formData.amountPaid || ''}
+                                            onChange={handleInputChange}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Change Display */}
+                                {formData.amountPaid > 0 && (
+                                    <div className="flex flex-col gap-2 rounded-md border-2 border-yellow-300 bg-yellow-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <label className="text-sm font-bold text-yellow-800">Change to Return:</label>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-2xl font-bold text-yellow-900">৳{formData.changeAmount.toFixed(2)}</span>
+                                            {formData.changeAmount > 0 && (
+                                                <svg className="h-6 w-6 animate-bounce text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                    />
+                                                </svg>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Warning if insufficient */}
+                                {formData.amountPaid > 0 && formData.amountPaid < calculateTotal() && (
+                                    <div className="flex items-center gap-2 rounded-md border border-red-300 bg-red-50 p-2 text-sm text-red-700">
+                                        <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                        <span className="font-medium">Insufficient amount! Still need: ৳{(calculateTotal() - formData.amountPaid).toFixed(2)}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
                         <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>

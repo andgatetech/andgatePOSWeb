@@ -3,15 +3,21 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface Item {
     id: number; // Local row ID
     productId?: number; // Product ID from backend
+    stockId?: number; // Stock ID for variants
     title: string; // Product name
     description?: string;
-    rate: number; // Price per unit
+    variantName?: string; // Variant name (e.g., "Red - M - cotton")
+    variantData?: { [key: string]: string }; // Variant attributes
+    rate: number; // Current price per unit (changes based on wholesale toggle)
+    regularPrice?: number; // Regular selling price (stored for switching)
+    wholesalePrice?: number; // Wholesale price (stored for switching)
     quantity: number;
     amount: number; // rate * quantity
     PlaceholderQuantity?: number; // Available stock quantity
     tax_rate?: number; // Tax rate percentage from backend
     tax_included?: boolean; // Whether tax is included in the price (0=excluded, 1=included)
     unit?: string; // Product unit (piece, kg, etc.)
+    isWholesale?: boolean; // Whether wholesale price is used
 }
 
 interface InvoiceState {
@@ -32,8 +38,10 @@ const invoiceSlice = createSlice({
         },
         addItemRedux(state, action: PayloadAction<Item>) {
             if (action.payload.productId !== undefined) {
-                // Find existing product by productId (not by id)
-                const existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId);
+                // For variant products, check both productId AND stockId
+                const existingItemIndex = action.payload.stockId
+                    ? state.items.findIndex((item) => item.productId === action.payload.productId && item.stockId === action.payload.stockId)
+                    : state.items.findIndex((item) => item.productId === action.payload.productId && !item.stockId);
 
                 if (existingItemIndex !== -1) {
                     // Product already exists → increase quantity
@@ -49,7 +57,7 @@ const invoiceSlice = createSlice({
 
                     existingItem.amount = existingItem.quantity * existingItem.rate;
                 } else {
-                    // New product → add normally
+                    // New product/variant → add normally
                     state.items.push(action.payload);
                 }
             }
