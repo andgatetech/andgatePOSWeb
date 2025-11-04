@@ -1,12 +1,13 @@
 'use client';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/incomeReportHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import UniversalFilter from '@/components/common/UniversalFilter';
 import Loading from '@/components/layouts/loading';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { downloadBase64File } from '@/lib/downloadFile';
 import { useGetIncomeReportMutation } from '@/store/features/reports/reportApi';
 import { CreditCard, DollarSign, FileDown, FileSpreadsheet, Package, Printer, Store, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
 interface IncomeReportItem {
@@ -57,6 +58,7 @@ const IncomeReportPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [getIncomeReport, { isLoading }] = useGetIncomeReportMutation();
 
@@ -114,22 +116,37 @@ const IncomeReportPage = () => {
         }
     }, [currentPage, itemsPerPage]);
 
-    // Handle filter changes
+    // In IncomeReportPage.tsx, update handleFilterChange:
     const handleFilterChange = useCallback(
         (params: Record<string, any>) => {
-            setFilterParams(params);
+            // Transform params to backend-expected keys
+            const transformedParams = {
+                ...params,
+                // Flatten dateRange to from_date/to_date
+                ...(params.dateRange && {
+                    from_date: params.dateRange.startDate,
+                    to_date: params.dateRange.endDate,
+                }),
+                // Rename storeId to store_id
+                ...(params.storeId !== undefined && { store_id: params.storeId }),
+                // Add category_id/brand_id if you implement them later (e.g., from customFilters)
+                // ...(params.category_id && { category_id: params.category_id }),
+                // ...(params.brand_id && { brand_id: params.brand_id }),
+            };
+
+            setFilterParams(transformedParams); // Use transformed
             setCurrentPage(1); // Reset to first page
 
-            // Fetch with new filters immediately
+            // Fetch with transformed params
             const fetchWithNewFilters = async () => {
                 try {
                     const payload = {
-                        ...params,
+                        ...transformedParams,
                         format: 'json',
                         page: 1,
                         per_page: itemsPerPage,
                     };
-
+                    console.log('API Payload:', payload); // Debug: Log to verify
                     const response = await getIncomeReport(payload).unwrap();
                     setReportData(response as IncomeReportData);
                 } catch (error: any) {
@@ -141,7 +158,6 @@ const IncomeReportPage = () => {
                     });
                 }
             };
-
             fetchWithNewFilters();
         },
         [getIncomeReport, itemsPerPage]
@@ -157,14 +173,73 @@ const IncomeReportPage = () => {
         setCurrentPage(1); // Reset to first page
     };
 
-    // Export handlers (export all data, not paginated)
-    const handleExportPDF = () => fetchReport(filterParams, 'pdf');
-    const handleExportExcel = () => fetchReport(filterParams, 'excel');
+    const handlePrintReport = async () => {
+        if (!reportData) return;
+        try {
+            console.log(reportData);
+            await handlePrint(reportData, currentStore);
+        } catch (error) {
+            console.error('Print failed:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Print Failed',
+                text: 'Failed to print the report. Please try again.',
+            });
+        }
+    };
 
-    const handlePrint = useReactToPrint({
-        contentRef: printRef,
-        documentTitle: `Income Report - ${new Date().toLocaleDateString()}`,
-    });
+    const handleExportPDFReport = async () => {
+        if (!reportData) return;
+        try {
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while we create your PDF',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+            await handleExportPDF(reportData, currentStore);
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'PDF downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            console.error('PDF export failed:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Failed to export PDF. Please try again.',
+            });
+        }
+    };
+
+    const handleExportCSVReport = async () => {
+        if (!reportData) return;
+        try {
+            Swal.fire({
+                title: 'Generating CSV...',
+                text: 'Please wait...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+            await handleExportCSV(reportData, currentStore);
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'CSV downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Failed to export CSV',
+            });
+        }
+    };
 
     // Table columns
     const columns: TableColumn[] = [
@@ -276,7 +351,7 @@ const IncomeReportPage = () => {
                     {/* Export Buttons - Responsive */}
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                         <button
-                            onClick={handlePrint}
+                            onClick={handlePrintReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-sm text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -284,7 +359,7 @@ const IncomeReportPage = () => {
                             <span>Print</span>
                         </button>
                         <button
-                            onClick={handleExportPDF}
+                            onClick={handleExportPDFReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -292,7 +367,7 @@ const IncomeReportPage = () => {
                             <span>PDF</span>
                         </button>
                         <button
-                            onClick={handleExportExcel}
+                            onClick={handleExportCSVReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -356,33 +431,6 @@ const IncomeReportPage = () => {
                 </div>
             )}
 
-            {/* Loading State */}
-            {/* {isLoading && <Loading />} */}
-
-            {/* Table - Screen View (Server-side Paginated) */}
-            {/* {!isLoading && reportData && (
-                <div className="print:hidden">
-                    <ReusableTable
-                        data={paginatedData}
-                        columns={columns}
-                        isLoading={isLoading}
-                        emptyState={{
-                            icon: <DollarSign className="h-16 w-16" />,
-                            title: 'No Income Data Found',
-                            description: 'Try adjusting your filters to see income records.',
-                        }}
-                        pagination={{
-                            currentPage,
-                            totalPages,
-                            itemsPerPage,
-                            totalItems: reportData?.pagination?.total || reportData?.summary?.transactions || 0,
-                            onPageChange: handlePageChange,
-                            onItemsPerPageChange: handleItemsPerPageChange,
-                        }}
-                    />
-                </div>
-            )} */}
-
             {/* Table Section Only */}
             <div className="relative">
                 {isLoading && (
@@ -400,7 +448,8 @@ const IncomeReportPage = () => {
                             totalPages,
                             itemsPerPage,
                             totalItems: reportData?.pagination?.total || 0,
-                            onPageChange: handlePageChange,
+                            // onPageChange: handlePageChange,
+                            onPageChange: (page: number) => setCurrentPage(page),
                             onItemsPerPageChange: handleItemsPerPageChange,
                         }}
                     />

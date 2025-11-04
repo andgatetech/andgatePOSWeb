@@ -11,7 +11,6 @@ export const useCurrentStore = () => {
     const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId || null);
     const user = useSelector((state: RootState) => state.auth?.user || null);
     const userStores = user?.stores || [];
-
     return {
         currentStore,
         currentStoreId,
