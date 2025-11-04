@@ -1,6 +1,6 @@
 'use client';
 
-import ImageShowModal from '@/app/(defaults)/components/Image Modal/ImageModal2';
+import ImageShowModal from '@/app/(defaults)/(apps)/products/component/Image Modal/ImageModal2';
 import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
@@ -360,8 +360,21 @@ const ProductTable = () => {
                                         product.stocks && product.stocks.length > 0
                                             ? product.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0)
                                             : Number(product.quantity) || 0;
-                                    const stockStatus = getStockStatus(actualQuantity, product.low_stock_quantity || 10);
-                                    const profitMargin = getProfitMargin(product.price, product.purchase_price);
+
+                                    // Get first stock or primary stock for pricing display
+                                    const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
+                                    const displayPrice = primaryStock?.price || product.price || 0;
+                                    const displayPurchasePrice = primaryStock?.purchase_price || product.purchase_price || 0;
+                                    const displayLowStock = primaryStock?.low_stock_quantity || product.low_stock_quantity || 10;
+
+                                    // Calculate available status - check if any stock is available
+                                    const isAvailable =
+                                        product.stocks && product.stocks.length > 0
+                                            ? product.stocks.some((stock: any) => stock.available === 'yes')
+                                            : product.available === true || product.available === 'yes';
+
+                                    const stockStatus = getStockStatus(actualQuantity, displayLowStock);
+                                    const profitMargin = getProfitMargin(displayPrice, displayPurchasePrice);
 
                                     return (
                                         <tr key={product.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
@@ -375,6 +388,7 @@ const ProductTable = () => {
                                                     </div>
                                                 </div>
                                             </td>
+
                                             <td className="px-4 py-4">
                                                 <div className="space-y-1">
                                                     <div className="max-w-[150px] truncate font-semibold text-gray-900">{product.product_name}</div>
@@ -442,12 +456,12 @@ const ProductTable = () => {
                                             {/* Status */}
                                             <td className="px-4 py-4">
                                                 <button
-                                                    onClick={() => handleAvailabilityToggle(product.id, product.available)}
+                                                    onClick={() => handleAvailabilityToggle(product.id, isAvailable)}
                                                     className={`inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${
-                                                        product.available === true ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                                        isAvailable ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'
                                                     }`}
                                                 >
-                                                    {product.available === true ? (
+                                                    {isAvailable ? (
                                                         <>
                                                             <CheckCircle className="mr-2 h-4 w-4" />
                                                             Available
@@ -461,27 +475,40 @@ const ProductTable = () => {
                                                 </button>
                                             </td>
 
-                                            {/* Pricing & Tax */}
+                                            {/* Pricing & Tax - Show range for variants, details for simple products */}
                                             <td className="px-4 py-4">
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-gray-500">Purchase:</span>
-                                                        <span className="text-sm font-medium">৳{Number(product.purchase_price || 0).toFixed(2)}</span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-gray-500">Selling:</span>
-                                                        <span className="text-sm font-semibold text-green-600">৳{Number(product.price || 0).toFixed(2)}</span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-gray-500">Profit:</span>
-                                                        <span className="text-xs font-medium text-blue-600">
-                                                            +৳{(Number(product.price || 0) - Number(product.purchase_price || 0)).toFixed(2)} ({profitMargin}%)
-                                                        </span>
-                                                    </div>
-                                                    {product.tax && product.tax.rate && Number(product.tax.rate) > 0 && (
+                                                    {product.stocks && product.stocks.length > 0 && product.stocks[0].is_variant ? (
+                                                        // Show price range for variant products
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-xs text-gray-500">Price Range:</span>
+                                                            <span className="text-sm font-semibold text-green-600">
+                                                                ৳{Math.min(...product.stocks.map((s: any) => Number(s.price))).toFixed(0)} - ৳
+                                                                {Math.max(...product.stocks.map((s: any) => Number(s.price))).toFixed(0)}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-xs text-gray-500">Purchase:</span>
+                                                                <span className="text-sm font-medium">৳{Number(displayPurchasePrice).toFixed(2)}</span>
+                                                            </div>
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-xs text-gray-500">Selling:</span>
+                                                                <span className="text-sm font-semibold text-green-600">৳{Number(displayPrice).toFixed(2)}</span>
+                                                            </div>
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-xs text-gray-500">Profit:</span>
+                                                                <span className="text-xs font-medium text-blue-600">
+                                                                    +৳{(Number(displayPrice) - Number(displayPurchasePrice)).toFixed(2)} ({profitMargin}%)
+                                                                </span>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                    {primaryStock?.tax_rate && Number(primaryStock.tax_rate) > 0 && (
                                                         <div className="flex items-center gap-1 text-xs text-gray-600">
                                                             <Percent className="h-3 w-3" />
-                                                            Tax: {product.tax.rate}% {product.tax.included ? '(Inc)' : '(Exc)'}
+                                                            Tax: {primaryStock.tax_rate}% {primaryStock.tax_included ? '(Inc)' : '(Exc)'}
                                                         </div>
                                                     )}
                                                 </div>

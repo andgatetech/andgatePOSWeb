@@ -15,11 +15,11 @@ const getLang = (): string => {
         // Server-side
         const { cookies } = require('next/headers');
         const langCookie = cookies().get('i18nextLng');
-        return langCookie?.value || 'en';
+        return langCookie?.value || 'bn';
     } else {
         // Client-side
         const cookies = new UniversalCookie();
-        return cookies.get('i18nextLng') || 'en';
+        return cookies.get('i18nextLng') || 'bn';
     }
 };
 
