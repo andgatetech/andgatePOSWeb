@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Gift, Package, Settings as SettingsIcon, Shield, Store, Tag } from 'lucide-react';
+import { Camera, Clock, CreditCard, Gift, Package, Settings as SettingsIcon, Shield, Store, Tag } from 'lucide-react';
 import React from 'react';
 
 interface Tab {
@@ -15,6 +15,7 @@ const tabs: Tab[] = [
     { id: 'hours', label: 'Operating Hours', icon: Clock, description: 'Store timings' },
     { id: 'units', label: 'Units', icon: Package, description: 'Product units' },
     { id: 'attributes', label: 'Attributes', icon: Tag, description: 'Product attributes' },
+    { id: 'payment', label: 'Payment Methods', icon: CreditCard, description: 'Tender options' },
     { id: 'warranty', label: 'Warranty Types', icon: Shield, description: 'Warranty options' },
     { id: 'loyalty', label: 'Loyalty Program', icon: Gift, description: 'Rewards settings' },
     { id: 'branding', label: 'Branding', icon: Camera, description: 'Logo & visuals' },
@@ -31,7 +32,7 @@ const StoreSettingTabs: React.FC<StoreSettingTabsProps> = ({ activeTab, onTabCha
         <>
             {/* Desktop & Tablet Tabs */}
             <div className="mb-8 hidden overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
-                <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-8 m-1">
+                <div className="m-1 grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-8">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActive = activeTab === tab.id;

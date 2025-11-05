@@ -80,6 +80,39 @@ const StoreApi = baseApi.injectEndpoints({
             providesTags: ['User'],
         }),
 
+        // ✅ Store payment methods
+        getPaymentMethods: builder.query({
+            query: (params: { store_id: number }) => ({
+                url: '/store/payment-methods',
+                method: 'GET',
+                params,
+            }),
+            providesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.store_id }],
+        }),
+        createPaymentMethod: builder.mutation({
+            query: (data: any) => ({
+                url: '/store/payment-methods',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.store_id }],
+        }),
+        updatePaymentMethod: builder.mutation({
+            query: ({ id, data }: { id: number; data: any }) => ({
+                url: `/store/payment-methods/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.data?.store_id }],
+        }),
+        deletePaymentMethod: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({
+                url: `/store/payment-methods/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.store_id }],
+        }),
+
         // ✅ Register a new staff member
         staffRegister: builder.mutation({
             query: (newStaff) => ({
@@ -147,4 +180,8 @@ export const {
     useDeleteStoreMutation,
     useAllStoresQuery,
     useCreateStoreMutation, // ← New hook for store registration
+    useGetPaymentMethodsQuery,
+    useCreatePaymentMethodMutation,
+    useUpdatePaymentMethodMutation,
+    useDeletePaymentMethodMutation,
 } = StoreApi;
