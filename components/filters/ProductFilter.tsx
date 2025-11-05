@@ -27,10 +27,17 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
 
     // Handle filter changes separately using useEffect
     React.useEffect(() => {
-        const apiParams = buildApiParams({
-            category_id: selectedCategory !== 'all' ? selectedCategory : 'all',
-            status: selectedStatus !== 'all' ? selectedStatus : 'all',
-        });
+        const additionalParams: Record<string, any> = {};
+
+        if (selectedCategory !== 'all') {
+            additionalParams.category_id = selectedCategory;
+        }
+
+        if (selectedStatus !== 'all') {
+            additionalParams.status = selectedStatus;
+        }
+
+        const apiParams = buildApiParams(additionalParams);
         onFilterChange(apiParams);
     }, [filters, selectedCategory, selectedStatus, buildApiParams, onFilterChange]);
 
@@ -38,9 +45,13 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
     const categoryQueryParams = React.useMemo(() => {
         // Use store selection from UniversalFilter if available
         if (filters.storeId === 'all') {
-            // "All Stores" selected - get categories from all user stores
             const allStoreIds = userStores.map((store: any) => store.id);
-            return allStoreIds.length > 0 ? { store_ids: allStoreIds.join(',') } : {};
+
+            if (allStoreIds.length === 1) {
+                return { store_id: allStoreIds[0] };
+            }
+
+            return allStoreIds.length > 1 ? { store_ids: allStoreIds.join(',') } : {};
         } else if (filters.storeId && typeof filters.storeId === 'number') {
             // Specific store selected
             return { store_id: filters.storeId };

@@ -15,7 +15,7 @@ const tabs: Tab[] = [
     { id: 'attributes', label: 'Attributes', icon: Tag, description: 'Color, size, variants' },
     { id: 'variants', label: 'Variants', icon: Sliders, description: 'Configure variant details' },
     { id: 'warranty', label: 'Warranty', icon: Shield, description: 'Warranty terms & period' },
-    { id: 'serial', label: 'Serial', icon: Hash, description: 'Serial number tracking' },
+    { id: 'serial', label: 'Serial/IMEI', icon: Hash, description: 'Serial number tracking' },
     { id: 'tax', label: 'Tax', icon: Receipt, description: 'Tax rate & inclusion' },
     { id: 'sku', label: 'SKU', icon: Barcode, description: 'Stock keeping unit' },
     { id: 'images', label: 'Images', icon: ImageIcon, description: 'Product photos' },
@@ -34,8 +34,8 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
     return (
         <>
             {/* Desktop & Tablet Tabs */}
-            <div className="sticky top-16 z-10 mb-8 hidden overflow-x-auto bg-white pb-4 pt-4 [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
-                <div className="m-1 grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-8">
+            <div className="sticky top-16 z-10 mb-6 hidden overflow-x-auto bg-white pb-3 pt-3 [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
+                <div className="m-1 grid grid-cols-2 gap-1.5 lg:grid-cols-5 xl:grid-cols-8">
                     {displayTabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActive = activeTab === tab.id;
@@ -46,22 +46,22 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
                                 type="button"
                                 onClick={() => onTabChange(tab.id)}
                                 className={`
-                                    group relative flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all duration-200
-                                    ${isActive ? 'border-emerald-500 bg-emerald-50 shadow-md' : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'}
+                                    group relative flex flex-col items-center gap-1 rounded-lg border p-2 transition-all duration-200
+                                    ${isActive ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'}
                                 `}
                             >
                                 <div
-                                    className={`rounded-lg p-1.5 transition-colors ${
+                                    className={`rounded-md p-1 transition-colors ${
                                         isActive ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-emerald-100 group-hover:text-emerald-600'
                                     }`}
                                 >
-                                    <Icon className="h-4 w-4" />
+                                    <Icon className="h-3.5 w-3.5" />
                                 </div>
                                 <div className="text-center">
-                                    <p className={`text-xs font-semibold ${isActive ? 'text-emerald-900' : 'text-gray-700'}`}>{tab.label}</p>
-                                    <p className={`text-[10px] ${isActive ? 'text-emerald-700' : 'text-gray-500'}`}>{tab.description}</p>
+                                    <p className={`text-[11px] font-semibold ${isActive ? 'text-emerald-900' : 'text-gray-700'}`}>{tab.label}</p>
+                                    <p className={`text-[9px] leading-tight ${isActive ? 'text-emerald-700' : 'text-gray-500'}`}>{tab.description}</p>
                                 </div>
-                                {isActive && <div className="absolute -bottom-1 left-1/2 h-1 w-1/2 -translate-x-1/2 rounded-full bg-emerald-500" />}
+                                {isActive && <div className="absolute -bottom-0.5 left-1/2 h-0.5 w-1/2 -translate-x-1/2 rounded-full bg-emerald-500" />}
                             </button>
                         );
                     })}

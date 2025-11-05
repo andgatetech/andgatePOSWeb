@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, ChevronUp, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
@@ -104,6 +104,24 @@ const VariantsTab: React.FC<VariantsTabProps> = ({ productAttributes, productSto
         }
     };
 
+    const handleDuplicateVariant = (index: number) => {
+        const variantToDuplicate = productStocks[index];
+        if (!variantToDuplicate) {
+            return;
+        }
+
+        const duplicatedVariant: ProductStock = {
+            ...variantToDuplicate,
+            variant_data: { ...variantToDuplicate.variant_data },
+            images: variantToDuplicate.images ? variantToDuplicate.images.map((image) => ({ ...image })) : [],
+        };
+
+        const updated = [...productStocks];
+        updated.splice(index + 1, 0, duplicatedVariant);
+        setProductStocks(updated);
+        setExpandedVariantIndex(index + 1);
+    };
+
     // Handle variant images
     const handleVariantImagesChange = (index: number, imageList: ImageListType) => {
         handleVariantChange(index, 'images', imageList);
@@ -196,6 +214,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({ productAttributes, productSto
                                     className="rounded-lg p-2 text-purple-600 transition-colors hover:bg-purple-100"
                                 >
                                     {expandedVariantIndex === index ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleDuplicateVariant(index)}
+                                    className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-100"
+                                    title="Duplicate variant"
+                                >
+                                    <Copy className="h-4 w-4" />
                                 </button>
                                 <button type="button" onClick={() => handleDeleteVariant(index)} className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100" title="Delete variant">
                                     <Trash2 className="h-4 w-4" />

@@ -1,6 +1,6 @@
 'use client';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Camera, Hash, X } from 'lucide-react';
+import { Camera, ChevronDown, ChevronUp, Hash, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const sanitizeCount = (value: unknown): number => {
@@ -27,7 +27,9 @@ interface SerialTabProps {
 }
 
 const SerialTab = ({ formData, productSerials, setProductSerials, productStocks, productAttributes, onPrevious, onNext, onCreateProduct, isCreating }: SerialTabProps) => {
-    const [sameSerialForAll, setSameSerialForAll] = useState(true);
+    const hasVariants = productAttributes && productAttributes.length > 0 && productStocks && productStocks.length > 0;
+
+    const [sameSerialForAll, setSameSerialForAll] = useState(() => !hasVariants);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
     const [currentScanIndex, setCurrentScanIndex] = useState<number>(0);
     const currentScanIndexRef = useRef<number>(0); // Use ref to track current index for scanner
@@ -36,11 +38,12 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
     const isProcessingScanRef = useRef<boolean>(false); // Prevent duplicate scans
     const lastScannedCodeRef = useRef<string>(''); // Track last scanned code
     const lastScanTimeRef = useRef<number>(0); // Track last scan timestamp
+    const singleFieldScanRef = useRef<boolean>(false);
+    const [isSingleScanMode, setIsSingleScanMode] = useState(false);
+    const hasVariantsRef = useRef(hasVariants);
 
     // Use a ref to store serials to prevent parent re-renders from clearing data
     const serialsRef = useRef<Array<{ serial_number: string; notes: string }>>(productSerials);
-
-    const hasVariants = productAttributes && productAttributes.length > 0 && productStocks && productStocks.length > 0;
 
     const variantUnitCounts = useMemo(() => {
         if (!hasVariants) {
@@ -75,6 +78,53 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
     const variantCount = hasVariants ? productStocks.length : 0;
     const displayUnitCount = totalUnits;
     const useSingleSerial = sameSerialForAll && entryCount > 0;
+
+    const variantSerialGroups = useMemo(() => {
+        if (!hasVariants) {
+            return { byVariant: [] as number[][], unassigned: [] as number[] };
+        }
+
+        const groups = productStocks.map(() => [] as number[]);
+        const unassigned: number[] = [];
+
+        serialEntryMeta.forEach((meta, index) => {
+            if (meta.variantIndex === null || meta.variantIndex < 0 || meta.variantIndex >= groups.length) {
+                unassigned.push(index);
+                return;
+            }
+            groups[meta.variantIndex].push(index);
+        });
+
+        return { byVariant: groups, unassigned };
+    }, [hasVariants, productStocks, serialEntryMeta]);
+
+    const [expandedVariantGroups, setExpandedVariantGroups] = useState<Record<number, boolean>>({});
+    const [showUnassigned, setShowUnassigned] = useState(true);
+
+    useEffect(() => {
+        if (hasVariants && !hasVariantsRef.current) {
+            setSameSerialForAll(false);
+        } else if (!hasVariants && hasVariantsRef.current) {
+            setSameSerialForAll(true);
+        }
+        hasVariantsRef.current = hasVariants;
+    }, [hasVariants]);
+
+    useEffect(() => {
+        if (!hasVariants) {
+            setExpandedVariantGroups({});
+            setShowUnassigned(true);
+            return;
+        }
+
+        setExpandedVariantGroups((prev) => {
+            const next: Record<number, boolean> = {};
+            productStocks.forEach((_, index) => {
+                next[index] = prev[index] ?? true;
+            });
+            return next;
+        });
+    }, [hasVariants, productStocks]);
 
     // Audio beep for successful scan
     const playBeep = () => {
@@ -225,13 +275,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
     const getVariantDisplayInfo = (index: number): { label: string; subtitle?: string } => {
         const meta = serialEntryMeta[index];
         if (!meta) {
-            const label = `Serial #${index + 1}`;
+            const label = `Serial/IMEI #${index + 1}`;
             return { label };
         }
 
         if (!hasVariants || meta.variantIndex === null) {
             const unitNumber = meta.unitIndex + 1;
-            const label = `Serial #${unitNumber}`;
+            const label = `Serial/IMEI #${unitNumber}`;
             const subtitle = entryCount > 0 ? `Unit ${unitNumber} of ${entryCount}` : undefined;
             return { label, subtitle };
         }
@@ -247,18 +297,27 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
         return info.subtitle ? `${info.label} (${info.subtitle})` : info.label;
     };
 
-    const openScanner = () => {
+    const openScanner = (targetIndex?: number) => {
         if (entryCount <= 0) return;
-        const firstEmptyIndex = serialsRef.current.findIndex((s) => !s.serial_number || s.serial_number.trim() === '');
-        const startIndex = firstEmptyIndex === -1 ? 0 : firstEmptyIndex;
+
+        let startIndex: number;
+        singleFieldScanRef.current = typeof targetIndex === 'number' && !Number.isNaN(targetIndex);
+        setIsSingleScanMode(singleFieldScanRef.current);
+
+        if (typeof targetIndex === 'number' && !Number.isNaN(targetIndex)) {
+            const boundedIndex = Math.min(Math.max(targetIndex, 0), entryCount - 1);
+            startIndex = boundedIndex;
+        } else {
+            const firstEmptyIndex = serialsRef.current.findIndex((s) => !s.serial_number || s.serial_number.trim() === '');
+            startIndex = firstEmptyIndex === -1 ? 0 : firstEmptyIndex;
+        }
 
         if (startIndex >= entryCount) {
-            currentScanIndexRef.current = entryCount - 1;
-            setCurrentScanIndex(entryCount - 1);
-        } else {
-            setCurrentScanIndex(startIndex);
-            currentScanIndexRef.current = startIndex;
+            startIndex = entryCount - 1;
         }
+
+        setCurrentScanIndex(startIndex);
+        currentScanIndexRef.current = startIndex;
 
         isProcessingScanRef.current = false;
         lastScannedCodeRef.current = '';
@@ -280,6 +339,30 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
         isProcessingScanRef.current = false;
         lastScannedCodeRef.current = '';
         lastScanTimeRef.current = 0;
+        singleFieldScanRef.current = false;
+        setIsSingleScanMode(false);
+    };
+
+    const focusEntryInput = (index: number) => {
+        if (index < 0) {
+            return;
+        }
+        requestAnimationFrame(() => {
+            const input = inputRefs.current[index];
+            if (input) {
+                input.focus();
+            }
+        });
+    };
+
+    const findNextScanIndex = (currentIndex: number): number => {
+        const nextEmptyAhead = serialsRef.current.findIndex((serial, idx) => idx > currentIndex && (!serial.serial_number || serial.serial_number.trim() === ''));
+        if (nextEmptyAhead !== -1) {
+            return nextEmptyAhead;
+        }
+
+        const firstEmpty = serialsRef.current.findIndex((serial) => !serial.serial_number || serial.serial_number.trim() === '');
+        return firstEmpty;
     };
 
     const handleScanSuccess = (decodedText: string) => {
@@ -300,11 +383,11 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
         if (duplicateIndex !== -1) {
             const duplicateLabel = getSerialDescriptor(duplicateIndex);
             const shouldReplace = window.confirm(
-                `⚠️ Duplicate Serial Number!\n\n` +
-                    `Serial "${decodedText}" is already assigned to ${duplicateLabel}.\n\n` +
+                `⚠️ Duplicate Serial/IMEI!\n\n` +
+                    `Serial/IMEI "${decodedText}" is already assigned to ${duplicateLabel}.\n\n` +
                     `Do you want to:\n` +
                     `• Click "OK" to REPLACE ${duplicateLabel} with this scan\n` +
-                    `• Click "Cancel" to KEEP the existing one and scan a different serial`
+                    `• Click "Cancel" to KEEP the existing one and scan a different Serial/IMEI`
             );
 
             if (shouldReplace) {
@@ -330,23 +413,40 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
 
         if (sameSerialForAll) {
             handleSingleSerialChange('serial_number', decodedText);
-            closeScanner();
-        } else {
-            handleSerialChange(scanIndex, 'serial_number', decodedText);
-
-            const nextIndex = scanIndex + 1;
-            if (nextIndex < entryCount) {
-                currentScanIndexRef.current = nextIndex;
-                setCurrentScanIndex(nextIndex);
-
-                setTimeout(() => {
-                    inputRefs.current[nextIndex]?.focus();
-                    isProcessingScanRef.current = false;
-                }, 800);
-            } else {
-                closeScanner();
-            }
+            void closeScanner();
+            return;
         }
+
+        handleSerialChange(scanIndex, 'serial_number', decodedText);
+
+        if (singleFieldScanRef.current) {
+            // Single-field scan closes immediately after updating targeted entry
+            isProcessingScanRef.current = false;
+            lastScannedCodeRef.current = '';
+            lastScanTimeRef.current = 0;
+            void closeScanner();
+            return;
+        }
+
+        const nextIndex = findNextScanIndex(scanIndex);
+
+        if (nextIndex === -1) {
+            // All entries filled; close scanner
+            isProcessingScanRef.current = false;
+            lastScannedCodeRef.current = '';
+            lastScanTimeRef.current = 0;
+            void closeScanner();
+            return;
+        }
+
+        currentScanIndexRef.current = nextIndex;
+        setCurrentScanIndex(nextIndex);
+        focusEntryInput(nextIndex);
+
+        // Allow next scan event
+        isProcessingScanRef.current = false;
+        lastScannedCodeRef.current = '';
+        lastScanTimeRef.current = 0;
     };
 
     // Initialize html5-qrcode scanner
@@ -428,6 +528,70 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showCameraScanner]);
 
+    const renderSerialRow = (entryIndex: number) => {
+        const info = getVariantDisplayInfo(entryIndex);
+        const isActiveRow = currentScanIndex === entryIndex && showCameraScanner;
+        const serialValue = productSerials[entryIndex]?.serial_number || '';
+        const notesValue = productSerials[entryIndex]?.notes || '';
+
+        return (
+            <div
+                key={entryIndex}
+                className={`flex flex-col gap-2 rounded-lg border p-2 transition-all sm:flex-row sm:items-center sm:gap-2 sm:p-3 ${
+                    isActiveRow ? 'border-purple-500 bg-purple-50 shadow-lg' : 'border-gray-300 bg-white'
+                }`}
+            >
+                {/* Serial Label & Status */}
+                <div className="flex items-center justify-between gap-2 sm:justify-start">
+                    <div className="flex items-center gap-2">
+                        <div className="flex flex-col">
+                            <span className={`text-xs font-medium sm:text-sm ${isActiveRow ? 'text-purple-700' : 'text-gray-700'}`}>{info.label}</span>
+                            {info.subtitle && <span className="text-[11px] text-gray-500 sm:text-xs">{info.subtitle}</span>}
+                        </div>
+                        {serialValue && <span className="text-xs font-medium text-green-600">✓</span>}
+                    </div>
+                    {isActiveRow && <span className="text-xs font-semibold text-purple-600">Scanning</span>}
+                </div>
+
+                {/* Product Name */}
+                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
+                    <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
+                </div>
+
+                {/* Serial Input */}
+                <div className="flex w-full items-center gap-2 sm:flex-1">
+                    <input
+                        ref={(el) => (inputRefs.current[entryIndex] = el)}
+                        type="text"
+                        value={serialValue}
+                        onChange={(e) => handleSerialChange(entryIndex, 'serial_number', e.target.value)}
+                        placeholder={`Enter Serial/IMEI for ${info.label}`}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:px-3 sm:text-sm"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => openScanner(entryIndex)}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition-colors hover:border-purple-300 hover:bg-purple-100"
+                        title="Scan this Serial/IMEI"
+                    >
+                        <Camera className="h-4 w-4" />
+                    </button>
+                </div>
+
+                {/* Notes Field */}
+                <input
+                    type="text"
+                    value={notesValue}
+                    onChange={(e) => handleSerialChange(entryIndex, 'notes', e.target.value)}
+                    placeholder="Notes (optional)"
+                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-40 sm:px-3 sm:text-sm"
+                />
+            </div>
+        );
+    };
+
+    const currentScanDescriptor = entryCount > 0 ? getSerialDescriptor(currentScanIndex) : '';
+
     return (
         <>
             {/* Scanner Styles */}
@@ -461,9 +625,9 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         <Hash className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Serial Numbers</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Serial/IMEI Numbers</h3>
                         <p className="text-sm text-gray-600">
-                            Scan or enter serial numbers for tracking (Total: {displayUnitCount} {hasVariants ? 'units across variants' : 'units'})
+                            Scan or enter Serial/IMEI values for tracking (Total: {displayUnitCount} {hasVariants ? 'units across variants' : 'units'})
                         </p>
                     </div>
                 </div>
@@ -478,16 +642,16 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                             className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
                         />
                         <div>
-                            <span className="block text-sm font-medium text-gray-900 sm:text-base">Use same serial for all products</span>
+                            <span className="block text-sm font-medium text-gray-900 sm:text-base">Use same Serial/IMEI for all products</span>
                             <p className="text-xs text-gray-600 sm:text-sm">
-                                One serial number will be applied to all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'}
+                                One Serial/IMEI will be applied to all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'}
                             </p>
                             {hasVariants && (
                                 <p className="text-[11px] text-purple-700 sm:text-xs">
                                     Includes {variantCount} {variantCount === 1 ? 'variant' : 'variants'}
                                 </p>
                             )}
-                            {displayUnitCount === 0 && <p className="text-[11px] text-purple-600 sm:text-xs">Add stock quantities to enable serial assignment.</p>}
+                            {displayUnitCount === 0 && <p className="text-[11px] text-purple-600 sm:text-xs">Add stock quantities to enable Serial/IMEI assignment.</p>}
                         </div>
                     </label>
                 </div>
@@ -496,40 +660,16 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                 <div className="flex justify-center">
                     <button
                         type="button"
-                        onClick={openScanner}
+                        onClick={() => openScanner()}
                         disabled={entryCount <= 0}
                         className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-purple-800 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
                     >
                         <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="truncate">
-                            {entryCount <= 0 ? 'Set quantity to enable scanner' : useSingleSerial ? 'Scan Serial Number' : `Scan All ${entryCount} ${hasVariants ? 'Units' : 'Units'}`}
-                        </span>
+                        <span className="truncate">{entryCount <= 0 ? 'Set quantity to enable scanner' : useSingleSerial ? 'Scan Serial/IMEI' : 'Scan Serial/IMEI'}</span>
                     </button>
                 </div>
 
-                {hasVariants && (
-                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4">
-                        <p className="text-sm font-medium text-blue-900">
-                            This product has <span className="font-semibold">{variantCount}</span> variant{variantCount === 1 ? '' : 's'} covering {entryCount} unit{entryCount === 1 ? '' : 's'} that
-                            require serial tracking.
-                        </p>
-                        <ul className="mt-2 grid gap-2 text-xs text-blue-800 sm:grid-cols-2">
-                            {productStocks.map((_stock, index) => {
-                                const name = getVariantBaseName(index) || `Variant #${index + 1}`;
-                                const unitTotal = variantUnitCounts[index] || 0;
-                                return (
-                                    <li key={index} className="flex items-center justify-between rounded-lg border border-blue-200 bg-white px-2 py-1.5">
-                                        <span className="truncate pr-2 font-medium text-blue-900">{name}</span>
-                                        <span className="text-blue-700">
-                                            {unitTotal} unit{unitTotal === 1 ? '' : 's'}
-                                        </span>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                        {entryCount === 0 && <p className="mt-2 text-xs text-blue-700">Add stock quantities above to generate serial slots.</p>}
-                    </div>
-                )}
+                {hasVariants && <div className=" p-3 sm:p-4">{entryCount === 0 && <p className="mt-2 text-xs text-blue-700">Add stock quantities above to generate Serial/IMEI slots.</p>}</div>}
 
                 {/* Serial Input Fields */}
                 <div className="space-y-3">
@@ -537,20 +677,31 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         // Single Serial Input
                         <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                             <div className="mb-2">
-                                <label className="text-xs font-medium text-gray-700 sm:text-sm">Serial Number (for all {displayUnitCount} units)</label>
+                                <label className="text-xs font-medium text-gray-700 sm:text-sm">Serial/IMEI (for all {displayUnitCount} units)</label>
                             </div>
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
                                     <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
                                 </div>
-                                <input
-                                    ref={(el) => (inputRefs.current[0] = el)}
-                                    type="text"
-                                    value={productSerials[0]?.serial_number || ''}
-                                    onChange={(e) => handleSingleSerialChange('serial_number', e.target.value)}
-                                    placeholder="Enter or scan serial"
-                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-                                />
+                                <div className="flex w-full items-center gap-2 sm:flex-1">
+                                    <input
+                                        ref={(el) => (inputRefs.current[0] = el)}
+                                        type="text"
+                                        value={productSerials[0]?.serial_number || ''}
+                                        onChange={(e) => handleSingleSerialChange('serial_number', e.target.value)}
+                                        placeholder="Enter or scan Serial/IMEI"
+                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => openScanner(0)}
+                                        disabled={entryCount <= 0}
+                                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition-colors hover:border-purple-300 hover:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                        title="Scan Serial/IMEI"
+                                    >
+                                        <Camera className="h-4 w-4" />
+                                    </button>
+                                </div>
                                 <input
                                     type="text"
                                     value={productSerials[0]?.notes || ''}
@@ -560,64 +711,83 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                 />
                             </div>
                         </div>
-                    ) : (
-                        // Multiple Serial Inputs
-                        <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
-                            {entryCount === 0 ? (
-                                <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-center text-xs text-gray-500">
-                                    Set product quantity or variant stock to assign serial numbers.
-                                </div>
-                            ) : (
-                                Array.from({ length: entryCount }).map((_, index) => {
-                                    const info = getVariantDisplayInfo(index);
-                                    return (
-                                        <div
-                                            key={index}
-                                            className={`flex flex-col gap-2 rounded-lg border p-2 transition-all sm:flex-row sm:items-center sm:gap-2 sm:p-3 ${
-                                                currentScanIndex === index && showCameraScanner ? 'border-purple-500 bg-purple-50 shadow-lg' : 'border-gray-300 bg-white'
-                                            }`}
+                    ) : // Multiple Serial Inputs
+                    entryCount === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-center text-xs text-gray-500">
+                            Set product quantity or variant stock to assign Serial/IMEI values.
+                        </div>
+                    ) : hasVariants ? (
+                        <div className="space-y-4">
+                            {productStocks.map((_, variantIndex) => {
+                                const variantName = getVariantBaseName(variantIndex) || `Variant #${variantIndex + 1}`;
+                                const unitTotal = variantUnitCounts[variantIndex] || 0;
+                                const indices = variantSerialGroups.byVariant[variantIndex] || [];
+                                const filledCount = indices.reduce((count, entryIndex) => {
+                                    return count + (productSerials[entryIndex]?.serial_number?.trim() ? 1 : 0);
+                                }, 0);
+                                const isExpanded = expandedVariantGroups[variantIndex] !== false;
+
+                                return (
+                                    <div key={variantIndex} className="rounded-xl border border-gray-200 bg-white shadow-sm">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setExpandedVariantGroups((prev) => {
+                                                    const current = prev[variantIndex];
+                                                    const nextValue = !(current ?? true);
+                                                    return { ...prev, [variantIndex]: nextValue };
+                                                })
+                                            }
+                                            className="flex w-full items-center justify-between gap-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 text-left"
                                         >
-                                            {/* Serial Label & Status */}
-                                            <div className="flex items-center justify-between gap-2 sm:justify-start">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex flex-col">
-                                                        <span className={`text-xs font-medium sm:text-sm ${currentScanIndex === index && showCameraScanner ? 'text-purple-700' : 'text-gray-700'}`}>
-                                                            {info.label}
-                                                        </span>
-                                                        {info.subtitle && <span className="text-[11px] text-gray-500 sm:text-xs">{info.subtitle}</span>}
+                                            <div className="flex flex-col">
+                                                <h4 className="text-sm font-semibold text-gray-900 sm:text-base">{variantName}</h4>
+                                                <p className="text-xs text-gray-600 sm:text-sm">
+                                                    {unitTotal} unit{unitTotal === 1 ? '' : 's'} • {filledCount} filled
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-xs font-medium text-purple-600 sm:text-sm">
+                                                    Variant {variantIndex + 1} of {variantCount}
+                                                </span>
+                                                {isExpanded ? <ChevronUp className="h-4 w-4 text-purple-600" /> : <ChevronDown className="h-4 w-4 text-purple-600" />}
+                                            </div>
+                                        </button>
+                                        {isExpanded && (
+                                            <div className="max-h-72 space-y-2 overflow-y-auto px-2 py-3 sm:px-3">
+                                                {indices.length === 0 ? (
+                                                    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3 text-center text-xs text-gray-500">
+                                                        Set a stock quantity for this variant to enable Serial/IMEI inputs.
                                                     </div>
-                                                    {productSerials[index]?.serial_number && <span className="text-xs font-medium text-green-600">✓</span>}
-                                                </div>
-                                                {currentScanIndex === index && showCameraScanner && <span className="text-xs font-semibold text-purple-600">Scanning</span>}
+                                                ) : (
+                                                    indices.map((entryIndex) => renderSerialRow(entryIndex))
+                                                )}
                                             </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
 
-                                            {/* Product Name */}
-                                            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
-                                                <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
-                                            </div>
-
-                                            {/* Serial Input */}
-                                            <input
-                                                ref={(el) => (inputRefs.current[index] = el)}
-                                                type="text"
-                                                value={productSerials[index]?.serial_number || ''}
-                                                onChange={(e) => handleSerialChange(index, 'serial_number', e.target.value)}
-                                                placeholder={`Enter or scan ${info.label}`}
-                                                className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:flex-1 sm:px-3 sm:text-sm"
-                                            />
-
-                                            {/* Notes Field */}
-                                            <input
-                                                type="text"
-                                                value={productSerials[index]?.notes || ''}
-                                                onChange={(e) => handleSerialChange(index, 'notes', e.target.value)}
-                                                placeholder="Notes (optional)"
-                                                className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-40 sm:px-3 sm:text-sm"
-                                            />
+                            {variantSerialGroups.unassigned.length > 0 && (
+                                <div className="rounded-xl border border-amber-200 bg-amber-50">
+                                    <button type="button" onClick={() => setShowUnassigned((prev) => !prev)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left">
+                                        <div>
+                                            <h4 className="text-sm font-semibold text-amber-900 sm:text-base">Unassigned Units</h4>
+                                            <p className="text-xs text-amber-800 sm:text-sm">These units are not linked to a specific variant.</p>
                                         </div>
-                                    );
-                                })
+                                        {showUnassigned ? <ChevronUp className="h-4 w-4 text-amber-700" /> : <ChevronDown className="h-4 w-4 text-amber-700" />}
+                                    </button>
+                                    {showUnassigned && (
+                                        <div className="max-h-64 space-y-2 overflow-y-auto border-t border-amber-200 bg-white p-2 sm:p-3">
+                                            {variantSerialGroups.unassigned.map((entryIndex) => renderSerialRow(entryIndex))}
+                                        </div>
+                                    )}
+                                </div>
                             )}
+                        </div>
+                    ) : (
+                        <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
+                            {Array.from({ length: entryCount }).map((_, index) => renderSerialRow(index))}
                         </div>
                     )}
                 </div>
@@ -634,9 +804,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                             </button>
                             <div className="mb-3 sm:mb-4">
                                 <h3 className="pr-8 text-base font-semibold text-gray-900 sm:text-lg">
-                                    {useSingleSerial ? 'Scan Serial Number' : `Scanning Serial #${currentScanIndex + 1} of ${entryCount}`}
+                                    {useSingleSerial
+                                        ? 'Scan Serial/IMEI'
+                                        : isSingleScanMode
+                                        ? `Scan Serial/IMEI for ${currentScanDescriptor}`
+                                        : `Scanning Serial/IMEI #${currentScanIndex + 1} of ${entryCount}`}
                                 </h3>
-                                {!useSingleSerial && entryCount > 0 && (
+                                {!useSingleSerial && entryCount > 0 && !isSingleScanMode && (
                                     <div className="mt-2">
                                         {(() => {
                                             const filledCount = productSerials.filter((s) => s.serial_number?.trim() !== '').length;
@@ -663,7 +837,11 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                             </div>
                             <div id="serial-qr-reader" className="overflow-hidden rounded-lg" style={{ border: 'none' }}></div>
                             <p className="mt-2 text-center text-xs text-gray-600 sm:mt-3 sm:text-sm">
-                                {useSingleSerial ? 'Point camera at QR code or barcode' : `Scan code for Serial #${currentScanIndex + 1} - Scanner will continue automatically`}
+                                {useSingleSerial
+                                    ? 'Point camera at QR code or barcode'
+                                    : isSingleScanMode
+                                    ? `Scan code for ${currentScanDescriptor}`
+                                    : `Scan code for Serial/IMEI #${currentScanIndex + 1}`}
                             </p>
                         </div>
                     </div>

@@ -15,62 +15,136 @@ const ProductTable = () => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [sortField, setSortField] = useState('product_name');
+    const [sortDirection, setSortDirection] = useState('asc');
 
     // Memoize query parameters to prevent infinite re-renders
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {};
+        const params: Record<string, any> = {
+            page: currentPage,
+            per_page: itemsPerPage,
+            sort_field: sortField,
+            sort_direction: sortDirection,
+        };
 
-        if (Object.keys(apiParams).length > 0) {
-            // Filter is active - build parameters from filter
+        const hasFilterParams = Object.keys(apiParams).length > 0;
 
+        if (hasFilterParams) {
             // Handle store filtering
-            if (apiParams.storeId === 'all' || apiParams.store_ids === 'all') {
-                // "All Stores" selected - send all user's store IDs as comma-separated string
+            if (apiParams.store_ids) {
+                params.store_ids = apiParams.store_ids;
+            } else if (apiParams.storeId === 'all' || apiParams.store_ids === 'all') {
                 const allStoreIds = userStores.map((store: any) => store.id);
-                params.store_ids = allStoreIds.join(',');
+                if (allStoreIds.length === 1) {
+                    params.store_id = allStoreIds[0];
+                } else if (allStoreIds.length > 1) {
+                    params.store_ids = allStoreIds.join(',');
+                }
             } else if (apiParams.store_id) {
-                // Specific store ID from filter
                 params.store_id = apiParams.store_id;
             } else if (apiParams.storeId && apiParams.storeId !== 'all') {
-                // Specific store selected in filter dropdown
                 params.store_id = apiParams.storeId;
-            } else {
-                // No specific store in filter - use current store from sidebar
-                if (currentStoreId) {
-                    params.store_id = currentStoreId;
-                }
             }
 
             // Handle other filters
             if (apiParams.search) params.search = apiParams.search;
             if (apiParams.status) params.status = apiParams.status;
-            if (apiParams.dateRange?.startDate) params.start_date = apiParams.dateRange.startDate;
-            if (apiParams.dateRange?.endDate) params.end_date = apiParams.dateRange.endDate;
-        } else {
-            // No filter active - use current store from sidebar (default behavior)
-            if (currentStoreId) {
-                params.store_id = currentStoreId;
-            }
+            if (apiParams.category_id) params.category_id = apiParams.category_id;
+            if (apiParams.start_date) params.start_date = apiParams.start_date;
+            if (apiParams.end_date) params.end_date = apiParams.end_date;
+        }
+
+        // Default to current store if not explicitly provided
+        if (!params.store_id && !params.store_ids && currentStoreId) {
+            params.store_id = currentStoreId;
         }
 
         return params;
-    }, [apiParams, currentStoreId, userStores]);
+    }, [apiParams, currentStoreId, userStores, currentPage, itemsPerPage, sortField, sortDirection]);
 
     // API calls - RTK Query will auto-refetch when queryParams change
-    const { data: pds, isLoading, refetch } = useGetAllProductsQuery(queryParams);
+    const { data: pds, isLoading } = useGetAllProductsQuery(queryParams);
 
-    const products = useMemo(() => pds?.data || [], [pds?.data]);
+    const ensureArray = (value: unknown): any[] => {
+        if (Array.isArray(value)) {
+            return value;
+        }
+        if (value && typeof value === 'object') {
+            const container = value as Record<string, unknown>;
+            if (Array.isArray(container.data)) {
+                return container.data as any[];
+            }
+            if (Array.isArray(container.items)) {
+                return container.items as any[];
+            }
+            if (Array.isArray(container.results)) {
+                return container.results as any[];
+            }
+        }
+        return [];
+    };
+
+    const products = useMemo(() => {
+        const primary = ensureArray(pds?.data);
+        if (primary.length > 0 || Array.isArray(pds?.data)) {
+            return primary;
+        }
+        return ensureArray(pds);
+    }, [pds]);
+
+    const metaContainer: Record<string, any> | undefined = useMemo(() => {
+        if (pds?.meta && typeof pds.meta === 'object') {
+            return pds.meta as Record<string, any>;
+        }
+
+        const nestedData = pds?.data;
+        if (nestedData && typeof nestedData === 'object' && !Array.isArray(nestedData)) {
+            const nestedMeta = (nestedData as Record<string, any>).meta;
+            if (nestedMeta && typeof nestedMeta === 'object') {
+                return nestedMeta as Record<string, any>;
+            }
+
+            const { pagination, summary, stats } = nestedData as Record<string, any>;
+            if (pagination || summary || stats) {
+                return {
+                    pagination,
+                    summary,
+                    stats,
+                };
+            }
+        }
+
+        return undefined;
+    }, [pds]);
+
+    const paginationMeta = useMemo(() => {
+        if (!metaContainer) return undefined;
+        if (metaContainer.pagination && typeof metaContainer.pagination === 'object') {
+            return metaContainer.pagination as Record<string, any>;
+        }
+        if ('page' in metaContainer || 'total_pages' in metaContainer || 'per_page' in metaContainer || 'total_records' in metaContainer) {
+            return metaContainer;
+        }
+        return undefined;
+    }, [metaContainer]);
+
+    const summaryMeta = useMemo(() => {
+        if (!metaContainer) return undefined;
+        if (metaContainer.summary && typeof metaContainer.summary === 'object') {
+            return metaContainer.summary as Record<string, any>;
+        }
+        if (metaContainer.stats && typeof metaContainer.stats === 'object') {
+            return metaContainer.stats as Record<string, any>;
+        }
+        return undefined;
+    }, [metaContainer]);
 
     // Categories are now handled by ProductFilter component
 
     const [updateAvailability] = useUpdateAvailabilityMutation();
     const [deleteProduct] = useDeleteProductMutation();
-
-    // State management
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [sortField, setSortField] = useState('product_name');
-    const [sortDirection, setSortDirection] = useState('asc');
 
     // Reset filter when current store changes from sidebar
     useEffect(() => {
@@ -149,38 +223,65 @@ const ProductTable = () => {
         return purchasePrice > 0 ? ((profit / purchasePrice) * 100).toFixed(1) : 0;
     };
 
-    // Sort products (filtering is now done by backend)
-    const filteredAndSortedProducts = useMemo(() => {
-        if (!products || products.length === 0) return [];
+    const effectivePerPage = paginationMeta?.per_page && paginationMeta.per_page > 0 ? paginationMeta.per_page : itemsPerPage;
+    const totalRecords = paginationMeta?.total_records ?? pds?.meta?.total ?? products.length;
+    const activePage = paginationMeta?.page && paginationMeta.page > 0 ? paginationMeta.page : currentPage;
+    const totalPages = paginationMeta?.total_pages ?? Math.max(1, effectivePerPage > 0 ? Math.ceil((totalRecords || 0) / effectivePerPage) : 1);
+    const startRecord = totalRecords === 0 ? 0 : (activePage - 1) * effectivePerPage + 1;
+    const endRecord = totalRecords === 0 ? 0 : startRecord + products.length - 1;
 
-        // Sort products (no filtering needed since backend handles it)
-        let sorted = [...products].sort((a: any, b: any) => {
-            let aValue = a[sortField] || '';
-            let bValue = b[sortField] || '';
+    const fallbackStats = useMemo(() => {
+        let available = 0;
+        let unavailable = 0;
+        let lowStock = 0;
+        let outOfStock = 0;
 
-            if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
+        products.forEach((product: any) => {
+            const isAvailable =
+                product.stocks && product.stocks.length > 0 ? product.stocks.some((stock: any) => stock.available === 'yes') : product.available === true || product.available === 'yes';
+
+            if (isAvailable) {
+                available += 1;
+            } else {
+                unavailable += 1;
             }
 
-            if (sortDirection === 'asc') {
-                return aValue > bValue ? 1 : -1;
-            } else {
-                return aValue < bValue ? 1 : -1;
+            const totalStock = product.stocks && product.stocks.length > 0 ? product.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0) : Number(product.quantity) || 0;
+
+            const lowStockThreshold = product.low_stock_quantity || 10;
+
+            if (totalStock <= lowStockThreshold) {
+                lowStock += 1;
+            }
+
+            if (totalStock === 0) {
+                outOfStock += 1;
             }
         });
 
-        return sorted;
-    }, [products, sortField, sortDirection]);
+        return {
+            total: totalRecords,
+            available,
+            unavailable,
+            lowStock,
+            outOfStock,
+        };
+    }, [products, totalRecords]);
 
-    // Pagination
-    const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
-    const currentProducts = filteredAndSortedProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const goToPage = useCallback(
+        (pageNumber: number) => {
+            const boundedTotalPages = totalPages || 1;
+            const target = Math.min(Math.max(pageNumber, 1), boundedTotalPages);
+            setCurrentPage(target);
+        },
+        [setCurrentPage, totalPages]
+    );
 
     // Handle sorting
     const handleSort = (field: string) => {
+        goToPage(1);
         if (sortField === field) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+            setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
         } else {
             setSortField(field);
             setSortDirection('asc');
@@ -208,26 +309,11 @@ const ProductTable = () => {
         setOpen(true);
     };
 
-    // Calculate stats based on filtered products (from backend)
-    const totalProducts = products.length;
-    const availableProducts = products.filter((p: any) => p.available === true).length;
-    const unavailableProducts = products.filter((p: any) => p.available === false).length;
-    const lowStockProducts = products.filter((p: any) => {
-        // Calculate actual quantity from stocks if available
-        if (p.stocks && p.stocks.length > 0) {
-            const totalStock = p.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
-            return totalStock <= (p.low_stock_quantity || 10);
-        }
-        return (Number(p.quantity) || 0) <= (p.low_stock_quantity || 10);
-    }).length;
-    const outOfStockProducts = products.filter((p: any) => {
-        // Calculate actual quantity from stocks if available
-        if (p.stocks && p.stocks.length > 0) {
-            const totalStock = p.stocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
-            return totalStock === 0;
-        }
-        return (Number(p.quantity) || 0) === 0;
-    }).length;
+    const totalProducts = summaryMeta?.total ?? summaryMeta?.count ?? fallbackStats.total ?? totalRecords;
+    const availableProducts = summaryMeta?.available ?? summaryMeta?.active ?? fallbackStats.available;
+    const unavailableProducts = summaryMeta?.unavailable ?? summaryMeta?.inactive ?? fallbackStats.unavailable;
+    const lowStockProducts = summaryMeta?.low_stock ?? summaryMeta?.lowStock ?? fallbackStats.lowStock;
+    const outOfStockProducts = summaryMeta?.out_of_stock ?? summaryMeta?.outOfStock ?? fallbackStats.outOfStock;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
@@ -311,7 +397,6 @@ const ProductTable = () => {
                         <table className="w-full">
                             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                                 <tr>
-                                    {' '}
                                     <th
                                         className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
                                         onClick={() => handleSort('sku')}
@@ -354,7 +439,7 @@ const ProductTable = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                                {currentProducts.map((product: any, index: number) => {
+                                {products.map((product: any, index: number) => {
                                     // Calculate actual quantity from stocks if available
                                     const actualQuantity =
                                         product.stocks && product.stocks.length > 0
@@ -545,29 +630,69 @@ const ProductTable = () => {
                             </tbody>
                         </table>
                         {/* Items per page and results info */}
-                        <div className="mb-6 mt-6 flex items-center justify-between rounded-xl border bg-white p-4 shadow-sm">
+                        <div className="mb-6 mt-6 flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
                             <div className="text-sm text-gray-600">
-                                Showing <span className="font-medium">{filteredAndSortedProducts.length}</span> products
-                                {apiParams.search && <span> matching &quot;{apiParams.search}&quot;</span>}
+                                {totalRecords === 0 ? (
+                                    <>
+                                        Showing <span className="font-medium">0</span> products
+                                    </>
+                                ) : (
+                                    <>
+                                        Showing <span className="font-medium">{startRecord}</span>-<span className="font-medium">{endRecord}</span> of{' '}
+                                        <span className="font-medium">{totalRecords}</span> products
+                                    </>
+                                )}
+                                {apiParams.search && totalRecords > 0 && <span> matching &quot;{apiParams.search}&quot;</span>}
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className="whitespace-nowrap text-sm text-gray-600">Show:</span>
-                                <select
-                                    value={itemsPerPage}
-                                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                                    className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                >
-                                    <option value={10}>10</option>
-                                    <option value={20}>20</option>
-                                    <option value={30}>30</option>
-                                    <option value={100}>100</option>
-                                </select>
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="whitespace-nowrap text-sm text-gray-600">Show:</span>
+                                    <select
+                                        value={itemsPerPage}
+                                        onChange={(e) => {
+                                            const value = Number(e.target.value);
+                                            goToPage(1);
+                                            setItemsPerPage(value);
+                                        }}
+                                        className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    >
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={30}>30</option>
+                                        <option value={100}>100</option>
+                                    </select>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => goToPage(activePage - 1)}
+                                        disabled={activePage <= 1}
+                                        className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                                            activePage <= 1 ? 'cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        Previous
+                                    </button>
+                                    <span className="text-sm text-gray-600">
+                                        Page <span className="font-medium">{totalRecords === 0 ? 0 : activePage}</span> of <span className="font-medium">{totalRecords === 0 ? 0 : totalPages}</span>
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => goToPage(activePage + 1)}
+                                        disabled={activePage >= totalPages || totalRecords === 0}
+                                        className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                                            activePage >= totalPages || totalRecords === 0 ? 'cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Empty state */}
-                    {currentProducts.length === 0 && (
+                    {products.length === 0 && (
                         <div className="py-16 text-center">
                             <Package className="mx-auto mb-4 h-16 w-16 text-gray-400" />
                             <h3 className="mb-2 text-lg font-semibold text-gray-900">No products found</h3>

@@ -17,7 +17,7 @@ const tabs: Tab[] = [
     { id: 'attributes', label: 'Attributes', icon: Tag },
     { id: 'variants', label: 'Variants', icon: Sliders },
     { id: 'warranty', label: 'Warranty', icon: Shield },
-    { id: 'serial', label: 'Serial', icon: Hash },
+    { id: 'serial', label: 'Serial/IMEI', icon: Hash },
     { id: 'tax', label: 'Tax', icon: Receipt },
     { id: 'sku', label: 'SKU', icon: Barcode },
     { id: 'images', label: 'Images', icon: ImageIcon },
