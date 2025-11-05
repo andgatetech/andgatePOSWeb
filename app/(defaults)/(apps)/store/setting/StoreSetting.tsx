@@ -1,10 +1,10 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
-import { useGetStoreQuery, useUpdateStoreMutation } from '@/store/features/store/storeApi';
+import { useCreatePaymentMethodMutation, useDeletePaymentMethodMutation, useGetStoreQuery, useUpdatePaymentMethodMutation, useUpdateStoreMutation } from '@/store/features/store/storeApi';
 import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -16,21 +16,35 @@ import BasicInfoTab from './tabs/BasicInfoTab';
 import BrandingTab from './tabs/BrandingTab';
 import LoyaltyProgramTab from './tabs/LoyaltyProgramTab';
 import OperatingHoursTab from './tabs/OperatingHoursTab';
+import PaymentMethodsTab, { PaymentMethodForm } from './tabs/PaymentMethodsTab';
 import StoreStatusTab from './tabs/StoreStatusTab';
 
 import UnitsTab from './tabs/UnitsTab';
 import WarrantyTypesTab from './tabs/WarrantyTypesTab';
 
+const createEmptyPaymentMethodForm = (): PaymentMethodForm => ({
+    payment_method_name: '',
+    payment_details_number: '',
+    description: '',
+    notes: '',
+    is_active: true,
+});
+
+const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'warranty', 'loyalty', 'branding', 'status'] as const;
+
 const StoreSetting = () => {
     const searchParams = useSearchParams();
     const { currentStore } = useCurrentStore();
     const storeId = currentStore?.id;
+    const tabQuery = searchParams?.get('tab');
 
     // Get store ID from URL search params or fall back to current store
     const {
         data: storeData,
         isLoading,
+        isFetching,
         error,
+        refetch: refetchStore,
     } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined, {
         skip: !storeId,
     });
@@ -54,19 +68,72 @@ const StoreSetting = () => {
     const [logoPreview, setLogoPreview] = useState<any>(null);
     const [message, setMessage] = useState({ type: '', text: '' });
     const [unitName, setUnitName] = useState('');
+    const [paymentMethodForm, setPaymentMethodForm] = useState<PaymentMethodForm>(createEmptyPaymentMethodForm());
+    const [editingPaymentMethodId, setEditingPaymentMethodId] = useState<number | null>(null);
+    const [editingPaymentMethodForm, setEditingPaymentMethodForm] = useState<PaymentMethodForm>(createEmptyPaymentMethodForm());
+
+    useEffect(() => {
+        if (tabQuery && (VALID_SETTING_TABS as readonly string[]).includes(tabQuery)) {
+            setActiveTab(tabQuery);
+        }
+    }, [tabQuery]);
 
     // Use store data directly instead of separate API calls
     const attributesData = storeData?.data?.product_attributes || [];
     const warrantyTypesData = storeData?.data?.warranty_types || [];
 
+    const paymentMethods = useMemo(() => {
+        const payload = storeData?.data?.payment_methods;
+        return Array.isArray(payload) ? payload : [];
+    }, [storeData]);
+
     // Keep mutation APIs for CRUD operations
     const [createAttribute] = useCreateProductAttributeMutation();
     const [updateAttribute] = useUpdateProductAttributeMutation();
     const [deleteAttribute] = useDeleteProductAttributeMutation();
+    const [createPaymentMethod] = useCreatePaymentMethodMutation();
+    const [updatePaymentMethodMutation] = useUpdatePaymentMethodMutation();
+    const [deletePaymentMethodMutation] = useDeletePaymentMethodMutation();
 
     const [attributeName, setAttributeName] = useState('');
     const [editingAttributeId, setEditingAttributeId] = useState<number | null>(null);
     const [editingAttributeName, setEditingAttributeName] = useState('');
+
+    const parseIsActive = (value: any) => value === true || value === 1 || value === '1' || value === 'true';
+
+    const setNewPaymentMethodField = (field: keyof PaymentMethodForm, value: string | boolean) => {
+        setPaymentMethodForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const setEditingPaymentMethodField = (field: keyof PaymentMethodForm, value: string | boolean) => {
+        setEditingPaymentMethodForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const resetNewPaymentMethodForm = () => {
+        setPaymentMethodForm(createEmptyPaymentMethodForm());
+    };
+
+    const startEditingPaymentMethod = (method: any) => {
+        setEditingPaymentMethodId(method.id);
+        setEditingPaymentMethodForm({
+            payment_method_name: method.payment_method_name || '',
+            payment_details_number: method.payment_details_number || '',
+            description: method.description || '',
+            notes: method.notes || '',
+            is_active: parseIsActive(method.is_active),
+        });
+    };
+
+    const cancelEditingPaymentMethod = () => {
+        setEditingPaymentMethodId(null);
+        setEditingPaymentMethodForm(createEmptyPaymentMethodForm());
+    };
 
     // Clear messages after 5 seconds
     useEffect(() => {
@@ -77,6 +144,12 @@ const StoreSetting = () => {
             return () => clearTimeout(timer);
         }
     }, [message.text]);
+
+    useEffect(() => {
+        setPaymentMethodForm(createEmptyPaymentMethodForm());
+        setEditingPaymentMethodId(null);
+        setEditingPaymentMethodForm(createEmptyPaymentMethodForm());
+    }, [storeId]);
 
     // Populate form with existing data
     useEffect(() => {
@@ -331,6 +404,142 @@ const StoreSetting = () => {
         }
     };
 
+    // Payment Methods Management Functions
+    const handleCreatePaymentMethod = async () => {
+        if (!paymentMethodForm.payment_method_name.trim()) {
+            setMessage({ type: 'error', text: 'Payment method name is required' });
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected. Cannot create payment method.' });
+            return;
+        }
+
+        try {
+            const payload: any = {
+                store_id: storeId,
+                payment_method_name: paymentMethodForm.payment_method_name.trim(),
+                description: paymentMethodForm.description?.trim() || null,
+                notes: paymentMethodForm.notes?.trim() || null,
+            };
+
+            const trimmedReference = paymentMethodForm.payment_details_number.trim();
+            if (trimmedReference) {
+                payload.payment_details_number = trimmedReference;
+            }
+
+            await createPaymentMethod(payload).unwrap();
+
+            setMessage({ type: 'success', text: 'Payment method added successfully!' });
+            resetNewPaymentMethodForm();
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to create payment method';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleUpdatePaymentMethod = async (id: number) => {
+        if (!editingPaymentMethodForm.payment_method_name.trim()) {
+            setMessage({ type: 'error', text: 'Payment method name is required' });
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected. Cannot update payment method.' });
+            return;
+        }
+
+        try {
+            const trimmedReference = editingPaymentMethodForm.payment_details_number.trim();
+
+            await updatePaymentMethodMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    payment_method_name: editingPaymentMethodForm.payment_method_name.trim(),
+                    payment_details_number: trimmedReference.length ? trimmedReference : null,
+                    description: editingPaymentMethodForm.description?.trim() || null,
+                    notes: editingPaymentMethodForm.notes?.trim() || null,
+                    is_active: editingPaymentMethodForm.is_active ? 1 : 0,
+                },
+            }).unwrap();
+
+            setMessage({ type: 'success', text: 'Payment method updated successfully!' });
+            cancelEditingPaymentMethod();
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update payment method';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleDeletePaymentMethod = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected. Cannot delete payment method.' });
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'Delete Payment Method?',
+            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await deletePaymentMethodMutation({ id, store_id: storeId }).unwrap();
+            setMessage({ type: 'success', text: 'Payment method deleted successfully!' });
+            if (editingPaymentMethodId === id) {
+                cancelEditingPaymentMethod();
+            }
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete payment method';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
+    const handleTogglePaymentMethodActive = async (id: number, isActive: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            setMessage({ type: 'error', text: 'No valid store selected. Cannot update payment method status.' });
+            return;
+        }
+
+        const method = paymentMethods.find((pm: any) => pm.id === id);
+        if (!method) {
+            setMessage({ type: 'error', text: 'Payment method not found' });
+            return;
+        }
+
+        try {
+            await updatePaymentMethodMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    payment_method_name: method.payment_method_name,
+                    payment_details_number: typeof method.payment_details_number === 'string' && method.payment_details_number.trim().length ? method.payment_details_number.trim() : null,
+                    description: typeof method.description === 'string' && method.description.trim().length ? method.description.trim() : null,
+                    notes: typeof method.notes === 'string' && method.notes.trim().length ? method.notes.trim() : null,
+                    is_active: isActive ? 1 : 0,
+                },
+            }).unwrap();
+
+            setMessage({ type: 'success', text: `Payment method ${isActive ? 'enabled' : 'disabled'} successfully!` });
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update payment method status';
+            setMessage({ type: 'error', text: errorMessage });
+        }
+    };
+
     const handleLogoChange = (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -527,6 +736,24 @@ const StoreSetting = () => {
                         handleUpdateAttribute={handleUpdateAttribute}
                         handleDeleteAttribute={handleDeleteAttribute}
                         handleToggleActive={handleToggleAttributeActive}
+                    />
+                );
+            case 'payment':
+                return (
+                    <PaymentMethodsTab
+                        paymentMethods={paymentMethods}
+                        isLoading={isLoading || isFetching}
+                        newPaymentMethod={paymentMethodForm}
+                        setNewPaymentMethodField={setNewPaymentMethodField}
+                        handleCreatePaymentMethod={handleCreatePaymentMethod}
+                        editingPaymentMethodId={editingPaymentMethodId}
+                        editingPaymentMethod={editingPaymentMethodForm}
+                        setEditingPaymentMethodField={setEditingPaymentMethodField}
+                        startEditingPaymentMethod={startEditingPaymentMethod}
+                        cancelEditingPaymentMethod={cancelEditingPaymentMethod}
+                        handleUpdatePaymentMethod={handleUpdatePaymentMethod}
+                        handleDeletePaymentMethod={handleDeletePaymentMethod}
+                        handleTogglePaymentMethodActive={handleTogglePaymentMethodActive}
                     />
                 );
             case 'warranty':
