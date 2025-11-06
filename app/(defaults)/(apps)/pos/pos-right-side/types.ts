@@ -38,4 +38,6 @@ export interface PosFormData {
     useWholesale: boolean;
     amountPaid: number;
     changeAmount: number;
+    partialPaymentAmount: number; // Amount paid for partial payment
+    dueAmount: number; // Remaining amount for due/partial
 }

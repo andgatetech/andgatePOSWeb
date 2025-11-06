@@ -4,10 +4,23 @@ interface CashPaymentSectionProps {
     formData: PosFormData;
     onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     totalPayable: number;
+    isWalkInCustomer: boolean;
 }
 
-const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInputChange, totalPayable }) => {
+const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInputChange, totalPayable, isWalkInCustomer }) => {
+    // Only show for Cash payment method and Paid status
+    // For partial/due, the amount is handled in PaymentSummarySection
     if (!formData.paymentMethod || formData.paymentMethod.toLowerCase() !== 'cash') {
+        return null;
+    }
+
+    // Don't show for due status (no payment at all)
+    if (formData.paymentStatus === 'due') {
+        return null;
+    }
+
+    // For partial payment, the amount is handled in PaymentSummarySection
+    if (formData.paymentStatus === 'partial') {
         return null;
     }
 

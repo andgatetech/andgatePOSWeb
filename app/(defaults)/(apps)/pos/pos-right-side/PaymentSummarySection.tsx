@@ -12,6 +12,7 @@ interface PaymentSummarySectionProps {
     pointsDiscount: number;
     balanceDiscount: number;
     totalPayable: number;
+    isWalkInCustomer: boolean; // New prop to determine if walk-in customer
 }
 
 const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
@@ -26,9 +27,32 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     pointsDiscount,
     balanceDiscount,
     totalPayable,
+    isWalkInCustomer,
 }) => {
     const canUsePoints = selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
+
+    // Determine available payment statuses based on customer type
+    const getAvailablePaymentStatuses = () => {
+        if (isWalkInCustomer) {
+            // Walk-in customers can only pay fully
+            return [{ value: 'paid', label: 'Paid' }];
+        }
+
+        if (selectedCustomer) {
+            // Selected customers can have due or partial payments
+            return [
+                { value: 'paid', label: 'Paid' },
+                { value: 'partial', label: 'Partial' },
+                { value: 'due', label: 'Due' },
+            ];
+        }
+
+        // Manual entry customers (new customers) - only paid
+        return [{ value: 'paid', label: 'Paid' }];
+    };
+
+    const availablePaymentStatuses = getAvailablePaymentStatuses();
 
     return (
         <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">
@@ -115,13 +139,63 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 <label className="text-sm font-semibold sm:text-base">
                     Payment Status <span className="text-red-500">*</span>
                 </label>
-                <select name="paymentStatus" className="form-select w-full sm:w-40" value={formData.paymentStatus} onChange={onInputChange} required>
+                <select name="paymentStatus" className="form-select w-full sm:w-40" value={formData.paymentStatus} onChange={onInputChange} required disabled={isWalkInCustomer}>
                     <option value="">Select</option>
-                    <option value="paid">Paid</option>
-                    <option value="due">Due</option>
-                    <option value="partial">Partial</option>
+                    {availablePaymentStatuses.map((status) => (
+                        <option key={status.value} value={status.value}>
+                            {status.label}
+                        </option>
+                    ))}
                 </select>
             </div>
+
+            {/* Show partial payment input for partial status */}
+            {formData.paymentStatus === 'partial' && selectedCustomer && (
+                <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                        <label className="text-sm font-semibold text-blue-700">Partial Payment Amount:</label>
+                        <span className="text-xs text-blue-600">Total: ৳{totalPayable.toFixed(2)}</span>
+                    </div>
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-blue-600">৳</span>
+                        <input
+                            type="number"
+                            name="partialPaymentAmount"
+                            step="0.01"
+                            min="0"
+                            max={totalPayable}
+                            className="form-input w-full border-blue-300 pl-8 pr-4 text-lg font-semibold focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Enter amount"
+                            value={formData.partialPaymentAmount || ''}
+                            onChange={onInputChange}
+                        />
+                    </div>
+                    {formData.partialPaymentAmount > 0 && formData.partialPaymentAmount < totalPayable && (
+                        <div className="mt-2 flex justify-between text-sm">
+                            <span className="text-blue-600">Remaining Due:</span>
+                            <span className="font-semibold text-red-600">৳{(totalPayable - formData.partialPaymentAmount).toFixed(2)}</span>
+                        </div>
+                    )}
+                    {formData.partialPaymentAmount >= totalPayable && <div className="mt-2 text-sm text-amber-600">⚠️ Amount equals or exceeds total. Consider selecting &quot;Paid&quot; status.</div>}
+                </div>
+            )}
+
+            {/* Show due amount info for due status */}
+            {formData.paymentStatus === 'due' && selectedCustomer && (
+                <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
+                    <div className="flex items-center gap-2">
+                        <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm font-semibold text-red-700">Full Amount Due</span>
+                    </div>
+                    <div className="mt-2 flex justify-between border-t border-red-200 pt-2">
+                        <span className="text-sm text-red-600">Total Due Amount:</span>
+                        <span className="text-lg font-bold text-red-700">৳{totalPayable.toFixed(2)}</span>
+                    </div>
+                    <div className="mt-2 text-xs text-red-600">This amount will be recorded as due for customer: {selectedCustomer.name}</div>
+                </div>
+            )}
 
             <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
                 <span>Subtotal (without tax)</span>
@@ -154,9 +228,61 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 </div>
             )}
             <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
-                <span>Total Payable</span>
+                <span>Grand Total</span>
                 <span>৳{totalPayable.toFixed(2)}</span>
             </div>
+
+            {/* Payment Breakdown Summary for Partial/Due */}
+            {formData.paymentStatus === 'partial' && formData.partialPaymentAmount > 0 && (
+                <>
+                    <div className="mt-3 rounded-lg border-2 border-blue-300 bg-blue-50 p-3">
+                        <div className="mb-2 text-center text-sm font-semibold text-blue-800">Payment Breakdown</div>
+                        <div className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-green-700">Amount Paying Now:</span>
+                                <span className="font-semibold text-green-800">৳{formData.partialPaymentAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between border-t border-blue-200 pt-1 text-sm">
+                                <span className="text-red-700">Amount Due Later:</span>
+                                <span className="font-bold text-red-800">৳{(totalPayable - formData.partialPaymentAmount).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-50 p-3 text-blue-900 shadow-sm">
+                        <span className="text-lg font-bold">Total Payable Now</span>
+                        <span className="text-2xl font-black">৳{formData.partialPaymentAmount.toFixed(2)}</span>
+                    </div>
+                </>
+            )}
+
+            {formData.paymentStatus === 'due' && selectedCustomer && (
+                <>
+                    <div className="mt-3 rounded-lg border-2 border-red-300 bg-red-50 p-3">
+                        <div className="mb-2 text-center text-sm font-semibold text-red-800">Payment Summary</div>
+                        <div className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-700">Amount Paying Now:</span>
+                                <span className="font-semibold text-gray-800">৳0.00</span>
+                            </div>
+                            <div className="flex justify-between border-t border-red-200 pt-1">
+                                <span className="text-red-700">Full Amount Due:</span>
+                                <span className="text-lg font-bold text-red-800">৳{totalPayable.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex justify-between rounded-lg bg-gradient-to-r from-red-100 to-red-50 p-3 text-red-900 shadow-sm">
+                        <span className="text-lg font-bold">Total Payable Now</span>
+                        <span className="text-2xl font-black">৳0.00</span>
+                    </div>
+                </>
+            )}
+
+            {formData.paymentStatus === 'paid' && (
+                <div className="flex justify-between rounded-lg bg-gradient-to-r from-green-100 to-green-50 p-3 text-green-900 shadow-sm">
+                    <span className="text-lg font-bold">Total Payable Now</span>
+                    <span className="text-2xl font-black">৳{totalPayable.toFixed(2)}</span>
+                </div>
+            )}
         </div>
     );
 };
