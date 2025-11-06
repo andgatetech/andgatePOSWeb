@@ -33,7 +33,7 @@ const ProductSearchPanel = ({ onProductSelect, selectedProducts }: ProductSearch
     const { data: brandsData, isLoading: brandLoading } = useGetBrandsQuery({});
     const { data: categoriesData, isLoading: catLoading } = useGetCategoryQuery({});
 
-    const products = productsData?.data || [];
+    const products = productsData?.data?.items || [];
 
     const handleCategorySelect = (cat: any) => {
         setSelectedCategory(cat);
