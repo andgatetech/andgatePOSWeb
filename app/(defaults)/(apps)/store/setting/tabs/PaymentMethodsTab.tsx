@@ -1,5 +1,6 @@
-import { Check, Loader2, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import Dropdown from './Dropdown';
 
 export interface PaymentMethodForm {
     payment_method_name: string;
@@ -40,7 +41,20 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
     handleDeletePaymentMethod,
     handleTogglePaymentMethodActive,
 }) => {
-    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculate pagination
+    const totalItems = paymentMethods?.length || 0;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = paymentMethods?.slice(startIndex, endIndex) || [];
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     const renderActiveToggle = (isActive: boolean, onToggle: () => void, labelId: string) => (
         <label className="relative inline-flex cursor-pointer items-center" htmlFor={labelId}>
@@ -117,7 +131,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                 </div>
 
                 {/* Payment Methods Table */}
-                <div className="relative overflow-x-auto">
+                <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
@@ -137,8 +151,8 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                         <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
                                     </td>
                                 </tr>
-                            ) : paymentMethods && paymentMethods.length > 0 ? (
-                                paymentMethods.map((method: any, index: number) => {
+                            ) : paginatedData && paginatedData.length > 0 ? (
+                                paginatedData.map((method: any) => {
                                     const isEditing = editingPaymentMethodId === method.id;
                                     const activeValue = method.is_active === true || method.is_active === 1 || method.is_active === '1';
 
@@ -203,9 +217,10 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                       )
                                                     : renderActiveToggle(activeValue, () => handleTogglePaymentMethodActive(method.id, !activeValue), `payment-method-active-${method.id}`)}
                                             </td>
-                                            <td className="px-4 py-3 text-center">
+                                            {/* Actions */}
+                                            <td className="px-4 py-3">
                                                 {isEditing ? (
-                                                    <div className="inline-flex gap-1">
+                                                    <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             type="button"
                                                             onClick={() => handleUpdatePaymentMethod(method.id)}
@@ -219,48 +234,32 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="relative inline-flex justify-end">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setOpenDropdown(openDropdown === method.id ? null : method.id)}
-                                                            className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+                                                    <div className="flex justify-center">
+                                                        <Dropdown
+                                                            offset={[0, 5]}
+                                                            placement="bottom-end"
+                                                            btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                                            button={<MoreVertical className="h-5 w-5" />}
                                                         >
-                                                            <MoreVertical className="h-5 w-5" />
-                                                        </button>
-
-                                                        {openDropdown === method.id && (
-                                                            <>
-                                                                <div className="fixed inset-0 z-[100]" onClick={() => setOpenDropdown(null)} />
-                                                                <div
-                                                                    className={`absolute right-0 z-[101] min-w-[160px] rounded-lg border border-gray-200 bg-white py-1 shadow-xl ${
-                                                                        index > paymentMethods.length / 2 ? 'bottom-8' : 'top-8'
-                                                                    }`}
-                                                                >
+                                                            <ul className="min-w-[120px] rounded-lg border bg-white shadow-lg">
+                                                                <li>
                                                                     <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            startEditingPaymentMethod(method);
-                                                                            setOpenDropdown(null);
-                                                                        }}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-emerald-50"
+                                                                        onClick={() => startEditingPaymentMethod(method)}
+                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                     >
-                                                                        <Pencil className="h-4 w-4 text-emerald-600" />
-                                                                        Edit
+                                                                        Edit Method
                                                                     </button>
+                                                                </li>
+                                                                <li className="border-t">
                                                                     <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            handleDeletePaymentMethod(method.id, method.payment_method_name);
-                                                                            setOpenDropdown(null);
-                                                                        }}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50"
+                                                                        onClick={() => handleDeletePaymentMethod(method.id, method.payment_method_name)}
+                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                     >
-                                                                        <Trash2 className="h-4 w-4 text-red-600" />
-                                                                        Delete
+                                                                        Delete Method
                                                                     </button>
-                                                                </div>
-                                                            </>
-                                                        )}
+                                                                </li>
+                                                            </ul>
+                                                        </Dropdown>
                                                     </div>
                                                 )}
                                             </td>
@@ -277,6 +276,47 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between border-t pt-4">
+                        <div className="text-sm text-gray-600">
+                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
+                            <span className="font-semibold">{totalItems}</span> payment methods
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Previous
+                            </button>
+                            <div className="flex gap-1">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`rounded px-3 py-1.5 text-sm font-medium ${
+                                            currentPage === page ? 'bg-emerald-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Total Count */}
                 {paymentMethods && paymentMethods.length > 0 && (

@@ -3,10 +3,10 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
 import { useCreatePaymentMethodMutation, useDeletePaymentMethodMutation, useGetStoreQuery, useUpdatePaymentMethodMutation, useUpdateStoreMutation } from '@/store/features/store/storeApi';
 import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
-import Swal from 'sweetalert2';
 
 // Import Tab Components
 import MobileStoreSettingFAB from './MobileStoreSettingFAB';
@@ -183,11 +183,11 @@ const StoreSetting = () => {
     // Units management functions
     const handleCreateUnit = async () => {
         if (!unitName.trim()) {
-            setMessage({ type: 'error', text: 'Please enter unit name' });
+            showErrorDialog('Error', 'Please enter unit name');
             return;
         }
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot create unit.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot create unit.');
             return;
         }
 
@@ -205,21 +205,21 @@ const StoreSetting = () => {
             }).unwrap();
 
             setUnitName('');
-            setMessage({ type: 'success', text: 'Unit created successfully!' });
+            showSuccessDialog('Success!', 'Unit created successfully!');
         } catch (error: any) {
             console.error('Create unit error:', error);
             const errorMessage = error?.data?.message || 'Failed to create unit';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Create Failed!', errorMessage);
         }
     };
 
     const handleUpdateUnit = async (id: number, name: string) => {
         if (!name.trim()) {
-            setMessage({ type: 'error', text: 'Unit name cannot be empty' });
+            showErrorDialog('Error', 'Unit name cannot be empty');
             return;
         }
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected.' });
+            showErrorDialog('Error', 'No valid store selected.');
             return;
         }
 
@@ -237,30 +237,21 @@ const StoreSetting = () => {
                 storeId: storeId,
             }).unwrap();
 
-            setMessage({ type: 'success', text: 'Unit updated successfully!' });
+            showSuccessDialog('Updated!', 'Unit updated successfully!');
         } catch (error: any) {
             console.error('Update unit error:', error);
             const errorMessage = error?.data?.message || 'Failed to update unit';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
     const handleDeleteUnit = async (id: number, name: string) => {
-        const result = await Swal.fire({
-            title: 'Delete Unit?',
-            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-        });
+        const confirmed = await showConfirmDialog('Delete Unit?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
 
-        if (!result.isConfirmed) return;
+        if (!confirmed) return;
 
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected.' });
+            showErrorDialog('Error', 'No valid store selected.');
             return;
         }
 
@@ -274,17 +265,17 @@ const StoreSetting = () => {
                 storeId: storeId,
             }).unwrap();
 
-            setMessage({ type: 'success', text: 'Unit deleted successfully!' });
+            showSuccessDialog('Deleted!', 'Unit deleted successfully!');
         } catch (error: any) {
             console.error('Delete unit error:', error);
             const errorMessage = error?.data?.message || 'Failed to delete unit. It may be in use by products.';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Delete Failed!', errorMessage);
         }
     };
 
     const handleToggleUnitActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected.' });
+            showErrorDialog('Error', 'No valid store selected.');
             return;
         }
 
@@ -302,32 +293,32 @@ const StoreSetting = () => {
                 storeId: storeId,
             }).unwrap();
 
-            setMessage({ type: 'success', text: 'Unit status updated successfully!' });
+            showSuccessDialog('Updated!', 'Unit status updated successfully!');
         } catch (error: any) {
             console.error('Toggle unit error:', error);
             const errorMessage = error?.data?.message || 'Failed to update unit status';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
     // Product Attributes Management Functions
     const handleCreateAttribute = async () => {
         if (!attributeName.trim()) {
-            setMessage({ type: 'error', text: 'Please enter attribute name' });
+            showErrorDialog('Error', 'Please enter attribute name');
             return;
         }
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot create attribute.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot create attribute.');
             return;
         }
         const payload = { name: attributeName.trim(), store_id: storeId };
         try {
             await createAttribute(payload).unwrap();
             setAttributeName('');
-            setMessage({ type: 'success', text: 'Attribute created successfully!' });
+            showSuccessDialog('Success!', 'Attribute created successfully!');
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to create attribute';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Create Failed!', errorMessage);
         }
     };
 
@@ -343,7 +334,7 @@ const StoreSetting = () => {
 
     const handleUpdateAttribute = async (id: number) => {
         if (!editingAttributeName.trim()) {
-            setMessage({ type: 'error', text: 'Please enter attribute name' });
+            showErrorDialog('Error', 'Please enter attribute name');
             return;
         }
 
@@ -351,33 +342,24 @@ const StoreSetting = () => {
             await updateAttribute({ id, name: editingAttributeName.trim() }).unwrap();
             setEditingAttributeId(null);
             setEditingAttributeName('');
-            setMessage({ type: 'success', text: 'Attribute updated successfully!' });
+            showSuccessDialog('Updated!', 'Attribute updated successfully!');
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to update attribute';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
     const handleDeleteAttribute = async (id: number, name: string) => {
-        const result = await Swal.fire({
-            title: 'Delete Attribute?',
-            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-        });
+        const confirmed = await showConfirmDialog('Delete Attribute?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
 
-        if (result.isConfirmed) {
-            try {
-                await deleteAttribute(id).unwrap();
-                setMessage({ type: 'success', text: 'Attribute deleted successfully!' });
-            } catch (error: any) {
-                const errorMessage = error?.data?.message || 'Failed to delete attribute. It may be in use by products.';
-                setMessage({ type: 'error', text: errorMessage });
-            }
+        if (!confirmed) return;
+
+        try {
+            await deleteAttribute(id).unwrap();
+            showSuccessDialog('Deleted!', 'Attribute deleted successfully!');
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete attribute. It may be in use by products.';
+            showErrorDialog('Delete Failed!', errorMessage);
         }
     };
 
@@ -386,7 +368,7 @@ const StoreSetting = () => {
             // Get current attribute
             const currentAttribute = attributesData.find((attr: any) => attr.id === id);
             if (!currentAttribute) {
-                setMessage({ type: 'error', text: 'Attribute not found' });
+                showErrorDialog('Error', 'Attribute not found');
                 return;
             }
 
@@ -396,23 +378,23 @@ const StoreSetting = () => {
                 store_id: storeId,
                 is_active: isActive ? 1 : 0, // Convert boolean to number
             }).unwrap();
-            setMessage({ type: 'success', text: 'Attribute status updated successfully!' });
+            showSuccessDialog('Updated!', 'Attribute status updated successfully!');
         } catch (error: any) {
             console.error('Toggle attribute error:', error);
             const errorMessage = error?.data?.message || 'Failed to update attribute status';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
     // Payment Methods Management Functions
     const handleCreatePaymentMethod = async () => {
         if (!paymentMethodForm.payment_method_name.trim()) {
-            setMessage({ type: 'error', text: 'Payment method name is required' });
+            showErrorDialog('Error', 'Payment method name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot create payment method.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot create payment method.');
             return;
         }
 
@@ -431,23 +413,23 @@ const StoreSetting = () => {
 
             await createPaymentMethod(payload).unwrap();
 
-            setMessage({ type: 'success', text: 'Payment method added successfully!' });
+            showSuccessDialog('Success!', 'Payment method added successfully!');
             resetNewPaymentMethodForm();
             await refetchStore();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to create payment method';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Create Failed!', errorMessage);
         }
     };
 
     const handleUpdatePaymentMethod = async (id: number) => {
         if (!editingPaymentMethodForm.payment_method_name.trim()) {
-            setMessage({ type: 'error', text: 'Payment method name is required' });
+            showErrorDialog('Error', 'Payment method name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot update payment method.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot update payment method.');
             return;
         }
 
@@ -466,56 +448,47 @@ const StoreSetting = () => {
                 },
             }).unwrap();
 
-            setMessage({ type: 'success', text: 'Payment method updated successfully!' });
+            showSuccessDialog('Updated!', 'Payment method updated successfully!');
             cancelEditingPaymentMethod();
             await refetchStore();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to update payment method';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
     const handleDeletePaymentMethod = async (id: number, name: string) => {
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot delete payment method.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot delete payment method.');
             return;
         }
 
-        const result = await Swal.fire({
-            title: 'Delete Payment Method?',
-            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-        });
+        const confirmed = await showConfirmDialog('Delete Payment Method?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
 
-        if (!result.isConfirmed) return;
+        if (!confirmed) return;
 
         try {
             await deletePaymentMethodMutation({ id, store_id: storeId }).unwrap();
-            setMessage({ type: 'success', text: 'Payment method deleted successfully!' });
+            showSuccessDialog('Deleted!', 'Payment method deleted successfully!');
             if (editingPaymentMethodId === id) {
                 cancelEditingPaymentMethod();
             }
             await refetchStore();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to delete payment method';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Delete Failed!', errorMessage);
         }
     };
 
     const handleTogglePaymentMethodActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot update payment method status.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot update payment method status.');
             return;
         }
 
         const method = paymentMethods.find((pm: any) => pm.id === id);
         if (!method) {
-            setMessage({ type: 'error', text: 'Payment method not found' });
+            showErrorDialog('Error', 'Payment method not found');
             return;
         }
 
@@ -532,11 +505,11 @@ const StoreSetting = () => {
                 },
             }).unwrap();
 
-            setMessage({ type: 'success', text: `Payment method ${isActive ? 'enabled' : 'disabled'} successfully!` });
+            showSuccessDialog('Updated!', `Payment method ${isActive ? 'enabled' : 'disabled'} successfully!`);
             await refetchStore();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to update payment method status';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
@@ -544,11 +517,11 @@ const StoreSetting = () => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.type.startsWith('image/')) {
-                setMessage({ type: 'error', text: 'Please select a valid image file' });
+                showErrorDialog('Error', 'Please select a valid image file');
                 return;
             }
             if (file.size > 2 * 1024 * 1024) {
-                setMessage({ type: 'error', text: 'Image size must be less than 2MB' });
+                showErrorDialog('Error', 'Image size must be less than 2MB');
                 return;
             }
 
@@ -586,7 +559,7 @@ const StoreSetting = () => {
 
         // Basic validation
         if (!formData.store_name.trim()) {
-            setMessage({ type: 'error', text: 'Store name is required' });
+            showErrorDialog('Error', 'Store name is required');
             return;
         }
 
@@ -596,7 +569,7 @@ const StoreSetting = () => {
             const closeTime = new Date(`1970-01-01T${formData.closing_time}`);
 
             if (openTime >= closeTime) {
-                setMessage({ type: 'error', text: 'Opening time must be before closing time' });
+                showErrorDialog('Error', 'Opening time must be before closing time');
                 return;
             }
         }
@@ -631,7 +604,7 @@ const StoreSetting = () => {
                 updateData,
                 storeId: storeId || undefined,
             }).unwrap();
-            setMessage({ type: 'success', text: response.message || 'Store updated successfully!' });
+            showSuccessDialog('Success!', response.message || 'Store updated successfully!');
 
             if (logoFile) {
                 setLogoFile(null);
@@ -656,10 +629,10 @@ const StoreSetting = () => {
                     }
                 });
 
-                setMessage({ type: 'error', text: errorMessages.join('. ') });
+                showErrorDialog('Update Failed!', errorMessages.join('. '));
             } else {
                 const errorMessage = err?.data?.error || err?.data?.message || 'Failed to update store';
-                setMessage({ type: 'error', text: errorMessage });
+                showErrorDialog('Update Failed!', errorMessage);
             }
         }
     };

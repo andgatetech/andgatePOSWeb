@@ -1,7 +1,8 @@
 'use client';
 
-import { Check, Loader2, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import Dropdown from './Dropdown';
 
 interface AttributesTabProps {
     storeId: number | undefined;
@@ -36,7 +37,21 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
     handleDeleteAttribute,
     handleToggleActive,
 }) => {
-    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculate pagination
+    const totalItems = attributesData?.length || 0;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = attributesData?.slice(startIndex, endIndex) || [];
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
     return (
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
@@ -59,7 +74,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                 </div>
 
                 {/* Attributes Table */}
-                <div className="relative overflow-x-auto">
+                <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
@@ -76,8 +91,8 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                         <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
                                     </td>
                                 </tr>
-                            ) : attributesData && attributesData.length > 0 ? (
-                                attributesData.map((attribute: any, index: number) => (
+                            ) : paginatedData && paginatedData.length > 0 ? (
+                                paginatedData.map((attribute: any) => (
                                     <tr key={attribute.id} className="border-b hover:bg-gray-50">
                                         <td className="px-4 py-3 text-sm text-gray-600">{attribute.id}</td>
                                         <td className="px-4 py-3">
@@ -86,7 +101,9 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                     type="text"
                                                     value={editingAttributeName}
                                                     onChange={(e) => setEditingAttributeName(e.target.value)}
+                                                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateAttribute(attribute.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                    placeholder="Enter attribute name"
                                                     autoFocus
                                                 />
                                             ) : (
@@ -95,13 +112,19 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <label className="relative inline-flex cursor-pointer items-center">
-                                                <input type="checkbox" checked={attribute.is_active} onChange={() => handleToggleActive(attribute.id, !attribute.is_active)} className="peer sr-only" />
+                                                <input
+                                                    type="checkbox"
+                                                    checked={attribute.is_active === true || attribute.is_active === 1}
+                                                    onChange={() => handleToggleActive(attribute.id, !(attribute.is_active === true || attribute.is_active === 1))}
+                                                    className="peer sr-only"
+                                                />
                                                 <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
                                             </label>
                                         </td>
-                                        <td className="px-4 py-3 text-center">
+                                        {/* Actions */}
+                                        <td className="px-4 py-3">
                                             {editingAttributeId === attribute.id ? (
-                                                <div className="inline-flex gap-1">
+                                                <div className="flex items-center justify-center gap-2">
                                                     <button
                                                         type="button"
                                                         onClick={() => handleUpdateAttribute(attribute.id)}
@@ -115,48 +138,32 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="relative inline-flex justify-end">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setOpenDropdown(openDropdown === attribute.id ? null : attribute.id)}
-                                                        className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+                                                <div className="flex justify-center">
+                                                    <Dropdown
+                                                        offset={[0, 5]}
+                                                        placement="bottom-end"
+                                                        btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                                        button={<MoreVertical className="h-5 w-5" />}
                                                     >
-                                                        <MoreVertical className="h-5 w-5" />
-                                                    </button>
-
-                                                    {openDropdown === attribute.id && (
-                                                        <>
-                                                            <div className="fixed inset-0 z-[100]" onClick={() => setOpenDropdown(null)} />
-                                                            <div
-                                                                className={`absolute right-0 z-[101] min-w-[140px] rounded-lg border border-gray-200 bg-white py-1 shadow-xl ${
-                                                                    index > attributesData.length / 2 ? 'bottom-8' : 'top-8'
-                                                                }`}
-                                                            >
+                                                        <ul className="min-w-[120px] rounded-lg border bg-white shadow-lg">
+                                                            <li>
                                                                 <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        startEditingAttribute(attribute.id, attribute.name);
-                                                                        setOpenDropdown(null);
-                                                                    }}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-emerald-50"
+                                                                    onClick={() => startEditingAttribute(attribute.id, attribute.name)}
+                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    <Pencil className="h-4 w-4 text-emerald-600" />
-                                                                    Edit
+                                                                    Edit Attribute
                                                                 </button>
+                                                            </li>
+                                                            <li className="border-t">
                                                                 <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        handleDeleteAttribute(attribute.id, attribute.name);
-                                                                        setOpenDropdown(null);
-                                                                    }}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50"
+                                                                    onClick={() => handleDeleteAttribute(attribute.id, attribute.name)}
+                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                 >
-                                                                    <Trash2 className="h-4 w-4 text-red-600" />
-                                                                    Delete
+                                                                    Delete Attribute
                                                                 </button>
-                                                            </div>
-                                                        </>
-                                                    )}
+                                                            </li>
+                                                        </ul>
+                                                    </Dropdown>
                                                 </div>
                                             )}
                                         </td>
@@ -172,6 +179,47 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between border-t pt-4">
+                        <div className="text-sm text-gray-600">
+                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
+                            <span className="font-semibold">{totalItems}</span> attributes
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Previous
+                            </button>
+                            <div className="flex gap-1">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`rounded px-3 py-1.5 text-sm font-medium ${
+                                            currentPage === page ? 'bg-emerald-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Total Count */}
                 {attributesData && attributesData.length > 0 && (

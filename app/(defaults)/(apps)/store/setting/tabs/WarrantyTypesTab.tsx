@@ -1,9 +1,10 @@
 'use client';
 
 import { useCreateWarrantyTypeMutation, useDeleteWarrantyTypeMutation, useUpdateWarrantyTypeMutation } from '@/store/features/warrenty/WarrantyTypeApi';
-import { Check, Loader2, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
 import React, { useState } from 'react';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showSuccessDialog, showErrorDialog } from '@/lib/toast';
+import Dropdown from './Dropdown';
 
 interface WarrantyTypesTabProps {
     storeId: number | undefined;
@@ -28,25 +29,38 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         duration_days: '',
         description: '',
     });
-    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculate pagination
+    const totalItems = warrantyTypesData?.length || 0;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = warrantyTypesData?.slice(startIndex, endIndex) || [];
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     const handleCreateWarranty = async () => {
         if (!warrantyName.trim()) {
-            setMessage({ type: 'error', text: 'Please enter warranty name' });
+            showErrorDialog('Error', 'Please enter warranty name');
             return;
         }
 
-        // At least one duration must be provided
         const monthsValue = warrantyDurationMonths ? parseInt(warrantyDurationMonths) : null;
         const daysValue = warrantyDurationDays ? parseInt(warrantyDurationDays) : null;
 
         if (!monthsValue && !daysValue) {
-            setMessage({ type: 'error', text: 'Please enter at least one duration (months or days)' });
+            showErrorDialog('Error', 'Please enter at least one duration (months or days)');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            setMessage({ type: 'error', text: 'No valid store selected. Cannot create warranty type.' });
+            showErrorDialog('Error', 'No valid store selected. Cannot create warranty type.');
             return;
         }
 
@@ -55,7 +69,6 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             store_id: storeId,
         };
 
-        // Only add duration fields if they have values
         if (monthsValue !== null && monthsValue > 0) {
             payload.duration_months = monthsValue;
         }
@@ -63,12 +76,11 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             payload.duration_days = daysValue;
         }
 
-        // Add description if provided
         if (warrantyDescription.trim()) {
             payload.description = warrantyDescription.trim();
         }
 
-        console.log('Sending payload:', payload); // Debug log
+        console.log('Sending payload:', payload);
 
         try {
             await createWarrantyType(payload).unwrap();
@@ -76,11 +88,11 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             setWarrantyDurationMonths('');
             setWarrantyDurationDays('');
             setWarrantyDescription('');
-            setMessage({ type: 'success', text: 'Warranty type created successfully!' });
+            showSuccessDialog('Success!', 'Warranty type created successfully!');
         } catch (error: any) {
-            console.error('Create warranty error:', error); // Debug log
+            console.error('Create warranty error:', error);
             const errorMessage = error?.data?.message || 'Failed to create warranty type';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Create Failed!', errorMessage);
         }
     };
 
@@ -101,16 +113,15 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
 
     const handleUpdateWarranty = async (id: number) => {
         if (!editingWarrantyData.name.trim()) {
-            setMessage({ type: 'error', text: 'Please enter warranty name' });
+            showErrorDialog('Error', 'Please enter warranty name');
             return;
         }
 
-        // At least one duration must be provided
         const monthsValue = editingWarrantyData.duration_months ? parseInt(editingWarrantyData.duration_months) : null;
         const daysValue = editingWarrantyData.duration_days ? parseInt(editingWarrantyData.duration_days) : null;
 
         if (!monthsValue && !daysValue) {
-            setMessage({ type: 'error', text: 'Please enter at least one duration (months or days)' });
+            showErrorDialog('Error', 'Please enter at least one duration (months or days)');
             return;
         }
 
@@ -120,7 +131,6 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                 name: editingWarrantyData.name.trim(),
             };
 
-            // Only add duration fields if they have values
             if (monthsValue !== null && monthsValue > 0) {
                 payload.duration_months = monthsValue;
             }
@@ -128,44 +138,34 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                 payload.duration_days = daysValue;
             }
 
-            // Add description if provided
             if (editingWarrantyData.description.trim()) {
                 payload.description = editingWarrantyData.description.trim();
             }
 
-            console.log('Update payload:', payload); // Debug log
+            console.log('Update payload:', payload);
 
             await updateWarrantyType(payload).unwrap();
             setEditingWarrantyId(null);
             setEditingWarrantyData({ name: '', duration_months: '', duration_days: '', description: '' });
-            setMessage({ type: 'success', text: 'Warranty type updated successfully!' });
+            showSuccessDialog('Updated!', 'Warranty type updated successfully!');
         } catch (error: any) {
-            console.error('Update warranty error:', error); // Debug log
+            console.error('Update warranty error:', error);
             const errorMessage = error?.data?.message || 'Failed to update warranty type';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
     const handleDeleteWarranty = async (id: number, name: string) => {
-        const result = await Swal.fire({
-            title: 'Delete Warranty Type?',
-            text: `Are you sure you want to delete "${name}"? This cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-        });
+        const confirmed = await showConfirmDialog('Delete Warranty Type?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
 
-        if (result.isConfirmed) {
-            try {
-                await deleteWarrantyType(id).unwrap();
-                setMessage({ type: 'success', text: 'Warranty type deleted successfully!' });
-            } catch (error: any) {
-                const errorMessage = error?.data?.message || 'Failed to delete warranty type. It may be in use by products.';
-                setMessage({ type: 'error', text: errorMessage });
-            }
+        if (!confirmed) return;
+
+        try {
+            await deleteWarrantyType(id).unwrap();
+            showSuccessDialog('Deleted!', 'Warranty type deleted successfully!');
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete warranty type. It may be in use by products.';
+            showErrorDialog('Delete Failed!', errorMessage);
         }
     };
 
@@ -173,7 +173,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         try {
             const currentWarranty = warrantyTypesData.find((w: any) => w.id === id);
             if (!currentWarranty) {
-                setMessage({ type: 'error', text: 'Warranty type not found' });
+                showErrorDialog('Error', 'Warranty type not found');
                 return;
             }
 
@@ -183,7 +183,6 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                 is_active: isActive ? 1 : 0,
             };
 
-            // Add duration fields - at least one must exist
             if (currentWarranty.duration_months !== undefined && currentWarranty.duration_months !== null) {
                 payload.duration_months = currentWarranty.duration_months;
             }
@@ -191,19 +190,18 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                 payload.duration_days = currentWarranty.duration_days;
             }
 
-            // Add description if exists
             if (currentWarranty.description) {
                 payload.description = currentWarranty.description;
             }
 
-            console.log('Toggle payload:', payload); // Debug log
+            console.log('Toggle payload:', payload);
 
             await updateWarrantyType(payload).unwrap();
-            setMessage({ type: 'success', text: 'Warranty type status updated successfully!' });
+            showSuccessDialog('Updated!', 'Warranty type status updated successfully!');
         } catch (error: any) {
             console.error('Toggle warranty error:', error);
             const errorMessage = error?.data?.message || 'Failed to update warranty type status';
-            setMessage({ type: 'error', text: errorMessage });
+            showErrorDialog('Update Failed!', errorMessage);
         }
     };
 
@@ -248,18 +246,30 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                     <input
                         type="number"
                         value={warrantyDurationMonths}
-                        onChange={(e) => setWarrantyDurationMonths(e.target.value)}
+                        onChange={(e) => {
+                            setWarrantyDurationMonths(e.target.value);
+                            if (e.target.value) {
+                                setWarrantyDurationDays(''); // Clear days when months is filled
+                            }
+                        }}
                         placeholder="Months (optional)"
                         min="0"
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        disabled={!!warrantyDurationDays}
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                     />
                     <input
                         type="number"
                         value={warrantyDurationDays}
-                        onChange={(e) => setWarrantyDurationDays(e.target.value)}
+                        onChange={(e) => {
+                            setWarrantyDurationDays(e.target.value);
+                            if (e.target.value) {
+                                setWarrantyDurationMonths(''); // Clear months when days is filled
+                            }
+                        }}
                         placeholder="Days (optional)"
                         min="0"
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        disabled={!!warrantyDurationMonths}
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                     />
                     <input
                         type="text"
@@ -278,175 +288,202 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                     </button>
                 </div>
 
-                {/* Helper Text */}
-                <p className="mb-4 text-xs text-gray-500">* At least one duration (months or days) is required</p>
+                <p className="mb-4 text-xs text-gray-500">* Enter either months OR days (not both)</p>
 
                 {/* Warranty Types Table */}
-                <div className="overflow-visible">
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="border-b bg-gray-50">
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Duration</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Description</th>
-                                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
-                                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="border-b bg-gray-50">
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Duration</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Description</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {warrantyTypesLoading ? (
+                                <tr>
+                                    <td colSpan={6} className="px-4 py-8 text-center">
+                                        <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {warrantyTypesLoading ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-4 py-8 text-center">
-                                            <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
+                            ) : paginatedData && paginatedData.length > 0 ? (
+                                paginatedData.map((warranty: any) => (
+                                    <tr key={warranty.id} className="border-b hover:bg-gray-50">
+                                        <td className="px-4 py-3 text-sm text-gray-600">{warranty.id}</td>
+                                        <td className="px-4 py-3">
+                                            {editingWarrantyId === warranty.id ? (
+                                                <input
+                                                    type="text"
+                                                    value={editingWarrantyData.name}
+                                                    onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, name: e.target.value })}
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                />
+                                            ) : (
+                                                <span className="text-sm font-medium text-gray-900">{warranty.name}</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {editingWarrantyId === warranty.id ? (
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="number"
+                                                        value={editingWarrantyData.duration_months}
+                                                        onChange={(e) => {
+                                                            setEditingWarrantyData({
+                                                                ...editingWarrantyData,
+                                                                duration_months: e.target.value,
+                                                                duration_days: e.target.value ? '' : editingWarrantyData.duration_days,
+                                                            });
+                                                        }}
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                                        min="0"
+                                                        placeholder="Months"
+                                                        disabled={!!editingWarrantyData.duration_days}
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        value={editingWarrantyData.duration_days}
+                                                        onChange={(e) => {
+                                                            setEditingWarrantyData({
+                                                                ...editingWarrantyData,
+                                                                duration_days: e.target.value,
+                                                                duration_months: e.target.value ? '' : editingWarrantyData.duration_months,
+                                                            });
+                                                        }}
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                                        min="0"
+                                                        placeholder="Days"
+                                                        disabled={!!editingWarrantyData.duration_months}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <span className="text-sm text-gray-700">{formatDuration(warranty.duration_months, warranty.duration_days)}</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {editingWarrantyId === warranty.id ? (
+                                                <input
+                                                    type="text"
+                                                    value={editingWarrantyData.description}
+                                                    onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, description: e.target.value })}
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                />
+                                            ) : (
+                                                <span className="text-sm text-gray-600">{warranty.description || '-'}</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <label className="relative inline-flex cursor-pointer items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={warranty.is_active}
+                                                    onChange={() => handleToggleWarrantyActive(warranty.id, !warranty.is_active)}
+                                                    className="peer sr-only"
+                                                />
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+                                            </label>
+                                        </td>
+                                        {/* Actions */}
+                                        <td className="px-4 py-4">
+                                            {editingWarrantyId === warranty.id ? (
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleUpdateWarranty(warranty.id)}
+                                                        className="rounded bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
+                                                        title="Save"
+                                                    >
+                                                        <Check className="h-4 w-4" />
+                                                    </button>
+                                                    <button type="button" onClick={cancelEditingWarranty} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                        <X className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <Dropdown
+                                                    offset={[0, 5]}
+                                                    placement="bottom-end"
+                                                    btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                                    button={<MoreVertical className="h-5 w-5" />}
+                                                >
+                                                    <ul className="min-w-[120px] rounded-lg border bg-white shadow-lg">
+                                                        <li>
+                                                            <button
+                                                                onClick={() => startEditingWarranty(warranty.id, warranty.name, warranty.duration_months, warranty.duration_days, warranty.description)}
+                                                                className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                            >
+                                                                Edit Warranty
+                                                            </button>
+                                                        </li>
+                                                        <li className="border-t">
+                                                            <button
+                                                                onClick={() => handleDeleteWarranty(warranty.id, warranty.name)}
+                                                                className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
+                                                            >
+                                                                Delete Warranty
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </Dropdown>
+                                            )}
                                         </td>
                                     </tr>
-                                ) : warrantyTypesData && warrantyTypesData.length > 0 ? (
-                                    warrantyTypesData.map((warranty: any, index: number) => (
-                                        <tr key={warranty.id} className="border-b hover:bg-gray-50">
-                                            <td className="px-4 py-3 text-sm text-gray-600">{warranty.id}</td>
-                                            <td className="px-4 py-3">
-                                                {editingWarrantyId === warranty.id ? (
-                                                    <input
-                                                        type="text"
-                                                        value={editingWarrantyData.name}
-                                                        onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, name: e.target.value })}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    />
-                                                ) : (
-                                                    <span className="text-sm font-medium text-gray-900">{warranty.name}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                {editingWarrantyId === warranty.id ? (
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            type="number"
-                                                            value={editingWarrantyData.duration_months}
-                                                            onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, duration_months: e.target.value })}
-                                                            className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                            min="0"
-                                                            placeholder="Months"
-                                                        />
-                                                        <input
-                                                            type="number"
-                                                            value={editingWarrantyData.duration_days}
-                                                            onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, duration_days: e.target.value })}
-                                                            className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                            min="0"
-                                                            placeholder="Days"
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-sm text-gray-700">{formatDuration(warranty.duration_months, warranty.duration_days)}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                {editingWarrantyId === warranty.id ? (
-                                                    <input
-                                                        type="text"
-                                                        value={editingWarrantyData.description}
-                                                        onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, description: e.target.value })}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    />
-                                                ) : (
-                                                    <span className="text-sm text-gray-600">{warranty.description || '-'}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <label className="relative inline-flex cursor-pointer items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={warranty.is_active}
-                                                        onChange={() => handleToggleWarrantyActive(warranty.id, !warranty.is_active)}
-                                                        className="peer sr-only"
-                                                    />
-                                                    <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
-                                                </label>
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                {editingWarrantyId === warranty.id ? (
-                                                    <div className="inline-flex gap-1">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleUpdateWarranty(warranty.id)}
-                                                            className="rounded bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
-                                                            title="Save"
-                                                        >
-                                                            <Check className="h-4 w-4" />
-                                                        </button>
-                                                        <button type="button" onClick={cancelEditingWarranty} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
-                                                            <X className="h-4 w-4" />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="relative inline-block text-left">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setOpenDropdown(openDropdown === warranty.id ? null : warranty.id)}
-                                                            className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
-                                                        >
-                                                            <MoreVertical className="h-5 w-5" />
-                                                        </button>
-
-                                                        {openDropdown === warranty.id && (
-                                                            <>
-                                                                <div className="fixed inset-0 z-[100]" onClick={() => setOpenDropdown(null)} />
-                                                                <div
-                                                                    className={`absolute right-0 z-[101] w-40 origin-top-right rounded-lg border border-gray-200 bg-white shadow-xl ${
-                                                                        index >= warrantyTypesData.length - 2 ? 'bottom-full mb-2' : 'top-full mt-2'
-                                                                    }`}
-                                                                >
-                                                                    <div className="py-1">
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                                startEditingWarranty(
-                                                                                    warranty.id,
-                                                                                    warranty.name,
-                                                                                    warranty.duration_months,
-                                                                                    warranty.duration_days,
-                                                                                    warranty.description
-                                                                                );
-                                                                                setOpenDropdown(null);
-                                                                            }}
-                                                                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-emerald-50"
-                                                                        >
-                                                                            <Pencil className="h-4 w-4 text-emerald-600" />
-                                                                            Edit
-                                                                        </button>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                                handleDeleteWarranty(warranty.id, warranty.name);
-                                                                                setOpenDropdown(null);
-                                                                            }}
-                                                                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50"
-                                                                        >
-                                                                            <Trash2 className="h-4 w-4 text-red-600" />
-                                                                            Delete
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
-                                            No warranty types added yet. Add your first warranty type above.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                                        No warranty types added yet. Add your first warranty type above.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between border-t pt-4">
+                        <div className="text-sm text-gray-600">
+                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
+                            <span className="font-semibold">{totalItems}</span> warranty types
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Previous
+                            </button>
+                            <div className="flex gap-1">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`rounded px-3 py-1.5 text-sm font-medium ${
+                                            currentPage === page ? 'bg-emerald-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Total Count */}
                 {warrantyTypesData && warrantyTypesData.length > 0 && (
