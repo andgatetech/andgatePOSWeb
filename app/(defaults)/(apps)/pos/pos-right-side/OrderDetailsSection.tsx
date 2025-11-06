@@ -1,6 +1,26 @@
 import IconShoppingCart from '@/components/icon/icon-shopping-cart';
 import IconX from '@/components/icon/icon-x';
+import { Hash, Shield } from 'lucide-react';
 import type { PosFormData } from './types';
+
+interface Serial {
+    id: number;
+    serial_number: string;
+    status: string;
+    notes?: string;
+}
+
+interface Warranty {
+    id: number;
+    warranty_type_id: number;
+    warranty_type_name: string;
+    duration_months: number | null;
+    duration_days: number | null;
+    start_date: string | null;
+    end_date: string | null;
+    status: string;
+    remaining_days: number | null;
+}
 
 interface InvoiceItem {
     id: number;
@@ -15,6 +35,10 @@ interface InvoiceItem {
     unit?: string;
     description?: string;
     isWholesale?: boolean;
+    serials?: Serial[];
+    warranty?: Warranty | null;
+    has_serial?: boolean;
+    has_warranty?: boolean;
 }
 
 interface OrderDetailsSectionProps {
@@ -100,8 +124,37 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                             invoiceItems.map((item, index) => (
                                 <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
                                     <td className="border-r border-gray-300 p-3 text-sm font-medium">
-                                        <span title={item.title}>{item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title}</span>
-                                        {item.isWholesale && <span className="ml-2 inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span title={item.title}>{item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title}</span>
+                                                {item.isWholesale && <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
+                                            </div>
+                                            {/* Serial Number Badge */}
+                                            {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                <div className="mt-1">
+                                                    <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
+                                                        <Hash className="h-3 w-3" />
+                                                        S/N: {item.serials[0].serial_number}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {/* Warranty Badge */}
+                                            {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                                <div className="mt-1">
+                                                    <span
+                                                        className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700"
+                                                        title={`${item.warranty.warranty_type_name} warranty`}
+                                                    >
+                                                        <Shield className="h-3 w-3" />
+                                                        {item.warranty.duration_months
+                                                            ? `${item.warranty.duration_months}mo`
+                                                            : item.warranty.duration_days
+                                                            ? `${item.warranty.duration_days}d`
+                                                            : 'Lifetime'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="border-r border-gray-300 p-3">
                                         {item.variantName ? (
@@ -125,15 +178,20 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                     </td>
                                     <td className="border-r border-gray-300 p-3 text-center">
                                         <div className="relative">
-                                            <input
-                                                type="number"
-                                                className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
-                                                min={0}
-                                                max={item.PlaceholderQuantity || 9999}
-                                                value={item.quantity === 0 ? '' : item.quantity}
-                                                onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                                onBlur={() => onQuantityBlur(item.id)}
-                                            />
+                                            {item.has_serial ? (
+                                                // Serialized products have fixed quantity = 1
+                                                <span className="inline-block rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">1</span>
+                                            ) : (
+                                                <input
+                                                    type="number"
+                                                    className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
+                                                    min={0}
+                                                    max={item.PlaceholderQuantity || 9999}
+                                                    value={item.quantity === 0 ? '' : item.quantity}
+                                                    onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                    onBlur={() => onQuantityBlur(item.id)}
+                                                />
+                                            )}
                                             {item.quantity === 0 && <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>}
                                         </div>
                                     </td>
@@ -201,6 +259,22 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                 <div className="flex-1">
                                     <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
                                     {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
+
+                                    {/* Serial & Warranty Badges - Mobile */}
+                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                        {item.has_serial && item.serials && item.serials.length > 0 && (
+                                            <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
+                                                <Hash className="h-3 w-3" />
+                                                S/N: {item.serials[0].serial_number}
+                                            </span>
+                                        )}
+                                        {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                            <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                                                <Shield className="h-3 w-3" />
+                                                {item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime'}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <button type="button" onClick={() => onRemoveItem(item.id)} className="ml-2 flex-shrink-0 rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
                                     <IconX className="h-4 w-4" />
@@ -210,15 +284,19 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                             <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Qty:</span>
-                                    <input
-                                        type="number"
-                                        className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                        placeholder="Quantity"
-                                        value={item.quantity === 0 ? '' : item.quantity}
-                                        onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                        onBlur={() => onQuantityBlur(item.id)}
-                                        min="0"
-                                    />
+                                    {item.has_serial ? (
+                                        <span className="font-medium">1</span>
+                                    ) : (
+                                        <input
+                                            type="number"
+                                            className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
+                                            placeholder="Quantity"
+                                            value={item.quantity === 0 ? '' : item.quantity}
+                                            onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                            onBlur={() => onQuantityBlur(item.id)}
+                                            min="0"
+                                        />
+                                    )}
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Unit:</span>

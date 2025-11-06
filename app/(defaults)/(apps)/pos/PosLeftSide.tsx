@@ -22,6 +22,7 @@ import Pagination from './pos-left-side/Pagination';
 import ProductGrid from './pos-left-side/ProductGrid';
 import SearchBar from './pos-left-side/SearchBar';
 import PosRightSide from './PosRightSide';
+import SerialSelectionModal from './SerialSelectionModal';
 import VariantSelectionModal from './VariantSelectionModal';
 
 const PosLeftSide = () => {
@@ -33,6 +34,11 @@ const PosLeftSide = () => {
     // Variant selection modal
     const [variantModalOpen, setVariantModalOpen] = useState(false);
     const [variantProduct, setVariantProduct] = useState<any>(null);
+
+    // Serial selection modal
+    const [serialModalOpen, setSerialModalOpen] = useState(false);
+    const [serialProduct, setSerialProduct] = useState<any>(null);
+    const [serialStock, setSerialStock] = useState<any>(null);
 
     // Filter states
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -54,7 +60,7 @@ const PosLeftSide = () => {
     const [showCameraScanner, setShowCameraScanner] = useState(false);
 
     const dispatch = useDispatch();
-    const itemsPerPage = 6;
+    const [itemsPerPage, setItemsPerPage] = useState(12); // Items per page for POS
 
     // Get current store from hook
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -63,15 +69,20 @@ const PosLeftSide = () => {
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
             available: 'yes', // Only show available products in POS
-            page: 1, // Get all products from first page
-            per_page: 10, // Items per page
-            sort_field: 'product_name', // Sort by product name
-            sort_direction: 'asc', // Ascending order
+            page: currentPage,
+            per_page: itemsPerPage,
+            sort_field: 'product_name',
+            sort_direction: 'asc',
         };
 
         // Always use current store from sidebar for POS
         if (currentStoreId) {
             params.store_id = currentStoreId;
+        }
+
+        // Add search filter - send to API
+        if (searchTerm && searchTerm.trim() !== '') {
+            params.search = searchTerm.trim();
         }
 
         // Add category filter - send category ID
@@ -85,7 +96,7 @@ const PosLeftSide = () => {
         }
 
         return params;
-    }, [currentStoreId, selectedCategory, selectedBrand]);
+    }, [currentStoreId, selectedCategory, selectedBrand, searchTerm, currentPage, itemsPerPage]);
 
     // Category and Brand query params for current store
     const filterQueryParams = useMemo(() => {
@@ -113,6 +124,21 @@ const PosLeftSide = () => {
         // If 404 or no products found, return empty array (don't show error)
         return [];
     }, [productsData]);
+
+    // Extract pagination metadata
+    const paginationMeta = useMemo(() => {
+        if (productsData?.data && typeof productsData.data === 'object' && !Array.isArray(productsData.data)) {
+            const dataObj = productsData.data as Record<string, any>;
+            if (dataObj.pagination) {
+                return dataObj.pagination;
+            }
+        }
+        return null;
+    }, [productsData]);
+
+    // Calculate total pages from API or fallback to client-side calculation
+    const totalRecords = paginationMeta?.total ?? products.length;
+    const totalPages = paginationMeta?.last_page ?? Math.max(1, Math.ceil(totalRecords / itemsPerPage));
 
     // Fetch categories and brands for current store
     const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(filterQueryParams);
@@ -180,6 +206,11 @@ const PosLeftSide = () => {
 
     const addToCart = useCallback(
         (product: any) => {
+            console.log('🛒 addToCart called for product:', product.product_name);
+            console.log('Has serial:', product.has_serial);
+            console.log('Has warranty:', product.has_warranty);
+            console.log('Available serials:', product.serials);
+
             // Check if product has variants
             const hasVariants = product.stocks && product.stocks.length > 0 && product.stocks.some((s: any) => s.is_variant);
 
@@ -190,7 +221,17 @@ const PosLeftSide = () => {
                 return;
             }
 
-            // Simple product (no variants) - original logic
+            // Check if product has serial numbers (for simple products)
+            if (product.has_serial && product.serials && product.serials.length > 0) {
+                // Open serial selection modal
+                console.log('🔢 Opening serial selection modal');
+                setSerialProduct(product);
+                setSerialStock(product.stocks && product.stocks.length > 0 ? product.stocks[0] : null);
+                setSerialModalOpen(true);
+                return;
+            }
+
+            // Simple product (no variants, no serials) - original logic
             const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
             if (product.available === false || totalQuantity <= 0) {
@@ -233,6 +274,9 @@ const PosLeftSide = () => {
                 tax_included: primaryStock?.tax_included === true,
                 unit: primaryStock?.unit || product.unit || 'piece',
                 isWholesale: false,
+                // Warranty support (no serials for simple add)
+                has_warranty: product.has_warranty,
+                warranty: product.has_warranty && product.warranties && product.warranties.length > 0 ? product.warranties[0] : null,
             };
 
             dispatch(addItemRedux(itemToAdd));
@@ -252,6 +296,20 @@ const PosLeftSide = () => {
         (variant: any, quantity: number, useWholesale: boolean) => {
             if (!variantProduct) return;
 
+            console.log('🎯 Variant selected:', variant);
+            console.log('Product has serial:', variantProduct.has_serial);
+
+            // If variant product has serial numbers, open serial selection modal
+            if (variantProduct.has_serial && variantProduct.serials && variantProduct.serials.length > 0) {
+                console.log('🔢 Variant has serials, opening serial modal');
+                setSerialProduct(variantProduct);
+                setSerialStock(variant);
+                setSerialModalOpen(true);
+                setVariantModalOpen(false); // Close variant modal
+                return;
+            }
+
+            // No serials - proceed with normal variant add
             const regularPrice = parseFloat(variant.price);
             const wholesalePrice = parseFloat(variant.wholesale_price);
             const price = useWholesale ? wholesalePrice : regularPrice;
@@ -288,6 +346,9 @@ const PosLeftSide = () => {
                 tax_included: variant.tax_included === true,
                 unit: variant.unit || 'piece',
                 isWholesale: useWholesale,
+                // Warranty support
+                has_warranty: variantProduct.has_warranty,
+                warranty: variantProduct.has_warranty && variantProduct.warranties && variantProduct.warranties.length > 0 ? variantProduct.warranties[0] : null,
             };
 
             dispatch(addItemRedux(itemToAdd));
@@ -302,10 +363,76 @@ const PosLeftSide = () => {
         [variantProduct, reduxItems, dispatch]
     );
 
+    // Handle serial selection from modal
+    const handleSerialSelect = useCallback(
+        (selectedSerials: any[], warranty: any) => {
+            if (!serialProduct || !serialStock) return;
+
+            console.log('🔢 Serials selected:', selectedSerials);
+            console.log('🛡️ Warranty:', warranty);
+
+            // Each serial number creates a separate cart item (quantity = 1 per serial)
+            const baseTimestamp = Date.now();
+            selectedSerials.forEach((serial, index) => {
+                const regularPrice = parseFloat(serialStock.price);
+                const wholesalePrice = parseFloat(serialStock.wholesale_price || regularPrice);
+
+                // Ensure unique ID by adding index offset to prevent collisions
+                const uniqueId = baseTimestamp + index;
+                const itemToAdd = {
+                    id: uniqueId,
+                    productId: serialProduct.id,
+                    stockId: serialStock.id,
+                    title: serialProduct.product_name,
+                    description: serialProduct.description,
+                    variantName: serialStock.variant_name,
+                    variantData: serialStock.variant_data,
+                    rate: regularPrice,
+                    regularPrice: regularPrice,
+                    wholesalePrice: wholesalePrice,
+                    quantity: 1, // Always 1 for serialized items
+                    amount: regularPrice,
+                    PlaceholderQuantity: 1, // Each serial is unique
+                    tax_rate: serialStock.tax_rate ? parseFloat(serialStock.tax_rate) : 0,
+                    tax_included: serialStock.tax_included === true,
+                    unit: serialStock.unit || 'piece',
+                    isWholesale: false,
+                    // Serial & Warranty data
+                    has_serial: true,
+                    serials: [serial], // Single serial per item
+                    has_warranty: serialProduct.has_warranty,
+                    warranty: warranty,
+                };
+
+                console.log(`📦 Adding item #${index + 1} with serial: ${serial.serial_number}, ID: ${uniqueId}`);
+                dispatch(addItemRedux(itemToAdd));
+            });
+
+            if (beepRef.current) {
+                beepRef.current.currentTime = 0;
+                beepRef.current.play().catch(() => {});
+            }
+
+            showMessage(`${selectedSerials.length} item(s) with serial numbers added!`);
+
+            // Reset filters and search
+            setSearchTerm('');
+            setSelectedCategory(null);
+            setSelectedBrand(null);
+            setCurrentPage(1);
+
+            // Close modal and reset state
+            setSerialModalOpen(false);
+            setSerialProduct(null);
+            setSerialStock(null);
+        },
+        [serialProduct, serialStock, dispatch]
+    );
+
     const handleSearchChange = useCallback(
         (value: string) => {
             setSearchTerm(value);
-            setCurrentPage(1);
+            setCurrentPage(1); // Reset to first page on search
 
             // 🔑 Auto-add when SKU format detected
             if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
@@ -531,14 +658,8 @@ const PosLeftSide = () => {
         );
     }
 
-    const filteredProducts = products.filter(
-        (p: any) =>
-            p.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase()) || p.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+    // Use products directly from API (already filtered and paginated server-side)
+    const currentProducts = products;
 
     return (
         <>
@@ -618,17 +739,7 @@ const PosLeftSide = () => {
 
                         <CameraScanner isOpen={showCameraScanner} onClose={() => setShowCameraScanner(false)} />
 
-                        <ProductGrid
-                            products={currentProducts}
-                            searchTerm={searchTerm}
-                            selectedCategory={selectedCategory}
-                            selectedBrand={selectedBrand}
-                            leftWidth={leftWidth}
-                            isMobileView={isMobileView}
-                            onAddToCart={addToCart}
-                            onImageShow={handleImageShow}
-                            onClearFilters={clearFilters}
-                        />
+                        <ProductGrid products={currentProducts} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={addToCart} onImageShow={handleImageShow} />
 
                         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </div>
@@ -664,6 +775,17 @@ const PosLeftSide = () => {
                     }}
                     product={variantProduct}
                     onSelectVariant={handleVariantSelect}
+                />
+                <SerialSelectionModal
+                    isOpen={serialModalOpen}
+                    onClose={() => {
+                        setSerialModalOpen(false);
+                        setSerialProduct(null);
+                        setSerialStock(null);
+                    }}
+                    product={serialProduct}
+                    selectedStock={serialStock}
+                    onConfirm={handleSerialSelect}
                 />
             </div>
         </>

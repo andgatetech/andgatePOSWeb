@@ -3,8 +3,45 @@
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Hash, Shield } from 'lucide-react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
+
+interface Serial {
+    id: number;
+    serial_number: string;
+    status: string;
+    notes?: string;
+}
+
+interface Warranty {
+    id: number;
+    warranty_type_id: number;
+    warranty_type_name: string;
+    duration_months: number | null;
+    duration_days: number | null;
+    start_date: string | null;
+    end_date: string | null;
+    status: string;
+    remaining_days: number | null;
+}
+
+interface InvoiceItem {
+    id: number;
+    title: string;
+    variantName?: string;
+    variantData?: Record<string, string>;
+    quantity: number;
+    unit?: string;
+    price: number;
+    amount: number;
+    tax_rate?: number;
+    tax_included?: boolean;
+    serials?: Serial[];
+    warranty?: Warranty | null;
+    has_serial?: boolean;
+    has_warranty?: boolean;
+}
 
 interface PosInvoicePreviewProps {
     data: any;
@@ -20,9 +57,27 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const { data: storeData } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined);
     const currentStore = storeData?.data || {};
 
-    const { customer = {}, items = [], totals = {}, tax = 0, discount = 0, invoice = '#INV-PREVIEW', order_id, isOrderCreated = false, payment_status, paymentMethod } = data || {};
+    const {
+        customer = {},
+        items = [],
+        totals = {},
+        tax = 0,
+        discount = 0,
+        invoice = '#INV-PREVIEW',
+        order_id,
+        isOrderCreated = false,
+        payment_status, // From backend response
+        paymentStatus, // From preview data (camelCase)
+        paymentMethod,
+    } = data || {};
 
-    const subtotal = totals.subtotal ?? totals.total ?? items.reduce((acc, item) => acc + Number(item.amount || 0), 0);
+    // Use whichever is available (backend uses payment_status, preview uses paymentStatus)
+    const displayPaymentStatus = payment_status || paymentStatus;
+
+    // Ensure items is typed correctly
+    const invoiceItems = items as InvoiceItem[];
+
+    const subtotal = totals.subtotal ?? totals.total ?? invoiceItems.reduce((acc: number, item: InvoiceItem) => acc + Number(item.amount || 0), 0);
     const calculatedTax = totals.tax ?? tax;
     const calculatedDiscount = totals.discount ?? discount;
     const grandTotal = totals.grand_total ?? subtotal + calculatedTax - calculatedDiscount;
@@ -55,17 +110,39 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const generateReceiptHTML = () => {
         const storeName = currentStore?.store_name || 'AndGatePOS';
         const storeLocation = currentStore?.store_location || 'Dhaka, Bangladesh, 1212';
-        const storeContact = currentStore?.store_contact || '+8801600000';
+        const storeContact = currentStore?.store_contact || '+8601600000';
 
         let itemsHTML = '';
-        items.forEach((item: any) => {
+        invoiceItems.forEach((item: InvoiceItem, index: number) => {
+            // Build variant info
+            let variantInfo = '';
+            if (item.variantName) {
+                variantInfo = `<div class="item-variant">${item.variantName}</div>`;
+            }
+
+            // Build serial number info
+            let serialInfo = '';
+            if (item.has_serial && item.serials && item.serials.length > 0) {
+                serialInfo = `<div class="item-serial">S/N: ${item.serials[0].serial_number}</div>`;
+            }
+
+            // Build warranty info
+            let warrantyInfo = '';
+            if (item.has_warranty && item.warranty && typeof item.warranty === 'object') {
+                const duration = item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime';
+                warrantyInfo = `<div class="item-warranty">Warranty: ${duration}</div>`;
+            }
+
             itemsHTML += `
                 <div class="item-row">
-                    <div class="item-name">${item.title}</div>
+                    <div class="item-name">${index + 1}. ${item.title}</div>
                     <div class="item-qty">${item.quantity}</div>
                     <div class="item-price">৳${Number(item.amount).toFixed(2)}</div>
                 </div>
-                <div class="item-details">${item.quantity} x ৳${Number(item.price).toFixed(2)}</div>
+                ${variantInfo}
+                ${serialInfo}
+                ${warrantyInfo}
+                <div class="item-details">${item.quantity} x ৳${Number(item.price).toFixed(2)} ${item.unit ? `(${item.unit})` : ''}</div>
             `;
         });
 
@@ -170,6 +247,28 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             color: #666;
             margin-bottom: 3px;
             padding-left: 3px;
+        }
+        
+        .item-variant {
+            font-size: 9px;
+            color: #4338ca;
+            padding-left: 3px;
+            margin-bottom: 1px;
+        }
+        
+        .item-serial {
+            font-size: 9px;
+            color: #059669;
+            padding-left: 3px;
+            margin-bottom: 1px;
+            font-weight: bold;
+        }
+        
+        .item-warranty {
+            font-size: 9px;
+            color: #059669;
+            padding-left: 3px;
+            margin-bottom: 2px;
         }
         
         .totals-section {
@@ -348,8 +447,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         
         <!-- Payment Info -->
         <div class="center">
-            <div><strong>Payment:</strong> ${paymentMethod || 'Cash'}</div>
-            <div><strong>Status:</strong> ${payment_status || 'Paid'}</div>
+            <div><strong>Payment Method:</strong> ${paymentMethod || 'Cash'}</div>
+            <div><strong>Status:</strong> <span style="color: ${
+                displayPaymentStatus?.toLowerCase() === 'paid' || displayPaymentStatus?.toLowerCase() === 'completed'
+                    ? '#059669'
+                    : displayPaymentStatus?.toLowerCase() === 'due' || displayPaymentStatus?.toLowerCase() === 'pending' || displayPaymentStatus?.toLowerCase() === 'unpaid'
+                    ? '#ca8a04'
+                    : '#dc2626'
+            };">${displayPaymentStatus || 'Pending'}</span></div>
         </div>
         
         <div class="divider"></div>
@@ -383,14 +488,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
         try {
             const receiptHTML = generateReceiptHTML();
-            
+
             // Create a Blob from the HTML
             const blob = new Blob([receiptHTML], { type: 'text/html' });
             const blobUrl = URL.createObjectURL(blob);
-            
+
             // Open in a new window/tab
             const printWindow = window.open(blobUrl, '_blank');
-            
+
             if (!printWindow) {
                 // If popup blocked, try alternative method
                 alert('Please allow popups to print receipts. Or use the Download PDF option.');
@@ -398,13 +503,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 setIsPrinting(false);
                 return;
             }
-            
+
             // Clean up the blob URL after a delay
             setTimeout(() => {
                 URL.revokeObjectURL(blobUrl);
                 setIsPrinting(false);
             }, 2000);
-            
         } catch (error) {
             console.error('Print error:', error);
             alert('Failed to open print window. Please try again.');
@@ -420,6 +524,24 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         { key: 'price', label: 'PRICE', class: 'ltr:text-right rtl:text-left' },
         { key: 'amount', label: 'AMOUNT', class: 'ltr:text-right rtl:text-left' },
     ];
+
+    // Helper to format warranty duration
+    const formatWarrantyDuration = (warranty: Warranty | null | undefined) => {
+        if (!warranty) return '';
+        if (warranty.duration_months) return `${warranty.duration_months} months`;
+        if (warranty.duration_days) return `${warranty.duration_days} days`;
+        return 'Lifetime';
+    };
+
+    // Helper to format payment status
+    const getPaymentStatusColor = (status: string) => {
+        const s = status?.toLowerCase();
+        if (s === 'paid' || s === 'completed') return 'text-green-600';
+        if (s === 'due' || s === 'unpaid' || s === 'pending') return 'text-yellow-600';
+        if (s === 'failed' || s === 'cancelled') return 'text-red-600';
+        if (s === 'partial') return 'text-orange-600';
+        return 'text-gray-600';
+    };
 
     return (
         <div>
@@ -455,14 +577,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             priority={false}
                         />
                     ) : (
-                        <Image
-                            src="/assets/images/Logo-PNG.png"
-                            alt="Default Logo"
-                            width={56}
-                            height={56}
-                            className="w-14"
-                            priority={false}
-                        />
+                        <Image src="/assets/images/Logo-PNG.png" alt="Default Logo" width={56} height={56} className="w-14" priority={false} />
                     )}
                 </div>
 
@@ -504,12 +619,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
                         <div className="sm:w-1/2 lg:w-2/5">
                             <div className="mb-2 flex justify-between">
-                                <span>Payment Status:</span>
-                                <span className="font-semibold text-green-600">{payment_status || 'Paid'}</span>
+                                <span className="text-gray-600">Payment Status:</span>
+                                <span className={`font-semibold uppercase ${getPaymentStatusColor(displayPaymentStatus || '')}`}>{displayPaymentStatus || 'Pending'}</span>
                             </div>
                             <div className="mb-2 flex justify-between">
-                                <span>Payment Method:</span>
-                                <span>{paymentMethod || 'Cash'}</span>
+                                <span className="text-gray-600">Payment Method:</span>
+                                <span className="font-medium capitalize">{paymentMethod || 'Cash'}</span>
                             </div>
                         </div>
                     </div>
@@ -519,23 +634,66 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div className="relative z-10 mt-6 overflow-auto px-4">
                     <table className="w-full table-auto border-collapse">
                         <thead>
-                            <tr>
+                            <tr className="border-b-2 border-gray-300 bg-gray-50">
                                 {columns.map((col) => (
-                                    <th key={col.key} className={`border-b py-2 ${col.class || ''}`}>
+                                    <th key={col.key} className={`px-3 py-3 text-sm font-semibold uppercase tracking-wide text-gray-700 ${col.class || ''}`}>
                                         {col.label}
                                     </th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {items.map((item, idx) => (
+                            {invoiceItems.map((item: InvoiceItem, idx: number) => (
                                 <tr key={idx}>
-                                    <td className="py-2">{idx + 1}</td>
-                                    <td className="py-2">{item.title}</td>
-                                    <td className="py-2">{item.quantity}</td>
-                                    <td className="py-2">{item.unit || 'piece'}</td>
-                                    <td className="py-2 text-right">৳{Number(item.price).toFixed(2)}</td>
-                                    <td className="py-2 text-right">৳{Number(item.amount).toFixed(2)}</td>
+                                    <td className="border-b border-gray-200 py-3">{idx + 1}</td>
+                                    <td className="border-b border-gray-200 py-3">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="font-medium text-gray-900">{item.title}</div>
+
+                                            {/* Variant Information */}
+                                            {item.variantName && (
+                                                <div className="flex flex-wrap items-center gap-1">
+                                                    <span className="text-xs text-indigo-600">Variant:</span>
+                                                    <span className="text-xs font-medium text-indigo-700">{item.variantName}</span>
+                                                </div>
+                                            )}
+
+                                            {/* Variant Attributes */}
+                                            {item.variantData && Object.keys(item.variantData).length > 0 && (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {Object.entries(item.variantData).map(([key, value]) => (
+                                                        <span key={key} className="inline-block rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-700">
+                                                            {value}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Serial Number */}
+                                            {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                <div className="flex items-center gap-1">
+                                                    <Hash className="h-3 w-3 text-indigo-600" />
+                                                    <span className="text-xs font-semibold text-indigo-700">S/N: {item.serials[0].serial_number}</span>
+                                                </div>
+                                            )}
+
+                                            {/* Warranty Information */}
+                                            {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                                <div className="flex items-center gap-1">
+                                                    <Shield className="h-3 w-3 text-green-600" />
+                                                    <span className="text-xs text-green-700">
+                                                        {item.warranty.warranty_type_name} - {formatWarrantyDuration(item.warranty)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className="border-b border-gray-200 py-3 text-center">{item.quantity}</td>
+                                    <td className="border-b border-gray-200 py-3 text-center">
+                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                    </td>
+                                    <td className="border-b border-gray-200 py-3 text-right">৳{Number(item.price).toFixed(2)}</td>
+                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">৳{Number(item.amount).toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -1,5 +1,24 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface Serial {
+    id: number;
+    serial_number: string;
+    status: string;
+    notes?: string;
+}
+
+interface Warranty {
+    id: number;
+    warranty_type_id: number;
+    warranty_type_name: string;
+    duration_months: number | null;
+    duration_days: number | null;
+    start_date: string | null;
+    end_date: string | null;
+    status: string;
+    remaining_days: number | null;
+}
+
 interface Item {
     id: number; // Local row ID
     productId?: number; // Product ID from backend
@@ -18,6 +37,12 @@ interface Item {
     tax_included?: boolean; // Whether tax is included in the price (0=excluded, 1=included)
     unit?: string; // Product unit (piece, kg, etc.)
     isWholesale?: boolean; // Whether wholesale price is used
+
+    // Serial & Warranty Support
+    serials?: Serial[]; // Selected serial numbers for this item
+    warranty?: Warranty | null; // Warranty info if product has warranty
+    has_serial?: boolean; // Flag from backend
+    has_warranty?: boolean; // Flag from backend
 }
 
 interface InvoiceState {
@@ -38,10 +63,16 @@ const invoiceSlice = createSlice({
         },
         addItemRedux(state, action: PayloadAction<Item>) {
             if (action.payload.productId !== undefined) {
+                // For serialized products, ALWAYS add as new item (each serial is unique)
+                if (action.payload.has_serial && action.payload.serials && action.payload.serials.length > 0) {
+                    state.items.push(action.payload);
+                    return;
+                }
+
                 // For variant products, check both productId AND stockId
                 const existingItemIndex = action.payload.stockId
-                    ? state.items.findIndex((item) => item.productId === action.payload.productId && item.stockId === action.payload.stockId)
-                    : state.items.findIndex((item) => item.productId === action.payload.productId && !item.stockId);
+                    ? state.items.findIndex((item) => item.productId === action.payload.productId && item.stockId === action.payload.stockId && !item.has_serial)
+                    : state.items.findIndex((item) => item.productId === action.payload.productId && !item.stockId && !item.has_serial);
 
                 if (existingItemIndex !== -1) {
                     // Product already exists → increase quantity
