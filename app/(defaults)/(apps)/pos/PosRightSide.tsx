@@ -59,6 +59,8 @@ const PosRightSide: React.FC = () => {
         useWholesale: false,
         amountPaid: 0,
         changeAmount: 0,
+        partialPaymentAmount: 0,
+        dueAmount: 0,
     });
 
     const [isManualCustomerEntry, setIsManualCustomerEntry] = useState(false);
@@ -218,6 +220,7 @@ const PosRightSide: React.FC = () => {
             customerName: '',
             customerEmail: '',
             customerPhone: '',
+            paymentStatus: 'paid', // Auto-set to paid for walk-in
         }));
     };
 
@@ -431,6 +434,30 @@ const PosRightSide: React.FC = () => {
     }, [formData.useWholesale, invoiceItems, dispatch]);
 
     useEffect(() => {
+        // Update due amount based on payment status and partial payment
+        if (formData.paymentStatus === 'due') {
+            setFormData((prev) => ({
+                ...prev,
+                dueAmount: calculateTotal(),
+                partialPaymentAmount: 0,
+            }));
+        } else if (formData.paymentStatus === 'partial') {
+            const total = calculateTotal();
+            const paid = formData.partialPaymentAmount || 0;
+            setFormData((prev) => ({
+                ...prev,
+                dueAmount: Math.max(0, total - paid),
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                dueAmount: 0,
+            }));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.paymentStatus, formData.partialPaymentAmount, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
+
+    useEffect(() => {
         const total = calculateTotal();
         const change = formData.amountPaid - total;
         setFormData((prev) => ({
@@ -477,6 +504,17 @@ const PosRightSide: React.FC = () => {
                 processedValue = Math.min(Number(value), maxBalance);
             } else if (name === 'amountPaid') {
                 processedValue = Number(value) || 0;
+            } else if (name === 'partialPaymentAmount') {
+                processedValue = Number(value) || 0;
+            } else if (name === 'paymentStatus') {
+                // Reset partial payment amount when changing status
+                setFormData((prev) => ({
+                    ...prev,
+                    paymentStatus: value,
+                    partialPaymentAmount: 0,
+                    dueAmount: value === 'due' ? calculateTotal() : 0,
+                }));
+                return;
             }
 
             setFormData((prev) => ({
@@ -501,7 +539,41 @@ const PosRightSide: React.FC = () => {
             return;
         }
 
+        // Validation for partial payment
+        if (formData.paymentStatus === 'partial') {
+            if (!formData.partialPaymentAmount || formData.partialPaymentAmount <= 0) {
+                showMessage('Please enter partial payment amount', 'error');
+                return;
+            }
+            if (formData.partialPaymentAmount >= calculateTotal()) {
+                showMessage('Partial payment amount should be less than total. Use "Paid" status instead.', 'error');
+                return;
+            }
+        }
+
         const grandTotal = calculateTotal();
+
+        // Calculate amount paid based on payment status
+        let actualAmountPaid = 0;
+        let actualChangeAmount = 0;
+        let dueAmount = 0;
+
+        if (formData.paymentStatus === 'paid') {
+            // For paid status, use amountPaid for cash or full amount for other methods
+            actualAmountPaid = formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal;
+            actualChangeAmount = formData.paymentMethod.toLowerCase() === 'cash' ? formData.changeAmount : 0;
+            dueAmount = 0;
+        } else if (formData.paymentStatus === 'partial') {
+            // For partial, use the partial payment amount
+            actualAmountPaid = formData.partialPaymentAmount;
+            actualChangeAmount = 0;
+            dueAmount = grandTotal - formData.partialPaymentAmount;
+        } else if (formData.paymentStatus === 'due') {
+            // For due, no amount paid
+            actualAmountPaid = 0;
+            actualChangeAmount = 0;
+            dueAmount = grandTotal;
+        }
 
         const orderData: any = {
             user_id: userId,
@@ -512,8 +584,9 @@ const PosRightSide: React.FC = () => {
             discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0),
             total: calculateSubtotalWithoutTax(),
             grand_total: grandTotal,
-            amount_paid: formData.amountPaid,
-            change_amount: formData.changeAmount,
+            amount_paid: actualAmountPaid,
+            change_amount: actualChangeAmount,
+            due_amount: dueAmount,
             items: invoiceItems.map((item) => {
                 const itemBasePrice = item.rate * item.quantity;
                 const itemTax = calculateItemTax(item);
@@ -588,6 +661,8 @@ const PosRightSide: React.FC = () => {
                 useWholesale: false,
                 amountPaid: 0,
                 changeAmount: 0,
+                partialPaymentAmount: 0,
+                dueAmount: 0,
             });
         } catch (err: any) {
             setLoading(false);
@@ -663,6 +738,8 @@ const PosRightSide: React.FC = () => {
                 membershipDiscount: formData.membershipDiscount,
                 paymentMethod: orderResponse.data.payment_method,
                 payment_status: orderResponse.data.payment_status,
+                amount_paid: orderResponse.data.amount_paid || 0,
+                due_amount: orderResponse.data.due_amount || 0,
                 totals: {
                     subtotal: parseFloat(orderResponse.data.totals.total),
                     tax: parseFloat(orderResponse.data.totals.tax),
@@ -709,6 +786,8 @@ const PosRightSide: React.FC = () => {
             membershipDiscount: formData.membershipDiscount,
             paymentMethod: formData.paymentMethod,
             paymentStatus: formData.paymentStatus,
+            partialPaymentAmount: formData.partialPaymentAmount || 0,
+            dueAmount: formData.paymentStatus === 'due' ? calculateTotal() : formData.paymentStatus === 'partial' ? calculateTotal() - (formData.partialPaymentAmount || 0) : 0,
             totals: {
                 subtotal: calculateSubtotalWithoutTax(),
                 tax: calculateTax(),
@@ -778,9 +857,10 @@ const PosRightSide: React.FC = () => {
                     pointsDiscount={calculatePointsDiscount()}
                     balanceDiscount={calculateBalanceDiscount()}
                     totalPayable={calculateTotal()}
+                    isWalkInCustomer={formData.customerId === 'walk-in'}
                 />
 
-                <CashPaymentSection formData={formData} onInputChange={handleInputChange} totalPayable={calculateTotal()} />
+                <CashPaymentSection formData={formData} onInputChange={handleInputChange} totalPayable={calculateTotal()} isWalkInCustomer={formData.customerId === 'walk-in'} />
 
                 <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
                     <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>

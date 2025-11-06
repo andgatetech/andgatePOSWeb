@@ -69,10 +69,18 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         payment_status, // From backend response
         paymentStatus, // From preview data (camelCase)
         paymentMethod,
+        amount_paid, // From backend
+        due_amount, // From backend
+        partialPaymentAmount, // From preview
+        dueAmount, // From preview
     } = data || {};
 
     // Use whichever is available (backend uses payment_status, preview uses paymentStatus)
     const displayPaymentStatus = payment_status || paymentStatus;
+
+    // Calculate payment amounts
+    const amountPaid = amount_paid ?? partialPaymentAmount ?? 0;
+    const amountDue = due_amount ?? dueAmount ?? 0;
 
     // Ensure items is typed correctly
     const invoiceItems = items as InvoiceItem[];
@@ -441,6 +449,24 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div>TOTAL:</div>
                 <div>৳${grandTotal.toFixed(2)}</div>
             </div>
+            ${
+                (displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountPaid > 0
+                    ? `
+            <div class="total-row" style="color: #059669;">
+                <div>Amount Paid:</div>
+                <div>৳${amountPaid.toFixed(2)}</div>
+            </div>`
+                    : ''
+            }
+            ${
+                (displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0
+                    ? `
+            <div class="total-row" style="color: #dc2626; font-weight: bold;">
+                <div>Amount Due:</div>
+                <div>৳${amountDue.toFixed(2)}</div>
+            </div>`
+                    : ''
+            }
         </div>
         
         <div class="divider"></div>
@@ -454,7 +480,15 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     : displayPaymentStatus?.toLowerCase() === 'due' || displayPaymentStatus?.toLowerCase() === 'pending' || displayPaymentStatus?.toLowerCase() === 'unpaid'
                     ? '#ca8a04'
                     : '#dc2626'
-            };">${displayPaymentStatus || 'Pending'}</span></div>
+            }; font-weight: bold; text-transform: uppercase;">${displayPaymentStatus || 'Pending'}</span></div>
+            ${
+                (displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0
+                    ? `
+            <div style="margin-top: 2mm; padding: 2mm; background: #fee2e2; border-radius: 2mm;">
+                <div style="color: #dc2626; font-weight: bold;">⚠ Amount Due: ৳${amountDue.toFixed(2)}</div>
+            </div>`
+                    : ''
+            }
         </div>
         
         <div class="divider"></div>
@@ -626,6 +660,20 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 <span className="text-gray-600">Payment Method:</span>
                                 <span className="font-medium capitalize">{paymentMethod || 'Cash'}</span>
                             </div>
+                            {/* Show amount paid for partial payments */}
+                            {displayPaymentStatus?.toLowerCase() === 'partial' && amountPaid > 0 && (
+                                <div className="mb-2 flex justify-between">
+                                    <span className="text-green-600">Amount Paid:</span>
+                                    <span className="font-semibold text-green-700">৳{amountPaid.toFixed(2)}</span>
+                                </div>
+                            )}
+                            {/* Show amount due for partial/due payments */}
+                            {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0 && (
+                                <div className="mb-2 flex justify-between">
+                                    <span className="text-red-600">Amount Due:</span>
+                                    <span className="font-bold text-red-700">৳{amountDue.toFixed(2)}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -723,6 +771,23 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             <span>Grand Total</span>
                             <span>৳{grandTotal.toFixed(2)}</span>
                         </div>
+                        {/* Payment Breakdown for Partial/Due */}
+                        {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && (
+                            <>
+                                {amountPaid > 0 && (
+                                    <div className="flex justify-between border-t border-green-200 pt-2 text-green-700">
+                                        <span>Amount Paid</span>
+                                        <span className="font-semibold">৳{amountPaid.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {amountDue > 0 && (
+                                    <div className="flex justify-between rounded-lg bg-red-50 p-2 text-red-700">
+                                        <span className="font-semibold">Amount Due</span>
+                                        <span className="text-lg font-bold">৳{amountDue.toFixed(2)}</span>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
 
