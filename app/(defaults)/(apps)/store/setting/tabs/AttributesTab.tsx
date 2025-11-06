@@ -50,9 +50,9 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                         onChange={(e) => setAttributeName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateAttribute()}
                         placeholder="Enter attribute name (e.g., Color, Size)"
-                        className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
-                    <button type="button" onClick={handleCreateAttribute} className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    <button type="button" onClick={handleCreateAttribute} className="inline-flex items-center rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
                         <Plus className="mr-1 h-4 w-4" />
                         Add
                     </button>
@@ -86,7 +86,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                     type="text"
                                                     value={editingAttributeName}
                                                     onChange={(e) => setEditingAttributeName(e.target.value)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                                                     autoFocus
                                                 />
                                             ) : (
@@ -96,7 +96,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                         <td className="px-4 py-3 text-center">
                                             <label className="relative inline-flex cursor-pointer items-center">
                                                 <input type="checkbox" checked={attribute.is_active} onChange={() => handleToggleActive(attribute.id, !attribute.is_active)} className="peer sr-only" />
-                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
                                             </label>
                                         </td>
                                         <td className="px-4 py-3 text-center">
@@ -105,7 +105,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => handleUpdateAttribute(attribute.id)}
-                                                        className="rounded bg-green-600 p-1.5 text-white hover:bg-green-700"
+                                                        className="rounded bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
                                                         title="Save"
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -138,9 +138,9 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                                         startEditingAttribute(attribute.id, attribute.name);
                                                                         setOpenDropdown(null);
                                                                     }}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-blue-50"
+                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-emerald-50"
                                                                 >
-                                                                    <Pencil className="h-4 w-4 text-blue-600" />
+                                                                    <Pencil className="h-4 w-4 text-emerald-600" />
                                                                     Edit
                                                                 </button>
                                                                 <button

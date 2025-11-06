@@ -1,133 +1,50 @@
 'use client';
+
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
-import IconSearch from '@/components/icon/icon-search';
-import IconShoppingCart from '@/components/icon/icon-shopping-cart';
-import IconUser from '@/components/icon/icon-user';
-import IconX from '@/components/icon/icon-x';
-import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
-import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useCreateOrderMutation } from '@/store/features/Order/Order';
+import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
+import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
+import { skipToken } from '@reduxjs/toolkit/query';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import PosInvoicePreview from './PosInvoicePreview';
+import CashPaymentSection from './pos-right-side/CashPaymentSection';
+import CustomerSection from './pos-right-side/CustomerSection';
+import LoadingOverlay from './pos-right-side/LoadingOverlay';
+import OrderDetailsSection from './pos-right-side/OrderDetailsSection';
+import PaymentSummarySection from './pos-right-side/PaymentSummarySection';
+import PreviewModal from './pos-right-side/PreviewModal';
+import type { Customer, CustomerApiResponse, PosFormData } from './pos-right-side/types';
+import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 
-// Membership discount rates
-const MEMBERSHIP_DISCOUNTS = {
-    normal: 0,
-    silver: 5,
-    gold: 7,
-    platinum: 10,
+const DEFAULT_PAYMENT_METHOD = {
+    id: 0,
+    payment_method_name: 'Cash',
 };
 
-// Customer type interface
-interface Customer {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    points: number;
-    balance: string;
-    membership: 'normal' | 'silver' | 'gold' | 'platinum';
-    is_active: number;
-    details?: string;
-    store_id: number;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string | null;
-}
-
-// Customer API response interface
-interface CustomerApiResponse {
-    data: Customer[];
-    meta: {
-        current_page: number;
-        per_page: number;
-        total: number;
-        last_page: number;
-    };
-}
-
-// Order response interface
-interface OrderResponse {
-    success: boolean;
-    message: string;
-    data: {
-        order_id: number;
-        invoice: string;
-        customer: {
-            id: number;
-            name: string;
-            email: string;
-            phone: string;
-        };
-        products: Array<{
-            name: string;
-            product_id: number;
-            quantity: number;
-            unit_price: number;
-            tax: number;
-            discount: number;
-            subtotal: number;
-        }>;
-        totals: {
-            total: string;
-            tax: string;
-            discount: number;
-            grand_total: string;
-        };
-    };
-}
-
 const PosRightSide: React.FC = () => {
-    const [showPreview, setShowPreview] = useState(false);
-    const [orderResponse, setOrderResponse] = useState<OrderResponse | null>(null);
-    const [customerSearch, setCustomerSearch] = useState('');
-    const [showSearchResults, setShowSearchResults] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const searchInputRef = useRef<HTMLInputElement>(null);
-    const [searchParams, setSearchParams] = useState<string>('');
-    // Get current store from hook
+    const dispatch = useDispatch();
     const { currentStoreId } = useCurrentStore();
 
-    const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
-            available: 'yes', // Only show available products in POS
-        };
-
-        // Always use current store from sidebar for POS
-        if (currentStoreId) {
-            params.store_id = currentStoreId;
-        }
-
-        return params;
-    }, [currentStoreId]);
-    const {
-        data: customersResponse,
-        isLoading: isSearching,
-        error,
-        refetch,
-    } = useGetStoreCustomersListQuery(
-        {
-            store_id: currentStoreId || undefined,
-            search: searchParams || '',
-        },
-        {
-            skip: !currentStoreId, // Only run query when we have a valid store ID
-        }
-    );
-
-    const dispatch = useDispatch();
     const invoiceItems = useSelector((state: RootState) => state.invoice.items);
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
-    const [formData, setFormData] = useState({
-        customerId: null as number | string | null, // Allow number, string ('walk-in'), or null
+    const searchInputRef = useRef<HTMLDivElement | null>(null);
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const [customerSearch, setCustomerSearch] = useState('');
+    const [searchParams, setSearchParams] = useState('');
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+    const [orderResponse, setOrderResponse] = useState<any>(null);
+    const [showPreview, setShowPreview] = useState(false);
+
+    const [formData, setFormData] = useState<PosFormData>({
+        customerId: null,
         customerName: '',
         customerEmail: '',
         customerPhone: '',
@@ -135,17 +52,17 @@ const PosRightSide: React.FC = () => {
         membershipDiscount: 0,
         paymentMethod: '',
         paymentStatus: '',
-        // New payment fields
         usePoints: false,
         useBalance: false,
         pointsToUse: 0,
         balanceToUse: 0,
-        // Wholesale toggle
         useWholesale: false,
-        // Cash handling fields
-        amountPaid: 0, // Amount customer gives (cash received)
-        changeAmount: 0, // Change to return (calculated automatically)
+        amountPaid: 0,
+        changeAmount: 0,
     });
+
+    const [isManualCustomerEntry, setIsManualCustomerEntry] = useState(false);
+    const showManualCustomerForm = isManualCustomerEntry || !!selectedCustomer;
 
     const [createOrder] = useCreateOrderMutation();
     const [loading, setLoading] = useState(false);
@@ -165,22 +82,76 @@ const PosRightSide: React.FC = () => {
         });
     };
 
-    // Get customers from RTK Query response with useMemo to prevent dependency issues
+    const getMembershipBadgeClass = (membership?: string) => {
+        switch ((membership || 'normal').toLowerCase()) {
+            case 'platinum':
+                return 'bg-purple-100 text-purple-800';
+            case 'gold':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'silver':
+                return 'bg-gray-100 text-gray-800';
+            default:
+                return 'bg-green-100 text-green-800';
+        }
+    };
+
+    const getMembershipDiscount = (membership?: string) => {
+        const key = (membership || 'normal').toLowerCase() as keyof typeof MEMBERSHIP_DISCOUNTS;
+        return MEMBERSHIP_DISCOUNTS[key] ?? 0;
+    };
+
+    const { data: paymentMethodsResponse } = useGetPaymentMethodsQuery(currentStoreId ? { store_id: currentStoreId } : skipToken);
+
+    const paymentMethodOptions = useMemo<any[]>(() => {
+        const payload = paymentMethodsResponse?.data;
+        const methods = Array.isArray(payload) ? payload : [];
+        const activeMethods = methods.filter((method: any) => {
+            if (!method) return false;
+            const status = method.is_active;
+            if (status === undefined || status === null) return true;
+            if (typeof status === 'boolean') return status;
+            if (typeof status === 'number') return status === 1;
+            if (typeof status === 'string') {
+                const normalized = status.toLowerCase();
+                return normalized === '1' || normalized === 'true';
+            }
+            return true;
+        });
+
+        if (activeMethods.length === 0) {
+            return [DEFAULT_PAYMENT_METHOD];
+        }
+
+        return activeMethods;
+    }, [paymentMethodsResponse]);
+
+    const {
+        data: customersResponse,
+        isLoading: isSearching,
+        error,
+        refetch,
+    } = useGetStoreCustomersListQuery(
+        {
+            store_id: currentStoreId || undefined,
+            search: searchParams || '',
+        },
+        {
+            skip: !currentStoreId,
+        }
+    );
+
     const customers: Customer[] = useMemo(() => {
         return (customersResponse as CustomerApiResponse)?.data || [];
     }, [customersResponse]);
 
-    // Handle search input change with debounce
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value;
         setCustomerSearch(query);
 
-        // Clear previous timeout
         if (searchTimeoutRef.current) {
             clearTimeout(searchTimeoutRef.current);
         }
 
-        // Set new timeout for debounced search
         searchTimeoutRef.current = setTimeout(() => {
             if (query.trim()) {
                 setSearchParams(query.trim());
@@ -192,29 +163,26 @@ const PosRightSide: React.FC = () => {
         }, 300);
     };
 
-    // Show search results when customers data changes
     useEffect(() => {
-        if (searchParams && customers.length >= 0) {
+        if (searchParams) {
             setShowSearchResults(true);
         }
     }, [customers, searchParams]);
 
-    // Handle customer selection
     const handleCustomerSelect = (customer: Customer) => {
         setSelectedCustomer(customer);
+        setIsManualCustomerEntry(false);
         setCustomerSearch(customer.name);
         setShowSearchResults(false);
-        setSearchParams(''); // Clear search to stop the query
+        setSearchParams('');
 
-        // Auto-fill form data
         setFormData((prev) => ({
             ...prev,
             customerId: customer.id,
             customerName: customer.name,
             customerEmail: customer.email,
             customerPhone: customer.phone,
-            membershipDiscount: MEMBERSHIP_DISCOUNTS[customer.membership] || 0,
-            // Reset payment options when selecting new customer
+            membershipDiscount: getMembershipDiscount(customer.membership),
             usePoints: false,
             useBalance: false,
             pointsToUse: 0,
@@ -222,9 +190,9 @@ const PosRightSide: React.FC = () => {
         }));
     };
 
-    // Clear customer selection
     const clearCustomerSelection = () => {
         setSelectedCustomer(null);
+        setIsManualCustomerEntry(false);
         setCustomerSearch('');
         setShowSearchResults(false);
         setSearchParams('');
@@ -235,7 +203,6 @@ const PosRightSide: React.FC = () => {
             customerEmail: '',
             customerPhone: '',
             membershipDiscount: 0,
-            // Reset payment options
             usePoints: false,
             useBalance: false,
             pointsToUse: 0,
@@ -243,7 +210,58 @@ const PosRightSide: React.FC = () => {
         }));
     };
 
-    // Close search results when clicking outside
+    const handleWalkInCustomerSelect = () => {
+        clearCustomerSelection();
+        setFormData((prev) => ({
+            ...prev,
+            customerId: 'walk-in',
+            customerName: '',
+            customerEmail: '',
+            customerPhone: '',
+        }));
+    };
+
+    const handleClearWalkInCustomer = () => {
+        setFormData((prev) => ({
+            ...prev,
+            customerId: null,
+        }));
+    };
+
+    const handleNewCustomerClick = () => {
+        setIsManualCustomerEntry((prev) => {
+            const next = !prev;
+
+            if (next) {
+                setSelectedCustomer(null);
+                setCustomerSearch('');
+                setShowSearchResults(false);
+                setSearchParams('');
+            }
+
+            setFormData((prevForm) => ({
+                ...prevForm,
+                customerId: null,
+                customerName: '',
+                customerEmail: '',
+                customerPhone: '',
+                membershipDiscount: 0,
+                usePoints: false,
+                useBalance: false,
+                pointsToUse: 0,
+                balanceToUse: 0,
+            }));
+
+            return next;
+        });
+    };
+
+    const handleCustomerSearchFocus = () => {
+        if (customers.length > 0) {
+            setShowSearchResults(true);
+        }
+    };
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
@@ -257,42 +275,6 @@ const PosRightSide: React.FC = () => {
         };
     }, []);
 
-    useEffect(() => {}, [invoiceItems]);
-
-    // Update all items when wholesale toggle changes
-    useEffect(() => {
-        if (invoiceItems.length === 0) return;
-
-        invoiceItems.forEach((item) => {
-            if (!item.regularPrice || !item.wholesalePrice) return; // Skip items without both prices
-
-            const newRate = formData.useWholesale ? item.wholesalePrice : item.regularPrice;
-
-            // Only update if rate actually changes
-            if (item.rate !== newRate) {
-                dispatch(
-                    updateItemRedux({
-                        ...item,
-                        rate: newRate,
-                        amount: newRate * item.quantity,
-                        isWholesale: formData.useWholesale,
-                    })
-                );
-            }
-        });
-    }, [formData.useWholesale, invoiceItems, dispatch]);
-
-    // Auto-calculate change when amount paid changes
-    useEffect(() => {
-        const total = calculateTotal();
-        const change = formData.amountPaid - total;
-        setFormData((prev) => ({
-            ...prev,
-            changeAmount: change > 0 ? change : 0,
-        }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
-
     const handleRemoveItem = (itemId: number) => {
         if (invoiceItems.length <= 1) {
             showMessage('At least one item is required', 'error');
@@ -302,10 +284,9 @@ const PosRightSide: React.FC = () => {
     };
 
     const handleQuantityChange = (itemId: number, value: string) => {
-        const item = invoiceItems.find((item) => item.id === itemId);
+        const item = invoiceItems.find((line) => line.id === itemId);
         if (!item) return;
 
-        // If input is empty, temporarily set quantity to 0
         if (value === '') {
             dispatch(updateItemRedux({ ...item, quantity: 0, amount: 0 }));
             return;
@@ -313,7 +294,7 @@ const PosRightSide: React.FC = () => {
 
         const newQuantity = Number(value);
 
-        if (newQuantity < 0) return; // prevent negatives
+        if (Number.isNaN(newQuantity) || newQuantity < 0) return;
 
         if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
             showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
@@ -329,21 +310,33 @@ const PosRightSide: React.FC = () => {
         );
     };
 
-    const handleUnitPriceChange = (itemId: number, value: string) => {
-        const item = invoiceItems.find((item) => item.id === itemId);
+    const handleQuantityBlur = (itemId: number) => {
+        const item = invoiceItems.find((line) => line.id === itemId);
         if (!item) return;
 
-        // If input is empty, temporarily set rate to 0
+        if (item.quantity === 0) {
+            dispatch(
+                updateItemRedux({
+                    ...item,
+                    quantity: 1,
+                    amount: item.rate * 1,
+                })
+            );
+        }
+    };
+
+    const handleUnitPriceChange = (itemId: number, value: string) => {
+        const item = invoiceItems.find((line) => line.id === itemId);
+        if (!item) return;
+
         if (value === '') {
             dispatch(updateItemRedux({ ...item, rate: 0, amount: 0 }));
             return;
         }
 
         const newRate = Number(value);
+        if (Number.isNaN(newRate) || newRate < 0) return;
 
-        if (newRate < 0) return; // prevent negatives
-
-        // Update rate and recalculate amount
         dispatch(
             updateItemRedux({
                 ...item,
@@ -353,9 +346,21 @@ const PosRightSide: React.FC = () => {
         );
     };
 
-    const calculateSubtotal = () => invoiceItems.reduce((total, item) => total + item.rate * item.quantity, 0);
+    const handleUnitPriceBlur = (itemId: number) => {
+        const item = invoiceItems.find((line) => line.id === itemId);
+        if (!item) return;
 
-    // Calculate tax for each item individually based on tax_included flag
+        if (item.quantity === 0) {
+            dispatch(
+                updateItemRedux({
+                    ...item,
+                    quantity: 1,
+                    amount: item.rate * 1,
+                })
+            );
+        }
+    };
+
     const calculateItemTax = (item: any) => {
         if (!item.tax_rate) return 0;
 
@@ -363,35 +368,16 @@ const PosRightSide: React.FC = () => {
         const taxRate = item.tax_rate / 100;
 
         if (item.tax_included) {
-            // Tax is included in price - extract tax amount
-            const taxAmount = itemTotal - itemTotal / (1 + taxRate);
-            return taxAmount;
-        } else {
-            // Tax is excluded - add tax to price
-            const taxAmount = itemTotal * taxRate;
-            return taxAmount;
+            return itemTotal - itemTotal / (1 + taxRate);
         }
+
+        return itemTotal * taxRate;
     };
 
-    // Calculate total tax for all items
     const calculateTax = () => {
-        const totalTax = invoiceItems.reduce((total, item) => total + calculateItemTax(item), 0);
-        // Debug log to verify tax calculations
-        console.log('Tax Calculation Debug:', {
-            items: invoiceItems.map((item) => ({
-                name: item.title,
-                rate: item.rate,
-                quantity: item.quantity,
-                tax_rate: item.tax_rate,
-                tax_included: item.tax_included,
-                itemTax: calculateItemTax(item),
-            })),
-            totalTax,
-        });
-        return totalTax;
+        return invoiceItems.reduce((total, item) => total + calculateItemTax(item), 0);
     };
 
-    // Calculate subtotal without tax (for tax-included items, this extracts the base price)
     const calculateSubtotalWithoutTax = () => {
         return invoiceItems.reduce((total, item) => {
             const itemTotal = item.rate * item.quantity;
@@ -404,13 +390,13 @@ const PosRightSide: React.FC = () => {
     };
 
     const calculateDiscount = () => (calculateSubtotalWithoutTax() * formData.discount) / 100;
+
     const calculateMembershipDiscount = () => (calculateSubtotalWithoutTax() * formData.membershipDiscount) / 100;
+
     const calculateBaseTotal = () => calculateSubtotalWithoutTax() + calculateTax() - calculateDiscount() - calculateMembershipDiscount();
 
-    // New calculation functions for payment
     const calculatePointsDiscount = () => {
         if (!formData.usePoints || !selectedCustomer) return 0;
-        // Assuming 1 point = ৳0.01 (adjust this conversion rate as needed)
         return Math.min(formData.pointsToUse * 0.01, calculateBaseTotal());
     };
 
@@ -421,6 +407,44 @@ const PosRightSide: React.FC = () => {
 
     const calculateTotal = () => {
         return Math.max(0, calculateBaseTotal() - calculatePointsDiscount() - calculateBalanceDiscount());
+    };
+
+    useEffect(() => {
+        if (invoiceItems.length === 0) return;
+
+        invoiceItems.forEach((item) => {
+            if (!item.regularPrice || !item.wholesalePrice) return;
+
+            const newRate = formData.useWholesale ? item.wholesalePrice : item.regularPrice;
+
+            if (item.rate !== newRate) {
+                dispatch(
+                    updateItemRedux({
+                        ...item,
+                        rate: newRate,
+                        amount: newRate * item.quantity,
+                        isWholesale: formData.useWholesale,
+                    })
+                );
+            }
+        });
+    }, [formData.useWholesale, invoiceItems, dispatch]);
+
+    useEffect(() => {
+        const total = calculateTotal();
+        const change = formData.amountPaid - total;
+        setFormData((prev) => ({
+            ...prev,
+            changeAmount: change > 0 ? change : 0,
+        }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
+
+    const handleWholesaleToggle = (checked: boolean) => {
+        setFormData((prev) => ({
+            ...prev,
+            useWholesale: checked,
+        }));
     };
 
     const clearAllItems = () => {
@@ -437,7 +461,6 @@ const PosRightSide: React.FC = () => {
             setFormData((prev) => ({
                 ...prev,
                 [name]: checked,
-                // Reset the amount when toggling
                 ...(name === 'usePoints' && !checked ? { pointsToUse: 0 } : {}),
                 ...(name === 'useBalance' && !checked ? { balanceToUse: 0 } : {}),
             }));
@@ -447,10 +470,10 @@ const PosRightSide: React.FC = () => {
             if (name === 'discount') {
                 processedValue = Number(value);
             } else if (name === 'pointsToUse') {
-                const maxPoints = selectedCustomer?.points || 0;
+                const maxPoints = Number(selectedCustomer?.points) || 0;
                 processedValue = Math.min(Number(value), maxPoints);
             } else if (name === 'balanceToUse') {
-                const maxBalance = parseFloat(selectedCustomer?.balance || '0');
+                const maxBalance = parseFloat(String(selectedCustomer?.balance ?? '0'));
                 processedValue = Math.min(Number(value), maxBalance);
             } else if (name === 'amountPaid') {
                 processedValue = Number(value) || 0;
@@ -464,7 +487,6 @@ const PosRightSide: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        // Skip customer validation for walk-in customers
         if (formData.customerId !== 'walk-in' && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
             showMessage('Name and email are required', 'error');
             return;
@@ -481,29 +503,21 @@ const PosRightSide: React.FC = () => {
 
         const grandTotal = calculateTotal();
 
-        let orderData: any = {
+        const orderData: any = {
             user_id: userId,
-            store_id: currentStoreId, // Add current store ID
+            store_id: currentStoreId,
             payment_method: formData.paymentMethod,
             payment_status: formData.paymentStatus,
-            tax: calculateTax(), // Calculate total tax from all items
-            // ✅ discount field now includes manual + points + balance
+            tax: calculateTax(),
             discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0),
-            total: calculateSubtotalWithoutTax(), // Subtotal without tax
-            grand_total: grandTotal, //  already excludes membership, points, and balance
-            // Cash handling fields
-            amount_paid: formData.amountPaid, // Amount customer gave
-            change_amount: formData.changeAmount, // Change to return
+            total: calculateSubtotalWithoutTax(),
+            grand_total: grandTotal,
+            amount_paid: formData.amountPaid,
+            change_amount: formData.changeAmount,
             items: invoiceItems.map((item) => {
                 const itemBasePrice = item.rate * item.quantity;
                 const itemTax = calculateItemTax(item);
-
-                // For tax-included items, the subtotal should be the base price without tax
-                // For tax-excluded items, the subtotal is the item price, and tax is added separately
-                const itemSubtotal =
-                    item.tax_included && item.tax_rate
-                        ? itemBasePrice // Tax is already included in the price
-                        : itemBasePrice + itemTax; // Add tax to the base price
+                const itemSubtotal = item.tax_included && item.tax_rate ? itemBasePrice : itemBasePrice + itemTax;
 
                 return {
                     product_id: item.productId,
@@ -518,18 +532,13 @@ const PosRightSide: React.FC = () => {
             }),
         };
 
-        // ✅ Handle customer data based on selection
         if (formData.customerId === 'walk-in') {
-            // Walk-in customer - send null customer_id and walk-in flag
             orderData.customer_id = null;
-            orderData.is_walk_in = true; // Add walk-in flag for backend
-            // Don't send customer details for walk-in customers
+            orderData.is_walk_in = true;
         } else if (formData.customerId && formData.customerId !== 'walk-in') {
-            // Existing customer from database
             orderData.customer_id = formData.customerId;
             orderData.is_walk_in = false;
         } else {
-            // New customer (not in database) - send customer details
             orderData.customer_id = null;
             orderData.is_walk_in = false;
             orderData.customer_name = formData.customerName;
@@ -539,11 +548,7 @@ const PosRightSide: React.FC = () => {
 
         try {
             setLoading(true);
-            console.log('Creating order with data:', orderData);
             const response = await createOrder(orderData).unwrap();
-            console.log('Order API response:', response);
-
-            // Store the order response and automatically show preview
             setOrderResponse(response);
             setShowPreview(true);
 
@@ -551,7 +556,6 @@ const PosRightSide: React.FC = () => {
             setLoading(false);
             showMessage('Order created successfully!', 'success');
 
-            // Clear form data but keep the response for preview
             dispatch(clearItemsRedux());
             clearCustomerSelection();
             setFormData({
@@ -576,20 +580,13 @@ const PosRightSide: React.FC = () => {
 
             let errorMessage = 'Failed to create order';
 
-            // 🔎 Laravel validation errors (422)
             if (err?.status === 422 && err?.data?.errors) {
                 errorMessage = Object.values(err.data.errors).flat().join('\n');
-            }
-            // 🔎 Backend business logic errors (403, 404, 400…)
-            else if (err?.data?.message) {
+            } else if (err?.data?.message) {
                 errorMessage = err.data.message;
-            }
-            // 🔎 Server exception (500)
-            else if (err?.data?.error) {
+            } else if (err?.data?.error) {
                 errorMessage = err.data.error;
-            }
-            // 🔎 Network error fallback
-            else if (err?.error) {
+            } else if (err?.error) {
                 errorMessage = err.error;
             }
 
@@ -608,24 +605,22 @@ const PosRightSide: React.FC = () => {
 
     const handleBackToEdit = () => {
         setShowPreview(false);
-        setOrderResponse(null); // Clear order response when going back to edit
+        setOrderResponse(null);
     };
 
-    // Create preview data based on whether we have order response or not
     const getPreviewData = () => {
         if (orderResponse) {
-            // Use actual order response data
             return {
                 customer: {
                     name: orderResponse.data.customer.name,
                     email: orderResponse.data.customer.email,
                     phone: orderResponse.data.customer.phone,
                     membership: selectedCustomer?.membership || 'normal',
-                    points: selectedCustomer?.points || 0,
+                    points: Number(selectedCustomer?.points) || 0,
                 },
                 invoice: orderResponse.data.invoice,
                 order_id: orderResponse.data.order_id,
-                items: orderResponse.data.products.map((product, idx) => ({
+                items: orderResponse.data.products.map((product: any, idx: number) => ({
                     id: idx + 1,
                     title: product.name,
                     quantity: product.quantity,
@@ -646,771 +641,112 @@ const PosRightSide: React.FC = () => {
                     balanceDiscount: calculateBalanceDiscount(),
                     total: parseFloat(orderResponse.data.totals.grand_total),
                 },
-                isOrderCreated: true, // Flag to indicate this is a created order
-            };
-        } else {
-            // Use form data for manual preview (before order creation)
-            return {
-                customer: {
-                    name: formData.customerName,
-                    email: formData.customerEmail,
-                    phone: formData.customerPhone,
-                    membership: selectedCustomer?.membership || 'normal',
-                    points: selectedCustomer?.points || 0,
-                },
-                items: invoiceItems.map((item, idx) => ({
-                    id: idx + 1,
-                    title: item.title || 'Untitled',
-                    quantity: item.quantity,
-                    price: item.rate,
-                    amount: item.rate * item.quantity,
-                    tax_rate: item.tax_rate,
-                    tax_included: item.tax_included,
-                    unit: item.unit || 'piece',
-                })),
-                tax: 0, // Will be calculated from individual items
-                discount: formData.discount,
-                membershipDiscount: formData.membershipDiscount,
-                paymentMethod: formData.paymentMethod,
-                paymentStatus: formData.paymentStatus,
-                totals: {
-                    subtotal: calculateSubtotalWithoutTax(),
-                    tax: calculateTax(),
-                    discount: calculateDiscount(),
-                    membershipDiscount: calculateMembershipDiscount(),
-                    pointsDiscount: calculatePointsDiscount(),
-                    balanceDiscount: calculateBalanceDiscount(),
-                    total: calculateTotal(),
-                },
-                isOrderCreated: false,
+                isOrderCreated: true,
             };
         }
+
+        return {
+            customer: {
+                name: formData.customerName,
+                email: formData.customerEmail,
+                phone: formData.customerPhone,
+                membership: selectedCustomer?.membership || 'normal',
+                points: Number(selectedCustomer?.points) || 0,
+            },
+            items: invoiceItems.map((item, idx) => ({
+                id: idx + 1,
+                title: item.title || 'Untitled',
+                quantity: item.quantity,
+                price: item.rate,
+                amount: item.rate * item.quantity,
+                tax_rate: item.tax_rate,
+                tax_included: item.tax_included,
+                unit: item.unit || 'piece',
+            })),
+            tax: 0,
+            discount: formData.discount,
+            membershipDiscount: formData.membershipDiscount,
+            paymentMethod: formData.paymentMethod,
+            paymentStatus: formData.paymentStatus,
+            totals: {
+                subtotal: calculateSubtotalWithoutTax(),
+                tax: calculateTax(),
+                discount: calculateDiscount(),
+                membershipDiscount: calculateMembershipDiscount(),
+                pointsDiscount: calculatePointsDiscount(),
+                balanceDiscount: calculateBalanceDiscount(),
+                total: calculateTotal(),
+            },
+            isOrderCreated: false,
+        };
     };
 
-    if (showPreview) {
-        return (
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-2">
-                <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
-                    {/* Close Button */}
-                    <button onClick={handleBackToEdit} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800"></button>
-
-                    {/* Invoice Preview */}
-                    <div className="mb-4">
-                        <PosInvoicePreview data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} paymentMethod={formData.paymentMethod} />
-                    </div>
-
-                    {/* Footer Buttons */}
-                    <div className="mt-6 flex justify-end">
-                        <button
-                            className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200"
-                            onClick={handleBackToEdit} // Make sure handleClose closes your modal
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="relative mt-4 w-full sm:mt-6 xl:mt-0 xl:w-full">
-            {loading && (
-                <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black bg-opacity-50">
-                    {/* Spinner */}
-                    <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent sm:h-16 sm:w-16"></div>
-                    {/* Loading Text */}
-                    <span className="animate-pulse text-base font-semibold text-white sm:text-lg">Processing Order...</span>
-                </div>
-            )}
-            <div className="panel mb-5">
-                <div className="mt-4 px-3 sm:mt-8 sm:px-4">
-                    <div className="flex flex-col justify-between lg:flex-row">
-                        <div className="mb-4 w-full sm:mb-6 lg:w-full">
-                            <div className="mb-3 flex items-center justify-between sm:mb-4">
-                                <div className="text-base font-semibold text-gray-800 sm:text-lg">Bill To :-</div>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        clearCustomerSelection();
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            customerId: 'walk-in', // Special flag for walk-in customer
-                                            customerName: '',
-                                            customerEmail: '',
-                                            customerPhone: '',
-                                        }));
-                                    }}
-                                    className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 sm:px-4 sm:py-2 sm:text-sm"
-                                >
-                                    Walk-in Customer
-                                </button>
-                            </div>
+        <div className="relative mt-6 w-full sm:mt-6 xl:mt-0 xl:w-full">
+            <LoadingOverlay isLoading={loading} />
+            <PreviewModal isOpen={showPreview} data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
+            <div className="panel ">
+                <CustomerSection
+                    formData={formData}
+                    selectedCustomer={selectedCustomer}
+                    isManualCustomerEntry={isManualCustomerEntry}
+                    showManualCustomerForm={showManualCustomerForm}
+                    customerSearch={customerSearch}
+                    customers={customers}
+                    isSearching={isSearching}
+                    showSearchResults={showSearchResults}
+                    searchParams={searchParams}
+                    searchInputRef={searchInputRef}
+                    error={error}
+                    onSearchChange={handleSearchChange}
+                    onFocusResults={handleCustomerSearchFocus}
+                    onCustomerSelect={handleCustomerSelect}
+                    onClearCustomer={clearCustomerSelection}
+                    onToggleManualEntry={handleNewCustomerClick}
+                    onInputChange={handleInputChange}
+                    onSelectWalkInCustomer={handleWalkInCustomerSelect}
+                    onClearWalkInCustomer={handleClearWalkInCustomer}
+                    getBadgeClass={getMembershipBadgeClass}
+                    getMembershipDiscount={getMembershipDiscount}
+                />
+            </div>
 
-                            {/* Walk-in Customer Indicator */}
-                            {formData.customerId === 'walk-in' && (
-                                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-100 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500">
-                                                <IconUser className="h-5 w-5 text-white" />
-                                            </div>
-                                            <div>
-                                                <p className="font-medium text-orange-900">Walk-in Customer</p>
-                                                <p className="text-sm text-orange-700">No customer details required</p>
-                                            </div>
-                                        </div>
-                                        <button onClick={() => setFormData((prev) => ({ ...prev, customerId: null }))} className="text-orange-600 hover:text-orange-800">
-                                            <IconX className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+            <div className="panel">
+                <OrderDetailsSection
+                    invoiceItems={invoiceItems}
+                    formData={formData}
+                    onWholesaleToggle={handleWholesaleToggle}
+                    onClearItems={clearAllItems}
+                    onQuantityChange={handleQuantityChange}
+                    onQuantityBlur={handleQuantityBlur}
+                    onUnitPriceChange={handleUnitPriceChange}
+                    onUnitPriceBlur={handleUnitPriceBlur}
+                    onRemoveItem={handleRemoveItem}
+                />
 
-                            {/* Customer Search Section */}
-                            <div className="relative mb-6" ref={searchInputRef} style={{ display: formData.customerId === 'walk-in' ? 'none' : 'block' }}>
-                                <label className="mb-2 block text-sm font-medium">Customer Search</label>
-                                <div className="relative">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <IconSearch className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        className="form-input pl-10 pr-10"
-                                        placeholder="Search by name, email, or phone..."
-                                        value={customerSearch}
-                                        onChange={handleSearchChange}
-                                        onFocus={() => {
-                                            if (customers.length > 0) {
-                                                setShowSearchResults(true);
-                                            }
-                                        }}
-                                    />
-                                    {selectedCustomer && (
-                                        <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={clearCustomerSelection}>
-                                            <IconX className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                        </button>
-                                    )}
-                                    {isSearching && searchParams && (
-                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                                        </div>
-                                    )}
-                                </div>
+                <PaymentSummarySection
+                    formData={formData}
+                    selectedCustomer={selectedCustomer}
+                    paymentMethodOptions={paymentMethodOptions}
+                    onInputChange={handleInputChange}
+                    subtotalWithoutTax={calculateSubtotalWithoutTax()}
+                    taxAmount={calculateTax()}
+                    discountAmount={calculateDiscount()}
+                    membershipDiscountAmount={calculateMembershipDiscount()}
+                    pointsDiscount={calculatePointsDiscount()}
+                    balanceDiscount={calculateBalanceDiscount()}
+                    totalPayable={calculateTotal()}
+                />
 
-                                {/* Search Results Dropdown */}
-                                {showSearchResults && searchParams && (
-                                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
-                                        {error ? (
-                                            <div className="px-4 py-3 text-center text-red-500">
-                                                <div className="text-sm">Error loading customers</div>
-                                            </div>
-                                        ) : customers.length > 0 ? (
-                                            customers.map((customer) => (
-                                                <div
-                                                    key={customer.id}
-                                                    className="cursor-pointer border-b border-gray-100 px-4 py-3 last:border-b-0 hover:bg-gray-50"
-                                                    onClick={() => handleCustomerSelect(customer)}
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center space-x-3">
-                                                            <div className="flex-shrink-0">
-                                                                <IconUser className="h-8 w-8 rounded-full bg-gray-100 p-1 text-gray-400" />
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                                                                <div className="text-sm text-gray-500">{customer.email}</div>
-                                                                <div className="text-xs text-gray-400">{customer.phone}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <div
-                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                                                    customer.membership === 'platinum'
-                                                                        ? 'bg-purple-100 text-purple-800'
-                                                                        : customer.membership === 'gold'
-                                                                        ? 'bg-yellow-100 text-yellow-800'
-                                                                        : customer.membership === 'silver'
-                                                                        ? 'bg-gray-100 text-gray-800'
-                                                                        : 'bg-green-100 text-green-800'
-                                                                }`}
-                                                            >
-                                                                {customer.membership.toUpperCase()}
-                                                            </div>
-                                                            <div className="mt-1 text-xs text-gray-500">Points: {customer.points}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : !isSearching ? (
-                                            <div className="px-4 py-3 text-center text-gray-500">
-                                                <IconUser className="mx-auto mb-2 h-12 w-12 text-gray-300" />
-                                                <div className="text-sm">No customers found</div>
-                                                <div className="text-xs">Try searching with a different term</div>
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                )}
-                            </div>
+                <CashPaymentSection formData={formData} onInputChange={handleInputChange} totalPayable={calculateTotal()} />
 
-                            {/* Customer Details Display */}
-                            {selectedCustomer && (
-                                <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <h4 className="text-sm font-medium text-blue-900">Selected Customer</h4>
-                                        <div
-                                            className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                                selectedCustomer.membership === 'platinum'
-                                                    ? 'bg-purple-100 text-purple-800'
-                                                    : selectedCustomer.membership === 'gold'
-                                                    ? 'bg-yellow-100 text-yellow-800'
-                                                    : selectedCustomer.membership === 'silver'
-                                                    ? 'bg-gray-100 text-gray-800'
-                                                    : 'bg-green-100 text-green-800'
-                                            }`}
-                                        >
-                                            {selectedCustomer.membership.toUpperCase()} - {MEMBERSHIP_DISCOUNTS[selectedCustomer.membership]}% OFF
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
-                                        <div>
-                                            <span className="font-medium text-blue-700">Loyalty Points:</span>
-                                            <div className="font-semibold text-blue-900">{selectedCustomer.points}</div>
-                                        </div>
-                                        <div>
-                                            <span className="font-medium text-blue-700">Balance:</span>
-                                            <div className="font-semibold text-blue-900">৳{selectedCustomer.balance}</div>
-                                        </div>
-                                        <div>
-                                            <span className="font-medium text-blue-700">Status:</span>
-                                            <div className={`font-semibold ${selectedCustomer.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                                                {selectedCustomer.is_active ? 'Active' : 'Inactive'}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Manual Customer Input */}
-                            <div className="space-y-3 sm:space-y-4" style={{ display: formData.customerId === 'walk-in' ? 'none' : 'block' }}>
-                                <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                    <label className="text-sm font-medium sm:w-1/3">
-                                        Name <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="customerName"
-                                        className="form-input w-full flex-1"
-                                        placeholder="Enter Name"
-                                        value={formData.customerName}
-                                        onChange={handleInputChange}
-                                        disabled={!!selectedCustomer}
-                                    />
-                                </div>
-                                <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                    <label className="text-sm font-medium sm:w-1/3">
-                                        Email <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="customerEmail"
-                                        className="form-input w-full flex-1"
-                                        placeholder="Enter Email"
-                                        value={formData.customerEmail}
-                                        onChange={handleInputChange}
-                                        disabled={!!selectedCustomer}
-                                    />
-                                </div>
-                                <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                    <label className="text-sm font-medium sm:w-1/3">Phone Number</label>
-                                    <input
-                                        type="text"
-                                        name="customerPhone"
-                                        className="form-input w-full flex-1"
-                                        placeholder="Enter Phone number"
-                                        value={formData.customerPhone}
-                                        onChange={handleInputChange}
-                                        disabled={!!selectedCustomer}
-                                        required={!selectedCustomer}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="panel mb-5">
-                    <div className="mb-3 flex items-center justify-between sm:mb-4">
-                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Order Details</h3>
-                        <div className="flex items-center gap-3">
-                            {/* Wholesale Toggle */}
-                            <label className="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-blue-200 bg-blue-50 px-3 py-1.5 transition-colors hover:bg-blue-100">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.useWholesale}
-                                    onChange={(e) => setFormData({ ...formData, useWholesale: e.target.checked })}
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                />
-                                <span className="text-xs font-semibold text-blue-900 sm:text-sm">Wholesale</span>
-                            </label>
-
-                            <span className="text-xs sm:text-sm">Items: {invoiceItems.length}</span>
-                            <button type="button" onClick={clearAllItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
-                                Clear all
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Desktop Table View */}
-                    <div className="hidden overflow-x-auto rounded-lg border border-gray-300 md:block">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                                    <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Items</th>
-                                    <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Variant</th>
-                                    <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Qty</th>
-                                    <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
-                                    <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Rate</th>
-                                    <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Tax</th>
-                                    <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Amount</th>
-                                    <th className="border-b border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white">
-                                {invoiceItems.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={8} className="border-b border-gray-300 p-8 text-center text-gray-500">
-                                            <div className="flex flex-col items-center justify-center py-4">
-                                                <div className="mb-2 text-3xl">🛒</div>
-                                                <div className="font-medium">No items added yet</div>
-                                                <div className="text-sm">Add products from the left panel</div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    invoiceItems.map((item, index) => (
-                                        <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
-                                            <td className="border-r border-gray-300 p-3 text-sm font-medium">
-                                                <span title={item.title}>{item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title}</span>
-                                                {item.isWholesale && <span className="ml-2 inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
-                                            </td>
-                                            <td className="border-r border-gray-300 p-3">
-                                                {item.variantName ? (
-                                                    <div>
-                                                        <div className="text-xs font-medium text-gray-900" title={item.variantName}>
-                                                            {item.variantName.length > 10 ? `${item.variantName.substring(0, 10)}...` : item.variantName}
-                                                        </div>
-                                                        {item.variantData && (
-                                                            <div className="mt-1 flex flex-wrap gap-1">
-                                                                {Object.entries(item.variantData).map(([key, value]: [string, any]) => (
-                                                                    <span key={key} className="inline-block rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-700">
-                                                                        {value}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-xs text-gray-400">-</span>
-                                                )}
-                                            </td>
-                                            <td className="border-r border-gray-300 p-3 text-center">
-                                                <div className="relative">
-                                                    <input
-                                                        type="number"
-                                                        className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
-                                                        min={0}
-                                                        max={item.PlaceholderQuantity || 9999}
-                                                        value={item.quantity === 0 ? '' : item.quantity}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            handleQuantityChange(item.id, value);
-                                                        }}
-                                                        onBlur={() => {
-                                                            // Set minimum quantity to 1 if empty on blur
-                                                            if (item.quantity === 0) {
-                                                                const updatedItem = invoiceItems.find((invItem) => invItem.id === item.id);
-                                                                if (updatedItem) {
-                                                                    dispatch(
-                                                                        updateItemRedux({
-                                                                            ...updatedItem,
-                                                                            quantity: 1,
-                                                                            amount: updatedItem.rate * 1,
-                                                                        })
-                                                                    );
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-
-                                                    {/* Soft message for empty/0 quantity */}
-                                                    {item.quantity === 0 && (
-                                                        <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="border-r border-gray-300 p-3 text-center text-sm">
-                                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
-                                            </td>
-                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">
-                                                <div className="relative">
-                                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">৳</span>
-                                                    <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
-                                                        value={item.rate}
-                                                        onChange={(e) => {
-                                                            const newRate = e.target.value;
-                                                            handleUnitPriceChange(item.id, newRate);
-                                                        }}
-                                                        onBlur={(e) => {
-                                                            if (item.quantity === 0) {
-                                                                const updatedItem = invoiceItems.find((invItem) => invItem.id === item.id);
-                                                                if (updatedItem) {
-                                                                    dispatch(
-                                                                        updateItemRedux({
-                                                                            ...updatedItem,
-                                                                            quantity: 1,
-                                                                            amount: updatedItem.rate * 1,
-                                                                        })
-                                                                    );
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                            </td>
-
-                                            <td className="border-r border-gray-300 p-3 text-center text-sm">
-                                                {item.tax_rate ? (
-                                                    <div className="text-xs">
-                                                        <div className="font-medium">{item.tax_rate}%</div>
-                                                        <div
-                                                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${
-                                                                item.tax_included ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                                                            }`}
-                                                        >
-                                                            {item.tax_included ? 'Incl.' : 'Excl.'}
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-gray-400">No tax</span>
-                                                )}
-                                            </td>
-                                            <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">
-                                                ৳
-                                                {(() => {
-                                                    const basePrice = item.rate * item.quantity;
-                                                    if (item.tax_rate && !item.tax_included) {
-                                                        // Tax excluded: show base price + tax
-                                                        const taxAmount = basePrice * (item.tax_rate / 100);
-                                                        return (basePrice + taxAmount).toFixed(2);
-                                                    }
-                                                    // Tax included or no tax: show base price
-                                                    return basePrice.toFixed(2);
-                                                })()}
-                                            </td>
-                                            <td className="p-3 text-center">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveItem(item.id)}
-                                                    className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
-                                                    title="Remove item"
-                                                >
-                                                    <IconX className="h-4 w-4" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Mobile Card View */}
-                    <div className="space-y-3 md:hidden">
-                        {invoiceItems.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-12">
-                                <IconShoppingCart className="mb-2 h-12 w-12 text-gray-400" />
-                                <p className="text-gray-500">No items added yet</p>
-                                <p className="text-xs text-gray-400">Add products to start your order</p>
-                            </div>
-                        ) : (
-                            invoiceItems.map((item) => (
-                                <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
-                                    <div className="mb-2 flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
-                                            {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
-                                        </div>
-                                        <button type="button" onClick={() => handleRemoveItem(item.id)} className="ml-2 flex-shrink-0 rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
-                                            <IconX className="h-4 w-4" />
-                                        </button>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Qty:</span>
-                                            <input
-                                                type="number"
-                                                className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                                placeholder="Quantity"
-                                                value={item.quantity === 0 ? '' : item.quantity}
-                                                onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                                                min="0"
-                                            />
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Unit:</span>
-                                            <span className="font-medium">{item.unit || 'N/A'}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Rate:</span>
-                                            <input
-                                                type="number"
-                                                className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                                placeholder="Quantity"
-                                                value={item.rate === 0 ? '' : item.rate}
-                                                onChange={(e) => handleUnitPriceChange(item.id, e.target.value)}
-                                                min="0"
-                                            />
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Tax:</span>
-                                            {item.tax_rate ? (
-                                                <span className="font-medium">
-                                                    {item.tax_rate}% <span className={item.tax_included ? 'text-green-600' : 'text-blue-600'}>({item.tax_included ? 'Incl' : 'Excl'})</span>
-                                                </span>
-                                            ) : (
-                                                <span className="text-gray-400">No tax</span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2">
-                                        <span className="text-xs font-medium text-gray-600">Amount:</span>
-                                        <span className="text-base font-bold text-primary">৳{(item.rate * item.quantity).toFixed(2)}</span>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-
-                    <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">
-                        {selectedCustomer && formData.membershipDiscount > 0 && (
-                            <div className="flex justify-between rounded bg-green-50 p-2">
-                                <label className="text-sm font-semibold text-green-700 sm:text-base">Membership Discount ({selectedCustomer.membership})</label>
-                                <span className="text-sm font-semibold text-green-700 sm:text-base">{formData.membershipDiscount}%</span>
-                            </div>
-                        )}
-
-                        {/* Loyalty Points Payment Section */}
-                        {selectedCustomer && selectedCustomer.points > 0 && (
-                            <div className="rounded border border-orange-200 bg-orange-50 p-4">
-                                <div className="mb-3 flex items-center justify-between">
-                                    <label className="flex items-center">
-                                        <input type="checkbox" name="usePoints" className="mr-2" checked={formData.usePoints} onChange={handleInputChange} />
-                                        <span className="font-semibold text-orange-700">Use Loyalty Points</span>
-                                    </label>
-                                    <span className="text-sm text-orange-600">Available: {selectedCustomer.points} points</span>
-                                </div>
-                                {formData.usePoints && (
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-orange-600">Points to use:</span>
-                                        <input
-                                            type="number"
-                                            name="pointsToUse"
-                                            className="form-input w-24"
-                                            min={0}
-                                            max={selectedCustomer.points}
-                                            value={formData.pointsToUse}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                )}
-                                {formData.usePoints && formData.pointsToUse > 0 && <div className="mt-2 text-sm text-orange-600">Points discount: -৳{calculatePointsDiscount().toFixed(2)}</div>}
-                            </div>
-                        )}
-
-                        {/* Balance Payment Section */}
-                        {selectedCustomer && parseFloat(selectedCustomer.balance) > 0 && (
-                            <div className="rounded border border-teal-200 bg-teal-50 p-4">
-                                <div className="mb-3 flex items-center justify-between">
-                                    <label className="flex items-center">
-                                        <input type="checkbox" name="useBalance" className="mr-2" checked={formData.useBalance} onChange={handleInputChange} />
-                                        <span className="font-semibold text-teal-700">Use Account Balance</span>
-                                    </label>
-                                    <span className="text-sm text-teal-600">Available:৳{selectedCustomer.balance}</span>
-                                </div>
-                                {formData.useBalance && (
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-teal-600">Balance to use:</span>
-                                        <input
-                                            type="number"
-                                            name="balanceToUse"
-                                            className="form-input w-24"
-                                            min={0}
-                                            max={parseFloat(selectedCustomer.balance)}
-                                            step={0.01}
-                                            value={formData.balanceToUse}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                )}
-                                {formData.useBalance && formData.balanceToUse > 0 && <div className="mt-2 text-sm text-teal-600">Balance discount: -৳{calculateBalanceDiscount().toFixed(2)}</div>}
-                            </div>
-                        )}
-
-                        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-                            <label className="text-sm font-semibold sm:text-base">
-                                Payment Method <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                name="paymentMethod"
-                                className="form-select w-full sm:w-40"
-                                value={formData.paymentMethod}
-                                onChange={handleInputChange}
-                                required // ✅ HTML5 required
-                            >
-                                <option value="">Select</option>
-                                <option value="cash">Cash</option>
-                                <option value="Credit Card">Credit Card</option>
-                                <option value="Bank">Bank</option>
-                            </select>
-                        </div>
-
-                        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-                            <label className="text-sm font-semibold sm:text-base">
-                                Payment Status <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                name="paymentStatus"
-                                className="form-select w-full sm:w-40"
-                                value={formData.paymentStatus}
-                                onChange={handleInputChange}
-                                required // ✅ HTML5 required
-                            >
-                                <option value="">Select</option>
-                                <option value="paid">Paid</option>
-                            </select>
-                        </div>
-
-                        <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
-                            <span>Subtotal (without tax)</span>
-                            <span>৳{calculateSubtotalWithoutTax().toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm sm:text-base">
-                            <span>Tax (from items)</span>
-                            <span>৳{calculateTax().toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm sm:text-base">
-                            <span>Discount</span>
-                            <span>৳-{calculateDiscount().toFixed(2)}</span>
-                        </div>
-                        {selectedCustomer && formData.membershipDiscount > 0 && (
-                            <div className="flex justify-between text-sm text-green-600 sm:text-base">
-                                <span>Membership Discount</span>
-                                <span>৳-{calculateMembershipDiscount().toFixed(2)}</span>
-                            </div>
-                        )}
-                        {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
-                            <div className="flex justify-between text-sm text-orange-600 sm:text-base">
-                                <span>Points Payment ({formData.pointsToUse} pts)</span>
-                                <span>৳ -{calculatePointsDiscount().toFixed(2)}</span>
-                            </div>
-                        )}
-                        {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
-                            <div className="flex justify-between text-sm text-teal-600 sm:text-base">
-                                <span>Balance Payment</span>
-                                <span>৳-{calculateBalanceDiscount().toFixed(2)}</span>
-                            </div>
-                        )}
-                        <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
-                            <span>Total Payable</span>
-                            <span>৳{calculateTotal().toFixed(2)}</span>
-                        </div>
-                    </div>
-
-                    {/* Cash Payment Section - After Total */}
-                    {formData.paymentMethod === 'cash' && (
-                        <div className="mt-4 rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4 shadow-md">
-                            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-green-800">
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                    />
-                                </svg>
-                                Cash Payment Details
-                            </h4>
-
-                            <div className="space-y-3">
-                                {/* Amount Paid Input */}
-                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                    <label className="text-sm font-semibold text-green-700">Amount Received:</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-green-600">৳</span>
-                                        <input
-                                            type="number"
-                                            name="amountPaid"
-                                            step="0.01"
-                                            min="0"
-                                            className="form-input w-full border-green-300 pl-8 pr-4 text-lg font-semibold focus:border-green-500 focus:ring-green-500 sm:w-48"
-                                            placeholder="0.00"
-                                            value={formData.amountPaid || ''}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Change Display */}
-                                {formData.amountPaid > 0 && (
-                                    <div className="flex flex-col gap-2 rounded-md border-2 border-yellow-300 bg-yellow-50 p-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <label className="text-sm font-bold text-yellow-800">Change to Return:</label>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-2xl font-bold text-yellow-900">৳{formData.changeAmount.toFixed(2)}</span>
-                                            {formData.changeAmount > 0 && (
-                                                <svg className="h-6 w-6 animate-bounce text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                    />
-                                                </svg>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Warning if insufficient */}
-                                {formData.amountPaid > 0 && formData.amountPaid < calculateTotal() && (
-                                    <div className="flex items-center gap-2 rounded-md border border-red-300 bg-red-50 p-2 text-sm text-red-700">
-                                        <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>
-                                        <span className="font-medium">Insufficient amount! Still need: ৳{(calculateTotal() - formData.amountPaid).toFixed(2)}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
-                        <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
-                            Confirm Order <IconSave />
-                        </button>
-                        <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
-                            Preview <IconEye />
-                        </button>
-                    </div>
+                <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
+                    <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
+                        Confirm Order <IconSave />
+                    </button>
+                    <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
+                        Preview <IconEye />
+                    </button>
                 </div>
             </div>
         </div>
