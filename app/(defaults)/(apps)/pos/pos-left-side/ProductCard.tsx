@@ -59,14 +59,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
             const maxPrice = Math.max(...prices);
             return (
                 <span className="text-xs font-semibold text-green-600 sm:text-sm">
-                    ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}
+                    ৳{minPrice.toFixed(2)} - ৳{maxPrice.toFixed(2)}
                 </span>
             );
         }
         // Simple product - show regular price
         const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
         const price = parseFloat((primaryStock?.price || product.price || 0) as string);
-        return <span className="text-xs font-semibold text-green-600 sm:text-sm">${price.toFixed(2)}</span>;
+        return <span className="text-xs font-semibold text-green-600 sm:text-sm">৳{price.toFixed(2)}</span>;
     };
 
     return (

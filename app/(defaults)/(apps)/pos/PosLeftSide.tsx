@@ -91,12 +91,21 @@ const PosLeftSide = () => {
     // Fetch products for current store only
     const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams);
 
-    // Handle both success and 404 "not found" responses
+    // Handle both success and 404 "not found" responses - NEW API FORMAT
     const products = useMemo(() => {
-        // If API returns data array, use it
+        // NEW API FORMAT: Check if productsData.data is an object with items array
+        if (productsData?.data && typeof productsData.data === 'object' && !Array.isArray(productsData.data)) {
+            const dataObj = productsData.data as Record<string, any>;
+            if (Array.isArray(dataObj.items)) {
+                return dataObj.items;
+            }
+        }
+
+        // Legacy: If API returns data array directly, use it
         if (productsData?.data && Array.isArray(productsData.data)) {
             return productsData.data;
         }
+
         // If 404 or no products found, return empty array (don't show error)
         return [];
     }, [productsData]);
@@ -107,13 +116,6 @@ const PosLeftSide = () => {
 
     const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(filterQueryParams);
     const brands = brandsResponse?.data || [];
-
-    // Debug logging
-    useEffect(() => {
-        console.log('Categories Response:', categoriesResponse);
-        console.log('Brands Response:', brandsResponse);
-        console.log('Current Store ID:', currentStoreId);
-    }, [categoriesResponse, brandsResponse, currentStoreId]);
 
     const reduxItems = useSelector((state: RootState) => state.invoice.items);
     const beepRef = useRef<HTMLAudioElement | null>(null);
@@ -303,14 +305,14 @@ const PosLeftSide = () => {
 
             // 🔑 Auto-add when SKU format detected
             if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
-                const foundProduct = (productsData?.data || []).find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
+                const foundProduct = products.find((p: any) => p.sku?.toLowerCase() === value.toLowerCase());
                 if (foundProduct) {
                     addToCart(foundProduct);
                     setSearchTerm(''); // clear after adding
                 }
             }
         },
-        [productsData, addToCart]
+        [products, addToCart]
     );
 
     // Barcode scan handler (for both keyboard scanner and camera scanner)
