@@ -1,7 +1,8 @@
 'use client';
 
-import { Check, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import Dropdown from './Dropdown';
 
 interface Unit {
     id?: number;
@@ -12,6 +13,7 @@ interface Unit {
 interface UnitsTabProps {
     storeId: number | undefined;
     unitsData: Unit[];
+    unitsLoading?: boolean;
     unitName: string;
     setUnitName: (name: string) => void;
     handleCreateUnit: () => void;
@@ -21,10 +23,24 @@ interface UnitsTabProps {
     setMessage: (message: { type: string; text: string }) => void;
 }
 
-const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUnitName, handleCreateUnit, handleUpdateUnit, handleDeleteUnit, handleToggleUnitActive, setMessage }) => {
-    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, unitName, setUnitName, handleCreateUnit, handleUpdateUnit, handleDeleteUnit, handleToggleUnitActive, setMessage }) => {
     const [editingUnitId, setEditingUnitId] = useState<number | null>(null);
     const [editingUnitName, setEditingUnitName] = useState('');
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Calculate pagination
+    const totalItems = unitsData?.length || 0;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = unitsData?.slice(startIndex, endIndex) || [];
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     const startEditingUnit = (id: number, name: string) => {
         setEditingUnitId(id);
@@ -59,16 +75,16 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUn
                         onChange={(e) => setUnitName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateUnit()}
                         placeholder="Enter unit name (e.g., Piece, Box, Kg)"
-                        className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
-                    <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
                         <Plus className="mr-1 h-4 w-4" />
                         Add
                     </button>
                 </div>
 
                 {/* Units Table */}
-                <div className="relative overflow-x-auto">
+                <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
@@ -79,8 +95,14 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUn
                             </tr>
                         </thead>
                         <tbody>
-                            {unitsData && unitsData.length > 0 ? (
-                                unitsData.map((unit, index) => (
+                            {unitsLoading ? (
+                                <tr>
+                                    <td colSpan={4} className="px-4 py-8 text-center">
+                                        <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
+                                    </td>
+                                </tr>
+                            ) : paginatedData && paginatedData.length > 0 ? (
+                                paginatedData.map((unit, index) => (
                                     <tr key={unit.id || index} className="border-b hover:bg-gray-50">
                                         <td className="px-4 py-3 text-sm text-gray-600">{unit.id || index + 1}</td>
                                         <td className="px-4 py-3">
@@ -90,7 +112,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUn
                                                     value={editingUnitName}
                                                     onChange={(e) => setEditingUnitName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && unit.id && saveEditingUnit(unit.id)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                                                     placeholder="Enter unit name"
                                                     autoFocus
                                                 />
@@ -106,16 +128,17 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUn
                                                     onChange={() => unit.id && handleToggleUnitActive(unit.id, !(unit.is_active === true || unit.is_active === 1))}
                                                     className="peer sr-only"
                                                 />
-                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
                                             </label>
                                         </td>
-                                        <td className="px-4 py-3 text-center">
+                                        {/* Actions */}
+                                        <td className="px-4 py-3">
                                             {editingUnitId === unit.id ? (
-                                                <div className="inline-flex gap-1">
+                                                <div className="flex items-center justify-center gap-2">
                                                     <button
                                                         type="button"
                                                         onClick={() => unit.id && saveEditingUnit(unit.id)}
-                                                        className="rounded bg-green-600 p-1.5 text-white hover:bg-green-700"
+                                                        className="rounded bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
                                                         title="Save"
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -125,52 +148,40 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUn
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="relative inline-flex justify-end">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setOpenDropdown(openDropdown === unit.id ? null : unit.id || null)}
-                                                        className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
+                                                <div className="flex justify-center">
+                                                    <Dropdown
+                                                        offset={[0, 5]}
+                                                        placement="bottom-end"
+                                                        btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                                        button={<MoreVertical className="h-5 w-5" />}
                                                     >
-                                                        <MoreVertical className="h-5 w-5" />
-                                                    </button>
-
-                                                    {unit.id && openDropdown === unit.id && (
-                                                        <>
-                                                            <div className="fixed inset-0 z-[100]" onClick={() => setOpenDropdown(null)} />
-                                                            <div
-                                                                className={`absolute right-0 z-[101] min-w-[140px] rounded-lg border border-gray-200 bg-white py-1 shadow-xl ${
-                                                                    index > unitsData.length / 2 ? 'bottom-8' : 'top-8'
-                                                                }`}
-                                                            >
+                                                        <ul className="min-w-[120px] rounded-lg border bg-white shadow-lg">
+                                                            <li>
                                                                 <button
-                                                                    type="button"
                                                                     onClick={() => {
                                                                         if (unit.id) {
                                                                             startEditingUnit(unit.id, unit.name);
-                                                                            setOpenDropdown(null);
                                                                         }
                                                                     }}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-blue-50"
+                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    <Pencil className="h-4 w-4 text-blue-600" />
-                                                                    Edit
+                                                                    Edit Unit
                                                                 </button>
+                                                            </li>
+                                                            <li className="border-t">
                                                                 <button
-                                                                    type="button"
                                                                     onClick={() => {
                                                                         if (unit.id) {
                                                                             handleDeleteUnit(unit.id, unit.name);
-                                                                            setOpenDropdown(null);
                                                                         }
                                                                     }}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50"
+                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                 >
-                                                                    <Trash2 className="h-4 w-4 text-red-600" />
-                                                                    Delete
+                                                                    Delete Unit
                                                                 </button>
-                                                            </div>
-                                                        </>
-                                                    )}
+                                                            </li>
+                                                        </ul>
+                                                    </Dropdown>
                                                 </div>
                                             )}
                                         </td>
@@ -186,6 +197,47 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitName, setUn
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between border-t pt-4">
+                        <div className="text-sm text-gray-600">
+                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
+                            <span className="font-semibold">{totalItems}</span> units
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Previous
+                            </button>
+                            <div className="flex gap-1">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`rounded px-3 py-1.5 text-sm font-medium ${
+                                            currentPage === page ? 'bg-emerald-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Next
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Total Count */}
                 {unitsData && unitsData.length > 0 && (
