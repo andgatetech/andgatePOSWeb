@@ -35,14 +35,7 @@ const ProductApi = baseApi.injectEndpoints({
             },
             providesTags: ['Products', 'Orders'],
         }),
-        // getAllProductsWithStock: builder.query({
-        //     query: (params) => ({
-        //         url: '/products/in-stock',
-        //         method: 'GET',
-        //         params,
-        //     }),
-        //     providesTags: ['Products', 'Orders'],
-        // }),
+        
 
         getAllProductsWithStock: builder.query({
             query: ({ store_id, search }) => {

@@ -88,6 +88,15 @@ const ProductTable = () => {
     };
 
     const products = useMemo(() => {
+        // Check if pds.data is an object with items array
+        if (pds?.data && typeof pds.data === 'object' && !Array.isArray(pds.data)) {
+            const dataObj = pds.data as Record<string, any>;
+            if (Array.isArray(dataObj.items)) {
+                return dataObj.items;
+            }
+        }
+
+        // Otherwise try the ensureArray approach
         const primary = ensureArray(pds?.data);
         if (primary.length > 0 || Array.isArray(pds?.data)) {
             return primary;
@@ -96,18 +105,11 @@ const ProductTable = () => {
     }, [pds]);
 
     const metaContainer: Record<string, any> | undefined = useMemo(() => {
-        if (pds?.meta && typeof pds.meta === 'object') {
-            return pds.meta as Record<string, any>;
-        }
+        // NEW API FORMAT: Check if pds.data has pagination directly
+        if (pds?.data && typeof pds.data === 'object' && !Array.isArray(pds.data)) {
+            const dataObj = pds.data as Record<string, any>;
+            const { pagination, summary, stats } = dataObj;
 
-        const nestedData = pds?.data;
-        if (nestedData && typeof nestedData === 'object' && !Array.isArray(nestedData)) {
-            const nestedMeta = (nestedData as Record<string, any>).meta;
-            if (nestedMeta && typeof nestedMeta === 'object') {
-                return nestedMeta as Record<string, any>;
-            }
-
-            const { pagination, summary, stats } = nestedData as Record<string, any>;
             if (pagination || summary || stats) {
                 return {
                     pagination,
@@ -117,17 +119,31 @@ const ProductTable = () => {
             }
         }
 
+        // Legacy: Check pds.meta
+        if (pds?.meta && typeof pds.meta === 'object') {
+            return pds.meta as Record<string, any>;
+        }
+
         return undefined;
     }, [pds]);
 
     const paginationMeta = useMemo(() => {
         if (!metaContainer) return undefined;
+
         if (metaContainer.pagination && typeof metaContainer.pagination === 'object') {
             return metaContainer.pagination as Record<string, any>;
         }
-        if ('page' in metaContainer || 'total_pages' in metaContainer || 'per_page' in metaContainer || 'total_records' in metaContainer) {
+
+        // Check for new API format field names
+        if ('current_page' in metaContainer || 'last_page' in metaContainer || 'per_page' in metaContainer || 'total' in metaContainer) {
             return metaContainer;
         }
+
+        // Legacy field names
+        if ('page' in metaContainer || 'total_pages' in metaContainer || 'total_records' in metaContainer) {
+            return metaContainer;
+        }
+
         return undefined;
     }, [metaContainer]);
 
@@ -219,11 +235,12 @@ const ProductTable = () => {
     };
 
     const effectivePerPage = paginationMeta?.per_page && paginationMeta.per_page > 0 ? paginationMeta.per_page : itemsPerPage;
-    const totalRecords = paginationMeta?.total_records ?? pds?.meta?.total ?? products.length;
-    const activePage = paginationMeta?.page && paginationMeta.page > 0 ? paginationMeta.page : currentPage;
-    const totalPages = paginationMeta?.total_pages ?? Math.max(1, effectivePerPage > 0 ? Math.ceil((totalRecords || 0) / effectivePerPage) : 1);
+    const totalRecords = paginationMeta?.total ?? products.length;
+    // Use currentPage state directly, not the API response (which may be stale during loading)
+    const activePage = currentPage;
+    const totalPages = paginationMeta?.last_page ?? Math.max(1, effectivePerPage > 0 ? Math.ceil((totalRecords || 0) / effectivePerPage) : 1);
     const startRecord = totalRecords === 0 ? 0 : (activePage - 1) * effectivePerPage + 1;
-    const endRecord = totalRecords === 0 ? 0 : startRecord + products.length - 1;
+    const endRecord = totalRecords === 0 ? 0 : Math.min(startRecord + products.length - 1, totalRecords);
 
     const fallbackStats = useMemo(() => {
         let available = 0;
@@ -263,14 +280,13 @@ const ProductTable = () => {
         };
     }, [products, totalRecords]);
 
-    const goToPage = useCallback(
-        (pageNumber: number) => {
-            const boundedTotalPages = totalPages || 1;
-            const target = Math.min(Math.max(pageNumber, 1), boundedTotalPages);
-            setCurrentPage(target);
-        },
-        [setCurrentPage, totalPages]
-    );
+    const goToPage = (pageNumber: number) => {
+        // Calculate totalPages dynamically to avoid stale closure
+        const currentTotalPages = paginationMeta?.last_page ?? Math.max(1, effectivePerPage > 0 ? Math.ceil((totalRecords || 0) / effectivePerPage) : 1);
+        const boundedTotalPages = currentTotalPages || 1;
+        const target = Math.min(Math.max(pageNumber, 1), boundedTotalPages);
+        setCurrentPage(target);
+    };
 
     // Handle sorting
     const handleSort = (field: string) => {
@@ -660,7 +676,11 @@ const ProductTable = () => {
                                 <div className="flex items-center gap-2">
                                     <button
                                         type="button"
-                                        onClick={() => goToPage(activePage - 1)}
+                                        onClick={() => {
+                                            if (currentPage > 1) {
+                                                setCurrentPage((prev) => prev - 1);
+                                            }
+                                        }}
                                         disabled={activePage <= 1}
                                         className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                                             activePage <= 1 ? 'cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:bg-gray-100'
@@ -673,7 +693,11 @@ const ProductTable = () => {
                                     </span>
                                     <button
                                         type="button"
-                                        onClick={() => goToPage(activePage + 1)}
+                                        onClick={() => {
+                                            if (currentPage < totalPages) {
+                                                setCurrentPage((prev) => prev + 1);
+                                            }
+                                        }}
                                         disabled={activePage >= totalPages || totalRecords === 0}
                                         className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                                             activePage >= totalPages || totalRecords === 0 ? 'cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:bg-gray-100'
