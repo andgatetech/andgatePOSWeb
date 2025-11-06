@@ -116,10 +116,24 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // Products
     '/products/create': ['products.create'],
-    '/products': ['products.view'],
+    '/products': ['products.index', 'products.view'],
     '/products/stock/create-stock-adjustment': ['stock-adjustments.create'],
     '/products/qr-code': ['products.view'],
     '/label': ['products.view'],
+    '/products/in-stock': ['products.view'],
+    '/products/low-stock': ['products.view'],
+
+    // Product Attributes
+    '/product-attributes': ['products.index'],
+    '/product-attributes/create': ['products.create'],
+
+    // Warranty Types
+    '/warranty-types': ['products.index'],
+    '/warranty-types/create': ['products.create'],
+
+    // Product Serials
+    '/product-serials': ['products.index'],
+    '/product-serials/create': ['products.create'],
 
     // POS
     '/pos': ['pos.access'],
