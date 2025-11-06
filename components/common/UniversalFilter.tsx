@@ -57,6 +57,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
 
     // State management
     const [search, setSearch] = useState(initialFilters.search || '');
+    const [localSearch, setLocalSearch] = useState(initialFilters.search || ''); // Local state for input
     // const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || currentStoreId || 'all');
     const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || 'all');
 
@@ -69,13 +70,14 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     // Reset filters
     const resetFilters = useCallback(() => {
         setSearch('');
+        setLocalSearch(''); // Also reset local search
         // setSelectedStore(currentStoreId || 'all');
         setSelectedStore('all');
         setDateFilterType('none');
         setCustomStartDate(format(new Date(), 'yyyy-MM-dd'));
         setCustomEndDate(format(new Date(), 'yyyy-MM-dd'));
         onResetFilters?.(); // Call parent reset callback
-    }, [currentStoreId, onResetFilters]);
+    }, [onResetFilters]);
 
     // Listen to external reset trigger
     useEffect(() => {
@@ -178,20 +180,34 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
         };
     }, [search, selectedStore, dateFilterType, showSearch, showStoreFilter, showDateFilter, getDateRange]);
 
-    // Emit filter changes
-    // useEffect(() => {
-    //     const filters = buildFilters();
-    //     onFilterChange(filters);
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [buildFilters]);
+    // Emit filter changes - only when search state changes (after button click)
     useEffect(() => {
         const filters = buildFilters();
         onFilterChange(filters);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search, selectedStore, dateFilterType, customStartDate, customEndDate]);
 
     // Check if filters are active (not default)
     const hasActiveFilters = () => {
         return search !== '' || selectedStore !== 'all' || dateFilterType !== 'none';
+    };
+
+    // Handle search button click
+    const handleSearchClick = () => {
+        setSearch(localSearch);
+    };
+
+    // Handle Enter key press in search input
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearchClick();
+        }
+    };
+
+    // Clear search
+    const handleClearSearch = () => {
+        setLocalSearch('');
+        setSearch('');
     };
 
     return (
@@ -200,20 +216,30 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                 {/* Search Input */}
                 {showSearch && (
                     <div className="min-w-[200px] flex-1">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder={placeholder}
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
-                            />
-                            {search && (
-                                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                    <X className="h-4 w-4" />
-                                </button>
-                            )}
+                        <div className="relative flex gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder={placeholder}
+                                    value={localSearch}
+                                    onChange={(e) => setLocalSearch(e.target.value)}
+                                    onKeyDown={handleSearchKeyDown}
+                                    className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                />
+                                {localSearch && (
+                                    <button onClick={handleClearSearch} className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleSearchClick}
+                                className="flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-white transition-colors hover:bg-blue-700"
+                                title="Search"
+                            >
+                                <Search className="h-5 w-5" />
+                            </button>
                         </div>
                     </div>
                 )}

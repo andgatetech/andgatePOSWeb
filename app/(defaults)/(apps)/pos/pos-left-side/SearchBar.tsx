@@ -1,5 +1,5 @@
 import { Camera, Search } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface SearchBarProps {
     searchTerm: string;
@@ -11,6 +11,31 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, barcodeEnabled, showCameraScanner, onSearchChange, onToggleBarcodeScanner, onToggleCameraScanner }) => {
+    const [localSearch, setLocalSearch] = useState(searchTerm);
+
+    const handleSearchClick = () => {
+        onSearchChange(localSearch);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearchClick();
+        }
+    };
+
+    const handleInputChange = (value: string) => {
+        setLocalSearch(value);
+        // Auto-trigger for SKU scanning (instant add)
+        if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
+            onSearchChange(value);
+        }
+    };
+
+    const handleClear = () => {
+        setLocalSearch('');
+        onSearchChange('');
+    };
+
     return (
         <div className="relative mb-4 sm:mb-6">
             <div className="flex gap-2">
@@ -19,12 +44,26 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, barcodeEnabled, showC
                     <input
                         type="text"
                         placeholder="Search or scan..."
-                        className="form-input w-full rounded-lg border border-gray-300 py-2 pl-8 pr-3 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:py-3 sm:pl-10 sm:pr-4 sm:text-base"
-                        value={searchTerm}
-                        onChange={(e) => onSearchChange(e.target.value)}
+                        className="form-input w-full rounded-lg border border-gray-300 py-2 pl-8 pr-20 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:py-3 sm:pl-10 sm:pr-24 sm:text-base"
+                        value={localSearch}
+                        onChange={(e) => handleInputChange(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         autoFocus
                     />
+                    {localSearch && (
+                        <button onClick={handleClear} className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 sm:right-14" title="Clear search">
+                            ✕
+                        </button>
+                    )}
                 </div>
+                {/* Search Button */}
+                <button
+                    onClick={handleSearchClick}
+                    className="flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 sm:px-6 sm:py-3"
+                    title="Search"
+                >
+                    <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+                </button>
                 {/* Keyboard Scanner Button */}
                 <button
                     onClick={onToggleBarcodeScanner}

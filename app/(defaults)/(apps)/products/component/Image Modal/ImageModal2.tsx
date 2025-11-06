@@ -4,7 +4,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Archive, Package, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import { Fragment, useState } from 'react';
-import { Navigation, Pagination } from 'swiper';
+// Swiper v8 imports
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -105,7 +105,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
                                         {displayImages && displayImages.length > 0 ? (
                                             <div className="overflow-hidden rounded-lg border border-gray-200">
-                                                <Swiper modules={[Navigation, Pagination]} navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full bg-gray-50">
+                                                <Swiper navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full bg-gray-50">
                                                     {displayImages.map((img: any, index: number) => {
                                                         const imagePath = img?.url || img?.path || img?.image_path || '';
                                                         if (!imagePath) return null;
@@ -290,15 +290,21 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         )}
 
                                         {/* Additional Info */}
-                                        <div className="flex items-center gap-4 border-t border-gray-200 pt-4">
+                                        <div className="flex flex-wrap items-center gap-4 border-t border-gray-200 pt-4">
                                             <div className="flex items-center gap-2">
                                                 <Archive className="h-4 w-4 text-gray-400" />
-                                                <span className="text-xs text-gray-600">Serial Tracking: {product.has_serial_tracking ? 'Enabled' : 'Disabled'}</span>
+                                                <span className="text-xs text-gray-600">Serial Tracking: {product.has_serial ? 'Enabled' : 'Disabled'}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Package className="h-4 w-4 text-gray-400" />
                                                 <span className="text-xs text-gray-600">Warranty: {product.has_warranty ? 'Available' : 'Not Available'}</span>
                                             </div>
+                                            {product.has_serial && product.available_serial_count !== undefined && (
+                                                <div className="flex items-center gap-2">
+                                                    <Tag className="h-4 w-4 text-indigo-500" />
+                                                    <span className="text-xs font-medium text-indigo-600">{product.available_serial_count} serial(s) available</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

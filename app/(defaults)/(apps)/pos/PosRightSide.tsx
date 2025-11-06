@@ -519,8 +519,9 @@ const PosRightSide: React.FC = () => {
                 const itemTax = calculateItemTax(item);
                 const itemSubtotal = item.tax_included && item.tax_rate ? itemBasePrice : itemBasePrice + itemTax;
 
-                return {
+                const orderItem: any = {
                     product_id: item.productId,
+                    stock_id: item.stockId, // Include stock_id for variants
                     quantity: item.quantity,
                     unit_price: item.rate,
                     unit: item.unit || 'piece',
@@ -529,6 +530,19 @@ const PosRightSide: React.FC = () => {
                     tax_included: item.tax_included || false,
                     subtotal: itemSubtotal,
                 };
+
+                // Include serial numbers if present
+                if (item.has_serial && item.serials && item.serials.length > 0) {
+                    orderItem.serial_ids = item.serials.map((s: any) => s.id);
+                }
+
+                // Include warranty if present
+                if (item.has_warranty && item.warranty) {
+                    orderItem.warranty_id = item.warranty.id;
+                    orderItem.activate_warranty = true; // Flag to activate warranty on invoice creation
+                }
+
+                return orderItem;
             }),
         };
 
@@ -620,13 +634,30 @@ const PosRightSide: React.FC = () => {
                 },
                 invoice: orderResponse.data.invoice,
                 order_id: orderResponse.data.order_id,
-                items: orderResponse.data.products.map((product: any, idx: number) => ({
-                    id: idx + 1,
-                    title: product.name,
-                    quantity: product.quantity,
-                    price: product.unit_price,
-                    amount: product.subtotal,
-                })),
+                items: orderResponse.data.products.map((product: any, idx: number) => {
+                    // Find matching item from invoiceItems to get variant/serial/warranty data
+                    const originalItem = invoiceItems[idx];
+
+                    return {
+                        id: idx + 1,
+                        title: product.name,
+                        quantity: product.quantity,
+                        price: product.unit_price,
+                        amount: product.subtotal,
+                        unit: product.unit || originalItem?.unit || 'piece',
+                        tax_rate: product.tax || originalItem?.tax_rate,
+                        tax_included: product.tax_included || originalItem?.tax_included,
+                        // Include variant data
+                        variantName: originalItem?.variantName,
+                        variantData: originalItem?.variantData,
+                        // Include serial data
+                        has_serial: originalItem?.has_serial || false,
+                        serials: originalItem?.serials || [],
+                        // Include warranty data
+                        has_warranty: originalItem?.has_warranty || false,
+                        warranty: originalItem?.warranty || null,
+                    };
+                }),
                 tax: parseFloat(orderResponse.data.totals.tax),
                 discount: orderResponse.data.totals.discount,
                 membershipDiscount: formData.membershipDiscount,
@@ -640,6 +671,7 @@ const PosRightSide: React.FC = () => {
                     pointsDiscount: calculatePointsDiscount(),
                     balanceDiscount: calculateBalanceDiscount(),
                     total: parseFloat(orderResponse.data.totals.grand_total),
+                    grand_total: parseFloat(orderResponse.data.totals.grand_total),
                 },
                 isOrderCreated: true,
             };
@@ -662,6 +694,15 @@ const PosRightSide: React.FC = () => {
                 tax_rate: item.tax_rate,
                 tax_included: item.tax_included,
                 unit: item.unit || 'piece',
+                // Include variant data
+                variantName: item.variantName,
+                variantData: item.variantData,
+                // Include serial data
+                has_serial: item.has_serial || false,
+                serials: item.serials || [],
+                // Include warranty data
+                has_warranty: item.has_warranty || false,
+                warranty: item.warranty || null,
             })),
             tax: 0,
             discount: formData.discount,
@@ -676,6 +717,7 @@ const PosRightSide: React.FC = () => {
                 pointsDiscount: calculatePointsDiscount(),
                 balanceDiscount: calculateBalanceDiscount(),
                 total: calculateTotal(),
+                grand_total: calculateTotal(),
             },
             isOrderCreated: false,
         };
