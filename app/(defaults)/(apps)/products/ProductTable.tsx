@@ -5,6 +5,7 @@ import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Percent, Tag, XCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -159,43 +160,37 @@ const ProductTable = () => {
         [] // Remove dependency to prevent infinite re-renders
     );
 
-    // Toast notification
-    const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-0 ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.add('translate-x-full', 'opacity-0');
-            setTimeout(() => document.body.removeChild(toast), 300);
-        }, 3000);
-    };
-
     const handleDeleteProduct = async (productId: number) => {
-        if (!window.confirm('Are you sure you want to delete this product?')) {
+        const confirmed = await showConfirmDialog(
+            'Are you sure?',
+            'This product will be permanently deleted!',
+            'Yes, delete it!',
+            'Cancel',
+            false // Don't show toast on confirm
+        );
+
+        if (!confirmed) {
             return;
         }
 
         try {
             await deleteProduct(productId).unwrap();
-            showToast('Product deleted successfully', 'success');
+            showSuccessDialog('Deleted!', 'Product has been deleted successfully.');
         } catch (error) {
-            showToast('Failed to delete product', 'error');
+            showErrorDialog('Delete Failed!', 'Failed to delete product. Please try again.');
         }
     };
 
     // Handle availability toggle
     const handleAvailabilityToggle = async (productId: number, currentAvailability: boolean) => {
         const newAvailability = currentAvailability ? 'no' : 'yes';
+        const statusText = newAvailability === 'yes' ? 'Available' : 'Unavailable';
 
         try {
             await updateAvailability({ id: productId, available: newAvailability }).unwrap();
-            showToast(`Product availability updated to "${newAvailability === 'yes' ? 'Available' : 'Unavailable'}"`, 'success');
+            showSuccessDialog('Updated!', `Product is now ${statusText}.`);
         } catch (error) {
-            showToast('Failed to update product availability', 'error');
+            showErrorDialog('Update Failed!', 'Failed to update product availability. Please try again.');
         }
     };
 

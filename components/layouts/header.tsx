@@ -12,7 +12,7 @@ import IconXCircle from '@/components/icon/icon-x-circle';
 import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
-import { toggleRTL, toggleSidebar } from '@/store/themeConfigSlice';
+import { toggleSidebar } from '@/store/themeConfigSlice';
 import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -29,6 +29,10 @@ const Header = () => {
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const handleLogout = async () => {
+        // Navigate to login first
+        router.push('/login');
+
+        // Then do cleanup
         try {
             await logout(null);
         } catch (err) {
@@ -42,8 +46,6 @@ const Header = () => {
             const name = cookie.split('=')[0].trim();
             document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
         });
-
-        router.push('/login');
     };
 
     // Fullscreen toggle function
@@ -100,15 +102,6 @@ const Header = () => {
     }, [pathname]);
 
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
-
-    const setLocale = (flag: string) => {
-        if (flag.toLowerCase() === 'ae') {
-            dispatch(toggleRTL('rtl'));
-        } else {
-            dispatch(toggleRTL('ltr'));
-        }
-        router.refresh();
-    };
 
     const [notifications, setNotifications] = useState([
         {
