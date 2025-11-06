@@ -27,10 +27,6 @@ const LowStockReportFilter: React.FC<LowStockReportFilterProps> = ({ onFilterCha
             customFilters={[
                 // Category Filter
                 <div key="category_id" className="flex flex-col">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                        <Layers className="h-5 w-5 text-gray-400" />
-                        Category
-                    </label>
                     <select
                         defaultValue=""
                         onChange={(e) => handleFilterChange({ category_id: e.target.value || undefined })}
@@ -44,10 +40,6 @@ const LowStockReportFilter: React.FC<LowStockReportFilterProps> = ({ onFilterCha
                 </div>,
                 // Brand Filter
                 <div key="brand_id" className="flex flex-col">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                        <Tag className="h-5 w-5 text-gray-400" />
-                        Brand
-                    </label>
                     <select
                         defaultValue=""
                         onChange={(e) => handleFilterChange({ brand_id: e.target.value || undefined })}

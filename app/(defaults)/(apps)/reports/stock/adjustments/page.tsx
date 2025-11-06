@@ -1,13 +1,12 @@
 'use client';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/stockAdjustmentHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import StockAdjustmentReportFilter from '@/components/filters/StockAdjustmentReportFilter';
-// import StockAdjustmentReportFilter from '@/components/filters/StockAdjustmentReportFilter';
 import Loading from '@/components/layouts/loading';
-import { downloadBase64File } from '@/lib/downloadFile';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
 import { Activity, FileDown, FileSpreadsheet, FileText, Printer, TrendingDown, TrendingUp } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
 interface StockAdjustmentItem {
@@ -52,6 +51,7 @@ const StockAdjustmentReportPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [getStockAdjustmentReport, { isLoading }] = useGetStockAdjustmentReportMutation();
 
@@ -91,73 +91,77 @@ const StockAdjustmentReportPage = () => {
         [fetchReport]
     );
 
-    // Export handlers
-    const handleExportPDF = async () => {
+    // Export handlers using helper functions
+    const handlePrintReport = async () => {
+        if (!reportData) return;
         try {
-            const payload = {
-                ...filterParams,
-                format: 'pdf',
-            };
-
-            const response = await getStockAdjustmentReport(payload).unwrap();
-
-            if (response?.data?.file) {
-                downloadBase64File(response.data.file, response.data.filename || `stock-adjustment-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'PDF downloaded successfully',
-                    timer: 2000,
-                });
-            }
-        } catch (error: any) {
-            console.error('Failed to export PDF:', error);
+            await handlePrint(reportData, currentStore);
+        } catch (error) {
+            console.error('Print failed:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error?.data?.message || 'Failed to export PDF',
+                title: 'Print Failed',
+                text: 'Failed to print the report. Please try again.',
             });
         }
     };
 
-    const handleExportExcel = async () => {
+    const handleExportPDFReport = async () => {
+        if (!reportData) return;
         try {
-            const payload = {
-                ...filterParams,
-                format: 'excel',
-            };
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while we create your PDF',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
 
-            const response = await getStockAdjustmentReport(payload).unwrap();
+            await handleExportPDF(reportData, currentStore);
 
-            if (response?.data?.file) {
-                downloadBase64File(
-                    response.data.file,
-                    response.data.filename || `stock-adjustment-report-${new Date().getTime()}.xlsx`,
-                    response.data.mime_type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                );
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Excel downloaded successfully',
-                    timer: 2000,
-                });
-            }
-        } catch (error: any) {
-            console.error('Failed to export Excel:', error);
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'PDF downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            console.error('PDF export failed:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error?.data?.message || 'Failed to export Excel',
+                title: 'Export Failed',
+                text: 'Failed to export PDF. Please try again.',
             });
         }
     };
 
-    const handlePrint = useReactToPrint({
-        contentRef: printRef,
-        documentTitle: `Stock Adjustment Report - ${new Date().toLocaleDateString()}`,
-    });
+    const handleExportExcelReport = async () => {
+        if (!reportData) return;
+        try {
+            Swal.fire({
+                title: 'Generating CSV...',
+                text: 'Please wait...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            await handleExportCSV(reportData, currentStore);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'CSV downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Failed to export CSV',
+            });
+        }
+    };
 
     // Get direction badge color
     const getDirectionBadge = (direction: string) => {
@@ -235,7 +239,7 @@ const StockAdjustmentReportPage = () => {
             render: (value) => <span className="font-medium text-gray-700">{value}</span>,
         },
         {
-            key: 'change',
+            key: 'adjustment_quantity',
             label: 'Change',
             render: (value, row) => (
                 <span className={`font-bold ${row.direction === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
@@ -245,7 +249,7 @@ const StockAdjustmentReportPage = () => {
             ),
         },
         {
-            key: 'user',
+            key: 'user_name',
             label: 'User',
             sortable: true,
             render: (value) => <span className="text-sm text-gray-600">{value || 'N/A'}</span>,
@@ -285,7 +289,7 @@ const StockAdjustmentReportPage = () => {
                     {/* Export Buttons - Responsive */}
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                         <button
-                            onClick={handlePrint}
+                            onClick={handlePrintReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-sm text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -293,7 +297,7 @@ const StockAdjustmentReportPage = () => {
                             <span>Print</span>
                         </button>
                         <button
-                            onClick={handleExportPDF}
+                            onClick={handleExportPDFReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -301,7 +305,7 @@ const StockAdjustmentReportPage = () => {
                             <span>PDF</span>
                         </button>
                         <button
-                            onClick={handleExportExcel}
+                            onClick={handleExportExcelReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -357,32 +361,38 @@ const StockAdjustmentReportPage = () => {
                 </div>
             )}
 
-            {/* Loading State */}
-            {isLoading && <Loading />}
+            <div className="relative">
+                {/* Loading State */}
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+                        <Loading />
+                    </div>
+                )}
 
-            {/* Table - Screen View (Paginated) */}
-            {!isLoading && reportData && (
-                <div className="print:hidden">
-                    <ReusableTable
-                        data={paginatedData}
-                        columns={columns}
-                        isLoading={isLoading}
-                        emptyState={{
-                            icon: <Activity className="h-16 w-16" />,
-                            title: 'No Adjustments Found',
-                            description: 'Try adjusting your filters to see stock adjustment records.',
-                        }}
-                        pagination={{
-                            currentPage,
-                            totalPages,
-                            itemsPerPage,
-                            totalItems: reportData.items.length,
-                            onPageChange: setCurrentPage,
-                            onItemsPerPageChange: setItemsPerPage,
-                        }}
-                    />
-                </div>
-            )}
+                {/* Table - Screen View (Paginated) */}
+                {!isLoading && reportData && (
+                    <div className="print:hidden">
+                        <ReusableTable
+                            data={paginatedData}
+                            columns={columns}
+                            isLoading={isLoading}
+                            emptyState={{
+                                icon: <Activity className="h-16 w-16" />,
+                                title: 'No Adjustments Found',
+                                description: 'Try adjusting your filters to see stock adjustment records.',
+                            }}
+                            pagination={{
+                                currentPage,
+                                totalPages,
+                                itemsPerPage,
+                                totalItems: reportData.items.length,
+                                onPageChange: setCurrentPage,
+                                onItemsPerPageChange: setItemsPerPage,
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
 
             {/* Print-Only View (Full Data) */}
             {!isLoading && reportData && (

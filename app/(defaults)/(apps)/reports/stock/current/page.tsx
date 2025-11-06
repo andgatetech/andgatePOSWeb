@@ -1,12 +1,12 @@
 'use client';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/currentStockHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import StockReportFilter from '@/components/filters/StockReportFilter';
 import Loading from '@/components/layouts/loading';
-import { downloadBase64File } from '@/lib/downloadFile';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetCurrentStockReportMutation } from '@/store/features/reports/reportApi';
-import { Package, FileDown, FileSpreadsheet, Printer, TrendingUp, Boxes } from 'lucide-react';
+import { Boxes, FileDown, FileSpreadsheet, Package, Printer, TrendingUp } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import Swal from 'sweetalert2';
 
 interface StockItem {
@@ -43,6 +43,7 @@ const StockReportPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const printRef = useRef<HTMLDivElement>(null);
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [getCurrentStockReport, { isLoading }] = useGetCurrentStockReportMutation();
 
@@ -82,73 +83,77 @@ const StockReportPage = () => {
         [fetchReport]
     );
 
-    // Export handlers
-    const handleExportPDF = async () => {
+    // Export handlers using helper functions
+    const handlePrintReport = async () => {
+        if (!reportData) return;
         try {
-            const payload = {
-                ...filterParams,
-                format: 'pdf',
-            };
-
-            const response = await getCurrentStockReport(payload).unwrap();
-
-            if (response?.data?.file) {
-                downloadBase64File(response.data.file, response.data.filename || `stock-report-${new Date().getTime()}.pdf`, response.data.mime_type || 'application/pdf');
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'PDF downloaded successfully',
-                    timer: 2000,
-                });
-            }
-        } catch (error: any) {
-            console.error('Failed to export PDF:', error);
+            await handlePrint(reportData, currentStore);
+        } catch (error) {
+            console.error('Print failed:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error?.data?.message || 'Failed to export PDF',
+                title: 'Print Failed',
+                text: 'Failed to print the report. Please try again.',
             });
         }
     };
 
-    const handleExportExcel = async () => {
+    const handleExportPDFReport = async () => {
+        if (!reportData) return;
         try {
-            const payload = {
-                ...filterParams,
-                format: 'excel',
-            };
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while we create your PDF',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
 
-            const response = await getCurrentStockReport(payload).unwrap();
+            await handleExportPDF(reportData, currentStore);
 
-            if (response?.data?.file) {
-                downloadBase64File(
-                    response.data.file,
-                    response.data.filename || `stock-report-${new Date().getTime()}.xlsx`,
-                    response.data.mime_type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                );
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Excel downloaded successfully',
-                    timer: 2000,
-                });
-            }
-        } catch (error: any) {
-            console.error('Failed to export Excel:', error);
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'PDF downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            console.error('PDF export failed:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: error?.data?.message || 'Failed to export Excel',
+                title: 'Export Failed',
+                text: 'Failed to export PDF. Please try again.',
             });
         }
     };
 
-    const handlePrint = useReactToPrint({
-        contentRef: printRef,
-        documentTitle: `Stock Report - ${new Date().toLocaleDateString()}`,
-    });
+    const handleExportExcelReport = async () => {
+        if (!reportData) return;
+        try {
+            Swal.fire({
+                title: 'Generating CSV...',
+                text: 'Please wait...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            await handleExportCSV(reportData, currentStore);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'CSV downloaded successfully',
+                timer: 2000,
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Export Failed',
+                text: 'Failed to export CSV',
+            });
+        }
+    };
 
     // Table columns
     const columns: TableColumn[] = [
@@ -228,7 +233,7 @@ const StockReportPage = () => {
                     {/* Export Buttons - Responsive */}
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                         <button
-                            onClick={handlePrint}
+                            onClick={handlePrintReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-600 px-3 py-2 text-sm text-white transition-all hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -236,7 +241,7 @@ const StockReportPage = () => {
                             <span>Print</span>
                         </button>
                         <button
-                            onClick={handleExportPDF}
+                            onClick={handleExportPDFReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -244,7 +249,7 @@ const StockReportPage = () => {
                             <span>PDF</span>
                         </button>
                         <button
-                            onClick={handleExportExcel}
+                            onClick={handleExportExcelReport}
                             disabled={!reportData || isLoading}
                             className="flex min-w-[100px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:gap-2 sm:px-4 sm:py-2.5 sm:text-base"
                         >
@@ -289,33 +294,38 @@ const StockReportPage = () => {
                 </div>
             )}
 
-            {/* Loading State */}
-            {isLoading && <Loading />}
+            <div className="relative">
+                {/* Loading State */}
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
+                        <Loading />
+                    </div>
+                )}
 
-            {/* Table - Screen View (Paginated) */}
-            {!isLoading && reportData && (
-                <div className="print:hidden">
-                    <ReusableTable
-                        data={paginatedData}
-                        columns={columns}
-                        isLoading={isLoading}
-                        emptyState={{
-                            icon: <Package className="h-16 w-16" />,
-                            title: 'No Stock Data Found',
-                            description: 'Try adjusting your filters to see stock records.',
-                        }}
-                        pagination={{
-                            currentPage,
-                            totalPages,
-                            itemsPerPage,
-                            totalItems: reportData.items.length,
-                            onPageChange: setCurrentPage,
-                            onItemsPerPageChange: setItemsPerPage,
-                        }}
-                    />
-                </div>
-            )}
-
+                {/* Table - Screen View (Paginated) */}
+                {!isLoading && reportData && (
+                    <div className="print:hidden">
+                        <ReusableTable
+                            data={paginatedData}
+                            columns={columns}
+                            isLoading={isLoading}
+                            emptyState={{
+                                icon: <Package className="h-16 w-16" />,
+                                title: 'No Stock Data Found',
+                                description: 'Try adjusting your filters to see stock records.',
+                            }}
+                            pagination={{
+                                currentPage,
+                                totalPages,
+                                itemsPerPage,
+                                totalItems: reportData.items.length,
+                                onPageChange: setCurrentPage,
+                                onItemsPerPageChange: setItemsPerPage,
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
             {/* Print-Only View (Full Data) */}
             {!isLoading && reportData && (
                 <div ref={printRef} className="hidden print:block">
