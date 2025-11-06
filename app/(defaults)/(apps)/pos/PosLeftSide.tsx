@@ -59,10 +59,14 @@ const PosLeftSide = () => {
     // Get current store from hook
     const { currentStoreId, currentStore } = useCurrentStore();
 
-    // Build query parameters for current store only
+    // Build query parameters for current store only - with pagination and sorting support
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
             available: 'yes', // Only show available products in POS
+            page: 1, // Get all products from first page
+            per_page: 10, // Items per page
+            sort_field: 'product_name', // Sort by product name
+            sort_direction: 'asc', // Ascending order
         };
 
         // Always use current store from sidebar for POS
