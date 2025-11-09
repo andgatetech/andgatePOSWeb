@@ -89,9 +89,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Category Selection */}
                     <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                            Category <span className="text-red-500">*</span>
-                        </label>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">Category</label>
                         <div className="relative">
                             <button
                                 type="button"
@@ -139,6 +137,17 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 
                                         {/* Categories List */}
                                         <div className="max-h-72 overflow-y-auto p-2">
+                                            {/* Quick Add Button */}
+                                            <a
+                                                href="/category"
+                                                className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                Add New Category
+                                            </a>
+
                                             <p className="mb-2 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-600">
                                                 {categorySearchTerm.trim() ? `Found ${filteredCategories.length} categories` : 'Available Categories'}
                                             </p>
@@ -195,6 +204,17 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                         />
                                                     </svg>
                                                     <p className="mt-2 text-sm font-medium text-gray-500">{categorySearchTerm.trim() ? 'No categories found' : 'No categories available'}</p>
+                                                    {!categorySearchTerm.trim() && filteredCategories.length === 0 && (
+                                                        <a
+                                                            href="/category"
+                                                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                                                        >
+                                                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            Add Category First
+                                                        </a>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -282,6 +302,17 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 
                                         {/* Brands List */}
                                         <div className="max-h-72 overflow-y-auto p-2">
+                                            {/* Quick Add Button */}
+                                            <a
+                                                href="/brand"
+                                                className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-cyan-300 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-700 transition-all hover:border-cyan-400 hover:bg-cyan-100"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                Add New Brand
+                                            </a>
+
                                             <p className="mb-2 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-600">
                                                 {brandSearchTerm.trim() ? `Found ${filteredBrands.length} brands` : 'Available Brands'}
                                             </p>
@@ -333,6 +364,17 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                         />
                                                     </svg>
                                                     <p className="mt-2 text-sm font-medium text-gray-500">{brandSearchTerm.trim() ? 'No brands found' : 'No brands available'}</p>
+                                                    {!brandSearchTerm.trim() && filteredBrands.length === 0 && (
+                                                        <a
+                                                            href="/brand"
+                                                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
+                                                        >
+                                                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            Add Brand First
+                                                        </a>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

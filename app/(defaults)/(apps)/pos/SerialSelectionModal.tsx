@@ -77,18 +77,31 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
 
     if (!product) return null;
 
-    // Get serials - check if they're stock-level or product-level
+    // Get serials filtered by selected stock's ID (for variant products)
     let availableSerials: Serial[] = [];
 
-    if (selectedStock && selectedStock.serials && Array.isArray(selectedStock.serials)) {
-        // Stock-level serials (variant-specific)
-        availableSerials = selectedStock.serials.filter((s: Serial) => s.status === 'in_stock');
+    if (selectedStock && product.serials && Array.isArray(product.serials)) {
+        // Filter serials by product_stock_id matching the selected variant
+        availableSerials = product.serials.filter((s: any) => s.status === 'in_stock' && s.product_stock_id === selectedStock.id);
+        console.log(`🔍 Filtered serials for stock ID ${selectedStock.id}:`, availableSerials);
     } else if (product.serials && Array.isArray(product.serials)) {
-        // Product-level serials (shared across all variants)
+        // For non-variant products, use all available serials
         availableSerials = product.serials.filter((s: Serial) => s.status === 'in_stock');
     }
 
-    const warranty = product.warranties && product.warranties.length > 0 ? product.warranties[0] : null;
+    // Get warranty for the selected stock/variant
+    let warranty: any = null;
+    if (product.has_warranty && product.warranties && Array.isArray(product.warranties)) {
+        if (selectedStock) {
+            // Find warranty matching the selected stock's ID
+            warranty = product.warranties.find((w: any) => w.product_stock_id === selectedStock.id);
+            console.log(`🛡️ Warranty for stock ID ${selectedStock.id}:`, warranty);
+        } else {
+            // For non-variant products, use first warranty
+            warranty = product.warranties[0];
+        }
+    }
+
     const currentStock = selectedStock || (product.stocks && product.stocks.length > 0 ? product.stocks[0] : null);
 
     const handleSerialToggle = (serialId: number) => {
@@ -181,9 +194,11 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                             <div className="flex-1">
                                                 <h4 className="font-semibold text-green-900">Warranty Included</h4>
                                                 <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-green-700">
-                                                    <div>
-                                                        <span className="font-medium">Type:</span> {warranty.warranty_type_name}
-                                                    </div>
+                                                    {warranty.warranty_type_name && (
+                                                        <div>
+                                                            <span className="font-medium">Type:</span> {warranty.warranty_type_name}
+                                                        </div>
+                                                    )}
                                                     <div>
                                                         <span className="font-medium">Duration:</span> {getWarrantyDuration()}
                                                     </div>

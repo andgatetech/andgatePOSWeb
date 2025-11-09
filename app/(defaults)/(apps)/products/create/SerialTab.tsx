@@ -16,8 +16,8 @@ interface SerialTabProps {
         quantity: string;
         product_name: string;
     };
-    productSerials: Array<{ serial_number: string; notes: string }>;
-    setProductSerials: React.Dispatch<React.SetStateAction<Array<{ serial_number: string; notes: string }>>>;
+    productSerials: Array<{ serial_number: string; notes: string; stock_index?: number }>;
+    setProductSerials: React.Dispatch<React.SetStateAction<Array<{ serial_number: string; notes: string; stock_index?: number }>>>;
     productStocks: any[];
     productAttributes: any[];
     onPrevious: () => void;
@@ -43,7 +43,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
     const hasVariantsRef = useRef(hasVariants);
 
     // Use a ref to store serials to prevent parent re-renders from clearing data
-    const serialsRef = useRef<Array<{ serial_number: string; notes: string }>>(productSerials);
+    const serialsRef = useRef<Array<{ serial_number: string; notes: string; stock_index?: number }>>(productSerials);
 
     const variantUnitCounts = useMemo(() => {
         if (!hasVariants) {
@@ -169,27 +169,37 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
             return;
         }
 
-        const defaultEntry = { serial_number: '', notes: '' };
-        const serialLookup = new Map<string, { serial_number: string; notes: string }>();
+        const defaultEntry = { serial_number: '', notes: '', stock_index: 0 };
+        const serialLookup = new Map<string, { serial_number: string; notes: string; stock_index: number }>();
 
         previousMetaRef.current.forEach((meta, index) => {
             const key = `${meta.variantIndex ?? 'base'}-${meta.unitIndex}`;
-            serialLookup.set(key, serialsRef.current[index] || defaultEntry);
+            const currentSerial = serialsRef.current[index];
+            if (currentSerial) {
+                serialLookup.set(key, {
+                    serial_number: currentSerial.serial_number,
+                    notes: currentSerial.notes,
+                    stock_index: currentSerial.stock_index ?? 0,
+                });
+            } else {
+                serialLookup.set(key, defaultEntry);
+            }
         });
 
         const newSerials = serialEntryMeta.map((meta) => {
             const key = `${meta.variantIndex ?? 'base'}-${meta.unitIndex}`;
             const existing = serialLookup.get(key);
+            const stock_index = meta.variantIndex !== null && meta.variantIndex !== undefined ? meta.variantIndex : 0;
             if (existing) {
-                return { ...existing };
+                return { ...existing, stock_index }; // Always update stock_index from meta
             }
-            return { ...defaultEntry };
+            return { serial_number: '', notes: '', stock_index };
         });
 
         if (sameSerialForAll && newSerials.length > 0) {
             const first = { ...newSerials[0] };
             for (let i = 0; i < newSerials.length; i++) {
-                newSerials[i] = { ...first };
+                newSerials[i] = { ...first, stock_index: newSerials[i].stock_index }; // Preserve stock_index even when same serial for all
             }
         }
 
@@ -198,7 +208,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
             newSerials.some((serial, index) => {
                 const current = serialsRef.current[index];
                 if (!current) return true;
-                return current.serial_number !== serial.serial_number || current.notes !== serial.notes;
+                return current.serial_number !== serial.serial_number || current.notes !== serial.notes || current.stock_index !== serial.stock_index;
             });
 
         if (changed) {
@@ -216,7 +226,9 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
 
         if (newSerials.length !== entryCount) {
             while (newSerials.length < entryCount) {
-                newSerials.push({ serial_number: '', notes: '' });
+                const meta = serialEntryMeta[newSerials.length];
+                const stock_index = meta?.variantIndex !== null && meta?.variantIndex !== undefined ? meta.variantIndex : 0;
+                newSerials.push({ serial_number: '', notes: '', stock_index });
             }
             if (newSerials.length > entryCount) {
                 newSerials.length = entryCount;
@@ -236,9 +248,12 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
         }
         setSameSerialForAll(e.target.checked);
         if (e.target.checked) {
-            // Apply first serial to all
-            const firstSerial = serialsRef.current[0] || { serial_number: '', notes: '' };
-            const newSerials = new Array(entryCount).fill(null).map(() => ({ ...firstSerial }));
+            // Apply first serial to all but preserve stock_index
+            const firstSerial = serialsRef.current[0] || { serial_number: '', notes: '', stock_index: 0 };
+            const newSerials = serialEntryMeta.map((meta) => {
+                const stock_index = meta.variantIndex !== null && meta.variantIndex !== undefined ? meta.variantIndex : 0;
+                return { serial_number: firstSerial.serial_number, notes: firstSerial.notes, stock_index };
+            });
             serialsRef.current = newSerials;
             setProductSerials(newSerials);
         }
@@ -246,10 +261,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
 
     const handleSingleSerialChange = (field: 'serial_number' | 'notes', value: string) => {
         if (entryCount <= 0) return;
-        // When same serial for all, update all entries
-        const baseline = serialsRef.current[0] || { serial_number: '', notes: '' };
+        // When same serial for all, update all entries but preserve stock_index
+        const baseline = serialsRef.current[0] || { serial_number: '', notes: '', stock_index: 0 };
         const updated = { ...baseline, [field]: value };
-        const newSerials = new Array(entryCount).fill(null).map(() => ({ ...updated }));
+        const newSerials = serialEntryMeta.map((meta) => {
+            const stock_index = meta.variantIndex !== null && meta.variantIndex !== undefined ? meta.variantIndex : 0;
+            return { ...updated, stock_index };
+        });
         serialsRef.current = newSerials;
         setProductSerials(newSerials);
     };

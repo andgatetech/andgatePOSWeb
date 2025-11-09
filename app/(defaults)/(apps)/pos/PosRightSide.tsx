@@ -10,8 +10,8 @@ import { useGetStoreCustomersListQuery } from '@/store/features/customer/custome
 import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
 import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import CashPaymentSection from './pos-right-side/CashPaymentSection';
 import CustomerSection from './pos-right-side/CustomerSection';
 import LoadingOverlay from './pos-right-side/LoadingOverlay';
@@ -70,18 +70,41 @@ const PosRightSide: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
-        const toast = Swal.mixin({
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 3000,
-            customClass: { container: 'toast' },
-        });
-        toast.fire({
-            icon: type,
-            title: msg,
-            padding: '10px 20px',
-        });
+        if (type === 'success') {
+            toast.success(msg, {
+                duration: 3000,
+                position: 'top-center',
+                style: {
+                    background: '#10b981',
+                    color: '#fff',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#10b981',
+                },
+            });
+        } else {
+            toast.error(msg, {
+                duration: 4000,
+                position: 'top-center',
+                style: {
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#ef4444',
+                },
+            });
+        }
     };
 
     const getMembershipBadgeClass = (membership?: string) => {
@@ -279,10 +302,6 @@ const PosRightSide: React.FC = () => {
     }, []);
 
     const handleRemoveItem = (itemId: number) => {
-        if (invoiceItems.length <= 1) {
-            showMessage('At least one item is required', 'error');
-            return;
-        }
         dispatch(removeItemRedux(itemId));
     };
 
@@ -508,11 +527,13 @@ const PosRightSide: React.FC = () => {
                 processedValue = Number(value) || 0;
             } else if (name === 'paymentStatus') {
                 // Reset partial payment amount when changing status
+                // Set payment method to "due" when due is selected
                 setFormData((prev) => ({
                     ...prev,
                     paymentStatus: value,
                     partialPaymentAmount: 0,
                     dueAmount: value === 'due' ? calculateTotal() : 0,
+                    paymentMethod: value === 'due' ? 'due' : prev.paymentMethod,
                 }));
                 return;
             }
@@ -643,27 +664,29 @@ const PosRightSide: React.FC = () => {
             setLoading(false);
             showMessage('Order created successfully!', 'success');
 
-            dispatch(clearItemsRedux());
-            clearCustomerSelection();
-            setFormData({
-                customerId: null,
-                customerName: '',
-                customerEmail: '',
-                customerPhone: '',
-                discount: 0,
-                membershipDiscount: 0,
-                paymentMethod: '',
-                paymentStatus: '',
-                usePoints: false,
-                useBalance: false,
-                pointsToUse: 0,
-                balanceToUse: 0,
-                useWholesale: false,
-                amountPaid: 0,
-                changeAmount: 0,
-                partialPaymentAmount: 0,
-                dueAmount: 0,
-            });
+            // Don't clear items yet - we need them for the preview to show variant/warranty data
+            // They will be cleared when the preview is closed
+            // dispatch(clearItemsRedux());
+            // clearCustomerSelection();
+            // setFormData({
+            //     customerId: null,
+            //     customerName: '',
+            //     customerEmail: '',
+            //     customerPhone: '',
+            //     discount: 0,
+            //     membershipDiscount: 0,
+            //     paymentMethod: '',
+            //     paymentStatus: '',
+            //     usePoints: false,
+            //     useBalance: false,
+            //     pointsToUse: 0,
+            //     balanceToUse: 0,
+            //     useWholesale: false,
+            //     amountPaid: 0,
+            //     changeAmount: 0,
+            //     partialPaymentAmount: 0,
+            //     dueAmount: 0,
+            // });
         } catch (err: any) {
             setLoading(false);
 
@@ -694,6 +717,32 @@ const PosRightSide: React.FC = () => {
 
     const handleBackToEdit = () => {
         setShowPreview(false);
+
+        // If order was created, clear the items and form
+        if (orderResponse) {
+            dispatch(clearItemsRedux());
+            clearCustomerSelection();
+            setFormData({
+                customerId: null,
+                customerName: '',
+                customerEmail: '',
+                customerPhone: '',
+                discount: 0,
+                membershipDiscount: 0,
+                paymentMethod: '',
+                paymentStatus: '',
+                usePoints: false,
+                useBalance: false,
+                pointsToUse: 0,
+                balanceToUse: 0,
+                useWholesale: false,
+                amountPaid: 0,
+                changeAmount: 0,
+                partialPaymentAmount: 0,
+                dueAmount: 0,
+            });
+        }
+
         setOrderResponse(null);
     };
 
@@ -804,6 +853,7 @@ const PosRightSide: React.FC = () => {
 
     return (
         <div className="relative mt-6 w-full sm:mt-6 xl:mt-0 xl:w-full">
+            <Toaster />
             <LoadingOverlay isLoading={loading} />
             <PreviewModal isOpen={showPreview} data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
             <div className="panel ">
