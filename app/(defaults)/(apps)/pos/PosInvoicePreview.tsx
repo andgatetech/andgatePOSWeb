@@ -68,7 +68,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         isOrderCreated = false,
         payment_status, // From backend response
         paymentStatus, // From preview data (camelCase)
-        paymentMethod,
+        payment_method, // From backend response
+        paymentMethod, // From preview data (camelCase)
         amount_paid, // From backend
         due_amount, // From backend
         partialPaymentAmount, // From preview
@@ -77,6 +78,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
     // Use whichever is available (backend uses payment_status, preview uses paymentStatus)
     const displayPaymentStatus = payment_status || paymentStatus;
+    const displayPaymentMethod = payment_method || paymentMethod;
 
     // Calculate payment amounts
     const amountPaid = amount_paid ?? partialPaymentAmount ?? 0;
@@ -136,9 +138,10 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             // Build warranty info
             let warrantyInfo = '';
-            if (item.has_warranty && item.warranty && typeof item.warranty === 'object') {
+            if (item.has_warranty && item.warranty && item.warranty !== null && (item.warranty.warranty_type_name || item.warranty.duration_days || item.warranty.duration_months)) {
                 const duration = item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime';
-                warrantyInfo = `<div class="item-warranty">Warranty: ${duration}</div>`;
+                const warrantyName = item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : '';
+                warrantyInfo = `<div class="item-warranty">Warranty: ${warrantyName}${duration}</div>`;
             }
 
             itemsHTML += `
@@ -473,7 +476,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         
         <!-- Payment Info -->
         <div class="center">
-            <div><strong>Payment Method:</strong> ${paymentMethod || 'Cash'}</div>
+            <div><strong>Payment Method:</strong> ${displayPaymentMethod === 'due' ? 'Due' : displayPaymentMethod || 'Cash'}</div>
             <div><strong>Status:</strong> <span style="color: ${
                 displayPaymentStatus?.toLowerCase() === 'paid' || displayPaymentStatus?.toLowerCase() === 'completed'
                     ? '#059669'
@@ -658,7 +661,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             </div>
                             <div className="mb-2 flex justify-between">
                                 <span className="text-gray-600">Payment Method:</span>
-                                <span className="font-medium capitalize">{paymentMethod || 'Cash'}</span>
+                                <span className="font-medium capitalize">{displayPaymentMethod === 'due' ? 'Due' : displayPaymentMethod || 'Cash'}</span>
                             </div>
                             {/* Show amount paid for partial payments */}
                             {displayPaymentStatus?.toLowerCase() === 'partial' && amountPaid > 0 && (
@@ -726,14 +729,18 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                             )}
 
                                             {/* Warranty Information */}
-                                            {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
-                                                <div className="flex items-center gap-1">
-                                                    <Shield className="h-3 w-3 text-green-600" />
-                                                    <span className="text-xs text-green-700">
-                                                        {item.warranty.warranty_type_name} - {formatWarrantyDuration(item.warranty)}
-                                                    </span>
-                                                </div>
-                                            )}
+                                            {item.has_warranty &&
+                                                item.warranty &&
+                                                item.warranty !== null &&
+                                                (item.warranty.warranty_type_name || item.warranty.duration_days || item.warranty.duration_months) && (
+                                                    <div className="flex items-center gap-1">
+                                                        <Shield className="h-3 w-3 text-green-600" />
+                                                        <span className="text-xs text-green-700">
+                                                            {item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : 'Warranty: '}
+                                                            {formatWarrantyDuration(item.warranty)}
+                                                        </span>
+                                                    </div>
+                                                )}
                                         </div>
                                     </td>
                                     <td className="border-b border-gray-200 py-3 text-center">{item.quantity}</td>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetWarrantyTypesQuery } from '@/store/features/warrenty/WarrantyTypeApi';
-import { Shield } from 'lucide-react';
+import { useCreateWarrantyTypeMutation, useGetWarrantyTypesQuery } from '@/store/features/warrenty/WarrantyTypeApi';
+import { Check, Shield } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 const sanitizeCount = (value: unknown): number => {
@@ -33,7 +33,13 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
     const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams);
     const warrantyTypes = warrantyTypesResponse?.data || [];
+    const [createWarrantyType] = useCreateWarrantyTypeMutation();
+
     const [sameWarrantyForAll, setSameWarrantyForAll] = useState(true);
+
+    // For search/input functionality
+    const [searchQueries, setSearchQueries] = useState<{ [key: number]: string }>({});
+    const [showDropdowns, setShowDropdowns] = useState<{ [key: number]: boolean }>({});
 
     // Check if product has variants (attributes)
     const hasVariants = productAttributes && productAttributes.length > 0 && productStocks && productStocks.length > 0;
@@ -76,23 +82,81 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
         setSameWarrantyForAll(e.target.checked);
     };
 
-    const handleSingleWarrantyChange = (warrantyTypeId: number) => {
-        const selectedType = warrantyTypes.find((wt: any) => wt.id === warrantyTypeId);
-        const newWarranty = {
-            warranty_type_id: warrantyTypeId,
-            duration_months: selectedType?.duration_months || undefined,
-            duration_days: selectedType?.duration_days || undefined,
-        };
-        if (sameWarrantyForAll) {
-            setProductWarranties([{ ...newWarranty }]);
-        } else {
-            setProductWarranties((prev) => {
-                if (prev.length === 0) {
-                    return [{ ...newWarranty }];
-                }
-                return prev.map(() => ({ ...newWarranty }));
-            });
+    // Handle search input change
+    const handleSearchChange = (index: number, value: string) => {
+        setSearchQueries({ ...searchQueries, [index]: value });
+        setShowDropdowns({ ...showDropdowns, [index]: true });
+
+        // Clear warranty selection when user starts typing (like AttributesTab)
+        if (value !== '') {
+            const updated = [...productWarranties];
+            updated[index] = {
+                warranty_type_id: 0,
+                duration_months: undefined,
+                duration_days: undefined,
+            };
+            setProductWarranties(updated);
         }
+    };
+
+    // Select warranty from dropdown
+    const handleSelectWarranty = (index: number, warranty: any) => {
+        const updated = [...productWarranties];
+        updated[index] = {
+            warranty_type_id: warranty.id,
+            duration_months: warranty.duration_months || undefined,
+            duration_days: warranty.duration_days || undefined,
+        };
+        setProductWarranties(updated);
+
+        // Clear search query by deleting it from state
+        const newSearchQueries = { ...searchQueries };
+        delete newSearchQueries[index];
+        setSearchQueries(newSearchQueries);
+        setShowDropdowns({ ...showDropdowns, [index]: false });
+    };
+
+    // Add custom warranty duration (NO API call, just save duration_days locally)
+    const handleAddCustomWarranty = (index: number) => {
+        const daysInput = searchQueries[index];
+        const days = parseInt(daysInput);
+
+        if (!daysInput || !days || days <= 0) {
+            alert('Please enter a valid warranty duration in days');
+            return;
+        }
+
+        // Just save the duration locally, NO database creation
+        const updated = [...productWarranties];
+        updated[index] = {
+            warranty_type_id: 0, // 0 means custom warranty (not from DB)
+            duration_months: undefined,
+            duration_days: days, // Only store the days
+        };
+        setProductWarranties(updated);
+
+        // Clear search query by deleting it from state
+        const newSearchQueries = { ...searchQueries };
+        delete newSearchQueries[index];
+        setSearchQueries(newSearchQueries);
+        setShowDropdowns({ ...showDropdowns, [index]: false });
+    };
+
+    // Filter warranties based on search (by duration)
+    const getFilteredWarranties = (searchQuery: string, currentIndex: number) => {
+        const selectedIds = productWarranties.map((w) => w.warranty_type_id).filter((id, idx) => idx !== currentIndex && id > 0);
+        const availableWarranties = warrantyTypes.filter((wt: any) => !selectedIds.includes(wt.id));
+
+        if (!searchQuery || searchQuery.trim() === '') {
+            return availableWarranties.slice(0, 5);
+        }
+
+        // Search by duration (days or months)
+        const query = searchQuery.toLowerCase();
+        return availableWarranties.filter((wt: any) => {
+            const durationText = `${wt.duration_months || ''} ${wt.duration_days || ''}`.toLowerCase();
+            return durationText.includes(query) || (wt.duration_days && wt.duration_days.toString().includes(query)) || (wt.duration_months && wt.duration_months.toString().includes(query));
+        });
     };
 
     const handleWarrantyChange = (index: number, warrantyTypeId: number) => {
@@ -180,77 +244,227 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
                             <p className="text-sm text-gray-600">Loading warranty types...</p>
                         </div>
                     </div>
-                ) : warrantyTypes.length === 0 ? (
-                    <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8">
-                        <div className="text-center">
-                            <Shield className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-                            <h4 className="mb-1 text-sm font-semibold text-gray-700">No Warranty Types Available</h4>
-                            <p className="text-xs text-gray-500">Please create warranty types first.</p>
-                        </div>
-                    </div>
                 ) : sameWarrantyForAll ? (
-                    // Single Warranty Selection
+                    // Single Warranty Selection with Search
                     <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                         <div className="mb-2">
                             <label className="text-xs font-medium text-gray-700 sm:text-sm">
                                 Warranty (for all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'})
                             </label>
                         </div>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
-                                <span className="truncate text-xs text-gray-600 sm:text-sm">{formData.product_name || 'Product'}</span>
+                        <div className="flex flex-col gap-2">
+                            <div className="relative">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={
+                                            searchQueries[0] !== undefined
+                                                ? searchQueries[0]
+                                                : productWarranties[0]?.warranty_type_id > 0
+                                                ? (() => {
+                                                      const w = warrantyTypes.find((wt: any) => wt.id === productWarranties[0].warranty_type_id);
+                                                      return w
+                                                          ? `${w.duration_months ? w.duration_months + ' months' : ''}${w.duration_months && w.duration_days ? ', ' : ''}${
+                                                                w.duration_days ? w.duration_days + ' days' : ''
+                                                            }`
+                                                          : '';
+                                                  })()
+                                                : productWarranties[0]?.duration_days
+                                                ? `${productWarranties[0].duration_days} days`
+                                                : ''
+                                        }
+                                        onChange={(e) => handleSearchChange(0, e.target.value)}
+                                        onFocus={() => setShowDropdowns({ ...showDropdowns, [0]: true })}
+                                        onBlur={() => {
+                                            setTimeout(() => setShowDropdowns({ ...showDropdowns, [0]: false }), 200);
+                                        }}
+                                        placeholder="Select from dropdown or type duration in days (e.g., 365, 730)"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                        disabled={
+                                            !!(productWarranties[0]?.warranty_type_id > 0 || (productWarranties[0]?.duration_days && productWarranties[0]?.duration_days > 0)) &&
+                                            searchQueries[0] === undefined
+                                        }
+                                    />
+
+                                    {/* Tick button to create custom warranty */}
+                                    {productWarranties[0]?.warranty_type_id === 0 && searchQueries[0] && searchQueries[0].trim() !== '' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAddCustomWarranty(0)}
+                                            className="flex items-center justify-center rounded-lg bg-green-600 p-2.5 text-white transition-colors hover:bg-green-700"
+                                            title="Create custom warranty"
+                                        >
+                                            <Check className="h-5 w-5" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Dropdown for backend warranty durations */}
+                                {showDropdowns[0] && (
+                                    <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+                                        {getFilteredWarranties(searchQueries[0] || '', 0).length > 0 ? (
+                                            <div className="max-h-60 overflow-y-auto p-1">
+                                                <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{searchQueries[0] ? 'Search Results' : 'Suggestions'}</div>
+                                                {getFilteredWarranties(searchQueries[0] || '', 0).map((wt: any) => (
+                                                    <button
+                                                        key={wt.id}
+                                                        type="button"
+                                                        onMouseDown={() => handleSelectWarranty(0, wt)}
+                                                        className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-green-50"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <Shield className="h-4 w-4 text-green-600" />
+                                                            <span className="font-medium text-gray-900">
+                                                                {wt.duration_months ? `${wt.duration_months} months` : ''}
+                                                                {wt.duration_months && wt.duration_days ? ', ' : ''}
+                                                                {wt.duration_days ? `${wt.duration_days} days` : ''}
+                                                            </span>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                                {searchQueries[0] && (
+                                                    <div className="border-t border-gray-100 px-3 py-2">
+                                                        <p className="text-xs text-gray-500">
+                                                            💡 Or type duration in days (e.g., 365) and click the <strong>✓ tick button</strong> to add
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : searchQueries[0] ? (
+                                            <div className="p-4 text-center">
+                                                <p className="text-sm font-medium text-gray-700">No matches found for &quot;{searchQueries[0]}&quot;</p>
+                                                <p className="mt-1 text-xs text-gray-500">
+                                                    Type duration in days and click the <strong>✓ tick button</strong> to create custom warranty
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 text-center">
+                                                <Shield className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+                                                <p className="text-sm text-gray-600">No warranty types available</p>
+                                                <p className="mt-1 text-xs text-gray-500">Type duration in days and click the ✓ button</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                            <select
-                                value={productWarranties[0]?.warranty_type_id || ''}
-                                onChange={(e) => handleSingleWarrantyChange(parseInt(e.target.value) || 0)}
-                                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
-                            >
-                                <option value="">Select warranty type</option>
-                                {warrantyTypes.map((type: any) => (
-                                    <option key={type.id} value={type.id}>
-                                        {type.name} ({type.duration_months ? `${type.duration_months} months` : ''}
-                                        {type.duration_months && type.duration_days ? ', ' : ''}
-                                        {type.duration_days ? `${type.duration_days} days` : ''})
-                                    </option>
-                                ))}
-                            </select>
                         </div>
                     </div>
                 ) : entryCount === 0 ? (
                     <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">Set product quantity or variant stock to assign warranties.</div>
                 ) : (
                     // Multiple Warranty Selections
-                    <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
-                        {Array.from({ length: entryCount }).map((_, index) => (
-                            <div key={index} className="flex flex-col gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:flex-row sm:items-center sm:gap-2 sm:p-3">
-                                <div className="flex items-center justify-between gap-2 sm:justify-start">
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap text-xs font-medium text-gray-700 sm:text-sm">
+                    <div className="max-h-[500px] space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-4">
+                        {Array.from({ length: entryCount }).map((_, index) => {
+                            const selectedWarranty = warrantyTypes.find((w: any) => w.id === productWarranties[index]?.warranty_type_id);
+                            return (
+                                <div key={index} className="rounded-lg border border-gray-300 bg-white p-3">
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <label className="text-sm font-medium text-gray-700">
                                             {hasVariants ? getVariantName(index) : `Warranty #${index + 1}`}
-                                            {hasVariants && <span className="ml-2 text-[10px] font-normal text-gray-500 sm:text-xs">Qty: {variantUnitCounts[index] || 0}</span>}
+                                            {hasVariants && <span className="ml-2 text-xs font-normal text-gray-500">Qty: {variantUnitCounts[index] || 0}</span>}
                                         </label>
-                                        {productWarranties[index]?.warranty_type_id > 0 && <span className="text-xs font-medium text-green-600">✓</span>}
+                                        {productWarranties[index]?.warranty_type_id > 0 && <span className="text-xs font-medium text-green-600">✓ Selected</span>}
+                                    </div>
+
+                                    <div className="relative">
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                value={
+                                                    searchQueries[index] !== undefined
+                                                        ? searchQueries[index]
+                                                        : productWarranties[index]?.warranty_type_id > 0
+                                                        ? (() => {
+                                                              const w = warrantyTypes.find((wt: any) => wt.id === productWarranties[index].warranty_type_id);
+                                                              return w
+                                                                  ? `${w.duration_months ? w.duration_months + ' months' : ''}${w.duration_months && w.duration_days ? ', ' : ''}${
+                                                                        w.duration_days ? w.duration_days + ' days' : ''
+                                                                    }`
+                                                                  : '';
+                                                          })()
+                                                        : productWarranties[index]?.duration_days
+                                                        ? `${productWarranties[index].duration_days} days`
+                                                        : ''
+                                                }
+                                                onChange={(e) => handleSearchChange(index, e.target.value)}
+                                                onFocus={() => setShowDropdowns({ ...showDropdowns, [index]: true })}
+                                                onBlur={() => {
+                                                    setTimeout(() => setShowDropdowns({ ...showDropdowns, [index]: false }), 200);
+                                                }}
+                                                placeholder="Select from dropdown or type days (e.g., 365)"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                                disabled={
+                                                    !!(productWarranties[index]?.warranty_type_id > 0 || (productWarranties[index]?.duration_days && productWarranties[index]?.duration_days > 0)) &&
+                                                    searchQueries[index] === undefined
+                                                }
+                                            />
+
+                                            {/* Tick button for custom warranty */}
+                                            {productWarranties[index]?.warranty_type_id === 0 && searchQueries[index] && searchQueries[index].trim() !== '' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAddCustomWarranty(index)}
+                                                    className="flex items-center justify-center rounded-lg bg-green-600 p-2 text-white hover:bg-green-700"
+                                                    title="Create warranty"
+                                                >
+                                                    <Check className="h-4 w-4" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Dropdown for backend warranties */}
+                                        {showDropdowns[index] && (
+                                            <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                {getFilteredWarranties(searchQueries[index] || '', index).length > 0 ? (
+                                                    <div className="max-h-48 overflow-y-auto p-1">
+                                                        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                                                            {searchQueries[index] ? 'Search Results' : 'Suggestions'}
+                                                        </div>
+                                                        {getFilteredWarranties(searchQueries[index] || '', index).map((wt: any) => (
+                                                            <button
+                                                                key={wt.id}
+                                                                type="button"
+                                                                onMouseDown={() => handleSelectWarranty(index, wt)}
+                                                                className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-green-50"
+                                                            >
+                                                                <div className="flex items-center gap-1">
+                                                                    <Shield className="h-3 w-3 text-green-600" />
+                                                                    <span className="font-medium text-gray-900">
+                                                                        {wt.duration_months ? `${wt.duration_months} months` : ''}
+                                                                        {wt.duration_months && wt.duration_days ? ', ' : ''}
+                                                                        {wt.duration_days ? `${wt.duration_days} days` : ''}
+                                                                    </span>
+                                                                </div>
+                                                            </button>
+                                                        ))}
+                                                        {searchQueries[index] && (
+                                                            <div className="border-t border-gray-100 px-2 py-1">
+                                                                <p className="text-[10px] text-gray-500">
+                                                                    💡 Or type days (e.g., 365) and click <strong>✓</strong> to add
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : searchQueries[index] ? (
+                                                    <div className="p-3 text-center">
+                                                        <p className="text-xs text-gray-600">No matches found</p>
+                                                        <p className="mt-1 text-[10px] text-gray-500">
+                                                            Type days and click <strong>✓</strong> to create
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-3 text-center">
+                                                        <Shield className="mx-auto mb-1 h-6 w-6 text-gray-400" />
+                                                        <p className="text-xs text-gray-600">No warranties available</p>
+                                                        <p className="mt-1 text-[10px] text-gray-500">Type days and click ✓</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
-                                    <span className="truncate text-xs text-gray-600 sm:text-sm">{hasVariants ? formData.product_name || 'Variant' : formData.product_name || 'Product'}</span>
-                                </div>
-                                <select
-                                    value={productWarranties[index]?.warranty_type_id || ''}
-                                    onChange={(e) => handleWarrantyChange(index, parseInt(e.target.value) || 0)}
-                                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:flex-1 sm:px-3 sm:text-sm"
-                                >
-                                    <option value="">Select warranty type</option>
-                                    {warrantyTypes.map((type: any) => (
-                                        <option key={type.id} value={type.id}>
-                                            {type.name} ({type.duration_months ? `${type.duration_months} months` : ''}
-                                            {type.duration_months && type.duration_days ? ', ' : ''}
-                                            {type.duration_days ? `${type.duration_days} days` : ''})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

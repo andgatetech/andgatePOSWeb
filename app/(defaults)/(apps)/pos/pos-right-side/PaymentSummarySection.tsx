@@ -124,6 +124,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 </label>
                 <select name="paymentMethod" className="form-select w-full sm:w-40" value={formData.paymentMethod} onChange={onInputChange} required>
                     <option value="">Select</option>
+                    {formData.paymentStatus === 'due' && <option value="due">Due</option>}
                     {paymentMethodOptions.map((method) => {
                         const optionValue = method.payment_method_name?.toLowerCase() === 'cash' ? 'cash' : method.payment_method_name;
                         return (

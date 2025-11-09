@@ -11,8 +11,8 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { GripVertical } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
+import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import BrandPanel from './pos-left-side/BrandPanel';
 import CameraScanner from './pos-left-side/CameraScanner';
 import CategoryPanel from './pos-left-side/CategoryPanel';
@@ -194,14 +194,41 @@ const PosLeftSide = () => {
     }, []);
 
     const showMessage = (msg = '', type = 'success') => {
-        const toast: any = Swal.mixin({
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 2000,
-            customClass: { container: 'toast' },
-        });
-        toast.fire({ icon: type, title: msg, padding: '8px 16px' });
+        if (type === 'success') {
+            toast.success(msg, {
+                duration: 2000,
+                position: 'top-center',
+                style: {
+                    background: '#10b981',
+                    color: '#fff',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#10b981',
+                },
+            });
+        } else {
+            toast.error(msg, {
+                duration: 3000,
+                position: 'top-center',
+                style: {
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#ef4444',
+                },
+            });
+        }
     };
 
     const addToCart = useCallback(
@@ -328,6 +355,13 @@ const PosLeftSide = () => {
             }
 
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+
+            // Find warranty for this specific variant
+            let variantWarranty = null;
+            if (variantProduct.has_warranty && variantProduct.warranties && variantProduct.warranties.length > 0) {
+                variantWarranty = variantProduct.warranties.find((w: any) => w.product_stock_id === variant.id);
+            }
+
             const itemToAdd = {
                 id: uniqueId,
                 productId: variantProduct.id,
@@ -346,9 +380,9 @@ const PosLeftSide = () => {
                 tax_included: variant.tax_included === true,
                 unit: variant.unit || 'piece',
                 isWholesale: useWholesale,
-                // Warranty support
+                // Warranty support - use variant-specific warranty
                 has_warranty: variantProduct.has_warranty,
-                warranty: variantProduct.has_warranty && variantProduct.warranties && variantProduct.warranties.length > 0 ? variantProduct.warranties[0] : null,
+                warranty: variantWarranty,
             };
 
             dispatch(addItemRedux(itemToAdd));
@@ -652,8 +686,17 @@ const PosLeftSide = () => {
 
     if (isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="text-center">
+                    {/* Modern Spinner */}
+                    <div className="relative mx-auto mb-8 h-20 w-20">
+                        <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                        <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-primary"></div>
+                    </div>
+
+                    {/* Loading Text */}
+                    <h3 className="text-lg font-semibold text-gray-700">Loading POS...</h3>
+                </div>
             </div>
         );
     }

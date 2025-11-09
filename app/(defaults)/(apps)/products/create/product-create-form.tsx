@@ -60,7 +60,7 @@ const ProductCreateForm = () => {
     const [productStocks, setProductStocks] = useState<ProductStock[]>([]);
 
     // Product Serials State
-    const [productSerials, setProductSerials] = useState<Array<{ serial_number: string; notes: string }>>([]);
+    const [productSerials, setProductSerials] = useState<Array<{ serial_number: string; notes: string; stock_index?: number }>>([]);
 
     // Product Warranties State
     const [productWarranties, setProductWarranties] = useState<Array<{ warranty_type_id: number; duration_months?: number; duration_days?: number }>>([]);
@@ -450,26 +450,38 @@ const ProductCreateForm = () => {
                     .map((serial) => ({
                         serial_number: serial.serial_number.trim(),
                         notes: serial.notes.trim(),
+                        stock_index: serial.stock_index !== undefined ? serial.stock_index : 0, // Track which stock/variant this serial belongs to
                     }));
 
                 if (serialsToSave.length > 0) {
                     serialsToSave.forEach((serial, index) => {
                         fd.append(`serials[${index}][serial_number]`, serial.serial_number);
                         fd.append(`serials[${index}][notes]`, serial.notes);
+                        fd.append(`serials[${index}][stock_index]`, String(serial.stock_index));
                     });
                 }
             }
 
             // Add warranties if has_warranty is checked and warranties are provided
             if (formData.has_warranty && productWarranties.length > 0) {
-                const warrantiesToSave = productWarranties.filter((warranty) => warranty.warranty_type_id > 0);
+                // Include both DB warranties (warranty_type_id > 0) and custom warranties (warranty_type_id = 0 with duration_days)
+                const warrantiesToSave = productWarranties.filter(
+                    (warranty) => warranty.warranty_type_id > 0 || (warranty.warranty_type_id === 0 && warranty.duration_days && warranty.duration_days > 0)
+                );
 
                 if (warrantiesToSave.length > 0) {
                     warrantiesToSave.forEach((warranty, index) => {
-                        fd.append(`warranties[${index}][warranty_type_id]`, String(warranty.warranty_type_id));
+                        // Only send warranty_type_id if it's from database (> 0)
+                        if (warranty.warranty_type_id > 0) {
+                            fd.append(`warranties[${index}][warranty_type_id]`, String(warranty.warranty_type_id));
+                        }
+
+                        // Send duration_months if available
                         if (warranty.duration_months !== undefined && warranty.duration_months > 0) {
                             fd.append(`warranties[${index}][duration_months]`, String(warranty.duration_months));
                         }
+
+                        // Send duration_days if available (for both DB and custom warranties)
                         if (warranty.duration_days !== undefined && warranty.duration_days > 0) {
                             fd.append(`warranties[${index}][duration_days]`, String(warranty.duration_days));
                         }

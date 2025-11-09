@@ -36,12 +36,22 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">Select Unit</option>
+                        <option value="Piece">Piece (Default)</option>
                         {units.map((unit: any) => (
                             <option key={unit.id} value={unit.name}>
                                 {unit.name}
                             </option>
                         ))}
                     </select>
+                    <a
+                        href="/store/setting"
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg border-2 border-dashed border-indigo-300 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition-all hover:border-indigo-400 hover:bg-indigo-100"
+                    >
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add New Unit
+                    </a>
                 </div>
 
                 {/* Quantity */}
