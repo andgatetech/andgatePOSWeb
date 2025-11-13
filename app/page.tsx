@@ -159,7 +159,7 @@ export default function HomePage() {
                             <Zap className="mr-2 h-4 w-4" />
                             {t('upcoming_feature')}
                         </div>
-                        <h1 className="mb-8 text-5xl font-black leading-[1.17] text-gray-900 md:text-7xl">
+                        <h1 className="mb-8 text-5xl font-black leading-[1.2] text-gray-900 md:text-7xl">
                             <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
                                 {t('hero_title')}
                             </span>
