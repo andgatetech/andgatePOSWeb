@@ -26,9 +26,21 @@ interface WarrantyTabProps {
     onNext: () => void;
     onCreateProduct: () => void;
     isCreating: boolean;
+    isEditMode?: boolean;
 }
 
-const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, setProductWarranties, productStocks, productAttributes, onPrevious, onNext, onCreateProduct, isCreating }) => {
+const WarrantyTab: React.FC<WarrantyTabProps> = ({
+    formData,
+    productWarranties,
+    setProductWarranties,
+    productStocks,
+    productAttributes,
+    onPrevious,
+    onNext,
+    onCreateProduct,
+    isCreating,
+    isEditMode = false,
+}) => {
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
     const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams);
@@ -536,14 +548,14 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({ formData, productWarranties, 
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span>Creating...</span>
+                            <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
                         </>
                     ) : (
                         <>
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>Create Product</span>
+                            <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
                         </>
                     )}
                 </button>

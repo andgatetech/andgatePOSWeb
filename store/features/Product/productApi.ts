@@ -35,7 +35,35 @@ const ProductApi = baseApi.injectEndpoints({
             },
             providesTags: ['Products', 'Orders'],
         }),
-        
+
+        deleteProduct: builder.mutation({
+            query: (id) => ({
+                url: `/products/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Products'],
+        }),
+
+        updateProduct: builder.mutation({
+            query: ({ id, formData }) => {
+                // Add Laravel method spoofing for PUT request with FormData
+                formData.append('_method', 'PUT');
+                return {
+                    url: `/products/${id}`,
+                    method: 'POST',
+                    body: formData,
+                };
+            },
+            invalidatesTags: ['Products'],
+        }),
+
+        getSingleProduct: builder.query({
+            query: (id) => ({
+                url: `/products/${id}`,
+                method: 'GET',
+            }),
+            providesTags: ['Products'],
+        }),
 
         getAllProductsWithStock: builder.query({
             query: ({ store_id, search }) => {
@@ -57,22 +85,7 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Products', 'Orders'],
         }),
-        getSingleProduct: builder.query({
-            query: (id) => ({
-                url: `/products/${id}`,
-                method: 'GET',
-            }),
-            providesTags: ['Products'],
-        }),
 
-        updateProduct: builder.mutation({
-            query: ({ id, data }) => ({
-                url: `/products/${id}`,
-                method: 'POST',
-                body: data,
-            }),
-            invalidatesTags: ['Products', 'ActivityLogs'],
-        }),
         getActivityLogs: builder.query({
             query: () => ({
                 url: `/activity-logs`,
@@ -81,13 +94,6 @@ const ProductApi = baseApi.injectEndpoints({
             providesTags: ['ActivityLogs'],
         }),
 
-        deleteProduct: builder.mutation({
-            query: (id) => ({
-                url: `/products/${id}`,
-                method: 'DELETE',
-            }),
-            invalidatesTags: ['Products'],
-        }),
         generateBarcodes: builder.mutation({
             query: (products) => ({
                 url: '/products/barcode',
