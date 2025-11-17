@@ -1,13 +1,27 @@
 import { Calculator, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function CalculatorButton() {
     const [isOpen, setIsOpen] = useState(false);
     const [display, setDisplay] = useState('0');
+    const [fullHistory, setFullHistory] = useState('');
     const [currentValue, setCurrentValue] = useState('0');
     const [operator, setOperator] = useState(null);
     const [previousValue, setPreviousValue] = useState(null);
     const [waitingForOperand, setWaitingForOperand] = useState(false);
+
+    const historyRef = useRef(null);
+
+    // Scroll to end whenever fullHistory changes
+    useEffect(() => {
+        if (historyRef.current) {
+            historyRef.current.scrollLeft = historyRef.current.scrollWidth;
+        }
+    }, [fullHistory]);
+
+    const appendHistory = (value) => {
+        setFullHistory(prev => prev + value);
+    };
 
     const handleNumber = (num) => {
         if (waitingForOperand) {
@@ -19,6 +33,7 @@ export default function CalculatorButton() {
             setDisplay(newValue);
             setCurrentValue(newValue);
         }
+        appendHistory(num);
     };
 
     const handleDecimal = () => {
@@ -26,9 +41,22 @@ export default function CalculatorButton() {
             setDisplay('0.');
             setCurrentValue('0.');
             setWaitingForOperand(false);
-        } else if (display.indexOf('.') === -1) {
+            appendHistory('0.');
+        } else if (!display.includes('.')) {
             setDisplay(display + '.');
             setCurrentValue(display + '.');
+            appendHistory('.');
+        }
+    };
+
+    const calculate = (first, second, op) => {
+        switch (op) {
+            case '+': return first + second;
+            case '-': return first - second;
+            case '×': return first * second;
+            case '÷': return second !== 0 ? first / second : 0;
+            case '%': return first % second;
+            default: return second;
         }
     };
 
@@ -44,25 +72,9 @@ export default function CalculatorButton() {
             setPreviousValue(result);
         }
 
-        setWaitingForOperand(true);
         setOperator(nextOperator);
-    };
-
-    const calculate = (firstValue, secondValue, operator) => {
-        switch (operator) {
-            case '+':
-                return firstValue + secondValue;
-            case '-':
-                return firstValue - secondValue;
-            case '×':
-                return firstValue * secondValue;
-            case '÷':
-                return secondValue !== 0 ? firstValue / secondValue : 0;
-            case '%':
-                return firstValue % secondValue;
-            default:
-                return secondValue;
-        }
+        setWaitingForOperand(true);
+        appendHistory(` ${nextOperator} `);
     };
 
     const handleEquals = () => {
@@ -80,6 +92,7 @@ export default function CalculatorButton() {
 
     const handleClear = () => {
         setDisplay('0');
+        setFullHistory('');
         setCurrentValue('0');
         setOperator(null);
         setPreviousValue(null);
@@ -91,12 +104,14 @@ export default function CalculatorButton() {
             const newValue = display.length > 1 ? display.slice(0, -1) : '0';
             setDisplay(newValue);
             setCurrentValue(newValue);
+            setFullHistory(prev => prev.slice(0, -1));
         }
     };
 
     const handleSquareRoot = () => {
         const value = parseFloat(currentValue);
         const result = Math.sqrt(value);
+        appendHistory(`√(${value})`);
         setDisplay(String(result));
         setCurrentValue(String(result));
         setWaitingForOperand(true);
@@ -105,271 +120,91 @@ export default function CalculatorButton() {
     const handleSquare = () => {
         const value = parseFloat(currentValue);
         const result = value * value;
+        appendHistory(`${value}²`);
         setDisplay(String(result));
         setCurrentValue(String(result));
         setWaitingForOperand(true);
     };
 
+    const btn = (label, onClick, baseColor, hoverColor) => (
+        <button
+            onClick={onClick}
+            className="rounded-xl py-4 text-xl font-semibold shadow-md active:scale-95 text-white transition-colors"
+            style={{ backgroundColor: baseColor }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = baseColor)}
+        >
+            {label}
+        </button>
+    );
+
     return (
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="ml-1 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white shadow-md transition-colors hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80 sm:ml-4 md:ml-8"
+                className="ml-1 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white shadow-md hover:bg-primary/90"
             >
-                <Calculator className="h-3 w-3  sm:h-5 sm:w-5" />
+                <Calculator className="h-4 w-4" />
                 <span className="hidden sm:inline">Calculator</span>
             </button>
 
             {isOpen && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
-                    <div className="relative w-full max-w-sm rounded-2xl p-6 shadow-2xl" style={{ backgroundColor: '#e5e7eb' }}>
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
-                            style={{ backgroundColor: '#9ca3af', color: '#374151' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#6b7280')}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#9ca3af')}
-                        >
-                            <X className="h-6 w-6" />
-                        </button>
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                    <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto rounded-2xl bg-gray-200 p-5 shadow-2xl">
 
-                        {/* Display */}
-                        <div className="mb-5 rounded-lg px-5 py-6 shadow-sm" style={{ backgroundColor: '#ffffff' }}>
-                            <div className="min-h-[48px] text-left text-4xl font-bold" style={{ color: '#111827' }}>
-                                {display}
-                            </div>
+
+                        {/* Close Button */}
+                        <div className="flex justify-end mb-3">
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500 text-white hover:bg-red-600"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
                         </div>
 
-                        {/* Calculator Buttons */}
+                        {/* Double Display with scrollable history */}
+                        <div className="mb-4 rounded-lg bg-white px-4 py-4 shadow-sm">
+                            <div
+                                ref={historyRef}
+                                className="text-right text-gray-500 text-sm min-h-[24px] overflow-x-auto whitespace-nowrap"
+                            >
+                                {fullHistory}
+                            </div>
+                            <div className="text-right text-4xl font-bold text-gray-900 min-h-[40px]">{display}</div>
+                        </div>
+
+                        {/* Buttons Grid */}
                         <div className="grid grid-cols-4 gap-3">
-                            {/* Row 1 - Function buttons */}
-                            <button
-                                onClick={() => {}}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                (
-                            </button>
-                            <button
-                                onClick={() => {}}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                )
-                            </button>
-                            <button
-                                onClick={handleSquareRoot}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                √
-                            </button>
-                            <button
-                                onClick={handleSquare}
-                                className="rounded-xl py-4 text-lg font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                x²
-                            </button>
+                            {btn("(", () => {}, "#4b5563", "#374151")}
+                            {btn(")", () => {}, "#4b5563", "#374151")}
+                            {btn("√", handleSquareRoot, "#4b5563", "#374151")}
+                            {btn("x²", handleSquare, "#4b5563", "#374151")}
 
-                            {/* Row 2 - Clear, backspace, ans, divide */}
-                            <button
-                                onClick={handleClear}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
-                            >
-                                C
-                            </button>
-                            <button
-                                onClick={handleBackspace}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#f97316', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ea580c')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f97316')}
-                            >
-                                ⌫
-                            </button>
-                            <button
-                                onClick={handleEquals}
-                                className="rounded-xl py-4 text-sm font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                Ans
-                            </button>
-                            <button
-                                onClick={() => handleOperator('÷')}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                ÷
-                            </button>
+                            {btn("C", handleClear, "#ef4444", "#dc2626")}
+                            {btn("⌫", handleBackspace, "#f97316", "#ea580c")}
+                            {btn("Ans", handleEquals, "#1e293b", "#0f172a")}
+                            {btn("÷", () => handleOperator('÷'), "#3b82f6", "#2563eb")}
 
-                            {/* Row 3 - 7, 8, 9, multiply */}
-                            <button
-                                onClick={() => handleNumber(7)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                7
-                            </button>
-                            <button
-                                onClick={() => handleNumber(8)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                8
-                            </button>
-                            <button
-                                onClick={() => handleNumber(9)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                9
-                            </button>
-                            <button
-                                onClick={() => handleOperator('×')}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                ×
-                            </button>
+                            {btn("7", () => handleNumber(7), "#1e293b", "#111827")}
+                            {btn("8", () => handleNumber(8), "#1e293b", "#111827")}
+                            {btn("9", () => handleNumber(9), "#1e293b", "#111827")}
+                            {btn("×", () => handleOperator('×'), "#3b82f6", "#2563eb")}
 
-                            {/* Row 4 - 4, 5, 6, minus */}
-                            <button
-                                onClick={() => handleNumber(4)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                4
-                            </button>
-                            <button
-                                onClick={() => handleNumber(5)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                5
-                            </button>
-                            <button
-                                onClick={() => handleNumber(6)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                6
-                            </button>
-                            <button
-                                onClick={() => handleOperator('-')}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                -
-                            </button>
+                            {btn("4", () => handleNumber(4), "#1e293b", "#111827")}
+                            {btn("5", () => handleNumber(5), "#1e293b", "#111827")}
+                            {btn("6", () => handleNumber(6), "#1e293b", "#111827")}
+                            {btn("-", () => handleOperator('-'), "#3b82f6", "#2563eb")}
 
-                            {/* Row 5 - 1, 2, 3, plus */}
-                            <button
-                                onClick={() => handleNumber(1)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                1
-                            </button>
-                            <button
-                                onClick={() => handleNumber(2)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                2
-                            </button>
-                            <button
-                                onClick={() => handleNumber(3)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                3
-                            </button>
-                            <button
-                                onClick={() => handleOperator('+')}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                +
-                            </button>
+                            {btn("1", () => handleNumber(1), "#1e293b", "#111827")}
+                            {btn("2", () => handleNumber(2), "#1e293b", "#111827")}
+                            {btn("3", () => handleNumber(3), "#1e293b", "#111827")}
+                            {btn("+", () => handleOperator('+'), "#3b82f6", "#2563eb")}
 
-                            {/* Row 6 - percent, 0, decimal, equals */}
-                            <button
-                                onClick={() => handleOperator('%')}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                %
-                            </button>
-                            <button
-                                onClick={() => handleNumber(0)}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#475569', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#334155')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                            >
-                                0
-                            </button>
-                            <button
-                                onClick={handleDecimal}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#64748b', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#475569')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#64748b')}
-                            >
-                                .
-                            </button>
-                            <button
-                                onClick={handleEquals}
-                                className="rounded-xl py-4 text-xl font-semibold shadow-md transition-all active:scale-95"
-                                style={{ backgroundColor: '#22c55e', color: '#ffffff' }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#22c55e')}
-                            >
-                                =
-                            </button>
+                            {btn("%", () => handleOperator('%'), "#3b82f6", "#2563eb")}
+                            {btn("0", () => handleNumber(0), "#1e293b", "#111827")}
+                            {btn(".", handleDecimal, "#4b5563", "#374151")}
+                            {btn("=", handleEquals, "#22c55e", "#16a34a")}
                         </div>
                     </div>
                 </div>
