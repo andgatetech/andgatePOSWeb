@@ -228,11 +228,7 @@ const ProductTable = () => {
         }
     };
 
-    // Calculate profit margin percentage
-    const getProfitMargin = (sellingPrice: number, purchasePrice: number) => {
-        const profit = sellingPrice - purchasePrice;
-        return purchasePrice > 0 ? ((profit / purchasePrice) * 100).toFixed(1) : 0;
-    };
+   
 
     const effectivePerPage = paginationMeta?.per_page && paginationMeta.per_page > 0 ? paginationMeta.per_page : itemsPerPage;
     const totalRecords = paginationMeta?.total ?? products.length;
@@ -470,7 +466,7 @@ const ProductTable = () => {
                                             : product.available === true || product.available === 'yes';
 
                                     const stockStatus = getStockStatus(actualQuantity, displayLowStock);
-                                    const profitMargin = getProfitMargin(displayPrice, displayPurchasePrice);
+                                    
 
                                     return (
                                         <tr key={product.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
@@ -593,20 +589,10 @@ const ProductTable = () => {
                                                                 <span className="text-xs text-gray-500">Selling:</span>
                                                                 <span className="text-sm font-semibold text-green-600">৳{Number(displayPrice).toFixed(2)}</span>
                                                             </div>
-                                                            <div className="flex items-center justify-between">
-                                                                <span className="text-xs text-gray-500">Profit:</span>
-                                                                <span className="text-xs font-medium text-blue-600">
-                                                                    +৳{(Number(displayPrice) - Number(displayPurchasePrice)).toFixed(2)} ({profitMargin}%)
-                                                                </span>
-                                                            </div>
+                                                           
                                                         </>
                                                     )}
-                                                    {primaryStock?.tax_rate && Number(primaryStock.tax_rate) > 0 && (
-                                                        <div className="flex items-center gap-1 text-xs text-gray-600">
-                                                            <Percent className="h-3 w-3" />
-                                                            Tax: {primaryStock.tax_rate}% {primaryStock.tax_included ? '(Inc)' : '(Exc)'}
-                                                        </div>
-                                                    )}
+                                                    
                                                 </div>
                                             </td>
 

@@ -40,9 +40,22 @@ interface VariantsTabProps {
     onNext: () => void;
     onCreateProduct: () => void;
     isCreating: boolean;
+    isEditMode?: boolean;
 }
 
-const VariantsTab: React.FC<VariantsTabProps> = ({ productAttributes, productStocks, setProductStocks, units, defaultUnit, formData, onPrevious, onNext, onCreateProduct, isCreating }) => {
+const VariantsTab: React.FC<VariantsTabProps> = ({
+    productAttributes,
+    productStocks,
+    setProductStocks,
+    units,
+    defaultUnit,
+    formData,
+    onPrevious,
+    onNext,
+    onCreateProduct,
+    isCreating,
+    isEditMode = false,
+}) => {
     const [expandedVariantIndex, setExpandedVariantIndex] = useState<number | null>(null);
     const maxImagesPerVariant = 5;
 
@@ -518,12 +531,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({ productAttributes, productSto
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                     ></path>
                                 </svg>
-                                <span>Creating...</span>
+                                <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
                             </>
                         ) : (
                             <>
                                 <Package className="h-5 w-5" />
-                                <span>Create Product</span>
+                                <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
                             </>
                         )}
                     </button>

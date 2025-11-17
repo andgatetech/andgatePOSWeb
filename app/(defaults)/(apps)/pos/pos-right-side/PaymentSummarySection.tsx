@@ -118,15 +118,54 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 </div>
             )}
 
-            <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
+                <span>Subtotal (without tax)</span>
+                <span>৳{subtotalWithoutTax.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm sm:text-base">
+                <span>Tax (from items)</span>
+                <span>৳{taxAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm sm:text-base">
+                <span>Discount</span>
+                <span>৳-{discountAmount.toFixed(2)}</span>
+            </div>
+            {selectedCustomer && formData.membershipDiscount > 0 && (
+                <div className="flex justify-between text-sm text-green-600 sm:text-base">
+                    <span>Membership Discount</span>
+                    <span>৳-{membershipDiscountAmount.toFixed(2)}</span>
+                </div>
+            )}
+            {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
+                <div className="flex justify-between text-sm text-orange-600 sm:text-base">
+                    <span>Points Payment ({formData.pointsToUse} pts)</span>
+                    <span>৳-{pointsDiscount.toFixed(2)}</span>
+                </div>
+            )}
+            {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
+                <div className="flex justify-between text-sm text-teal-600 sm:text-base">
+                    <span>Balance Payment</span>
+                    <span>৳-{balanceDiscount.toFixed(2)}</span>
+                </div>
+            )}
+            <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
+                <span>Grand Total</span>
+                <span>৳{totalPayable.toFixed(2)}</span>
+            </div>
+
+            {/* Payment Method and Payment Status - Moved after Grand Total */}
+            <div className="mt-4 flex flex-col justify-between gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:items-center">
                 <label className="text-sm font-semibold sm:text-base">
                     Payment Method <span className="text-red-500">*</span>
                 </label>
                 <select name="paymentMethod" className="form-select w-full sm:w-40" value={formData.paymentMethod} onChange={onInputChange} required>
                     <option value="">Select</option>
+                    <option value="cash">Cash</option>
                     {formData.paymentStatus === 'due' && <option value="due">Due</option>}
                     {paymentMethodOptions.map((method) => {
                         const optionValue = method.payment_method_name?.toLowerCase() === 'cash' ? 'cash' : method.payment_method_name;
+                        // Skip cash if it's already added above
+                        if (optionValue?.toLowerCase() === 'cash') return null;
                         return (
                             <option key={method.id} value={optionValue || ''}>
                                 {method.payment_method_name || 'Unnamed Method'}
@@ -197,41 +236,6 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <div className="mt-2 text-xs text-red-600">This amount will be recorded as due for customer: {selectedCustomer.name}</div>
                 </div>
             )}
-
-            <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
-                <span>Subtotal (without tax)</span>
-                <span>৳{subtotalWithoutTax.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm sm:text-base">
-                <span>Tax (from items)</span>
-                <span>৳{taxAmount.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm sm:text-base">
-                <span>Discount</span>
-                <span>৳-{discountAmount.toFixed(2)}</span>
-            </div>
-            {selectedCustomer && formData.membershipDiscount > 0 && (
-                <div className="flex justify-between text-sm text-green-600 sm:text-base">
-                    <span>Membership Discount</span>
-                    <span>৳-{membershipDiscountAmount.toFixed(2)}</span>
-                </div>
-            )}
-            {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
-                <div className="flex justify-between text-sm text-orange-600 sm:text-base">
-                    <span>Points Payment ({formData.pointsToUse} pts)</span>
-                    <span>৳-{pointsDiscount.toFixed(2)}</span>
-                </div>
-            )}
-            {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
-                <div className="flex justify-between text-sm text-teal-600 sm:text-base">
-                    <span>Balance Payment</span>
-                    <span>৳-{balanceDiscount.toFixed(2)}</span>
-                </div>
-            )}
-            <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
-                <span>Grand Total</span>
-                <span>৳{totalPayable.toFixed(2)}</span>
-            </div>
 
             {/* Payment Breakdown Summary for Partial/Due */}
             {formData.paymentStatus === 'partial' && formData.partialPaymentAmount > 0 && (

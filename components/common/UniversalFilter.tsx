@@ -58,10 +58,8 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     // State management
     const [search, setSearch] = useState(initialFilters.search || '');
     const [localSearch, setLocalSearch] = useState(initialFilters.search || ''); // Local state for input
-    // const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || currentStoreId || 'all');
     const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || 'all');
-
-    const [dateFilterType, setDateFilterType] = useState(initialFilters.dateRange?.type || 'none');
+    const [dateFilterType, setDateFilterType] = useState<string>(initialFilters.dateRange?.type || 'none');
     const [customStartDate, setCustomStartDate] = useState(initialFilters.dateRange?.startDate || format(new Date(), 'yyyy-MM-dd'));
     const [customEndDate, setCustomEndDate] = useState(initialFilters.dateRange?.endDate || format(new Date(), 'yyyy-MM-dd'));
     const [showDateDropdown, setShowDateDropdown] = useState(false);
