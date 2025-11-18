@@ -1,5 +1,6 @@
 import { commonMetadata, generateMetadata } from '@/lib/seo';
-import ProductTable from './ProductTable';
+import ProductTable from './component/ProductTable';
+
 
 export const metadata = generateMetadata({
     ...commonMetadata.products,
