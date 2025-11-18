@@ -161,5 +161,4 @@ export const {
     useGetActivityLogsQuery,
     useGetUnitsQuery,
     useProductBulkUploadMutation,
-    useCreateStockAdjustmentMutation,
 } = ProductApi;
