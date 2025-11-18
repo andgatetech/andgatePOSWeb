@@ -268,6 +268,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 stockId: primaryStock?.id,
                 title: product.product_name,
                 description: product.description,
+                sku: product.sku || primaryStock?.sku || '',
                 rate: regularPrice,
                 regularPrice: regularPrice,
                 wholesalePrice: wholesalePrice > 0 ? wholesalePrice : regularPrice,
@@ -278,7 +279,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 tax_included: primaryStock?.tax_included === true,
                 unit: primaryStock?.unit || product.unit || 'piece',
                 isWholesale: false,
-                // Warranty support (no serials for simple add)
+                // Serial & Warranty support
+                has_serial: product.has_serial || false,
                 has_warranty: product.has_warranty,
                 warranty: product.has_warranty && product.warranties && product.warranties.length > 0 ? product.warranties[0] : null,
             };
@@ -345,6 +347,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 stockId: variant.id,
                 title: variantProduct.product_name,
                 description: variantProduct.description,
+                sku: variant.sku || variantProduct.sku || '',
                 variantName: variant.variant_name,
                 variantData: variant.variant_data,
                 rate: price,
@@ -357,7 +360,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 tax_included: variant.tax_included === true,
                 unit: variant.unit || 'piece',
                 isWholesale: useWholesale,
-                // Warranty support - use variant-specific warranty
+                // Serial & Warranty support - use variant-specific warranty
+                has_serial: variantProduct.has_serial || false,
                 has_warranty: variantProduct.has_warranty,
                 warranty: variantWarranty,
             };
@@ -396,6 +400,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     stockId: serialStock.id,
                     title: serialProduct.product_name,
                     description: serialProduct.description,
+                    sku: serialStock.sku || serialProduct.sku || '',
                     variantName: serialStock.variant_name,
                     variantData: serialStock.variant_data,
                     rate: regularPrice,
