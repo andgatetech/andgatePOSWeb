@@ -21,11 +21,15 @@ import MobileCartButton from './pos-left-side/MobileCartButton';
 import Pagination from './pos-left-side/Pagination';
 import ProductGrid from './pos-left-side/ProductGrid';
 import SearchBar from './pos-left-side/SearchBar';
-import PosRightSide from './PosRightSide';
 import SerialSelectionModal from './SerialSelectionModal';
 import VariantSelectionModal from './VariantSelectionModal';
 
-const PosLeftSide = () => {
+interface PosLeftSideProps {
+    children?: React.ReactNode;
+    disableSerialSelection?: boolean; // For stock adjustment, we don't need serial selection
+}
+
+const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false }) => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -154,33 +158,6 @@ const PosLeftSide = () => {
         beepRef.current = new Audio('/assets/sound/store-scanner-beep-90395.mp3');
     }, []);
 
-    // Global error handler for debugging mobile crashes
-    useEffect(() => {
-        const handleError = (event: ErrorEvent) => {
-            console.error('🚨 GLOBAL ERROR CAUGHT:', event.error);
-            console.error('Message:', event.message);
-            console.error('Filename:', event.filename);
-            console.error('Line:', event.lineno, 'Column:', event.colno);
-            console.error('Stack:', event.error?.stack);
-
-            // Show alert on mobile for debugging
-            alert(`🚨 APP ERROR!\n\nMessage: ${event.message}\n\nFile: ${event.filename}\n\nLine: ${event.lineno}\n\nStack: ${event.error?.stack?.substring(0, 200)}...`);
-        };
-
-        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-            console.error('🚨 UNHANDLED PROMISE REJECTION:', event.reason);
-            alert(`🚨 PROMISE ERROR!\n\nReason: ${event.reason}\n\nCheck console for details`);
-        };
-
-        window.addEventListener('error', handleError);
-        window.addEventListener('unhandledrejection', handleUnhandledRejection);
-
-        return () => {
-            window.removeEventListener('error', handleError);
-            window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-        };
-    }, []);
-
     // Mobile view detection
     useEffect(() => {
         const checkMobileView = () => {
@@ -249,7 +226,7 @@ const PosLeftSide = () => {
             }
 
             // Check if product has serial numbers (for simple products)
-            if (product.has_serial && product.serials && product.serials.length > 0) {
+            if (!disableSerialSelection && product.has_serial && product.serials && product.serials.length > 0) {
                 // Open serial selection modal
                 console.log('🔢 Opening serial selection modal');
                 setSerialProduct(product);
@@ -315,7 +292,7 @@ const PosLeftSide = () => {
             setSelectedBrand(null);
             setCurrentPage(1);
         },
-        [reduxItems, dispatch]
+        [reduxItems, dispatch, disableSerialSelection]
     );
 
     // Handle variant selection from modal
@@ -326,8 +303,8 @@ const PosLeftSide = () => {
             console.log('🎯 Variant selected:', variant);
             console.log('Product has serial:', variantProduct.has_serial);
 
-            // If variant product has serial numbers, open serial selection modal
-            if (variantProduct.has_serial && variantProduct.serials && variantProduct.serials.length > 0) {
+            // If variant product has serial numbers and serial selection is enabled, open serial selection modal
+            if (!disableSerialSelection && variantProduct.has_serial && variantProduct.serials && variantProduct.serials.length > 0) {
                 console.log('🔢 Variant has serials, opening serial modal');
                 setSerialProduct(variantProduct);
                 setSerialStock(variant);
@@ -394,7 +371,7 @@ const PosLeftSide = () => {
             setSelectedBrand(null);
             setCurrentPage(1);
         },
-        [variantProduct, reduxItems, dispatch]
+        [variantProduct, reduxItems, dispatch, disableSerialSelection]
     );
 
     // Handle serial selection from modal
@@ -695,7 +672,7 @@ const PosLeftSide = () => {
                     </div>
 
                     {/* Loading Text */}
-                    <h3 className="text-lg font-semibold text-gray-700">Loading POS...</h3>
+                    <h3 className="text-lg font-semibold text-gray-700">Loading ...</h3>
                 </div>
             </div>
         );
@@ -803,9 +780,7 @@ const PosLeftSide = () => {
                     className={`flex flex-col overflow-hidden ${isMobileView ? 'w-full' : ''} ${isMobileView && !showMobileCart ? 'hidden' : ''}`}
                     style={!isMobileView ? { width: `${100 - leftWidth}%` } : {}}
                 >
-                    <div className="flex-1 overflow-auto">
-                        <PosRightSide />
-                    </div>
+                    <div className="flex-1 overflow-auto">{children}</div>
                 </div>
 
                 {/* Modals */}

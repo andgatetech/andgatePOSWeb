@@ -39,7 +39,7 @@ const menuRoutes = [
         subMenu: [
             { label: 'Add Product', href: '/products/create' },
             { label: 'All Products', href: '/products' },
-            { label: 'Stock Adjustment', href: '/products/stock/create-stock-adjustment' },
+            { label: 'Stock Adjustment', href: '/products/stock/adjustments' },
             { label: 'Print Label', href: '/label' },
         ],
     },
@@ -111,7 +111,7 @@ const menuRoutes = [
                     { label: 'Current Stock', href: '/reports/stock/current' },
                     { label: 'Low Stock', href: '/reports/stock/low' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
-                    { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
+                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
                     { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
                     // ``,
                 ],

@@ -135,6 +135,15 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products'],
         }),
+
+        createStockAdjustment: builder.mutation({
+            query: (adjustmentData) => ({
+                url: '/product-adjustments',
+                method: 'POST',
+                body: adjustmentData,
+            }),
+            invalidatesTags: ['Products', 'Orders'],
+        }),
     }),
 });
 
@@ -152,4 +161,5 @@ export const {
     useGetActivityLogsQuery,
     useGetUnitsQuery,
     useProductBulkUploadMutation,
+    useCreateStockAdjustmentMutation,
 } = ProductApi;

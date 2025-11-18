@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import PosLeftSide from './PosLeftSide';
+import PosRightSide from './PosRightSide';
 
 export const metadata: Metadata = {
     title: 'Point of Sale Terminal',
@@ -20,8 +21,11 @@ export const metadata: Metadata = {
 };
 
 const PosPage = () => {
-    return <PosLeftSide />;
+    return (
+        <PosLeftSide>
+            <PosRightSide />
+        </PosLeftSide>
+    );
 };
 
 export default PosPage;
-

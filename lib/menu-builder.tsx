@@ -94,7 +94,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             },
             {
                 label: 'Stock Adjustment',
-                href: '/products/stock/create-stock-adjustment',
+                href: '/products/stock/adjustments',
                 requiredPermissions: ['stock.adjustments'],
             },
             {

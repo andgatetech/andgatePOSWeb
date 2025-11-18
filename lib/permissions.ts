@@ -117,7 +117,8 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // Products
     '/products/create': ['products.create'],
     '/products': ['products.index', 'products.view'],
-    '/products/stock/create-stock-adjustment': ['stock-adjustments.create'],
+    '/products/edit': ['products.create'],
+    '/products/stock/adjustments': ['stock.adjustments'],
     '/products/qr-code': ['products.view'],
     '/label': ['products.view'],
     '/products/in-stock': ['products.view'],
