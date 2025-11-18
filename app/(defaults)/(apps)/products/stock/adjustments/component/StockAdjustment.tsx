@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { removeItemRedux, updateItemQuantityRedux } from '@/store/features/Order/OrderSlice';
-import { useCreateStockAdjustmentMutation } from '@/store/features/Product/productApi';
+
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AdjustmentHeader from './AdjustmentHeader';
@@ -12,6 +12,7 @@ import AdjustmentItem from './AdjustmentItem';
 import AdjustmentSummary from './AdjustmentSummary';
 import EmptyState from './EmptyState';
 import GlobalSettings from './GlobalSettings';
+import { useCreateStockAdjustmentMutation } from '@/store/features/StockAdjustment/stockAdjustmentApi';
 
 /**
  * Stock Adjustment Component
