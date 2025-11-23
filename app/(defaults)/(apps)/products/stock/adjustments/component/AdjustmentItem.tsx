@@ -1,5 +1,7 @@
-import { ArrowDown, ArrowUp, Minus, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, Minus, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+
+import ItemPreviewModal from '@/app/(defaults)/(apps)/pos/pos-right-side/ItemPreviewModal';
 import SerialAdjustmentModal from './SerialAdjustmentModal';
 
 interface AdjustmentItemProps {
@@ -29,6 +31,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const serialAdjustments = adjustment?.serialAdjustments || [];
 
     const [isSerialModalOpen, setIsSerialModalOpen] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     const handleSerialSave = (serials: any[]) => {
         onAdjustmentChange(item.id, 'serialAdjustments', serials);
@@ -41,6 +44,13 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                 <div className="mb-4 flex items-start justify-between gap-4">
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setIsPreviewOpen(true)}
+                                className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
+                                title="View details"
+                            >
+                                <Eye className="h-4 w-4" />
+                            </button>
                             <h3 className="text-lg font-semibold text-gray-900">{item.title || item.name}</h3>
                             {item.has_serial && <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">Serial Tracked</span>}
                         </div>
@@ -224,6 +234,9 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                     </div>
                 )}
             </div>
+
+            {/* Preview Modal */}
+            <ItemPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} item={item} />
 
             {/* Serial Adjustment Modal */}
             <SerialAdjustmentModal
