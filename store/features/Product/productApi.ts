@@ -94,12 +94,16 @@ const ProductApi = baseApi.injectEndpoints({
             providesTags: ['ActivityLogs'],
         }),
 
-        generateBarcodes: builder.mutation({
+        generateBarCodes: builder.mutation({
             query: (products) => ({
                 url: '/products/barcode',
                 method: 'POST',
                 body: { products },
             }),
+            transformResponse: (response: any) => {
+                // Backend returns: { success, message, data: { barcodes, total_generated, errors } }
+                return response;
+            },
         }),
 
         generateQRCodes: builder.mutation({
@@ -108,6 +112,10 @@ const ProductApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: { products },
             }),
+            transformResponse: (response: any) => {
+                // Backend returns: { success, message, data: { barcodes, total_generated, errors } }
+                return response;
+            },
         }),
 
         updateAvailability: builder.mutation({
@@ -174,7 +182,7 @@ export const {
     useUpdateProductMutation,
     useDeleteProductMutation,
     useUpdateAvailabilityMutation,
-    useGenerateBarcodesMutation,
+    useGenerateBarCodesMutation,
     useGenerateQRCodesMutation,
     useGetActivityLogsQuery,
     useGetUnitsQuery,
