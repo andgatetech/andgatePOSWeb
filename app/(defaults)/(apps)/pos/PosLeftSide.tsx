@@ -27,9 +27,14 @@ import VariantSelectionModal from './VariantSelectionModal';
 interface PosLeftSideProps {
     children?: React.ReactNode;
     disableSerialSelection?: boolean; // For stock adjustment, we don't need serial selection
+    mobileButtonConfig?: {
+        showIcon: React.ReactNode;
+        hideIcon: React.ReactNode;
+        label?: string;
+    };
 }
 
-const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false }) => {
+const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig }) => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -709,7 +714,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             {barcodeEnabled && <BarcodeReader onScan={handleBarcodeScan} onError={handleBarcodeError} />}
 
             {/* Mobile Cart Toggle Button */}
-            {isMobileView && <MobileCartButton showMobileCart={showMobileCart} cartItemCount={reduxItems.length} onToggle={() => setShowMobileCart(!showMobileCart)} />}
+            {isMobileView && (
+                <MobileCartButton showMobileCart={showMobileCart} cartItemCount={reduxItems.length} onToggle={() => setShowMobileCart(!showMobileCart)} customConfig={mobileButtonConfig} />
+            )}
 
             <div ref={containerRef} className="relative flex h-screen overflow-hidden" style={{ userSelect: isDragging ? 'none' : 'auto' }}>
                 {/* Category Panel */}
