@@ -1,6 +1,8 @@
 import IconShoppingCart from '@/components/icon/icon-shopping-cart';
 import IconX from '@/components/icon/icon-x';
-import { Hash, Shield } from 'lucide-react';
+import { Eye, Hash, Shield } from 'lucide-react';
+import { useState } from 'react';
+import ItemPreviewModal from './ItemPreviewModal';
 import type { PosFormData } from './types';
 
 interface Serial {
@@ -64,6 +66,14 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     onUnitPriceBlur,
     onRemoveItem,
 }) => {
+    const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    const handlePreview = (item: InvoiceItem) => {
+        setPreviewItem(item);
+        setIsPreviewOpen(true);
+    };
+
     const totalAmountForItem = (item: InvoiceItem) => {
         const basePrice = item.rate * item.quantity;
         if (item.tax_rate && !item.tax_included) {
@@ -75,6 +85,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
 
     return (
         <div>
+            <ItemPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} item={previewItem} />
             <div className="mb-3 flex items-center justify-between sm:mb-4">
                 <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Order Details</h3>
                 <div className="flex items-center gap-3">
@@ -99,8 +110,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">#</th>
                             <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Items</th>
-                            <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Variant</th>
                             <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Qty</th>
                             <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
                             <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Rate</th>
@@ -123,58 +134,60 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                         ) : (
                             invoiceItems.map((item, index) => (
                                 <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                                    <td className="border-r border-gray-300 p-3 text-center text-sm font-bold text-gray-700">{index + 1}</td>
                                     <td className="border-r border-gray-300 p-3 text-sm font-medium">
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <span title={item.title}>{item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title}</span>
-                                                {item.isWholesale && <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
-                                            </div>
-                                            {/* Serial Number Badge */}
-                                            {item.has_serial && item.serials && item.serials.length > 0 && (
-                                                <div className="mt-1">
-                                                    <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
-                                                        <Hash className="h-3 w-3" />
-                                                        S/N: {item.serials[0].serial_number}
-                                                    </span>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handlePreview(item)}
+                                                className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
+                                                title="View details"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                            </button>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span title={item.title}>{item.title.length > 20 ? `${item.title.substring(0, 20)}...` : item.title}</span>
+                                                    {item.isWholesale && <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
                                                 </div>
-                                            )}
-                                            {/* Warranty Badge */}
-                                            {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
-                                                <div className="mt-1">
-                                                    <span
-                                                        className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700"
-                                                        title={`${item.warranty.warranty_type_name} warranty`}
-                                                    >
-                                                        <Shield className="h-3 w-3" />
-                                                        {item.warranty.duration_months
-                                                            ? `${item.warranty.duration_months}mo`
-                                                            : item.warranty.duration_days
-                                                            ? `${item.warranty.duration_days}d`
-                                                            : 'Lifetime'}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="border-r border-gray-300 p-3">
-                                        {item.variantName ? (
-                                            <div>
-                                                <div className="text-xs font-medium text-gray-900" title={item.variantName}>
-                                                    {item.variantName.length > 10 ? `${item.variantName.substring(0, 10)}...` : item.variantName}
-                                                </div>
-                                                {item.variantData && (
-                                                    <div className="mt-1 flex flex-wrap gap-1">
-                                                        {Object.entries(item.variantData).map(([key, value]) => (
-                                                            <span key={key} className="inline-block rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-700">
-                                                                {value}
+                                                {/* Variant Info - Inline */}
+                                                {item.variantName && (
+                                                    <div className="mt-1 text-xs text-gray-600">
+                                                        <span className="font-medium">{item.variantName}</span>
+                                                        {item.variantData && (
+                                                            <span className="ml-1">
+                                                                ({Object.values(item.variantData).join(', ')})
                                                             </span>
-                                                        ))}
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {/* Serial Number Badge */}
+                                                {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                    <div className="mt-1">
+                                                        <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
+                                                            <Hash className="h-3 w-3" />
+                                                            S/N: {item.serials[0].serial_number}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {/* Warranty Badge */}
+                                                {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                                    <div className="mt-1">
+                                                        <span
+                                                            className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700"
+                                                            title={`${item.warranty.warranty_type_name} warranty`}
+                                                        >
+                                                            <Shield className="h-3 w-3" />
+                                                            {item.warranty.duration_months
+                                                                ? `${item.warranty.duration_months}mo`
+                                                                : item.warranty.duration_days
+                                                                ? `${item.warranty.duration_days}d`
+                                                                : 'Lifetime'}
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>
-                                        ) : (
-                                            <span className="text-xs text-gray-400">-</span>
-                                        )}
+                                        </div>
                                     </td>
                                     <td className="border-r border-gray-300 p-3 text-center">
                                         <div className="relative">
@@ -253,32 +266,52 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                         <p className="text-xs text-gray-400">Add products to start your order</p>
                     </div>
                 ) : (
-                    invoiceItems.map((item) => (
+                    invoiceItems.map((item, index) => (
                         <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
                             <div className="mb-2 flex items-start justify-between">
-                                <div className="flex-1">
-                                    <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
-                                    {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
+                                <div className="flex items-start gap-2">
+                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">{index + 1}</span>
+                                    <div className="flex-1">
+                                        <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
+                                        {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
 
-                                    {/* Serial & Warranty Badges - Mobile */}
-                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                        {item.has_serial && item.serials && item.serials.length > 0 && (
-                                            <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
-                                                <Hash className="h-3 w-3" />
-                                                S/N: {item.serials[0].serial_number}
-                                            </span>
+                                        {/* Variant Info - Mobile */}
+                                        {item.variantName && (
+                                            <div className="mt-1 text-xs text-gray-600">
+                                                <span className="font-medium">{item.variantName}</span>
+                                                {item.variantData && (
+                                                    <span className="ml-1">
+                                                        ({Object.values(item.variantData).join(', ')})
+                                                    </span>
+                                                )}
+                                            </div>
                                         )}
-                                        {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
-                                            <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                                                <Shield className="h-3 w-3" />
-                                                {item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime'}
-                                            </span>
-                                        )}
+
+                                        {/* Serial & Warranty Badges - Mobile */}
+                                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                            {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
+                                                    <Hash className="h-3 w-3" />
+                                                    S/N: {item.serials[0].serial_number}
+                                                </span>
+                                            )}
+                                            {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                                <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                                                    <Shield className="h-3 w-3" />
+                                                    {item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                                <button type="button" onClick={() => onRemoveItem(item.id)} className="ml-2 flex-shrink-0 rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
-                                    <IconX className="h-4 w-4" />
-                                </button>
+                                <div className="ml-2 flex flex-shrink-0 gap-1">
+                                    <button type="button" onClick={() => handlePreview(item)} className="rounded-full bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100">
+                                        <Eye className="h-4 w-4" />
+                                    </button>
+                                    <button type="button" onClick={() => onRemoveItem(item.id)} className="rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
+                                        <IconX className="h-4 w-4" />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2 text-xs">
