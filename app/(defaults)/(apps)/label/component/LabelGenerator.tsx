@@ -6,7 +6,7 @@ import type { RootState } from '@/store';
 import { removeItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGenerateBarCodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { Download, FileDown, Minus, Plus, Printer, Settings2, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EmptyLabelState from './EmptyLabelState';
 
@@ -85,6 +85,21 @@ const LabelGenerator = () => {
 
     // Individual quantities override
     const [productQuantities, setProductQuantities] = useState<Map<number, number>>(new Map());
+
+    // Clean up stale product quantities when cart items change
+    useEffect(() => {
+        const currentItemIds = new Set(cartItems.map((item) => item.id));
+        setProductQuantities((prev) => {
+            const newMap = new Map(prev);
+            // Remove quantities for items no longer in cart
+            Array.from(newMap.keys()).forEach((itemId) => {
+                if (!currentItemIds.has(itemId)) {
+                    newMap.delete(itemId);
+                }
+            });
+            return newMap;
+        });
+    }, [cartItems]);
 
     const getProductQuantity = (itemId: number) => {
         return productQuantities.get(itemId) ?? globalQuantity;
@@ -435,11 +450,11 @@ const LabelGenerator = () => {
     return (
         <div className="flex h-full flex-col bg-white">
             {/* Compact Header */}
-            <div className="border-b bg-gray-50 px-4 py-3">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+            <div className="border-b bg-gray-50 px-3 py-3 md:px-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900">Label Generator</h2>
+                            <h2 className="text-base font-bold text-gray-900 md:text-lg">Label Generator</h2>
                             <p className="text-xs text-gray-600">
                                 {cartItems.length} product{cartItems.length !== 1 ? 's' : ''} • {totalLabels} label{totalLabels !== 1 ? 's' : ''}
                             </p>
@@ -449,13 +464,17 @@ const LabelGenerator = () => {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setLabelType('barcode')}
-                                className={`rounded px-4 py-1.5 text-sm font-semibold transition ${labelType === 'barcode' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                                className={`rounded px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${
+                                    labelType === 'barcode' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
                             >
                                 Barcode
                             </button>
                             <button
                                 onClick={() => setLabelType('qrcode')}
-                                className={`rounded px-4 py-1.5 text-sm font-semibold transition ${labelType === 'qrcode' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                                className={`rounded px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${
+                                    labelType === 'qrcode' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
                             >
                                 QR Code
                             </button>
@@ -463,12 +482,12 @@ const LabelGenerator = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button onClick={handleClearAll} className="rounded bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100">
-                            <Trash2 className="inline h-4 w-4" /> Clear All
+                        <button onClick={handleClearAll} className="rounded bg-red-50 px-2 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 sm:px-3 sm:text-sm">
+                            <Trash2 className="inline h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Clear All</span>
                         </button>
 
-                        <button onClick={() => setShowSettings(!showSettings)} className="rounded bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-100">
-                            <Settings2 className="inline h-4 w-4" /> {showSettings ? 'Hide' : 'Label'} Settings
+                        <button onClick={() => setShowSettings(!showSettings)} className="rounded bg-blue-50 px-2 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100 sm:px-3 sm:text-sm">
+                            <Settings2 className="inline h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">{showSettings ? 'Hide' : 'Label'} Settings</span>
                         </button>
                     </div>
                 </div>
@@ -549,7 +568,7 @@ const LabelGenerator = () => {
                 )}
 
                 {/* Global Settings */}
-                <div className="mt-3 flex items-center gap-4 rounded bg-white p-3 shadow-sm">
+                <div className="mt-3 flex flex-col gap-3 rounded bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:gap-4">
                     <div className="flex items-center gap-2">
                         <label className="text-xs font-semibold text-gray-700">Default Qty:</label>
                         <input
@@ -565,7 +584,7 @@ const LabelGenerator = () => {
                     {labelType === 'barcode' ? (
                         <div className="flex items-center gap-2">
                             <label className="text-xs font-semibold text-gray-700">Type:</label>
-                            <select value={globalBarcodeType} onChange={(e) => saveGlobalBarcodeType(e.target.value)} className="rounded border px-2 py-1 text-sm">
+                            <select value={globalBarcodeType} onChange={(e) => saveGlobalBarcodeType(e.target.value)} className="rounded border px-2 py-1 text-xs sm:text-sm">
                                 {BARCODE_TYPES.map((type) => (
                                     <option key={type.value} value={type.value}>
                                         {type.label}
@@ -577,7 +596,7 @@ const LabelGenerator = () => {
                         <>
                             <div className="flex items-center gap-2">
                                 <label className="text-xs font-semibold text-gray-700">Size:</label>
-                                <select value={globalQRSize} onChange={(e) => saveGlobalQRSize(parseInt(e.target.value))} className="rounded border px-2 py-1 text-sm">
+                                <select value={globalQRSize} onChange={(e) => saveGlobalQRSize(parseInt(e.target.value))} className="rounded border px-2 py-1 text-xs sm:text-sm">
                                     <option value={100}>Small (100px)</option>
                                     <option value={150}>Medium (150px)</option>
                                     <option value={200}>Large (200px)</option>
@@ -594,29 +613,29 @@ const LabelGenerator = () => {
             </div>
 
             {/* Compact Product List */}
-            <div className="flex-1 overflow-auto p-4">
+            <div className="flex-1 overflow-auto p-3 md:p-4">
                 <div className="space-y-2">
                     {cartItems.map((item) => {
                         const qty = getProductQuantity(item.id);
                         return (
-                            <div key={item.id} className="flex items-center gap-3 rounded border bg-gray-50 p-3 hover:bg-gray-100">
+                            <div key={item.id} className="flex items-center gap-2 rounded border bg-gray-50 p-2 hover:bg-gray-100 sm:gap-3 sm:p-3">
                                 <button onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700">
                                     <Trash2 className="h-4 w-4" />
                                 </button>
 
-                                <div className="flex-1">
-                                    <div className="flex items-baseline gap-2">
-                                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
+                                        <h3 className="truncate text-sm font-semibold text-gray-900 sm:text-base">{item.title}</h3>
                                         {(item as any).variant_name && <span className="text-xs text-gray-600">({(item as any).variant_name})</span>}
                                     </div>
                                     {(item as any).sku && <p className="text-xs text-gray-600">SKU: {(item as any).sku}</p>}
                                 </div>
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1 sm:gap-2">
                                     <button
                                         onClick={() => updateProductQuantity(item.id, qty - 1)}
                                         disabled={qty <= 1}
-                                        className="flex h-8 w-8 items-center justify-center rounded border bg-white hover:bg-gray-100 disabled:opacity-50"
+                                        className="flex h-7 w-7 items-center justify-center rounded border bg-white hover:bg-gray-100 disabled:opacity-50 sm:h-8 sm:w-8"
                                     >
                                         <Minus className="h-3 w-3" />
                                     </button>
@@ -626,12 +645,12 @@ const LabelGenerator = () => {
                                         max="100"
                                         value={qty}
                                         onChange={(e) => updateProductQuantity(item.id, parseInt(e.target.value) || 1)}
-                                        className="w-14 rounded border px-2 py-1 text-center text-sm font-semibold"
+                                        className="w-12 rounded border px-1 py-1 text-center text-sm font-semibold sm:w-14 sm:px-2"
                                     />
                                     <button
                                         onClick={() => updateProductQuantity(item.id, qty + 1)}
                                         disabled={qty >= 100}
-                                        className="flex h-8 w-8 items-center justify-center rounded border bg-white hover:bg-gray-100 disabled:opacity-50"
+                                        className="flex h-7 w-7 items-center justify-center rounded border bg-white hover:bg-gray-100 disabled:opacity-50 sm:h-8 sm:w-8"
                                     >
                                         <Plus className="h-3 w-3" />
                                     </button>
@@ -643,26 +662,38 @@ const LabelGenerator = () => {
             </div>
 
             {/* Footer Actions */}
-            <div className="border-t bg-gray-50 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <div className="text-sm text-gray-700">
+            <div className="border-t bg-gray-50 p-3 md:p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                    <div className="text-xs text-gray-700 sm:text-sm">
                         Ready to generate <strong className="text-gray-900">{totalLabels}</strong> label{totalLabels !== 1 ? 's' : ''}
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {generatedLabels.length > 0 && (
                             <>
-                                <button onClick={handleDownloadImages} className="flex items-center gap-2 rounded bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
-                                    <Download className="h-4 w-4" />
-                                    Images ({generatedLabels.length})
+                                <button
+                                    onClick={handleDownloadImages}
+                                    className="flex items-center gap-1 rounded bg-gray-600 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-700 sm:gap-2 sm:px-4 sm:text-sm"
+                                >
+                                    <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="hidden sm:inline">Images ({generatedLabels.length})</span>
+                                    <span className="sm:hidden">IMG</span>
                                 </button>
-                                <button onClick={handleDownloadPDF} className="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
-                                    <FileDown className="h-4 w-4" />
-                                    Download PDF
+                                <button
+                                    onClick={handleDownloadPDF}
+                                    className="flex items-center gap-1 rounded bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700 sm:gap-2 sm:px-4 sm:text-sm"
+                                >
+                                    <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="hidden sm:inline">Download PDF</span>
+                                    <span className="sm:hidden">PDF</span>
                                 </button>
-                                <button onClick={handlePrint} className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                                    <Printer className="h-4 w-4" />
-                                    Print
+                                <button
+                                    onClick={handlePrint}
+                                    className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 sm:gap-2 sm:px-4 sm:text-sm"
+                                >
+                                    <Printer className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="hidden sm:inline">Print</span>
+                                    <span className="sm:hidden">Print</span>
                                 </button>
                             </>
                         )}
@@ -670,11 +701,11 @@ const LabelGenerator = () => {
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating}
-                            className="flex items-center gap-2 rounded bg-purple-600 px-6 py-2 text-sm font-semibold text-white hover:bg-purple-700 disabled:opacity-50"
+                            className="flex items-center gap-1 rounded bg-purple-600 px-4 py-2 text-xs font-semibold text-white hover:bg-purple-700 disabled:opacity-50 sm:gap-2 sm:px-6 sm:text-sm"
                         >
                             {isGenerating ? (
                                 <>
-                                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <svg className="h-3 w-3 animate-spin sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path
                                             className="opacity-75"
@@ -682,10 +713,14 @@ const LabelGenerator = () => {
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         ></path>
                                     </svg>
-                                    Generating...
+                                    <span className="hidden sm:inline">Generating...</span>
+                                    <span className="sm:hidden">Gen...</span>
                                 </>
                             ) : (
-                                <>Generate {labelType === 'barcode' ? 'Barcodes' : 'QR Codes'}</>
+                                <>
+                                    <span className="hidden sm:inline">Generate {labelType === 'barcode' ? 'Barcodes' : 'QR Codes'}</span>
+                                    <span className="sm:hidden">Generate</span>
+                                </>
                             )}
                         </button>
                     </div>
