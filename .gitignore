@@ -10,7 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 .pnp.js
-
+.vscode
 
 # testing
 /coverage

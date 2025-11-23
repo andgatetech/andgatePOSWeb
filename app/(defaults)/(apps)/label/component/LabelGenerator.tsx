@@ -3,7 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { removeItemRedux } from '@/store/features/Order/OrderSlice';
+import { removeLabelItem, clearLabelItems } from '@/store/features/Label/labelSlice';
 import { useGenerateBarCodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { Download, FileDown, Minus, Plus, Printer, Settings2, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -34,7 +34,7 @@ const PAPER_SIZES = [
 const LabelGenerator = () => {
     const dispatch = useDispatch();
     const { currentStore } = useCurrentStore();
-    const cartItems = useSelector((state: RootState) => state.invoice.items);
+    const cartItems = useSelector((state: RootState) => state.label.items);
     const [generateBarcodes, { isLoading: isGeneratingBarcode }] = useGenerateBarCodesMutation();
     const [generateQRCodes, { isLoading: isGeneratingQR }] = useGenerateQRCodesMutation();
 
@@ -142,7 +142,7 @@ const LabelGenerator = () => {
     };
 
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeItemRedux(itemId));
+        dispatch(removeLabelItem(itemId));
         setProductQuantities((prev) => {
             const newMap = new Map(prev);
             newMap.delete(itemId);
@@ -151,7 +151,7 @@ const LabelGenerator = () => {
     };
 
     const handleClearAll = () => {
-        cartItems.forEach((item) => dispatch(removeItemRedux(item.id)));
+        dispatch(clearLabelItems());
         setProductQuantities(new Map());
         setGeneratedLabels([]);
     };
