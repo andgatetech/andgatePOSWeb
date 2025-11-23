@@ -32,6 +32,8 @@ interface InvoiceItem {
     quantity: number;
     PlaceholderQuantity?: number;
     rate: number;
+    regularPrice?: number;
+    wholesalePrice?: number;
     tax_rate?: number;
     tax_included?: boolean;
     unit?: string;
@@ -53,6 +55,7 @@ interface OrderDetailsSectionProps {
     onUnitPriceChange: (itemId: number, value: string) => void;
     onUnitPriceBlur: (itemId: number) => void;
     onRemoveItem: (itemId: number) => void;
+    onItemWholesaleToggle: (itemId: number) => void;
 }
 
 const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
@@ -65,6 +68,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     onUnitPriceChange,
     onUnitPriceBlur,
     onRemoveItem,
+    onItemWholesaleToggle,
 }) => {
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -89,16 +93,6 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
             <div className="mb-3 flex items-center justify-between sm:mb-4">
                 <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Order Details</h3>
                 <div className="flex items-center gap-3">
-                    <label className="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-blue-200 bg-blue-50 px-3 py-1.5 transition-colors hover:bg-blue-100">
-                        <input
-                            type="checkbox"
-                            checked={formData.useWholesale}
-                            onChange={(e) => onWholesaleToggle(e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                        />
-                        <span className="text-xs font-semibold text-blue-900 sm:text-sm">Wholesale</span>
-                    </label>
-
                     <span className="text-xs sm:text-sm">Items: {invoiceItems.length}</span>
                     <button type="button" onClick={onClearItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
                         Clear all
@@ -148,7 +142,6 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2">
                                                     <span title={item.title}>{item.title.length > 20 ? `${item.title.substring(0, 20)}...` : item.title}</span>
-                                                    {item.isWholesale && <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Wholesale</span>}
                                                 </div>
                                                 {/* Variant Info - Inline */}
                                                 {item.variantName && (
@@ -208,16 +201,28 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                         <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
                                     </td>
                                     <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">
-                                        <div className="relative">
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">৳</span>
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
-                                                value={item.rate}
-                                                onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
-                                                onBlur={() => onUnitPriceBlur(item.id)}
-                                            />
+                                        <div className="flex flex-col items-end gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => onItemWholesaleToggle(item.id)}
+                                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                    item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                }`}
+                                                title={`Click to switch to ${item.isWholesale ? 'Retail' : 'Wholesale'} price`}
+                                            >
+                                                {item.isWholesale ? 'Wholesale' : 'Retail'}
+                                            </button>
+                                            <div className="relative w-full">
+                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">৳</span>
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
+                                                    value={item.rate}
+                                                    onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
+                                                    onBlur={() => onUnitPriceBlur(item.id)}
+                                                />
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="border-r border-gray-300 p-3 text-center text-sm">
@@ -331,13 +336,24 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                     <span className="text-gray-600">Unit:</span>
                                     <span className="font-medium">{item.unit || 'N/A'}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Rate:</span>
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600">Rate:</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => onItemWholesaleToggle(item.id)}
+                                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                            }`}
+                                        >
+                                            {item.isWholesale ? 'W' : 'R'}
+                                        </button>
+                                    </div>
                                     <input
                                         type="number"
-                                        className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                        placeholder="Quantity"
-                                        value={item.rate === 0 ? '' : item.rate}
+                                        className="form-input w-full rounded border border-gray-300 px-2 py-1 text-center text-xs"
+                                        placeholder="Rate"
+                                        value={item.rate}
                                         onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
                                         onBlur={() => onUnitPriceBlur(item.id)}
                                         min="0"

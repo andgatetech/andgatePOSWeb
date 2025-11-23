@@ -305,6 +305,34 @@ const PosRightSide: React.FC = () => {
         dispatch(removeItemRedux(itemId));
     };
 
+    const handleItemWholesaleToggle = (itemId: number) => {
+        const item = invoiceItems.find((line) => line.id === itemId);
+        if (!item) return;
+
+        const newIsWholesale = !item.isWholesale;
+        const newRate = newIsWholesale ? item.wholesalePrice || item.regularPrice || item.rate : item.regularPrice || item.rate;
+
+        console.log('🔄 Toggle wholesale:', {
+            itemId,
+            title: item.title,
+            currentMode: item.isWholesale ? 'Wholesale' : 'Retail',
+            newMode: newIsWholesale ? 'Wholesale' : 'Retail',
+            regularPrice: item.regularPrice,
+            wholesalePrice: item.wholesalePrice,
+            currentRate: item.rate,
+            newRate: newRate,
+        });
+
+        dispatch(
+            updateItemRedux({
+                ...item,
+                isWholesale: newIsWholesale,
+                rate: newRate,
+                amount: item.quantity * newRate,
+            })
+        );
+    };
+
     const handleQuantityChange = (itemId: number, value: string) => {
         const item = invoiceItems.find((line) => line.id === itemId);
         if (!item) return;
@@ -432,27 +460,6 @@ const PosRightSide: React.FC = () => {
     };
 
     useEffect(() => {
-        if (invoiceItems.length === 0) return;
-
-        invoiceItems.forEach((item) => {
-            if (!item.regularPrice || !item.wholesalePrice) return;
-
-            const newRate = formData.useWholesale ? item.wholesalePrice : item.regularPrice;
-
-            if (item.rate !== newRate) {
-                dispatch(
-                    updateItemRedux({
-                        ...item,
-                        rate: newRate,
-                        amount: newRate * item.quantity,
-                        isWholesale: formData.useWholesale,
-                    })
-                );
-            }
-        });
-    }, [formData.useWholesale, invoiceItems, dispatch]);
-
-    useEffect(() => {
         // Update due amount based on payment status and partial payment
         if (formData.paymentStatus === 'due') {
             setFormData((prev) => ({
@@ -487,10 +494,8 @@ const PosRightSide: React.FC = () => {
     }, [formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
 
     const handleWholesaleToggle = (checked: boolean) => {
-        setFormData((prev) => ({
-            ...prev,
-            useWholesale: checked,
-        }));
+        // Global wholesale toggle removed - now using per-item control
+        // This function kept for compatibility but does nothing
     };
 
     const clearAllItems = () => {
@@ -893,6 +898,7 @@ const PosRightSide: React.FC = () => {
                     onUnitPriceChange={handleUnitPriceChange}
                     onUnitPriceBlur={handleUnitPriceBlur}
                     onRemoveItem={handleRemoveItem}
+                    onItemWholesaleToggle={handleItemWholesaleToggle}
                 />
 
                 <PaymentSummarySection

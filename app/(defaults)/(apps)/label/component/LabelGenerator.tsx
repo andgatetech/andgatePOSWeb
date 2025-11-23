@@ -3,7 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { removeLabelItem, clearLabelItems } from '@/store/features/Label/labelSlice';
+import { clearLabelItems, removeLabelItem } from '@/store/features/Label/labelSlice';
 import { useGenerateBarCodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { Download, FileDown, Minus, Plus, Printer, Settings2, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
