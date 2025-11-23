@@ -11,6 +11,7 @@ const page = () => {
                 hideIcon: <Package className="h-6 w-6" />,
                 label: 'Labels',
             }}
+            reduxSlice="label"
         >
             <LabelGenerator></LabelGenerator>
         </PosLeftSide>

@@ -4,8 +4,10 @@ import storage from 'redux-persist/lib/storage';
 
 import { baseApi } from '@/store/api/baseApi';
 import authReducer from '@/store/features/auth/authSlice';
+import labelReducer from '@/store/features/Label/labelSlice';
 import invoiceReducer from '@/store/features/Order/OrderSlice';
 import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice'; // ✅ Added
+import stockAdjustmentReducer from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import supplierReducer from '@/store/features/supplier/supplierSlice';
 import themeConfigSlice from '@/store/themeConfigSlice';
 
@@ -24,6 +26,8 @@ const rootReducer = combineReducers({
     supplier: supplierReducer,
     invoice: invoiceReducer,
     purchaseOrder: purchaseOrderReducer, // ✅ Added
+    stockAdjustment: stockAdjustmentReducer, // ✅ Stock Adjustment
+    label: labelReducer, // ✅ Label Generator
     [baseApi.reducerPath]: baseApi.reducer, // RTK Query
 });
 
