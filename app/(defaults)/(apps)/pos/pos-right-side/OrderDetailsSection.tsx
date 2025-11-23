@@ -154,11 +154,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 {item.variantName && (
                                                     <div className="mt-1 text-xs text-gray-600">
                                                         <span className="font-medium">{item.variantName}</span>
-                                                        {item.variantData && (
-                                                            <span className="ml-1">
-                                                                ({Object.values(item.variantData).join(', ')})
-                                                            </span>
-                                                        )}
+                                                        {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
                                                     </div>
                                                 )}
                                                 {/* Serial Number Badge */}
@@ -279,11 +275,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                         {item.variantName && (
                                             <div className="mt-1 text-xs text-gray-600">
                                                 <span className="font-medium">{item.variantName}</span>
-                                                {item.variantData && (
-                                                    <span className="ml-1">
-                                                        ({Object.values(item.variantData).join(', ')})
-                                                    </span>
-                                                )}
+                                                {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
                                             </div>
                                         )}
 
@@ -298,7 +290,11 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
                                                 <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
                                                     <Shield className="h-3 w-3" />
-                                                    {item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime'}
+                                                    {item.warranty.duration_months
+                                                        ? `${item.warranty.duration_months}mo`
+                                                        : item.warranty.duration_days
+                                                        ? `${item.warranty.duration_days}d`
+                                                        : 'Lifetime'}
                                                 </span>
                                             )}
                                         </div>

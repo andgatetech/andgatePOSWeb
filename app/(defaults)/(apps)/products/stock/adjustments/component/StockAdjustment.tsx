@@ -3,8 +3,8 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { removeItemRedux, updateItemQuantityRedux } from '@/store/features/Order/OrderSlice';
 import { useBulkAddSerialsMutation, useCreateStockAdjustmentMutation, useUpdateSerialStatusMutation } from '@/store/features/Product/productApi';
+import { clearStockItems, removeStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AdjustmentHeader from './AdjustmentHeader';
@@ -27,7 +27,7 @@ import GlobalSettings from './GlobalSettings';
 const StockAdjustment = () => {
     const dispatch = useDispatch();
     const { currentStore } = useCurrentStore();
-    const cartItems = useSelector((state: RootState) => state.invoice.items);
+    const cartItems = useSelector((state: RootState) => state.stockAdjustment.items);
     const [createStockAdjustment, { isLoading: isSaving }] = useCreateStockAdjustmentMutation();
     const [updateSerialStatus] = useUpdateSerialStatusMutation();
     const [bulkAddSerials] = useBulkAddSerialsMutation();
@@ -75,7 +75,7 @@ const StockAdjustment = () => {
 
     // Remove item from cart
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeItemRedux(itemId));
+        dispatch(removeStockItem(itemId));
         setAdjustments((prev) => prev.filter((a) => a.itemId !== itemId));
     };
 
@@ -92,9 +92,7 @@ const StockAdjustment = () => {
         const confirmed = await showConfirmDialog('Clear All Items?', 'Are you sure you want to remove all items from stock adjustment?', 'Yes, clear all!');
 
         if (confirmed) {
-            cartItems.forEach((item) => {
-                dispatch(removeItemRedux(item.id));
-            });
+            dispatch(clearStockItems());
             setAdjustments([]);
             setGlobalReason('');
             setGlobalNotes('');
@@ -219,9 +217,7 @@ const StockAdjustment = () => {
             showSuccessDialog('Success!', 'Stock adjustments saved successfully');
 
             // Clear all after successful save
-            cartItems.forEach((item) => {
-                dispatch(removeItemRedux(item.id));
-            });
+            dispatch(clearStockItems());
             setAdjustments([]);
             setGlobalReason('');
             setGlobalNotes('');

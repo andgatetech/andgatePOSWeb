@@ -5,8 +5,10 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
+import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
+import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { Html5Qrcode } from 'html5-qrcode';
 import { GripVertical } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -32,9 +34,10 @@ interface PosLeftSideProps {
         hideIcon: React.ReactNode;
         label?: string;
     };
+    reduxSlice?: 'pos' | 'stock' | 'label'; // Which Redux slice to use
 }
 
-const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig }) => {
+const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -156,7 +159,19 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(filterQueryParams);
     const brands = brandsResponse?.data || [];
 
-    const reduxItems = useSelector((state: RootState) => state.invoice.items);
+    // Select Redux items based on the slice prop
+    const reduxItems = useSelector((state: RootState) => {
+        switch (reduxSlice) {
+            case 'stock':
+                return state.stockAdjustment.items;
+            case 'label':
+                return state.label.items;
+            case 'pos':
+            default:
+                return state.invoice.items;
+        }
+    });
+
     const beepRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
@@ -290,7 +305,20 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 warranty: product.has_warranty && product.warranties && product.warranties.length > 0 ? product.warranties[0] : null,
             };
 
-            dispatch(addItemRedux(itemToAdd));
+            // Dispatch to appropriate Redux slice
+            switch (reduxSlice) {
+                case 'stock':
+                    dispatch(addStockItem(itemToAdd));
+                    break;
+                case 'label':
+                    dispatch(addLabelItem(itemToAdd));
+                    break;
+                case 'pos':
+                default:
+                    dispatch(addItemRedux(itemToAdd));
+                    break;
+            }
+
             showMessage('Item added successfully!');
 
             // Reset filters and search after adding product
@@ -371,7 +399,20 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 warranty: variantWarranty,
             };
 
-            dispatch(addItemRedux(itemToAdd));
+            // Dispatch to appropriate Redux slice
+            switch (reduxSlice) {
+                case 'stock':
+                    dispatch(addStockItem(itemToAdd));
+                    break;
+                case 'label':
+                    dispatch(addLabelItem(itemToAdd));
+                    break;
+                case 'pos':
+                default:
+                    dispatch(addItemRedux(itemToAdd));
+                    break;
+            }
+
             showMessage(`${variant.variant_name} added successfully!`);
 
             // Reset filters and search
@@ -426,7 +467,20 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 };
 
                 console.log(`📦 Adding item #${index + 1} with serial: ${serial.serial_number}, ID: ${uniqueId}`);
-                dispatch(addItemRedux(itemToAdd));
+
+                // Dispatch to appropriate Redux slice
+                switch (reduxSlice) {
+                    case 'stock':
+                        dispatch(addStockItem(itemToAdd));
+                        break;
+                    case 'label':
+                        dispatch(addLabelItem(itemToAdd));
+                        break;
+                    case 'pos':
+                    default:
+                        dispatch(addItemRedux(itemToAdd));
+                        break;
+                }
             });
 
             if (beepRef.current) {
