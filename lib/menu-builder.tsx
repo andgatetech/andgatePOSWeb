@@ -99,7 +99,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             },
             {
                 label: 'Bulk Upload',
-                href: '/products/bulk-upload',
+                href: '/products/bulk',
                 requiredPermissions: ['products.view'],
             },
             {

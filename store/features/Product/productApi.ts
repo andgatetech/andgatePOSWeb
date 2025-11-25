@@ -161,15 +161,6 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products', 'Orders'],
         }),
-
-        bulkAddSerials: builder.mutation({
-            query: (serialData) => ({
-                url: '/product-adjustments/bulk-add-serials',
-                method: 'POST',
-                body: serialData,
-            }),
-            invalidatesTags: ['Products', 'Orders'],
-        }),
     }),
 });
 
@@ -189,5 +180,4 @@ export const {
     useProductBulkUploadMutation,
     useCreateStockAdjustmentMutation,
     useUpdateSerialStatusMutation,
-    useBulkAddSerialsMutation,
 } = ProductApi;
