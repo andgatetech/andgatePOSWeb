@@ -5,6 +5,7 @@ import storage from 'redux-persist/lib/storage';
 import { baseApi } from '@/store/api/baseApi';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
+import orderEditReducer from '@/store/features/Order/OrderEditSlice'; // ✅ Added for order editing
 import invoiceReducer from '@/store/features/Order/OrderSlice';
 import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice'; // ✅ Added
 import stockAdjustmentReducer from '@/store/features/StockAdjustment/stockAdjustmentSlice';
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     supplier: supplierReducer,
     invoice: invoiceReducer,
+    orderEdit: orderEditReducer, // ✅ Order Edit Slice
     purchaseOrder: purchaseOrderReducer, // ✅ Added
     stockAdjustment: stockAdjustmentReducer, // ✅ Stock Adjustment
     label: labelReducer, // ✅ Label Generator

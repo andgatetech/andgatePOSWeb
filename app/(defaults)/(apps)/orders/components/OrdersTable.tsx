@@ -1,7 +1,8 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
-import { Download, Eye, Printer } from 'lucide-react';
+import { Download, Edit, Eye, Printer } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
 interface OrdersTableProps {
@@ -26,6 +27,7 @@ interface OrdersTableProps {
 }
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onDownloadInvoice, onPrintInvoice }) => {
+    const router = useRouter();
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -72,6 +74,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 render: (value, row) => {
                     const total = value ?? row.total ?? row.totals?.grand_total ?? 0;
                     return <span className="font-semibold text-gray-900">৳{Number(total).toFixed(2)}</span>;
+                },
+            },
+            {
+                key: 'due_amount',
+                label: 'Due Amount',
+                sortable: true,
+                render: (value, row) => {
+                    const dueAmount = Number(value || 0);
+                    if (dueAmount > 0) {
+                        return <span className="font-semibold text-red-600">৳{dueAmount.toFixed(2)}</span>;
+                    }
+                    return <span className="text-sm text-gray-500">৳0.00</span>;
                 },
             },
             {
@@ -129,6 +143,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
     const actions: TableAction[] = useMemo(
         () => [
             {
+                label: 'Edit Order',
+                onClick: (order) => router.push(`/orders/edit/${order.id}`),
+                className: 'text-orange-600',
+                icon: <Edit className="h-4 w-4" />,
+            },
+            {
                 label: 'View Details',
                 onClick: onViewDetails,
                 className: 'text-blue-600',
@@ -147,7 +167,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 icon: <Printer className="h-4 w-4" />,
             },
         ],
-        [onViewDetails, onDownloadInvoice, onPrintInvoice]
+        [router, onViewDetails, onDownloadInvoice, onPrintInvoice]
     );
 
     return (

@@ -6,6 +6,7 @@ import type { RootState } from '@/store';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { addLabelItem } from '@/store/features/Label/labelSlice';
+import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
@@ -34,7 +35,7 @@ interface PosLeftSideProps {
         hideIcon: React.ReactNode;
         label?: string;
     };
-    reduxSlice?: 'pos' | 'stock' | 'label'; // Which Redux slice to use
+    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit'; // Which Redux slice to use
 }
 
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
@@ -166,6 +167,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 return state.stockAdjustment.items;
             case 'label':
                 return state.label.items;
+            case 'orderEdit':
+                return state.orderEdit.items;
             case 'pos':
             default:
                 return state.invoice.items;
@@ -313,6 +316,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 case 'label':
                     dispatch(addLabelItem(itemToAdd));
                     break;
+                case 'orderEdit':
+                    dispatch(addOrderEditItem(itemToAdd));
+                    break;
                 case 'pos':
                 default:
                     dispatch(addItemRedux(itemToAdd));
@@ -327,7 +333,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             setCurrentPage(1);
         },
-        [reduxItems, dispatch, disableSerialSelection]
+        [reduxItems, dispatch, disableSerialSelection, reduxSlice]
     );
 
     // Handle variant selection from modal
@@ -407,13 +413,16 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 case 'label':
                     dispatch(addLabelItem(itemToAdd));
                     break;
+                case 'orderEdit':
+                    dispatch(addOrderEditItem(itemToAdd));
+                    break;
                 case 'pos':
                 default:
                     dispatch(addItemRedux(itemToAdd));
                     break;
             }
 
-            showMessage(`${variant.variant_name} added successfully!`);
+            showMessage('Item with variant added successfully!');
 
             // Reset filters and search
             setSearchTerm('');
@@ -421,7 +430,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             setCurrentPage(1);
         },
-        [variantProduct, reduxItems, dispatch, disableSerialSelection]
+        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice]
     );
 
     // Handle serial selection from modal
@@ -476,6 +485,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     case 'label':
                         dispatch(addLabelItem(itemToAdd));
                         break;
+                    case 'orderEdit':
+                        dispatch(addOrderEditItem(itemToAdd));
+                        break;
                     case 'pos':
                     default:
                         dispatch(addItemRedux(itemToAdd));
@@ -501,7 +513,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSerialProduct(null);
             setSerialStock(null);
         },
-        [serialProduct, serialStock, dispatch]
+        [serialProduct, serialStock, dispatch, reduxSlice]
     );
 
     const handleSearchChange = useCallback(
