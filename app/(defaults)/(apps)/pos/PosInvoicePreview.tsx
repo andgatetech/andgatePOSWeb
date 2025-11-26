@@ -80,9 +80,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const displayPaymentStatus = payment_status || paymentStatus;
     const displayPaymentMethod = payment_method || paymentMethod;
 
-    // Calculate payment amounts
-    const amountPaid = amount_paid ?? partialPaymentAmount ?? 0;
-    const amountDue = due_amount ?? dueAmount ?? 0;
+    // Calculate payment amounts - ensure they're numbers
+    const amountPaid = Number(amount_paid ?? partialPaymentAmount ?? 0);
+    const amountDue = Number(due_amount ?? dueAmount ?? 0);
 
     // Ensure items is typed correctly
     const invoiceItems = items as InvoiceItem[];
