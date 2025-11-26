@@ -71,10 +71,12 @@ const Orders = () => {
     const stats = useMemo(() => {
         const totalOrders = paginationMeta?.total || 0;
         const totalRevenue = orders.reduce((sum: number, order: any) => sum + Number(order.grand_total || 0), 0);
-        const paidOrders = orders.filter((order: any) => order.payment_status === 'paid').length;
-        const dueOrders = orders.filter((order: any) => order.payment_status === 'due').length;
+        const paidOrders = orders.filter((order: any) => order.payment_status === 'paid' || order.payment_status === 'completed').length;
+        const partialOrders = orders.filter((order: any) => order.payment_status === 'partial').length;
+        const dueOrders = orders.filter((order: any) => order.payment_status === 'due' || order.payment_status === 'unpaid').length;
+        const pendingOrders = orders.filter((order: any) => order.payment_status === 'pending').length;
 
-        return { totalOrders, totalRevenue, paidOrders, dueOrders };
+        return { totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders };
     }, [orders, paginationMeta]);
 
     // Handle filter changes
@@ -401,7 +403,7 @@ const Orders = () => {
     const totalItems = paginationMeta?.total || 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
             <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-8">
@@ -428,7 +430,14 @@ const Orders = () => {
                 </div>
 
                 {/* Stats */}
-                <OrderStats totalOrders={stats.totalOrders} totalRevenue={stats.totalRevenue} paidOrders={stats.paidOrders} dueOrders={stats.dueOrders} />
+                <OrderStats
+                    totalOrders={stats.totalOrders}
+                    totalRevenue={stats.totalRevenue}
+                    paidOrders={stats.paidOrders}
+                    partialOrders={stats.partialOrders}
+                    dueOrders={stats.dueOrders}
+                    pendingOrders={stats.pendingOrders}
+                />
 
                 {/* Filters */}
                 <div className="mb-6">
