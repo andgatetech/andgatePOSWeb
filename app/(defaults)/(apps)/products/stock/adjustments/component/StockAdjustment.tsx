@@ -3,8 +3,9 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { useBulkAddSerialsMutation, useCreateStockAdjustmentMutation, useUpdateSerialStatusMutation } from '@/store/features/Product/productApi';
+import { useCreateStockAdjustmentMutation, useUpdateSerialStatusMutation } from '@/store/features/Product/productApi';
 import { clearStockItems, removeStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+import { useCreateProductSerialsMutation } from '@/store/features/warrenty/ProductSerialApi';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AdjustmentHeader from './AdjustmentHeader';
@@ -30,7 +31,7 @@ const StockAdjustment = () => {
     const cartItems = useSelector((state: RootState) => state.stockAdjustment.items);
     const [createStockAdjustment, { isLoading: isSaving }] = useCreateStockAdjustmentMutation();
     const [updateSerialStatus] = useUpdateSerialStatusMutation();
-    const [bulkAddSerials] = useBulkAddSerialsMutation();
+    const [createProductSerials] = useCreateProductSerialsMutation();
 
     const [adjustments, setAdjustments] = useState<
         Array<{
@@ -169,14 +170,12 @@ const StockAdjustment = () => {
                     // Bulk add serials (if multiple serials for same product)
                     if (bulkAddData.length > 0) {
                         promises.push(
-                            bulkAddSerials({
-                                store_id: currentStore?.id,
+                            createProductSerials({
                                 product_id: item.productId,
-                                product_stock_id: item.stockId,
-                                serial_numbers: bulkAddData.map((s: any) => s.serial_number),
-                                status: bulkAddData[0].status,
-                                reason: bulkAddData[0].reason,
-                                notes: bulkAddData[0].notes || '',
+                                serials: bulkAddData.map((s: any) => ({
+                                    serial_number: s.serial_number,
+                                    notes: s.notes || '',
+                                })),
                             }).unwrap()
                         );
                     }
