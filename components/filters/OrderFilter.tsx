@@ -63,36 +63,38 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                 <select
                     value={selectedPaymentStatus}
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-                    className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
                 >
                     <option value="all">All Payment Status</option>
                     <option value="paid">Paid</option>
+                    <option value="partial">Partial</option>
+                    <option value="due">Due</option>
+                    <option value="unpaid">Unpaid</option>
                     <option value="pending">Pending</option>
-                    <option value="failed">Failed</option>
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
 
             {/* Amount Range */}
-            <div className="flex items-center gap-2">
-                <div className="relative">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+                <div className="relative w-full sm:w-40">
                     <input
                         type="number"
                         placeholder="Min Amount"
                         value={minAmount}
                         onChange={(e) => setMinAmount(e.target.value)}
-                        className="w-40 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">৳</span>
                 </div>
-                <span className="text-gray-500">-</span>
-                <div className="relative">
+                <span className="hidden text-gray-500 sm:inline">-</span>
+                <div className="relative w-full sm:w-40">
                     <input
                         type="number"
                         placeholder="Max Amount"
                         value={maxAmount}
                         onChange={(e) => setMaxAmount(e.target.value)}
-                        className="w-36 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">৳</span>
                 </div>

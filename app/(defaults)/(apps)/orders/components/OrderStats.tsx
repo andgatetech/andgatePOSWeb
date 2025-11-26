@@ -1,15 +1,17 @@
 'use client';
 
-import { CreditCard, DollarSign, ShoppingCart, TrendingUp } from 'lucide-react';
+import { AlertCircle, Banknote, CheckCircle, CreditCard, ShoppingCart, XCircle } from 'lucide-react';
 
 interface OrderStatsProps {
     totalOrders: number;
     totalRevenue: number;
     paidOrders: number;
+    partialOrders: number;
     dueOrders: number;
+    pendingOrders: number;
 }
 
-const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paidOrders, dueOrders }) => {
+const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders }) => {
     const stats = [
         {
             label: 'Total Orders',
@@ -22,7 +24,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         {
             label: 'Total Revenue',
             value: `৳${totalRevenue.toFixed(2)}`,
-            icon: DollarSign,
+            icon: Banknote,
             bgColor: 'bg-green-500',
             lightBg: 'bg-green-50',
             textColor: 'text-green-600',
@@ -30,15 +32,31 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         {
             label: 'Paid Orders',
             value: paidOrders,
-            icon: CreditCard,
-            bgColor: 'bg-purple-500',
-            lightBg: 'bg-purple-50',
-            textColor: 'text-purple-600',
+            icon: CheckCircle,
+            bgColor: 'bg-emerald-500',
+            lightBg: 'bg-emerald-50',
+            textColor: 'text-emerald-600',
         },
         {
-            label: 'Due Orders',
+            label: 'Partial Paid',
+            value: partialOrders,
+            icon: CreditCard,
+            bgColor: 'bg-yellow-500',
+            lightBg: 'bg-yellow-50',
+            textColor: 'text-yellow-600',
+        },
+        {
+            label: 'Due/Unpaid',
             value: dueOrders,
-            icon: TrendingUp,
+            icon: XCircle,
+            bgColor: 'bg-red-500',
+            lightBg: 'bg-red-50',
+            textColor: 'text-red-600',
+        },
+        {
+            label: 'Pending',
+            value: pendingOrders,
+            icon: AlertCircle,
             bgColor: 'bg-orange-500',
             lightBg: 'bg-orange-50',
             textColor: 'text-orange-600',
@@ -46,20 +64,22 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
     ];
 
     return (
-        <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
             {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
                     <div key={index} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
-                        <div className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                    <p className="mb-1 text-sm font-medium text-gray-600">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                        <div className="p-3">
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-xs font-medium text-gray-600">{stat.label}</p>
+                                    <div className={`flex-shrink-0 rounded-full ${stat.lightBg} p-2`}>
+                                        <Icon className={`h-4 w-4 ${stat.textColor}`} />
+                                    </div>
                                 </div>
-                                <div className={`rounded-full ${stat.lightBg} p-3`}>
-                                    <Icon className={`h-6 w-6 ${stat.textColor}`} />
-                                </div>
+                                <p className="truncate text-lg font-bold text-gray-900" title={stat.value.toString()}>
+                                    {stat.value}
+                                </p>
                             </div>
                         </div>
                         <div className={`h-1 ${stat.bgColor}`}></div>

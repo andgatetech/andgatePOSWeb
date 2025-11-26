@@ -35,7 +35,6 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{value || `#${row.id}`}</span>
-                        <span className="text-xs text-gray-500">{new Date(row.created_at).toLocaleDateString()}</span>
                     </div>
                 ),
             },
@@ -100,6 +99,28 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                     const method = value || 'cash';
                     return <span className="text-sm capitalize text-gray-700">{method === 'due' ? 'Due' : method}</span>;
                 },
+            },
+            {
+                key: 'created_at',
+                label: 'Created Date',
+                sortable: true,
+                render: (value) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
+                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                ),
+            },
+            {
+                key: 'updated_at',
+                label: 'Updated Date',
+                sortable: true,
+                render: (value) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
+                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                ),
             },
         ],
         []
