@@ -15,34 +15,11 @@ const OrderApi = baseApi.injectEndpoints({
             query: (filters = {}) => ({
                 url: '/orders',
                 method: 'GET',
-                params: filters, // Let Laravel ignore empty ones
-            }),
-            providesTags: ['Orders'],
-        }),
-        getTopSellingProducts: builder.query({
-            query: (filters = {}) => ({
-                url: '/orders/top-selling-products',
-                method: 'GET',
                 params: filters,
-            }),
-            providesTags: ['Orders'],
-        }),
-
-        getOrderById: builder.query({
-            query: (id: any) => ({
-                url: `/orders/${id}`,
-                method: 'GET',
-            }),
-            providesTags: ['Orders'],
-        }),
-        getOrderItems: builder.query({
-            query: (id: any) => ({
-                url: `/orders/${id}/items`,
-                method: 'GET',
             }),
             providesTags: ['Orders'],
         }),
     }),
 });
 
-export const { useCreateOrderMutation, useGetAllOrdersQuery, useGetOrderByIdQuery, useGetOrderItemsQuery, useGetTopSellingProductsQuery } = OrderApi;
+export const { useCreateOrderMutation, useGetAllOrdersQuery } = OrderApi;

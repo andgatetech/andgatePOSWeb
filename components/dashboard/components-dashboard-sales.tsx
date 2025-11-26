@@ -317,7 +317,7 @@ const ComponentsDashboardSales = () => {
             {/* Recent Orders & Top Products */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <Recent_Orders />
-                <Top_Selling_Products />
+                {/* <Top_Selling_Products /> */}
 
                 <Low_Stock_Products />
                 <PurchaseSaleChart />

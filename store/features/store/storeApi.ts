@@ -173,6 +173,7 @@ const StoreApi = baseApi.injectEndpoints({
 export const {
     useUpdateStoreMutation,
     useGetStoreQuery, // ← New hook for your getStore endpoint
+    useLazyGetStoreQuery, // ← Lazy query hook for on-demand store fetching
     useGetWhoLoginQuery,
     useGetStaffMemberQuery,
     useStaffRegisterMutation,
