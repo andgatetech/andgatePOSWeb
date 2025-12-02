@@ -7,7 +7,7 @@ import IconEye from '@/components/icon/icon-eye';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
-import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Percent, Tag, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Tag, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -227,8 +227,6 @@ const ProductTable = () => {
             return { status: 'full', color: 'bg-green-500', textColor: 'text-green-600', percentage: 100 };
         }
     };
-
-   
 
     const effectivePerPage = paginationMeta?.per_page && paginationMeta.per_page > 0 ? paginationMeta.per_page : itemsPerPage;
     const totalRecords = paginationMeta?.total ?? products.length;
@@ -466,7 +464,6 @@ const ProductTable = () => {
                                             : product.available === true || product.available === 'yes';
 
                                     const stockStatus = getStockStatus(actualQuantity, displayLowStock);
-                                    
 
                                     return (
                                         <tr key={product.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
@@ -476,7 +473,20 @@ const ProductTable = () => {
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <Tag className="h-4 w-4 text-gray-400" />
-                                                        <span className="rounded bg-gray-100 px-2 py-1 font-mono text-sm">{product.sku || 'N/A'}</span>
+                                                        {product.stocks && product.stocks.length > 0 && product.stocks.some((s: any) => s.is_variant) ? (
+                                                            // Variant product - show SKU count
+                                                            <span
+                                                                className="rounded bg-purple-100 px-2 py-1 font-mono text-sm text-purple-700"
+                                                                title={product.stocks.map((s: any) => s.sku).join(', ')}
+                                                            >
+                                                                {product.stocks.filter((s: any) => s.sku).length} SKUs
+                                                            </span>
+                                                        ) : (
+                                                            // Simple product - show single SKU
+                                                            <span className="rounded bg-gray-100 px-2 py-1 font-mono text-sm">
+                                                                {product.stocks && product.stocks[0]?.sku ? product.stocks[0].sku : 'N/A'}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>
@@ -589,10 +599,8 @@ const ProductTable = () => {
                                                                 <span className="text-xs text-gray-500">Selling:</span>
                                                                 <span className="text-sm font-semibold text-green-600">৳{Number(displayPrice).toFixed(2)}</span>
                                                             </div>
-                                                           
                                                         </>
                                                     )}
-                                                    
                                                 </div>
                                             </td>
 

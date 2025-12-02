@@ -202,7 +202,11 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-lg bg-gray-50 p-3">
                                                     <p className="mb-1 text-xs text-gray-500">SKU</p>
-                                                    <p className="font-mono text-sm font-medium text-gray-900">{product.sku}</p>
+                                                    {hasVariants ? (
+                                                        <p className="font-mono text-sm font-medium text-purple-700">{product.stocks.filter((s: any) => s.sku).length} SKUs</p>
+                                                    ) : (
+                                                        <p className="font-mono text-sm font-medium text-gray-900">{primaryStock?.sku || (product.stocks && product.stocks[0]?.sku) || 'N/A'}</p>
+                                                    )}
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
                                                     <p className="mb-1 text-xs text-gray-500">Unit</p>
@@ -246,6 +250,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                         <thead className="bg-gray-50">
                                                             <tr>
                                                                 {hasVariants && <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Variant</th>}
+                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">SKU</th>
                                                                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Price</th>
                                                                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Quantity</th>
                                                                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Unit</th>
@@ -269,6 +274,9 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                             )}
                                                                         </td>
                                                                     )}
+                                                                    <td className="px-4 py-3 text-sm">
+                                                                        <span className="font-mono text-xs text-gray-700">{stock.sku || 'N/A'}</span>
+                                                                    </td>
                                                                     <td className="px-4 py-3 text-sm font-medium text-gray-900">৳{Number(stock.price).toFixed(2)}</td>
                                                                     <td className="px-4 py-3 text-sm text-gray-700">{stock.quantity}</td>
                                                                     <td className="px-4 py-3 text-sm text-gray-700">{stock.unit}</td>

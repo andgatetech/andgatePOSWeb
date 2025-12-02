@@ -94,8 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
             <div className="p-2 sm:p-3">
                 <h3 className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm">{product.product_name}</h3>
 
-                {/* SKU */}
-                {product.sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">SKU: {product.sku}</div>}
+                {/* SKU - Now from first stock */}
+                {product.stocks && product.stocks.length > 0 && product.stocks[0].sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">SKU: {product.stocks[0].sku}</div>}
 
                 {/* Unit */}
                 <div className="mb-1 text-[10px] font-medium text-blue-600 sm:text-xs">Unit: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}</div>

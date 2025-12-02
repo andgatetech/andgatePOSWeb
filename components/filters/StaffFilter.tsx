@@ -22,6 +22,11 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
         onFilterChange(apiParams);
     }, [filters, selectedRole, buildApiParams, onFilterChange]);
 
+    // Handle reset callback
+    const handleResetFilters = React.useCallback(() => {
+        setSelectedRole('all');
+    }, []);
+
     const customFilters = (
         <>
             {/* Role Filter */}
@@ -45,6 +50,7 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
             placeholder="Search staff members..."
             showStoreFilter={true}
             showDateFilter={true}
