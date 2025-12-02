@@ -14,18 +14,10 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('all');
     const [minAmount, setMinAmount] = React.useState<string>('');
     const [maxAmount, setMaxAmount] = React.useState<string>('');
-    const [resetTrigger, setResetTrigger] = React.useState(0);
 
     const { currentStore, userStores } = useCurrentStore();
 
-    // Memoize the filter change handler to prevent infinite re-renders
-    const handleUniversalFilterChange = React.useCallback((filters: FilterOptions) => {
-        // This function should be stable and not recreated on every render
-    }, []);
-
-    const { filters, handleFilterChange, buildApiParams } = useUniversalFilter({
-        onFilterChange: handleUniversalFilterChange,
-    });
+    const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
     // Reset function to reset all custom filters
     const handleReset = React.useCallback(() => {
@@ -33,20 +25,38 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
         setSelectedPaymentMethod('all');
         setMinAmount('');
         setMaxAmount('');
-        setResetTrigger((prev) => prev + 1); // Trigger UniversalFilter reset
     }, []);
 
     // Handle filter changes separately using useEffect
     React.useEffect(() => {
-        const apiParams = buildApiParams({
-            payment_status: selectedPaymentStatus !== 'all' ? selectedPaymentStatus : undefined,
-            payment_method: selectedPaymentMethod !== 'all' ? selectedPaymentMethod : undefined,
-            min_amount: minAmount ? parseFloat(minAmount) : undefined,
-            max_amount: maxAmount ? parseFloat(maxAmount) : undefined,
-        });
+        const additionalParams: Record<string, any> = {};
+
+        if (selectedPaymentStatus !== 'all') {
+            additionalParams.payment_status = selectedPaymentStatus;
+        }
+        if (selectedPaymentMethod !== 'all') {
+            additionalParams.payment_method = selectedPaymentMethod;
+        }
+        if (minAmount) {
+            additionalParams.min_amount = parseFloat(minAmount);
+        }
+        if (maxAmount) {
+            additionalParams.max_amount = parseFloat(maxAmount);
+        }
+
+        // Handle store_ids for 'all' stores
+        if (filters.storeId === 'all') {
+            const allStoreIds = userStores.map((store: any) => store.id);
+            if (allStoreIds.length > 1) {
+                additionalParams.store_ids = allStoreIds.join(',');
+            } else if (allStoreIds.length === 1) {
+                additionalParams.store_id = allStoreIds[0];
+            }
+        }
+
+        const apiParams = buildApiParams(additionalParams);
         onFilterChange(apiParams);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, selectedPaymentStatus, selectedPaymentMethod, minAmount, maxAmount, buildApiParams]);
+    }, [filters, selectedPaymentStatus, selectedPaymentMethod, minAmount, maxAmount, buildApiParams, onFilterChange, userStores]);
 
     // Reset filters when store selection changes
     React.useEffect(() => {
@@ -111,7 +121,6 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
             showSearch={true}
             customFilters={customFilters}
             onResetFilters={handleReset}
-            externalResetTrigger={resetTrigger}
         />
     );
 };

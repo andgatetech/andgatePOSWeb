@@ -84,14 +84,6 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
         }
     }, [externalResetTrigger, resetFilters]);
 
-    // Update selected store when current store changes
-    useEffect(() => {
-        if (currentStoreId && selectedStore !== currentStoreId) {
-            setSelectedStore(currentStoreId);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentStoreId]);
-
     // Helper function to get date range based on filter type
     const getDateRange = useCallback(
         (type: string) => {
@@ -378,23 +370,23 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     {search && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
                             Search: &quot;{search}&quot;
-                            <button onClick={() => setSearch('')}>
+                            <button onClick={() => { setSearch(''); setLocalSearch(''); }}>
                                 <X className="h-3 w-3 hover:text-blue-600" />
                             </button>
                         </span>
                     )}
-                    {selectedStore !== (currentStoreId || 'all') && (
+                    {selectedStore !== 'all' && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                            Store: {selectedStore === 'all' ? 'All Stores' : userStores.find((store) => store.id === selectedStore)?.store_name}
-                            <button onClick={() => setSelectedStore(currentStoreId || 'all')}>
+                            Store: {userStores.find((store) => store.id === selectedStore)?.store_name || 'Unknown'}
+                            <button onClick={() => setSelectedStore('all')}>
                                 <X className="h-3 w-3 hover:text-green-600" />
                             </button>
                         </span>
                     )}
-                    {dateFilterType !== 'today' && (
+                    {dateFilterType !== 'none' && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
                             Date: {DATE_FILTER_OPTIONS.find((option) => option.value === dateFilterType)?.label}
-                            <button onClick={() => setDateFilterType('today')}>
+                            <button onClick={() => setDateFilterType('none')}>
                                 <X className="h-3 w-3 hover:text-purple-600" />
                             </button>
                         </span>

@@ -22,6 +22,11 @@ const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange, currentStoreI
         onFilterChange(apiParams);
     }, [filters, selectedStatus, buildApiParams, onFilterChange]);
 
+    // Handle reset callback
+    const handleResetFilters = React.useCallback(() => {
+        setSelectedStatus('all');
+    }, []);
+
     const customFilters = (
         <>
             {/* Status Filter */}
@@ -43,6 +48,7 @@ const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange, currentStoreI
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
             placeholder="Search brands..."
             showStoreFilter={true}
             showDateFilter={true}

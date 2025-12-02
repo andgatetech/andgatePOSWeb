@@ -86,6 +86,7 @@ const ProductEditForm = () => {
         purchase_price: '',
         sku: '',
         skuOption: 'auto' as 'auto' | 'manual',
+        barcode: '',
         units: '',
         tax_rate: '',
         tax_included: false,
@@ -119,8 +120,9 @@ const ProductEditForm = () => {
                 quantity: firstStock?.quantity?.toString() || '',
                 low_stock_quantity: firstStock?.low_stock_quantity?.toString() || '',
                 purchase_price: firstStock?.purchase_price?.toString() || '',
-                sku: product.sku || '',
-                skuOption: product.sku ? 'manual' : 'auto',
+                sku: firstStock?.sku || '',
+                skuOption: firstStock?.sku ? 'manual' : 'auto',
+                barcode: firstStock?.barcode || '',
                 units: formatUnit(firstStock?.unit),
                 tax_rate: firstStock?.tax_rate?.toString() || '',
                 tax_included: firstStock?.tax_included || false,
@@ -137,9 +139,29 @@ const ProductEditForm = () => {
                 setImages(loadedImages);
             }
 
-            // Set attributes
-            if (product.attributes && product.attributes.length > 0) {
-                setProductAttributes(product.attributes);
+            // Set attributes - Handle new format (object) and old format (array)
+            if (product.attributes) {
+                console.log('🔵 Product attributes:', product.attributes);
+                console.log('🔵 Is array?', Array.isArray(product.attributes));
+                console.log('🔵 Keys:', Object.keys(product.attributes));
+
+                if (Array.isArray(product.attributes) && product.attributes.length > 0) {
+                    // Old format: [{attribute_id: 1, attribute_name: "Color", value: ""}]
+                    console.log('✅ Using old format (array)');
+                    setProductAttributes(product.attributes);
+                } else if (typeof product.attributes === 'object' && Object.keys(product.attributes).length > 0) {
+                    // New format: {Color: ["Red", "Blue"], Size: ["M", "L"]}
+                    // Convert to format expected by AttributesTab: treat as custom attributes
+                    const formattedAttributes = Object.keys(product.attributes).map((attributeName) => ({
+                        attribute_id: 0, // Use 0 to indicate custom attribute
+                        attribute_name: attributeName,
+                        value: '', // Not used
+                    }));
+                    console.log('✅ Using new format (object), formatted:', formattedAttributes);
+                    setProductAttributes(formattedAttributes as any);
+                }
+            } else {
+                console.log('❌ No attributes found in product');
             }
 
             // Set stocks/variants
@@ -158,6 +180,43 @@ const ProductEditForm = () => {
             }
         }
     }, [product]);
+
+    // Clean up variant_data when attributes are removed
+    useEffect(() => {
+        if (productStocks.length > 0 && productAttributes.length > 0) {
+            const currentAttributeNames = productAttributes.map((attr) => attr.attribute_name || '').filter((name) => name.trim() !== '');
+
+            // Update stocks to remove attributes that are no longer in the list
+            const updatedStocks = productStocks.map((stock) => {
+                const cleanedVariantData: { [key: string]: string } = {};
+
+                // Only keep variant_data keys that are still in current attributes
+                Object.keys(stock.variant_data || {}).forEach((key) => {
+                    if (currentAttributeNames.includes(key)) {
+                        cleanedVariantData[key] = stock.variant_data[key];
+                    }
+                });
+
+                return {
+                    ...stock,
+                    variant_data: cleanedVariantData,
+                };
+            });
+
+            // Only update if there's an actual change
+            const hasChanges = productStocks.some((stock, index) => {
+                const oldKeys = Object.keys(stock.variant_data || {})
+                    .sort()
+                    .join(',');
+                const newKeys = Object.keys(updatedStocks[index].variant_data).sort().join(',');
+                return oldKeys !== newKeys;
+            });
+
+            if (hasChanges) {
+                setProductStocks(updatedStocks);
+            }
+        }
+    }, [productAttributes]);
 
     // Get recent 5 categories for dropdown and filter based on search
     const recentCategories = categories.slice(0, 5);
@@ -303,8 +362,9 @@ const ProductEditForm = () => {
             fd.append('product_name', formData.product_name.trim());
             fd.append('description', formData.description.trim());
 
-            // Add SKU if manual
-            if (formData.skuOption === 'manual' && formData.sku.trim()) {
+            // Add SKU if manual - ONLY for simple products (not variants)
+            // For variant products, SKU is at stock level
+            if (formData.skuOption === 'manual' && formData.sku.trim() && productStocks.length === 0) {
                 fd.append('sku', formData.sku.trim());
             }
 
@@ -343,20 +403,37 @@ const ProductEditForm = () => {
                 stocks = [singleStock];
             }
 
-            // Add attributes array
-            if (formData.has_attributes && productAttributes.length > 0) {
+            // Add attributes array - ONLY for non-variant products
+            // For products with variants, attributes are in stocks[].variant_data
+            if (formData.has_attributes && productAttributes.length > 0 && productStocks.length === 0) {
                 productAttributes.forEach((attr, index) => {
-                    if (attr.attribute_id) {
+                    if (attr.attribute_id && attr.attribute_id > 0) {
                         fd.append(`attributes[${index}][attribute_id]`, String(attr.attribute_id));
-                    } else if (attr.attribute_name) {
+                    }
+                    if (attr.attribute_name) {
                         fd.append(`attributes[${index}][attribute_name]`, attr.attribute_name);
                     }
-                    fd.append(`attributes[${index}][value]`, attr.value.trim());
+                    // Value can be empty for attribute definitions
+                    fd.append(`attributes[${index}][value]`, attr.value ? attr.value.trim() : '');
                 });
             }
+            // Note: If productStocks exists (variants), attributes are in stocks[].variant_data
 
             // Add stocks/variants array
             stocks.forEach((stock, index) => {
+                // Include stock ID for existing stocks (for update)
+                if (stock.id) {
+                    fd.append(`stocks[${index}][id]`, String(stock.id));
+                }
+
+                // Add SKU and barcode at stock level (each variant can have its own)
+                if (stock.sku) {
+                    fd.append(`stocks[${index}][sku]`, stock.sku);
+                }
+                if (stock.barcode) {
+                    fd.append(`stocks[${index}][barcode]`, stock.barcode);
+                }
+
                 fd.append(`stocks[${index}][price]`, String(stock.price));
                 fd.append(`stocks[${index}][purchase_price]`, String(stock.purchase_price));
                 fd.append(`stocks[${index}][wholesale_price]`, stock.wholesale_price || '0');

@@ -22,6 +22,11 @@ const IdleProductFilter: React.FC<IdleProductFilterProps> = ({ onFilterChange })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters, idleDays]);
 
+    // Handle reset callback
+    const handleResetFilters = React.useCallback(() => {
+        setIdleDays(30);
+    }, []);
+
     const customFilters = (
         <>
             {/* Idle Days Filter */}
@@ -45,6 +50,7 @@ const IdleProductFilter: React.FC<IdleProductFilterProps> = ({ onFilterChange })
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
             placeholder="Search products, SKU, categories..."
             showStoreFilter={true}
             showDateFilter={false}

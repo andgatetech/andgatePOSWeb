@@ -850,8 +850,8 @@ const PurchaseOrderLeftSide: React.FC<PurchaseOrderLeftSideProps> = ({ isMobileV
                                             <div className="p-3">
                                                 <h3 className="mb-1 line-clamp-2 text-sm font-semibold text-gray-900">{product.product_name}</h3>
 
-                                                {/* SKU */}
-                                                {product.sku && <div className="mb-1 text-xs text-gray-400">SKU: {product.sku}</div>}
+                                                {/* SKU - Now from first stock */}
+                                                {product.stocks && product.stocks.length > 0 && product.stocks[0].sku && <div className="mb-1 text-xs text-gray-400">SKU: {product.stocks[0].sku}</div>}
 
                                                 {/* Unit */}
                                                 <div className="mb-1 text-xs font-medium text-blue-600">

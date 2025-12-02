@@ -72,6 +72,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
         setSelectedStatus('all');
     }, [filters.storeId]);
 
+    // Handle reset callback from UniversalFilter
+    const handleResetFilters = React.useCallback(() => {
+        setSelectedCategory('all');
+        setSelectedStatus('all');
+    }, []);
+
     const customFilters = (
         <>
             {/* Category Filter */}
@@ -108,7 +114,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
         </>
     );
 
-    return <UniversalFilter onFilterChange={handleFilterChange} placeholder="Search products..." showStoreFilter={true} showDateFilter={true} showSearch={true} customFilters={customFilters} />;
+    return <UniversalFilter onFilterChange={handleFilterChange} onResetFilters={handleResetFilters} placeholder="Search products..." showStoreFilter={true} showDateFilter={true} showSearch={true} customFilters={customFilters} />;
 };
 
 export default ProductFilter;
