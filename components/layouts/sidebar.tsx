@@ -85,7 +85,7 @@ const menuRoutes = [
     {
         label: 'Customer',
         icon: <Users />,
-        subMenu: [{ label: 'All Customers ', href: '/customer' }],
+        subMenu: [{ label: 'All Customers ', href: '/customers/list' }],
     },
     {
         label: 'Report',

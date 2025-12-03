@@ -297,8 +297,8 @@ const LowStockReportPage = () => {
     const totalPages = reportData?.pagination?.total_pages || Math.ceil((reportData?.summary?.total_products || 0) / itemsPerPage);
 
     // Calculate additional summary metrics
-    const outOfStockCount = reportData?.items?.filter((item) => item.quantity === 0).length || 0;
-    const criticalStockCount = reportData?.items?.filter((item) => item.quantity > 0 && item.quantity < item.low_limit).length || 0;
+    const outOfStockCount = Array.isArray(reportData?.items) ? reportData.items.filter((item) => item.quantity === 0).length : 0;
+    const criticalStockCount = Array.isArray(reportData?.items) ? reportData.items.filter((item) => item.quantity > 0 && item.quantity < item.low_limit).length : 0;
 
     return (
         <div className="min-h-screen bg-gray-50">
