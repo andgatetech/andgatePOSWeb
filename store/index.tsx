@@ -1,23 +1,32 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 
 import { baseApi } from '@/store/api/baseApi';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
-import orderEditReducer from '@/store/features/Order/OrderEditSlice'; // ✅ Added for order editing
+import orderEditReducer from '@/store/features/Order/OrderEditSlice';
 import invoiceReducer from '@/store/features/Order/OrderSlice';
-import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice'; // ✅ Added
+import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import stockAdjustmentReducer from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import supplierReducer from '@/store/features/supplier/supplierSlice';
 import themeConfigSlice from '@/store/themeConfigSlice';
+
+// --- SSR-safe storage ---
+const createNoopStorage = () => ({
+    getItem: (_key: string) => Promise.resolve(null),
+    setItem: (_key: string, value: string) => Promise.resolve(value),
+    removeItem: (_key: string) => Promise.resolve(),
+});
+
+const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
 
 // --- persist config ---
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'supplier'], // persist only auth + supplier
-    blacklist: ['baseApi'], // don’t persist API cache
+    whitelist: ['auth', 'invoice', 'orderEdit', 'purchaseOrder', 'stockAdjustment', 'label'], // slices to persist
+    blacklist: [baseApi.reducerPath], // do not persist API cache
 };
 
 // --- root reducer ---
@@ -26,11 +35,11 @@ const rootReducer = combineReducers({
     auth: authReducer,
     supplier: supplierReducer,
     invoice: invoiceReducer,
-    orderEdit: orderEditReducer, // ✅ Order Edit Slice
-    purchaseOrder: purchaseOrderReducer, // ✅ Added
-    stockAdjustment: stockAdjustmentReducer, // ✅ Stock Adjustment
-    label: labelReducer, // ✅ Label Generator
-    [baseApi.reducerPath]: baseApi.reducer, // RTK Query
+    orderEdit: orderEditReducer,
+    purchaseOrder: purchaseOrderReducer,
+    stockAdjustment: stockAdjustmentReducer,
+    label: labelReducer,
+    [baseApi.reducerPath]: baseApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
