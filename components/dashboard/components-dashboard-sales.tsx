@@ -20,7 +20,6 @@ import PurchaseSaleChart from './PurchaseSaleChart';
 import Recent_Orders from './Recent_Orders';
 import Revenue from './Revenue';
 import Sale_by from './Sale_by';
-import Top_Selling_Products from './top_selling_products';
 import TopInStockProductsChart from './TopInStockProductsChart';
 import TopPerformingBrandsChart from './TopPerformingBrandsChart';
 
@@ -116,7 +115,7 @@ const ComponentsDashboardSales = () => {
             trend: 'up',
             icon: <Users className="h-6 w-6" />,
             color: 'bg-gradient-to-r from-orange-500 to-orange-600',
-            href: '/customer',
+            href: '/customers/list',
         },
         {
             title: 'Low Stock Products',
@@ -125,7 +124,7 @@ const ComponentsDashboardSales = () => {
             trend: 'down',
             icon: <AlertTriangle className="h-6 w-6" />,
             color: 'bg-gradient-to-r from-red-500 to-red-600',
-            href: '/products/low-stock',
+            href: '/reports/stock/low',
         },
         {
             title: 'Total Brands',
@@ -164,7 +163,7 @@ const ComponentsDashboardSales = () => {
             title: 'Manage Customers',
             description: 'View and manage customers',
             icon: <Users className="h-6 w-6" />,
-            href: '/customer',
+            href: '/customers/list',
             color: 'bg-orange-500',
         },
     ];
