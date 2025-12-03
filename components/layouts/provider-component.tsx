@@ -1,19 +1,17 @@
 'use client';
 
 import App from '@/App';
-import { store, persistor } from '@/store';
-import { Provider } from 'react-redux';
-import React, { ReactNode, Suspense } from 'react';
-import { PersistGate } from 'redux-persist/integration/react';
 import Loading from '@/components/layouts/loading';
+import { persistor, store } from '@/store';
+import { ReactNode, Suspense } from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 
-
-
-interface IProps {
-    children?: ReactNode;
+interface ReduxProviderProps {
+    children: ReactNode;
 }
 
-const ProviderComponent = ({ children }: IProps) => {
+export default function ReduxProvider({ children }: ReduxProviderProps) {
     return (
         <Provider store={store}>
             <PersistGate loading={<Loading />} persistor={persistor}>
@@ -23,9 +21,7 @@ const ProviderComponent = ({ children }: IProps) => {
             </PersistGate>
         </Provider>
     );
-};
+}
 
 // if you want i18n support globally, uncomment this:
-// export default appWithI18Next(ProviderComponent, ni18nConfig);
-
-export default ProviderComponent;
+// export default appWithI18Next(ReduxProvider, ni18nConfig);
