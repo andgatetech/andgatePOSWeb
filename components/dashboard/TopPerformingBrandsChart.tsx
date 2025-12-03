@@ -1,7 +1,6 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetTopPerformerBrandsQuery } from '@/store/features/brand/brandApi';
 import { endOfDay, endOfMonth, endOfWeek, format, startOfDay, startOfMonth, startOfWeek, subMonths, subWeeks } from 'date-fns';
 import { Award, Calendar, ChevronDown, RotateCcw, TrendingUp } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -81,7 +80,12 @@ const TopPerformingBrandsChart = () => {
     }, [currentStoreId, getDateRange, refetchTrigger]);
 
     // Fetch data from API
-    const { data, isLoading, isError, refetch } = useGetTopPerformerBrandsQuery(filters);
+    // TODO: Fix backend API - temporarily commented
+    // const { data, isLoading, isError, refetch } = useGetTopPerformerBrandsQuery(filters);
+    const data = null;
+    const isLoading = false;
+    const isError = false;
+    const refetch = () => {};
 
     // Force refetch when filters change
     useEffect(() => {
