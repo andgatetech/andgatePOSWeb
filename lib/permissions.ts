@@ -147,8 +147,9 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/purchases/list': ['purchase-orders.view'],
 
     // Suppliers
-    '/suppliers/create-supplier': ['suppliers.create'],
-    '/suppliers': ['suppliers.view'],
+    '/suppliers/create': ['suppliers.create'],
+    '/suppliers/list': ['suppliers.view'],
+    '/suppliers/edit': ['suppliers.view'],
 
     // Account
     '/account/ledger-list': ['ledgers.view'],
@@ -158,7 +159,10 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/expenses/expense-list': ['expenses.view'],
 
     // Customers
-    '/customer': ['customers.view'],
+    '/customers': ['customers.view'],
+    '/customers/list': ['customers.view'],
+    '/customers/create': ['customers.create'],
+    '/customers/edit': ['customers.create'],
 
     // Reports
     '/reports/activity': ['reports.activity-logs'],

@@ -342,7 +342,7 @@ const PurchaseTransactionReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <CreditCard className="h-16 w-16" />,
+                            icon: <CreditCard className="mx-auto h-16 w-16" />,
                             title: 'No Transactions Found',
                             description: 'Try adjusting your filters to see purchase transaction records.',
                         }}

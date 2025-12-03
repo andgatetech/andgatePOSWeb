@@ -1,21 +1,31 @@
 import Swal from 'sweetalert2';
 
 /**
- * Reusable toast notification utility using SweetAlert2
- * Can be imported and used across all components
+ * Reusable message notification utility using SweetAlert2
+ * Shows a centered dialog with icon and message
+ * @param msg - Message to display
+ * @param type - Type of message: 'success', 'error', 'warning', or 'info'
  */
 export const showMessage = (msg = '', type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
-    const toast: any = Swal.mixin({
-        toast: true,
-        position: 'top',
-        showConfirmButton: false,
-        timer: 3000,
-        customClass: { container: 'toast' },
-    });
-    toast.fire({
+    const colorMap = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6',
+    };
+
+    Swal.fire({
         icon: type,
         title: msg,
-        padding: '10px 20px',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+        position: 'center',
+        confirmButtonColor: colorMap[type],
+        customClass: {
+            popup: `swal2-${type}-popup`,
+            icon: `swal2-${type}-icon`,
+        },
     });
 };
 

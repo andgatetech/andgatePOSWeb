@@ -9,6 +9,7 @@ import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
+import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { Html5Qrcode } from 'html5-qrcode';
 import { GripVertical } from 'lucide-react';
@@ -35,7 +36,7 @@ interface PosLeftSideProps {
         hideIcon: React.ReactNode;
         label?: string;
     };
-    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit'; // Which Redux slice to use
+    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'purchase'; // Which Redux slice to use
 }
 
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
@@ -169,6 +170,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 return state.label.items;
             case 'orderEdit':
                 return state.orderEdit.items;
+            case 'purchase':
+                return state.purchaseOrder.items;
             case 'pos':
             default:
                 return state.invoice.items;
@@ -320,6 +323,18 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 case 'orderEdit':
                     dispatch(addOrderEditItem(itemToAdd));
                     break;
+                case 'purchase':
+                    dispatch(
+                        addPurchaseItem({
+                            ...itemToAdd,
+                            itemType: 'existing',
+                            productStockId: primaryStock?.id,
+                            purchasePrice: regularPrice,
+                            amount: regularPrice * 1,
+                            variantData: {},
+                        })
+                    );
+                    break;
                 case 'pos':
                 default:
                     dispatch(addItemRedux(itemToAdd));
@@ -361,7 +376,12 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const price = useWholesale ? wholesalePrice : regularPrice;
 
             // Check stock limit for this specific variant
-            const currentQuantityInCart = reduxItems.filter((item) => item.productId === variantProduct.id && item.stockId === variant.id).reduce((sum, item) => sum + item.quantity, 0);
+            const currentQuantityInCart = reduxItems
+                .filter((item) => {
+                    const itemStockId = 'stockId' in item ? item.stockId : 'productStockId' in item ? item.productStockId : undefined;
+                    return item.productId === variantProduct.id && itemStockId === variant.id;
+                })
+                .reduce((sum, item) => sum + item.quantity, 0);
 
             if (currentQuantityInCart + quantity > parseFloat(variant.quantity)) {
                 showMessage('Cannot add more, stock limit reached for this variant!', 'error');
@@ -417,6 +437,17 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     break;
                 case 'orderEdit':
                     dispatch(addOrderEditItem(itemToAdd));
+                    break;
+                case 'purchase':
+                    dispatch(
+                        addPurchaseItem({
+                            ...itemToAdd,
+                            itemType: 'existing',
+                            productStockId: variant.id,
+                            purchasePrice: price,
+                            amount: price * quantity,
+                        })
+                    );
                     break;
                 case 'pos':
                 default:
@@ -490,6 +521,17 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         break;
                     case 'orderEdit':
                         dispatch(addOrderEditItem(itemToAdd));
+                        break;
+                    case 'purchase':
+                        dispatch(
+                            addPurchaseItem({
+                                ...itemToAdd,
+                                itemType: 'existing',
+                                productStockId: serialStock?.id,
+                                purchasePrice: regularPrice,
+                                amount: regularPrice * 1,
+                            })
+                        );
                         break;
                     case 'pos':
                     default:

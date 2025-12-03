@@ -159,12 +159,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         subMenu: [
             {
                 label: 'Add Supplier',
-                href: '/suppliers/create-supplier',
+                href: '/suppliers/create',
                 requiredPermissions: ['suppliers.create'],
             },
             {
                 label: 'All Supplier',
-                href: '/suppliers',
+                href: '/suppliers/list',
                 requiredPermissions: ['suppliers.view', 'suppliers.index'],
             },
         ],
@@ -204,8 +204,13 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['customers.view', 'customers.index'],
         subMenu: [
             {
+                label: 'Add Customer',
+                href: '/customers/create',
+                requiredPermissions: ['customers.create'],
+            },
+            {
                 label: 'All Customers',
-                href: '/customer',
+                href: '/customers/list',
                 requiredPermissions: ['customers.view', 'customers.index'],
             },
         ],

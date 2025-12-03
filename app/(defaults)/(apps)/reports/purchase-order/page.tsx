@@ -355,7 +355,7 @@ const PurchaseOrderReportPage = () => {
                         columns={columns}
                         isLoading={isLoading}
                         emptyState={{
-                            icon: <Package className="h-16 w-16" />,
+                            icon: <Package className="mx-auto h-16 w-16" />,
                             title: 'No Purchase Orders Found',
                             description: 'Try adjusting your filters to see purchase order records.',
                         }}
@@ -418,7 +418,7 @@ const PurchaseOrderReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <Package className="h-16 w-16" />,
+                            icon: <Package className="mx-autoh-16 w-16" />,
                             title: 'No Purchase Orders Found',
                             description: 'Try adjusting your filters to see purchase order records.',
                         }}

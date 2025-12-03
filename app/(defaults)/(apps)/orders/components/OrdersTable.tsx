@@ -179,7 +179,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             pagination={pagination}
             sorting={sorting}
             emptyState={{
-                icon: <Eye className="h-16 w-16" />,
+                icon: <Eye className="mx-auto h-16 w-16" />,
                 title: 'No Orders Found',
                 description: 'No orders match your current filters. Try adjusting your search criteria.',
             }}

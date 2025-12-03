@@ -35,7 +35,6 @@ const CustomerApi = baseApi.injectEndpoints({
 
         // ✅ Store customers list endpoint for /customers
         getStoreCustomersList: builder.query({
-
             query: ({
                 store_id,
                 store_ids,
@@ -43,26 +42,32 @@ const CustomerApi = baseApi.injectEndpoints({
                 membership,
                 per_page,
                 page,
+                sort_field,
+                sort_direction,
             }: {
                 store_id?: number | string;
-                 store_ids?: number[] | string;
+                store_ids?: number[] | string;
                 search?: string;
                 membership?: 'normal' | 'silver' | 'gold' | 'platinum';
                 per_page?: number;
                 page?: number;
+                sort_field?: string;
+                sort_direction?: 'asc' | 'desc';
             } = {}) => {
                 let params = new URLSearchParams();
 
                 if (store_id) params.append('store_id', String(store_id));
-                        if (store_ids) {
-            // Support both array and string
-            const ids = Array.isArray(store_ids) ? store_ids.join(',') : store_ids;
-            params.append('store_ids', ids);
-        }
+                if (store_ids) {
+                    // Support both array and string
+                    const ids = Array.isArray(store_ids) ? store_ids.join(',') : store_ids;
+                    params.append('store_ids', ids);
+                }
                 if (search) params.append('search', search);
                 if (membership) params.append('membership', membership);
                 if (per_page) params.append('per_page', String(per_page));
                 if (page) params.append('page', String(page));
+                if (sort_field) params.append('sort_field', sort_field);
+                if (sort_direction) params.append('sort_direction', sort_direction);
 
                 return {
                     url: `/customers?${params.toString()}`,
@@ -70,8 +75,9 @@ const CustomerApi = baseApi.injectEndpoints({
                 };
             },
             providesTags: (result) =>
-                result ? [...result.data.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }] : [{ type: 'Customers', id: 'LIST' }],
-
+                result?.data?.items
+                    ? [...result.data.items.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }]
+                    : [{ type: 'Customers', id: 'LIST' }],
         }),
 
         // ✅ Update customer mutation to invalidate store customers list
@@ -97,8 +103,17 @@ const CustomerApi = baseApi.injectEndpoints({
                 { type: 'Customers', id: 'LIST' },
             ],
         }),
+
+        // Get single customer by ID
+        getSingleCustomer: builder.query({
+            query: (id: string | number) => ({
+                url: `/customers/${id}`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, id) => [{ type: 'Customers', id }],
+        }),
     }),
     overrideExisting: true,
 });
 
-export const { useCreateCustomerMutation, useGetStoreCustomersQuery, useGetStoreCustomersListQuery, useUpdateCustomerMutation, useDeleteCustomerMutation } = CustomerApi;
+export const { useCreateCustomerMutation, useGetStoreCustomersQuery, useGetStoreCustomersListQuery, useUpdateCustomerMutation, useDeleteCustomerMutation, useGetSingleCustomerQuery } = CustomerApi;

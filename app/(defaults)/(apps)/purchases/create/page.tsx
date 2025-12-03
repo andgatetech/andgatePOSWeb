@@ -1,32 +1,22 @@
-'use client';
-import { useEffect, useState } from 'react';
-import PurchaseOrderLeftSide from './PurchaseOrderLeftSide';
+import { Box, Package } from 'lucide-react';
+import PosLeftSide from '../../pos/PosLeftSide';
 import PurchaseOrderRightSide from './PurchaseOrderRightSide';
 
-const PurchaseCreatePage = () => {
-    const [isMobileView, setIsMobileView] = useState(false);
-    const [showMobileCart, setShowMobileCart] = useState(false);
 
-    useEffect(() => {
-        const checkMobileView = () => {
-            setIsMobileView(window.innerWidth < 1024);
-        };
-
-        checkMobileView();
-        window.addEventListener('resize', checkMobileView);
-
-        return () => window.removeEventListener('resize', checkMobileView);
-    }, []);
-
+const page = () => {
     return (
-        <div className="relative flex overflow-hidden">
-            {/* Left Side - Product Selection */}
-            <PurchaseOrderLeftSide isMobileView={isMobileView} showMobileCart={showMobileCart} setShowMobileCart={setShowMobileCart} />
-
-            {/* Right Side - Draft Details & Items */}
-            <PurchaseOrderRightSide isMobileView={isMobileView} showMobileCart={showMobileCart} />
-        </div>
+        <PosLeftSide
+            disableSerialSelection={true}
+            mobileButtonConfig={{
+                showIcon: <Box className="h-6 w-6" />,
+                hideIcon: <Package className="h-6 w-6" />,
+                label: 'Purchase',
+            }}
+            reduxSlice="purchase"
+        >
+            <PurchaseOrderRightSide></PurchaseOrderRightSide>
+        </PosLeftSide>
     );
 };
 
-export default PurchaseCreatePage;
+export default page;
