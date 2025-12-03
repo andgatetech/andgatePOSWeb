@@ -52,11 +52,11 @@ const ComponentsDashboardSales = () => {
     const todaysOrders = orders.filter((order) => isToday(order.created_at));
     const todaysOrderCount = todaysOrders.length;
 
-    const todaysCustomers = customersData?.data?.filter((customer) => isToday(customer.created_at)) || [];
+    const todaysCustomers = Array.isArray(customersData?.data?.items) ? customersData.data.items.filter((customer) => isToday(customer.created_at)) : [];
     const totalTodaysCustomers = todaysCustomers.length;
 
     // ✅ Extract totals safely
-    const totalCustomers = customersData?.data?.length || 0;
+    const totalCustomers = customersData?.data?.pagination?.total || 0;
     const totalProducts = productsData?.data?.length || 0;
 
     // Calculate total revenue and total orders
