@@ -1,6 +1,5 @@
 'use client';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetAllLowStockProductsQuery } from '@/store/features/Product/productApi';
 import { AlertTriangle, Package } from 'lucide-react';
 import React from 'react';
 
@@ -61,8 +60,11 @@ interface LowStockProductsProps {
 const Low_Stock_Products: React.FC<LowStockProductsProps> = () => {
     const { currentStoreId } = useCurrentStore();
 
-    // ✅ Fetch directly from API
-    const { data: lowStockProducts, isLoading, isError } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    // TODO: Fix backend API - temporarily commented
+    // const { data: lowStockProducts, isLoading, isError } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const lowStockProducts = { data: [] };
+    const isLoading = false;
+    const isError = false;
 
     const products = Array.isArray(lowStockProducts?.data) ? lowStockProducts.data : [];
 

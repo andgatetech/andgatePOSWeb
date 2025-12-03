@@ -14,19 +14,20 @@ import { AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Calendar, Dolla
 import { useGetBrandCountByStoreQuery } from '@/store/features/brand/brandApi';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
-import { useGetAllLowStockProductsQuery, useGetAllProductsQuery } from '@/store/features/Product/productApi';
-import Low_Stock_Products from './low_stock_products';
+import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import PurchaseSaleChart from './PurchaseSaleChart';
 import Recent_Orders from './Recent_Orders';
 import Revenue from './Revenue';
 import Sale_by from './Sale_by';
-import TopInStockProductsChart from './TopInStockProductsChart';
-import TopPerformingBrandsChart from './TopPerformingBrandsChart';
 
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
-    const { data: lowStockProducts, isLoading: isLoadingLowStock, isError: isErrorLowStock } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    // TODO: Fix backend API - temporarily commented
+    // const { data: lowStockProducts, isLoading: isLoadingLowStock, isError: isErrorLowStock } = useGetAllLowStockProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const lowStockProducts = { data: [] };
+    const isLoadingLowStock = false;
+    const isErrorLowStock = false;
 
     // ✅ Fetch customers (store_id filter only)
     const { data: customersData, isLoading: isLoadingCustomers } = useGetStoreCustomersListQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
@@ -318,10 +319,11 @@ const ComponentsDashboardSales = () => {
                 <Recent_Orders />
                 {/* <Top_Selling_Products /> */}
 
-                <Low_Stock_Products />
+                {/* TODO: Fix backend API - temporarily commented */}
+                {/* <Low_Stock_Products /> */}
                 <PurchaseSaleChart />
-                <TopInStockProductsChart />
-                <TopPerformingBrandsChart />
+                {/* <TopInStockProductsChart />
+                <TopPerformingBrandsChart /> */}
             </div>
         </div>
     );
