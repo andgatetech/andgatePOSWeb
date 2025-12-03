@@ -370,7 +370,12 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     {search && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
                             Search: &quot;{search}&quot;
-                            <button onClick={() => { setSearch(''); setLocalSearch(''); }}>
+                            <button
+                                onClick={() => {
+                                    setSearch('');
+                                    setLocalSearch('');
+                                }}
+                            >
                                 <X className="h-3 w-3 hover:text-blue-600" />
                             </button>
                         </span>

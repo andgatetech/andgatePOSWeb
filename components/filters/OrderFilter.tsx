@@ -1,5 +1,5 @@
 'use client';
-import UniversalFilter, { FilterOptions } from '@/components/common/UniversalFilter';
+import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { CreditCard } from 'lucide-react';

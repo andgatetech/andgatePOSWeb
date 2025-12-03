@@ -114,7 +114,17 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
         </>
     );
 
-    return <UniversalFilter onFilterChange={handleFilterChange} onResetFilters={handleResetFilters} placeholder="Search products..." showStoreFilter={true} showDateFilter={true} showSearch={true} customFilters={customFilters} />;
+    return (
+        <UniversalFilter
+            onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
+            placeholder="Search products..."
+            showStoreFilter={true}
+            showDateFilter={true}
+            showSearch={true}
+            customFilters={customFilters}
+        />
+    );
 };
 
 export default ProductFilter;
