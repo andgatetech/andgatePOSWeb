@@ -1,4 +1,5 @@
 'use client';
+import ItemPreviewModal from '@/app/(defaults)/(apps)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
@@ -15,10 +16,12 @@ import {
     updateItemQuantityRedux,
 } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
-import { Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
+import { Eye, FileText, Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
+import LoadingOverlay from './LoadingOverlay';
+import PurchaseOrderPreview from './PurchaseOrderPreview';
 
 interface PurchaseOrderRightSideProps {
     draftId?: number;
@@ -43,10 +46,14 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [showSupplierResults, setShowSupplierResults] = useState(false);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
     const [newProductName, setNewProductName] = useState('');
+    const [newProductDescription, setNewProductDescription] = useState('');
     const [newProductQty, setNewProductQty] = useState(1);
     const [newProductUnit, setNewProductUnit] = useState('');
     const [showAddNewProduct, setShowAddNewProduct] = useState(false);
     const [localIsMobileView, setLocalIsMobileView] = useState(false);
+    const [itemModalOpen, setItemModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<any>(null);
+    const [showPreview, setShowPreview] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     // Use props if provided, otherwise use local state
@@ -59,12 +66,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [updateDraft, { isLoading: isUpdatingDraft }] = useUpdatePurchaseDraftMutation();
 
     // Fetch suppliers - always fetch 5 for dropdown
-    const { data: suppliersResponse } = useGetSuppliersQuery({
-        search: supplierSearch,
-        per_page: 5,
-        store_id: currentStoreId,
-    });
-    const suppliers = suppliersResponse?.data?.data || [];
+    const { data: suppliersResponse } = useGetSuppliersQuery(
+        {
+            search: supplierSearch,
+            per_page: 5,
+            store_id: currentStoreId,
+        },
+        {
+            skip: !currentStoreId, // Only fetch when store is selected
+        }
+    );
+    const suppliers = suppliersResponse?.data?.items || [];
 
     // Fetch units
     const { data: unitsResponse } = useGetUnitsQuery({
@@ -163,7 +175,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             productId: undefined, // No product_id because it doesn't exist yet
             itemType: 'new' as const,
             title: newProductName,
-            description: '',
+            description: newProductDescription,
             purchasePrice: 0, // Will be set when receiving
             quantity: newProductQty,
             amount: 0,
@@ -174,6 +186,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         // ✅ Fixed: Use the imported action
         dispatch(addItemRedux(newItem));
         setNewProductName('');
+        setNewProductDescription('');
         setNewProductQty(1);
         setNewProductUnit('');
         setShowAddNewProduct(false);
@@ -222,19 +235,36 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             notes: notes || '',
             items: purchaseItems.map((item) => {
                 if (item.itemType === 'existing' && item.productId) {
-                    return {
+                    // Existing product with variant
+                    const itemData: any = {
                         product_id: item.productId,
-                        purchase_price: item.purchasePrice,
                         quantity_ordered: item.quantity,
+                        purchase_price: item.purchasePrice,
                     };
+
+                    // Include product_stock_id for variant products
+                    if (item.productStockId) {
+                        itemData.product_stock_id = item.productStockId;
+                    }
+
+                    return itemData;
                 }
 
-                return {
+                // New product
+                const newItemData: any = {
                     product_name: item.title,
                     product_description: item.description || '',
                     unit: item.unit || 'piece',
                     quantity_ordered: item.quantity,
+                    purchase_price: item.purchasePrice,
                 };
+
+                // Include variant_info for new products with variants
+                if (item.variantInfo && Object.keys(item.variantInfo).length > 0) {
+                    newItemData.variant_info = item.variantInfo;
+                }
+
+                return newItemData;
             }),
         };
 
@@ -334,20 +364,36 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             notes: notes || '',
             items: purchaseItems.map((item) => {
                 if (item.itemType === 'existing' && item.productId) {
-                    return {
+                    // Existing product with variant
+                    const itemData: any = {
                         product_id: item.productId,
-                        purchase_price: item.purchasePrice,
                         quantity_ordered: item.quantity,
+                        purchase_price: item.purchasePrice,
                     };
+
+                    // Include product_stock_id for variant products
+                    if (item.productStockId) {
+                        itemData.product_stock_id = item.productStockId;
+                    }
+
+                    return itemData;
                 }
 
-                return {
+                // New product
+                const newItemData: any = {
                     product_name: item.title,
                     product_description: item.description || '',
                     unit: item.unit || 'piece',
                     quantity_ordered: item.quantity,
-                    purchase_price: 0, // Will be updated during receiving
+                    purchase_price: item.purchasePrice || 0,
                 };
+
+                // Include variant_info for new products with variants
+                if (item.variantInfo && Object.keys(item.variantInfo).length > 0) {
+                    newItemData.variant_info = item.variantInfo;
+                }
+
+                return newItemData;
             }),
         };
 
@@ -360,9 +406,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 icon: 'success',
                 title: 'Purchase Order Created!',
                 html: `
-                    <p>PO Reference: <strong>${response.data.purchase_reference || response.data.id}</strong></p>
+                    <p>Invoice Number: <strong>${response.data.invoice_number || 'N/A'}</strong></p>
+                    <p>Order Reference: <strong>${response.data.order_reference || response.data.purchase_reference || response.data.id}</strong></p>
                     <p>Total Items: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
-                    <p>Status: <strong>Pending Receipt</strong></p>
+                    <p>Grand Total: <strong>৳${response.data.totals?.grand_total?.toFixed(2) || grandTotal.toFixed(2)}</strong></p>
+                    <p>Status: <strong class="text-orange-600">${response.data.status?.toUpperCase() || 'ORDERED'}</strong></p>
                 `,
                 confirmButtonText: 'View Purchase Orders',
                 showCancelButton: true,
@@ -481,15 +529,30 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     }}
                                     onFocus={() => setShowSupplierResults(true)}
                                 />
-                                {showSupplierResults && suppliers.length > 0 && (
+                                {showSupplierResults && supplierSearch.trim() === '' && suppliers.length > 0 && (
                                     <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border bg-white shadow-lg">
                                         {suppliers.map((supplier: any) => (
                                             <div key={supplier.id} className="cursor-pointer border-b p-3 hover:bg-gray-50" onClick={() => handleSupplierSelect(supplier)}>
                                                 <p className="font-semibold">{supplier.name}</p>
-                                                {supplier.contact_person && <p className="text-sm text-gray-600">{supplier.contact_person}</p>}
+                                                {supplier.email && <p className="text-xs text-gray-500">{supplier.email}</p>}
+                                                {supplier.phone && <p className="text-xs text-gray-500">{supplier.phone}</p>}
                                             </div>
                                         ))}
                                     </div>
+                                )}
+                                {showSupplierResults && supplierSearch.trim() !== '' && suppliers.length > 0 && (
+                                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border bg-white shadow-lg">
+                                        {suppliers.map((supplier: any) => (
+                                            <div key={supplier.id} className="cursor-pointer border-b p-3 hover:bg-gray-50" onClick={() => handleSupplierSelect(supplier)}>
+                                                <p className="font-semibold">{supplier.name}</p>
+                                                {supplier.email && <p className="text-xs text-gray-500">{supplier.email}</p>}
+                                                {supplier.phone && <p className="text-xs text-gray-500">{supplier.phone}</p>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {showSupplierResults && supplierSearch.trim() !== '' && suppliers.length === 0 && (
+                                    <div className="absolute z-10 mt-1 w-full rounded-lg border bg-white p-4 text-center text-sm text-gray-500 shadow-lg">No suppliers found</div>
                                 )}
                             </div>
                         )}
@@ -502,6 +565,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Purchase Items</h3>
                         <div className="flex items-center gap-2">
                             <span className="text-xs sm:text-sm">Items: {purchaseItems.length}</span>
+                            {purchaseItems.length > 0 && (
+                                <button onClick={clearAllItems} className="btn btn-sm btn-outline-danger" title="Clear all items">
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                            )}
                             <button onClick={() => setShowAddNewProduct(!showAddNewProduct)} className="btn btn-sm btn-outline-primary">
                                 <Plus className="mr-1 h-4 w-4" />
                                 Add New Product
@@ -513,25 +581,37 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     {showAddNewProduct && (
                         <div className="mb-4 rounded-lg border bg-blue-50 p-4">
                             <h4 className="mb-3 font-semibold">Add Product Not in Inventory</h4>
-                            <div className="grid grid-cols-4 gap-3">
-                                <div className="col-span-2">
-                                    <label className="mb-1 block text-sm font-medium">Product Name *</label>
-                                    <input type="text" placeholder="Product Name" className="form-input" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} />
+                            <div className="grid grid-cols-1 gap-3">
+                                <div className="grid grid-cols-4 gap-3">
+                                    <div className="col-span-2">
+                                        <label className="mb-1 block text-sm font-medium">Product Name *</label>
+                                        <input type="text" placeholder="Product Name" className="form-input" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">Unit *</label>
+                                        <select className="form-select" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
+                                            <option value="">Select Unit</option>
+                                            {units.map((unit: any) => (
+                                                <option key={unit.id} value={unit.name}>
+                                                    {unit.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">Ordered Quantity *</label>
+                                        <input type="number" min="1" placeholder="Qty" className="form-input" value={newProductQty} onChange={(e) => setNewProductQty(Number(e.target.value))} />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium">Unit *</label>
-                                    <select className="form-select" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
-                                        <option value="">Select Unit</option>
-                                        {units.map((unit: any) => (
-                                            <option key={unit.id} value={unit.name}>
-                                                {unit.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium">Ordered Quantity *</label>
-                                    <input type="number" min="1" placeholder="Qty" className="form-input" value={newProductQty} onChange={(e) => setNewProductQty(Number(e.target.value))} />
+                                    <label className="mb-1 block text-sm font-medium">Description</label>
+                                    <textarea
+                                        placeholder="Product description (optional)"
+                                        className="form-textarea"
+                                        rows={2}
+                                        value={newProductDescription}
+                                        onChange={(e) => setNewProductDescription(e.target.value)}
+                                    />
                                 </div>
                             </div>
                             <div className="mt-3 flex gap-2">
@@ -543,6 +623,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     onClick={() => {
                                         setShowAddNewProduct(false);
                                         setNewProductName('');
+                                        setNewProductDescription('');
                                         setNewProductUnit('');
                                         setNewProductQty(1);
                                     }}
@@ -560,19 +641,20 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                                        <th className="w-16 border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">S.No</th>
                                         <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Product</th>
                                         <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Type</th>
                                         <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Quantity</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Purchase Price</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Amount</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Ordered Qty</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Est. Price</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Est. Total</th>
                                         <th className="border-b border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
                                     {purchaseItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="border-b border-gray-300 p-8 text-center text-gray-500">
+                                            <td colSpan={8} className="border-b border-gray-300 p-8 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center py-4">
                                                     <div className="mb-2 text-3xl">📦</div>
                                                     <div className="font-medium">No items added yet</div>
@@ -581,55 +663,71 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                             </td>
                                         </tr>
                                     ) : (
-                                        purchaseItems.map((item, index) => (
-                                            <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < purchaseItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
-                                                <td className="border-r border-gray-300 p-3">
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                                                        {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
-                                                    </div>
-                                                </td>
-                                                <td className="border-r border-gray-300 p-3 text-center">
-                                                    {item.itemType === 'existing' ? (
-                                                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Existing</span>
-                                                    ) : (
-                                                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">New</span>
-                                                    )}
-                                                </td>
-                                                <td className="border-r border-gray-300 p-3 text-center text-sm">
-                                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
-                                                </td>
-                                                <td className="border-r border-gray-300 p-3 text-center">
-                                                    <input
-                                                        type="number"
-                                                        className="form-input w-20 text-center"
-                                                        min="1"
-                                                        value={item.quantity}
-                                                        onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                                                    />
-                                                </td>
-                                                <td className="border-r border-gray-300 p-3 text-right">
-                                                    <input
-                                                        type="number"
-                                                        className="form-input w-28 text-right"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={item.purchasePrice}
-                                                        onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
-                                                    />
-                                                </td>
-                                                <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
-                                                <td className="p-3 text-center">
-                                                    <button
-                                                        onClick={() => handleRemoveItem(item.id)}
-                                                        className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
-                                                        title="Remove item"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
+                                        purchaseItems.map((item, index) => {
+                                            return (
+                                                <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < purchaseItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                                                    <td className="border-r border-gray-300 p-3 text-center text-sm font-medium text-gray-600">{index + 1}</td>
+                                                    <td className="border-r border-gray-300 p-3">
+                                                        <div className="flex items-center gap-2">
+                                                            {item.itemType === 'existing' && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setSelectedItem(item);
+                                                                        setItemModalOpen(true);
+                                                                    }}
+                                                                    className="text-blue-600 hover:text-blue-800"
+                                                                    title="View item details"
+                                                                >
+                                                                    <Eye className="h-4 w-4" />
+                                                                </button>
+                                                            )}
+                                                            <div className="flex-1">
+                                                                <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-r border-gray-300 p-3 text-center">
+                                                        {item.itemType === 'existing' ? (
+                                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Existing</span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">New</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="border-r border-gray-300 p-3 text-center text-sm">
+                                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                                    </td>
+                                                    <td className="border-r border-gray-300 p-3 text-center">
+                                                        <input
+                                                            type="number"
+                                                            className="form-input w-20 text-center"
+                                                            min="1"
+                                                            value={item.quantity}
+                                                            onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                        />
+                                                    </td>
+                                                    <td className="border-r border-gray-300 p-3 text-right">
+                                                        <input
+                                                            type="number"
+                                                            className="form-input w-28 text-right"
+                                                            min="0"
+                                                            step="0.01"
+                                                            value={item.purchasePrice}
+                                                            onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
+                                                        />
+                                                    </td>
+                                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
+                                                    <td className="p-3 text-center">
+                                                        <button
+                                                            onClick={() => handleRemoveItem(item.id)}
+                                                            className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
+                                                            title="Remove item"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
                                     )}
                                 </tbody>
                             </table>
@@ -640,15 +738,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                             {purchaseItems.length === 0 ? (
                                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center text-gray-500">No items added. Select products from the left or add new products.</div>
                             ) : (
-                                purchaseItems.map((item) => (
+                                purchaseItems.map((item, index) => (
                                     <div key={item.id} className="rounded-lg border bg-white p-4 shadow-sm">
                                         <div className="mb-3 flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <p className="font-semibold text-gray-900">{item.title}</p>
-                                                {item.description && <p className="text-sm text-gray-500">{item.description}</p>}
-                                                <div className="mt-1 flex items-center gap-2">
-                                                    <span className="text-xs text-gray-400">Unit: {item.unit}</span>
-                                                    {item.itemType === 'existing' ? <span className="badge bg-success text-xs">Existing</span> : <span className="badge bg-info text-xs">New</span>}
+                                            <div className="flex flex-1 items-start gap-2">
+                                                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">{index + 1}</span>
+                                                <div className="flex-1">
+                                                    <p className="font-semibold text-gray-900">{item.title}</p>
+                                                    <div className="mt-1 flex items-center gap-2">
+                                                        <span className="text-xs text-gray-400">Unit: {item.unit}</span>
+                                                        {item.itemType === 'existing' ? <span className="badge bg-success text-xs">Existing</span> : <span className="badge bg-info text-xs">New</span>}
+                                                    </div>
                                                 </div>
                                             </div>
                                             <button onClick={() => handleRemoveItem(item.id)} className="rounded p-2 hover:bg-red-100">
@@ -692,9 +792,10 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 {/* Total */}
                 <div className="mb-6 rounded-lg border bg-gray-50 p-4">
                     <div className="flex items-center justify-between text-2xl font-bold">
-                        <span>Grand Total:</span>
+                        <span>Est. Grand Total:</span>
                         <span className="text-primary">৳{grandTotal.toFixed(2)}</span>
                     </div>
+                    <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>
                 </div>
 
                 {/* Action Buttons */}
@@ -712,6 +813,15 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         {isSavingDraft || isUpdatingDraft ? 'Saving...' : isEditMode ? 'Update Draft' : 'Save as Draft'}
                     </button>
                     <button
+                        onClick={() => setShowPreview(true)}
+                        className="btn btn-outline-secondary flex-1"
+                        disabled={purchaseItems.length === 0}
+                        title={purchaseItems.length === 0 ? 'Add items first' : 'Preview purchase order'}
+                    >
+                        <FileText className="mr-2 h-5 w-5" />
+                        Preview
+                    </button>
+                    <button
                         onClick={(e) => {
                             console.log('Create Purchase Order button click event', e);
                             handleCreatePurchaseOrder();
@@ -723,12 +833,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         <ShoppingCart className="mr-2 h-5 w-5" />
                         {isCreatingPurchase ? 'Creating...' : 'Create Purchase Order'}
                     </button>
-                    <button onClick={clearAllItems} className="btn btn-outline-danger" disabled={purchaseItems.length === 0}>
-                        <Trash2 className="mr-2 h-5 w-5" />
-                        Clear All
-                    </button>
                 </div>
             </div>
+
+            {/* Item Preview Modal */}
+            <ItemPreviewModal isOpen={itemModalOpen} onClose={() => setItemModalOpen(false)} item={selectedItem} />
+
+            {/* Purchase Order Preview Modal */}
+            <PurchaseOrderPreview isOpen={showPreview} onClose={() => setShowPreview(false)} />
+
+            {/* Loading Overlay */}
+            <LoadingOverlay isLoading={isSavingDraft || isUpdatingDraft || isCreatingPurchase} />
         </div>
     );
 };

@@ -65,8 +65,8 @@ const menuRoutes = [
         label: 'Supplier',
         icon: <Truck />,
         subMenu: [
-            { label: 'Add Supplier', href: '/suppliers/create-supplier' },
-            { label: 'All Supplier', href: '/suppliers' },
+            { label: 'Add Supplier', href: '/suppliers/create' },
+            { label: 'All Supplier', href: '/suppliers/list' },
         ],
     },
     {

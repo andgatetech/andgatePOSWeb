@@ -67,7 +67,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Create Purchase Order (Direct - without draft)
         createPurchaseOrder: builder.mutation({
             query: (data: any) => ({
-                url: '/purchase-order/store',
+                url: '/purchase-order',
                 method: 'POST',
                 body: data,
             }),
@@ -77,7 +77,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Get all Purchase Orders
         getPurchaseOrders: builder.query({
             query: (params: any = {}) => ({
-                url: '/purchase-order/list',
+                url: '/purchase-order',
                 method: 'GET',
                 params,
             }),
@@ -106,7 +106,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Edit Purchase Order (fetch data for form)
         editPurchaseOrder: builder.query({
             query: (id: number | string) => ({
-                url: `/purchase-order/edit/${id}`,
+                url: `/purchase-order/${id}`,
                 method: 'GET',
             }),
             providesTags: ['PurchaseOrders'],
@@ -117,7 +117,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Update Purchase Order (Receive Items)
         updatePurchaseOrder: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/purchase-order/update/${id}`,
+                url: `/purchase-order/${id}`,
                 method: 'PUT',
                 body: data,
             }),
@@ -127,7 +127,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Delete Purchase Order
         deletePurchaseOrder: builder.mutation({
             query: (id: number | string) => ({
-                url: `/purchase-order/delete/${id}`,
+                url: `/purchase-order/${id}`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['PurchaseOrders'],

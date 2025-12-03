@@ -400,7 +400,7 @@ const ExpenseReportPage = () => {
                             },
                         }}
                         emptyState={{
-                            icon: <Receipt className="h-16 w-16" />,
+                            icon: <Receipt className=" mx-auto h-16 w-16" />,
                             title: 'No Expense Data Found',
                             description: 'Try adjusting your filters to see results.',
                         }}

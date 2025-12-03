@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface PurchaseItem {
     id: number; // Local row ID
     productId?: number; // Product ID from backend (for existing products)
+    productStockId?: number; // Stock ID for specific variant
     itemType?: 'existing' | 'new'; // Track if product exists or needs to be created
     title: string; // Product name
     description?: string;
@@ -12,6 +13,9 @@ interface PurchaseItem {
     amount: number; // purchasePrice * quantity
     availableStock?: number; // Current available stock quantity
     unit?: string; // Product unit (piece, kg, etc.)
+    variantInfo?: Record<string, string>; // Variant attributes for new products (e.g., {Color: "Red", Size: "XL"})
+    variantData?: Record<string, string>; // Existing product variant data
+    sku?: string; // SKU for existing products
     supplierId?: number; // Supplier ID for this item
     status?: string; // ordered, partially_received, received
 }
@@ -65,22 +69,22 @@ const purchaseOrderSlice = createSlice({
         addItemRedux(state, action: PayloadAction<PurchaseItem>) {
             // Handle existing products (with productId)
             if (action.payload.productId !== undefined) {
-                // Find existing product by productId (not by id)
-                const existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId);
+                // For variant products, check both productId AND productStockId
+                const existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId && item.productStockId === action.payload.productStockId);
 
                 if (existingItemIndex !== -1) {
-                    // Product already exists → increase quantity
+                    // Same product AND same variant → increase quantity
                     const existingItem = state.items[existingItemIndex];
                     const newQuantity = existingItem.quantity + action.payload.quantity;
 
                     existingItem.quantity = newQuantity;
                     existingItem.amount = existingItem.quantity * existingItem.purchasePrice;
                 } else {
-                    // New product → add normally
+                    // New product or different variant → add normally
                     state.items.push(action.payload);
                 }
             } else {
-                // Handle new products (without productId) - they should still be added
+                // Handle new products (without productId) - always add as separate items
                 state.items.push(action.payload);
             }
 

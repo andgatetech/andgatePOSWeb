@@ -318,7 +318,7 @@ const IdleProductReportPage = () => {
                         columns={columns}
                         isLoading={isLoading}
                         emptyState={{
-                            icon: <PackageX className="h-16 w-16" />,
+                            icon: <PackageX className="mx-auto h-16 w-16" />,
                             title: 'No Idle Products Found',
                             description: 'All products are selling well! Try adjusting your idle days threshold.',
                         }}
@@ -365,7 +365,7 @@ const IdleProductReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <PackageX className="h-16 w-16" />,
+                            icon: <PackageX className="mx-auto h-16 w-16" />,
                             title: 'No Idle Products Found',
                             description: 'All products are selling well! Try adjusting your idle days threshold.',
                         }}

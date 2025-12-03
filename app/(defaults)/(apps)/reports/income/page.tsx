@@ -499,7 +499,7 @@ const IncomeReportPage = () => {
                         columns={columns}
                         isLoading={false}
                         emptyState={{
-                            icon: <DollarSign className="h-16 w-16" />,
+                            icon: <DollarSign className="mx-auto h-16 w-16" />,
                             title: 'No Income Data Found',
                             description: 'Try adjusting your filters to see income records.',
                         }}
