@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import PurchaseDuesComponent from './PurchaseDuesComponent';
+import PurchaseDuesComponent from './components/PurchaseDuesComponent';
 
 export const metadata: Metadata = {
-    title: 'Purchase Dues - AndGate POS',
+    title: 'Purchase Dues - Andgate POS',
     description: 'Manage and track all purchase dues',
 };
 

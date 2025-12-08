@@ -18,12 +18,10 @@ const PurchaseDueApi = baseApi.injectEndpoints({
                 if (params?.has_due_only) queryParams.append('has_due_only', params.has_due_only);
                 if (params?.page) queryParams.append('page', params.page);
                 if (params?.per_page) queryParams.append('per_page', params.per_page);
+                if (params?.sort_field) queryParams.append('sort_field', params.sort_field);
+                if (params?.sort_direction) queryParams.append('sort_direction', params.sort_direction);
 
                 const queryString = queryParams.toString();
-
-                // Log what's being sent to backend
-                console.log('RTK Query - Purchase Dues Params:', params);
-                console.log('RTK Query - Query String:', queryString);
 
                 return {
                     url: `/purchase-dues${queryString ? `?${queryString}` : ''}`,
@@ -33,24 +31,15 @@ const PurchaseDueApi = baseApi.injectEndpoints({
             providesTags: ['PurchaseDues'],
         }),
 
-        // Get single purchase due details
-        getPurchaseDueById: builder.query({
-            query: (id) => ({
-                url: `/purchase-dues/${id}`,
-                method: 'GET',
-            }),
-            providesTags: (result, error, id) => [{ type: 'PurchaseDues', id }],
-        }),
-
         // Make partial payment
         makePartialPayment: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/purchase-dues/${id}/payment`,
+                url: `/purchase-order/${id}/payment`,
                 method: 'POST',
                 body: {
                     payment_amount: data.amount,
                     payment_method: data.payment_method || 'cash',
-                    notes: data.notes || '',
+                    payment_notes: data.notes || '',
                 },
             }),
             invalidatesTags: (result, error, { id }) => ['PurchaseDues', { type: 'PurchaseDues', id }, 'PurchaseOrders'],
@@ -59,11 +48,11 @@ const PurchaseDueApi = baseApi.injectEndpoints({
         // Clear full due
         clearFullDue: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/purchase-dues/${id}/clear`,
+                url: `/purchase-order/${id}/clear`,
                 method: 'POST',
                 body: {
                     payment_method: data.payment_method || 'cash',
-                    notes: data.notes || '',
+                    payment_notes: data.notes || '',
                 },
             }),
             invalidatesTags: (result, error, { id }) => ['PurchaseDues', { type: 'PurchaseDues', id }, 'PurchaseOrders'],
@@ -74,7 +63,6 @@ const PurchaseDueApi = baseApi.injectEndpoints({
 export const {
     // Queries
     useGetPurchaseDuesQuery,
-    useGetPurchaseDueByIdQuery,
 
     // Mutations
     useMakePartialPaymentMutation,
