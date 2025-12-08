@@ -1,18 +1,20 @@
 'use client';
-import Dropdown from '@/components/dropdown';
 import PurchaseFilter from '@/components/filters/PurchaseFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import {
+    useClearFullDueMutation,
     useConvertDraftToPurchaseOrderMutation,
     useDeletePurchaseDraftMutation,
     useGetPurchaseDraftsQuery,
     useGetPurchaseOrdersQuery,
-    useUpdatePurchaseOrderMutation,
+    useMakePartialPaymentMutation,
 } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { ArrowRight, CreditCard, Edit, Eye, FileText, Package, Printer, Trash2 } from 'lucide-react';
+import { CreditCard, FileText, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import DraftsTable from './components/DraftsTable';
+import PurchaseOrdersTable from './components/PurchaseOrdersTable';
 
 const PurchaseOrderListPage = () => {
     const { currentStoreId } = useCurrentStore();
@@ -28,40 +30,62 @@ const PurchaseOrderListPage = () => {
     const [draftFilters, setDraftFilters] = useState<Record<string, any>>({});
     const [orderFilters, setOrderFilters] = useState<Record<string, any>>({});
 
+    // Pagination and sorting for drafts
+    const [draftPage, setDraftPage] = useState(1);
+    const [draftPerPage, setDraftPerPage] = useState(15);
+    const [draftSortField, setDraftSortField] = useState('created_at');
+    const [draftSortDirection, setDraftSortDirection] = useState<'asc' | 'desc'>('desc');
+
+    // Pagination and sorting for orders
+    const [orderPage, setOrderPage] = useState(1);
+    const [orderPerPage, setOrderPerPage] = useState(15);
+    const [orderSortField, setOrderSortField] = useState('created_at');
+    const [orderSortDirection, setOrderSortDirection] = useState<'asc' | 'desc'>('desc');
+
     // Fetch drafts and orders with filters
     const { data: draftsResponse, isLoading: draftsLoading } = useGetPurchaseDraftsQuery({
         ...draftFilters,
+        store_id: currentStoreId,
+        page: draftPage,
+        per_page: draftPerPage,
+        sort_field: draftSortField,
+        sort_direction: draftSortDirection,
     });
 
     const { data: ordersResponse, isLoading: ordersLoading } = useGetPurchaseOrdersQuery({
         ...orderFilters,
+        store_id: currentStoreId,
+        page: orderPage,
+        per_page: orderPerPage,
+        sort_field: orderSortField,
+        sort_direction: orderSortDirection,
     });
 
     const [convertToPO, { isLoading: isConverting }] = useConvertDraftToPurchaseOrderMutation();
     const [deleteDraft] = useDeletePurchaseDraftMutation();
-    const [updatePurchaseOrder] = useUpdatePurchaseOrderMutation();
+    const [clearFullDue] = useClearFullDueMutation();
+    const [makePartialPayment] = useMakePartialPaymentMutation();
 
-    // Backend handles filtering now
-    const drafts = draftsResponse?.data || [];
-    const orders = ordersResponse?.data || [];
+    // Extract data from API responses
+    const drafts = draftsResponse?.data?.items || [];
+    const draftsPagination = draftsResponse?.data?.pagination;
 
-    // Debug: Check draft structure
-    console.log('Drafts from backend:', draftsResponse?.data);
-    console.log('Filtered drafts:', drafts);
-    console.log('Orders from backend:', ordersResponse?.data);
+    const orders = ordersResponse?.data?.items || [];
+    const ordersPagination = ordersResponse?.data?.pagination;
 
-    const handleViewItems = (items: any[], title: string) => {
-        console.log('Opening items modal with data:', items);
-        setSelectedItems(items || []);
+    const handleViewItems = (item: any) => {
+        const title = item.draft_reference ? `Draft: ${item.draft_reference}` : `Purchase Order: ${item.invoice_number}`;
+        console.log('Opening items modal with data:', item.items);
+        setSelectedItems(item.items || []);
         setModalTitle(title);
         setViewModalOpen(true);
     };
 
-    const handlePrint = (item: any, type: 'draft' | 'order') => {
+    const handlePrint = (item: any) => {
         const printWindow = window.open('', '_blank');
         if (!printWindow) return;
 
-        const isDraft = type === 'draft';
+        const isDraft = !!item.draft_reference;
         const title = isDraft ? `Draft: ${item.draft_reference}` : `Purchase Order: ${item.invoice_number}`;
         const items = item.items || [];
 
@@ -238,17 +262,20 @@ const PurchaseOrderListPage = () => {
                     <tbody>
                         ${items
                             .map((itm: any, idx: number) => {
-                                const productName = itm.product || 'N/A';
+                                const productName = itm.product_name || itm.product || 'N/A';
+                                const variantName = itm.variant_name || null;
+                                const isVariant = itm.is_variant || false;
                                 const quantity = parseFloat(itm.quantity_ordered) || 0;
                                 const unitPrice = parseFloat(itm.purchase_price) || 0;
                                 const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || parseFloat(itm.total) || quantity * unitPrice;
-                                const isNew = itm.product_id === null || itm.item_type === 'new';
+                                const isNew = itm.is_new_product || itm.product_id === null;
 
                                 return `
                                 <tr>
                                     <td class="text-center">${idx + 1}</td>
                                     <td>
                                         ${productName}
+                                        ${isVariant && variantName ? '<br><span style="font-size: 11px; color: #2563eb; font-weight: 600;">Variant: ' + variantName + '</span>' : ''}
                                         ${isNew ? '<span class="badge badge-new">New</span>' : ''}
                                     </td>
                                     <td class="text-center"><strong>${quantity}</strong></td>
@@ -305,29 +332,37 @@ const PurchaseOrderListPage = () => {
         printWindow.document.close();
     };
 
-    const handleOpenPaymentModal = (order: any) => {
+    const handlePartialPayment = (order: any) => {
         setSelectedOrder(order);
-        setPaymentAmount(order.amount_due || '');
+        setPaymentAmount('');
         setPaymentMethod('cash');
         setPaymentNotes('');
         setPaymentModalOpen(true);
     };
 
-    const handleSubmitPayment = async () => {
-        if (!selectedOrder || !paymentAmount || parseFloat(paymentAmount) <= 0) {
-            Swal.fire('Error', 'Please enter a valid payment amount', 'error');
+    const handleSubmitPartialPayment = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const amount = parseFloat(paymentAmount);
+        if (amount <= 0) {
+            Swal.fire('Error', 'Payment amount must be greater than 0', 'error');
+            return;
+        }
+        if (amount > selectedOrder.amount_due) {
+            Swal.fire('Error', 'Payment amount cannot exceed due amount', 'error');
             return;
         }
 
         try {
-            await updatePurchaseOrder({
+            await makePartialPayment({
                 id: selectedOrder.id,
+                store_id: currentStoreId,
+                amount,
                 payment_method: paymentMethod,
-                payment_amount: parseFloat(paymentAmount),
-                payment_notes: paymentNotes,
+                notes: paymentNotes,
             }).unwrap();
 
-            Swal.fire('Success!', 'Payment recorded successfully', 'success');
+            Swal.fire('Success!', 'Partial payment recorded successfully', 'success');
             setPaymentModalOpen(false);
             setSelectedOrder(null);
         } catch (error: any) {
@@ -335,10 +370,56 @@ const PurchaseOrderListPage = () => {
         }
     };
 
-    const handleConvertToPurchaseOrder = async (draftId: number, draftRef: string) => {
+    const handleFullPayment = async (order: any) => {
+        const result = await Swal.fire({
+            title: 'Clear Full Due?',
+            html: `
+                <div class="text-left">
+                    <p class="mb-3">Invoice: <strong>${order.invoice_number}</strong></p>
+                    <div class="rounded-lg bg-gray-50 p-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">Grand Total:</span>
+                            <span class="font-semibold">৳${Number(order.grand_total || 0).toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">Already Paid:</span>
+                            <span class="font-semibold text-green-600">৳${Number(order.amount_paid || 0).toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between pt-2 border-t">
+                            <span class="font-bold">Amount to Pay:</span>
+                            <span class="font-bold text-red-600">৳${Number(order.amount_due || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Yes, Pay Now!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await clearFullDue({
+                id: order.id,
+                store_id: currentStoreId,
+                payment_method: 'cash',
+                notes: 'Full payment cleared',
+            }).unwrap();
+
+            Swal.fire('Success!', 'Payment recorded successfully', 'success');
+        } catch (error: any) {
+            Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
+        }
+    };
+
+    const handleConvertToPurchaseOrder = async (draft: any) => {
         const result = await Swal.fire({
             title: 'Convert to Purchase Order?',
-            html: `<p>Convert draft <strong>${draftRef}</strong> to an official purchase order?</p>`,
+            html: `<p>Convert draft <strong>${draft.draft_reference}</strong> to an official purchase order?</p>`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Yes, Convert',
@@ -349,16 +430,21 @@ const PurchaseOrderListPage = () => {
 
         try {
             const response = await convertToPO({
-                id: draftId,
+                id: draft.id,
                 notes: 'Converted from draft',
             }).unwrap();
+
+            // API returns: {success: true, message: string, data: {invoice_number, grand_total, ...}}
+            const purchaseOrder = response.data || response;
+            const invoiceNumber = purchaseOrder.invoice_number || 'N/A';
+            const grandTotal = Number(purchaseOrder.grand_total || purchaseOrder.total || 0).toFixed(2);
 
             Swal.fire({
                 icon: 'success',
                 title: 'Purchase Order Created!',
                 html: `
-                    <p>Invoice: <strong>${response.data.invoice_number}</strong></p>
-                    <p>Total: <strong>৳${Number(response.data.grand_total || response.data.total || 0).toFixed(2)}</strong></p>
+                    <p>Invoice: <strong>${invoiceNumber}</strong></p>
+                    <p>Total: <strong>৳${grandTotal}</strong></p>
                 `,
                 confirmButtonText: 'View Purchase Orders',
             }).then(() => {
@@ -366,13 +452,6 @@ const PurchaseOrderListPage = () => {
             });
         } catch (error: any) {
             console.error('Error converting draft:', error);
-            console.error('Full error details:', {
-                message: error?.data?.message,
-                backendError: error?.data?.error,
-                status: error?.status,
-                fullData: error?.data,
-            });
-
             const errorMsg = error?.data?.error || error?.data?.message || 'Failed to convert draft';
 
             Swal.fire({
@@ -384,10 +463,10 @@ const PurchaseOrderListPage = () => {
         }
     };
 
-    const handleDeleteDraft = async (draftId: number, draftRef: string) => {
+    const handleDeleteDraft = async (draft: any) => {
         const result = await Swal.fire({
             title: 'Delete Draft?',
-            text: `Are you sure you want to delete draft ${draftRef}?`,
+            text: `Are you sure you want to delete draft ${draft.draft_reference}?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, Delete',
@@ -397,26 +476,30 @@ const PurchaseOrderListPage = () => {
         if (!result.isConfirmed) return;
 
         try {
-            await deleteDraft(draftId).unwrap();
+            await deleteDraft(draft.id).unwrap();
             Swal.fire('Deleted!', 'Draft has been deleted', 'success');
         } catch (error: any) {
-            Swal.fire('Error', error?.data?.message || 'Failed to delete draft', 'error');
+            Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
         }
     };
 
-    const getStatusBadge = (status: string) => {
-        const statusMap: Record<string, { bg: string; text: string }> = {
-            preparing: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-            ordered: { bg: 'bg-blue-100', text: 'text-blue-800' },
-            partially_received: { bg: 'bg-orange-100', text: 'text-orange-800' },
-            received: { bg: 'bg-green-100', text: 'text-green-800' },
-            pending: { bg: 'bg-gray-100', text: 'text-gray-800' },
-            partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-            paid: { bg: 'bg-green-100', text: 'text-green-800' },
-        };
+    // Sorting handlers
+    const handleDraftSort = (field: string) => {
+        if (draftSortField === field) {
+            setDraftSortDirection(draftSortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setDraftSortField(field);
+            setDraftSortDirection('asc');
+        }
+    };
 
-        const config = statusMap[status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
-        return <span className={`rounded-full px-3 py-1 text-xs font-semibold ${config.bg} ${config.text}`}>{status.replace('_', ' ').toUpperCase()}</span>;
+    const handleOrderSort = (field: string) => {
+        if (orderSortField === field) {
+            setOrderSortDirection(orderSortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setOrderSortField(field);
+            setOrderSortDirection('asc');
+        }
     };
 
     return (
@@ -469,231 +552,61 @@ const PurchaseOrderListPage = () => {
 
                 {/* Filters */}
                 <div className="mb-5">
-                    <PurchaseFilter onFilterChange={activeTab === 'drafts' ? setDraftFilters : setOrderFilters} showDraftFilters={activeTab === 'drafts'} />
+                    <PurchaseFilter
+                        onFilterChange={activeTab === 'drafts' ? setDraftFilters : setOrderFilters}
+                        showPurchaseType={true}
+                        showPaymentStatus={activeTab === 'orders'}
+                        showOrderStatus={activeTab === 'orders'}
+                    />
                 </div>
 
                 {/* Drafts Tab */}
                 {activeTab === 'drafts' && (
-                    <div>
-                        {draftsLoading ? (
-                            <div className="py-8 text-center">
-                                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            </div>
-                        ) : drafts.length === 0 ? (
-                            <div className="rounded-lg border border-dashed p-8 text-center">
-                                <FileText className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-                                <p className="text-gray-500">No drafts found</p>
-                                <Link href="/purchases/create" className="mt-3 inline-block text-primary hover:underline">
-                                    Create your first purchase draft
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Draft Ref</th>
-                                            <th>Supplier</th>
-                                            <th>Items</th>
-                                            <th>Estimated Total</th>
-                                            <th>Status</th>
-                                            <th>Created</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {drafts.map((draft: any) => (
-                                            <tr key={draft.id}>
-                                                <td className="font-semibold">{draft.draft_reference}</td>
-                                                <td>
-                                                    <div>
-                                                        <p className="font-medium">{draft.supplier?.name || <span className="text-gray-400">Walk-in / Own Purchase</span>}</p>
-                                                        {draft.supplier?.contact_person && <p className="text-sm text-gray-500">{draft.supplier.contact_person}</p>}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="flex gap-2">
-                                                        <span className="rounded bg-success/20 px-2 py-1 text-xs text-success">{draft.existing_products_count || 0} Existing</span>
-                                                        <span className="rounded bg-info/20 px-2 py-1 text-xs text-info">{draft.new_products_count || 0} New</span>
-                                                    </div>
-                                                </td>
-                                                <td className="font-semibold">৳{Number(draft.estimated_total || 0).toFixed(2)}</td>
-                                                <td>{getStatusBadge(draft.status)}</td>
-                                                <td>{new Date(draft.created_at).toLocaleDateString()}</td>
-                                                <td>
-                                                    <div className="flex justify-center">
-                                                        <Dropdown
-                                                            offset={[0, 5]}
-                                                            placement="bottom-end"
-                                                            btnClassName="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
-                                                            button={
-                                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <circle cx="12" cy="5" r="2" fill="currentColor" />
-                                                                    <circle cx="12" cy="12" r="2" fill="currentColor" />
-                                                                    <circle cx="12" cy="19" r="2" fill="currentColor" />
-                                                                </svg>
-                                                            }
-                                                        >
-                                                            <ul className="min-w-[180px] rounded-lg border border-gray-200 bg-white shadow-lg">
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handleViewItems(draft.items || [], `Draft: ${draft.draft_reference}`)}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
-                                                                    >
-                                                                        <Eye className="h-4 w-4" />
-                                                                        View Items
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handlePrint(draft, 'draft')}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-purple-600 hover:bg-purple-50"
-                                                                    >
-                                                                        <Printer className="h-4 w-4" />
-                                                                        Print Draft
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <Link
-                                                                        href={`/purchases/edit/${draft.id}`}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
-                                                                    >
-                                                                        <Edit className="h-4 w-4" />
-                                                                        Edit Draft
-                                                                    </Link>
-                                                                </li>
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handleConvertToPurchaseOrder(draft.id, draft.draft_reference)}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-blue-50"
-                                                                        disabled={isConverting}
-                                                                    >
-                                                                        <ArrowRight className="h-4 w-4" />
-                                                                        Convert to PO
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handleDeleteDraft(draft.id, draft.draft_reference)}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                                                    >
-                                                                        <Trash2 className="h-4 w-4" />
-                                                                        Delete Draft
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                        </Dropdown>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
+                    <DraftsTable
+                        drafts={drafts}
+                        isLoading={draftsLoading}
+                        pagination={{
+                            currentPage: draftsPagination?.current_page || 1,
+                            totalPages: draftsPagination?.last_page || 1,
+                            itemsPerPage: draftsPagination?.per_page || 15,
+                            totalItems: draftsPagination?.total || 0,
+                            onPageChange: setDraftPage,
+                            onItemsPerPageChange: setDraftPerPage,
+                        }}
+                        sorting={{
+                            field: draftSortField,
+                            direction: draftSortDirection,
+                            onSort: handleDraftSort,
+                        }}
+                        onViewItems={handleViewItems}
+                        onConvertToPO={handleConvertToPurchaseOrder}
+                        onDelete={handleDeleteDraft}
+                    />
                 )}
 
                 {/* Orders Tab */}
                 {activeTab === 'orders' && (
-                    <div>
-                        {ordersLoading ? (
-                            <div className="py-8 text-center">
-                                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-                            </div>
-                        ) : orders.length === 0 ? (
-                            <div className="rounded-lg border border-dashed p-8 text-center">
-                                <Package className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-                                <p className="text-gray-500">No purchase orders found</p>
-                            </div>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Invoice #</th>
-                                            <th>Supplier</th>
-                                            <th>Items</th>
-                                            <th>Grand Total</th>
-                                            <th>Status</th>
-                                            <th>Payment</th>
-                                            <th>Created</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {orders.map((order: any) => (
-                                            <tr key={order.id}>
-                                                <td className="font-semibold">{order.invoice_number}</td>
-                                                <td>{order.supplier?.name}</td>
-                                                <td>{order.items?.length || 0}</td>
-                                                <td className="font-semibold">৳{Number(order.grand_total || 0).toFixed(2)}</td>
-                                                <td>{getStatusBadge(order.status)}</td>
-                                                <td>{getStatusBadge(order.payment_status)}</td>
-                                                <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                                                <td>
-                                                    <div className="flex justify-center">
-                                                        <Dropdown
-                                                            offset={[0, 5]}
-                                                            placement="bottom-end"
-                                                            btnClassName="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
-                                                            button={
-                                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <circle cx="12" cy="5" r="2" fill="currentColor" />
-                                                                    <circle cx="12" cy="12" r="2" fill="currentColor" />
-                                                                    <circle cx="12" cy="19" r="2" fill="currentColor" />
-                                                                </svg>
-                                                            }
-                                                        >
-                                                            <ul className="min-w-[180px] rounded-lg border border-gray-200 bg-white shadow-lg">
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handleViewItems(order.items || [], `Purchase Order: ${order.invoice_number}`)}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
-                                                                    >
-                                                                        <Eye className="h-4 w-4" />
-                                                                        View Items
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handlePrint(order, 'order')}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-purple-600 hover:bg-purple-50"
-                                                                    >
-                                                                        <Printer className="h-4 w-4" />
-                                                                        Print Order
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <button
-                                                                        onClick={() => handleOpenPaymentModal(order)}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-orange-600 hover:bg-orange-50"
-                                                                        disabled={order.payment_status === 'paid'}
-                                                                    >
-                                                                        <CreditCard className="h-4 w-4" />
-                                                                        {order.payment_status === 'paid' ? 'Fully Paid' : 'Add Payment'}
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <Link
-                                                                        href={`/purchases/receive/${order.id}`}
-                                                                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
-                                                                    >
-                                                                        <Package className="h-4 w-4" />
-                                                                        Receive Items
-                                                                    </Link>
-                                                                </li>
-                                                            </ul>
-                                                        </Dropdown>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
+                    <PurchaseOrdersTable
+                        orders={orders}
+                        isLoading={ordersLoading}
+                        pagination={{
+                            currentPage: ordersPagination?.current_page || 1,
+                            totalPages: ordersPagination?.last_page || 1,
+                            itemsPerPage: ordersPagination?.per_page || 15,
+                            totalItems: ordersPagination?.total || 0,
+                            onPageChange: setOrderPage,
+                            onItemsPerPageChange: setOrderPerPage,
+                        }}
+                        sorting={{
+                            field: orderSortField,
+                            direction: orderSortDirection,
+                            onSort: handleOrderSort,
+                        }}
+                        onViewItems={handleViewItems}
+                        onPrint={handlePrint}
+                        onPartialPayment={handlePartialPayment}
+                        onFullPayment={handleFullPayment}
+                    />
                 )}
             </div>
 
@@ -731,25 +644,27 @@ const PurchaseOrderListPage = () => {
                                         </thead>
                                         <tbody className="bg-white">
                                             {selectedItems.map((item: any, index: number) => {
-                                                // Backend field mapping
-                                                // Both drafts and orders now use similar simplified structure
-                                                // Draft: { product: "name", quantity_ordered: "1.000", purchase_price: 200, estimated_subtotal: 200 }
-                                                // Order: { product: "name", quantity_ordered: "1.0000", purchase_price: "132.0000", subtotal: "132.0000" }
+                                                // API Response fields:
+                                                // - product_name: "iPhone 15 Pro"
+                                                // - variant_name: "Red - M" (if variant)
+                                                // - variant_data: {"Color": "Red", "Size": "M"} (if variant)
+                                                // - is_new_product: true/false
+                                                // - is_variant: true/false
+                                                // - quantity_ordered: 1
+                                                // - purchase_price: 125000
+                                                // - subtotal: 125000
+                                                // - total: 125000
 
-                                                const productName = item.product || 'N/A';
-
+                                                const productName = item.product_name || item.product || 'N/A';
+                                                const variantName = item.variant_name || null;
+                                                const isVariant = item.is_variant || false;
                                                 const sku = item.sku || null;
-
                                                 const description = item.description || null;
-
                                                 const unitPrice = parseFloat(item.purchase_price) || 0;
-
                                                 const unit = item.unit || 'piece';
-
                                                 const quantity = parseFloat(item.quantity_ordered) || 0;
-
-                                                // Drafts use 'estimated_subtotal', Orders use 'subtotal' or 'total'
                                                 const subtotal = parseFloat(item.estimated_subtotal) || parseFloat(item.subtotal) || parseFloat(item.total) || quantity * unitPrice;
+                                                const isNewProduct = item.is_new_product || item.product_id === null;
 
                                                 return (
                                                     <tr key={item.id || index} className="border-b border-gray-200 hover:bg-blue-50">
@@ -757,9 +672,10 @@ const PurchaseOrderListPage = () => {
                                                         <td className="px-4 py-3">
                                                             <div>
                                                                 <p className="font-medium text-gray-900">{productName}</p>
+                                                                {isVariant && variantName && <p className="text-xs font-medium text-blue-600">Variant: {variantName}</p>}
                                                                 {sku && <p className="text-xs text-gray-500">SKU: {sku}</p>}
                                                                 {description && <p className="text-xs text-gray-400">{description}</p>}
-                                                                {(item.product_id === null || item.item_type === 'new') && (
+                                                                {isNewProduct && (
                                                                     <span className="mt-1 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
                                                                         New Product
                                                                     </span>
@@ -811,16 +727,16 @@ const PurchaseOrderListPage = () => {
                 </div>
             )}
 
-            {/* Payment Modal */}
+            {/* Partial Payment Modal */}
             {paymentModalOpen && selectedOrder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
                     <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
                         <div className="border-b border-gray-200 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Add Payment</h3>
-                            <p className="text-sm text-gray-500">Purchase Order: {selectedOrder.invoice_number}</p>
+                            <h3 className="text-lg font-semibold text-gray-900">Partial Payment</h3>
+                            <p className="text-sm text-gray-500">Invoice: {selectedOrder.invoice_number}</p>
                         </div>
 
-                        <div className="space-y-4 px-6 py-4">
+                        <form onSubmit={handleSubmitPartialPayment} className="space-y-4 px-6 py-4">
                             {/* Order Summary */}
                             <div className="rounded-lg bg-gray-50 p-4">
                                 <div className="flex justify-between text-sm">
@@ -846,11 +762,14 @@ const PurchaseOrderListPage = () => {
                                     type="number"
                                     className="form-input w-full"
                                     placeholder="Enter amount"
-                                    min="0"
+                                    min="0.01"
                                     step="0.01"
+                                    max={selectedOrder.amount_due}
                                     value={paymentAmount}
                                     onChange={(e) => setPaymentAmount(e.target.value)}
+                                    required
                                 />
+                                <p className="mt-1 text-xs text-gray-500">Maximum: ৳{Number(selectedOrder.amount_due || 0).toFixed(2)}</p>
                             </div>
 
                             {/* Payment Method */}
@@ -858,7 +777,7 @@ const PurchaseOrderListPage = () => {
                                 <label className="mb-2 block text-sm font-medium text-gray-700">
                                     Payment Method <span className="text-red-500">*</span>
                                 </label>
-                                <select className="form-select w-full" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                                <select className="form-select w-full" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} required>
                                     <option value="cash">Cash</option>
                                     <option value="debit">Debit Card</option>
                                     <option value="credit">Credit Card</option>
@@ -873,17 +792,17 @@ const PurchaseOrderListPage = () => {
                                 <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
                                 <textarea className="form-textarea w-full" rows={3} placeholder="Add payment notes..." value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} />
                             </div>
-                        </div>
 
-                        <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
-                            <button onClick={() => setPaymentModalOpen(false)} className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300">
-                                Cancel
-                            </button>
-                            <button onClick={handleSubmitPayment} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-                                <CreditCard className="mr-2 inline h-4 w-4" />
-                                Record Payment
-                            </button>
-                        </div>
+                            <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
+                                <button type="button" onClick={() => setPaymentModalOpen(false)} className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300">
+                                    Cancel
+                                </button>
+                                <button type="submit" className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700">
+                                    <CreditCard className="mr-2 inline h-4 w-4" />
+                                    Record Payment
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

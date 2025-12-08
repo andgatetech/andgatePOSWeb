@@ -84,15 +84,15 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             providesTags: ['PurchaseOrders'],
         }),
 
-        // Get purchase order bar chart data
-        getPurchaseOrderChartData: builder.query({
-            query: (params: any = {}) => ({
-                url: '/purchase-order',
-                method: 'GET',
-                params,
-            }),
-            providesTags: ['PurchaseOrders'],
-        }),
+        // // Get purchase order bar chart data
+        // getPurchaseOrderChartData: builder.query({
+        //     query: (params: any = {}) => ({
+        //         url: '/purchase-order/chart/data',
+        //         method: 'GET',
+        //         params,
+        //     }),
+        //     providesTags: ['PurchaseOrders'],
+        // }),
 
         // Get single Purchase Order
         getPurchaseOrderById: builder.query({
@@ -132,6 +132,35 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['PurchaseOrders'],
         }),
+
+        // ========== PHASE 4: PAYMENT MANAGEMENT ==========
+
+        // Make partial payment
+        makePartialPayment: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/purchase-order/${id}/payment?store_id=${data.store_id}`,
+                method: 'POST',
+                body: {
+                    payment_amount: data.amount,
+                    payment_method: data.payment_method || 'cash',
+                    payment_notes: data.notes || '',
+                },
+            }),
+            invalidatesTags: ['PurchaseOrders'],
+        }),
+
+        // Clear full due
+        clearFullDue: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/purchase-order/${id}/clear?store_id=${data.store_id}`,
+                method: 'POST',
+                body: {
+                    payment_method: data.payment_method || 'cash',
+                    payment_notes: data.notes || '',
+                },
+            }),
+            invalidatesTags: ['PurchaseOrders'],
+        }),
     }),
 });
 
@@ -144,7 +173,7 @@ export const {
     useDeletePurchaseDraftMutation,
 
     // Purchase Order Chart Data
-    useGetPurchaseOrderChartDataQuery,
+    //useGetPurchaseOrderChartDataQuery,
 
     // Purchase Order endpoints
     useConvertDraftToPurchaseOrderMutation,
@@ -154,4 +183,8 @@ export const {
     useEditPurchaseOrderQuery,
     useUpdatePurchaseOrderMutation,
     useDeletePurchaseOrderMutation,
+
+    // Payment endpoints
+    useMakePartialPaymentMutation,
+    useClearFullDueMutation,
 } = PurchaseOrderApi;

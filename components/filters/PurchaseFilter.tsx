@@ -1,152 +1,132 @@
 'use client';
 import UniversalFilter from '@/components/common/UniversalFilter';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
-import { ChevronDown } from 'lucide-react';
+import { FileText, Package } from 'lucide-react';
 import React from 'react';
 
 interface PurchaseFilterProps {
     onFilterChange: (apiParams: Record<string, any>) => void;
-    showDraftFilters?: boolean; // If true, show draft-specific filters
+    showPurchaseType?: boolean; // For drafts/orders
+    showPaymentStatus?: boolean; // For orders only
+    showOrderStatus?: boolean; // For orders only
 }
 
-const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showDraftFilters = false }) => {
-    const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
+const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPurchaseType = true, showPaymentStatus = false, showOrderStatus = false }) => {
+    const [selectedPurchaseType, setSelectedPurchaseType] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
-    const [showStatusDropdown, setShowStatusDropdown] = React.useState(false);
-    const [showPaymentStatusDropdown, setShowPaymentStatusDropdown] = React.useState(false);
-    const [resetTrigger, setResetTrigger] = React.useState(0);
+    const [selectedOrderStatus, setSelectedOrderStatus] = React.useState<string>('all');
 
+    const { userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
-    // Reset function to reset all custom filters
+    // Reset function
     const handleReset = React.useCallback(() => {
-        setSelectedStatus('all');
+        setSelectedPurchaseType('all');
         setSelectedPaymentStatus('all');
-        setResetTrigger((prev) => prev + 1); // Trigger UniversalFilter reset
+        setSelectedOrderStatus('all');
     }, []);
 
-    // Status options for purchase orders
-    const ORDER_STATUS_OPTIONS = [
-        { value: 'all', label: 'All Statuses' },
-        { value: 'draft', label: 'Draft' },
-        { value: 'approved', label: 'Approved' },
-        { value: 'ordered', label: 'Ordered' },
-        { value: 'partially_received', label: 'Partially Received' },
-        { value: 'received', label: 'Received' },
-        { value: 'cancelled', label: 'Cancelled' },
-    ];
-
-    // Status options for purchase drafts
-    const DRAFT_STATUS_OPTIONS = [
-        { value: 'all', label: 'All Statuses' },
-        { value: 'preparing', label: 'Preparing' },
-        { value: 'converted_to_purchase', label: 'Converted' },
-        { value: 'cancelled', label: 'Cancelled' },
-    ];
-
-    // Payment status options
-    const PAYMENT_STATUS_OPTIONS = [
-        { value: 'all', label: 'All Payment Statuses' },
-        { value: 'pending', label: 'Pending' },
-        { value: 'due', label: 'Due' },
-        { value: 'partial', label: 'Partial' },
-        { value: 'advanced', label: 'Advanced' },
-        { value: 'paid', label: 'Paid' },
-        { value: 'failed', label: 'Failed' },
-    ];
-
-    const statusOptions = showDraftFilters ? DRAFT_STATUS_OPTIONS : ORDER_STATUS_OPTIONS;
-
-    // Handle all filter changes in one effect
+    // Handle filter changes
     React.useEffect(() => {
-        const apiParams = buildApiParams({
-            status: selectedStatus !== 'all' ? selectedStatus : undefined,
-            payment_status: !showDraftFilters && selectedPaymentStatus !== 'all' ? selectedPaymentStatus : undefined,
-        });
+        const additionalParams: Record<string, any> = {};
+
+        if (selectedPurchaseType !== 'all') {
+            additionalParams.purchase_type = selectedPurchaseType;
+        }
+        if (selectedPaymentStatus !== 'all') {
+            additionalParams.payment_status = selectedPaymentStatus;
+        }
+        if (selectedOrderStatus !== 'all') {
+            additionalParams.status = selectedOrderStatus;
+        }
+
+        // Handle store_ids for 'all' stores
+        if (filters.storeId === 'all') {
+            const allStoreIds = userStores.map((store: any) => store.id);
+            if (allStoreIds.length > 1) {
+                additionalParams.store_ids = allStoreIds.join(',');
+            } else if (allStoreIds.length === 1) {
+                additionalParams.store_id = allStoreIds[0];
+            }
+        }
+
+        const apiParams = buildApiParams(additionalParams);
         onFilterChange(apiParams);
-    }, [filters, selectedStatus, selectedPaymentStatus, showDraftFilters, buildApiParams, onFilterChange]);
+    }, [filters, selectedPurchaseType, selectedPaymentStatus, selectedOrderStatus, buildApiParams, onFilterChange, userStores]);
+
+    // Reset filters when store selection changes
+    React.useEffect(() => {
+        setSelectedPurchaseType('all');
+        setSelectedPaymentStatus('all');
+        setSelectedOrderStatus('all');
+    }, [filters.storeId]);
+
+    const customFilters = (
+        <>
+            {/* Purchase Type Filter */}
+            {showPurchaseType && (
+                <div className="relative">
+                    <select
+                        value={selectedPurchaseType}
+                        onChange={(e) => setSelectedPurchaseType(e.target.value)}
+                        className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
+                    >
+                        <option value="all">All Types</option>
+                        <option value="supplier">Supplier</option>
+                        <option value="walk_in">Walk-in</option>
+                    </select>
+                    <FileText className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+            )}
+
+            {/* Payment Status Filter (Orders only) */}
+            {showPaymentStatus && (
+                <div className="relative">
+                    <select
+                        value={selectedPaymentStatus}
+                        onChange={(e) => setSelectedPaymentStatus(e.target.value)}
+                        className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
+                    >
+                        <option value="all">All Payment Status</option>
+                        <option value="paid">Paid</option>
+                        <option value="partial">Partial</option>
+                        <option value="pending">Pending</option>
+                        <option value="unpaid">Unpaid</option>
+                    </select>
+                    <Package className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+            )}
+
+            {/* Order Status Filter (Orders only) */}
+            {showOrderStatus && (
+                <div className="relative">
+                    <select
+                        value={selectedOrderStatus}
+                        onChange={(e) => setSelectedOrderStatus(e.target.value)}
+                        className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
+                    >
+                        <option value="all">All Order Status</option>
+                        <option value="ordered">Ordered</option>
+                        <option value="partially_received">Partially Received</option>
+                        <option value="received">Received</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <Package className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+            )}
+        </>
+    );
 
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder={showDraftFilters ? 'Search drafts...' : 'Search purchase orders...'}
+            placeholder="Search purchase orders, suppliers..."
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}
-            initialFilters={{
-                dateRange: { type: 'this_month' }, // Default to current month
-            }}
+            customFilters={customFilters}
             onResetFilters={handleReset}
-            externalResetTrigger={resetTrigger}
-            customFilters={
-                <div className="flex gap-3">
-                    {/* Status Filter */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                            <span className="text-sm">{statusOptions.find((opt) => opt.value === selectedStatus)?.label}</span>
-                            <ChevronDown className="h-4 w-4 text-gray-400" />
-                        </button>
-
-                        {showStatusDropdown && (
-                            <>
-                                <div className="fixed inset-0 z-10" onClick={() => setShowStatusDropdown(false)} />
-                                <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
-                                    {statusOptions.map((option) => (
-                                        <button
-                                            key={option.value}
-                                            onClick={() => {
-                                                setSelectedStatus(option.value);
-                                                setShowStatusDropdown(false);
-                                            }}
-                                            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedStatus === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}`}
-                                        >
-                                            {option.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Payment Status Filter (only for purchase orders) */}
-                    {!showDraftFilters && (
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowPaymentStatusDropdown(!showPaymentStatusDropdown)}
-                                className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
-                                <span className="text-sm">{PAYMENT_STATUS_OPTIONS.find((opt) => opt.value === selectedPaymentStatus)?.label}</span>
-                                <ChevronDown className="h-4 w-4 text-gray-400" />
-                            </button>
-
-                            {showPaymentStatusDropdown && (
-                                <>
-                                    <div className="fixed inset-0 z-10" onClick={() => setShowPaymentStatusDropdown(false)} />
-                                    <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
-                                        {PAYMENT_STATUS_OPTIONS.map((option) => (
-                                            <button
-                                                key={option.value}
-                                                onClick={() => {
-                                                    setSelectedPaymentStatus(option.value);
-                                                    setShowPaymentStatusDropdown(false);
-                                                }}
-                                                className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${
-                                                    selectedPaymentStatus === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-900'
-                                                }`}
-                                            >
-                                                {option.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    )}
-                </div>
-            }
         />
     );
 };

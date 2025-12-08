@@ -321,7 +321,7 @@ const ComponentsDashboardSales = () => {
 
                 {/* TODO: Fix backend API - temporarily commented */}
                 {/* <Low_Stock_Products /> */}
-                <PurchaseSaleChart />
+                {/* <PurchaseSaleChart /> */}
                 {/* <TopInStockProductsChart />
                 <TopPerformingBrandsChart /> */}
             </div>
