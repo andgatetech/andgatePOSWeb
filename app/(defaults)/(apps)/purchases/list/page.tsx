@@ -1,4 +1,6 @@
 'use client';
+import PaymentReceipt from '@/app/(defaults)/(apps)/purchases/list/components/PaymentReceipt';
+import TransactionTrackingModal from '@/app/(defaults)/(apps)/purchases/list/components/TransactionTrackingModal';
 import PurchaseFilter from '@/components/filters/PurchaseFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import {
@@ -11,12 +13,14 @@ import {
 } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { CreditCard, FileText, Package } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 import DraftsTable from './components/DraftsTable';
 import PurchaseOrdersTable from './components/PurchaseOrdersTable';
 
 const PurchaseOrderListPage = () => {
+    const router = useRouter();
     const { currentStoreId } = useCurrentStore();
     const [activeTab, setActiveTab] = useState<'drafts' | 'orders'>('drafts');
     const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -27,8 +31,15 @@ const PurchaseOrderListPage = () => {
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentNotes, setPaymentNotes] = useState('');
+    const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+    const [selectedTransactionOrder, setSelectedTransactionOrder] = useState<any>(null);
     const [draftFilters, setDraftFilters] = useState<Record<string, any>>({});
     const [orderFilters, setOrderFilters] = useState<Record<string, any>>({});
+
+    // Payment receipt state
+    const [showReceipt, setShowReceipt] = useState(false);
+    const [receiptTransaction, setReceiptTransaction] = useState<any>(null);
+    const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
 
     // Pagination and sorting for drafts
     const [draftPage, setDraftPage] = useState(1);
@@ -354,7 +365,7 @@ const PurchaseOrderListPage = () => {
         }
 
         try {
-            await makePartialPayment({
+            const response = await makePartialPayment({
                 id: selectedOrder.id,
                 store_id: currentStoreId,
                 amount,
@@ -362,9 +373,41 @@ const PurchaseOrderListPage = () => {
                 notes: paymentNotes,
             }).unwrap();
 
-            Swal.fire('Success!', 'Partial payment recorded successfully', 'success');
+            // Update purchase order with new amount_due for receipt
+            const updatedPurchaseOrder = {
+                ...selectedOrder,
+                amount_due: selectedOrder.amount_due - amount,
+                payment_status: selectedOrder.amount_due - amount <= 0 ? 'paid' : 'partial',
+            };
+
+            // Create transaction object for receipt
+            const transaction = {
+                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                amount: amount,
+                payment_method: paymentMethod,
+                paid_at: new Date().toISOString(),
+                notes: paymentNotes,
+            };
+
+            // Close payment modal
             setPaymentModalOpen(false);
             setSelectedOrder(null);
+
+            // Show receipt
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updatedPurchaseOrder);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Partial payment recorded successfully',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            }, 100);
         } catch (error: any) {
             Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
         }
@@ -403,17 +446,56 @@ const PurchaseOrderListPage = () => {
         if (!result.isConfirmed) return;
 
         try {
-            await clearFullDue({
+            const response = await clearFullDue({
                 id: order.id,
                 store_id: currentStoreId,
                 payment_method: 'cash',
                 notes: 'Full payment cleared',
             }).unwrap();
 
-            Swal.fire('Success!', 'Payment recorded successfully', 'success');
+            // Update purchase order with amount_due = 0 for receipt
+            const updatedPurchaseOrder = {
+                ...order,
+                amount_due: 0,
+                payment_status: 'paid',
+            };
+
+            // Create transaction object for receipt
+            const transaction = {
+                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                amount: order.amount_due,
+                payment_method: 'cash',
+                paid_at: new Date().toISOString(),
+                notes: 'Full payment cleared',
+            };
+
+            // Show receipt
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updatedPurchaseOrder);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Payment recorded successfully',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            }, 100);
         } catch (error: any) {
             Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
         }
+    };
+
+    const handleReceiveItems = (order: any) => {
+        router.push(`/purchases/receive/${order.id}`);
+    };
+
+    const handleViewTransactions = (order: any) => {
+        setSelectedTransactionOrder(order);
+        setTransactionModalOpen(true);
     };
 
     const handleConvertToPurchaseOrder = async (draft: any) => {
@@ -604,6 +686,8 @@ const PurchaseOrderListPage = () => {
                         }}
                         onViewItems={handleViewItems}
                         onPrint={handlePrint}
+                        onReceiveItems={handleReceiveItems}
+                        onViewTransactions={handleViewTransactions}
                         onPartialPayment={handlePartialPayment}
                         onFullPayment={handleFullPayment}
                     />
@@ -805,6 +889,22 @@ const PurchaseOrderListPage = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Transaction Tracking Modal */}
+            <TransactionTrackingModal isOpen={transactionModalOpen} purchaseOrder={selectedTransactionOrder} onClose={() => setTransactionModalOpen(false)} />
+
+            {/* Payment Receipt Modal */}
+            {showReceipt && receiptTransaction && receiptPurchaseOrder && (
+                <PaymentReceipt
+                    purchaseOrder={receiptPurchaseOrder}
+                    transaction={receiptTransaction}
+                    onClose={() => {
+                        setShowReceipt(false);
+                        setReceiptTransaction(null);
+                        setReceiptPurchaseOrder(null);
+                    }}
+                />
             )}
         </div>
     );

@@ -286,6 +286,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
             const regularPrice = parseFloat(primaryStock?.price || product.price || 0);
             const wholesalePrice = parseFloat(primaryStock?.wholesale_price || 0);
+            const productPurchasePrice = parseFloat(primaryStock?.purchase_price || 0);
 
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const itemToAdd = {
@@ -329,8 +330,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                             ...itemToAdd,
                             itemType: 'existing',
                             productStockId: primaryStock?.id,
-                            purchasePrice: regularPrice,
-                            amount: regularPrice * 1,
+                            purchasePrice: productPurchasePrice,
+                            amount: productPurchasePrice * 1,
                             variantData: {},
                         })
                     );
@@ -373,6 +374,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             // No serials - proceed with normal variant add
             const regularPrice = parseFloat(variant.price);
             const wholesalePrice = parseFloat(variant.wholesale_price);
+            const variantPurchasePrice = parseFloat(variant.purchase_price || 0);
             const price = useWholesale ? wholesalePrice : regularPrice;
 
             // Check stock limit for this specific variant
@@ -444,8 +446,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                             ...itemToAdd,
                             itemType: 'existing',
                             productStockId: variant.id,
-                            purchasePrice: price,
-                            amount: price * quantity,
+                            purchasePrice: variantPurchasePrice,
+                            amount: variantPurchasePrice * quantity,
                         })
                     );
                     break;
@@ -479,6 +481,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             selectedSerials.forEach((serial, index) => {
                 const regularPrice = parseFloat(serialStock.price);
                 const wholesalePrice = parseFloat(serialStock.wholesale_price || regularPrice);
+                const serialPurchasePrice = parseFloat(serialStock.purchase_price || 0);
 
                 // Ensure unique ID by adding index offset to prevent collisions
                 const uniqueId = baseTimestamp + index;
@@ -528,8 +531,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 ...itemToAdd,
                                 itemType: 'existing',
                                 productStockId: serialStock?.id,
-                                purchasePrice: regularPrice,
-                                amount: regularPrice * 1,
+                                purchasePrice: serialPurchasePrice,
+                                amount: serialPurchasePrice * 1,
                             })
                         );
                         break;

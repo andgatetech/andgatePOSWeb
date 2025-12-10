@@ -1,7 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
-import { CreditCard, Download, Eye, Printer } from 'lucide-react';
+import { Clock, CreditCard, Download, Eye, PackageCheck, Printer } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface PurchaseOrdersTableProps {
@@ -22,11 +22,13 @@ interface PurchaseOrdersTableProps {
     };
     onViewItems: (order: any) => void;
     onPrint: (order: any) => void;
+    onReceiveItems: (order: any) => void;
+    onViewTransactions: (order: any) => void;
     onPartialPayment: (order: any) => void;
     onFullPayment: (order: any) => void;
 }
 
-const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewItems, onPrint, onPartialPayment, onFullPayment }) => {
+const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewItems, onPrint, onReceiveItems, onViewTransactions, onPartialPayment, onFullPayment }) => {
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -156,6 +158,22 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
                 icon: <Eye className="h-4 w-4" />,
             },
             {
+                label: 'Receive Items',
+                onClick: (row: any) => {
+                    if (row.status !== 'received' && row.status !== 'cancelled') {
+                        onReceiveItems(row);
+                    }
+                },
+                className: 'text-purple-600',
+                icon: <PackageCheck className="h-4 w-4" />,
+            },
+            {
+                label: 'View Transactions',
+                onClick: onViewTransactions,
+                className: 'text-indigo-600',
+                icon: <Clock className="h-4 w-4" />,
+            },
+            {
                 label: 'Partial Payment',
                 onClick: (row: any) => {
                     if (row.payment_status !== 'paid' && row.amount_due > 0) {
@@ -178,11 +196,11 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             {
                 label: 'Print',
                 onClick: onPrint,
-                className: 'text-purple-600',
+                className: 'text-gray-600',
                 icon: <Printer className="h-4 w-4" />,
             },
         ],
-        [onViewItems, onPartialPayment, onFullPayment, onPrint]
+        [onViewItems, onReceiveItems, onViewTransactions, onPartialPayment, onFullPayment, onPrint]
     );
 
     return (
