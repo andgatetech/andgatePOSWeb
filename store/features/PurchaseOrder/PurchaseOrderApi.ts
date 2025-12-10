@@ -11,7 +11,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['PurchaseDrafts'],
+            invalidatesTags: ['PurchaseDrafts', 'Products', 'Orders'],
         }),
 
         // Get all Purchase Drafts
@@ -21,7 +21,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params,
             }),
-            providesTags: ['PurchaseDrafts'],
+            providesTags: ['PurchaseDrafts', 'Products', 'Orders'],
         }),
 
         // Get single Purchase Draft
@@ -30,7 +30,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 url: `/purchase-drafts/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['PurchaseDrafts'],
+            providesTags: ['PurchaseDrafts', 'Products', 'Orders'],
         }),
 
         // Update Purchase Draft
@@ -40,7 +40,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
-            invalidatesTags: ['PurchaseDrafts'],
+            invalidatesTags: ['PurchaseDrafts', 'Products', 'Orders'],
         }),
 
         // Delete Purchase Draft
@@ -49,7 +49,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 url: `/purchase-drafts/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['PurchaseDrafts'],
+            invalidatesTags: ['PurchaseDrafts', 'Products', 'Orders'],
         }),
 
         // ========== PHASE 2: CREATE PURCHASE ORDER ==========
@@ -61,7 +61,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['PurchaseDrafts', 'PurchaseOrders'],
+            invalidatesTags: ['PurchaseDrafts', 'PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // Create Purchase Order (Direct - without draft)
@@ -71,7 +71,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['PurchaseOrders', 'Purchases'],
+            invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // Get all Purchase Orders
@@ -81,7 +81,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params,
             }),
-            providesTags: ['PurchaseOrders'],
+            providesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // // Get purchase order bar chart data
@@ -100,7 +100,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 url: `/purchase-order/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['PurchaseOrders'],
+            providesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // Edit Purchase Order (fetch data for form)
@@ -109,7 +109,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 url: `/purchase-order/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['PurchaseOrders'],
+            providesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // ========== PHASE 3: RECEIVING PROCESS ==========
@@ -121,7 +121,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
-            invalidatesTags: ['PurchaseOrders', 'Products'],
+            invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // Delete Purchase Order
@@ -130,7 +130,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 url: `/purchase-order/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['PurchaseOrders'],
+            invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // ========== PHASE 4: PAYMENT MANAGEMENT ==========
@@ -138,28 +138,28 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Make partial payment
         makePartialPayment: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/purchase-order/${id}/payment?store_id=${data.store_id}`,
+                url: `/purchase-order/${id}/payment`,
                 method: 'POST',
                 body: {
+                    store_id: data.store_id,
                     payment_amount: data.amount,
                     payment_method: data.payment_method || 'cash',
-                    payment_notes: data.notes || '',
                 },
             }),
-            invalidatesTags: ['PurchaseOrders'],
+            invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
         // Clear full due
         clearFullDue: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/purchase-order/${id}/clear?store_id=${data.store_id}`,
+                url: `/purchase-order/${id}/clear`,
                 method: 'POST',
                 body: {
+                    store_id: data.store_id,
                     payment_method: data.payment_method || 'cash',
-                    payment_notes: data.notes || '',
                 },
             }),
-            invalidatesTags: ['PurchaseOrders'],
+            invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
     }),
 });

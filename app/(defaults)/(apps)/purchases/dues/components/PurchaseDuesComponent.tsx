@@ -1,4 +1,5 @@
 'use client';
+import PaymentReceipt from '@/app/(defaults)/(apps)/purchases/list/components/PaymentReceipt';
 import PurchaseDuesFilter from '@/components/filters/PurchaseDuesFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useClearFullDueMutation, useGetPurchaseOrdersQuery, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
@@ -24,6 +25,11 @@ const PurchaseDuesComponent = () => {
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentNotes, setPaymentNotes] = useState('');
+
+    // Payment receipt state
+    const [showReceipt, setShowReceipt] = useState(false);
+    const [receiptTransaction, setReceiptTransaction] = useState<any>(null);
+    const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
 
     // Fetch purchase orders (dues) with filters
     const { data: duesResponse, isLoading } = useGetPurchaseOrdersQuery({
@@ -116,7 +122,7 @@ const PurchaseDuesComponent = () => {
         }
 
         try {
-            await makePartialPayment({
+            const response = await makePartialPayment({
                 id: selectedDue.id,
                 store_id: currentStoreId,
                 amount,
@@ -124,8 +130,42 @@ const PurchaseDuesComponent = () => {
                 notes: paymentNotes,
             }).unwrap();
 
-            Swal.fire('Success!', 'Partial payment made successfully', 'success');
+            // Update purchase order with new amount_due for receipt
+            const updatedPurchaseOrder = {
+                ...selectedDue,
+                amount_due: selectedDue.amount_due - amount,
+                payment_status: selectedDue.amount_due - amount <= 0 ? 'paid' : 'partial',
+            };
+
+            // Create transaction object for receipt
+            const transaction = {
+                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                amount: amount,
+                payment_method: paymentMethod,
+                paid_at: new Date().toISOString(),
+                notes: paymentNotes,
+            };
+
+            // Close payment modal first
             closeModal();
+
+            // Set receipt data and show
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updatedPurchaseOrder);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+
+                console.log('Receipt should show:', { updatedPurchaseOrder, transaction });
+
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Partial payment made successfully',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            }, 100);
         } catch (err: any) {
             const errorMessage = err?.data?.message || 'Payment failed';
             Swal.fire('Error', errorMessage, 'error');
@@ -148,15 +188,49 @@ const PurchaseDuesComponent = () => {
 
         if (result.isConfirmed) {
             try {
-                await clearFullDue({
+                const response = await clearFullDue({
                     id: selectedDue.id,
                     store_id: currentStoreId,
                     payment_method: paymentMethod,
                     notes: paymentNotes || 'Full payment - due cleared',
                 }).unwrap();
 
-                Swal.fire('Success!', 'Full due cleared successfully', 'success');
+                // Update purchase order with amount_due = 0 for receipt
+                const updatedPurchaseOrder = {
+                    ...selectedDue,
+                    amount_due: 0,
+                    payment_status: 'paid',
+                };
+
+                // Create transaction object for receipt
+                const transaction = {
+                    id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                    amount: selectedDue.amount_due,
+                    payment_method: paymentMethod,
+                    paid_at: new Date().toISOString(),
+                    notes: paymentNotes || 'Full payment - due cleared',
+                };
+
+                // Close payment modal first
                 closeModal();
+
+                // Set receipt data and show
+                setTimeout(() => {
+                    setReceiptPurchaseOrder(updatedPurchaseOrder);
+                    setReceiptTransaction(transaction);
+                    setShowReceipt(true);
+
+                    console.log('Receipt should show:', { updatedPurchaseOrder, transaction });
+
+                    // Show success message
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Full due cleared successfully',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                }, 100);
             } catch (err: any) {
                 const errorMessage = err?.data?.message || 'Failed to clear due';
                 Swal.fire('Error', errorMessage, 'error');
@@ -478,6 +552,19 @@ const PurchaseDuesComponent = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Payment Receipt Modal */}
+            {showReceipt && receiptTransaction && receiptPurchaseOrder && (
+                <PaymentReceipt
+                    purchaseOrder={receiptPurchaseOrder}
+                    transaction={receiptTransaction}
+                    onClose={() => {
+                        setShowReceipt(false);
+                        setReceiptTransaction(null);
+                        setReceiptPurchaseOrder(null);
+                    }}
+                />
             )}
         </div>
     );

@@ -8,7 +8,7 @@ const ProductApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: newProduct,
             }),
-            invalidatesTags: ['Products'],
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         getAllProducts: builder.query({
@@ -41,7 +41,7 @@ const ProductApi = baseApi.injectEndpoints({
                 url: `/products/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Products'],
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         updateProduct: builder.mutation({
@@ -54,7 +54,7 @@ const ProductApi = baseApi.injectEndpoints({
                     body: formData,
                 };
             },
-            invalidatesTags: ['Products'],
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         getSingleProduct: builder.query({
@@ -104,6 +104,7 @@ const ProductApi = baseApi.injectEndpoints({
                 // Backend returns: { success, message, data: { barcodes, total_generated, errors } }
                 return response;
             },
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         generateQRCodes: builder.mutation({
@@ -116,6 +117,7 @@ const ProductApi = baseApi.injectEndpoints({
                 // Backend returns: { success, message, data: { barcodes, total_generated, errors } }
                 return response;
             },
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         updateAvailability: builder.mutation({
@@ -124,7 +126,7 @@ const ProductApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: { available },
             }),
-            invalidatesTags: ['Products'],
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         getUnits: builder.query({
@@ -141,7 +143,7 @@ const ProductApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: formData,
             }),
-            invalidatesTags: ['Products'],
+            invalidatesTags: ['Products', 'Orders'],
         }),
 
         createStockAdjustment: builder.mutation({

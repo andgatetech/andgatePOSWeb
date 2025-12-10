@@ -21,6 +21,10 @@ const ReceiveItemsPage = () => {
     const [receivedQuantities, setReceivedQuantities] = useState<Record<number, number>>({});
     const [purchasePrices, setPurchasePrices] = useState<Record<number, number>>({});
     const [sellingPrices, setSellingPrices] = useState<Record<number, number>>({});
+    const [taxRates, setTaxRates] = useState<Record<number, number>>({});
+    const [lowStockQuantities, setLowStockQuantities] = useState<Record<number, number>>({});
+    const [variantData, setVariantData] = useState<Record<number, any>>({});
+    const [excludedItems, setExcludedItems] = useState<Set<number>>(new Set());
     const [paymentAmount, setPaymentAmount] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentNotes, setPaymentNotes] = useState('');
@@ -31,19 +35,32 @@ const ReceiveItemsPage = () => {
             const quantities: Record<number, number> = {};
             const prices: Record<number, number> = {};
             const selling: Record<number, number> = {};
+            const taxes: Record<number, number> = {};
+            const lowStock: Record<number, number> = {};
+            const variants: Record<number, any> = {};
 
             purchaseOrder.items.forEach((item: any) => {
-                // Default to ordered quantity minus already received
-                quantities[item.id] = item.quantity_ordered - (item.quantity_received || 0);
+                // Default to ordered quantity minus already received (but never negative)
+                const remaining = item.quantity_ordered - (item.quantity_received || 0);
+                quantities[item.id] = Math.max(0, remaining);
                 // Convert purchase_price to number (backend might send string)
                 prices[item.id] = parseFloat(item.purchase_price) || 0;
-                // Initialize selling price (default to purchase price + 20% margin for new products)
-                selling[item.id] = item.product_id === null ? (parseFloat(item.purchase_price) || 0) * 1.2 : 0;
+                // Initialize selling price from current stock selling price or item selling price
+                selling[item.id] = parseFloat(item.selling_price || item.current_stock_selling_price) || (parseFloat(item.purchase_price) || 0) * 1.3;
+                // Tax rate
+                taxes[item.id] = parseFloat(item.tax_rate) || 0;
+                // Low stock quantity
+                lowStock[item.id] = parseFloat(item.low_stock_quantity) || 5;
+                // Variant data
+                variants[item.id] = item.variant_data || {};
             });
 
             setReceivedQuantities(quantities);
             setPurchasePrices(prices);
             setSellingPrices(selling);
+            setTaxRates(taxes);
+            setLowStockQuantities(lowStock);
+            setVariantData(variants);
         }
     }, [purchaseOrder]);
 
@@ -71,6 +88,48 @@ const ReceiveItemsPage = () => {
         }));
     };
 
+    const handleTaxRateChange = (itemId: number, value: string) => {
+        const rate = parseFloat(value) || 0;
+        setTaxRates((prev) => ({
+            ...prev,
+            [itemId]: rate,
+        }));
+    };
+
+    const handleLowStockChange = (itemId: number, value: string) => {
+        const quantity = parseFloat(value) || 0;
+        setLowStockQuantities((prev) => ({
+            ...prev,
+            [itemId]: quantity,
+        }));
+    };
+
+    const handleVariantChange = (itemId: number, key: string, value: string) => {
+        setVariantData((prev) => ({
+            ...prev,
+            [itemId]: {
+                ...prev[itemId],
+                [key]: value,
+            },
+        }));
+    };
+
+    const handleRemoveItem = (itemId: number) => {
+        setExcludedItems((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(itemId);
+            return newSet;
+        });
+    };
+
+    const handleRestoreItem = (itemId: number) => {
+        setExcludedItems((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(itemId);
+            return newSet;
+        });
+    };
+
     const calculateItemTotal = (itemId: number) => {
         return (receivedQuantities[itemId] || 0) * (purchasePrices[itemId] || 0);
     };
@@ -89,8 +148,11 @@ const ReceiveItemsPage = () => {
             return;
         }
 
+        // Filter out excluded items
+        const activeItems = purchaseOrder.items.filter((item: any) => !excludedItems.has(item.id));
+
         // Validation
-        const hasItemsToReceive = purchaseOrder.items.some((item: any) => (receivedQuantities[item.id] || 0) > 0);
+        const hasItemsToReceive = activeItems.some((item: any) => (receivedQuantities[item.id] || 0) > 0);
 
         if (!hasItemsToReceive) {
             Swal.fire('Error', 'Please enter quantities to receive', 'error');
@@ -98,30 +160,42 @@ const ReceiveItemsPage = () => {
         }
 
         // Check for new products without prices
-        const newProductsWithoutPrice = purchaseOrder.items.filter((item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
+        const newProductsWithoutPrice = activeItems.filter((item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
 
         if (newProductsWithoutPrice.length > 0) {
             Swal.fire('Error', 'Please set purchase prices for all new products', 'error');
             return;
         }
 
-        // Check for new products without selling prices
-        const newProductsWithoutSellingPrice = purchaseOrder.items.filter((item: any) => item.product_id === null && (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
+        // Check for items without selling prices
+        const itemsWithoutSellingPrice = activeItems.filter((item: any) => (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
 
-        if (newProductsWithoutSellingPrice.length > 0) {
-            Swal.fire('Error', 'Please set selling prices for all new products', 'error');
+        if (itemsWithoutSellingPrice.length > 0) {
+            Swal.fire('Error', 'Please set selling prices for all items to receive', 'error');
             return;
         }
 
-        // Prepare receive data
+        // Prepare receive data - send ALL items with cumulative quantity_received
         const receiveData = {
             status: 'received',
-            items: purchaseOrder.items.map((item: any) => ({
-                id: item.id,
-                quantity_received: receivedQuantities[item.id] || 0,
-                purchase_price: purchasePrices[item.id] || 0,
-                selling_price: item.product_id === null ? sellingPrices[item.id] || 0 : undefined, // Only send selling price for new products
-            })),
+            items: purchaseOrder.items.map((item: any) => {
+                const isExcluded = excludedItems.has(item.id);
+                const alreadyReceived = parseFloat(item.quantity_received || 0);
+                const receivingNow = receivedQuantities[item.id] || 0;
+                // Send cumulative total: already received + receiving now (or just already received if excluded)
+                const totalReceived = isExcluded ? alreadyReceived : alreadyReceived + receivingNow;
+
+                return {
+                    id: item.id,
+                    quantity_received: totalReceived,
+                    purchase_price: purchasePrices[item.id] || 0,
+                    selling_price: sellingPrices[item.id] || 0,
+                    tax_rate: taxRates[item.id] || 0,
+                    tax_included: false,
+                    low_stock_quantity: lowStockQuantities[item.id] || 5,
+                    variant_data: Object.keys(variantData[item.id] || {}).length > 0 ? variantData[item.id] : undefined,
+                };
+            }),
             payment_amount: paymentAmount,
             payment_method: paymentMethod,
             payment_notes: paymentNotes,
@@ -233,35 +307,56 @@ const ReceiveItemsPage = () => {
                         <thead>
                             <tr>
                                 <th>Product</th>
-                                <th>Type</th>
+                                <th>Type / Variant</th>
                                 <th>Ordered</th>
                                 <th>Already Received</th>
                                 <th>Receive Now</th>
                                 <th>Purchase Price</th>
                                 <th>Selling Price</th>
                                 <th>Total</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {purchaseOrder?.items?.map((item: any) => {
                                 const remainingToReceive = item.quantity_ordered - (item.quantity_received || 0);
                                 const isNewProduct = item.product_id === null;
+                                const hasVariant = item.is_variant && item.variant_data;
+                                const isExcluded = excludedItems.has(item.id);
 
                                 return (
-                                    <tr key={item.id}>
+                                    <tr key={item.id} className={isExcluded ? 'bg-gray-50 opacity-50' : ''}>
                                         <td>
                                             <div>
-                                                <p className="font-semibold">{item.product_name_snapshot || item.product_name_temp}</p>
-                                                {item.product_description_temp && <p className="text-sm text-gray-500">{item.product_description_temp}</p>}
-                                                <p className="text-xs text-gray-400">Unit: {item.unit_temp || 'piece'}</p>
+                                                <p className="font-semibold">{item.product_name || item.product_name_at_purchase || 'Unknown Product'}</p>
+                                                <p className="text-xs text-gray-400">Unit: {item.unit || 'piece'}</p>
                                             </div>
                                         </td>
                                         <td>
-                                            {isNewProduct ? (
-                                                <span className="rounded bg-info/20 px-2 py-1 text-xs font-semibold text-info">New Product</span>
-                                            ) : (
-                                                <span className="rounded bg-success/20 px-2 py-1 text-xs font-semibold text-success">Existing</span>
-                                            )}
+                                            <div className="space-y-1">
+                                                {isNewProduct ? (
+                                                    <span className="rounded bg-info/20 px-2 py-1 text-xs font-semibold text-info">New Product</span>
+                                                ) : (
+                                                    <span className="rounded bg-success/20 px-2 py-1 text-xs font-semibold text-success">Existing</span>
+                                                )}
+                                                {hasVariant && (
+                                                    <div className="mt-2 space-y-1">
+                                                        <p className="text-xs font-semibold text-purple-600">Variant: {item.variant_name}</p>
+                                                        {Object.entries(variantData[item.id] || item.variant_data || {}).map(([key, value]: [string, any]) => (
+                                                            <div key={key} className="flex items-center gap-1">
+                                                                <span className="text-xs text-gray-500">{key}:</span>
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-input h-6 w-20 px-1 text-xs"
+                                                                    value={variantData[item.id]?.[key] || value || ''}
+                                                                    onChange={(e) => handleVariantChange(item.id, key, e.target.value)}
+                                                                    placeholder={key}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="font-semibold">{item.quantity_ordered}</td>
                                         <td>{item.quantity_received || 0}</td>
@@ -270,43 +365,55 @@ const ReceiveItemsPage = () => {
                                                 type="number"
                                                 className="form-input w-24"
                                                 min="0"
-                                                max={remainingToReceive}
+                                                step="1"
                                                 value={receivedQuantities[item.id] || 0}
                                                 onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                                             />
-                                            <p className="mt-1 text-xs text-gray-500">Max: {remainingToReceive}</p>
                                         </td>
                                         <td>
-                                            <input
-                                                type="number"
-                                                className={`form-input w-32 ${isNewProduct && !purchasePrices[item.id] ? 'border-orange-400' : ''}`}
-                                                min="0"
-                                                step="0.01"
-                                                value={purchasePrices[item.id] || 0}
-                                                onChange={(e) => handlePriceChange(item.id, e.target.value)}
-                                                placeholder={isNewProduct ? 'Set price' : ''}
-                                            />
-                                            {isNewProduct && !purchasePrices[item.id] && <p className="mt-1 text-xs text-orange-600">Price required for new product</p>}
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    className="form-input w-32"
+                                                    min="0"
+                                                    step="0.01"
+                                                    value={purchasePrices[item.id] || 0}
+                                                    onChange={(e) => handlePriceChange(item.id, e.target.value)}
+                                                    placeholder={item.current_stock_purchase_price || 'Purchase price'}
+                                                />
+                                                {!isNewProduct && item.current_stock_purchase_price && (
+                                                    <span className="mt-0.5 block text-xs text-blue-600">Current: ৳{Number(item.current_stock_purchase_price).toFixed(2)}</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td>
-                                            {isNewProduct ? (
-                                                <>
-                                                    <input
-                                                        type="number"
-                                                        className={`form-input w-32 ${!sellingPrices[item.id] ? 'border-green-400' : ''}`}
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={sellingPrices[item.id] || 0}
-                                                        onChange={(e) => handleSellingPriceChange(item.id, e.target.value)}
-                                                        placeholder="Selling price"
-                                                    />
-                                                    {!sellingPrices[item.id] && <p className="mt-1 text-xs text-green-600">Set selling price</p>}
-                                                </>
-                                            ) : (
-                                                <span className="text-sm text-gray-400">—</span>
-                                            )}
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    className="form-input w-32"
+                                                    min="0"
+                                                    step="0.01"
+                                                    value={sellingPrices[item.id] || 0}
+                                                    onChange={(e) => handleSellingPriceChange(item.id, e.target.value)}
+                                                    placeholder={item.current_stock_selling_price || 'Selling price'}
+                                                />
+                                                {!isNewProduct && item.current_stock_selling_price && (
+                                                    <span className="mt-0.5 block text-xs text-green-600">Current: ৳{Number(item.current_stock_selling_price).toFixed(2)}</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="font-bold">৳{calculateItemTotal(item.id).toFixed(2)}</td>
+                                        <td>
+                                            {isExcluded ? (
+                                                <button onClick={() => handleRestoreItem(item.id)} className="rounded bg-green-500 p-2 text-white hover:bg-green-600" title="Restore item">
+                                                    <ArrowLeft className="h-4 w-4" />
+                                                </button>
+                                            ) : (
+                                                <button onClick={() => handleRemoveItem(item.id)} className="rounded bg-red-500 p-2 text-white hover:bg-red-600" title="Remove from receiving">
+                                                    <span className="text-lg font-bold">×</span>
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 );
                             })}
