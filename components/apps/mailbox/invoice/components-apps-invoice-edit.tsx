@@ -545,7 +545,7 @@ const ComponentsAppsInvoiceEdit = () => {
                             Send Invoice
                         </button>
 
-                        <Link href="/apps/invoice/preview" className="btn btn-primary w-full gap-2">
+                        <Link href="/protected/invoice/preview" className="btn btn-primary w-full gap-2">
                             <IconEye className="shrink-0 ltr:mr-2 rtl:ml-2" />
                             Preview
                         </Link>
