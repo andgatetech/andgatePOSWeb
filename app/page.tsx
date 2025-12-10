@@ -27,9 +27,9 @@ import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/__components/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
-import OverViewSection from './(defaults)/components/pos-overview/OverViewSection';
-import PriceSection from './(defaults)/components/price/PriceSection';
-import TestimonialsSection from './(defaults)/components/testimonial/TestimonialsSection';
+import OverViewSection from './(application)/(public)/pos-overview/OverViewSection';
+import PriceSection from './(application)/(public)/price/PriceSection';
+import TestimonialsSection from './(application)/(public)/testimonial/TestimonialsSection';
 import Footer from './terms-of-service/Footer';
 
 export default function HomePage() {
