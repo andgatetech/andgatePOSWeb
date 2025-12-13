@@ -251,8 +251,8 @@ const ReceiveItemsPage = () => {
         <div className="space-y-6">
             {/* Header Section */}
             <section className="mb-8">
-                <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
-                    <div className="mb-6 flex items-center justify-between">
+                <div className="rounded-2xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-6">
+                    <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-4">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 shadow-md">
                                 <CheckCircle className="h-6 w-6 text-white" />
@@ -262,22 +262,22 @@ const ReceiveItemsPage = () => {
                                     <ArrowLeft className="mr-1 h-4 w-4" />
                                     Back to Purchase Orders
                                 </Link>
-                                <h1 className="text-2xl font-bold text-gray-900">Receive Items</h1>
-                                <p className="text-sm text-gray-500">
+                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Receive Items</h1>
+                                <p className="text-xs text-gray-500 sm:text-sm">
                                     Order: {purchaseOrder.invoice_number} | Supplier: {purchaseOrder.supplier?.name || 'N/A'}
                                 </p>
                             </div>
                         </div>
-                        <div className="text-right">
+                        <div className="w-full text-left sm:w-auto sm:text-right">
                             <div className="rounded-lg bg-blue-50 px-4 py-3">
                                 <p className="text-xs text-gray-600">Order Total</p>
-                                <p className="text-2xl font-bold text-blue-600">৳{Number(purchaseOrder.grand_total || 0).toFixed(2)}</p>
+                                <p className="text-xl font-bold text-blue-600 sm:text-2xl">৳{Number(purchaseOrder.grand_total || 0).toFixed(2)}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Status Cards */}
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-blue-50 to-white p-3">
                             <p className="text-xs text-gray-600">Order Status</p>
                             <p className="mt-1 text-sm font-semibold text-blue-600">{purchaseOrder.status.replace('_', ' ').toUpperCase()}</p>
@@ -428,7 +428,7 @@ const ReceiveItemsPage = () => {
 
                 <div className="space-y-4">
                     {/* Summary */}
-                    <div className="grid grid-cols-3 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <div className="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-3">
                         <div>
                             <p className="text-sm text-gray-600">Grand Total</p>
                             <p className="text-2xl font-bold text-gray-900">৳{grandTotal.toFixed(2)}</p>
@@ -444,7 +444,7 @@ const ReceiveItemsPage = () => {
                     </div>
 
                     {/* Payment Input Grid */}
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                             <label className="mb-2 block text-sm font-semibold">Payment Amount</label>
                             <input
@@ -481,7 +481,7 @@ const ReceiveItemsPage = () => {
 
                     {/* New Balance Preview */}
                     <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-4">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Receiving Now:</span>
                                 <span className="font-semibold">৳{grandTotal.toFixed(2)}</span>
@@ -505,7 +505,7 @@ const ReceiveItemsPage = () => {
 
             {/* Action Buttons */}
             <div className="panel">
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                     <button onClick={handleReceiveItems} className="btn btn-success flex-1" disabled={isUpdating}>
                         {isUpdating ? (
                             <>

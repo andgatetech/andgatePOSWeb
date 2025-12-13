@@ -397,7 +397,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             }),
         };
 
-        console.log('Creating purchase order with data:', purchaseOrderData);
+       
 
         try {
             const response = await createPurchaseOrder(purchaseOrderData).unwrap();
@@ -455,14 +455,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     return (
         <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
-            {(isSavingDraft || isUpdatingDraft || isCreatingPurchase) && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75">
-                    <div className="flex flex-col items-center space-y-3">
-                        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                        <p className="text-lg font-semibold text-gray-700">{isSavingDraft || isUpdatingDraft ? 'Saving Draft...' : 'Creating Purchase Order...'}</p>
-                    </div>
-                </div>
-            )}
+            
 
             <div className="panel">
                 <h2 className="mb-5 text-xl font-bold">{isEditMode ? 'Edit Purchase Draft' : 'Purchase Order Draft'}</h2>

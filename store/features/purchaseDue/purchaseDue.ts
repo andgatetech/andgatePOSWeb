@@ -15,7 +15,7 @@ const PurchaseDueApi = baseApi.injectEndpoints({
                 if (params?.search) queryParams.append('search', params.search);
                 if (params?.start_date) queryParams.append('start_date', params.start_date);
                 if (params?.end_date) queryParams.append('end_date', params.end_date);
-                if (params?.has_due_only) queryParams.append('has_due_only', params.has_due_only);
+
                 if (params?.page) queryParams.append('page', params.page);
                 if (params?.per_page) queryParams.append('per_page', params.per_page);
                 if (params?.sort_field) queryParams.append('sort_field', params.sort_field);
@@ -57,6 +57,15 @@ const PurchaseDueApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: (result, error, { id }) => ['PurchaseDues', { type: 'PurchaseDues', id }, 'PurchaseOrders'],
         }),
+
+        // Delete purchase due
+        deletePurchaseDue: builder.mutation({
+            query: (id) => ({
+                url: `/purchase-order/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['PurchaseDues', 'PurchaseOrders'],
+        }),
     }),
 });
 
@@ -67,4 +76,5 @@ export const {
     // Mutations
     useMakePartialPaymentMutation,
     useClearFullDueMutation,
+    useDeletePurchaseDueMutation,
 } = PurchaseDueApi;

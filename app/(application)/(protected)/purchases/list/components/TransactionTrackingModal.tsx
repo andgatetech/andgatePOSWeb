@@ -4,7 +4,6 @@ import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileT
 import { useState } from 'react';
 import PaymentReceipt from './PaymentReceipt';
 
-
 interface TransactionTrackingModalProps {
     isOpen: boolean;
     purchaseOrder: any;
@@ -65,39 +64,47 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
             <div className="fixed left-1/2 top-1/2 z-[61] w-full max-w-[95vw] -translate-x-1/2 -translate-y-1/2">
                 <div className="mx-4 max-h-[95vh] overflow-y-auto rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 shadow-2xl">
                     {/* Header Card */}
-                    <div className="rounded-t-2xl border border-slate-200 bg-white p-6 shadow-lg">
-                        <div className="flex items-start justify-between">
+                    <div className="rounded-t-2xl border border-slate-200 bg-white p-4 shadow-lg sm:p-6">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg">
-                                    <ShoppingCart className="h-8 w-8 text-white" />
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg sm:h-16 sm:w-16">
+                                    <ShoppingCart className="h-6 w-6 text-white sm:h-8 sm:w-8" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">{purchaseOrder.invoice_number}</h1>
-                                    <p className="mt-1 text-sm text-gray-500">Purchase Order #{purchaseOrder.id}</p>
+                                    <h1 className="text-lg font-bold text-gray-900 sm:text-2xl">{purchaseOrder.invoice_number}</h1>
+                                    <p className="mt-1 text-xs text-gray-500 sm:text-sm">Purchase Order #{purchaseOrder.id}</p>
                                     <div className="mt-2 flex items-center gap-2">
                                         <Building2 className="h-4 w-4 text-gray-400" />
-                                        <span className="text-sm font-medium text-gray-700">{purchaseOrder.store_name}</span>
+                                        <span className="text-xs font-medium text-gray-700 sm:text-sm">{purchaseOrder.store_name}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-2">
-                                <div className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-semibold ${getStatusColor(purchaseOrder.status)}`}>
-                                    <Package className="h-4 w-4" />
+                            <div className="flex flex-wrap items-start gap-2">
+                                <div
+                                    className={`inline-flex items-center gap-2 rounded-full border-2 px-3 py-1.5 text-xs font-semibold sm:px-4 sm:py-2 sm:text-sm ${getStatusColor(
+                                        purchaseOrder.status
+                                    )}`}
+                                >
+                                    <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                                     {purchaseOrder.status.charAt(0).toUpperCase() + purchaseOrder.status.slice(1)}
                                 </div>
-                                <div className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-semibold ${getStatusColor(purchaseOrder.payment_status)}`}>
-                                    <Wallet className="h-4 w-4" />
+                                <div
+                                    className={`inline-flex items-center gap-2 rounded-full border-2 px-3 py-1.5 text-xs font-semibold sm:px-4 sm:py-2 sm:text-sm ${getStatusColor(
+                                        purchaseOrder.payment_status
+                                    )}`}
+                                >
+                                    <Wallet className="h-3 w-3 sm:h-4 sm:w-4" />
                                     {purchaseOrder.payment_status.charAt(0).toUpperCase() + purchaseOrder.payment_status.slice(1)}
                                 </div>
-                                <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-all hover:bg-gray-200">
-                                    <X className="h-5 w-5" />
+                                <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-all hover:bg-gray-200 sm:h-10 sm:w-10">
+                                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Main Content */}
-                    <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 p-4 sm:gap-6 sm:p-6 lg:grid-cols-3">
                         {/* Payment Summary - Left 2 columns */}
                         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2">
                             <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
@@ -121,18 +128,18 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                 </div>
 
                                 {/* Amount Details */}
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-                                        <p className="mb-1 text-sm font-medium text-blue-700">Grand Total</p>
-                                        <p className="text-2xl font-bold text-blue-900">{formatCurrency(purchaseOrder.grand_total)}</p>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+                                    <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-3 sm:p-4">
+                                        <p className="mb-1 text-xs font-medium text-blue-700 sm:text-sm">Grand Total</p>
+                                        <p className="text-xl font-bold text-blue-900 sm:text-2xl">{formatCurrency(purchaseOrder.grand_total)}</p>
                                     </div>
-                                    <div className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4">
-                                        <p className="mb-1 text-sm font-medium text-green-700">Amount Paid</p>
-                                        <p className="text-2xl font-bold text-green-900">{formatCurrency(purchaseOrder.amount_paid)}</p>
+                                    <div className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-3 sm:p-4">
+                                        <p className="mb-1 text-xs font-medium text-green-700 sm:text-sm">Amount Paid</p>
+                                        <p className="text-xl font-bold text-green-900 sm:text-2xl">{formatCurrency(purchaseOrder.amount_paid)}</p>
                                     </div>
-                                    <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 p-4">
-                                        <p className="mb-1 text-sm font-medium text-orange-700">Amount Due</p>
-                                        <p className="text-2xl font-bold text-orange-900">{formatCurrency(purchaseOrder.amount_due)}</p>
+                                    <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 p-3 sm:p-4">
+                                        <p className="mb-1 text-xs font-medium text-orange-700 sm:text-sm">Amount Due</p>
+                                        <p className="text-xl font-bold text-orange-900 sm:text-2xl">{formatCurrency(purchaseOrder.amount_due)}</p>
                                     </div>
                                 </div>
 
@@ -150,8 +157,11 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                             </div>
                                         ) : (
                                             transactions.map((transaction: any) => (
-                                                <div key={transaction.id} className="rounded-xl border border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 p-4 transition-all hover:shadow-md">
-                                                    <div className="flex items-center justify-between">
+                                                <div
+                                                    key={transaction.id}
+                                                    className="rounded-xl border border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 p-3 transition-all hover:shadow-md sm:p-4"
+                                                >
+                                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-300 bg-green-100">
                                                                 {getPaymentMethodIcon(transaction.payment_method)}
@@ -161,9 +171,9 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                                 <p className="text-xs capitalize text-gray-500">{transaction.payment_method} Payment</p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="text-right">
-                                                                <p className="text-xl font-bold text-green-600">{formatCurrency(transaction.amount)}</p>
+                                                        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+                                                            <div className="sm:text-right">
+                                                                <p className="text-lg font-bold text-green-600 sm:text-xl">{formatCurrency(transaction.amount)}</p>
                                                                 <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
                                                                     <Calendar className="h-3 w-3" />
                                                                     {formatDate(transaction.paid_at)}
@@ -171,14 +181,14 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                             </div>
                                                             <button
                                                                 onClick={() => setSelectedTransaction(transaction)}
-                                                                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                                                                className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                                                             >
                                                                 <Receipt className="h-4 w-4" />
                                                                 Receipt
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    {transaction.notes && <p className="mt-2 rounded-lg border border-slate-200 bg-white p-2 text-sm text-gray-600">{transaction.notes}</p>}
+                                                    {transaction.notes && <p className="mt-2 rounded-lg border border-slate-200 bg-white p-2 text-xs text-gray-600 sm:text-sm">{transaction.notes}</p>}
                                                 </div>
                                             ))
                                         )}
@@ -249,7 +259,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                     </div>
 
                     {/* Timeline */}
-                    <div className="m-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
+                    <div className="m-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg sm:m-6 sm:p-6">
                         <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
                             <Clock className="h-6 w-6 text-indigo-600" />
                             Order Timeline

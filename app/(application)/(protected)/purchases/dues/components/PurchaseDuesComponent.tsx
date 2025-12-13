@@ -1,16 +1,18 @@
 'use client';
 import PaymentReceipt from '@/app/(application)/(protected)/purchases/list/components/PaymentReceipt';
+import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
 import PurchaseDuesFilter from '@/components/filters/PurchaseDuesFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useClearFullDueMutation, useGetPurchaseOrdersQuery, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { CreditCard, DollarSign, X } from 'lucide-react';
+import { useDeletePurchaseDueMutation } from '@/store/features/purchaseDue/purchaseDue';
+import { DollarSign, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import Swal from 'sweetalert2';
 import PurchaseDuesTable from './PurchaseDuesTable';
 
 const PurchaseDuesComponent = () => {
     const { currentStoreId } = useCurrentStore();
-    const [filters, setFilters] = useState<Record<string, any>>({});
+    const [filters, setFilters] = useState<Record<string, any>>({ exclude_completed: 'true' });
 
     // Pagination and sorting state
     const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +33,10 @@ const PurchaseDuesComponent = () => {
     const [receiptTransaction, setReceiptTransaction] = useState<any>(null);
     const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
 
+    // Transaction tracking modal state
+    const [showTransactionModal, setShowTransactionModal] = useState(false);
+    const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<any>(null);
+
     // Fetch purchase orders (dues) with filters
     const { data: duesResponse, isLoading } = useGetPurchaseOrdersQuery({
         ...filters,
@@ -43,30 +49,251 @@ const PurchaseDuesComponent = () => {
 
     const [makePartialPayment, { isLoading: isPaymentLoading }] = useMakePartialPaymentMutation();
     const [clearFullDue, { isLoading: isClearingDue }] = useClearFullDueMutation();
+    const [deletePurchaseDue] = useDeletePurchaseDueMutation();
 
-    // Extract data from API response
+    // Extract data from API response (filtering is handled by backend with exclude_completed parameter)
     const dues = duesResponse?.data?.items || [];
     const pagination = duesResponse?.data?.pagination;
-
-    // Calculate summary from items
-    const summary =
-        dues.length > 0
-            ? {
-                  total_dues_count: dues.length,
-                  pending_count: dues.filter((d: any) => d.payment_status === 'pending').length,
-                  partial_count: dues.filter((d: any) => d.payment_status === 'partial').length,
-                  paid_count: dues.filter((d: any) => d.payment_status === 'paid').length,
-                  total_amount: dues.reduce((sum: number, d: any) => sum + parseFloat(d.grand_total || 0), 0),
-                  total_paid: dues.reduce((sum: number, d: any) => sum + parseFloat(d.amount_paid || 0), 0),
-                  total_due: dues.reduce((sum: number, d: any) => sum + parseFloat(d.amount_due || 0), 0),
-              }
-            : null;
+    const stats = duesResponse?.data?.stats || null;
 
     // Filter change handler
     const handleFilterChange = useCallback((newFilters: Record<string, any>) => {
         setFilters(newFilters);
         setCurrentPage(1);
     }, []);
+
+    // Print handler
+    const handlePrint = (item: any) => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return;
+
+        const title = `Purchase Order: ${item.invoice_number}`;
+        const items = item.items || [];
+
+        const total = items.reduce((sum: number, itm: any) => {
+            const subtotal = parseFloat(itm.subtotal) || parseFloat(itm.total) || 0;
+            return sum + subtotal;
+        }, 0);
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Print ${title}</title>
+                <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        padding: 40px; 
+                        color: #333;
+                        background: white;
+                    }
+                    .header { 
+                        text-align: center; 
+                        margin-bottom: 30px; 
+                        border-bottom: 3px solid #dc2626;
+                        padding-bottom: 20px;
+                    }
+                    .header h1 { 
+                        font-size: 28px; 
+                        color: #b91c1c; 
+                        margin-bottom: 5px;
+                        font-weight: 700;
+                    }
+                    .header p { 
+                        color: #6b7280; 
+                        font-size: 14px;
+                    }
+                    .info-section { 
+                        display: flex; 
+                        justify-content: space-between; 
+                        margin-bottom: 30px;
+                        background: #fef2f2;
+                        padding: 20px;
+                        border-radius: 8px;
+                    }
+                    .info-box { flex: 1; }
+                    .info-box h3 { 
+                        font-size: 12px; 
+                        color: #6b7280; 
+                        text-transform: uppercase; 
+                        margin-bottom: 8px;
+                        font-weight: 600;
+                        letter-spacing: 0.5px;
+                    }
+                    .info-box p { 
+                        font-size: 16px; 
+                        color: #111827;
+                        font-weight: 500;
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 30px;
+                        border: 1px solid #e5e7eb;
+                    }
+                    thead { 
+                        background: linear-gradient(to right, #fee2e2, #fecaca);
+                    }
+                    th { 
+                        padding: 12px; 
+                        text-align: left; 
+                        font-size: 13px; 
+                        font-weight: 600;
+                        color: #b91c1c;
+                        border-bottom: 2px solid #cbd5e1;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+                    }
+                    td { 
+                        padding: 12px; 
+                        border-bottom: 1px solid #e5e7eb;
+                        font-size: 14px;
+                    }
+                    tbody tr:hover { background: #f9fafb; }
+                    tbody tr:last-child td { border-bottom: none; }
+                    .text-right { text-align: right; }
+                    .text-center { text-align: center; }
+                    .total-row { 
+                        background: #f3f4f6; 
+                        font-weight: 700;
+                        font-size: 16px;
+                    }
+                    .total-row td {
+                        padding: 15px 12px;
+                        border-top: 2px solid #dc2626;
+                    }
+                    .due-section {
+                        background: #fef2f2;
+                        padding: 20px;
+                        border-radius: 8px;
+                        border-left: 4px solid #dc2626;
+                    }
+                    .footer {
+                        margin-top: 40px;
+                        padding-top: 20px;
+                        border-top: 1px solid #e5e7eb;
+                        text-align: center;
+                        color: #6b7280;
+                        font-size: 12px;
+                    }
+                    @media print {
+                        body { padding: 20px; }
+                        .info-section { break-inside: avoid; }
+                        table { break-inside: avoid; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>💰 Purchase Due Invoice</h1>
+                    <p>${item.store_name || 'Store'}</p>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-box">
+                        <h3>Invoice Number</h3>
+                        <p>${item.invoice_number}</p>
+                    </div>
+                    ${
+                        item.supplier
+                            ? `
+                        <div class="info-box">
+                            <h3>Supplier</h3>
+                            <p>${item.supplier.name || 'Walk-in Purchase'}</p>
+                        </div>
+                    `
+                            : ''
+                    }
+                    <div class="info-box">
+                        <h3>Grand Total</h3>
+                        <p style="color: #2563eb; font-size: 20px;">৳${Number(item.grand_total).toFixed(2)}</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>Payment Status</h3>
+                        <p style="text-transform: uppercase; font-weight: 600; color: ${item.payment_status === 'paid' ? '#059669' : item.payment_status === 'partial' ? '#d97706' : '#dc2626'};">
+                            ${item.payment_status || 'N/A'}
+                        </p>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Product Name</th>
+                            <th class="text-center" style="width: 100px;">Quantity</th>
+                            <th class="text-right" style="width: 120px;">Unit Price</th>
+                            <th class="text-center" style="width: 80px;">Unit</th>
+                            <th class="text-right" style="width: 120px;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items
+                            .map((itm: any, idx: number) => {
+                                const productName = itm.product_name || itm.product || 'N/A';
+                                const variantName = itm.variant_name || null;
+                                const isVariant = itm.is_variant || false;
+                                const quantity = parseFloat(itm.quantity_ordered) || 0;
+                                const unitPrice = parseFloat(itm.purchase_price) || 0;
+                                const subtotal = parseFloat(itm.subtotal) || parseFloat(itm.total) || quantity * unitPrice;
+
+                                return `
+                                <tr>
+                                    <td class="text-center">${idx + 1}</td>
+                                    <td>
+                                        ${productName}
+                                        ${isVariant && variantName ? '<br><span style="font-size: 11px; color: #2563eb; font-weight: 600;">Variant: ' + variantName + '</span>' : ''}
+                                    </td>
+                                    <td class="text-center"><strong>${quantity}</strong></td>
+                                    <td class="text-right">৳${Number(unitPrice).toFixed(2)}</td>
+                                    <td class="text-center">${itm.unit || 'piece'}</td>
+                                    <td class="text-right"><strong>৳${Number(subtotal).toFixed(2)}</strong></td>
+                                </tr>
+                            `;
+                            })
+                            .join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="5" class="text-right">TOTAL:</td>
+                            <td class="text-right" style="color: #dc2626;">৳${total.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="due-section">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <div>
+                            <h3 style="font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 5px;">Amount Paid</h3>
+                            <p style="font-size: 18px; color: #059669; font-weight: 700;">৳${Number(item.amount_paid).toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 5px;">Amount Due</h3>
+                            <p style="font-size: 24px; color: #dc2626; font-weight: 700;">৳${Number(item.amount_due).toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <p>Generated on ${new Date().toLocaleString()}</p>
+                    <p style="margin-top: 5px;">Please clear the due amount at your earliest convenience.</p>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        window.onafterprint = function() {
+                            window.close();
+                        };
+                    };
+                </script>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+    };
 
     // Pagination handlers
     const handlePageChange = useCallback((page: number) => {
@@ -175,66 +402,108 @@ const PurchaseDuesComponent = () => {
     const handleFullPayment = async () => {
         if (!selectedDue) return;
 
+        try {
+            const response = await clearFullDue({
+                id: selectedDue.id,
+                store_id: currentStoreId,
+                payment_method: paymentMethod,
+                notes: paymentNotes || 'Full payment - due cleared',
+            }).unwrap();
+
+            // Update purchase order with amount_due = 0 for receipt
+            const updatedPurchaseOrder = {
+                ...selectedDue,
+                amount_due: 0,
+                payment_status: 'paid',
+            };
+
+            // Create transaction object for receipt
+            const transaction = {
+                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                amount: selectedDue.amount_due,
+                payment_method: paymentMethod,
+                paid_at: new Date().toISOString(),
+                notes: paymentNotes || 'Full payment - due cleared',
+            };
+
+            // Close payment modal first
+            closeModal();
+
+            // Set receipt data and show
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updatedPurchaseOrder);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+
+                console.log('Receipt should show:', { updatedPurchaseOrder, transaction });
+
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Full due cleared successfully',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            }, 100);
+        } catch (err: any) {
+            const errorMessage = err?.data?.message || 'Failed to clear due';
+            Swal.fire('Error', errorMessage, 'error');
+        }
+    };
+
+    const handleDelete = async (due: any) => {
+        // Check if purchase due can be deleted (only pending payment and ordered status)
+        if (due.payment_status !== 'pending' || due.status !== 'ordered') {
+            Swal.fire({
+                title: 'Delete Not Possible',
+                html: `
+                    <p class="mb-3">This purchase due cannot be deleted.</p>
+                    <div class="text-left bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-700 mb-2"><strong>Delete is only allowed when:</strong></p>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>Payment Status: <strong class="text-red-600">Pending</strong></li>
+                            <li>Order Status: <strong class="text-blue-600">Ordered</strong></li>
+                        </ul>
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <p class="text-sm text-gray-700"><strong>Current Status:</strong></p>
+                            <p class="text-sm text-gray-600">Payment: <strong class="text-${due.payment_status === 'pending' ? 'green' : 'red'}-600">${due.payment_status || 'N/A'}</strong></p>
+                            <p class="text-sm text-gray-600">Order: <strong class="text-${due.status === 'ordered' ? 'green' : 'red'}-600">${due.status || 'N/A'}</strong></p>
+                        </div>
+                    </div>
+                `,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+            });
+            return;
+        }
+
         const result = await Swal.fire({
-            title: 'Clear Full Due?',
-            html: `<p>This will mark the full due of <strong>৳${formatCurrency(selectedDue.amount_due)}</strong> as paid.</p>`,
+            title: 'Delete Purchase Due?',
+            html: `<p>Are you sure you want to delete <strong>${due.invoice_number}</strong>?</p><p class="text-sm text-gray-500 mt-2">This action cannot be undone.</p>`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Yes, clear it!',
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete',
             cancelButtonText: 'Cancel',
         });
 
-        if (result.isConfirmed) {
-            try {
-                const response = await clearFullDue({
-                    id: selectedDue.id,
-                    store_id: currentStoreId,
-                    payment_method: paymentMethod,
-                    notes: paymentNotes || 'Full payment - due cleared',
-                }).unwrap();
+        if (!result.isConfirmed) return;
 
-                // Update purchase order with amount_due = 0 for receipt
-                const updatedPurchaseOrder = {
-                    ...selectedDue,
-                    amount_due: 0,
-                    payment_status: 'paid',
-                };
-
-                // Create transaction object for receipt
-                const transaction = {
-                    id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
-                    amount: selectedDue.amount_due,
-                    payment_method: paymentMethod,
-                    paid_at: new Date().toISOString(),
-                    notes: paymentNotes || 'Full payment - due cleared',
-                };
-
-                // Close payment modal first
-                closeModal();
-
-                // Set receipt data and show
-                setTimeout(() => {
-                    setReceiptPurchaseOrder(updatedPurchaseOrder);
-                    setReceiptTransaction(transaction);
-                    setShowReceipt(true);
-
-                    console.log('Receipt should show:', { updatedPurchaseOrder, transaction });
-
-                    // Show success message
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Full due cleared successfully',
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false,
-                    });
-                }, 100);
-            } catch (err: any) {
-                const errorMessage = err?.data?.message || 'Failed to clear due';
-                Swal.fire('Error', errorMessage, 'error');
-            }
+        try {
+            await deletePurchaseDue(due.id).unwrap();
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Purchase due has been deleted successfully',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        } catch (err: any) {
+            const errorMessage = err?.data?.message || 'Failed to delete purchase due';
+            Swal.fire('Error', errorMessage, 'error');
         }
     };
 
@@ -287,35 +556,54 @@ const PurchaseDuesComponent = () => {
                     </div>
 
                     {/* Summary Cards */}
-                    {summary && (
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-                            <div className="rounded-lg bg-blue-50 p-3">
-                                <p className="text-xs text-blue-600">Total Dues</p>
-                                <p className="text-lg font-bold text-blue-900">{summary.total_dues_count || 0}</p>
+                    {stats && (
+                        <div className="space-y-2">
+                            {/* First Row - Payment Status */}
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                                <div className="rounded-lg bg-blue-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-blue-600">Total Dues</p>
+                                    <p className="text-lg font-bold text-blue-900">{stats.total_purchase_orders || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-red-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-red-600">Payment Pending</p>
+                                    <p className="text-lg font-bold text-red-900">{stats.payment_status_pending || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-yellow-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-yellow-600">Partially Paid</p>
+                                    <p className="text-lg font-bold text-yellow-900">{stats.payment_status_partial || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-green-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-green-600">Fully Paid</p>
+                                    <p className="text-lg font-bold text-green-900">{stats.payment_status_paid || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-orange-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-orange-600">Overdue</p>
+                                    <p className="text-lg font-bold text-orange-900">{stats.payment_status_due || 0}</p>
+                                </div>
                             </div>
-                            <div className="rounded-lg bg-red-50 p-3">
-                                <p className="text-xs text-red-600">Pending</p>
-                                <p className="text-lg font-bold text-red-900">{summary.pending_count || 0}</p>
-                            </div>
-                            <div className="rounded-lg bg-yellow-50 p-3">
-                                <p className="text-xs text-yellow-600">Partial</p>
-                                <p className="text-lg font-bold text-yellow-900">{summary.partial_count || 0}</p>
-                            </div>
-                            <div className="rounded-lg bg-green-50 p-3">
-                                <p className="text-xs text-green-600">Paid</p>
-                                <p className="text-lg font-bold text-green-900">{summary.paid_count || 0}</p>
-                            </div>
-                            <div className="rounded-lg bg-purple-50 p-3">
-                                <p className="text-xs text-purple-600">Total Amount</p>
-                                <p className="text-lg font-bold text-purple-900">৳{formatCurrency(summary.total_amount || 0)}</p>
-                            </div>
-                            <div className="rounded-lg bg-orange-50 p-3">
-                                <p className="text-xs text-orange-600">Total Paid</p>
-                                <p className="text-lg font-bold text-orange-900">৳{formatCurrency(summary.total_paid || 0)}</p>
-                            </div>
-                            <div className="rounded-lg bg-red-50 p-3">
-                                <p className="text-xs text-red-600">Total Due</p>
-                                <p className="text-lg font-bold text-red-900">৳{formatCurrency(summary.total_due || 0)}</p>
+
+                            {/* Second Row - Receiving Status & Financial */}
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                                <div className="rounded-lg bg-indigo-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-indigo-600">Not Received</p>
+                                    <p className="text-lg font-bold text-indigo-900">{stats.receiving_status_ordered || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-amber-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-amber-600">Partially Received</p>
+                                    <p className="text-lg font-bold text-amber-900">{stats.receiving_status_partially_received || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-teal-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-teal-600">Fully Received</p>
+                                    <p className="text-lg font-bold text-teal-900">{stats.receiving_status_received || 0}</p>
+                                </div>
+                                <div className="rounded-lg bg-purple-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-purple-600">Total Amount</p>
+                                    <p className="text-base font-bold text-purple-900">৳{formatCurrency(stats.total_order_amount || 0)}</p>
+                                </div>
+                                <div className="rounded-lg bg-emerald-50 p-2.5">
+                                    <p className="text-[10px] font-medium text-emerald-600">Amount Due</p>
+                                    <p className="text-base font-bold text-emerald-900">৳{formatCurrency(stats.total_amount_due || 0)}</p>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -345,9 +633,16 @@ const PurchaseDuesComponent = () => {
                         direction: sortDirection,
                         onSort: handleSort,
                     }}
-                    onViewDetails={(due) => openModal('view', due)}
+                    onViewItems={(due) => openModal('view', due)}
+                    onPrint={handlePrint}
+                    onReceiveItems={(due) => (window.location.href = `/purchases/receive/${due.id}`)}
+                    onViewTransactions={(due) => {
+                        setSelectedOrderForTracking(due);
+                        setShowTransactionModal(true);
+                    }}
                     onPartialPayment={(due) => openModal('partial', due)}
                     onClearFullDue={(due) => openModal('full', due)}
+                    onDelete={handleDelete}
                 />
             </div>
 
@@ -500,13 +795,27 @@ const PurchaseDuesComponent = () => {
                                     </div>
                                 </form>
                             ) : (
-                                <div className="space-y-4">
-                                    <div className="rounded-lg bg-green-50 p-4">
-                                        <div className="mb-2 flex justify-between">
-                                            <span className="text-sm font-medium text-gray-700">Amount to Clear:</span>
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        handleFullPayment();
+                                    }}
+                                    className="space-y-4"
+                                >
+                                    <div className="rounded-lg bg-blue-50 p-4">
+                                        <div className="flex justify-between">
+                                            <span className="text-sm font-medium text-gray-700">Total Due:</span>
                                             <span className="font-bold text-red-600">৳{formatCurrency(selectedDue.amount_due)}</span>
                                         </div>
                                         <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            Payment Amount <span className="text-red-500">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" value={selectedDue.amount_due} className="form-input w-full bg-gray-100" readOnly disabled />
+                                        <p className="mt-1 text-xs text-green-600">Full amount will be cleared</p>
                                     </div>
 
                                     <div>
@@ -538,16 +847,14 @@ const PurchaseDuesComponent = () => {
                                             Cancel
                                         </button>
                                         <button
-                                            type="button"
-                                            onClick={handleFullPayment}
+                                            type="submit"
                                             className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
                                             disabled={isClearingDue}
                                         >
-                                            <CreditCard className="mr-2 inline h-4 w-4" />
-                                            {isClearingDue ? 'Processing...' : 'Clear Due'}
+                                            {isClearingDue ? 'Processing...' : 'Clear Full Due'}
                                         </button>
                                     </div>
-                                </div>
+                                </form>
                             )}
                         </div>
                     </div>
@@ -566,6 +873,9 @@ const PurchaseDuesComponent = () => {
                     }}
                 />
             )}
+
+            {/* Transaction Tracking Modal */}
+            <TransactionTrackingModal isOpen={showTransactionModal} purchaseOrder={selectedOrderForTracking} onClose={() => setShowTransactionModal(false)} />
         </div>
     );
 };
