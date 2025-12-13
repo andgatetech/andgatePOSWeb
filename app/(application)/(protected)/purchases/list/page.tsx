@@ -1,17 +1,10 @@
 'use client';
-import PaymentReceipt from '@/app/(application)/(protected)/purchases/list/components/PaymentReceipt';
 import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
-import PurchaseFilter from '@/components/filters/PurchaseFilter';
+
+import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import {
-    useClearFullDueMutation,
-    useConvertDraftToPurchaseOrderMutation,
-    useDeletePurchaseDraftMutation,
-    useGetPurchaseDraftsQuery,
-    useGetPurchaseOrdersQuery,
-    useMakePartialPaymentMutation,
-} from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { CreditCard, FileText, Package } from 'lucide-react';
+import { useConvertDraftToPurchaseOrderMutation, useDeletePurchaseDraftMutation, useGetPurchaseDraftsQuery, useGetPurchaseOrdersQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
+import { FileText, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -26,20 +19,10 @@ const PurchaseOrderListPage = () => {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [modalTitle, setModalTitle] = useState('');
-    const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
-    const [paymentAmount, setPaymentAmount] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('cash');
-    const [paymentNotes, setPaymentNotes] = useState('');
     const [transactionModalOpen, setTransactionModalOpen] = useState(false);
     const [selectedTransactionOrder, setSelectedTransactionOrder] = useState<any>(null);
     const [draftFilters, setDraftFilters] = useState<Record<string, any>>({});
     const [orderFilters, setOrderFilters] = useState<Record<string, any>>({});
-
-    // Payment receipt state
-    const [showReceipt, setShowReceipt] = useState(false);
-    const [receiptTransaction, setReceiptTransaction] = useState<any>(null);
-    const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
 
     // Pagination and sorting for drafts
     const [draftPage, setDraftPage] = useState(1);
@@ -64,6 +47,7 @@ const PurchaseOrderListPage = () => {
     });
 
     const { data: ordersResponse, isLoading: ordersLoading } = useGetPurchaseOrdersQuery({
+        exclude_completed: 'false',
         ...orderFilters,
         store_id: currentStoreId,
         page: orderPage,
@@ -74,8 +58,6 @@ const PurchaseOrderListPage = () => {
 
     const [convertToPO, { isLoading: isConverting }] = useConvertDraftToPurchaseOrderMutation();
     const [deleteDraft] = useDeletePurchaseDraftMutation();
-    const [clearFullDue] = useClearFullDueMutation();
-    const [makePartialPayment] = useMakePartialPaymentMutation();
 
     // Extract data from API responses
     const drafts = draftsResponse?.data?.items || [];
@@ -343,152 +325,6 @@ const PurchaseOrderListPage = () => {
         printWindow.document.close();
     };
 
-    const handlePartialPayment = (order: any) => {
-        setSelectedOrder(order);
-        setPaymentAmount('');
-        setPaymentMethod('cash');
-        setPaymentNotes('');
-        setPaymentModalOpen(true);
-    };
-
-    const handleSubmitPartialPayment = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const amount = parseFloat(paymentAmount);
-        if (amount <= 0) {
-            Swal.fire('Error', 'Payment amount must be greater than 0', 'error');
-            return;
-        }
-        if (amount > selectedOrder.amount_due) {
-            Swal.fire('Error', 'Payment amount cannot exceed due amount', 'error');
-            return;
-        }
-
-        try {
-            const response = await makePartialPayment({
-                id: selectedOrder.id,
-                store_id: currentStoreId,
-                amount,
-                payment_method: paymentMethod,
-                notes: paymentNotes,
-            }).unwrap();
-
-            // Update purchase order with new amount_due for receipt
-            const updatedPurchaseOrder = {
-                ...selectedOrder,
-                amount_due: selectedOrder.amount_due - amount,
-                payment_status: selectedOrder.amount_due - amount <= 0 ? 'paid' : 'partial',
-            };
-
-            // Create transaction object for receipt
-            const transaction = {
-                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
-                amount: amount,
-                payment_method: paymentMethod,
-                paid_at: new Date().toISOString(),
-                notes: paymentNotes,
-            };
-
-            // Close payment modal
-            setPaymentModalOpen(false);
-            setSelectedOrder(null);
-
-            // Show receipt
-            setTimeout(() => {
-                setReceiptPurchaseOrder(updatedPurchaseOrder);
-                setReceiptTransaction(transaction);
-                setShowReceipt(true);
-
-                // Show success message
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Partial payment recorded successfully',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false,
-                });
-            }, 100);
-        } catch (error: any) {
-            Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
-        }
-    };
-
-    const handleFullPayment = async (order: any) => {
-        const result = await Swal.fire({
-            title: 'Clear Full Due?',
-            html: `
-                <div class="text-left">
-                    <p class="mb-3">Invoice: <strong>${order.invoice_number}</strong></p>
-                    <div class="rounded-lg bg-gray-50 p-4">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm text-gray-600">Grand Total:</span>
-                            <span class="font-semibold">৳${Number(order.grand_total || 0).toFixed(2)}</span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm text-gray-600">Already Paid:</span>
-                            <span class="font-semibold text-green-600">৳${Number(order.amount_paid || 0).toFixed(2)}</span>
-                        </div>
-                        <div class="flex justify-between pt-2 border-t">
-                            <span class="font-bold">Amount to Pay:</span>
-                            <span class="font-bold text-red-600">৳${Number(order.amount_due || 0).toFixed(2)}</span>
-                        </div>
-                    </div>
-                </div>
-            `,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Yes, Pay Now!',
-            cancelButtonText: 'Cancel',
-        });
-
-        if (!result.isConfirmed) return;
-
-        try {
-            const response = await clearFullDue({
-                id: order.id,
-                store_id: currentStoreId,
-                payment_method: 'cash',
-                notes: 'Full payment cleared',
-            }).unwrap();
-
-            // Update purchase order with amount_due = 0 for receipt
-            const updatedPurchaseOrder = {
-                ...order,
-                amount_due: 0,
-                payment_status: 'paid',
-            };
-
-            // Create transaction object for receipt
-            const transaction = {
-                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
-                amount: order.amount_due,
-                payment_method: 'cash',
-                paid_at: new Date().toISOString(),
-                notes: 'Full payment cleared',
-            };
-
-            // Show receipt
-            setTimeout(() => {
-                setReceiptPurchaseOrder(updatedPurchaseOrder);
-                setReceiptTransaction(transaction);
-                setShowReceipt(true);
-
-                // Show success message
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Payment recorded successfully',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false,
-                });
-            }, 100);
-        } catch (error: any) {
-            Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
-        }
-    };
-
     const handleReceiveItems = (order: any) => {
         router.push(`/purchases/receive/${order.id}`);
     };
@@ -633,14 +469,7 @@ const PurchaseOrderListPage = () => {
                 </div>
 
                 {/* Filters */}
-                <div className="mb-5">
-                    <PurchaseFilter
-                        onFilterChange={activeTab === 'drafts' ? setDraftFilters : setOrderFilters}
-                        showPurchaseType={true}
-                        showPaymentStatus={activeTab === 'orders'}
-                        showOrderStatus={activeTab === 'orders'}
-                    />
-                </div>
+                <div className="mb-5">{activeTab === 'drafts' ? <UniversalFilter onFilterChange={setDraftFilters} /> : <UniversalFilter onFilterChange={setOrderFilters} />}</div>
 
                 {/* Drafts Tab */}
                 {activeTab === 'drafts' && (
@@ -686,10 +515,7 @@ const PurchaseOrderListPage = () => {
                         }}
                         onViewItems={handleViewItems}
                         onPrint={handlePrint}
-                        onReceiveItems={handleReceiveItems}
                         onViewTransactions={handleViewTransactions}
-                        onPartialPayment={handlePartialPayment}
-                        onFullPayment={handleFullPayment}
                     />
                 )}
             </div>
@@ -811,101 +637,8 @@ const PurchaseOrderListPage = () => {
                 </div>
             )}
 
-            {/* Partial Payment Modal */}
-            {paymentModalOpen && selectedOrder && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
-                    <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
-                        <div className="border-b border-gray-200 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Partial Payment</h3>
-                            <p className="text-sm text-gray-500">Invoice: {selectedOrder.invoice_number}</p>
-                        </div>
-
-                        <form onSubmit={handleSubmitPartialPayment} className="space-y-4 px-6 py-4">
-                            {/* Order Summary */}
-                            <div className="rounded-lg bg-gray-50 p-4">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Grand Total:</span>
-                                    <span className="font-semibold">৳{Number(selectedOrder.grand_total || 0).toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Amount Paid:</span>
-                                    <span className="font-semibold text-green-600">৳{Number(selectedOrder.amount_paid || 0).toFixed(2)}</span>
-                                </div>
-                                <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 text-base">
-                                    <span className="font-semibold text-gray-900">Amount Due:</span>
-                                    <span className="font-bold text-red-600">৳{Number(selectedOrder.amount_due || 0).toFixed(2)}</span>
-                                </div>
-                            </div>
-
-                            {/* Payment Amount */}
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">
-                                    Payment Amount <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    className="form-input w-full"
-                                    placeholder="Enter amount"
-                                    min="0.01"
-                                    step="0.01"
-                                    max={selectedOrder.amount_due}
-                                    value={paymentAmount}
-                                    onChange={(e) => setPaymentAmount(e.target.value)}
-                                    required
-                                />
-                                <p className="mt-1 text-xs text-gray-500">Maximum: ৳{Number(selectedOrder.amount_due || 0).toFixed(2)}</p>
-                            </div>
-
-                            {/* Payment Method */}
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">
-                                    Payment Method <span className="text-red-500">*</span>
-                                </label>
-                                <select className="form-select w-full" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} required>
-                                    <option value="cash">Cash</option>
-                                    <option value="debit">Debit Card</option>
-                                    <option value="credit">Credit Card</option>
-                                    <option value="bank_transfer">Bank Transfer</option>
-                                    <option value="cheque">Cheque</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-
-                            {/* Payment Notes */}
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                                <textarea className="form-textarea w-full" rows={3} placeholder="Add payment notes..." value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} />
-                            </div>
-
-                            <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
-                                <button type="button" onClick={() => setPaymentModalOpen(false)} className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300">
-                                    Cancel
-                                </button>
-                                <button type="submit" className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700">
-                                    <CreditCard className="mr-2 inline h-4 w-4" />
-                                    Record Payment
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
             {/* Transaction Tracking Modal */}
             <TransactionTrackingModal isOpen={transactionModalOpen} purchaseOrder={selectedTransactionOrder} onClose={() => setTransactionModalOpen(false)} />
-
-            {/* Payment Receipt Modal */}
-            {showReceipt && receiptTransaction && receiptPurchaseOrder && (
-                <PaymentReceipt
-                    purchaseOrder={receiptPurchaseOrder}
-                    transaction={receiptTransaction}
-                    onClose={() => {
-                        setShowReceipt(false);
-                        setReceiptTransaction(null);
-                        setReceiptPurchaseOrder(null);
-                    }}
-                />
-            )}
         </div>
     );
 };

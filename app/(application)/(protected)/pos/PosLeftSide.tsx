@@ -13,7 +13,7 @@ import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { Html5Qrcode } from 'html5-qrcode';
 import { GripVertical } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -639,8 +639,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     return;
                 }
 
-                console.log('✅ QR reader element found, creating scanner...');
-
                 try {
                     html5QrCode = new Html5Qrcode('qr-reader');
                     console.log('Scanner instance created:', html5QrCode);
@@ -906,7 +904,14 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     className={`flex flex-col overflow-hidden ${isMobileView ? 'w-full' : ''} ${isMobileView && !showMobileCart ? 'hidden' : ''}`}
                     style={!isMobileView ? { width: `${100 - leftWidth}%` } : {}}
                 >
-                    <div className="flex-1 overflow-auto">{children}</div>
+                    <div className="flex-1 overflow-auto">
+                        {children && typeof children === 'object' && 'type' in children
+                            ? React.cloneElement(children as React.ReactElement, {
+                                  isMobileView,
+                                  showMobileCart,
+                              })
+                            : children}
+                    </div>
                 </div>
 
                 {/* Modals */}

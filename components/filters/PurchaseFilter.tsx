@@ -12,7 +12,7 @@ interface PurchaseFilterProps {
     showOrderStatus?: boolean; // For orders only
 }
 
-const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPurchaseType = true, showPaymentStatus = false, showOrderStatus = false }) => {
+const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPurchaseType = true, showPaymentStatus = true, showOrderStatus = true }) => {
     const [selectedPurchaseType, setSelectedPurchaseType] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [selectedOrderStatus, setSelectedOrderStatus] = React.useState<string>('all');

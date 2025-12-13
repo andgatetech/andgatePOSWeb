@@ -1,7 +1,7 @@
 'use client';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
-import { CheckCircle, CreditCard, Eye } from 'lucide-react';
-import React from 'react';
+import { Clock, CreditCard, Download, Eye, PackageCheck, Printer, Trash2 } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface PurchaseDuesTableProps {
     dues: any[];
@@ -19,125 +19,207 @@ interface PurchaseDuesTableProps {
         direction: 'asc' | 'desc';
         onSort: (field: string) => void;
     };
-    onViewDetails: (due: any) => void;
+    onViewItems: (due: any) => void;
+    onPrint: (due: any) => void;
+    onReceiveItems: (due: any) => void;
+    onViewTransactions: (due: any) => void;
     onPartialPayment: (due: any) => void;
     onClearFullDue: (due: any) => void;
+    onDelete: (due: any) => void;
 }
 
-const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({ dues, isLoading, pagination, sorting, onViewDetails, onPartialPayment, onClearFullDue }) => {
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount);
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
-    const getStatusBadge = (status: string) => {
-        const badges: Record<string, { bg: string; text: string; label: string }> = {
-            pending: { bg: 'bg-red-100', text: 'text-red-700', label: 'Pending' },
-            partial: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Partial' },
-            paid: { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
-            unpaid: { bg: 'bg-red-100', text: 'text-red-700', label: 'Unpaid' },
-        };
-
-        const badge = badges[status] || badges.pending;
-        return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badge.bg} ${badge.text}`}>{badge.label}</span>;
-    };
-
-    const columns: TableColumn[] = [
-        {
-            key: 'invoice_number',
-            label: 'Invoice',
-            sortable: true,
-            render: (value) => <span className="font-semibold text-blue-600">{value}</span>,
-        },
-        {
-            key: 'store_name',
-            label: 'Store',
-            sortable: true,
-            render: (value) => <span className="font-medium text-gray-900">{value}</span>,
-        },
-        {
-            key: 'supplier_name',
-            label: 'Supplier',
-            sortable: true,
-            render: (value, row) => <span className="text-sm text-gray-600">{row.supplier?.name || 'Walk-in'}</span>,
-        },
-        {
-            key: 'grand_total',
-            label: 'Total Amount',
-            sortable: true,
-            render: (value) => <span className="font-semibold text-gray-900">৳{formatCurrency(value)}</span>,
-        },
-        {
-            key: 'amount_paid',
-            label: 'Paid',
-            sortable: true,
-            render: (value) => <span className="text-green-600">৳{formatCurrency(value)}</span>,
-        },
-        {
-            key: 'amount_due',
-            label: 'Due Amount',
-            sortable: true,
-            render: (value, row) => {
-                const dueAmount = parseFloat(value) || 0;
-                const colorClass = dueAmount > 0 ? 'text-red-600' : dueAmount < 0 ? 'text-purple-600' : 'text-gray-600';
-                return <span className={`font-bold ${colorClass}`}>৳{formatCurrency(dueAmount)}</span>;
+const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
+    dues,
+    isLoading,
+    pagination,
+    sorting,
+    onViewItems,
+    onPrint,
+    onReceiveItems,
+    onViewTransactions,
+    onPartialPayment,
+    onClearFullDue,
+    onDelete,
+}) => {
+    const columns: TableColumn[] = useMemo(
+        () => [
+            {
+                key: 'invoice_number',
+                label: 'Invoice',
+                sortable: true,
+                render: (value, row) => (
+                    <div className="flex flex-col">
+                        <span className="font-semibold text-gray-900">{value || `#${row.id}`}</span>
+                    </div>
+                ),
             },
-        },
-        {
-            key: 'payment_status',
-            label: 'Status',
-            sortable: true,
-            render: (value) => getStatusBadge(value),
-        },
-        {
-            key: 'created_at',
-            label: 'Created At',
-            sortable: true,
-            render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
-        },
-    ];
+            {
+                key: 'supplier',
+                label: 'Supplier',
+                render: (value) => (
+                    <div className="flex flex-col">
+                        <span className="font-medium text-gray-900">{value?.name || 'Walk-in Purchase'}</span>
+                        {value?.phone && <span className="text-xs text-gray-500">{value.phone}</span>}
+                    </div>
+                ),
+            },
+            {
+                key: 'store_name',
+                label: 'Store',
+                render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
+            },
+            {
+                key: 'items',
+                label: 'Items',
+                render: (value) => {
+                    const itemCount = value?.length || 0;
+                    const newItems = value?.filter((item: any) => item.is_new_product).length || 0;
+                    return (
+                        <div className="flex flex-col gap-1">
+                            <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                            </span>
+                            {newItems > 0 && <span className="text-xs text-green-600">+{newItems} new</span>}
+                        </div>
+                    );
+                },
+            },
+            {
+                key: 'grand_total',
+                label: 'Total Amount',
+                sortable: true,
+                render: (value) => <span className="font-semibold text-gray-900">৳{Number(value || 0).toFixed(2)}</span>,
+            },
+            {
+                key: 'amount_due',
+                label: 'Due Amount',
+                sortable: true,
+                render: (value) => {
+                    const dueAmount = Number(value || 0);
+                    if (dueAmount > 0) {
+                        return <span className="font-semibold text-red-600">৳{dueAmount.toFixed(2)}</span>;
+                    }
+                    return <span className="text-sm text-gray-500">৳0.00</span>;
+                },
+            },
+            {
+                key: 'payment_status',
+                label: 'Payment Status',
+                sortable: true,
+                render: (value) => {
+                    const status = value?.toLowerCase() || 'pending';
+                    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
+                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partial' },
+                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Pending' },
+                        unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: 'Unpaid' },
+                    };
+                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
+                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
+                },
+            },
+            {
+                key: 'status',
+                label: 'Order Status',
+                sortable: true,
+                render: (value) => {
+                    const status = value?.toLowerCase() || 'ordered';
+                    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+                        ordered: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Ordered' },
+                        partially_received: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partially Received' },
+                        received: { bg: 'bg-green-100', text: 'text-green-800', label: 'Received' },
+                        cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' },
+                        draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Draft' },
+                    };
+                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
+                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
+                },
+            },
+            {
+                key: 'created_at',
+                label: 'Created Date',
+                sortable: true,
+                render: (value) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
+                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                ),
+            },
+            {
+                key: 'updated_at',
+                label: 'Updated Date',
+                sortable: true,
+                render: (value) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
+                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                ),
+            },
+        ],
+        []
+    );
 
-    const actions: TableAction[] = [
-        {
-            label: 'View Details',
-            onClick: onViewDetails,
-            className: 'text-blue-600 hover:text-blue-800',
-            icon: <Eye className="h-4 w-4" />,
-        },
-        {
-            label: 'Partial Payment',
-            onClick: (row: any) => {
-                if (row.payment_status !== 'paid' && row.amount_due > 0) {
-                    onPartialPayment(row);
-                }
+    const actions: TableAction[] = useMemo(
+        () => [
+            {
+                label: 'View Items',
+                onClick: onViewItems,
+                className: 'text-blue-600',
+                icon: <Eye className="h-4 w-4" />,
             },
-            className: 'text-orange-600 hover:text-orange-800',
-            icon: <CreditCard className="h-4 w-4" />,
-        },
-        {
-            label: 'Clear Full Due',
-            onClick: (row: any) => {
-                if (row.payment_status !== 'paid' && row.amount_due > 0) {
-                    onClearFullDue(row);
-                }
+            {
+                label: 'Receive Items',
+                onClick: (row: any) => {
+                    if (row.status !== 'received' && row.status !== 'cancelled') {
+                        onReceiveItems(row);
+                    }
+                },
+                className: 'text-purple-600',
+                icon: <PackageCheck className="h-4 w-4" />,
             },
-            className: 'text-green-600 hover:text-green-800',
-            icon: <CheckCircle className="h-4 w-4" />,
-        },
-    ];
+            {
+                label: 'View Transactions',
+                onClick: onViewTransactions,
+                className: 'text-indigo-600',
+                icon: <Clock className="h-4 w-4" />,
+            },
+            {
+                label: 'Partial Payment',
+                onClick: (row: any) => {
+                    if (row.payment_status !== 'paid' && row.amount_due > 0) {
+                        onPartialPayment(row);
+                    }
+                },
+                className: 'text-orange-600',
+                icon: <CreditCard className="h-4 w-4" />,
+            },
+            {
+                label: 'Clear Full Due',
+                onClick: (row: any) => {
+                    if (row.payment_status !== 'paid' && row.amount_due > 0) {
+                        onClearFullDue(row);
+                    }
+                },
+                className: 'text-green-600',
+                icon: <CreditCard className="h-4 w-4" />,
+            },
+            {
+                label: 'Print',
+                onClick: onPrint,
+                className: 'text-gray-600',
+                icon: <Printer className="h-4 w-4" />,
+            },
+            {
+                label: 'Delete',
+                onClick: onDelete,
+                className: 'text-red-600',
+                icon: <Trash2 className="h-4 w-4" />,
+            },
+        ],
+        [onViewItems, onReceiveItems, onViewTransactions, onPartialPayment, onClearFullDue, onPrint, onDelete]
+    );
 
     return (
         <ReusableTable
@@ -148,18 +230,9 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({ dues, isLoading, 
             pagination={pagination}
             sorting={sorting}
             emptyState={{
-                icon: (
-                    <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                    </svg>
-                ),
-                title: 'No purchase dues found',
-                description: 'All purchases are paid or no purchases exist',
+                icon: <Download className="mx-auto h-16 w-16" />,
+                title: 'No Purchase Dues Found',
+                description: 'No purchase dues match your current filters. Try adjusting your search criteria.',
             }}
         />
     );
