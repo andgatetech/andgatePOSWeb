@@ -1,6 +1,6 @@
 'use client';
 
-import ImageShowModal from '@/app/application/(protected)/products/component/Image Modal/ImageModal2';
+import ImageShowModal from '@/app/application/protected/products/component/Image Modal/ImageModal2';
 import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';

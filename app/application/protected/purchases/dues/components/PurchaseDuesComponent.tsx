@@ -1,6 +1,6 @@
 'use client';
-import PaymentReceipt from '@/app/application/(protected)/purchases/list/components/PaymentReceipt';
-import TransactionTrackingModal from '@/app/application/(protected)/purchases/list/components/TransactionTrackingModal';
+import PaymentReceipt from '@/app/application/protected/purchases/list/components/PaymentReceipt';
+import TransactionTrackingModal from '@/app/application/protected/purchases/list/components/TransactionTrackingModal';
 import PurchaseDuesFilter from '@/components/filters/PurchaseDuesFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useClearFullDueMutation, useGetPurchaseOrdersQuery, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';

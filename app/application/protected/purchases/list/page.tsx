@@ -1,5 +1,5 @@
 'use client';
-import TransactionTrackingModal from '@/app/application/(protected)/purchases/list/components/TransactionTrackingModal';
+import TransactionTrackingModal from '@/app/application/protected/purchases/list/components/TransactionTrackingModal';
 
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
