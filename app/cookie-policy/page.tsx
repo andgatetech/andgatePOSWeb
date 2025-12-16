@@ -1,6 +1,6 @@
 'use client';
 
-import MainLayout from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { BarChart3, CheckCircle, Clock, Cookie, Eye, RefreshCw, Settings, Shield, ToggleLeft, X } from 'lucide-react';
 

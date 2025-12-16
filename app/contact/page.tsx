@@ -1,6 +1,6 @@
 
 'use client';
-import MainLayout from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
 import { ArrowLeft, Building, CheckCircle, Mail, MapIcon, MapPin, Phone, Send, User } from 'lucide-react';
