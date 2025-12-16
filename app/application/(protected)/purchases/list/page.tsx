@@ -1,5 +1,5 @@
 'use client';
-import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
+import TransactionTrackingModal from '@/app/application/(protected)/purchases/list/components/TransactionTrackingModal';
 
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -94,71 +94,71 @@ const PurchaseOrderListPage = () => {
                 <title>Print ${title}</title>
                 <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body { 
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                        padding: 40px; 
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 40px;
                         color: #333;
                         background: white;
                     }
-                    .header { 
-                        text-align: center; 
-                        margin-bottom: 30px; 
+                    .header {
+                        text-align: center;
+                        margin-bottom: 30px;
                         border-bottom: 3px solid #2563eb;
                         padding-bottom: 20px;
                     }
-                    .header h1 { 
-                        font-size: 28px; 
-                        color: #1e40af; 
+                    .header h1 {
+                        font-size: 28px;
+                        color: #1e40af;
                         margin-bottom: 5px;
                         font-weight: 700;
                     }
-                    .header p { 
-                        color: #6b7280; 
+                    .header p {
+                        color: #6b7280;
                         font-size: 14px;
                     }
-                    .info-section { 
-                        display: flex; 
-                        justify-content: space-between; 
+                    .info-section {
+                        display: flex;
+                        justify-content: space-between;
                         margin-bottom: 30px;
                         background: #f9fafb;
                         padding: 20px;
                         border-radius: 8px;
                     }
                     .info-box { flex: 1; }
-                    .info-box h3 { 
-                        font-size: 12px; 
-                        color: #6b7280; 
-                        text-transform: uppercase; 
+                    .info-box h3 {
+                        font-size: 12px;
+                        color: #6b7280;
+                        text-transform: uppercase;
                         margin-bottom: 8px;
                         font-weight: 600;
                         letter-spacing: 0.5px;
                     }
-                    .info-box p { 
-                        font-size: 16px; 
+                    .info-box p {
+                        font-size: 16px;
                         color: #111827;
                         font-weight: 500;
                     }
-                    table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
                         margin-bottom: 30px;
                         border: 1px solid #e5e7eb;
                     }
-                    thead { 
+                    thead {
                         background: linear-gradient(to right, #dbeafe, #e0e7ff);
                     }
-                    th { 
-                        padding: 12px; 
-                        text-align: left; 
-                        font-size: 13px; 
+                    th {
+                        padding: 12px;
+                        text-align: left;
+                        font-size: 13px;
                         font-weight: 600;
                         color: #1e40af;
                         border-bottom: 2px solid #cbd5e1;
                         text-transform: uppercase;
                         letter-spacing: 0.3px;
                     }
-                    td { 
-                        padding: 12px; 
+                    td {
+                        padding: 12px;
                         border-bottom: 1px solid #e5e7eb;
                         font-size: 14px;
                     }
@@ -166,8 +166,8 @@ const PurchaseOrderListPage = () => {
                     tbody tr:last-child td { border-bottom: none; }
                     .text-right { text-align: right; }
                     .text-center { text-align: center; }
-                    .total-row { 
-                        background: #f3f4f6; 
+                    .total-row {
+                        background: #f3f4f6;
                         font-weight: 700;
                         font-size: 16px;
                     }
@@ -175,7 +175,7 @@ const PurchaseOrderListPage = () => {
                         padding: 15px 12px;
                         border-top: 2px solid #2563eb;
                     }
-                    .badge { 
+                    .badge {
                         display: inline-block;
                         padding: 4px 8px;
                         border-radius: 4px;
@@ -183,8 +183,8 @@ const PurchaseOrderListPage = () => {
                         font-weight: 600;
                         text-transform: uppercase;
                     }
-                    .badge-new { 
-                        background: #fef3c7; 
+                    .badge-new {
+                        background: #fef3c7;
                         color: #92400e;
                     }
                     .footer {

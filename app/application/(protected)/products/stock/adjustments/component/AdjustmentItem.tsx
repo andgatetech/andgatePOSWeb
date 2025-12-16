@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, Eye, Minus, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
+import ItemPreviewModal from '@/app/application/(protected)/pos/pos-right-side/ItemPreviewModal';
 import SerialAdjustmentModal from './SerialAdjustmentModal';
 
 interface AdjustmentItemProps {
