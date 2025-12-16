@@ -1,7 +1,7 @@
 'use client';
 
 import ComponentsAuthRegisterForm from '@/components/auth/components-auth-register-form';
-import MainLayout from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';

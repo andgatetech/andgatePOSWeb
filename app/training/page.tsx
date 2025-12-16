@@ -221,7 +221,7 @@
 //     );
 // }
 'use client';
-import MainLayout from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { BarChart3, CreditCard, Download, ExternalLink, Lightbulb, Package, Play, Store, Users, X, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';

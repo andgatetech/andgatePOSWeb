@@ -1,6 +1,6 @@
 
 'use client';
-import MainLayout from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { ArrowRight, Building2, Check, Clock, HelpCircle, Rocket, Shield, Star, TrendingUp, Users, Zap } from 'lucide-react';
 import { useState } from 'react';

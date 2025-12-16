@@ -1,5 +1,5 @@
 'use client';
-import MainLayout from '@/components/layout/MainLayout';
+import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { CheckCircle, Clock, CreditCard, Database, Eye, Lock, Mail, Shield, Users } from 'lucide-react';
 
