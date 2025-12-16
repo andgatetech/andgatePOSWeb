@@ -59,7 +59,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['categories.view', 'categories.index'],
         subMenu: [
             {
-                label: 'All Category',
+                label: 'Category List',
                 href: '/category',
                 requiredPermissions: ['categories.view', 'categories.index'],
             },
@@ -71,7 +71,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['brands.view', 'brands.index'],
         subMenu: [
             {
-                label: 'All Brand',
+                label: 'Brand List',
                 href: '/brand',
                 requiredPermissions: ['brands.view', 'brands.index'],
             },
@@ -88,7 +88,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['products.create'],
             },
             {
-                label: 'All Products',
+                label: 'Product List',
                 href: '/products',
                 requiredPermissions: ['products.view', 'products.index'],
             },
@@ -115,7 +115,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['sales.view', 'sales.create'],
         subMenu: [
             {
-                label: 'POS Interface',
+                label: 'Terminal',
                 href: '/pos',
                 requiredPermissions: ['sales.create'],
             },
@@ -127,7 +127,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['orders.view', 'orders.index'],
         subMenu: [
             {
-                label: 'All Orders',
+                label: 'Order List',
                 href: '/orders',
                 requiredPermissions: ['orders.view', 'orders.index'],
             },
@@ -144,7 +144,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['purchase-orders.create', 'purchases.create'],
             },
             {
-                label: 'All Purchases',
+                label: 'Purchase List',
                 href: '/purchases/list',
                 requiredPermissions: ['purchase-orders.view', 'purchase-orders.index', 'purchases.view', 'purchases.index'],
             },
@@ -163,7 +163,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['suppliers.create'],
             },
             {
-                label: 'All Supplier',
+                label: 'Supplier List',
                 href: '/suppliers/list',
                 requiredPermissions: ['suppliers.view', 'suppliers.index'],
             },
@@ -175,12 +175,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['ledgers.view', 'ledgers.index', 'journals.view', 'journals.index'],
         subMenu: [
             {
-                label: 'All Ledger',
+                label: 'Ledger List',
                 href: '/account/ledger-list',
                 requiredPermissions: ['ledgers.view', 'ledgers.index'],
             },
             {
-                label: 'All Journal',
+                label: 'Journal List',
                 href: '/account/journal-list',
                 requiredPermissions: ['journals.view', 'journals.index'],
             },
@@ -192,7 +192,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['expenses.view', 'expenses.index'],
         subMenu: [
             {
-                label: 'All Expenses',
+                label: 'Expense List',
                 href: '/expenses/expense-list',
                 requiredPermissions: ['expenses.view', 'expenses.index'],
             },
@@ -209,7 +209,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['customers.create'],
             },
             {
-                label: 'All Customers',
+                label: 'Customer List',
                 href: '/customers/list',
                 requiredPermissions: ['customers.view', 'customers.index'],
             },

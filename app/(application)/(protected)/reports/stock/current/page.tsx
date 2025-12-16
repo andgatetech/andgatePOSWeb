@@ -1,5 +1,5 @@
 'use client';
-import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/currentStockHelper';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/components/custom/currentStockHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import StockReportFilter from '@/components/filters/StockReportFilter';
 import Loading from '@/components/layouts/loading';

@@ -1,9 +1,9 @@
-import ComponentsNotificationsBasic from '@/components/components/notifications/components-notifications-basic';
-import ComponentsNotificationsBgColor from '@/components/components/notifications/components-notifications-bg-color';
-import ComponentsNotificationsClickCallback from '@/components/components/notifications/components-notifications-click-callback';
-import ComponentsNotificationsDuration from '@/components/components/notifications/components-notifications-duration';
-import ComponentsNotificationsNoAction from '@/components/components/notifications/components-notifications-no-action';
-import ComponentsNotificationsPosition from '@/components/components/notifications/components-notifications-position';
+import ComponentsNotificationsBasic from '@/components/notifications/components-notifications-basic';
+import ComponentsNotificationsBgColor from '@/components/notifications/components-notifications-bg-color';
+import ComponentsNotificationsClickCallback from '@/components/notifications/components-notifications-click-callback';
+import ComponentsNotificationsDuration from '@/components/notifications/components-notifications-duration';
+import ComponentsNotificationsNoAction from '@/components/notifications/components-notifications-no-action';
+import ComponentsNotificationsPosition from '@/components/notifications/components-notifications-position';
 import IconBell from '@/components/icon/icon-bell';
 import { Metadata } from 'next';
 import Link from 'next/link';

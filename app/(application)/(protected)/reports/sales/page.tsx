@@ -1,6 +1,6 @@
 'use client';
-import SalesReportFilter from '@/__components/SalesReportFilter';
-import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/salesReportHelper';
+import SalesReportFilter from '@/components/custom/SalesReportFilter';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/components/custom/salesReportHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Loading from '@/components/layouts/loading';
 import { useCurrentStore } from '@/hooks/useCurrentStore';

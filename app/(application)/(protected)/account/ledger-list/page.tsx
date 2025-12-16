@@ -1,5 +1,5 @@
 'use client';
-import UpdateLedgerModal from '@/__components/UpdateLedgerModal';
+import UpdateLedgerModal from '@/components/custom/UpdateLedgerModal';
 import Dropdown from '@/components/dropdown';
 import LedgerFilter from '@/components/filters/LedgerFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';

@@ -1,5 +1,5 @@
 'use client';
-import CalculatorButton from '@/__components/CalculatorButton';
+import CalculatorButton from '@/components/custom/CalculatorButton';
 import Dropdown from '@/components/dropdown';
 import IconBellBing from '@/components/icon/icon-bell-bing';
 import IconInfoCircle from '@/components/icon/icon-info-circle';

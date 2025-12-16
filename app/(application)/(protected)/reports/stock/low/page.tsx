@@ -1,6 +1,6 @@
 'use client';
-import LowStockReportFilter from '@/__components/LowStockReportFilter';
-import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/lowStockHelper';
+import LowStockReportFilter from '@/components/custom/LowStockReportFilter';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/components/custom/lowStockHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Loading from '@/components/layouts/loading';
 import { useCurrentStore } from '@/hooks/useCurrentStore';

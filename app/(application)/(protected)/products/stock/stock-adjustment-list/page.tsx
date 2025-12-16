@@ -1,6 +1,6 @@
 'use client';
 
-import ReportHeader from '@/__components/ReportHeader';
+import ReportHeader from '@/components/custom/ReportHeader';
 import { useGetAdjustmentTypesQuery } from '@/store/features/AdjustmentType/adjustmentTypeApi';
 import { useGetStockAdjustmentsQuery } from '@/store/features/StockAdjustment/stockAdjustmentApi';
 import html2canvas from 'html2canvas';
@@ -246,25 +246,25 @@ const StockAdjustmentReportPage = () => {
             <head>
                 <title>Stock Adjustment Report</title>
                 <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        margin: 0; 
-                        padding: 20px; 
-                        background: white; 
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                        background: white;
                     }
-                    table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
-                        margin-top: 20px; 
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
                     }
-                    th, td { 
-                        border: 1px solid #ddd; 
-                        padding: 8px; 
-                        text-align: left; 
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
                     }
-                    th { 
-                        background-color: #f9fafb; 
-                        font-weight: bold; 
+                    th {
+                        background-color: #f9fafb;
+                        font-weight: bold;
                     }
                     .header-content {
                         border-bottom: 1px solid #e5e7eb;

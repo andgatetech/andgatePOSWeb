@@ -1,5 +1,5 @@
 'use client';
-import { handleExportCSV, handleExportPDF, handlePrint } from '@/__components/incomeReportHelper';
+import { handleExportCSV, handleExportPDF, handlePrint } from '@/components/custom/incomeReportHelper';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import UniversalFilter from '@/components/common/UniversalFilter';
 import Loading from '@/components/layouts/loading';
