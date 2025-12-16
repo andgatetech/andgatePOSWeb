@@ -31,15 +31,15 @@ const menuRoutes = [
     {
         label: 'Brand',
         icon: <Tag />,
-        subMenu: [{ label: 'All Brand ', href: '/brand' }],
+        subMenu: [{ label: 'Brand List', href: '/brand' }],
     },
     {
         label: 'Product',
         icon: <Package />,
         subMenu: [
             { label: 'Add Product', href: '/products/create' },
-            { label: 'All Products', href: '/products' },
-            { label: 'Stock Adjustment', href: '/products/stock/adjustments' },
+            { label: 'Product List', href: '/products' },
+            { label: 'Stock Adjustment', href: '/products/stock/create-stock-adjustment' },
             { label: 'Print Label', href: '/label' },
         ],
     },
@@ -51,41 +51,41 @@ const menuRoutes = [
     {
         label: 'Orders',
         icon: <FileText />,
-        subMenu: [{ label: 'All Orders', href: '/orders' }],
+        subMenu: [{ label: 'Order List', href: '/orders' }],
     },
     {
         label: 'Purchases Order',
         icon: <ShoppingCart />,
         subMenu: [
             { label: 'Add Purchase', href: '/purchases/create' },
-            { label: 'All Purchases', href: '/purchases/list' },
+            { label: 'Purchase List', href: '/purchases/list' },
         ],
     },
     {
         label: 'Supplier',
         icon: <Truck />,
         subMenu: [
-            { label: 'Add Supplier', href: '/suppliers/create' },
-            { label: 'All Supplier', href: '/suppliers/list' },
+            { label: 'Add Supplier', href: '/suppliers/create-supplier' },
+            { label: 'Supplier List', href: '/suppliers' },
         ],
     },
     {
         label: 'Account',
         icon: <Wallet />,
         subMenu: [
-            { label: 'All Ledger', href: '/account/ledger-list' },
-            { label: 'All Journal', href: '/account/journal-list' },
+            { label: 'Ledger List', href: '/account/ledger-list' },
+            { label: 'Journal List', href: '/account/journal-list' },
         ],
     },
     {
         label: 'Expenses',
         icon: <Receipt />,
-        subMenu: [{ label: 'All Expenses ', href: '/expenses/expense-list' }],
+        subMenu: [{ label: 'Expense List ', href: '/expenses/expense-list' }],
     },
     {
         label: 'Customer',
         icon: <Users />,
-        subMenu: [{ label: 'All Customers ', href: '/customers/list' }],
+        subMenu: [{ label: 'Customer List', href: '/customer' }],
     },
     {
         label: 'Report',
@@ -111,7 +111,7 @@ const menuRoutes = [
                     { label: 'Current Stock', href: '/reports/stock/current' },
                     { label: 'Low Stock', href: '/reports/stock/low' },
                     { label: 'Stock Transactions', href: '/reports/stock/transactions' },
-                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
+                    { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
                     { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
                     // ``,
                 ],
