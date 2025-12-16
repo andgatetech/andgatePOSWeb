@@ -1,5 +1,5 @@
 'use client';
-import ItemPreviewModal from '@/app/application/protected/pos/pos-right-side/ItemPreviewModal';
+import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
