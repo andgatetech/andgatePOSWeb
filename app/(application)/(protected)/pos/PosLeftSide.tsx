@@ -1,6 +1,6 @@
 'use client';
 
-import ImageShowModal from '@/app/application/protected/products/component/Image Modal/ImageModal2';
+import ImageShowModal from '@/app/(application)/(protected)/products/component/Image Modal/ImageModal2';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
