@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import CreateExpenseModal from './__component/create_expense_modal';
-import UpdateExpenseModal from '@/__components/UpdateExpenseModal';
+import UpdateExpenseModal from '@/components/custom/UpdateExpenseModal';
 
 // Expense Table Component
 const ExpenseTable = ({ expenses, isLoading, onEdit, onDelete, sortField, sortDirection, onSort, isDeleting }) => {

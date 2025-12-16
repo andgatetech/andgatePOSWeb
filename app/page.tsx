@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { convertNumberByLanguage } from '@/__components/convertNumberByLanguage';
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
 import OverViewSection from './(application)/(public)/pos-overview/OverViewSection';
 import PriceSection from './(application)/(public)/price/PriceSection';
