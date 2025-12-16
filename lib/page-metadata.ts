@@ -12,7 +12,7 @@ export const dashboardMetadata: Metadata = {
         description:
             'Monitor your business performance with real-time analytics, sales reports, inventory tracking, and comprehensive business insights. Make data-driven decisions with AndgatePOS dashboard.',
         keywords: 'business dashboard, sales analytics, performance monitoring, real-time reports, business insights, pos analytics, sales tracking',
-        path: '/(application)/dashboard',
+        path: '/application/dashboard',
     }),
     other: {
         'business-type': 'Point of Sale Software',
@@ -28,7 +28,7 @@ export const posMetadata: Metadata = {
         description:
             'Process sales transactions quickly and securely with our advanced POS terminal. Features barcode scanning, receipt printing, payment processing, and inventory updates in real-time.',
         keywords: 'pos terminal, point of sale, barcode scanner, receipt printing, payment processing, inventory management, retail pos',
-        path: '/(application)/(protected)/pos',
+        path: '/application/(protected)/pos',
     }),
     other: {
         'business-type': 'Point of Sale Terminal',
@@ -44,7 +44,7 @@ export const productsMetadata: Metadata = {
         description:
             'Manage your complete product catalog with advanced inventory control, stock tracking, pricing management, and multi-store product synchronization. Streamline your inventory operations.',
         keywords: 'product management, inventory control, stock tracking, catalog management, pricing, barcode management, multi-store inventory',
-        path: '/(application)/protected/products',
+        path: '/application/protected/products',
     }),
     other: {
         'business-type': 'Inventory Management System',
@@ -60,7 +60,7 @@ export const ordersMetadata: Metadata = {
         description:
             'Track and manage all customer orders with comprehensive order history, status updates, customer information, and detailed sales analytics. Optimize your order fulfillment process.',
         keywords: 'order management, sales tracking, customer orders, order history, sales analytics, order fulfillment, customer management',
-        path: '/(application)/protected/orders',
+        path: '/application/protected/orders',
     }),
     other: {
         'business-type': 'Order Management System',
@@ -75,7 +75,7 @@ export const invoiceMetadata: Metadata = {
         title: 'Invoice Management - Professional Billing & Receipt Generation',
         description: 'Create professional invoices and receipts with automated billing, tax calculations, payment tracking, and customer billing history. Streamline your billing process.',
         keywords: 'invoice management, billing system, receipt generation, automated billing, tax calculations, payment tracking, professional invoices',
-        path: '/(application)/protected/invoice',
+        path: '/application/protected/invoice',
     }),
     other: {
         'business-type': 'Billing & Invoice System',

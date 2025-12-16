@@ -1,13 +1,13 @@
 'use client';
 
-import CashPaymentSection from '@/app/(application)/(protected)/pos/pos-right-side/CashPaymentSection';
-import CustomerSection from '@/app/(application)/(protected)/pos/pos-right-side/CustomerSection';
-import LoadingOverlay from '@/app/(application)/(protected)/pos/pos-right-side/LoadingOverlay';
-import OrderDetailsSection from '@/app/(application)/(protected)/pos/pos-right-side/OrderDetailsSection';
-import PaymentSummarySection from '@/app/(application)/(protected)/pos/pos-right-side/PaymentSummarySection';
-import PreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/PreviewModal';
-import type { Customer, CustomerApiResponse, PosFormData } from '@/app/(application)/(protected)/pos/pos-right-side/types';
-import { MEMBERSHIP_DISCOUNTS } from '@/app/(application)/(protected)/pos/pos-right-side/types';
+import CashPaymentSection from '@/app/application/(protected)/pos/pos-right-side/CashPaymentSection';
+import CustomerSection from '@/app/application/(protected)/pos/pos-right-side/CustomerSection';
+import LoadingOverlay from '@/app/application/(protected)/pos/pos-right-side/LoadingOverlay';
+import OrderDetailsSection from '@/app/application/(protected)/pos/pos-right-side/OrderDetailsSection';
+import PaymentSummarySection from '@/app/application/(protected)/pos/pos-right-side/PaymentSummarySection';
+import PreviewModal from '@/app/application/(protected)/pos/pos-right-side/PreviewModal';
+import type { Customer, CustomerApiResponse, PosFormData } from '@/app/application/(protected)/pos/pos-right-side/types';
+import { MEMBERSHIP_DISCOUNTS } from '@/app/application/(protected)/pos/pos-right-side/types';
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';

@@ -1,5 +1,5 @@
 'use client';
-import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
+import ItemPreviewModal from '@/app/application/(protected)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
@@ -397,7 +397,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             }),
         };
 
-       
+
 
         try {
             const response = await createPurchaseOrder(purchaseOrderData).unwrap();
@@ -455,7 +455,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     return (
         <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
-            
+
 
             <div className="panel">
                 <h2 className="mb-5 text-xl font-bold">{isEditMode ? 'Edit Purchase Draft' : 'Purchase Order Draft'}</h2>
