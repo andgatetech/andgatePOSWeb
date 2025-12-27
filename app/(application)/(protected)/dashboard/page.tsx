@@ -1,4 +1,6 @@
-import ComponentsDashboardSales from '@/components/dashboard/components-dashboard-sales';
+
+
+import ComponentsDashboardSales from './components/components-dashboard-sales';
 import { commonMetadata, generateMetadata } from '@/lib/seo';
 
 export const metadata = generateMetadata({
