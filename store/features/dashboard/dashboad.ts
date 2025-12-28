@@ -72,6 +72,31 @@ const DashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ['Dashboard'],
         }),
+        // Get dashboard sections five (Top Categories, Top Brands, Top Purchased Products)
+        getDashboardSectionsFive: builder.query({
+            query: (params) => {
+                const queryParams = new URLSearchParams();
+
+                // Add store_id filter
+                if (params?.store_id) queryParams.append('store_id', params.store_id);
+
+                // Add filter (today, last_week, last_year, custom)
+                if (params?.filter) queryParams.append('filter', params.filter);
+                if (params?.start_date) queryParams.append('start_date', params.start_date);
+                if (params?.end_date) queryParams.append('end_date', params.end_date);
+
+                // Add limit
+                if (params?.limit) queryParams.append('limit', params.limit);
+
+                const queryString = queryParams.toString();
+
+                return {
+                    url: `/dashboard/sections-five${queryString ? `?${queryString}` : ''}`,
+                    method: 'GET',
+                };
+            },
+            providesTags: ['Dashboard'],
+        }),
     }),
 });
 
@@ -80,4 +105,5 @@ export const {
     useGetDashboardSummaryQuery,
     useGetDashboardAnalyticsQuery,
     useGetDashboardSectionsQuery,
+    useGetDashboardSectionsFiveQuery,
 } = DashboardApi;

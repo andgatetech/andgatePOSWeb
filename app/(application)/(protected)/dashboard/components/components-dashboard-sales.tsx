@@ -6,9 +6,9 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { Store } from 'lucide-react';
 import Analytics from './Analytics';
-import Summary from './Summary';
 import DashboardSections from './DashboardSections';
-
+import SectionsFive from './SectionsFive';
+import Summary from './Summary';
 
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -41,6 +41,8 @@ const ComponentsDashboardSales = () => {
             <Analytics />
             {/* Third Section */}
             <DashboardSections />
+            {/* Sections Five - Top Categories, Top Brands, Top Purchased Products */}
+            <SectionsFive />
         </div>
     );
 };

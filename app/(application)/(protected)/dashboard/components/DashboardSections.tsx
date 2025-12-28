@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
 import { Calendar, Package, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Skeleton components for loading state
 const SectionSkeleton = () => (
@@ -71,6 +71,35 @@ export default function DashboardSections() {
     const [customEndDate, setCustomEndDate] = useState('');
     const [lowStockThreshold, setLowStockThreshold] = useState(10);
 
+    // Intersection Observer for scroll animations
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(true); // Start as true so data shows immediately
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // Set isVisible based on whether section is in viewport
+                // This makes animations replay every time you scroll to the section
+                setIsVisible(entry.isIntersecting);
+            },
+            {
+                threshold: 0.1, // Trigger when 10% of the section is visible
+                rootMargin: '50px', // Start animation 50px before the section enters viewport
+            }
+        );
+
+        const currentSection = sectionRef.current;
+        if (currentSection) {
+            observer.observe(currentSection);
+        }
+
+        return () => {
+            if (currentSection) {
+                observer.unobserve(currentSection);
+            }
+        };
+    }, []);
+
     const {
         data: sectionsData,
         isLoading,
@@ -107,7 +136,7 @@ export default function DashboardSections() {
     const { top_selling_products, low_stock_products, recent_sales } = sectionsData.data;
 
     return (
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+        <div ref={sectionRef} className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
             <style jsx global>{`
                 @keyframes fadeInUp {
                     from {
@@ -175,7 +204,15 @@ export default function DashboardSections() {
                 <div className="space-y-2">
                     {top_selling_products.products.length > 0 ? (
                         top_selling_products.products.map((product, index) => (
-                            <div key={product.product_id} className="animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}>
+                            <div
+                                key={product.product_id}
+                                className="transition-all duration-500"
+                                style={{
+                                    opacity: isVisible ? 1 : 0,
+                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                                    transitionDelay: `${index * 100}ms`,
+                                }}
+                            >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
                                 <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-orange-100 hover:bg-white hover:shadow-md">
                                     <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
@@ -211,7 +248,7 @@ export default function DashboardSections() {
                             </div>
                         ))
                     ) : (
-                        <div className="animate-fade-in-up py-8 text-center">
+                        <div className="py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
                             <p className="mt-2 text-sm text-gray-500">No products found</p>
                         </div>
@@ -248,7 +285,15 @@ export default function DashboardSections() {
                 <div className="space-y-2">
                     {low_stock_products.products.length > 0 ? (
                         low_stock_products.products.map((product, index) => (
-                            <div key={product.product_id} className="animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}>
+                            <div
+                                key={product.product_id}
+                                className="transition-all duration-500"
+                                style={{
+                                    opacity: isVisible ? 1 : 0,
+                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                                    transitionDelay: `${index * 100}ms`,
+                                }}
+                            >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
                                 <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-red-100 hover:bg-white hover:shadow-md">
                                     <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
@@ -276,7 +321,7 @@ export default function DashboardSections() {
                             </div>
                         ))
                     ) : (
-                        <div className="animate-fade-in-up py-8 text-center">
+                        <div className="py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
                             <p className="mt-2 text-sm text-gray-500">No low stock products</p>
                         </div>
@@ -302,7 +347,15 @@ export default function DashboardSections() {
                 <div className="space-y-2">
                     {recent_sales.sales.length > 0 ? (
                         recent_sales.sales.map((sale, index) => (
-                            <div key={sale.order_id} className="animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}>
+                            <div
+                                key={sale.order_id}
+                                className="transition-all duration-500"
+                                style={{
+                                    opacity: isVisible ? 1 : 0,
+                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                                    transitionDelay: `${index * 100}ms`,
+                                }}
+                            >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
                                 <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-blue-100 hover:bg-white hover:shadow-md">
                                     <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
@@ -334,7 +387,7 @@ export default function DashboardSections() {
                             </div>
                         ))
                     ) : (
-                        <div className="animate-fade-in-up py-8 text-center">
+                        <div className="py-8 text-center">
                             <Calendar className="mx-auto h-12 w-12 text-gray-300" />
                             <p className="mt-2 text-sm text-gray-500">No recent sales</p>
                         </div>

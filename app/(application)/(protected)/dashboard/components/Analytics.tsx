@@ -242,23 +242,21 @@ export default function Analytics() {
                             <div className="flex flex-row items-center justify-between gap-4">
                                 {/* Donut Chart */}
                                 <div className="relative flex-shrink-0">
-                                    <ResponsiveContainer width={120} height={120}>
-                                        <PieChart>
-                                            <Pie data={pieData} cx={60} cy={60} innerRadius={38} outerRadius={55} dataKey="value" stroke="none">
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: '#fff',
-                                                    border: '1px solid #e5e7eb',
-                                                    borderRadius: '8px',
-                                                    fontSize: '12px',
-                                                }}
-                                            />
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                    <PieChart width={120} height={120}>
+                                        <Pie data={pieData} cx={60} cy={60} innerRadius={38} outerRadius={55} dataKey="value" stroke="none">
+                                            {pieData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                                fontSize: '12px',
+                                            }}
+                                        />
+                                    </PieChart>
                                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
                                         <p className="text-lg font-bold text-gray-900">
                                             <CountUp end={customers_overview.total_active} duration={2} />

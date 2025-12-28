@@ -50,13 +50,11 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
         e.preventDefault();
         try {
             const result = await loginApi(credentials).unwrap();
-            console.log('📦 Login API Response:', result);
+            
 
             const { user, token, permissions } = result.data;
 
-            console.log('👤 User:', user);
-            console.log('🔑 Token:', token ? 'Received' : 'Missing');
-            console.log('🔒 Permissions:', permissions?.length || 0, 'permissions');
+          
 
             const maxAge = 60 * 60 * 24;
             const encodedPermissions = (() => {
@@ -76,7 +74,6 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             // Save **full user details + permissions** in Redux
             dispatch(login({ user, token, permissions }));
 
-            toast.success('Login successful! Redirecting to dashboard...');
             router.push('/dashboard');
         } catch (error: any) {
             console.error('Login failed:', error);
