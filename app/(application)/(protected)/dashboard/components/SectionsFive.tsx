@@ -187,7 +187,7 @@ export default function SectionsFive() {
         };
     }, []);
 
-    // Separate filter states for each section
+    // Separate filter states for each section (backend now supports independent filters)
     const [categoryFilter, setCategoryFilter] = useState('today');
     const [categoryStartDate, setCategoryStartDate] = useState('');
     const [categoryEndDate, setCategoryEndDate] = useState('');
@@ -196,51 +196,38 @@ export default function SectionsFive() {
     const [brandStartDate, setBrandStartDate] = useState('');
     const [brandEndDate, setBrandEndDate] = useState('');
 
-    const [productFilter, setProductFilter] = useState('today');
-    const [productStartDate, setProductStartDate] = useState('');
-    const [productEndDate, setProductEndDate] = useState('');
+    const [purchaseFilter, setPurchaseFilter] = useState('today');
+    const [purchaseStartDate, setPurchaseStartDate] = useState('');
+    const [purchaseEndDate, setPurchaseEndDate] = useState('');
 
-    // Fetch data for categories
+    // Single API call with independent filters for each section
     const {
-        data: categoriesData,
-        isLoading: categoriesLoading,
-        isError: categoriesError,
+        data: sectionsData,
+        isLoading,
+        isError,
     } = useGetDashboardSectionsFiveQuery({
         store_id: currentStoreId,
-        filter: categoryFilter,
-        start_date: categoryFilter === 'custom' ? categoryStartDate : undefined,
-        end_date: categoryFilter === 'custom' ? categoryEndDate : undefined,
-        limit: 6,
+        // Category filters
+        category_filter: categoryFilter,
+        category_start_date: categoryFilter === 'custom' ? categoryStartDate : undefined,
+        category_end_date: categoryFilter === 'custom' ? categoryEndDate : undefined,
+        category_limit: 6,
+        // Brand filters
+        brand_filter: brandFilter,
+        brand_start_date: brandFilter === 'custom' ? brandStartDate : undefined,
+        brand_end_date: brandFilter === 'custom' ? brandEndDate : undefined,
+        brand_limit: 6,
+        // Purchase/Product filters
+        purchase_filter: purchaseFilter,
+        purchase_start_date: purchaseFilter === 'custom' ? purchaseStartDate : undefined,
+        purchase_end_date: purchaseFilter === 'custom' ? purchaseEndDate : undefined,
+        purchase_limit: 3,
     });
 
-    // Fetch data for brands
-    const {
-        data: brandsData,
-        isLoading: brandsLoading,
-        isError: brandsError,
-    } = useGetDashboardSectionsFiveQuery({
-        store_id: currentStoreId,
-        filter: brandFilter,
-        start_date: brandFilter === 'custom' ? brandStartDate : undefined,
-        end_date: brandFilter === 'custom' ? brandEndDate : undefined,
-        limit: 6,
-    });
-
-    // Fetch data for products
-    const {
-        data: productsData,
-        isLoading: productsLoading,
-        isError: productsError,
-    } = useGetDashboardSectionsFiveQuery({
-        store_id: currentStoreId,
-        filter: productFilter,
-        start_date: productFilter === 'custom' ? productStartDate : undefined,
-        end_date: productFilter === 'custom' ? productEndDate : undefined,
-        limit: 3,
-    });
-
-    const isLoading = categoriesLoading || brandsLoading || productsLoading;
-    const isError = categoriesError && brandsError && productsError;
+    // All sections use the same data from the single API response
+    const categoriesData = sectionsData;
+    const brandsData = sectionsData;
+    const productsData = sectionsData;
 
     if (isLoading) {
         return (
@@ -541,8 +528,8 @@ export default function SectionsFive() {
                         Top Purchased Products
                     </h2>
                     <select
-                        value={productFilter}
-                        onChange={(e) => setProductFilter(e.target.value)}
+                        value={purchaseFilter}
+                        onChange={(e) => setPurchaseFilter(e.target.value)}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
                         <option value="today">Today</option>
@@ -553,14 +540,14 @@ export default function SectionsFive() {
                 </div>
 
                 {/* Custom Date Range Picker */}
-                {productFilter === 'custom' && (
+                {purchaseFilter === 'custom' && (
                     <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                         <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
                             <input
                                 type="date"
-                                value={productStartDate}
-                                onChange={(e) => setProductStartDate(e.target.value)}
+                                value={purchaseStartDate}
+                                onChange={(e) => setPurchaseStartDate(e.target.value)}
                                 className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                         </div>
@@ -568,8 +555,8 @@ export default function SectionsFive() {
                             <label className="mb-1 block text-xs font-medium text-gray-600">End Date</label>
                             <input
                                 type="date"
-                                value={productEndDate}
-                                onChange={(e) => setProductEndDate(e.target.value)}
+                                value={purchaseEndDate}
+                                onChange={(e) => setPurchaseEndDate(e.target.value)}
                                 className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                         </div>

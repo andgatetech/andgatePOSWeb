@@ -80,13 +80,23 @@ const DashboardApi = baseApi.injectEndpoints({
                 // Add store_id filter
                 if (params?.store_id) queryParams.append('store_id', params.store_id);
 
-                // Add filter (today, last_week, last_year, custom)
-                if (params?.filter) queryParams.append('filter', params.filter);
-                if (params?.start_date) queryParams.append('start_date', params.start_date);
-                if (params?.end_date) queryParams.append('end_date', params.end_date);
+                // Category filters
+                if (params?.category_filter) queryParams.append('category_filter', params.category_filter);
+                if (params?.category_start_date) queryParams.append('category_start_date', params.category_start_date);
+                if (params?.category_end_date) queryParams.append('category_end_date', params.category_end_date);
+                if (params?.category_limit) queryParams.append('category_limit', params.category_limit);
 
-                // Add limit
-                if (params?.limit) queryParams.append('limit', params.limit);
+                // Brand filters
+                if (params?.brand_filter) queryParams.append('brand_filter', params.brand_filter);
+                if (params?.brand_start_date) queryParams.append('brand_start_date', params.brand_start_date);
+                if (params?.brand_end_date) queryParams.append('brand_end_date', params.brand_end_date);
+                if (params?.brand_limit) queryParams.append('brand_limit', params.brand_limit);
+
+                // Purchase/Product filters
+                if (params?.purchase_filter) queryParams.append('purchase_filter', params.purchase_filter);
+                if (params?.purchase_start_date) queryParams.append('purchase_start_date', params.purchase_start_date);
+                if (params?.purchase_end_date) queryParams.append('purchase_end_date', params.purchase_end_date);
+                if (params?.purchase_limit) queryParams.append('purchase_limit', params.purchase_limit);
 
                 const queryString = queryParams.toString();
 
