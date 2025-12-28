@@ -7,6 +7,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/tailwind.css';
+import './globals.css';
 
 export const metadata: Metadata = {
     metadataBase: new URL(getAppUrl()),
