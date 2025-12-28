@@ -2,9 +2,61 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
+import { motion } from 'framer-motion';
 import { Calendar, Package, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+
+// Animation Variants
+const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: 0.6,
+            ease: [0.25, 0.46, 0.45, 0.94],
+        },
+    },
+};
+
+const listVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.2,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 60,
+            damping: 25,
+        },
+    },
+};
+
+const itemVariantsDown = {
+    hidden: { opacity: 0, y: -15 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 60,
+            damping: 25,
+        },
+    },
+};
 
 // Skeleton components for loading state
 const SectionSkeleton = () => (
@@ -58,7 +110,7 @@ const StockStatusBadge = ({ status, quantity }: { status: string; quantity: numb
             <p className="mb-1 text-xs text-gray-500">Status</p>
             <span className={`rounded-full px-2 py-1 text-xs font-semibold ${config.bg} ${config.text}`}>{config.label}</span>
             <p className="mt-1 text-xs text-gray-500">
-                Stock: <span className="font-bold text-gray-900">{quantity}</span>
+                Stock: <span className="font-bold text-gray-900 dark:text-white">{quantity}</span>
             </p>
         </div>
     );
@@ -70,37 +122,6 @@ export default function DashboardSections() {
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
     const [lowStockThreshold, setLowStockThreshold] = useState(10);
-
-    // Intersection Observer for scroll animations
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const [animationKey, setAnimationKey] = useState(0); // Key to force re-render and reset animations
-
-    useEffect(() => {
-        const currentSection = sectionRef.current;
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                // When section enters viewport, increment key to replay animations
-                if (entry.isIntersecting) {
-                    setAnimationKey((prev) => prev + 1);
-                }
-            },
-            {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px',
-            }
-        );
-
-        if (currentSection) {
-            observer.observe(currentSection);
-        }
-
-        return () => {
-            if (currentSection) {
-                observer.unobserve(currentSection);
-            }
-        };
-    }, []);
 
     const {
         data: sectionsData,
@@ -138,14 +159,20 @@ export default function DashboardSections() {
     const { top_selling_products, low_stock_products, recent_sales } = sectionsData.data;
 
     return (
-        <div ref={sectionRef} className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-            {/* Top Selling Products Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
-                <div className="mb-3 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                        <TrendingUp className="h-5 w-5 text-orange-500" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Top Selling Products */}
+            <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg dark:border-gray-800 dark:bg-[#1f2937] sm:p-6"
+            >
+                <div className="mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
+                        <TrendingUp className="h-5 w-5 text-blue-500" />
                         Top Selling Products
-                    </h2>
+                    </h3>
                     <select
                         value={topSellingFilter}
                         onChange={(e) => setTopSellingFilter(e.target.value)}
@@ -187,50 +214,47 @@ export default function DashboardSections() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div key={`top-selling-${animationKey}`} className="space-y-2">
+                <motion.div variants={listVariants} className="space-y-2">
                     {top_selling_products.products.length > 0 ? (
                         top_selling_products.products.map((product, index) => (
-                            <div
+                            <motion.div
                                 key={product.product_id}
-                                className="animate-fade-in-up"
-                                style={{
-                                    animationDelay: `${index * 100}ms`,
-                                    animationFillMode: 'both',
-                                }}
+                                variants={itemVariantsDown}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: false, amount: 0.2 }}
+                                className="group flex items-center gap-3 rounded-lg border border-gray-100 p-2 transition-all hover:bg-gray-50 active:scale-[0.99] dark:border-gray-700 dark:hover:bg-gray-800"
                             >
-                                {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-orange-100 hover:bg-white hover:shadow-md">
-                                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-                                        {product.product_image ? (
-                                            <Image
-                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
-                                                alt={product.product_name}
-                                                fill
-                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-orange-600">{product.product_name}</p>
-                                        <p className="text-xs text-gray-600">
-                                            ৳{product.total_revenue.toLocaleString()} • {product.total_sales} Sales
-                                        </p>
-                                    </div>
-                                    <div className="flex-shrink-0">
-                                        <span
-                                            className={`inline-block rounded-md px-2 py-1 text-xs font-semibold shadow-sm transition-transform group-hover:scale-105 ${
-                                                product.trend === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                            }`}
-                                        >
-                                            {product.trend === 'positive' ? '↑' : '↓'} {product.percentage_change}%
-                                        </span>
-                                    </div>
+                                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                                    {product.product_image ? (
+                                        <Image
+                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
+                                            alt={product.product_name}
+                                            fill
+                                            className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                            <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-orange-600 dark:text-white">{product.product_name}</p>
+                                    <p className="text-xs text-gray-600">
+                                        ৳{product.total_revenue.toLocaleString()} • {product.total_sales} Sales
+                                    </p>
+                                </div>
+                                <div className="flex-shrink-0">
+                                    <span
+                                        className={`inline-block rounded-md px-2 py-1 text-xs font-semibold shadow-sm transition-transform group-hover:scale-105 ${
+                                            product.trend === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                        }`}
+                                    >
+                                        {product.trend === 'positive' ? '↑' : '↓'} {product.percentage_change}%
+                                    </span>
+                                </div>
+                            </motion.div>
                         ))
                     ) : (
                         <div className="py-8 text-center">
@@ -238,16 +262,22 @@ export default function DashboardSections() {
                             <p className="mt-2 text-sm text-gray-500">No products found</p>
                         </div>
                     )}
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            {/* Low Stock Products Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
-                <div className="mb-3 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+            {/* Low Stock Alert - Redesigned */}
+            <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg dark:border-gray-800 dark:bg-[#1f2937] sm:p-6"
+            >
+                <div className="mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
                         <Package className="h-5 w-5 text-red-500" />
-                        Low Stock Products
-                    </h2>
+                        Low Stock Alert
+                    </h3>
                     <select
                         value={lowStockThreshold}
                         onChange={(e) => setLowStockThreshold(Number(e.target.value))}
@@ -267,42 +297,39 @@ export default function DashboardSections() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div key={`low-stock-${animationKey}`} className="space-y-2">
+                <motion.div variants={listVariants} className="space-y-2">
                     {low_stock_products.products.length > 0 ? (
                         low_stock_products.products.map((product, index) => (
-                            <div
+                            <motion.div
                                 key={product.product_id}
-                                className="animate-fade-in-up"
-                                style={{
-                                    animationDelay: `${index * 100}ms`,
-                                    animationFillMode: 'both',
-                                }}
+                                variants={itemVariants}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: false, amount: 0.2 }}
+                                className="group flex items-center gap-3 rounded-lg border border-gray-100 p-2 transition-all hover:bg-red-50 active:scale-[0.99] dark:border-gray-700 dark:hover:bg-gray-800"
                             >
-                                {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-red-100 hover:bg-white hover:shadow-md">
-                                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-                                        {product.product_image ? (
-                                            <Image
-                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
-                                                alt={product.product_name}
-                                                fill
-                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-red-600">{product.product_name}</p>
-                                        <p className="text-xs text-gray-600">SKU: {product.sku}</p>
-                                    </div>
-                                    <div className="transform transition-transform group-hover:scale-105">
-                                        <StockStatusBadge status={product.stock_status} quantity={product.stock_quantity} />
-                                    </div>
+                                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                                    {product.product_image ? (
+                                        <Image
+                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
+                                            alt={product.product_name}
+                                            fill
+                                            className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                            <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-red-600 dark:text-white">{product.product_name}</p>
+                                    <p className="text-xs text-gray-600">SKU: {product.sku}</p>
+                                </div>
+                                <div className="transform transition-transform group-hover:scale-105">
+                                    <StockStatusBadge status={product.stock_status} quantity={product.stock_quantity} />
+                                </div>
+                            </motion.div>
                         ))
                     ) : (
                         <div className="py-8 text-center">
@@ -310,16 +337,22 @@ export default function DashboardSections() {
                             <p className="mt-2 text-sm text-gray-500">No low stock products</p>
                         </div>
                     )}
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
-            {/* Recent Sales Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
-                <div className="mb-3 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                        <Calendar className="h-5 w-5 text-blue-500" />
+            {/* Recent Sales - Redesigned */}
+            <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg dark:border-gray-800 dark:bg-[#1f2937] sm:p-6"
+            >
+                <div className="mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
+                        <Calendar className="h-5 w-5 text-green-500" />
                         Recent Sales
-                    </h2>
+                    </h3>
                 </div>
 
                 {/* View All Button */}
@@ -328,46 +361,43 @@ export default function DashboardSections() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div key={`recent-sales-${animationKey}`} className="space-y-2">
+                <motion.div variants={listVariants} className="space-y-3">
                     {recent_sales.sales.length > 0 ? (
                         recent_sales.sales.map((sale, index) => (
-                            <div
+                            <motion.div
                                 key={sale.order_id}
-                                className="animate-fade-in-up"
-                                style={{
-                                    animationDelay: `${index * 100}ms`,
-                                    animationFillMode: 'both',
-                                }}
+                                variants={itemVariantsDown}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: false, amount: 0.2 }}
+                                className="group flex items-center justify-between gap-4 rounded-lg border border-gray-100 p-3 transition-all hover:bg-gray-50 active:scale-[0.99] dark:border-gray-700 dark:hover:bg-gray-800"
                             >
-                                {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-blue-100 hover:bg-white hover:shadow-md">
-                                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-                                        {sale.primary_product.image ? (
-                                            <Image
-                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${sale.primary_product.image}`}
-                                                alt={sale.primary_product.name}
-                                                fill
-                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">{sale.primary_product.name}</p>
-                                        <p className="text-xs text-gray-600 transition-colors group-hover:text-gray-900">
-                                            <span className="font-medium text-gray-900 group-hover:text-blue-600">{sale.customer_name}</span> • ৳{sale.total_amount.toLocaleString()}
-                                        </p>
-                                        <p className="text-xs text-gray-500">{sale.order_date_formatted}</p>
-                                    </div>
-                                    <div className="flex-shrink-0 transform transition-transform group-hover:scale-105">
-                                        <p className="mb-1 text-xs text-gray-500">Status</p>
-                                        <StatusBadge status={sale.status} />
-                                    </div>
+                                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                                    {sale.primary_product.image ? (
+                                        <Image
+                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${sale.primary_product.image}`}
+                                            alt={sale.primary_product.name}
+                                            fill
+                                            className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                            <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white">{sale.primary_product.name}</p>
+                                    <p className="text-xs text-gray-600 transition-colors group-hover:text-gray-900 dark:text-white">
+                                        <span className="font-medium text-gray-900 group-hover:text-blue-600 dark:text-white">{sale.customer_name}</span> • ৳{sale.total_amount.toLocaleString()}
+                                    </p>
+                                    <p className="text-xs text-gray-500">{sale.order_date_formatted}</p>
+                                </div>
+                                <div className="flex-shrink-0 transform transition-transform group-hover:scale-105">
+                                    <p className="mb-1 text-xs text-gray-500">Status</p>
+                                    <StatusBadge status={sale.status} />
+                                </div>
+                            </motion.div>
                         ))
                     ) : (
                         <div className="py-8 text-center">
@@ -375,8 +405,8 @@ export default function DashboardSections() {
                             <p className="mt-2 text-sm text-gray-500">No recent sales</p>
                         </div>
                     )}
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 }

@@ -2,9 +2,33 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFiveQuery } from '@/store/features/dashboard/dashboad';
+import { motion } from 'framer-motion';
 import { Package, ShoppingBag, Tag } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+
+// Animation Variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.3,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+        transition: {
+            duration: 0.5,
+            ease: 'easeOut',
+        },
+    },
+};
 
 // Skeleton components for loading state
 const SectionSkeleton = () => (
@@ -22,10 +46,14 @@ const SectionSkeleton = () => (
 );
 
 // Donut Chart Component
-const DonutChart = ({ data, colors }: { data: Array<{ label: string; value: number }>; colors: string[] }) => {
+const DonutChart = ({ data, colors, count, label }: { data: Array<{ label: string; value: number }>; colors: string[]; count: number | string; label: string }) => {
     const total = data.reduce((sum, item) => sum + item.value, 0);
     const hasData = total > 0 && data.length > 0;
     let currentAngle = -90; // Start from top
+
+    // Calculate circumference for animation
+    const radius = 32.5;
+    const circumference = 2 * Math.PI * radius;
 
     const segments = data.map((item, index) => {
         const percentage = (item.value / total) * 100;
@@ -37,105 +65,108 @@ const DonutChart = ({ data, colors }: { data: Array<{ label: string; value: numb
         // Calculate path for donut segment
         const startRad = (startAngle * Math.PI) / 180;
         const endRad = (endAngle * Math.PI) / 180;
-        const x1 = 50 + 40 * Math.cos(startRad);
-        const y1 = 50 + 40 * Math.sin(startRad);
-        const x2 = 50 + 40 * Math.cos(endRad);
-        const y2 = 50 + 40 * Math.sin(endRad);
+        const x1 = 50 + radius * Math.cos(startRad);
+        const y1 = 50 + radius * Math.sin(startRad);
+        const x2 = 50 + radius * Math.cos(endRad);
+        const y2 = 50 + radius * Math.sin(endRad);
         const largeArc = angle > 180 ? 1 : 0;
 
         return {
-            path: `M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`,
+            path: `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
             color: colors[index % colors.length],
             label: item.label,
             value: item.value,
             percentage: percentage.toFixed(1),
-            isFullCircle: percentage >= 99.9, // Check if this segment is essentially 100%
+            isFullCircle: percentage >= 99.9,
         };
     });
 
-    // Calculate circumference for animation
-    const radius = 32.5;
-    const circumference = 2 * Math.PI * radius;
-
     return (
         <div className="flex items-center gap-4">
-            <svg viewBox="0 0 100 100" className="h-48 w-48">
-                {hasData ? (
-                    <>
-                        {/* Outer circle */}
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
-                        {/* Donut segments */}
-                        {segments.length === 1 && segments[0].isFullCircle ? (
-                            // For a single 100% segment, use a circle instead of a path with animation
+            <div className="relative h-48 w-48">
+                <svg viewBox="0 0 100 100" className="h-full w-full">
+                    {hasData ? (
+                        <>
+                            {/* Outer circle */}
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
+                            {/* Donut segments */}
+                            {segments.length === 1 && segments[0].isFullCircle ? (
+                                // For a single 100% segment, use a circle instead of a path with animation
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r={radius}
+                                    fill="none"
+                                    stroke={segments[0].color}
+                                    strokeWidth="15"
+                                    strokeDasharray={circumference}
+                                    strokeDashoffset={circumference}
+                                    transform="rotate(-90 50 50)"
+                                    className="animate-draw-circle"
+                                />
+                            ) : (
+                                segments.map((segment, index) => (
+                                    <motion.path
+                                        key={index}
+                                        d={segment.path}
+                                        fill="none"
+                                        stroke={segment.color}
+                                        strokeWidth="15"
+                                        strokeLinecap="butt"
+                                        initial={{ pathLength: 0 }}
+                                        whileInView={{ pathLength: 1 }}
+                                        transition={{ duration: 1, ease: 'easeOut', delay: index * 0.2 }}
+                                    />
+                                ))
+                            )}
+                            {/* Inner white circle to create donut effect */}
+                            <circle cx="50" cy="50" r="25" fill="white" />
+                        </>
+                    ) : (
+                        <>
+                            {/* Empty state - gray ring with animation */}
                             <circle
                                 cx="50"
                                 cy="50"
                                 r={radius}
                                 fill="none"
-                                stroke={segments[0].color}
+                                stroke="#d1d5db"
                                 strokeWidth="15"
                                 strokeDasharray={circumference}
-                                strokeDashoffset="0"
+                                strokeDashoffset={circumference}
                                 transform="rotate(-90 50 50)"
                                 className="animate-draw-circle"
                             />
-                        ) : (
-                            segments.map((segment, index) => (
-                                <path
-                                    key={index}
-                                    d={segment.path}
-                                    fill={segment.color}
-                                    className="animate-fade-in-scale hover:opacity-80"
-                                    style={{
-                                        animationDelay: `${index * 150}ms`,
-                                        animationFillMode: 'both',
-                                    }}
-                                />
-                            ))
-                        )}
-                        {/* Inner white circle to create donut effect */}
-                        <circle cx="50" cy="50" r="25" fill="white" />
-                    </>
-                ) : (
-                    <>
-                        {/* Empty state - gray ring with animation */}
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r={radius}
-                            fill="none"
-                            stroke="#d1d5db"
-                            strokeWidth="15"
-                            strokeDasharray={circumference}
-                            strokeDashoffset="0"
-                            transform="rotate(-90 50 50)"
-                            className="animate-draw-circle"
-                        />
-                        {/* Inner white circle to create donut effect */}
-                        <circle cx="50" cy="50" r="25" fill="white" />
-                    </>
-                )}
-            </svg>
+                            {/* Inner white circle to create donut effect */}
+                            <circle cx="50" cy="50" r="25" fill="white" />
+                        </>
+                    )}
+                </svg>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white">{count}</span>
+                    <span className="text-xs text-gray-500">{label}</span>
+                </div>
+            </div>
             <div className="flex-1 space-y-2">
                 {hasData ? (
                     segments.map((segment, index) => (
-                        <div
+                        <motion.div
                             key={index}
-                            className="animate-slide-in-right flex items-center justify-between text-sm"
-                            style={{
-                                animationDelay: `${index * 100 + 300}ms`,
-                                animationFillMode: 'both',
-                            }}
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.3, delay: index * 0.1 + 0.3 }}
+                            className="flex items-center justify-between text-sm"
                         >
                             <div className="flex items-center gap-2">
                                 <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: segment.color }}></div>
                                 <span className="text-gray-700">{segment.label}</span>
                             </div>
                             <div className="text-right">
-                                <span className="font-bold text-gray-900">{segment.value}</span>
+                                <span className="font-bold text-gray-900 dark:text-white">{segment.value}</span>
                                 <span className="ml-1 text-xs text-gray-500">Sales</span>
                             </div>
-                        </div>
+                        </motion.div>
                     ))
                 ) : (
                     <div className="text-center text-sm text-gray-400">
@@ -149,37 +180,6 @@ const DonutChart = ({ data, colors }: { data: Array<{ label: string; value: numb
 
 export default function SectionsFive() {
     const { currentStoreId } = useCurrentStore();
-
-    // Animation key for scroll-based animation replay
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const [animationKey, setAnimationKey] = useState(0);
-
-    useEffect(() => {
-        const currentSection = sectionRef.current;
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                // When section enters viewport, increment key to replay animations
-                if (entry.isIntersecting) {
-                    setAnimationKey((prev) => prev + 1);
-                }
-            },
-            {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px',
-            }
-        );
-
-        if (currentSection) {
-            observer.observe(currentSection);
-        }
-
-        return () => {
-            if (currentSection) {
-                observer.unobserve(currentSection);
-            }
-        };
-    }, []);
 
     // Separate filter states for each section (backend now supports independent filters)
     const [categoryFilter, setCategoryFilter] = useState('today');
@@ -261,11 +261,14 @@ export default function SectionsFive() {
     const brandColors = ['#1e3a8a', '#ea580c', '#eab308'];
 
     return (
-        <div ref={sectionRef} className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-            {/* Top Categories Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
+        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Top Categories */}
+            <motion.div
+                variants={itemVariants}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg dark:border-gray-800 dark:bg-[#1f2937] sm:p-6"
+            >
                 <div className="mb-3 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                         <Tag className="h-5 w-5 text-orange-500" />
                         Top Categories
                     </h2>
@@ -305,59 +308,42 @@ export default function SectionsFive() {
                     </div>
                 )}
 
-                {categoryChartData.length > 0 ? (
-                    <div key={`category-${animationKey}`}>
-                        <DonutChart data={categoryChartData} colors={categoryColors} />
-                        <div className="mt-4 border-t border-gray-200 pt-4">
-                            <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
-                                        Total Number Of Categories
-                                    </div>
-                                    <span className="font-bold text-gray-900">{top_categories.count}</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                                        Total Revenue
-                                    </div>
-                                    <span className="font-bold text-gray-900">৳{top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0).toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div key={`category-empty-${animationKey}`}>
-                        <DonutChart data={[]} colors={categoryColors} />
-                        <div className="mt-4 border-t border-gray-200 pt-4">
-                            <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
-                                        Total Number Of Categories
-                                    </div>
-                                    <span className="font-bold text-gray-900">0</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                                        Total Revenue
-                                    </div>
-                                    <span className="font-bold text-gray-900">৳0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
+                <div className="flex flex-col items-center justify-center p-4">
+                    {categoryChartData.length > 0 ? (
+                        <DonutChart data={categoryChartData} colors={categoryColors} count={top_categories.count} label="Categories" />
+                    ) : (
+                        <div className="flex h-48 w-full items-center justify-center text-gray-500">No data available</div>
+                    )}
+                </div>
 
-            {/* Top Brands Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
+                <div className="mt-4 border-t border-gray-200 pt-4">
+                    <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <div className="h-2 w-2 rounded-full bg-blue-900"></div>
+                                Total Number Of Categories
+                            </div>
+                            <span className="font-bold text-gray-900 dark:text-white">{top_categories.count}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                                Total Revenue
+                            </div>
+                            <span className="font-bold text-gray-900 dark:text-white">৳{top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Top Brands */}
+            <motion.div
+                variants={itemVariants}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg dark:border-gray-800 dark:bg-[#1f2937] sm:p-6"
+            >
                 <div className="mb-3 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                         <ShoppingBag className="h-5 w-5 text-blue-500" />
                         Top Brands
                     </h2>
@@ -397,59 +383,42 @@ export default function SectionsFive() {
                     </div>
                 )}
 
-                {brandChartData.length > 0 ? (
-                    <div key={`brand-${animationKey}`}>
-                        <DonutChart data={brandChartData} colors={brandColors} />
-                        <div className="mt-4 border-t border-gray-200 pt-4">
-                            <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
-                                        Total Number Of Brands
-                                    </div>
-                                    <span className="font-bold text-gray-900">{top_brands.count}</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                                        Total Revenue
-                                    </div>
-                                    <span className="font-bold text-gray-900">৳{top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0).toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div key={`brand-empty-${animationKey}`}>
-                        <DonutChart data={[]} colors={brandColors} />
-                        <div className="mt-4 border-t border-gray-200 pt-4">
-                            <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
-                                        Total Number Of Brands
-                                    </div>
-                                    <span className="font-bold text-gray-900">0</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                                        Total Revenue
-                                    </div>
-                                    <span className="font-bold text-gray-900">৳0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
+                <div className="flex flex-col items-center justify-center p-4">
+                    {brandChartData.length > 0 ? (
+                        <DonutChart data={brandChartData} colors={brandColors} count={top_brands.count} label="Brands" />
+                    ) : (
+                        <div className="flex h-48 w-full items-center justify-center text-gray-500">No data available</div>
+                    )}
+                </div>
 
-            {/* Top Purchased Products Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
+                <div className="mt-4 border-t border-gray-200 pt-4">
+                    <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <div className="h-2 w-2 rounded-full bg-blue-900"></div>
+                                Total Number Of Brands
+                            </div>
+                            <span className="font-bold text-gray-900 dark:text-white">{top_brands.count}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                                Total Revenue
+                            </div>
+                            <span className="font-bold text-gray-900 dark:text-white">৳{top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Top Purchased Products */}
+            <motion.div
+                variants={itemVariants}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg dark:border-gray-800 dark:bg-[#1f2937] sm:p-6"
+            >
                 <div className="mb-3 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                         <Package className="h-5 w-5 text-green-500" />
                         Top Purchased Products
                     </h2>
@@ -495,50 +464,47 @@ export default function SectionsFive() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div key={`products-${animationKey}`} className="space-y-2">
-                    {top_purchased_products.data.length > 0 ? (
-                        top_purchased_products.data.map((product, index) => (
-                            <div
+                <div className="space-y-2">
+                    {top_purchased_products.data && top_purchased_products.data.length > 0 ? (
+                        top_purchased_products.data.map((product: any, index: number) => (
+                            <motion.div
                                 key={product.product_id}
-                                className="animate-fade-in-up"
-                                style={{
-                                    animationDelay: `${index * 100}ms`,
-                                    animationFillMode: 'both',
-                                }}
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                className="group flex items-center justify-between rounded-lg border border-gray-100 p-3 transition-all hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                             >
-                                {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-green-100 hover:bg-white hover:shadow-md">
-                                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
-                                        {product.product_image ? (
-                                            <Image
-                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
-                                                alt={product.product_name}
-                                                fill
-                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-green-600">{product.product_name}</p>
-                                        <p className="text-xs text-gray-600">
-                                            ৳{product.total_cost.toLocaleString()} • {product.total_purchased} Purchased
-                                        </p>
-                                    </div>
-                                    <div className="flex-shrink-0">
-                                        <span
-                                            className={`inline-block rounded-md px-2 py-1 text-xs font-semibold shadow-sm transition-transform group-hover:scale-105 ${
-                                                product.trend === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                            }`}
-                                        >
-                                            {product.trend === 'positive' ? '↑' : '↓'} {product.percentage_change}%
-                                        </span>
-                                    </div>
+                                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                                    {product.product_image ? (
+                                        <Image
+                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
+                                            alt={product.product_name}
+                                            fill
+                                            className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                            <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-green-600 dark:text-white">{product.product_name}</p>
+                                    <p className="text-xs text-gray-600">
+                                        ৳{product.total_cost.toLocaleString()} • {product.total_purchased} Purchased
+                                    </p>
+                                </div>
+                                <div className="flex-shrink-0">
+                                    <span
+                                        className={`inline-block rounded-md px-2 py-1 text-xs font-semibold shadow-sm transition-transform group-hover:scale-105 ${
+                                            product.trend === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                        }`}
+                                    >
+                                        {product.trend === 'positive' ? '↑' : '↓'} {product.percentage_change}%
+                                    </span>
+                                </div>
+                            </motion.div>
                         ))
                     ) : (
                         <div className="py-8 text-center">
@@ -547,7 +513,7 @@ export default function SectionsFive() {
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
