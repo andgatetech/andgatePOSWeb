@@ -95,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     };
 
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -132,7 +132,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     alt="facebook pixel"
                 />
                 </noscript> */}
-
             </head>
             <body className={nunito.variable}>
                 {/* <Script id="tawk-to-script" strategy="lazyOnload">
