@@ -312,17 +312,17 @@ export default function SectionsFive() {
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
                                         Total Number Of Categories
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">{top_categories.count}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                                         Total Revenue
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">৳{top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0).toLocaleString()}</span>
                                 </div>
                             </div>
@@ -335,17 +335,17 @@ export default function SectionsFive() {
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
                                         Total Number Of Categories
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">0</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                                         Total Revenue
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">৳0</span>
                                 </div>
                             </div>
@@ -404,17 +404,17 @@ export default function SectionsFive() {
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
                                         Total Number Of Brands
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">{top_brands.count}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                                         Total Revenue
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">৳{top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0).toLocaleString()}</span>
                                 </div>
                             </div>
@@ -427,17 +427,17 @@ export default function SectionsFive() {
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="bg-navy-900 h-2 w-2 rounded-full"></div>
                                         Total Number Of Brands
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">0</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2 text-gray-600">
+                                    <div className="flex items-center gap-2 text-gray-600">
                                         <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                                         Total Revenue
-                                    </span>
+                                    </div>
                                     <span className="font-bold text-gray-900">৳0</span>
                                 </div>
                             </div>
