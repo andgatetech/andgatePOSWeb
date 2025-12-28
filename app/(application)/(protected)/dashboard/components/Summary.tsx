@@ -2,7 +2,7 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSummaryQuery } from '@/store/features/dashboard/dashboad';
-import { Clock, DollarSign, FileText, Gift, Layers, RefreshCw, Settings, Shield, TrendingDown, TrendingUp } from 'lucide-react';
+import { Clock, DollarSign, FileText, Gift, Layers, RefreshCw, Settings, Shield } from 'lucide-react';
 
 // Skeleton component for loading state
 const MetricCardSkeleton = () => (
@@ -35,52 +35,51 @@ const DetailCardSkeleton = () => (
     </div>
 );
 
-const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg }: any) => {
+const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg, iconColor }: any) => {
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
     return (
-        <div className={`${bgColor} rounded-2xl p-4 shadow-lg transition-shadow duration-300 hover:shadow-xl sm:p-5 lg:p-6`}>
-            <div className="flex items-center justify-between gap-2 sm:gap-3">
-                <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
-                    <div className={`${iconBg} flex-shrink-0 rounded-xl p-2 sm:p-2.5`}>
-                        <Icon className="h-5 w-5 text-white sm:h-6 sm:w-6" />
-                    </div>
-                    <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="truncate text-xs font-medium text-white/90 sm:text-sm">{title}</p>
-                        <h3 className="break-words text-sm font-bold text-white sm:text-base md:text-lg lg:text-xl">{value}</h3>
-                    </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="mb-2 flex items-start justify-between">
+                <p className="text-2xl font-bold text-gray-900">{value}</p>
+                <div className={`${iconBg} flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg`}>
+                    <Icon className={`h-5 w-5 ${iconColor}`} />
                 </div>
-                <div className={`flex-shrink-0 rounded-lg bg-white px-1.5 py-1 sm:px-2 sm:py-1.5 ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
-                    <div className="flex items-center gap-0.5 text-xs font-semibold sm:text-sm">
-                        {isPositive && <TrendingUp className="h-3 w-3" />}
-                        {isNegative && <TrendingDown className="h-3 w-3" />}
-                        <span className="whitespace-nowrap">{change}</span>
-                    </div>
-                </div>
+            </div>
+            <p className="mb-2 text-sm text-gray-600">{title}</p>
+            <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+                <p className={`text-sm font-medium ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
+                    {isPositive ? '+' : ''}
+                    {change}
+                </p>
+                <button className="text-sm font-medium text-blue-600 hover:underline">View All</button>
             </div>
         </div>
     );
 };
 
-const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg }: any) => {
+const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg, bgColor }: any) => {
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
     return (
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md sm:p-5 lg:p-6">
-            <div className="mb-3 flex items-center justify-between gap-2 sm:mb-4">
-                <h4 className="min-w-0 flex-1 overflow-hidden break-words text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{value}</h4>
-                <div className={`${iconBg} flex-shrink-0 rounded-xl p-2 sm:p-2.5`}>
-                    <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${iconColor}`} />
+        <div className={`rounded-lg p-4 text-white ${bgColor}`}>
+            <div className="flex items-start justify-between">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
+                    <Icon className="h-5 w-5" />
                 </div>
-            </div>
-
-            <p className="mb-3 truncate text-xs font-medium text-gray-600 sm:text-sm">{title}</p>
-
-            <div className="flex items-center justify-between gap-2">
-                <span className={`min-w-0 flex-1 truncate text-xs font-semibold sm:text-sm ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>{change}</span>
-                <button className="flex-shrink-0 whitespace-nowrap text-xs font-medium text-gray-500 underline hover:text-gray-700 sm:text-sm">View All</button>
+                <div className="text-right">
+                    <p className="text-sm font-medium opacity-90">{title}</p>
+                    <p className="text-2xl font-bold">{value}</p>
+                    <span
+                        className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
+                            isPositive ? 'bg-white/20 text-white' : isNegative ? 'bg-red-500/20 text-white' : 'bg-white/20 text-white'
+                        }`}
+                    >
+                        {isPositive ? '↑' : isNegative ? '↓' : ''} {change}
+                    </span>
+                </div>
             </div>
         </div>
     );
@@ -208,18 +207,18 @@ export default function Summary() {
     ];
 
     return (
-        <div className="space-y-4 sm:space-y-8">
+        <div className="space-y-4 sm:space-y-6">
             {/* Top Metrics - Colorful Cards */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-4">
                 {topMetrics.map((metric, index) => (
-                    <MetricCard key={index} {...metric} />
+                    <DetailCard key={index} {...metric} />
                 ))}
             </div>
 
             {/* Bottom Metrics - White Cards with Details */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-4">
                 {bottomMetrics.map((metric, index) => (
-                    <DetailCard key={index} {...metric} />
+                    <MetricCard key={index} {...metric} />
                 ))}
             </div>
         </div>
