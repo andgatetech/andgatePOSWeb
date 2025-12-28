@@ -42,6 +42,36 @@ const DashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ['Dashboard'],
         }),
+        // Get dashboard sections (Top Selling, Low Stock, Recent Sales)
+        getDashboardSections: builder.query({
+            query: (params) => {
+                const queryParams = new URLSearchParams();
+
+                // Add store_id filter
+                if (params?.store_id) queryParams.append('store_id', params.store_id);
+
+                // Top Selling Products filters
+                if (params?.filter) queryParams.append('filter', params.filter);
+                if (params?.start_date) queryParams.append('start_date', params.start_date);
+                if (params?.end_date) queryParams.append('end_date', params.end_date);
+                if (params?.top_selling_limit) queryParams.append('top_selling_limit', params.top_selling_limit);
+
+                // Low Stock Products filters
+                if (params?.low_stock_threshold) queryParams.append('low_stock_threshold', params.low_stock_threshold);
+                if (params?.low_stock_limit) queryParams.append('low_stock_limit', params.low_stock_limit);
+
+                // Recent Sales filters
+                if (params?.recent_sales_limit) queryParams.append('recent_sales_limit', params.recent_sales_limit);
+
+                const queryString = queryParams.toString();
+
+                return {
+                    url: `/dashboard/sections${queryString ? `?${queryString}` : ''}`,
+                    method: 'GET',
+                };
+            },
+            providesTags: ['Dashboard'],
+        }),
     }),
 });
 
@@ -49,4 +79,5 @@ export const {
     // Queries
     useGetDashboardSummaryQuery,
     useGetDashboardAnalyticsQuery,
+    useGetDashboardSectionsQuery,
 } = DashboardApi;

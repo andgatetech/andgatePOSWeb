@@ -7,6 +7,7 @@ import { RootState } from '@/store';
 import { Store } from 'lucide-react';
 import Analytics from './Analytics';
 import Summary from './Summary';
+import DashboardSections from './DashboardSections';
 
 
 const ComponentsDashboardSales = () => {
@@ -20,7 +21,6 @@ const ComponentsDashboardSales = () => {
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Welcome back, {user?.name || 'User'}! 👋</h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 sm:text-base">Here&apos;s what&apos;s happening with your {currentStore?.store_name || 'store'} today</p>
             </div>
-
             {/* Current Store Info */}
             {currentStore && (
                 <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 p-3.5 sm:p-4">
@@ -35,13 +35,12 @@ const ComponentsDashboardSales = () => {
                     </div>
                 </div>
             )}
-
             {/* Dashboard Summary */}
             <Summary />
-
             {/* Analytics Section */}
             <Analytics />
-            
+            {/* Third Section */}
+            <DashboardSections />
         </div>
     );
 };
