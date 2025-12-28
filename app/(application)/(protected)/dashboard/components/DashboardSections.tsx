@@ -139,22 +139,6 @@ export default function DashboardSections() {
 
     return (
         <div ref={sectionRef} className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-            <style jsx global>{`
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                .animate-fade-in-up {
-                    animation: fadeInUp 0.5s ease-out forwards;
-                }
-            `}</style>
-
             {/* Top Selling Products Section */}
             <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
                 <div className="mb-3 flex items-center justify-between">
