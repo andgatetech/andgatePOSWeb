@@ -80,10 +80,10 @@ export default function DashboardSections() {
         filter: topSellingFilter,
         start_date: topSellingFilter === 'custom' ? customStartDate : undefined,
         end_date: topSellingFilter === 'custom' ? customEndDate : undefined,
-        top_selling_limit: 6,
+        top_selling_limit: 5,
         low_stock_threshold: lowStockThreshold,
-        low_stock_limit: 6,
-        recent_sales_limit: 6,
+        low_stock_limit: 5,
+        recent_sales_limit: 5,
     });
 
     if (isLoading) {

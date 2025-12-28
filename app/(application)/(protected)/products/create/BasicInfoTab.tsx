@@ -15,6 +15,11 @@ interface BasicInfoTabProps {
         has_serial: boolean;
     };
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+    setFormData?: React.Dispatch<React.SetStateAction<any>>;
+    categories?: any[];
+    brands?: any[];
+    catLoading?: boolean;
+    brandLoading?: boolean;
     showCategoryDropdown: boolean;
     setShowCategoryDropdown: (show: boolean) => void;
     categorySearchTerm: string;
@@ -28,11 +33,19 @@ interface BasicInfoTabProps {
     handleCategorySelect: (category: any) => void;
     handleBrandSelect: (brand: any) => void;
     onNext: () => void;
+    onCreateProduct?: () => void;
+    isCreating?: boolean;
+    isEditMode?: boolean;
 }
 
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     formData,
     handleChange,
+    setFormData,
+    categories,
+    brands,
+    catLoading,
+    brandLoading,
     showCategoryDropdown,
     setShowCategoryDropdown,
     categorySearchTerm,
@@ -46,6 +59,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     handleCategorySelect,
     handleBrandSelect,
     onNext,
+    onCreateProduct,
+    isCreating = false,
+    isEditMode = false,
 }) => {
     return (
         <div className="space-y-6">
@@ -516,18 +532,47 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 </div>
             </div>
 
-            {/* Navigation Button */}
-            <div className="flex justify-end border-t border-gray-200 pt-6">
+            {/* Navigation Buttons */}
+            <div className="flex flex-col gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-6">
                 <button
                     type="button"
                     onClick={onNext}
-                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200 sm:px-6 sm:py-3"
                 >
                     <span>Next</span>
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
+                {isEditMode && onCreateProduct && (
+                    <button
+                        type="button"
+                        onClick={onCreateProduct}
+                        disabled={isCreating}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                    >
+                        {isCreating ? (
+                            <>
+                                <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                <span>Updating...</span>
+                            </>
+                        ) : (
+                            <>
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Update Product</span>
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
         </div>
     );

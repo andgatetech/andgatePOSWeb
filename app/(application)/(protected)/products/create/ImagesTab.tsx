@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 
@@ -16,7 +17,59 @@ interface ImagesTabProps {
 
 const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
     const onChange = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
-        setImages(imageList as never[]);
+        // Build updated image list, preserving IDs where appropriate
+        const updatedImageList = imageList.map((newImage, index) => {
+            const existingImage = images[index];
+
+            // Check if this index was updated (replaced) or if it's a new image
+            const wasUpdated = addUpdateIndex?.includes(index);
+
+            // If the image exists at this index and wasn't updated, preserve everything including ID
+            if (existingImage && !wasUpdated) {
+                // Check if the dataURL matches (unchanged)
+                if (newImage.dataURL === existingImage.dataURL) {
+                    return {
+                        ...newImage,
+                        id: existingImage.id, // Preserve the database ID
+                    };
+                }
+            }
+
+            // If this was an update or new addition, return without ID (it's a new file)
+            return newImage;
+        });
+
+        setImages(updatedImageList as never[]);
+    };
+
+    // Helper function to get the proper image source
+    const getImageSrc = (image: any): string => {
+        // If it's a new upload (has file), use the dataURL
+        if (image.file) {
+            return image.dataURL;
+        }
+
+        // If it's an existing server image
+        if (image.dataURL) {
+            const url = image.dataURL;
+            // If URL already has /storage or is a full URL, use as is
+            if (url.startsWith('http') || url.startsWith('data:')) {
+                return url;
+            }
+            // Add storage prefix if needed
+            if (url.startsWith('/storage')) {
+                return `${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`;
+            }
+            // Add /storage prefix if not present
+            return `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${url.startsWith('/') ? url : '/' + url}`;
+        }
+
+        return '';
+    };
+
+    // Check if image is a server image (not a new upload)
+    const isServerImage = (image: any): boolean => {
+        return image.id && !image.file;
     };
 
     return (
@@ -37,7 +90,7 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
                                     <p className="mb-1 text-base font-semibold text-gray-700 group-hover:text-blue-600">Click to upload or drag and drop</p>
-                                    <p className="text-sm text-gray-500">PNG, JPG up to 2MB (Max {maxNumber} images)</p>
+                                    <p className="text-sm text-gray-500">PNG, JPG, WebP up to 2MB (Max {maxNumber} images)</p>
                                 </div>
                             </button>
                         </div>
@@ -50,9 +103,25 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                                     {imageList.map((image, index) => (
                                         <div key={index} className="group relative">
-                                            <div className="aspect-square overflow-hidden rounded-lg border-2 border-gray-200 bg-gray-100 shadow-sm">
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img src={image.dataURL} alt={`Product ${index + 1}`} className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110" />
+                                            <div className="relative aspect-square overflow-hidden rounded-lg border-2 border-gray-200 bg-gray-100 shadow-sm">
+                                                {isServerImage(image) ? (
+                                                    // Server image - use Next.js Image with proper URL
+                                                    <Image
+                                                        src={getImageSrc(image)}
+                                                        alt={`Product ${index + 1}`}
+                                                        fill
+                                                        className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                                        unoptimized
+                                                    />
+                                                ) : (
+                                                    // New upload - use regular img with dataURL
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={image.dataURL}
+                                                        alt={`Product ${index + 1}`}
+                                                        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
+                                                    />
+                                                )}
                                             </div>
 
                                             <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-60 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
@@ -111,7 +180,7 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                         <ul className="space-y-1 text-amber-700">
                             <li>• Use high-quality images with good lighting</li>
                             <li>• Recommended size: 800x800 pixels or higher</li>
-                            <li>• Only JPG and PNG formats are supported</li>
+                            <li>• Only JPG, PNG, and WebP formats are supported</li>
                             <li>• Maximum file size: 2MB per image</li>
                             <li>• First image will be used as the main product image</li>
                         </ul>

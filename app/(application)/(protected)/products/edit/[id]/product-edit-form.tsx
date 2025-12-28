@@ -4,10 +4,10 @@ import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { useGetSingleProductQuery, useGetUnitsQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
-import { useGetSingleProductQuery, useGetUnitsQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
 import { Store } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -18,8 +18,8 @@ import ImagesTab from '../../create/ImagesTab';
 import MobileTabFAB from '../../create/MobileTabFAB';
 import PricingTab from '../../create/PricingTab';
 import ProductCreateTabs from '../../create/ProductCreateTabs';
-import SerialTab from '../../create/SerialTab';
 import SKUTab from '../../create/SKUTab';
+import SerialTab from '../../create/SerialTab';
 import StockTab from '../../create/StockTab';
 import TaxTab from '../../create/TaxTab';
 import VariantsTab, { ProductStock } from '../../create/VariantsTab';
@@ -131,10 +131,11 @@ const ProductEditForm = () => {
                 has_serial: product.has_serial || false,
             });
 
-            // Set images
+            // Set images - preserve image IDs for existing images
             if (product.images && product.images.length > 0) {
                 const loadedImages = product.images.map((img: any) => ({
                     dataURL: img.url || img.image_url,
+                    id: img.id, // Preserve the image ID for existing images
                 }));
                 setImages(loadedImages);
             }
@@ -489,14 +490,24 @@ const ProductEditForm = () => {
             });
 
             // Add general product images
+            // Separate existing images (with ID) from new images (with file)
+            const existingImageIds: number[] = [];
+            const newImageFiles: File[] = [];
+
             if (images && images.length > 0) {
                 for (let i = 0; i < images.length; i++) {
                     const img = images[i];
-                    if (img.file) {
-                        const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+                    // If image has an ID, it's an existing image - preserve it
+                    if (img.id) {
+                        existingImageIds.push(img.id);
+                    }
+                    // If image has a file, it's a new upload
+                    else if (img.file) {
+                        const validMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
                         if (!validMimes.includes(img.file.type)) {
-                            toast.error(`Image ${i + 1}: Only JPG and PNG images are allowed!`, {
+                            toast.error(`Image ${i + 1}: Only JPG, PNG, and WebP images are allowed!`, {
                                 duration: 3000,
                                 position: 'top-center',
                                 style: { background: '#ef4444', color: '#fff' },
@@ -513,9 +524,23 @@ const ProductEditForm = () => {
                             return;
                         }
 
-                        fd.append('images[]', img.file as File);
+                        newImageFiles.push(img.file as File);
                     }
                 }
+            }
+
+            // Send existing image IDs to preserve them
+            if (existingImageIds.length > 0) {
+                existingImageIds.forEach((imageId, index) => {
+                    fd.append(`existing_images[${index}]`, String(imageId));
+                });
+            }
+
+            // Send new image files
+            if (newImageFiles.length > 0) {
+                newImageFiles.forEach((file) => {
+                    fd.append('images[]', file);
+                });
             }
 
             // Add serial numbers if has_serial is checked and serials are provided
@@ -641,7 +666,12 @@ const ProductEditForm = () => {
 
                 {/* Tab Content */}
                 <div className="rounded-xl bg-white p-6 shadow-sm">
-                    <form>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            // Prevent form submission - we handle it manually with handleSubmit
+                        }}
+                    >
                         {activeTab === 'basic' && (
                             <BasicInfoTab
                                 formData={formData}
@@ -664,6 +694,9 @@ const ProductEditForm = () => {
                                 handleCategorySelect={handleCategorySelect}
                                 handleBrandSelect={handleBrandSelect}
                                 onNext={handleNext}
+                                onCreateProduct={handleSubmit}
+                                isCreating={updateLoading}
+                                isEditMode={true}
                             />
                         )}
 
