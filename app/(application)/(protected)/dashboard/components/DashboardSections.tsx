@@ -73,22 +73,24 @@ export default function DashboardSections() {
 
     // Intersection Observer for scroll animations
     const sectionRef = useRef<HTMLDivElement>(null);
-    const [isVisible, setIsVisible] = useState(true); // Start as true so data shows immediately
+    const [animationKey, setAnimationKey] = useState(0); // Key to force re-render and reset animations
 
     useEffect(() => {
+        const currentSection = sectionRef.current;
+
         const observer = new IntersectionObserver(
             ([entry]) => {
-                // Set isVisible based on whether section is in viewport
-                // This makes animations replay every time you scroll to the section
-                setIsVisible(entry.isIntersecting);
+                // When section enters viewport, increment key to replay animations
+                if (entry.isIntersecting) {
+                    setAnimationKey((prev) => prev + 1);
+                }
             },
             {
-                threshold: 0.1, // Trigger when 10% of the section is visible
-                rootMargin: '50px', // Start animation 50px before the section enters viewport
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px',
             }
         );
 
-        const currentSection = sectionRef.current;
         if (currentSection) {
             observer.observe(currentSection);
         }
@@ -201,16 +203,15 @@ export default function DashboardSections() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div className="space-y-2">
+                <div key={`top-selling-${animationKey}`} className="space-y-2">
                     {top_selling_products.products.length > 0 ? (
                         top_selling_products.products.map((product, index) => (
                             <div
                                 key={product.product_id}
-                                className="transition-all duration-500"
+                                className="animate-fade-in-up"
                                 style={{
-                                    opacity: isVisible ? 1 : 0,
-                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-                                    transitionDelay: `${index * 100}ms`,
+                                    animationDelay: `${index * 100}ms`,
+                                    animationFillMode: 'both',
                                 }}
                             >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
@@ -282,16 +283,15 @@ export default function DashboardSections() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div className="space-y-2">
+                <div key={`low-stock-${animationKey}`} className="space-y-2">
                     {low_stock_products.products.length > 0 ? (
                         low_stock_products.products.map((product, index) => (
                             <div
                                 key={product.product_id}
-                                className="transition-all duration-500"
+                                className="animate-fade-in-up"
                                 style={{
-                                    opacity: isVisible ? 1 : 0,
-                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-                                    transitionDelay: `${index * 100}ms`,
+                                    animationDelay: `${index * 100}ms`,
+                                    animationFillMode: 'both',
                                 }}
                             >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
@@ -344,16 +344,15 @@ export default function DashboardSections() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div className="space-y-2">
+                <div key={`recent-sales-${animationKey}`} className="space-y-2">
                     {recent_sales.sales.length > 0 ? (
                         recent_sales.sales.map((sale, index) => (
                             <div
                                 key={sale.order_id}
-                                className="transition-all duration-500"
+                                className="animate-fade-in-up"
                                 style={{
-                                    opacity: isVisible ? 1 : 0,
-                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-                                    transitionDelay: `${index * 100}ms`,
+                                    animationDelay: `${index * 100}ms`,
+                                    animationFillMode: 'both',
                                 }}
                             >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}

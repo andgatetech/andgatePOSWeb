@@ -22,7 +22,7 @@ const SectionSkeleton = () => (
 );
 
 // Donut Chart Component
-const DonutChart = ({ data, colors, isVisible = true }: { data: Array<{ label: string; value: number }>; colors: string[]; isVisible?: boolean }) => {
+const DonutChart = ({ data, colors }: { data: Array<{ label: string; value: number }>; colors: string[] }) => {
     const total = data.reduce((sum, item) => sum + item.value, 0);
     const hasData = total > 0 && data.length > 0;
     let currentAngle = -90; // Start from top
@@ -75,12 +75,9 @@ const DonutChart = ({ data, colors, isVisible = true }: { data: Array<{ label: s
                                 stroke={segments[0].color}
                                 strokeWidth="15"
                                 strokeDasharray={circumference}
-                                strokeDashoffset={isVisible ? 0 : circumference}
+                                strokeDashoffset="0"
                                 transform="rotate(-90 50 50)"
-                                style={{
-                                    transition: 'stroke-dashoffset 1.2s ease-out',
-                                    transitionDelay: '0.1s',
-                                }}
+                                className="animate-draw-circle"
                             />
                         ) : (
                             segments.map((segment, index) => (
@@ -88,11 +85,10 @@ const DonutChart = ({ data, colors, isVisible = true }: { data: Array<{ label: s
                                     key={index}
                                     d={segment.path}
                                     fill={segment.color}
-                                    className="duration-600 transition-all hover:opacity-80"
+                                    className="animate-fade-in-scale hover:opacity-80"
                                     style={{
-                                        opacity: isVisible ? 1 : 0,
-                                        transform: isVisible ? 'scale(1)' : 'scale(0.8)',
-                                        transitionDelay: `${index * 150}ms`,
+                                        animationDelay: `${index * 150}ms`,
+                                        animationFillMode: 'both',
                                     }}
                                 />
                             ))
@@ -111,12 +107,9 @@ const DonutChart = ({ data, colors, isVisible = true }: { data: Array<{ label: s
                             stroke="#d1d5db"
                             strokeWidth="15"
                             strokeDasharray={circumference}
-                            strokeDashoffset={isVisible ? 0 : circumference}
+                            strokeDashoffset="0"
                             transform="rotate(-90 50 50)"
-                            style={{
-                                transition: 'stroke-dashoffset 1.2s ease-out',
-                                transitionDelay: '0.1s',
-                            }}
+                            className="animate-draw-circle"
                         />
                         {/* Inner white circle to create donut effect */}
                         <circle cx="50" cy="50" r="25" fill="white" />
@@ -128,11 +121,10 @@ const DonutChart = ({ data, colors, isVisible = true }: { data: Array<{ label: s
                     segments.map((segment, index) => (
                         <div
                             key={index}
-                            className="flex items-center justify-between text-sm transition-all duration-500"
+                            className="animate-slide-in-right flex items-center justify-between text-sm"
                             style={{
-                                opacity: isVisible ? 1 : 0,
-                                transform: isVisible ? 'translateX(0)' : 'translateX(-20px)',
-                                transitionDelay: `${index * 100 + 300}ms`,
+                                animationDelay: `${index * 100 + 300}ms`,
+                                animationFillMode: 'both',
                             }}
                         >
                             <div className="flex items-center gap-2">
@@ -158,24 +150,26 @@ const DonutChart = ({ data, colors, isVisible = true }: { data: Array<{ label: s
 export default function SectionsFive() {
     const { currentStoreId } = useCurrentStore();
 
-    // Intersection Observer for scroll animations
+    // Animation key for scroll-based animation replay
     const sectionRef = useRef<HTMLDivElement>(null);
-    const [isVisible, setIsVisible] = useState(true); // Start as true so data shows immediately
+    const [animationKey, setAnimationKey] = useState(0);
 
     useEffect(() => {
+        const currentSection = sectionRef.current;
+
         const observer = new IntersectionObserver(
             ([entry]) => {
-                // Set isVisible based on whether section is in viewport
-                // This makes animations replay every time you scroll to the section
-                setIsVisible(entry.isIntersecting);
+                // When section enters viewport, increment key to replay animations
+                if (entry.isIntersecting) {
+                    setAnimationKey((prev) => prev + 1);
+                }
             },
             {
-                threshold: 0.1, // Trigger when 10% of the section is visible
-                rootMargin: '50px', // Start animation 50px before the section enters viewport
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px',
             }
         );
 
-        const currentSection = sectionRef.current;
         if (currentSection) {
             observer.observe(currentSection);
         }
@@ -380,8 +374,8 @@ export default function SectionsFive() {
                 )}
 
                 {categoryChartData.length > 0 ? (
-                    <>
-                        <DonutChart data={categoryChartData} colors={categoryColors} isVisible={isVisible} />
+                    <div key={`category-${animationKey}`}>
+                        <DonutChart data={categoryChartData} colors={categoryColors} />
                         <div className="mt-4 border-t border-gray-200 pt-4">
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
                             <div className="space-y-2">
@@ -401,10 +395,10 @@ export default function SectionsFive() {
                                 </div>
                             </div>
                         </div>
-                    </>
+                    </div>
                 ) : (
-                    <>
-                        <DonutChart data={[]} colors={categoryColors} isVisible={isVisible} />
+                    <div key={`category-empty-${animationKey}`}>
+                        <DonutChart data={[]} colors={categoryColors} />
                         <div className="mt-4 border-t border-gray-200 pt-4">
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
                             <div className="space-y-2">
@@ -424,7 +418,7 @@ export default function SectionsFive() {
                                 </div>
                             </div>
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
 
@@ -472,8 +466,8 @@ export default function SectionsFive() {
                 )}
 
                 {brandChartData.length > 0 ? (
-                    <>
-                        <DonutChart data={brandChartData} colors={brandColors} isVisible={isVisible} />
+                    <div key={`brand-${animationKey}`}>
+                        <DonutChart data={brandChartData} colors={brandColors} />
                         <div className="mt-4 border-t border-gray-200 pt-4">
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
                             <div className="space-y-2">
@@ -493,10 +487,10 @@ export default function SectionsFive() {
                                 </div>
                             </div>
                         </div>
-                    </>
+                    </div>
                 ) : (
-                    <>
-                        <DonutChart data={[]} colors={brandColors} isVisible={isVisible} />
+                    <div key={`brand-empty-${animationKey}`}>
+                        <DonutChart data={[]} colors={brandColors} />
                         <div className="mt-4 border-t border-gray-200 pt-4">
                             <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
                             <div className="space-y-2">
@@ -516,7 +510,7 @@ export default function SectionsFive() {
                                 </div>
                             </div>
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
 
@@ -569,16 +563,15 @@ export default function SectionsFive() {
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
-                <div className="space-y-2">
+                <div key={`products-${animationKey}`} className="space-y-2">
                     {top_purchased_products.data.length > 0 ? (
                         top_purchased_products.data.map((product, index) => (
                             <div
                                 key={product.product_id}
-                                className="transition-all duration-500"
+                                className="animate-fade-in-up"
                                 style={{
-                                    opacity: isVisible ? 1 : 0,
-                                    transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-                                    transitionDelay: `${index * 100}ms`,
+                                    animationDelay: `${index * 100}ms`,
+                                    animationFillMode: 'both',
                                 }}
                             >
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
