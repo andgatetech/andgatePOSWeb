@@ -3,6 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSummaryQuery } from '@/store/features/dashboard/dashboad';
 import { Clock, DollarSign, FileText, Gift, Layers, RefreshCw, Settings, Shield } from 'lucide-react';
+import CountUp from 'react-countup';
 
 // Skeleton component for loading state
 const MetricCardSkeleton = () => (
@@ -35,14 +36,16 @@ const DetailCardSkeleton = () => (
     </div>
 );
 
-const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg, iconColor }: any) => {
+const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg, iconColor, numericValue }: any) => {
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
     return (
         <div className="rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-start justify-between">
-                <p className="text-2xl font-bold text-gray-900">{value}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                    ৳<CountUp end={numericValue} duration={2} decimals={2} separator="," />
+                </p>
                 <div className={`${iconBg} flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg`}>
                     <Icon className={`h-5 w-5 ${iconColor}`} />
                 </div>
@@ -59,7 +62,7 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, ico
     );
 };
 
-const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg, bgColor }: any) => {
+const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg, bgColor, numericValue }: any) => {
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
@@ -71,7 +74,9 @@ const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, i
                 </div>
                 <div className="text-right">
                     <p className="text-sm font-medium opacity-90">{title}</p>
-                    <p className="text-2xl font-bold">{value}</p>
+                    <p className="text-2xl font-bold">
+                        ৳<CountUp end={numericValue} duration={2} decimals={2} separator="," />
+                    </p>
                     <span
                         className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
                             isPositive ? 'bg-white/20 text-white' : isNegative ? 'bg-red-500/20 text-white' : 'bg-white/20 text-white'
@@ -132,6 +137,7 @@ export default function Summary() {
         {
             title: 'Total Sales',
             value: formatCurrency(cards.total_sales.current),
+            numericValue: cards.total_sales.current,
             change: formatPercentage(cards.total_sales.percentage_change),
             changeType: cards.total_sales.trend,
             icon: FileText,
@@ -141,6 +147,7 @@ export default function Summary() {
         {
             title: 'Total Sales Return',
             value: formatCurrency(cards.total_sales_return.current),
+            numericValue: cards.total_sales_return.current,
             change: formatPercentage(cards.total_sales_return.percentage_change),
             changeType: cards.total_sales_return.trend,
             icon: RefreshCw,
@@ -150,6 +157,7 @@ export default function Summary() {
         {
             title: 'Total Purchase',
             value: formatCurrency(cards.total_purchase.current),
+            numericValue: cards.total_purchase.current,
             change: formatPercentage(cards.total_purchase.percentage_change),
             changeType: cards.total_purchase.trend,
             icon: Gift,
@@ -159,6 +167,7 @@ export default function Summary() {
         {
             title: 'Total Purchase Return',
             value: formatCurrency(cards.total_purchase_return.current),
+            numericValue: cards.total_purchase_return.current,
             change: formatPercentage(cards.total_purchase_return.percentage_change),
             changeType: cards.total_purchase_return.trend,
             icon: Shield,
@@ -171,6 +180,7 @@ export default function Summary() {
         {
             title: 'Profit',
             value: formatCurrency(cards.profit.current),
+            numericValue: cards.profit.current,
             change: `${formatPercentage(cards.profit.percentage_change)} vs Last Month`,
             changeType: cards.profit.trend,
             icon: Layers,
@@ -180,6 +190,7 @@ export default function Summary() {
         {
             title: 'Invoice Due',
             value: formatCurrency(cards.invoice_due.current),
+            numericValue: cards.invoice_due.current,
             change: `${formatPercentage(cards.invoice_due.percentage_change)} vs Last Month`,
             changeType: cards.invoice_due.trend,
             icon: Clock,
@@ -189,6 +200,7 @@ export default function Summary() {
         {
             title: 'Total Expenses',
             value: formatCurrency(cards.total_expenses.current),
+            numericValue: cards.total_expenses.current,
             change: `${formatPercentage(cards.total_expenses.percentage_change)} vs Last Month`,
             changeType: cards.total_expenses.trend,
             icon: Settings,
@@ -198,6 +210,7 @@ export default function Summary() {
         {
             title: 'Total Payment Returns',
             value: formatCurrency(cards.total_payment_returns.current),
+            numericValue: cards.total_payment_returns.current,
             change: `${formatPercentage(cards.total_payment_returns.percentage_change)} vs Last Month`,
             changeType: cards.total_payment_returns.trend,
             icon: DollarSign,

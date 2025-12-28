@@ -5,7 +5,9 @@ import { useSelector } from 'react-redux';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { Store } from 'lucide-react';
+import Analytics from './Analytics';
 import Summary from './Summary';
+
 
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -36,6 +38,10 @@ const ComponentsDashboardSales = () => {
 
             {/* Dashboard Summary */}
             <Summary />
+
+            {/* Analytics Section */}
+            <Analytics />
+            
         </div>
     );
 };
