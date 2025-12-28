@@ -108,8 +108,24 @@ export default function DashboardSections() {
 
     return (
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+            <style jsx global>{`
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.5s ease-out forwards;
+                }
+            `}</style>
+
             {/* Top Selling Products Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
                         <TrendingUp className="h-5 w-5 text-orange-500" />
@@ -128,7 +144,7 @@ export default function DashboardSections() {
 
                 {/* Custom Date Range Picker */}
                 {topSellingFilter === 'custom' && (
-                    <div className="mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
+                    <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                         <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
                             <input
@@ -151,7 +167,7 @@ export default function DashboardSections() {
                 )}
 
                 {/* View All Button */}
-                <button className="mb-3 w-full text-center text-sm font-medium text-orange-600 transition-colors hover:text-orange-700">View All</button>
+                <button className="mb-3 w-full text-center text-sm font-medium text-orange-600 transition-all duration-200 hover:scale-105 hover:text-orange-700">View All</button>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
@@ -159,26 +175,35 @@ export default function DashboardSections() {
                 <div className="space-y-2">
                     {top_selling_products.products.length > 0 ? (
                         top_selling_products.products.map((product, index) => (
-                            <div key={product.product_id}>
+                            <div key={product.product_id} className="animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}>
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all hover:bg-gray-100">
+                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-orange-100 hover:bg-white hover:shadow-md">
                                     <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                         {product.product_image ? (
-                                            <Image src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`} alt={product.product_name} fill className="object-contain p-1" />
+                                            <Image
+                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
+                                                alt={product.product_name}
+                                                fill
+                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400" />
+                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
                                             </div>
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900">{product.product_name}</p>
+                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-orange-600">{product.product_name}</p>
                                         <p className="text-xs text-gray-600">
                                             ৳{product.total_revenue.toLocaleString()} • {product.total_sales} Sales
                                         </p>
                                     </div>
                                     <div className="flex-shrink-0">
-                                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${product.trend === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                        <span
+                                            className={`inline-block rounded-md px-2 py-1 text-xs font-semibold shadow-sm transition-transform group-hover:scale-105 ${
+                                                product.trend === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                            }`}
+                                        >
                                             {product.trend === 'positive' ? '↑' : '↓'} {product.percentage_change}%
                                         </span>
                                     </div>
@@ -186,7 +211,7 @@ export default function DashboardSections() {
                             </div>
                         ))
                     ) : (
-                        <div className="py-8 text-center">
+                        <div className="animate-fade-in-up py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
                             <p className="mt-2 text-sm text-gray-500">No products found</p>
                         </div>
@@ -195,7 +220,7 @@ export default function DashboardSections() {
             </div>
 
             {/* Low Stock Products Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
                         <Package className="h-5 w-5 text-red-500" />
@@ -215,7 +240,7 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <button className="mb-3 w-full text-center text-sm font-medium text-red-600 transition-colors hover:text-red-700">View All</button>
+                <button className="mb-3 w-full text-center text-sm font-medium text-red-600 transition-all duration-200 hover:scale-105 hover:text-red-700">View All</button>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
@@ -223,28 +248,35 @@ export default function DashboardSections() {
                 <div className="space-y-2">
                     {low_stock_products.products.length > 0 ? (
                         low_stock_products.products.map((product, index) => (
-                            <div key={product.product_id}>
+                            <div key={product.product_id} className="animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}>
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all hover:bg-gray-100">
+                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-red-100 hover:bg-white hover:shadow-md">
                                     <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                         {product.product_image ? (
-                                            <Image src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`} alt={product.product_name} fill className="object-contain p-1" />
+                                            <Image
+                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
+                                                alt={product.product_name}
+                                                fill
+                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400" />
+                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
                                             </div>
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900">{product.product_name}</p>
+                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-red-600">{product.product_name}</p>
                                         <p className="text-xs text-gray-600">SKU: {product.sku}</p>
                                     </div>
-                                    <StockStatusBadge status={product.stock_status} quantity={product.stock_quantity} />
+                                    <div className="transform transition-transform group-hover:scale-105">
+                                        <StockStatusBadge status={product.stock_status} quantity={product.stock_quantity} />
+                                    </div>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="py-8 text-center">
+                        <div className="animate-fade-in-up py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
                             <p className="mt-2 text-sm text-gray-500">No low stock products</p>
                         </div>
@@ -253,7 +285,7 @@ export default function DashboardSections() {
             </div>
 
             {/* Recent Sales Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 transition-all duration-300 hover:shadow-lg sm:p-6">
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
                         <Calendar className="h-5 w-5 text-blue-500" />
@@ -262,7 +294,7 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <button className="mb-3 w-full text-center text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">View All</button>
+                <button className="mb-3 w-full text-center text-sm font-medium text-blue-600 transition-all duration-200 hover:scale-105 hover:text-blue-700">View All</button>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
@@ -270,31 +302,31 @@ export default function DashboardSections() {
                 <div className="space-y-2">
                     {recent_sales.sales.length > 0 ? (
                         recent_sales.sales.map((sale, index) => (
-                            <div key={sale.order_id}>
+                            <div key={sale.order_id} className="animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}>
                                 {index > 0 && <div className="my-2 border-t border-gray-200"></div>}
-                                <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all hover:bg-gray-100">
+                                <div className="group flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all duration-300 hover:scale-[1.02] hover:border-blue-100 hover:bg-white hover:shadow-md">
                                     <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                         {sale.primary_product.image ? (
                                             <Image
                                                 src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${sale.primary_product.image}`}
                                                 alt={sale.primary_product.name}
                                                 fill
-                                                className="object-contain p-1"
+                                                className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
                                             />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="h-6 w-6 text-gray-400" />
+                                                <Package className="h-6 w-6 text-gray-400 transition-transform duration-500 group-hover:scale-110" />
                                             </div>
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-gray-900">{sale.primary_product.name}</p>
-                                        <p className="text-xs text-gray-600">
-                                            {sale.customer_name} • ৳{sale.total_amount.toLocaleString()}
+                                        <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">{sale.primary_product.name}</p>
+                                        <p className="text-xs text-gray-600 transition-colors group-hover:text-gray-900">
+                                            <span className="font-medium text-gray-900 group-hover:text-blue-600">{sale.customer_name}</span> • ৳{sale.total_amount.toLocaleString()}
                                         </p>
                                         <p className="text-xs text-gray-500">{sale.order_date_formatted}</p>
                                     </div>
-                                    <div className="flex-shrink-0">
+                                    <div className="flex-shrink-0 transform transition-transform group-hover:scale-105">
                                         <p className="mb-1 text-xs text-gray-500">Status</p>
                                         <StatusBadge status={sale.status} />
                                     </div>
@@ -302,7 +334,7 @@ export default function DashboardSections() {
                             </div>
                         ))
                     ) : (
-                        <div className="py-8 text-center">
+                        <div className="animate-fade-in-up py-8 text-center">
                             <Calendar className="mx-auto h-12 w-12 text-gray-300" />
                             <p className="mt-2 text-sm text-gray-500">No recent sales</p>
                         </div>

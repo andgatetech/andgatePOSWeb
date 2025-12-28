@@ -217,7 +217,7 @@ const ProductEditForm = () => {
                 setProductStocks(updatedStocks);
             }
         }
-    }, [productAttributes]);
+    }, [productAttributes, productStocks]);
 
     // Get recent 5 categories for dropdown and filter based on search
     const recentCategories = categories.slice(0, 5);
