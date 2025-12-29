@@ -119,7 +119,7 @@ export default function PricingPage() {
             badge: t(`pricing_page.tiers.${key}.badge`),
             cta: t(`pricing_page.tiers.${key}.cta`),
             features,
-            setupFee:5000,
+            setupFee: tierPrices[key].setupFee,
             price: tierPrices[key],
             icon: tierIcons[key],
             color: tierColors[key],
@@ -257,7 +257,7 @@ export default function PricingPage() {
                                                 <p className="mt-2 text-sm font-medium text-gray-700">
                                                     Setup Cost:{' '}
                                                     <span className="font-semibold text-gray-900">
-                                                        {t('pricing_page.save_percent')} {tier.setupFee}
+                                                        {t('pricing_page.save_percent')} {tier.price.setFee}
                                                     </span>
                                                 </p>
                                             </div>
