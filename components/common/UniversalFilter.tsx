@@ -2,7 +2,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { endOfDay, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from 'date-fns';
 import { Calendar, ChevronDown, Filter, RotateCcw, Search, Store, X } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface FilterOptions {
     search?: string;
@@ -54,28 +54,39 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     externalResetTrigger = 0,
 }) => {
     const { currentStoreId, userStores } = useCurrentStore();
+    const isMounted = useRef(false);
 
     // State management
     const [search, setSearch] = useState(initialFilters.search || '');
     const [localSearch, setLocalSearch] = useState(initialFilters.search || ''); // Local state for input
-    const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || 'all');
+    const [selectedStore, setSelectedStore] = useState<number | 'all'>(initialFilters.storeId || currentStoreId || 'all');
     const [dateFilterType, setDateFilterType] = useState<string>(initialFilters.dateRange?.type || 'none');
     const [customStartDate, setCustomStartDate] = useState(initialFilters.dateRange?.startDate || format(new Date(), 'yyyy-MM-dd'));
     const [customEndDate, setCustomEndDate] = useState(initialFilters.dateRange?.endDate || format(new Date(), 'yyyy-MM-dd'));
     const [showDateDropdown, setShowDateDropdown] = useState(false);
     const [showStoreDropdown, setShowStoreDropdown] = useState(false);
 
+    // Sync filter with global store changes, but respect initial filters on mount
+    useEffect(() => {
+        if (isMounted.current) {
+            if (currentStoreId) {
+                setSelectedStore(currentStoreId);
+            }
+        } else {
+            isMounted.current = true;
+        }
+    }, [currentStoreId]);
+
     // Reset filters
     const resetFilters = useCallback(() => {
         setSearch('');
         setLocalSearch(''); // Also reset local search
-        // setSelectedStore(currentStoreId || 'all');
-        setSelectedStore('all');
+        setSelectedStore(currentStoreId || 'all');
         setDateFilterType('none');
         setCustomStartDate(format(new Date(), 'yyyy-MM-dd'));
         setCustomEndDate(format(new Date(), 'yyyy-MM-dd'));
         onResetFilters?.(); // Call parent reset callback
-    }, [onResetFilters]);
+    }, [onResetFilters, currentStoreId]);
 
     // Listen to external reset trigger
     useEffect(() => {
@@ -179,7 +190,8 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
 
     // Check if filters are active (not default)
     const hasActiveFilters = () => {
-        return search !== '' || selectedStore !== 'all' || dateFilterType !== 'none';
+        const isStoreActive = selectedStore !== (currentStoreId || 'all');
+        return search !== '' || isStoreActive || dateFilterType !== 'none';
     };
 
     // Handle search button click
@@ -380,10 +392,10 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                             </button>
                         </span>
                     )}
-                    {selectedStore !== 'all' && (
+                    {selectedStore !== (currentStoreId || 'all') && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                            Store: {userStores.find((store) => store.id === selectedStore)?.store_name || 'Unknown'}
-                            <button onClick={() => setSelectedStore('all')}>
+                            Store: {selectedStore === 'all' ? 'All Stores' : userStores.find((store) => store.id === selectedStore)?.store_name || 'Unknown'}
+                            <button onClick={() => setSelectedStore(currentStoreId || 'all')}>
                                 <X className="h-3 w-3 hover:text-green-600" />
                             </button>
                         </span>
