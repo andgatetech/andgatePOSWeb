@@ -78,10 +78,10 @@ export default function PricingPage() {
     const tierKeys = ['starter', 'sme', 'professional', 'enterprise'];
     const tierPrices: Record<string, any> = {
         // free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
-        starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390' },
-        sme: { monthly: '৳999', annually: '৳11988', originalAnnually: '৳9591' },
-        professional: { monthly: '৳1999', annually: '৳23988', originalAnnually: '৳19191' },
-        enterprise: { monthly: '৳4999', annually: '৳59988', originalAnnually: '৳47991' },
+        starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390', setupFee: '2000' },
+        sme: { monthly: '৳999', annually: '৳11988', originalAnnually: '৳9591', setupFee: '5000' },
+        professional: { monthly: '৳1999', annually: '৳23988', originalAnnually: '৳19191', setupFee: '20000' },
+        enterprise: { monthly: '৳4999', annually: '৳59988', originalAnnually: '৳47991', setupFee: '50000' },
     };
 
     const tierIcons: Record<string, any> = {
@@ -119,6 +119,7 @@ export default function PricingPage() {
             badge: t(`pricing_page.tiers.${key}.badge`),
             cta: t(`pricing_page.tiers.${key}.cta`),
             features,
+            setupFee: tierPrices['setupFee'],
             price: tierPrices[key],
             icon: tierIcons[key],
             color: tierColors[key],
@@ -256,7 +257,7 @@ export default function PricingPage() {
                                                 <p className="mt-2 text-sm font-medium text-gray-700">
                                                     Setup Cost:{' '}
                                                     <span className="font-semibold text-gray-900">
-                                                        {tier.name.toLowerCase() === 'enterprise' ? "{t('pricing_page.save_percent')} 20,000" : "{t('pricing_page.save_percent')} 5,000"}
+                                                        {t('pricing_page.save_percent')} {tier.setupFee}
                                                     </span>
                                                 </p>
                                             </div>
