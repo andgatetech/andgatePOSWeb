@@ -594,7 +594,7 @@
                 },
                 {
                     "q": "What payment methods do you accept?",
-                    "a": "We accept bKash, Nagad, credit/debit cards, and bank transfers for annual subscriptions."
+                    "a": "We accept bKash, Nagad, credit/debit cards, and bank transfers for monthly or annual subscriptions."
                 },
                 {
                     "q": "Are there any setup fees?",
