@@ -50,7 +50,7 @@ const colorClasses = {
 
 export default function PricingPage() {
     const { t } = getTranslation();
-    const [frequency, setFrequency] = useState({ value: 'monthly', label: '', priceSuffix: '' });
+    const [frequency, setFrequency] = useState({ value: 'monthly', label: '', priceSuffix: '' , setupFee: ''});
     const [openFaq, setOpenFaq] = useState<number | null>(null);
 
     // Get frequencies from translation
@@ -59,14 +59,14 @@ export default function PricingPage() {
             value: 'monthly',
             label: t('pricing_page.frequency.monthly'),
             priceSuffix: t('pricing_page.frequency.per_month'),
-            setupFree: 'setupFee',
+            setupFee: 'setupFee',
         },
         {
             value: 'annually',
             label: t('pricing_page.frequency.annually'),
             priceSuffix: t('pricing_page.frequency.per_year'),
             discount: t('pricing_page.frequency.save'),
-            setupFree: 'setupFee',
+            setupFee: 'setupFee',
         },
     ];
 
@@ -121,7 +121,6 @@ export default function PricingPage() {
             badge: t(`pricing_page.tiers.${key}.badge`),
             cta: t(`pricing_page.tiers.${key}.cta`),
             features,
-            setupFee: tierPrices[key].setupFee,
             price: tierPrices[key],
             icon: tierIcons[key],
             color: tierColors[key],
