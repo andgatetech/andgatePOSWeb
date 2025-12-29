@@ -74,17 +74,18 @@ export default function PricingPage() {
     }
 
     // Tier configuration (prices remain in component)
-    const tierKeys = ['free', 'starter', 'sme', 'professional', 'enterprise'];
+    // const tierKeys = ['free', 'starter', 'sme', 'professional', 'enterprise'];
+    const tierKeys = ['starter', 'sme', 'professional'];
     const tierPrices: Record<string, any> = {
-        free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
-        starter: { monthly: '৳99', annually: '৳950', originalAnnually: '৳1188' },
-        sme: { monthly: '৳299', annually: '৳4800', originalAnnually: '৳6000' },
-        professional: { monthly: '৳499', annually: '৳14390', originalAnnually: '৳17988' },
-        enterprise: { monthly: '৳1999', annually: '৳19200', originalAnnually: '৳24000' },
+        // free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
+        starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390' },
+        sme: { monthly: '৳999', annually: '৳11988', originalAnnually: '৳9591' },
+        professional: { monthly: '৳1999', annually: '৳23988', originalAnnually: '৳19191' },
+        enterprise: { monthly: '৳4999', annually: '৳59988', originalAnnually: '৳47991' },
     };
 
     const tierIcons: Record<string, any> = {
-        free: Building2,
+        // free: Building2,
         starter: Rocket,
         sme: Star,
         professional: TrendingUp,
@@ -92,7 +93,7 @@ export default function PricingPage() {
     };
 
     const tierColors: Record<string, keyof typeof colorClasses> = {
-        free: 'slate',
+        // free: 'slate',
         starter: 'green',
         sme: 'blue',
         professional: 'purple',
@@ -251,6 +252,13 @@ export default function PricingPage() {
                                                         </span>
                                                     </p>
                                                 )}
+                                                {/* Setup Cost Section */}
+                                                <p className="mt-2 text-sm font-medium text-gray-700">
+                                                    Setup Cost:{" "}
+                                                    <span className="font-semibold text-gray-900">
+                                                        {tier.name.toLowerCase() === "enterprise" ? "20,000 BDT" : "5,000 BDT"}
+                                                    </span>
+                                                </p>
                                             </div>
 
                                             {/* CTA Button */}
