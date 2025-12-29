@@ -199,7 +199,7 @@
     "cta_desc": "Join over 300 businesses using AndgatePOS for success. Start free today and see the difference in 24 hours.",
     "cta_start": "Start Free Journey Now",
     "cta_signin": "Sign In",
-    "cta_benefits": "✓ No setup fees ✓ Cancel anytime ✓ 24/7 support included",
+    "cta_benefits": "✓ Small setup fees ✓ Cancel anytime ✓ 24/7 support included",
 
     "contact": {
         "page_title": "Get Started with AndgatePOS",
@@ -473,7 +473,7 @@
             "title": "Simple, Transparent Pricing Plans",
             "subtitle": "Choose the perfect plan for your business. Start free and upgrade as you grow. All plans include a 14-day money-back guarantee.",
             "benefits": {
-                "no_setup": "No setup fees",
+                "no_setup": "Small setup fees",
                 "cancel_anytime": "Cancel anytime",
                 "support": "24/7 support"
             }
@@ -627,7 +627,7 @@
             "subtitle": "Start your free trial today. No credit card required. Upgrade anytime.",
             "start_trial": "Start Free Trial",
             "contact_sales": "Contact Sales",
-            "guarantee": "✓ 14-day money-back guarantee ✓ No setup fees ✓ Cancel anytime"
+            "guarantee": "✓ 14-day money-back guarantee ✓ Small setup fees ✓ Cancel anytime"
         },
         "save_percent": "Save"
     },
