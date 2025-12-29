@@ -203,7 +203,7 @@ export default function PricingPage() {
                         </div>
 
                         {/* Pricing Cards */}
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8">
                             {tiers.map((tier) => {
                                 const IconComponent = tier.icon;
                                 const colors = colorClasses[tier.color];
