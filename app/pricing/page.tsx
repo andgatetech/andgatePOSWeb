@@ -75,7 +75,7 @@ export default function PricingPage() {
 
     // Tier configuration (prices remain in component)
     // const tierKeys = ['free', 'starter', 'sme', 'professional', 'enterprise'];
-    const tierKeys = ['starter', 'sme', 'professional'];
+    const tierKeys = ['starter', 'sme', 'professional', 'enterprise'];
     const tierPrices: Record<string, any> = {
         // free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
         starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390' },
@@ -254,9 +254,9 @@ export default function PricingPage() {
                                                 )}
                                                 {/* Setup Cost Section */}
                                                 <p className="mt-2 text-sm font-medium text-gray-700">
-                                                    Setup Cost:{" "}
+                                                    Setup Cost:{' '}
                                                     <span className="font-semibold text-gray-900">
-                                                        {tier.name.toLowerCase() === "enterprise" ? "20,000 BDT" : "5,000 BDT"}
+                                                        {tier.name.toLowerCase() === 'enterprise' ? "{t('pricing_page.save_percent')} 20,000" : "{t('pricing_page.save_percent')} 5,000"}
                                                     </span>
                                                 </p>
                                             </div>
