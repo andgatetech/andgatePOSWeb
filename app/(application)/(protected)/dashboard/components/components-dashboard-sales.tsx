@@ -9,6 +9,7 @@ import Analytics from './Analytics';
 import DashboardSections from './DashboardSections';
 import SectionsFive from './SectionsFive';
 import Summary from './Summary';
+import SectionFour from './SectionFour';
 
 const ComponentsDashboardSales = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -41,6 +42,9 @@ const ComponentsDashboardSales = () => {
             <Analytics />
             {/* Third Section */}
             <DashboardSections />
+
+            {/* Fourth Section */}
+            <SectionFour />
             {/* Sections Five - Top Categories, Top Brands, Top Purchased Products */}
             <SectionsFive />
         </div>

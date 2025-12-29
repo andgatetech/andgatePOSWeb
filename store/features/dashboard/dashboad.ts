@@ -72,6 +72,33 @@ const DashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ['Dashboard'],
         }),
+        // Get dashboard sections four (Payment Summary, Recent Transactions)
+        getDashboardSectionsFour: builder.query({
+            query: (params) => {
+                const queryParams = new URLSearchParams();
+
+                // Add store_id filter
+                if (params?.store_id) queryParams.append('store_id', params.store_id);
+
+                // Payment filter (today, last_week, last_year, custom)
+                if (params?.payment_filter) queryParams.append('payment_filter', params.payment_filter);
+
+                // Custom date range for payment filter
+                if (params?.payment_start_date) queryParams.append('payment_start_date', params.payment_start_date);
+                if (params?.payment_end_date) queryParams.append('payment_end_date', params.payment_end_date);
+
+                // Recent transactions limit
+                if (params?.recent_limit) queryParams.append('recent_limit', params.recent_limit);
+
+                const queryString = queryParams.toString();
+
+                return {
+                    url: `/dashboard/sections-four${queryString ? `?${queryString}` : ''}`,
+                    method: 'GET',
+                };
+            },
+            providesTags: ['Dashboard'],
+        }),
         // Get dashboard sections five (Top Categories, Top Brands, Top Purchased Products)
         getDashboardSectionsFive: builder.query({
             query: (params) => {
@@ -115,5 +142,6 @@ export const {
     useGetDashboardSummaryQuery,
     useGetDashboardAnalyticsQuery,
     useGetDashboardSectionsQuery,
+    useGetDashboardSectionsFourQuery,
     useGetDashboardSectionsFiveQuery,
 } = DashboardApi;
