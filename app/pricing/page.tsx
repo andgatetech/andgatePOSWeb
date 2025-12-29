@@ -50,7 +50,7 @@ const colorClasses = {
 
 export default function PricingPage() {
     const { t } = getTranslation();
-    const [frequency, setFrequency] = useState({ value: 'monthly', label: '', priceSuffix: '' });
+    const [frequency, setFrequency] = useState({ value: 'monthly', label: '', priceSuffix: '' , setupFee: ''});
     const [openFaq, setOpenFaq] = useState<number | null>(null);
 
     // Get frequencies from translation
@@ -59,12 +59,14 @@ export default function PricingPage() {
             value: 'monthly',
             label: t('pricing_page.frequency.monthly'),
             priceSuffix: t('pricing_page.frequency.per_month'),
+            setupFee: 'setupFee',
         },
         {
             value: 'annually',
             label: t('pricing_page.frequency.annually'),
             priceSuffix: t('pricing_page.frequency.per_year'),
             discount: t('pricing_page.frequency.save'),
+            setupFee: 'setupFee',
         },
     ];
 
@@ -78,10 +80,10 @@ export default function PricingPage() {
     const tierKeys = ['starter', 'sme', 'professional', 'enterprise'];
     const tierPrices: Record<string, any> = {
         // free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
-        starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390', setupFee: '2000' },
-        sme: { monthly: '৳999', annually: '৳11988', originalAnnually: '৳9591', setupFee: '5000' },
-        professional: { monthly: '৳1999', annually: '৳23988', originalAnnually: '৳19191', setupFee: '20000' },
-        enterprise: { monthly: '৳4999', annually: '৳59988', originalAnnually: '৳47991', setupFee: '50000' },
+        starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390', setupFee: '৳2000' },
+        sme: { monthly: '৳999', annually: '৳11988', originalAnnually: '৳9591', setupFee: '৳5000' },
+        professional: { monthly: '৳1999', annually: '৳23988', originalAnnually: '৳19191', setupFee: '৳20000' },
+        enterprise: { monthly: '৳4999', annually: '৳59988', originalAnnually: '৳47991', setupFee: '৳50000' },
     };
 
     const tierIcons: Record<string, any> = {
@@ -119,7 +121,6 @@ export default function PricingPage() {
             badge: t(`pricing_page.tiers.${key}.badge`),
             cta: t(`pricing_page.tiers.${key}.cta`),
             features,
-            setupFee: tierPrices[key].setupFee,
             price: tierPrices[key],
             icon: tierIcons[key],
             color: tierColors[key],
@@ -255,10 +256,7 @@ export default function PricingPage() {
                                                 )}
                                                 {/* Setup Cost Section */}
                                                 <p className="mt-2 text-sm font-medium text-gray-700">
-                                                    Setup Cost:{' '}
-                                                    <span className="font-semibold text-gray-900">
-                                                        {t('pricing_page.save_percent')} {tier.price.setFee}
-                                                    </span>
+                                                    Setup Fee: <span className="font-semibold text-gray-900">{tier.price[frequency.setupFee]}</span>
                                                 </p>
                                             </div>
 
