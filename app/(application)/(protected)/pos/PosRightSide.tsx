@@ -166,7 +166,8 @@ const PosRightSide: React.FC = () => {
     );
 
     const customers: Customer[] = useMemo(() => {
-        return (customersResponse as CustomerApiResponse)?.data || [];
+        const response = customersResponse as CustomerApiResponse;
+        return response?.data?.items || [];
     }, [customersResponse]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

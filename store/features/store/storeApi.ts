@@ -167,6 +167,31 @@ const StoreApi = baseApi.injectEndpoints({
                 }
             },
         }),
+
+        // ✅ Product Adjustment Reasons Management
+        createAdjustmentReason: builder.mutation({
+            query: (data: any) => ({
+                url: '/product-adjustment-reasons',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        updateAdjustmentReason: builder.mutation({
+            query: ({ id, data }: { id: number; data: any }) => ({
+                url: `/product-adjustment-reasons/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        deleteAdjustmentReason: builder.mutation({
+            query: (id: number) => ({
+                url: `/product-adjustment-reasons/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Stores'],
+        }),
     }),
 });
 
@@ -185,4 +210,7 @@ export const {
     useCreatePaymentMethodMutation,
     useUpdatePaymentMethodMutation,
     useDeletePaymentMethodMutation,
+    useCreateAdjustmentReasonMutation,
+    useUpdateAdjustmentReasonMutation,
+    useDeleteAdjustmentReasonMutation,
 } = StoreApi;

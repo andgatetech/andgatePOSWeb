@@ -1,7 +1,10 @@
 import { ArrowDown, ArrowUp, Eye, Minus, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import SerialAdjustmentModal from './SerialAdjustmentModal';
 
 interface AdjustmentItemProps {
@@ -24,11 +27,20 @@ interface AdjustmentItemProps {
  * Individual product item with adjustment controls
  */
 const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpdateQuantity }: AdjustmentItemProps) => {
+    const { currentStore } = useCurrentStore();
+    const { data: storeData } = useGetStoreQuery(currentStore?.id ? { store_id: currentStore.id } : undefined, {
+        skip: !currentStore?.id,
+    });
+
+    const adjustmentReasons = storeData?.data?.adjustment_reasons || [];
     const adjustmentType = adjustment?.adjustmentType || 'increase';
     const adjustmentQuantity = adjustment?.adjustmentQuantity || 0;
     const reason = adjustment?.reason || '';
     const notes = adjustment?.notes || '';
     const serialAdjustments = adjustment?.serialAdjustments || [];
+
+    // Find selected reason details
+    const selectedReason = adjustmentReasons.find((r: any) => r.id?.toString() === reason);
 
     const [isSerialModalOpen, setIsSerialModalOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -203,21 +215,35 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
 
                         {/* Reason */}
                         <div className="sm:col-span-2 lg:col-span-2">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">Reason *</label>
-                            <select
-                                value={reason}
-                                onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
-                                className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Select reason</option>
-                                <option value="damaged">Damaged</option>
-                                <option value="expired">Expired</option>
-                                <option value="lost">Lost/Stolen</option>
-                                <option value="found">Found</option>
-                                <option value="returned">Customer Return</option>
-                                <option value="correction">Stock Correction</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">Reason</label>
+                            {adjustmentReasons.length === 0 ? (
+                                <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
+                                    <p className="text-xs font-medium text-yellow-800">
+                                        No adjustment reasons available.{' '}
+                                        <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
+                                            Create reasons in Store Settings
+                                        </Link>
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-1">
+                                    <select
+                                        value={reason}
+                                        onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
+                                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Select reason</option>
+                                        {adjustmentReasons
+                                            .filter((r: any) => r.is_active === 1 || r.is_active === true)
+                                            .map((r: any) => (
+                                                <option key={r.id} value={r.id}>
+                                                    {r.name}
+                                                </option>
+                                            ))}
+                                    </select>
+                                    {selectedReason?.description && <p className="text-xs italic text-gray-500">{selectedReason.description}</p>}
+                                </div>
+                            )}
                         </div>
 
                         {/* Notes */}

@@ -41,16 +41,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/employees',
                 requiredPermissions: ['users.view', 'users.index'],
             },
-            {
-                label: 'Add Employee',
-                href: '/employees/create',
-                requiredPermissions: ['users.view', 'users.create'],
-            },
-            {
-                label: 'Adjustment Type',
-                href: '/create-adjustment',
-                requiredPermissions: ['stock.adjustments'],
-            },
+            
+            
         ],
     },
     {

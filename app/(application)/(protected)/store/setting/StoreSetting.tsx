@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
-import { useCreatePaymentMethodMutation, useDeletePaymentMethodMutation, useGetStoreQuery, useUpdatePaymentMethodMutation, useUpdateStoreMutation } from '@/store/features/store/storeApi';
+import { useCreateAdjustmentReasonMutation, useCreatePaymentMethodMutation, useDeleteAdjustmentReasonMutation, useDeletePaymentMethodMutation, useGetStoreQuery, useUpdateAdjustmentReasonMutation, useUpdatePaymentMethodMutation, useUpdateStoreMutation } from '@/store/features/store/storeApi';
 import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
 
 // Import Tab Components
@@ -19,6 +19,7 @@ import OperatingHoursTab from './tabs/OperatingHoursTab';
 import PaymentMethodsTab, { PaymentMethodForm } from './tabs/PaymentMethodsTab';
 import StoreStatusTab from './tabs/StoreStatusTab';
 
+import AdjustmentReasonsTab from './tabs/AdjustmentReasonsTab';
 import UnitsTab from './tabs/UnitsTab';
 import WarrantyTypesTab from './tabs/WarrantyTypesTab';
 
@@ -30,7 +31,7 @@ const createEmptyPaymentMethodForm = (): PaymentMethodForm => ({
     is_active: true,
 });
 
-const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'warranty', 'loyalty', 'branding', 'status'] as const;
+const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'warranty', 'adjustment', 'loyalty', 'branding', 'status'] as const;
 
 const StoreSetting = () => {
     const searchParams = useSearchParams();
@@ -81,6 +82,7 @@ const StoreSetting = () => {
     // Use store data directly instead of separate API calls
     const attributesData = storeData?.data?.product_attributes || [];
     const warrantyTypesData = storeData?.data?.warranty_types || [];
+    const adjustmentReasonsData = storeData?.data?.adjustment_reasons || [];
 
     const paymentMethods = useMemo(() => {
         const payload = storeData?.data?.payment_methods;
@@ -94,10 +96,17 @@ const StoreSetting = () => {
     const [createPaymentMethod] = useCreatePaymentMethodMutation();
     const [updatePaymentMethodMutation] = useUpdatePaymentMethodMutation();
     const [deletePaymentMethodMutation] = useDeletePaymentMethodMutation();
+    const [createAdjustmentReason] = useCreateAdjustmentReasonMutation();
+    const [updateAdjustmentReason] = useUpdateAdjustmentReasonMutation();
+    const [deleteAdjustmentReason] = useDeleteAdjustmentReasonMutation();
 
     const [attributeName, setAttributeName] = useState('');
     const [editingAttributeId, setEditingAttributeId] = useState<number | null>(null);
     const [editingAttributeName, setEditingAttributeName] = useState('');
+
+    // Adjustment Reasons state
+    const [adjustmentReasonName, setAdjustmentReasonName] = useState('');
+    const [adjustmentReasonDescription, setAdjustmentReasonDescription] = useState('');
 
     const parseIsActive = (value: any) => value === true || value === 1 || value === '1' || value === 'true';
 
@@ -513,6 +522,117 @@ const StoreSetting = () => {
         }
     };
 
+    // Adjustment Reasons Management Functions
+    const handleCreateAdjustmentReason = async () => {
+        if (!adjustmentReasonName.trim()) {
+            showErrorDialog('Error', 'Adjustment reason name is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot create adjustment reason.');
+            return;
+        }
+
+        try {
+            const payload: any = {
+                store_id: storeId,
+                name: adjustmentReasonName.trim(),
+                description: adjustmentReasonDescription?.trim() || null,
+            };
+
+            await createAdjustmentReason(payload).unwrap();
+
+            showSuccessDialog('Success!', 'Adjustment reason added successfully!');
+            setAdjustmentReasonName('');
+            setAdjustmentReasonDescription('');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to create adjustment reason';
+            showErrorDialog('Create Failed!', errorMessage);
+        }
+    };
+
+    const handleUpdateAdjustmentReason = async (id: number, name: string, description: string) => {
+        if (!name.trim()) {
+            showErrorDialog('Error', 'Adjustment reason name is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update adjustment reason.');
+            return;
+        }
+
+        try {
+            await updateAdjustmentReason({
+                id,
+                data: {
+                    store_id: storeId,
+                    name: name.trim(),
+                    description: description?.trim() || null,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', 'Adjustment reason updated successfully!');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update adjustment reason';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    const handleDeleteAdjustmentReason = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot delete adjustment reason.');
+            return;
+        }
+
+        const confirmed = await showConfirmDialog('Delete Adjustment Reason?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
+
+        if (!confirmed) return;
+
+        try {
+            await deleteAdjustmentReason(id).unwrap();
+            showSuccessDialog('Deleted!', 'Adjustment reason deleted successfully!');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete adjustment reason';
+            showErrorDialog('Delete Failed!', errorMessage);
+        }
+    };
+
+    const handleToggleAdjustmentReasonActive = async (id: number, isActive: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update adjustment reason status.');
+            return;
+        }
+
+        const reason = adjustmentReasonsData.find((r: any) => r.id === id);
+        if (!reason) {
+            showErrorDialog('Error', 'Adjustment reason not found');
+            return;
+        }
+
+        try {
+            await updateAdjustmentReason({
+                id,
+                data: {
+                    store_id: storeId,
+                    name: reason.name,
+                    description: typeof reason.description === 'string' && reason.description.trim().length ? reason.description.trim() : null,
+                    is_active: isActive ? 1 : 0,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', `Adjustment reason ${isActive ? 'enabled' : 'disabled'} successfully!`);
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update adjustment reason status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
     const handleLogoChange = (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -731,6 +851,23 @@ const StoreSetting = () => {
                 );
             case 'warranty':
                 return <WarrantyTypesTab storeId={storeId} warrantyTypesData={warrantyTypesData} warrantyTypesLoading={isLoading} setMessage={setMessage} />;
+            case 'adjustment':
+                return (
+                    <AdjustmentReasonsTab
+                        storeId={storeId}
+                        adjustmentReasonsData={adjustmentReasonsData}
+                        adjustmentReasonsLoading={isLoading}
+                        adjustmentReasonName={adjustmentReasonName}
+                        setAdjustmentReasonName={setAdjustmentReasonName}
+                        adjustmentReasonDescription={adjustmentReasonDescription}
+                        setAdjustmentReasonDescription={setAdjustmentReasonDescription}
+                        handleCreateAdjustmentReason={handleCreateAdjustmentReason}
+                        handleUpdateAdjustmentReason={handleUpdateAdjustmentReason}
+                        handleDeleteAdjustmentReason={handleDeleteAdjustmentReason}
+                        handleToggleAdjustmentReasonActive={handleToggleAdjustmentReasonActive}
+                        setMessage={setMessage}
+                    />
+                );
             case 'loyalty':
                 return <LoyaltyProgramTab formData={formData} handleInputChange={handleInputChange} />;
             case 'branding':

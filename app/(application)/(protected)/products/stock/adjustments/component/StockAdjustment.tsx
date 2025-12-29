@@ -199,14 +199,26 @@ const StockAdjustment = () => {
                     store_id: currentStore?.id,
                     adjustments: regularAdjustments.map((item) => {
                         const adj = getAdjustment(item.id);
-                        return {
+                        const reasonValue = adj!.reason || globalReason;
+
+                        // Build the adjustment object
+                        const adjustmentObj: any = {
                             product_id: item.productId,
                             product_stock_id: item.stockId,
                             direction: adj!.adjustmentType,
                             quantity: adj!.adjustmentQuantity,
-                            reason: adj!.reason || globalReason,
                             notes: adj!.notes || globalNotes,
                         };
+
+                        // If reason is a number (ID), send as product_adjustment_reason_id
+                        // If it's 'default' or text, send as reason
+                        if (reasonValue && !isNaN(Number(reasonValue))) {
+                            adjustmentObj.product_adjustment_reason_id = Number(reasonValue);
+                        } else {
+                            adjustmentObj.reason = reasonValue;
+                        }
+
+                        return adjustmentObj;
                     }),
                 };
 
