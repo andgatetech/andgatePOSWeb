@@ -238,7 +238,7 @@ export default function SubscriptionPage() {
                                     </div>
                                     <div>
                                         <h4 className="font-semibold text-gray-900">Call Us</h4>
-                                        <p className="text-sm text-gray-600">+880 1838680434</p>
+                                        <p className="text-sm text-gray-600">+880 1577303608</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
