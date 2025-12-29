@@ -68,8 +68,8 @@ const InfoCard = ({ title, count, icon: Icon, iconColor, iconBg, cardBg }: any) 
 
 export default function Analytics() {
     const { currentStoreId } = useCurrentStore();
-    const [chartPeriod, setChartPeriod] = useState('daily');
-    const [customerPeriod, setCustomerPeriod] = useState('today');
+    const [chartPeriod, setChartPeriod] = useState('weekly');
+    const [customerPeriod, setCustomerPeriod] = useState('this_week');
 
     const {
         data: analyticsData,

@@ -182,15 +182,15 @@ export default function SectionsFive() {
     const { currentStoreId } = useCurrentStore();
 
     // Separate filter states for each section (backend now supports independent filters)
-    const [categoryFilter, setCategoryFilter] = useState('today');
+    const [categoryFilter, setCategoryFilter] = useState('last_week');
     const [categoryStartDate, setCategoryStartDate] = useState('');
     const [categoryEndDate, setCategoryEndDate] = useState('');
 
-    const [brandFilter, setBrandFilter] = useState('today');
+    const [brandFilter, setBrandFilter] = useState('last_week');
     const [brandStartDate, setBrandStartDate] = useState('');
     const [brandEndDate, setBrandEndDate] = useState('');
 
-    const [purchaseFilter, setPurchaseFilter] = useState('today');
+    const [purchaseFilter, setPurchaseFilter] = useState('last_week');
     const [purchaseStartDate, setPurchaseStartDate] = useState('');
     const [purchaseEndDate, setPurchaseEndDate] = useState('');
 

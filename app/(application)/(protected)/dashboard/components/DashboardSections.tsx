@@ -118,7 +118,7 @@ const StockStatusBadge = ({ status, quantity }: { status: string; quantity: numb
 
 export default function DashboardSections() {
     const { currentStoreId } = useCurrentStore();
-    const [topSellingFilter, setTopSellingFilter] = useState('today');
+    const [topSellingFilter, setTopSellingFilter] = useState('last_week');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
     const [lowStockThreshold, setLowStockThreshold] = useState(10);
@@ -179,7 +179,7 @@ export default function DashboardSections() {
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     >
                         <option value="today">Today</option>
-                        <option value="last_week">Last Week</option>
+                        <option value="last_week">Weekly</option>
                         <option value="custom">Custom Date</option>
                     </select>
                 </div>
