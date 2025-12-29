@@ -119,7 +119,7 @@ export default function PricingPage() {
             badge: t(`pricing_page.tiers.${key}.badge`),
             cta: t(`pricing_page.tiers.${key}.cta`),
             features,
-            setupFee: tierPrices['setupFee'],
+            setupFee:5000,
             price: tierPrices[key],
             icon: tierIcons[key],
             color: tierColors[key],
