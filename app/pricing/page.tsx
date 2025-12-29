@@ -80,10 +80,10 @@ export default function PricingPage() {
     const tierKeys = ['starter', 'sme', 'professional', 'enterprise'];
     const tierPrices: Record<string, any> = {
         // free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
-        starter: { monthly: '৳499', annually: '৳5988', originalAnnually: '৳5390', setupFee: '৳2000' },
-        sme: { monthly: '৳999', annually: '৳11988', originalAnnually: '৳9591', setupFee: '৳5000' },
-        professional: { monthly: '৳1999', annually: '৳23988', originalAnnually: '৳19191', setupFee: '৳20000' },
-        enterprise: { monthly: '৳4999', annually: '৳59988', originalAnnually: '৳47991', setupFee: '৳50000' },
+        starter: { monthly: '৳ 499', annually: '৳ 5988', originalAnnually: '৳ 5390', setupFee: '৳ 2000' },
+        sme: { monthly: '৳ 999', annually: '৳ 11988', originalAnnually: '৳ 9591', setupFee: '৳ 5000' },
+        professional: { monthly: '৳ 1999', annually: '৳ 23988', originalAnnually: '৳ 19191', setupFee: '৳ 20000' },
+        enterprise: { monthly: '৳ 4999', annually: '৳ 59988', originalAnnually: '৳ 47991', setupFee: '৳ 50000' },
     };
 
     const tierIcons: Record<string, any> = {
@@ -310,7 +310,7 @@ export default function PricingPage() {
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     <tr>
                                         <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">{t('pricing_page.comparison.stores')}</td>
-                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>
+                                        {/*<td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>*/}
                                         <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>
                                         <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">1</td>
                                         <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">{t('pricing_page.comparison.up_to')} 3</td>
@@ -318,7 +318,7 @@ export default function PricingPage() {
                                     </tr>
                                     <tr className="bg-gray-50">
                                         <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">{t('pricing_page.comparison.products')}</td>
-                                        <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">50</td>
+                                        {/*<td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">50</td>*/}
                                         <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">100</td>
                                         <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">200</td>
                                         <td className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">500</td>
@@ -326,9 +326,9 @@ export default function PricingPage() {
                                     </tr>
                                     <tr>
                                         <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">{t('pricing_page.comparison.priority_support')}</td>
-                                        <td className="px-3 py-4 text-center sm:px-6">
-                                            <span className="text-gray-400">—</span>
-                                        </td>
+                                        {/*<td className="px-3 py-4 text-center sm:px-6">*/}
+                                        {/*    <span className="text-gray-400">—</span>*/}
+                                        {/*</td>*/}
                                         <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
@@ -344,9 +344,9 @@ export default function PricingPage() {
                                     </tr>
                                     <tr className="bg-gray-50">
                                         <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">{t('pricing_page.comparison.api_access')}</td>
-                                        <td className="px-3 py-4 text-center sm:px-6">
-                                            <span className="text-gray-400">—</span>
-                                        </td>
+                                        {/*<td className="px-3 py-4 text-center sm:px-6">*/}
+                                        {/*    <span className="text-gray-400">—</span>*/}
+                                        {/*</td>*/}
                                         <td className="px-3 py-4 text-center sm:px-6">
                                             <span className="text-gray-400">—</span>
                                         </td>
