@@ -2,31 +2,8 @@ import { baseApi } from '@/store/api/baseApi';
 
 export const ledgerApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // 1️⃣ Get ledgers with optional search, filter, pagination
-        // getLedgers: builder.query({
-        //     query: ({ search, store_id, store_ids, per_page = 10, page = 1, date_from, date_to }) => {
-        //         const params = new URLSearchParams();
-        //         if (search) params.append('search', search);
-        //         if (store_id !== undefined) params.append('store_id', store_id.toString());
-        //         if (store_ids && Array.isArray(store_ids)) {
-        //             store_ids.forEach((id) => params.append('store_ids[]', id.toString()));
-        //         }
-        //         if (per_page) params.append('per_page', per_page.toString());
-        //         if (page) params.append('page', page.toString());
-        //         if (date_from) params.append('date_from', date_from);
-        //         if (date_to) params.append('date_to', date_to);
-
-        //         return {
-        //             url: '/ledgers',
-        //             method: 'GET',
-        //             params,
-        //         };
-        //     },
-        //     providesTags: ['Ledger'],
-        // }),
-
         getLedgers: builder.query({
-            query: ({ search, store_id, store_ids, per_page = 10, page = 1, date_from, date_to }) => {
+            query: ({ search, store_id, store_ids, per_page = 10, page = 1, start_date, end_date, ledger_type, status, sort_field, sort_direction }) => {
                 const params = new URLSearchParams();
 
                 if (search) params.append('search', search);
@@ -39,13 +16,20 @@ export const ledgerApi = baseApi.injectEndpoints({
                         params.append('store_ids', 'all');
                     } else if (Array.isArray(store_ids)) {
                         store_ids.forEach((id) => params.append('store_ids[]', id.toString()));
+                    } else {
+                        // Handle comma-separated string
+                        params.append('store_ids', store_ids);
                     }
                 }
 
                 if (per_page) params.append('per_page', per_page.toString());
                 if (page) params.append('page', page.toString());
-                if (date_from) params.append('date_from', date_from);
-                if (date_to) params.append('date_to', date_to);
+                if (start_date) params.append('start_date', start_date);
+                if (end_date) params.append('end_date', end_date);
+                if (ledger_type) params.append('ledger_type', ledger_type);
+                if (status) params.append('status', status);
+                if (sort_field) params.append('sort_field', sort_field);
+                if (sort_direction) params.append('sort_direction', sort_direction);
 
                 return {
                     url: '/ledgers',
