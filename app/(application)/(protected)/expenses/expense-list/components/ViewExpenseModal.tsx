@@ -102,7 +102,12 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-gray-500">Ledger</p>
-                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{expense.ledger_title || expense.ledger?.title || 'N/A'}</p>
+                                        <div className="mt-0.5 flex items-center gap-2">
+                                            <span className="text-sm font-semibold text-gray-900">{expense.ledger_title || 'N/A'}</span>
+                                            {expense.expense_ledger_type && (
+                                                <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{expense.expense_ledger_type}</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -131,7 +136,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-gray-500">Created By</p>
-                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{expense.user_name || expense.user?.name || 'N/A'}</p>
+                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{expense.user_name || 'N/A'}</p>
                                     </div>
                                 </div>
 
@@ -141,7 +146,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-gray-500">Store</p>
-                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{expense.store_name || expense.store?.store_name || 'N/A'}</p>
+                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{expense.store_name || 'N/A'}</p>
                                     </div>
                                 </div>
 

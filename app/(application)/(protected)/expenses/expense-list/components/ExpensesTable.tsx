@@ -42,15 +42,17 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             {
                 key: 'title',
                 label: 'Title',
-                render: (value, row) => (
-                    <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
-                            <Receipt className="h-4 w-4 text-red-600" />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="font-medium text-gray-900">{value || 'N/A'}</span>
-                            <span className="text-xs text-gray-500">{row.ledger_title || row.ledger?.title || ''}</span>
-                        </div>
+                render: (value) => <span className="font-medium text-gray-900">{value}</span>,
+            },
+            {
+                key: 'ledger_info',
+                label: 'Ledger',
+                render: (_, row) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">{row.ledger_title}</span>
+                        {row.expense_ledger_type && (
+                            <span className="mt-0.5 inline-flex w-fit items-center rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">{row.expense_ledger_type}</span>
+                        )}
                     </div>
                 ),
             },
@@ -58,10 +60,10 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
                 key: 'notes',
                 label: 'Notes',
                 render: (value) => {
-                    const notes = value || 'N/A';
-                    const truncatedNotes = notes.length > 35 ? notes.substring(0, 35) + '...' : notes;
+                    if (!value) return <span className="text-gray-400">-</span>;
+                    const truncatedNotes = value.length > 30 ? value.substring(0, 30) + '...' : value;
                     return (
-                        <span className="text-sm text-gray-700" title={notes}>
+                        <span className="text-sm text-gray-700" title={value}>
                             {truncatedNotes}
                         </span>
                     );
@@ -89,12 +91,12 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             {
                 key: 'store_name',
                 label: 'Store',
-                render: (value, row) => <span className="text-sm text-gray-700">{value || row.store?.store_name || 'N/A'}</span>,
+                render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'user_name',
                 label: 'User',
-                render: (value, row) => <span className="text-sm text-gray-700">{value || row.user?.name || 'N/A'}</span>,
+                render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'created_at',

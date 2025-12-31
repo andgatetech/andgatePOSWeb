@@ -43,7 +43,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
         if (expense) {
             setFormData({
                 title: expense.title || '',
-                ledger_id: expense.ledger_id?.toString() || expense.ledger?.id?.toString() || '',
+                ledger_id: expense.ledger_id?.toString() || '',
                 debit: expense.debit?.toString() || '',
                 payment_type: expense.payment_type || 'cash',
                 notes: expense.notes || '',

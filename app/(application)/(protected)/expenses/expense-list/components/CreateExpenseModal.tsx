@@ -31,6 +31,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
     const [formData, setFormData] = useState({
         title: '',
         ledger_id: '',
+        expense_ledger_type: '',
         debit: '',
         payment_type: 'cash',
         notes: '',
@@ -75,6 +76,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                 debit: parseFloat(formData.debit),
                 payment_type: formData.payment_type,
                 notes: formData.notes.trim(),
+                expense_ledger_type: formData.expense_ledger_type, // Added field to payload
             };
 
             // Only include ledger_id if selected
@@ -85,7 +87,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
             await createExpense(payload).unwrap();
 
             showMessage('Expense created successfully!', 'success');
-            setFormData({ title: '', ledger_id: '', debit: '', payment_type: 'cash', notes: '' });
+            setFormData({ title: '', ledger_id: '', debit: '', payment_type: 'cash', notes: '', expense_ledger_type: '' });
             setErrors({});
             onSuccess();
             onClose();
@@ -96,7 +98,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
     };
 
     const handleClose = () => {
-        setFormData({ title: '', ledger_id: '', debit: '', payment_type: 'cash', notes: '' });
+        setFormData({ title: '', ledger_id: '', debit: '', payment_type: 'cash', notes: '', expense_ledger_type: '' });
         setErrors({});
         onClose();
     };
@@ -158,7 +160,15 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                             <div className="relative">
                                 <select
                                     value={formData.ledger_id}
-                                    onChange={(e) => setFormData({ ...formData, ledger_id: e.target.value })}
+                                    onChange={(e) => {
+                                        const selectedId = e.target.value;
+                                        const selectedLedger = ledgers.find((l: any) => l.id.toString() === selectedId);
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            ledger_id: selectedId,
+                                            expense_ledger_type: selectedLedger ? selectedLedger.title : '',
+                                        }));
+                                    }}
                                     className="w-full appearance-none rounded-xl border border-gray-300 px-4 py-3 pr-10 text-gray-900 transition-all focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
                                 >
                                     <option value="">Auto-create expense ledger</option>
