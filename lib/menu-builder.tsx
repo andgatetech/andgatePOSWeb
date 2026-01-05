@@ -41,8 +41,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/employees',
                 requiredPermissions: ['users.view', 'users.index'],
             },
-            
-            
         ],
     },
     {
@@ -219,87 +217,62 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             'reports.stock',
             'reports.tax',
             'reports.transaction',
-            'reports.income',
+            'reports.customer',
+            'reports.supplier',
             'reports.profit_loss',
-            'reports.purchase-order',
+            'reports.purchase',
             'reports.purchase-transaction',
         ],
         subMenu: [
-            // {
-            //     label: 'Activity Logs',
-            //     href: '/reports/activity',
-            //     requiredPermissions: ['view-dashboard'], // Usually accessible to all
-            // },
+            // Sales & Revenue Reports
             {
-                label: 'Sales',
-                href: '/reports/sales',
-                requiredPermissions: ['reports.sales'],
-            },
-            {
-                label: 'Income',
-                href: '/reports/income',
-                requiredPermissions: ['reports.income'],
-            },
-            {
-                label: 'Expenses',
-                href: '/reports/expenses',
-                requiredPermissions: ['reports.expense'],
-            },
-            {
-                label: 'Profit & Loss',
-                href: '/reports/profit-loss',
-                requiredPermissions: ['reports.profit_loss'],
-            },
-            {
-                label: 'Tax',
-                href: '/reports/tax',
-                requiredPermissions: ['reports.tax'],
-            },
-            {
-                label: 'Idle Products',
-                href: '/reports/idle-product',
-                requiredPermissions: ['reports.inventory'],
-            },
-            {
-                label: 'Purchase',
-                href: '/reports/purchase-order',
-                requiredPermissions: ['reports.purchase-order'],
-            },
-            {
-                label: 'POS Transactions',
-                href: '/reports/pos-transaction',
-                requiredPermissions: ['reports.transaction'],
-            },
-            {
-                label: 'Purchase Transactions',
-                href: '/reports/purchase-transaction',
-                requiredPermissions: ['reports.purchase-transaction'],
-            },
-            {
-                label: 'Stock Reports',
-                requiredPermissions: ['reports.stock', 'stock.summary', 'stock.movement', 'stock.adjustments', 'stock.reports'],
+                label: 'Sales & Revenue',
+                requiredPermissions: ['reports.sales', 'reports.transaction'],
                 subMenu: [
-                    {
-                        label: 'Current Stock',
-                        href: '/reports/stock/current',
-                        requiredPermissions: ['stock.summary', 'reports.stock'],
-                    },
-                    {
-                        label: 'Low Stock',
-                        href: '/reports/stock/low',
-                        requiredPermissions: ['stock.summary', 'reports.stock'],
-                    },
-
-                    {
-                        label: 'Stock Adjustments',
-                        href: '/products/stock/stock-adjustment-list',
-                        requiredPermissions: ['stock.adjustments'],
-                    },
-                    {
-                        label: 'Stock Adjustments Report',
-                        href: '/reports/stock/adjustments',
-                        requiredPermissions: ['stock.reports', 'reports.stock'],
-                    },
+                    { label: 'Sales Report', href: '/reports/sales', requiredPermissions: ['reports.sales'] },
+                    { label: 'Transactions', href: '/reports/transaction', requiredPermissions: ['reports.transaction'] },
+                    { label: 'Invoices', href: '/reports/invoice', requiredPermissions: ['reports.sales'] },
+                    { label: 'Sales Items', href: '/reports/sales-items', requiredPermissions: ['reports.sales'] },
+                ],
+            },
+            // Customer Reports
+            {
+                label: 'Customer Reports',
+                requiredPermissions: ['reports.customer', 'reports.sales'],
+                subMenu: [{ label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.customer', 'reports.sales'] }],
+            },
+            // Purchase & Supplier Reports
+            {
+                label: 'Purchase & Supplier',
+                requiredPermissions: ['reports.purchase', 'reports.purchases', 'reports.supplier'],
+                subMenu: [
+                    { label: 'Purchase Report', href: '/reports/purchase', requiredPermissions: ['reports.purchase', 'reports.purchases'] },
+                    { label: 'Purchase Items', href: '/reports/purchase-items', requiredPermissions: ['reports.purchase', 'reports.purchases'] },
+                    { label: 'Purchase Transactions', href: '/reports/purchase-transaction', requiredPermissions: ['reports.purchase-transaction'] },
+                    { label: 'Supplier Report', href: '/reports/supplier', requiredPermissions: ['reports.supplier', 'reports.purchases'] },
+                    { label: 'Supplier Dues', href: '/reports/supplier-due', requiredPermissions: ['reports.supplier', 'reports.purchases'] },
+                ],
+            },
+            // Inventory Reports
+            {
+                label: 'Inventory Reports',
+                requiredPermissions: ['reports.stock', 'reports.inventory'],
+                subMenu: [
+                    { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['reports.stock'] },
+                    { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.stock'] },
+                    { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'] },
+                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['reports.stock', 'stock.reports'] },
+                    { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'] },
+                ],
+            },
+            // Financial Reports
+            {
+                label: 'Financial Reports',
+                requiredPermissions: ['reports.financial', 'reports.profit_loss', 'reports.expense', 'reports.tax'],
+                subMenu: [
+                    { label: 'Profit & Loss', href: '/reports/profit-loss', requiredPermissions: ['reports.profit_loss', 'reports.financial'] },
+                    { label: 'Expense Report', href: '/reports/expense', requiredPermissions: ['reports.expense'] },
+                    { label: 'Tax Report', href: '/reports/tax', requiredPermissions: ['reports.tax'] },
                 ],
             },
         ],

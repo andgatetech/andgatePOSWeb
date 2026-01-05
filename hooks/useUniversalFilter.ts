@@ -78,7 +78,7 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
 
             return params;
         },
-        [filters, userStores]
+        [filters]
     );
 
     return {

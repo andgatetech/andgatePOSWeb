@@ -164,17 +164,41 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/customers/create': ['customers.create'],
     '/customers/edit': ['customers.create'],
 
-    // Reports
-    '/reports/activity': ['reports.activity-logs'],
+    // Reports - Sales & Revenue
     '/reports/sales': ['reports.sales'],
+    '/reports/transaction': ['reports.transaction'],
+    '/reports/invoice': ['reports.sales'],
+    '/reports/sales-items': ['reports.sales'],
+
+    // Reports - Customer
+    '/reports/customer': ['reports.customer', 'reports.sales'],
+    '/reports/customer-due': ['reports.customer', 'reports.sales'],
+
+    // Reports - Purchase & Supplier
+    '/reports/purchase': ['reports.purchase', 'reports.purchases'],
+    '/reports/purchase-items': ['reports.purchase', 'reports.purchases'],
+    '/reports/purchase-transaction': ['reports.purchase-transaction'],
+    '/reports/supplier': ['reports.supplier', 'reports.purchases'],
+    '/reports/supplier-due': ['reports.supplier', 'reports.purchases'],
+
+    // Reports - Inventory
+    '/reports/stock': ['reports.stock'],
+    '/reports/low-stock': ['reports.stock'],
+    '/reports/idle-product': ['reports.inventory'],
+    '/reports/adjustment': ['reports.stock', 'stock.reports'],
+    '/reports/product': ['reports.inventory'],
+
+    // Reports - Financial
+    '/reports/profit-loss': ['reports.profit_loss', 'reports.financial'],
+    '/reports/expense': ['reports.expense'],
+    '/reports/tax': ['reports.tax'],
+
+    // Legacy/Old Report Routes (keeping for backward compatibility)
+    '/reports/activity': ['reports.activity-logs'],
     '/reports/income': ['reports.income'],
     '/reports/expenses': ['reports.expenses'],
-    '/reports/profit-loss': ['reports.profit-loss'],
-    '/reports/tax': ['reports.tax'],
-    '/reports/idle-product': ['reports.idle-products'],
     '/reports/purchase-order': ['reports.purchase-order'],
     '/reports/pos-transaction': ['reports.pos-transaction'],
-    '/reports/purchase-transaction': ['reports.purchase-transaction'],
     '/reports/stock/current': ['reports.stock-current'],
     '/reports/stock/low': ['reports.low-stock'],
     '/reports/stock/transactions': ['reports.stock-transactions'],
