@@ -1,6 +1,6 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
@@ -10,14 +10,17 @@ import { Banknote, Calculator, CreditCard, FileText, PieChart, ShoppingCart, Tre
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('created_at');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
+    // Main mutation for UI table display
     const [getPurchaseReport, { data: reportData, isLoading }] = useGetPurchaseReportMutation();
+    // Separate mutation instance for export - won't affect UI data
+    const [getPurchaseReportForExport] = useGetPurchaseReportMutation();
 
     const lastQueryParams = useRef<string>('');
 
@@ -63,6 +66,73 @@ const PurchaseReportPage = () => {
         setItemsPerPage(items);
         setCurrentPage(1);
     }, []);
+
+    // Fetch ALL data for export (separate API call - doesn't affect UI)
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = {
+            ...apiParams,
+            export: true,
+            sort_field: sortField,
+            sort_direction: sortDirection,
+        };
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) {
+            exportParams.store_id = currentStoreId;
+        }
+        try {
+            const result = await getPurchaseReportForExport(exportParams).unwrap();
+            return result?.data?.purchase_orders || [];
+        } catch (error) {
+            console.error('Failed to fetch all data for export:', error);
+            return orders;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, orders, getPurchaseReportForExport]);
+
+    // Export columns configuration
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'invoice_number', label: 'Invoice', width: 15 },
+            { key: 'order_reference', label: 'Reference', width: 15 },
+            { key: 'supplier_name', label: 'Supplier', width: 20, format: (value, row) => value || row?.supplier || 'N/A' },
+            { key: 'status', label: 'Status', width: 12 },
+            { key: 'payment_status', label: 'Payment', width: 12 },
+            { key: 'grand_total', label: 'Total', width: 15, format: (value) => `৳${Number(value || 0).toLocaleString()}` },
+            { key: 'amount_paid', label: 'Paid', width: 15, format: (value) => `৳${Number(value || 0).toLocaleString()}` },
+            { key: 'amount_due', label: 'Due', width: 15, format: (value) => `৳${Number(value || 0).toLocaleString()}` },
+            { key: 'created_at', label: 'Date', width: 12, format: (value) => (value ? new Date(value).toLocaleDateString('en-GB') : '') },
+        ],
+        []
+    );
+
+    // Filter summary for export
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+        const customFilters: { label: string; value: string }[] = [];
+        if (apiParams.status && apiParams.status !== 'all') {
+            customFilters.push({ label: 'Status', value: apiParams.status.charAt(0).toUpperCase() + apiParams.status.slice(1) });
+        }
+        if (apiParams.payment_status && apiParams.payment_status !== 'all') {
+            customFilters.push({ label: 'Payment', value: apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1) });
+        }
+        let dateType = 'none';
+        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
+        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
+        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters };
+    }, [apiParams, currentStore, userStores]);
+
+    // Export summary
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Total Orders', value: summary.total_purchase_orders || 0 },
+            { label: 'Total Value', value: `৳${Number(summary.total_purchase_value || 0).toLocaleString()}` },
+            { label: 'Paid Amount', value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}` },
+            { label: 'Due Amount', value: `৳${Number(summary.total_amount_due || 0).toLocaleString()}` },
+        ],
+        [summary]
+    );
 
     const summaryItems = useMemo(
         () => [
@@ -183,101 +253,111 @@ const PurchaseReportPage = () => {
     );
 
     return (
-        <ReportPageLayout
-            title="Purchase Report"
-            description="Complete analysis of procurement and purchase history"
-            icon={<ShoppingCart className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-orange-600 to-orange-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                <ReportExportToolbar
+                    reportTitle="Purchase Report"
+                    reportDescription="Complete analysis of procurement and purchase history"
+                    reportIcon={<ShoppingCart className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-orange-600 to-orange-700"
+                    data={orders}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="purchase_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
 
-            <div className="mb-6 grid gap-6 lg:grid-cols-2">
-                {/* Status Breakdown */}
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
-                    <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="rounded-lg bg-orange-100 p-2">
-                                    <PieChart className="h-5 w-5 text-orange-600" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">Orders by Status</h3>
-                                    <p className="text-xs text-gray-500">Distribution of purchase status</p>
+                <ReportSummaryCard items={summaryItems} />
+
+                <div className="mb-6 grid gap-6 lg:grid-cols-2">
+                    {/* Status Breakdown */}
+                    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
+                        <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="rounded-lg bg-orange-100 p-2">
+                                        <PieChart className="h-5 w-5 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">Orders by Status</h3>
+                                        <p className="text-xs text-gray-500">Distribution of purchase status</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex flex-col divide-y divide-gray-100">
-                        {byStatus.map((item: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50">
-                                <div className="flex items-center gap-3">
-                                    <div className={`h-2.5 w-2.5 rounded-full ${item.status === 'received' ? 'bg-green-500' : 'bg-blue-500'}`} />
-                                    <span className="text-sm font-medium capitalize text-gray-700">{item.status}</span>
-                                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
+                        <div className="flex flex-col divide-y divide-gray-100">
+                            {byStatus.map((item: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`h-2.5 w-2.5 rounded-full ${item.status === 'received' ? 'bg-green-500' : 'bg-blue-500'}`} />
+                                        <span className="text-sm font-medium capitalize text-gray-700">{item.status}</span>
+                                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
+                                    </div>
+                                    <span className="font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</span>
                                 </div>
-                                <span className="font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
 
-                {/* Payment Status Breakdown */}
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
-                    <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="rounded-lg bg-emerald-100 p-2">
-                                    <CreditCard className="h-5 w-5 text-emerald-600" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">Payment Breakdown</h3>
-                                    <p className="text-xs text-gray-500">Summary of payment statuses</p>
+                    {/* Payment Status Breakdown */}
+                    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
+                        <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="rounded-lg bg-emerald-100 p-2">
+                                        <CreditCard className="h-5 w-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">Payment Breakdown</h3>
+                                        <p className="text-xs text-gray-500">Summary of payment statuses</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex flex-col divide-y divide-gray-100">
-                        {byPaymentStatus.map((item: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50">
-                                <div className="flex items-center gap-3">
-                                    <div
-                                        className={`h-2.5 w-2.5 rounded-full ${
-                                            item.payment_status === 'paid' ? 'bg-green-500' : item.payment_status === 'partial' ? 'bg-yellow-500' : 'bg-orange-500'
-                                        }`}
-                                    />
-                                    <span className="text-sm font-medium capitalize text-gray-700">{item.payment_status}</span>
-                                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
+                        <div className="flex flex-col divide-y divide-gray-100">
+                            {byPaymentStatus.map((item: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50">
+                                    <div className="flex items-center gap-3">
+                                        <div
+                                            className={`h-2.5 w-2.5 rounded-full ${
+                                                item.payment_status === 'paid' ? 'bg-green-500' : item.payment_status === 'partial' ? 'bg-yellow-500' : 'bg-orange-500'
+                                            }`}
+                                        />
+                                        <span className="text-sm font-medium capitalize text-gray-700">{item.payment_status}</span>
+                                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</p>
+                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-red-500">Due: ৳{Number(item.total_due).toLocaleString()}</p>}
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</p>
-                                    {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-red-500">Due: ৳{Number(item.total_due).toLocaleString()}</p>}
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="mb-6">
-                <PurchaseReportFilter onFilterChange={handleFilterChange} />
-            </div>
+                <div className="mb-6">
+                    <PurchaseReportFilter onFilterChange={handleFilterChange} />
+                </div>
 
-            <ReusableTable
-                data={orders}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Purchases Found', description: 'No purchases match your current filters.' }}
-            />
-        </ReportPageLayout>
+                <ReusableTable
+                    data={orders}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Purchases Found', description: 'No purchases match your current filters.' }}
+                />
+            </div>
+        </div>
     );
 };
 

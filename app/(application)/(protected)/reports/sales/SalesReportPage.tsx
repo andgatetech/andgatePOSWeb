@@ -1,23 +1,27 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import SalesReportFilter from '@/components/filters/reports/SalesReportFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSalesReportMutation } from '@/store/features/reports/reportApi';
-import { Banknote, Calendar, CreditCard, FileText, Hash, Package, Percent, Receipt, ShoppingCart, TrendingDown, User, Wallet } from 'lucide-react';
+import { Banknote, FileText, Hash, Percent, Receipt, ShoppingCart, TrendingDown, User, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('created_at');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
+    // Main mutation for UI table display
     const [getSalesReport, { data: reportData, isLoading }] = useGetSalesReportMutation();
+
+    // Separate mutation instance for export - won't affect UI data
+    const [getSalesReportForExport] = useGetSalesReportMutation();
 
     // Track last query to prevent duplicate API calls
     const lastQueryParams = useRef<string>('');
@@ -58,6 +62,30 @@ const SalesReportPage = () => {
     const orders = useMemo(() => reportData?.data?.orders || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
+
+    // Fetch ALL data for export (separate API call - doesn't affect UI)
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = {
+            ...apiParams,
+            export: true, // Backend returns ALL data when export=true (no pagination)
+            sort_field: sortField,
+            sort_direction: sortDirection,
+        };
+
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) {
+            exportParams.store_id = currentStoreId;
+        }
+
+        try {
+            // Use separate RTK Query mutation instance to fetch export data without affecting UI
+            const result = await getSalesReportForExport(exportParams).unwrap();
+            return result?.data?.orders || [];
+        } catch (error) {
+            console.error('Failed to fetch all data for export:', error);
+            // Fallback to currently loaded data
+            return orders;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, orders, getSalesReportForExport]);
 
     const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
         setApiParams(newApiParams);
@@ -167,43 +195,31 @@ const SalesReportPage = () => {
             },
             {
                 key: 'items_count',
-                label: 'Items',
-                render: (value: any) => (
-                    <div className="flex items-center gap-1.5">
-                        <Package className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{value}</span>
-                    </div>
-                ),
+                label: 'Qty',
+                render: (value: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{value}</span>,
             },
             {
                 key: 'grand_total',
-                label: 'Total Amount',
+                label: 'Total',
                 sortable: true,
-                render: (value: any, row: any) => (
-                    <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span>
-                        <div className="flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-500">
-                            <CreditCard className="h-2.5 w-2.5" /> {row.payment_method || 'N/A'}
-                        </div>
-                    </div>
-                ),
+                render: (value: any) => <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span>,
+            },
+            {
+                key: 'amount_paid',
+                label: 'Paid',
+                render: (value: any) => <span className="font-semibold text-emerald-600">৳{Number(value || 0).toLocaleString()}</span>,
             },
             {
                 key: 'due_amount',
-                label: 'Paid / Due',
-                render: (value: any, row: any) => (
-                    <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-emerald-600">P: ৳{Number(row.amount_paid || 0).toLocaleString()}</span>
-                        <span className={`text-xs font-semibold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: ৳{Number(value || 0).toLocaleString()}</span>
-                    </div>
-                ),
+                label: 'Due',
+                render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>৳{Number(value || 0).toLocaleString()}</span>,
             },
             {
-                key: 'status',
+                key: 'payment_status',
                 label: 'Status',
                 sortable: true,
-                render: (value: any, row: any) => {
-                    const payStatus = row.payment_status?.toLowerCase() || '';
+                render: (value: any) => {
+                    const payStatus = value?.toLowerCase() || '';
                     const config: Record<string, { bg: string; text: string }> = {
                         paid: { bg: 'bg-green-100', text: 'text-green-800' },
                         partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
@@ -212,25 +228,17 @@ const SalesReportPage = () => {
                     };
                     const { bg, text } = config[payStatus] || { bg: 'bg-gray-100', text: 'text-gray-800' };
 
-                    return (
-                        <div className="flex flex-col gap-1">
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{row.payment_status || 'N/A'}</span>
-                            <span className="pl-1 text-[10px] font-medium uppercase italic text-gray-400">{value}</span>
-                        </div>
-                    );
+                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{value || 'N/A'}</span>;
                 },
             },
             {
                 key: 'created_at',
-                label: 'Order Date',
+                label: 'Date',
                 sortable: true,
                 render: (value: any) => (
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                            <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            {new Date(value).toLocaleDateString('en-GB')}
-                        </div>
-                        <span className="pl-5 text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-sm font-medium text-gray-700">{new Date(value).toLocaleDateString('en-GB')}</span>
+                        <span className="text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                 ),
             },
@@ -238,39 +246,140 @@ const SalesReportPage = () => {
         []
     );
 
+    // Export columns configuration
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'invoice', label: 'Invoice', width: 15 },
+            {
+                key: 'customer',
+                label: 'Customer',
+                width: 25,
+                format: (_, row) => (row?.is_walk_in ? 'Walk-in' : row?.customer?.name || 'N/A'),
+            },
+            { key: 'items_count', label: 'Qty', width: 8 },
+            {
+                key: 'grand_total',
+                label: 'Total',
+                width: 15,
+                format: (value) => `৳${Number(value || 0).toLocaleString()}`,
+            },
+            {
+                key: 'amount_paid',
+                label: 'Paid',
+                width: 15,
+                format: (value) => `৳${Number(value || 0).toLocaleString()}`,
+            },
+            {
+                key: 'due_amount',
+                label: 'Due',
+                width: 15,
+                format: (value) => `৳${Number(value || 0).toLocaleString()}`,
+            },
+            { key: 'payment_status', label: 'Status', width: 12 },
+            {
+                key: 'created_at',
+                label: 'Date',
+                width: 12,
+                format: (value) => (value ? new Date(value).toLocaleDateString('en-GB') : ''),
+            },
+        ],
+        []
+    );
+
+    // Filter summary for export
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+
+        const customFilters: { label: string; value: string }[] = [];
+        if (apiParams.payment_status && apiParams.payment_status !== 'all') {
+            // Capitalize first letter for display
+            const statusDisplay = apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1);
+            customFilters.push({ label: 'Status', value: statusDisplay });
+        }
+        if (apiParams.payment_method && apiParams.payment_method !== 'all') {
+            // Capitalize first letter for display
+            const methodDisplay = apiParams.payment_method.charAt(0).toUpperCase() + apiParams.payment_method.slice(1);
+            customFilters.push({ label: 'Method', value: methodDisplay });
+        }
+
+        // Determine date range type from apiParams
+        let dateType = 'none';
+        if (apiParams.date_range_type) {
+            dateType = apiParams.date_range_type;
+        } else if (apiParams.start_date || apiParams.end_date) {
+            dateType = 'custom';
+        }
+
+        return {
+            dateRange: {
+                startDate: apiParams.start_date,
+                endDate: apiParams.end_date,
+                type: dateType,
+            },
+            storeName: selectedStore,
+            customFilters,
+        };
+    }, [apiParams, currentStore, userStores]);
+
+    // Summary for export
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Total Orders', value: summary.total_orders || 0 },
+            { label: 'Gross Sales', value: `৳${Number(summary.total_sales || 0).toLocaleString()}` },
+            { label: 'Collection', value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}` },
+            { label: 'Outstanding', value: `৳${Number(summary.total_due_amount || 0).toLocaleString()}` },
+        ],
+        [summary]
+    );
+
     return (
-        <ReportPageLayout
-            title="Sales Report"
-            description="Overview of your store sales and income"
-            icon={<ShoppingCart className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-emerald-600 to-teal-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                {/* Unified Export Toolbar with Report Header */}
+                <ReportExportToolbar
+                    reportTitle="Sales Report"
+                    reportDescription="Overview of your store sales and income"
+                    reportIcon={<ShoppingCart className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-emerald-600 to-teal-700"
+                    data={orders}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="sales_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
 
-            <div className="mb-6">
-                <SalesReportFilter onFilterChange={handleFilterChange} />
+                <ReportSummaryCard items={summaryItems} />
+
+                <div className="mb-6">
+                    <SalesReportFilter onFilterChange={handleFilterChange} />
+                </div>
+
+                <ReusableTable
+                    data={orders}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{
+                        icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
+                        title: 'No Sales Records Found',
+                        description: "We couldn't find any orders matching your selected filters.",
+                    }}
+                />
             </div>
-
-            <ReusableTable
-                data={orders}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{
-                    icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                    title: 'No Sales Records Found',
-                    description: "We couldn't find any orders matching your selected filters.",
-                }}
-            />
-        </ReportPageLayout>
+        </div>
     );
 };
 

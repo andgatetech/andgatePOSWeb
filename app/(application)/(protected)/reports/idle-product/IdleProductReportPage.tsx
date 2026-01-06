@@ -1,6 +1,6 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import IdleProductReportFilter from '@/components/filters/reports/IdleProductReportFilter';
@@ -10,7 +10,7 @@ import { AlertTriangle, Banknote, BarChart3, Box, Calendar, Clock, FileText, Pac
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const IdleProductReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({ idle_days: 30 });
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
@@ -18,20 +18,13 @@ const IdleProductReportPage = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const [getIdleProductReport, { data: reportData, isLoading }] = useGetIdleProductReportMutation();
+    const [getIdleProductReportForExport] = useGetIdleProductReportMutation();
 
     const lastQueryParams = useRef<string>('');
 
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
-            page: currentPage,
-            per_page: itemsPerPage,
-            sort_field: sortField,
-            sort_direction: sortDirection,
-            ...apiParams,
-        };
-        if (!params.store_id && !params.store_ids && currentStoreId) {
-            params.store_id = currentStoreId;
-        }
+        const params: Record<string, any> = { page: currentPage, per_page: itemsPerPage, sort_field: sortField, sort_direction: sortDirection, ...apiParams };
+        if (!params.store_id && !params.store_ids && currentStoreId) params.store_id = currentStoreId;
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
@@ -42,37 +35,81 @@ const IdleProductReportPage = () => {
             lastQueryParams.current = queryString;
             getIdleProductReport(queryParams);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams, getIdleProductReport]);
 
     const products = useMemo(() => reportData?.data?.products || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
-    const byCategory = useMemo(() => reportData?.data?.by_category || [], [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
-    const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
-        setApiParams(newApiParams);
+    const handleFilterChange = useCallback((n: Record<string, any>) => {
+        setApiParams(n);
         setCurrentPage(1);
     }, []);
-
     const handleSort = useCallback(
-        (field: string) => {
-            if (sortField === field) {
-                setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-            } else {
-                setSortField(field);
+        (f: string) => {
+            if (sortField === f) setSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+            else {
+                setSortField(f);
                 setSortDirection('asc');
             }
             setCurrentPage(1);
         },
         [sortField]
     );
-
-    const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
-    const handleItemsPerPageChange = useCallback((items: number) => {
-        setItemsPerPage(items);
+    const handlePageChange = useCallback((p: number) => setCurrentPage(p), []);
+    const handleItemsPerPageChange = useCallback((i: number) => {
+        setItemsPerPage(i);
         setCurrentPage(1);
     }, []);
+
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
+        try {
+            const result = await getIdleProductReportForExport(exportParams).unwrap();
+            return result?.data?.products || [];
+        } catch (e) {
+            console.error('Export failed:', e);
+            return products;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, products, getIdleProductReportForExport]);
+
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'product_name', label: 'Product', width: 25 },
+            { key: 'sku', label: 'SKU', width: 12 },
+            { key: 'category', label: 'Category', width: 15 },
+            { key: 'brand', label: 'Brand', width: 12 },
+            { key: 'quantity', label: 'Stock', width: 10 },
+            { key: 'stock_value', label: 'Value', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'last_sold_at', label: 'Last Sale', width: 15, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : 'Never') },
+            { key: 'days_idle', label: 'Days Idle', width: 10 },
+        ],
+        []
+    );
+
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+        const customFilters: { label: string; value: string }[] = [];
+        if (apiParams.idle_days) customFilters.push({ label: 'Idle Days', value: `>${apiParams.idle_days} Days` });
+        let dateType = 'none';
+        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
+        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
+        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters };
+    }, [apiParams, currentStore, userStores]);
+
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Idle Items', value: summary.total_idle_items || 0 },
+            { label: 'Trapped Capital', value: `৳${Number(summary.total_idle_value || 0).toLocaleString()}` },
+            { label: 'Date', value: new Date().toLocaleDateString('en-GB') },
+        ],
+        [summary]
+    );
 
     const summaryItems = useMemo(
         () => [
@@ -118,19 +155,19 @@ const IdleProductReportPage = () => {
                 key: 'product_name',
                 label: 'Aging Inventory',
                 sortable: true,
-                render: (value: any, row: any) => (
+                render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 font-bold text-gray-900">
                             <Box className="h-3.5 w-3.5 text-gray-400" />
-                            {value}
+                            {v}
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
-                            <span className="rounded border bg-gray-50 px-1 font-mono text-[10px] text-gray-400">{row.sku}</span>
-                            {row.variant_data && (
+                            <span className="rounded border bg-gray-50 px-1 font-mono text-[10px] text-gray-400">{r.sku}</span>
+                            {r.variant_data && (
                                 <div className="flex items-center gap-1 text-[10px] font-medium text-gray-500">
                                     <Tag className="h-2.5 w-2.5" />
-                                    {Object.entries(row.variant_data)
-                                        .map(([key, val]) => `${key}: ${val}`)
+                                    {Object.entries(r.variant_data)
+                                        .map(([k, val]) => `${k}: ${val}`)
                                         .join(', ')}
                                 </div>
                             )}
@@ -141,41 +178,37 @@ const IdleProductReportPage = () => {
             {
                 key: 'category',
                 label: 'Category',
-                render: (value: any, row: any) => (
+                render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-700">{value || 'Uncategorized'}</span>
+                        <span className="text-sm font-medium text-gray-700">{v || 'Uncategorized'}</span>
                         <div className="mt-1 flex items-center gap-1 text-[10px] uppercase tracking-tight text-gray-400">
-                            <Store className="h-2.5 w-2.5" /> {row.store_name}
+                            <Store className="h-2.5 w-2.5" /> {r.store_name}
                         </div>
                     </div>
                 ),
             },
-            {
-                key: 'brand',
-                label: 'Brand',
-                render: (value: any) => <span className="text-sm font-medium text-gray-700">{value || 'Unbranded'}</span>,
-            },
+            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
             {
                 key: 'quantity',
                 label: 'Current Stock',
                 sortable: true,
-                render: (value: any, row: any) => (
+                render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">{Number(value).toLocaleString()} Units</span>
-                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">Value: ৳{Number(row.stock_value || 0).toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">{Number(v).toLocaleString()} Units</span>
+                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">Value: ৳{Number(r.stock_value || 0).toLocaleString()}</span>
                     </div>
                 ),
             },
             {
                 key: 'last_sold_at',
                 label: 'Last Sale Date',
-                render: (value: any, row: any) => (
+                render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <div className={`flex items-center gap-1.5 text-sm font-bold ${value ? 'text-amber-700' : 'text-rose-700'}`}>
-                            {value ? (
+                        <div className={`flex items-center gap-1.5 text-sm font-bold ${v ? 'text-amber-700' : 'text-rose-700'}`}>
+                            {v ? (
                                 <>
                                     <BarChart3 className="h-3.5 w-3.5" />
-                                    {new Date(value).toLocaleDateString('en-GB')}
+                                    {new Date(v).toLocaleDateString('en-GB')}
                                 </>
                             ) : (
                                 <>
@@ -184,7 +217,7 @@ const IdleProductReportPage = () => {
                                 </>
                             )}
                         </div>
-                        <span className="mt-1 pl-5 text-[10px] text-gray-400">Purchased: {row.purchase_date ? new Date(row.purchase_date).toLocaleDateString('en-GB') : 'Unknown'}</span>
+                        <span className="mt-1 pl-5 text-[10px] text-gray-400">Purchased: {r.purchase_date ? new Date(r.purchase_date).toLocaleDateString('en-GB') : 'Unknown'}</span>
                     </div>
                 ),
             },
@@ -192,16 +225,15 @@ const IdleProductReportPage = () => {
                 key: 'days_idle',
                 label: 'Days Since Last Sale',
                 sortable: true,
-                render: (value: any) => {
-                    const days = Number(value);
-                    let intensity = 'bg-amber-100 text-amber-700 border-amber-200';
-                    if (days > 180) intensity = 'bg-rose-100 text-rose-700 border-rose-200';
-                    else if (days > 90) intensity = 'bg-orange-100 text-orange-700 border-orange-200';
-
+                render: (v: any) => {
+                    const d = Number(v);
+                    let i = 'bg-amber-100 text-amber-700 border-amber-200';
+                    if (d > 180) i = 'bg-rose-100 text-rose-700 border-rose-200';
+                    else if (d > 90) i = 'bg-orange-100 text-orange-700 border-orange-200';
                     return (
-                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${intensity}`}>
+                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${i}`}>
                             <Timer className="h-3 w-3" />
-                            {days} Days
+                            {d} Days
                         </span>
                     );
                 },
@@ -211,38 +243,45 @@ const IdleProductReportPage = () => {
     );
 
     return (
-        <ReportPageLayout
-            title="Slow Moving Items"
-            description="Tracking products that have not been sold recently"
-            icon={<Clock className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-amber-600 to-orange-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
-
-            <div className="mb-6">
-                <IdleProductReportFilter onFilterChange={handleFilterChange} />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                <ReportExportToolbar
+                    reportTitle="Slow Moving Items"
+                    reportDescription="Tracking products that have not been sold recently"
+                    reportIcon={<Clock className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-amber-600 to-orange-700"
+                    data={products}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="idle_product_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
+                <ReportSummaryCard items={summaryItems} />
+                <div className="mb-6">
+                    <IdleProductReportFilter onFilterChange={handleFilterChange} />
+                </div>
+                <ReusableTable
+                    data={products}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{
+                        icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
+                        title: 'Portfolio Currently Active',
+                        description: 'No dormant products found based on your current aging criteria.',
+                    }}
+                />
             </div>
-
-            <ReusableTable
-                data={products}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{
-                    icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                    title: 'Portfolio Currently Active',
-                    description: 'No dormant products found based on your current aging criteria.',
-                }}
-            />
-        </ReportPageLayout>
+        </div>
     );
 };
 

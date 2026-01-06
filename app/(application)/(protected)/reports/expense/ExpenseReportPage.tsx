@@ -1,6 +1,6 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
@@ -10,7 +10,7 @@ import { Banknote, Calculator, Calendar, CreditCard, FileText, Receipt, Store, U
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ExpenseReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
@@ -18,20 +18,13 @@ const ExpenseReportPage = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const [getExpenseReport, { data: reportData, isLoading }] = useGetExpenseReportMutation();
+    const [getExpenseReportForExport] = useGetExpenseReportMutation();
 
     const lastQueryParams = useRef<string>('');
 
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
-            page: currentPage,
-            per_page: itemsPerPage,
-            sort_field: sortField,
-            sort_direction: sortDirection,
-            ...apiParams,
-        };
-        if (!params.store_id && !params.store_ids && currentStoreId) {
-            params.store_id = currentStoreId;
-        }
+        const params: Record<string, any> = { page: currentPage, per_page: itemsPerPage, sort_field: sortField, sort_direction: sortDirection, ...apiParams };
+        if (!params.store_id && !params.store_ids && currentStoreId) params.store_id = currentStoreId;
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
@@ -42,24 +35,20 @@ const ExpenseReportPage = () => {
             lastQueryParams.current = queryString;
             getExpenseReport(queryParams);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryParams]);
 
     const expenses = useMemo(() => reportData?.data?.expenses || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
-    const byPaymentType = useMemo(() => reportData?.data?.summary?.by_payment_type || [], [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
     const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
         setApiParams(newApiParams);
         setCurrentPage(1);
     }, []);
-
     const handleSort = useCallback(
         (field: string) => {
-            if (sortField === field) {
-                setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-            } else {
+            if (sortField === field) setSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+            else {
                 setSortField(field);
                 setSortDirection('asc');
             }
@@ -67,12 +56,58 @@ const ExpenseReportPage = () => {
         },
         [sortField]
     );
-
     const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
     const handleItemsPerPageChange = useCallback((items: number) => {
         setItemsPerPage(items);
         setCurrentPage(1);
     }, []);
+
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
+        try {
+            const result = await getExpenseReportForExport(exportParams).unwrap();
+            return result?.data?.expenses || [];
+        } catch (error) {
+            console.error('Failed to fetch export data:', error);
+            return expenses;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, expenses, getExpenseReportForExport]);
+
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'title', label: 'Title', width: 20 },
+            { key: 'ledger_title', label: 'Ledger', width: 15 },
+            { key: 'expense_ledger_type', label: 'Type', width: 12 },
+            { key: 'store_name', label: 'Store', width: 15 },
+            { key: 'user_name', label: 'User', width: 15 },
+            { key: 'payment_type', label: 'Payment', width: 10 },
+            { key: 'amount', label: 'Amount', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+        ],
+        []
+    );
+
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+        let dateType = 'none';
+        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
+        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
+        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
+    }, [apiParams, currentStore, userStores]);
+
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Records', value: summary.expense_count || 0 },
+            { label: 'Total', value: `৳${Number(summary.total_expenses || 0).toLocaleString()}` },
+            { label: 'Average', value: `৳${Number(summary.average_expense || 0).toLocaleString()}` },
+        ],
+        [summary]
+    );
 
     const summaryItems = useMemo(
         () => [
@@ -146,12 +181,7 @@ const ExpenseReportPage = () => {
                     </div>
                 ),
             },
-            {
-                key: 'amount',
-                label: 'Amount',
-                sortable: true,
-                render: (value: any) => <span className="font-bold text-rose-600">৳{Number(value || 0).toLocaleString()}</span>,
-            },
+            { key: 'amount', label: 'Amount', sortable: true, render: (value: any) => <span className="font-bold text-rose-600">৳{Number(value || 0).toLocaleString()}</span> },
             {
                 key: 'created_at',
                 label: 'Date & Time',
@@ -171,38 +201,45 @@ const ExpenseReportPage = () => {
     );
 
     return (
-        <ReportPageLayout
-            title="Expense Report"
-            description="List of all operational and administrative expenses"
-            icon={<Receipt className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-rose-600 to-red-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
-
-            <div className="mb-6">
-                <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search expense titles, users..." />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                <ReportExportToolbar
+                    reportTitle="Expense Report"
+                    reportDescription="List of all operational and administrative expenses"
+                    reportIcon={<Receipt className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-rose-600 to-red-700"
+                    data={expenses}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="expense_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
+                <ReportSummaryCard items={summaryItems} />
+                <div className="mb-6">
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search expense titles, users..." />
+                </div>
+                <ReusableTable
+                    data={expenses}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{
+                        icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
+                        title: 'No Expense Records',
+                        description: "We couldn't find any expenses matching your selected range.",
+                    }}
+                />
             </div>
-
-            <ReusableTable
-                data={expenses}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{
-                    icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                    title: 'No Expense Records',
-                    description: "We couldn't find any expenses matching your selected range.",
-                }}
-            />
-        </ReportPageLayout>
+        </div>
     );
 };
 

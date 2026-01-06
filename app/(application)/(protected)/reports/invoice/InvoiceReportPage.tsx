@@ -1,6 +1,6 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
@@ -10,7 +10,7 @@ import { Banknote, Calendar, CreditCard, FileText, Hash, Package, Receipt, Trend
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const InvoiceReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
@@ -18,22 +18,13 @@ const InvoiceReportPage = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const [getInvoiceReport, { data: reportData, isLoading }] = useGetInvoiceReportMutation();
+    const [getInvoiceReportForExport] = useGetInvoiceReportMutation();
 
     const lastQueryParams = useRef<string>('');
 
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
-            page: currentPage,
-            per_page: itemsPerPage,
-            sort_field: sortField,
-            sort_direction: sortDirection,
-            ...apiParams,
-        };
-
-        if (!params.store_id && !params.store_ids && currentStoreId) {
-            params.store_id = currentStoreId;
-        }
-
+        const params: Record<string, any> = { page: currentPage, per_page: itemsPerPage, sort_field: sortField, sort_direction: sortDirection, ...apiParams };
+        if (!params.store_id && !params.store_ids && currentStoreId) params.store_id = currentStoreId;
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
@@ -44,36 +35,80 @@ const InvoiceReportPage = () => {
             lastQueryParams.current = queryString;
             getInvoiceReport(queryParams);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams, getInvoiceReport]);
 
     const invoices = useMemo(() => reportData?.data?.invoices || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
-    const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
-        setApiParams(newApiParams);
+    const handleFilterChange = useCallback((n: Record<string, any>) => {
+        setApiParams(n);
         setCurrentPage(1);
     }, []);
-
     const handleSort = useCallback(
-        (field: string) => {
-            if (sortField === field) {
-                setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-            } else {
-                setSortField(field);
+        (f: string) => {
+            if (sortField === f) setSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+            else {
+                setSortField(f);
                 setSortDirection('asc');
             }
             setCurrentPage(1);
         },
         [sortField]
     );
-
-    const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
-    const handleItemsPerPageChange = useCallback((items: number) => {
-        setItemsPerPage(items);
+    const handlePageChange = useCallback((p: number) => setCurrentPage(p), []);
+    const handleItemsPerPageChange = useCallback((i: number) => {
+        setItemsPerPage(i);
         setCurrentPage(1);
     }, []);
+
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
+        try {
+            const result = await getInvoiceReportForExport(exportParams).unwrap();
+            return result?.data?.invoices || [];
+        } catch (e) {
+            console.error('Export failed:', e);
+            return invoices;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, invoices, getInvoiceReportForExport]);
+
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'invoice_no', label: 'Invoice No', width: 15 },
+            { key: 'customer', label: 'Customer', width: 20 },
+            { key: 'items_count', label: 'Items', width: 8 },
+            { key: 'amount', label: 'Total', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'paid', label: 'Paid', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'amount_due', label: 'Due', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'method', label: 'Method', width: 10 },
+            { key: 'status', label: 'Status', width: 10 },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+        ],
+        []
+    );
+
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+        let dateType = 'none';
+        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
+        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
+        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
+    }, [apiParams, currentStore, userStores]);
+
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Total Invoices', value: summary.total_invoices || 0 },
+            { label: 'Total Amount', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
+            { label: 'Total Due', value: `৳${Number(summary.total_due || 0).toLocaleString()}` },
+        ],
+        [summary]
+    );
 
     const summaryItems = useMemo(
         () => [
@@ -119,23 +154,23 @@ const InvoiceReportPage = () => {
                 key: 'invoice_no',
                 label: 'Invoice',
                 sortable: true,
-                render: (value: any) => (
+                render: (v: any) => (
                     <div className="flex items-center gap-2">
                         <Hash className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="font-semibold text-gray-900">{value}</span>
+                        <span className="font-semibold text-gray-900">{v}</span>
                     </div>
                 ),
             },
             {
                 key: 'customer',
                 label: 'Customer',
-                render: (value: any, row: any) => (
+                render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 font-medium text-gray-900">
                             <User className="h-3.5 w-3.5 text-gray-400" />
-                            {value}
+                            {v}
                         </div>
-                        {row.customer_phone && <span className="pl-5 text-[10px] text-gray-500">{row.customer_phone}</span>}
+                        {r.customer_phone && <span className="pl-5 text-[10px] text-gray-500">{r.customer_phone}</span>}
                     </div>
                 ),
             },
@@ -143,24 +178,24 @@ const InvoiceReportPage = () => {
                 key: 'created_at',
                 label: 'Order Date',
                 sortable: true,
-                render: (value: any) => (
+                render: (v: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 text-sm text-gray-700">
                             <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            {new Date(value).toLocaleDateString('en-GB')}
+                            {new Date(v).toLocaleDateString('en-GB')}
                         </div>
-                        <span className="pl-5 text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="pl-5 text-[10px] text-gray-400">{new Date(v).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                 ),
             },
             {
                 key: 'due_date',
                 label: 'Due Date',
-                render: (value: any) =>
-                    value ? (
+                render: (v: any) =>
+                    v ? (
                         <div className="flex items-center gap-1.5 text-sm text-amber-700">
                             <Calendar className="h-3.5 w-3.5 text-amber-400" />
-                            {new Date(value).toLocaleDateString('en-GB')}
+                            {new Date(v).toLocaleDateString('en-GB')}
                         </div>
                     ) : (
                         <span className="pl-5 text-[10px] lowercase italic text-gray-400">not specified</span>
@@ -169,10 +204,10 @@ const InvoiceReportPage = () => {
             {
                 key: 'items_count',
                 label: 'Items',
-                render: (value: any) => (
+                render: (v: any) => (
                     <div className="flex items-center gap-1.5">
                         <Package className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{value}</span>
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{v}</span>
                     </div>
                 ),
             },
@@ -180,11 +215,11 @@ const InvoiceReportPage = () => {
                 key: 'amount',
                 label: 'Amount',
                 sortable: true,
-                render: (value: any, row: any) => (
+                render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">৳{Number(v || 0).toLocaleString()}</span>
                         <div className="flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-500">
-                            <CreditCard className="h-2.5 w-2.5" /> {row.method || 'N/A'}
+                            <CreditCard className="h-2.5 w-2.5" /> {r.method || 'N/A'}
                         </div>
                     </div>
                 ),
@@ -192,12 +227,12 @@ const InvoiceReportPage = () => {
             {
                 key: 'amount_due',
                 label: 'Paid / Due',
-                render: (value: any, row: any) => {
-                    const due = Number(value || 0);
+                render: (v: any, r: any) => {
+                    const d = Number(v || 0);
                     return (
                         <div className="flex flex-col">
-                            <span className="text-xs font-semibold text-emerald-600">P: ৳{Number(row.paid || 0).toLocaleString()}</span>
-                            <span className={`text-xs font-semibold ${due > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: ৳{due.toLocaleString()}</span>
+                            <span className="text-xs font-semibold text-emerald-600">P: ৳{Number(r.paid || 0).toLocaleString()}</span>
+                            <span className={`text-xs font-semibold ${d > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: ৳{d.toLocaleString()}</span>
                         </div>
                     );
                 },
@@ -205,16 +240,16 @@ const InvoiceReportPage = () => {
             {
                 key: 'status',
                 label: 'Status',
-                render: (value: any) => {
-                    const status = value?.toLowerCase() || '';
-                    const config: Record<string, { bg: string; text: string }> = {
+                render: (v: any) => {
+                    const s = v?.toLowerCase() || '';
+                    const c: any = {
                         paid: { bg: 'bg-green-100', text: 'text-green-800' },
                         partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
                         due: { bg: 'bg-red-100', text: 'text-red-800' },
                         pending: { bg: 'bg-blue-100', text: 'text-blue-800' },
                     };
-                    const { bg, text } = config[status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
-                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
+                    const { bg, text } = c[s] || { bg: 'bg-gray-100', text: 'text-gray-800' };
+                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{v}</span>;
                 },
             },
         ],
@@ -222,38 +257,45 @@ const InvoiceReportPage = () => {
     );
 
     return (
-        <ReportPageLayout
-            title="All Invoices"
-            description="View and track all customer billing history"
-            icon={<Receipt className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-purple-600 to-indigo-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
-
-            <div className="mb-6">
-                <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search invoices, customer name, phone..." />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                <ReportExportToolbar
+                    reportTitle="All Invoices"
+                    reportDescription="View and track all customer billing history"
+                    reportIcon={<Receipt className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-purple-600 to-indigo-700"
+                    data={invoices}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="invoice_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
+                <ReportSummaryCard items={summaryItems} />
+                <div className="mb-6">
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search invoices, customer name, phone..." />
+                </div>
+                <ReusableTable
+                    data={invoices}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{
+                        icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
+                        title: 'No Invoices Found',
+                        description: 'Try adjusting your date range or filters to locate specific invoices.',
+                    }}
+                />
             </div>
-
-            <ReusableTable
-                data={invoices}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{
-                    icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                    title: 'No Invoices Found',
-                    description: 'Try adjusting your date range or filters to locate specific invoices.',
-                }}
-            />
-        </ReportPageLayout>
+        </div>
     );
 };
 

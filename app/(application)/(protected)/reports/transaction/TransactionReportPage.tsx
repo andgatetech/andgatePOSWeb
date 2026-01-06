@@ -1,6 +1,6 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import TransactionReportFilter from '@/components/filters/reports/TransactionReportFilter';
@@ -10,7 +10,7 @@ import { ArrowLeftRight, Banknote, Calculator, Calendar, CreditCard, FileText, H
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TransactionReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
@@ -18,22 +18,13 @@ const TransactionReportPage = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const [getTransactionReport, { data: reportData, isLoading }] = useGetTransactionReportMutation();
+    const [getTransactionReportForExport] = useGetTransactionReportMutation();
 
     const lastQueryParams = useRef<string>('');
 
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
-            page: currentPage,
-            per_page: itemsPerPage,
-            sort_field: sortField,
-            sort_direction: sortDirection,
-            ...apiParams,
-        };
-
-        if (!params.store_id && !params.store_ids && currentStoreId) {
-            params.store_id = currentStoreId;
-        }
-
+        const params: Record<string, any> = { page: currentPage, per_page: itemsPerPage, sort_field: sortField, sort_direction: sortDirection, ...apiParams };
+        if (!params.store_id && !params.store_ids && currentStoreId) params.store_id = currentStoreId;
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
@@ -44,25 +35,20 @@ const TransactionReportPage = () => {
             lastQueryParams.current = queryString;
             getTransactionReport(queryParams);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryParams]);
 
     const transactions = useMemo(() => reportData?.data?.transactions || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
-    const byStatus = useMemo(() => reportData?.data?.by_status || [], [reportData]);
-    const byMethod = useMemo(() => reportData?.data?.by_payment_method || [], [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
     const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
         setApiParams(newApiParams);
         setCurrentPage(1);
     }, []);
-
     const handleSort = useCallback(
         (field: string) => {
-            if (sortField === field) {
-                setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-            } else {
+            if (sortField === field) setSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+            else {
                 setSortField(field);
                 setSortDirection('asc');
             }
@@ -70,12 +56,62 @@ const TransactionReportPage = () => {
         },
         [sortField]
     );
-
     const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
     const handleItemsPerPageChange = useCallback((items: number) => {
         setItemsPerPage(items);
         setCurrentPage(1);
     }, []);
+
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
+        try {
+            const result = await getTransactionReportForExport(exportParams).unwrap();
+            return result?.data?.transactions || [];
+        } catch (error) {
+            console.error('Failed to fetch export data:', error);
+            return transactions;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, transactions, getTransactionReportForExport]);
+
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'invoice', label: 'Invoice', width: 15 },
+            { key: 'store_name', label: 'Store', width: 15 },
+            { key: 'user_name', label: 'User', width: 15 },
+            { key: 'payment_status', label: 'Status', width: 10 },
+            { key: 'payment_method', label: 'Method', width: 10 },
+            { key: 'amount', label: 'Amount', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+        ],
+        []
+    );
+
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+        const customFilters: { label: string; value: string }[] = [];
+        if (apiParams.payment_status && apiParams.payment_status !== 'all')
+            customFilters.push({ label: 'Status', value: apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1) });
+        if (apiParams.payment_method && apiParams.payment_method !== 'all')
+            customFilters.push({ label: 'Method', value: apiParams.payment_method.charAt(0).toUpperCase() + apiParams.payment_method.slice(1) });
+        let dateType = 'none';
+        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
+        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
+        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters };
+    }, [apiParams, currentStore, userStores]);
+
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Total Transactions', value: summary.total_transactions || 0 },
+            { label: 'Total Volume', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
+            { label: 'Average', value: `৳${Number(summary.average_transaction || 0).toLocaleString()}` },
+        ],
+        [summary]
+    );
 
     const summaryItems = useMemo(
         () => [
@@ -183,38 +219,45 @@ const TransactionReportPage = () => {
     );
 
     return (
-        <ReportPageLayout
-            title="Money Transactions"
-            description="Detailed list of all payments and money movements"
-            icon={<ArrowLeftRight className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-blue-600 to-indigo-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
-
-            <div className="mb-6">
-                <TransactionReportFilter onFilterChange={handleFilterChange} />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                <ReportExportToolbar
+                    reportTitle="Money Transactions"
+                    reportDescription="Detailed list of all payments and money movements"
+                    reportIcon={<ArrowLeftRight className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-blue-600 to-indigo-700"
+                    data={transactions}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="transaction_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
+                <ReportSummaryCard items={summaryItems} />
+                <div className="mb-6">
+                    <TransactionReportFilter onFilterChange={handleFilterChange} />
+                </div>
+                <ReusableTable
+                    data={transactions}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{
+                        icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
+                        title: 'No Transactions Found',
+                        description: 'No audit records match your current filter selection.',
+                    }}
+                />
             </div>
-
-            <ReusableTable
-                data={transactions}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{
-                    icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                    title: 'No Transactions Found',
-                    description: 'No audit records match your current filter selection.',
-                }}
-            />
-        </ReportPageLayout>
+        </div>
     );
 };
 

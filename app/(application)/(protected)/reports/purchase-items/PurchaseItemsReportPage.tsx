@@ -1,6 +1,6 @@
 'use client';
 
-import ReportPageLayout from '@/app/(application)/(protected)/reports/_shared/ReportPageLayout';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
@@ -10,7 +10,7 @@ import { Banknote, CheckCircle, FileText, Package, Truck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseItemsReportPage = () => {
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
@@ -18,6 +18,7 @@ const PurchaseItemsReportPage = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     const [getPurchaseItemsReport, { data: reportData, isLoading }] = useGetPurchaseItemsReportMutation();
+    const [getPurchaseItemsReportForExport] = useGetPurchaseItemsReportMutation();
 
     const lastQueryParams = useRef<string>('');
 
@@ -34,33 +35,79 @@ const PurchaseItemsReportPage = () => {
             lastQueryParams.current = queryString;
             getPurchaseItemsReport(queryParams);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams, getPurchaseItemsReport]);
 
     const items = useMemo(() => reportData?.data?.items || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
-    const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
-        setApiParams(newApiParams);
+    const handleFilterChange = useCallback((n: Record<string, any>) => {
+        setApiParams(n);
         setCurrentPage(1);
     }, []);
     const handleSort = useCallback(
-        (field: string) => {
-            if (sortField === field) setSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+        (f: string) => {
+            if (sortField === f) setSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
             else {
-                setSortField(field);
+                setSortField(f);
                 setSortDirection('asc');
             }
             setCurrentPage(1);
         },
         [sortField]
     );
-    const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
-    const handleItemsPerPageChange = useCallback((items: number) => {
-        setItemsPerPage(items);
+    const handlePageChange = useCallback((p: number) => setCurrentPage(p), []);
+    const handleItemsPerPageChange = useCallback((i: number) => {
+        setItemsPerPage(i);
         setCurrentPage(1);
     }, []);
+
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };
+        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
+        try {
+            const result = await getPurchaseItemsReportForExport(exportParams).unwrap();
+            return result?.data?.items || [];
+        } catch (e) {
+            console.error('Export failed:', e);
+            return items;
+        }
+    }, [apiParams, currentStoreId, sortField, sortDirection, items, getPurchaseItemsReportForExport]);
+
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'reference', label: 'Reference', width: 15 },
+            { key: 'product_name', label: 'Product', width: 25 },
+            { key: 'category', label: 'Category', width: 15 },
+            { key: 'purchase_qty', label: 'Qty', width: 10 },
+            { key: 'received_qty', label: 'Received', width: 10 },
+            { key: 'unit_price', label: 'Unit Price', width: 12, format: (v) => `৳${Number(v || 0).toFixed(2)}` },
+            { key: 'purchase_amount', label: 'Total', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'due_date', label: 'Due Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+        ],
+        []
+    );
+
+    const filterSummary = useMemo(() => {
+        const selectedStore = apiParams.store_ids
+            ? 'All Stores'
+            : apiParams.store_id
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
+            : currentStore?.store_name || 'All Stores';
+        let dateType = 'none';
+        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
+        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
+        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
+    }, [apiParams, currentStore, userStores]);
+
+    const exportSummary = useMemo(
+        () => [
+            { label: 'Unique Items', value: summary.total_items || 0 },
+            { label: 'Total Quantity', value: summary.total_quantity || 0 },
+            { label: 'Total Amount', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
+        ],
+        [summary]
+    );
 
     const summaryItems = useMemo(
         () => [
@@ -102,78 +149,73 @@ const PurchaseItemsReportPage = () => {
 
     const columns = useMemo(
         () => [
-            { key: 'reference', label: 'Reference', render: (value: any) => <span className="font-mono text-sm text-gray-600">{value || '-'}</span> },
-            { key: 'sku', label: 'SKU', render: (value: any) => <span className="font-mono text-sm text-gray-600">{value || '-'}</span> },
-            {
-                key: 'product_name',
-                label: 'Product',
-                sortable: true,
-                render: (value: any) => <span className="font-medium text-gray-900">{value}</span>,
-            },
-            { key: 'category', label: 'Category', render: (value: any) => <span className="text-sm text-gray-700">{value || 'Uncategorized'}</span> },
-            { key: 'brand', label: 'Brand', render: (value: any) => <span className="text-sm text-gray-700">{value || 'Unbranded'}</span> },
-            {
-                key: 'instock_qty',
-                label: 'Instock',
-                render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-gray-900' : 'text-red-600'}`}>{value}</span>,
-            },
-            {
-                key: 'purchase_qty',
-                label: 'Qty',
-                sortable: true,
-                render: (value: any) => <span className="font-bold text-blue-600">{value}</span>,
-            },
+            { key: 'reference', label: 'Reference', render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
+            { key: 'sku', label: 'SKU', render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
+            { key: 'product_name', label: 'Product', sortable: true, render: (v: any) => <span className="font-medium text-gray-900">{v}</span> },
+            { key: 'category', label: 'Category', render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
+            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
+            { key: 'instock_qty', label: 'Instock', render: (v: any) => <span className={`font-semibold ${Number(v) > 0 ? 'text-gray-900' : 'text-red-600'}`}>{v}</span> },
+            { key: 'purchase_qty', label: 'Qty', sortable: true, render: (v: any) => <span className="font-bold text-blue-600">{v}</span> },
             {
                 key: 'received_qty',
                 label: 'Received',
-                render: (value: any, row: any) => {
-                    const isFullyReceived = Number(value) >= Number(row.purchase_qty);
+                render: (v: any, r: any) => {
+                    const f = Number(v) >= Number(r.purchase_qty);
                     return (
-                        <span className={`inline-flex items-center gap-1 font-medium ${isFullyReceived ? 'text-green-600' : 'text-orange-600'}`}>
-                            {value}
-                            {isFullyReceived && <CheckCircle className="h-3 w-3" />}
+                        <span className={`inline-flex items-center gap-1 font-medium ${f ? 'text-green-600' : 'text-orange-600'}`}>
+                            {v}
+                            {f && <CheckCircle className="h-3 w-3" />}
                         </span>
                     );
                 },
             },
-            { key: 'unit_price', label: 'Unit Price', render: (value: any) => <span className="text-sm text-gray-700">৳{Number(value || 0).toFixed(2)}</span> },
-            { key: 'purchase_amount', label: 'Total', sortable: true, render: (value: any) => <span className="font-semibold text-gray-900">৳{Number(value || 0).toLocaleString()}</span> },
+            { key: 'unit_price', label: 'Unit Price', render: (v: any) => <span className="text-sm text-gray-700">৳{Number(v || 0).toFixed(2)}</span> },
+            { key: 'purchase_amount', label: 'Total', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">৳{Number(v || 0).toLocaleString()}</span> },
             {
                 key: 'due_date',
                 label: 'Due Date',
-                render: (value: any) => (value ? <span className="text-sm text-gray-700">{new Date(value).toLocaleDateString('en-GB')}</span> : <span className="text-xs text-gray-400">N/A</span>),
+                render: (v: any) => (v ? <span className="text-sm text-gray-700">{new Date(v).toLocaleDateString('en-GB')}</span> : <span className="text-xs text-gray-400">N/A</span>),
             },
         ],
         []
     );
 
     return (
-        <ReportPageLayout
-            title="Purchase Items Report"
-            description="View details of items purchased across all orders"
-            icon={<Package className="h-6 w-6 text-white" />}
-            iconBgClass="bg-gradient-to-r from-amber-600 to-amber-700"
-        >
-            <ReportSummaryCard items={summaryItems} />
-            <div className="mb-6">
-                <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search products, SKU..." />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="mx-auto">
+                <ReportExportToolbar
+                    reportTitle="Purchase Items Report"
+                    reportDescription="View details of items purchased across all orders"
+                    reportIcon={<Package className="h-6 w-6 text-white" />}
+                    iconBgClass="bg-gradient-to-r from-amber-600 to-amber-700"
+                    data={items}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={filterSummary}
+                    fileName="purchase_items_report"
+                    fetchAllData={fetchAllDataForExport}
+                />
+                <ReportSummaryCard items={summaryItems} />
+                <div className="mb-6">
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search products, SKU..." />
+                </div>
+                <ReusableTable
+                    data={items}
+                    columns={columns}
+                    isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: pagination.last_page || 1,
+                        itemsPerPage,
+                        totalItems: pagination.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Items Found', description: 'No purchase items match your current filters.' }}
+                />
             </div>
-            <ReusableTable
-                data={items}
-                columns={columns}
-                isLoading={isLoading}
-                pagination={{
-                    currentPage,
-                    totalPages: pagination.last_page || 1,
-                    itemsPerPage,
-                    totalItems: pagination.total || 0,
-                    onPageChange: handlePageChange,
-                    onItemsPerPageChange: handleItemsPerPageChange,
-                }}
-                sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Items Found', description: 'No purchase items match your current filters.' }}
-            />
-        </ReportPageLayout>
+        </div>
     );
 };
 

@@ -63,6 +63,7 @@ export const useUniversalFilter = (options: UseUniversalFilterOptions = {}) => {
 
             // Add date range parameters - only if not 'none'
             if (filters.dateRange && filters.dateRange.type !== 'none') {
+                params.date_range_type = filters.dateRange.type; // Pass the type for display purposes
                 if (filters.dateRange.startDate) {
                     params.start_date = filters.dateRange.startDate;
                 }
