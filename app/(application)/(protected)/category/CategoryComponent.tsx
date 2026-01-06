@@ -11,27 +11,30 @@ import Swal from 'sweetalert2';
 const CategoryComponent = () => {
     const { currentStoreId, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [sortField, setSortField] = useState('created_at');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    // Build query parameters based on filter state
-    let queryParams: Record<string, any>;
+    // Build query parameters based on filter state and pagination
+    const queryParams = useMemo(() => {
+        const params: Record<string, any> = {
+            page: currentPage,
+            per_page: itemsPerPage,
+            sort_field: sortField,
+            sort_direction: sortDirection,
+        };
 
-    if (Object.keys(apiParams).length > 0) {
-        // Filter is active - use filter parameters
-        if (apiParams.store_ids === 'all') {
-            // "All Stores" selected - send all user's store IDs
-            const allStoreIds = userStores.map((store: any) => store.id);
-            queryParams = { ...apiParams, store_ids: allStoreIds };
-        } else if (apiParams.store_id) {
-            // Specific store selected in filter
-            queryParams = apiParams;
-        } else {
-            // Filter active but no store selected - use current store from sidebar
-            queryParams = { ...apiParams, store_id: currentStoreId };
+        // Merge apiParams into params
+        Object.assign(params, apiParams);
+
+        // Default to current store if not explicitly provided and no 'all stores' logic (store_ids) is present
+        if (!params.store_id && !params.store_ids && currentStoreId) {
+            params.store_id = currentStoreId;
         }
-    } else {
-        // No filter active - use current store from sidebar (default behavior)
-        queryParams = currentStoreId ? { store_id: currentStoreId } : {};
-    }
+
+        return params;
+    }, [apiParams, currentPage, itemsPerPage, sortField, sortDirection, currentStoreId]);
 
     const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams);
     const [createCategory] = useCreateCategoryMutation();
@@ -56,11 +59,36 @@ const CategoryComponent = () => {
     }, [currentStoreId]);
 
     // Handle filter changes from CategoryFilter - RTK Query will auto-refetch when queryParams change
+    // Handle filter changes from CategoryFilter - RTK Query will auto-refetch when queryParams change
     const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {
         setApiParams(newApiParams);
+        setCurrentPage(1); // Reset to first page on filter change
     }, []);
 
-    const categories = useMemo(() => categoriesResponse?.data || [], [categoriesResponse?.data]);
+    const categories = useMemo(() => categoriesResponse?.data?.items || [], [categoriesResponse]);
+    const paginationMeta = useMemo(() => categoriesResponse?.data?.pagination, [categoriesResponse]);
+
+    const handleSort = useCallback(
+        (field: string) => {
+            if (sortField === field) {
+                setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+            } else {
+                setSortField(field);
+                setSortDirection('asc');
+            }
+            setCurrentPage(1);
+        },
+        [sortField]
+    );
+
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+    }, []);
+
+    const handleItemsPerPageChange = useCallback((items: number) => {
+        setItemsPerPage(items);
+        setCurrentPage(1);
+    }, []);
 
     const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
         Swal.fire({
@@ -210,7 +238,7 @@ const CategoryComponent = () => {
                 key: 'updated_at',
                 label: 'Updated At',
                 sortable: true,
-                render: (value, row) => (value !== row.created_at ? <span className="text-sm text-gray-500">{formatDate(value)}</span> : <span className="text-sm text-gray-400">-</span>),
+                render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
             },
         ],
         []
@@ -334,6 +362,19 @@ const CategoryComponent = () => {
                     data={categoriesWithActions}
                     columns={columnsWithActions}
                     isLoading={isLoading}
+                    pagination={{
+                        currentPage,
+                        totalPages: paginationMeta?.last_page || 1,
+                        itemsPerPage,
+                        totalItems: paginationMeta?.total || 0,
+                        onPageChange: handlePageChange,
+                        onItemsPerPageChange: handleItemsPerPageChange,
+                    }}
+                    sorting={{
+                        field: sortField,
+                        direction: sortDirection,
+                        onSort: handleSort,
+                    }}
                     emptyState={{
                         icon: (
                             <div className="flex justify-center">

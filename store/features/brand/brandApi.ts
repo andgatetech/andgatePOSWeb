@@ -19,7 +19,10 @@ export const brandApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params, // store_id, store_ids, search, etc
             }),
-            providesTags: (result) => (result ? [...result.data.map((brand) => ({ type: 'Brand', id: brand.id })), { type: 'Brand', id: 'LIST' }] : [{ type: 'Brand', id: 'LIST' }]),
+            providesTags: (result) =>
+                result?.data?.items && Array.isArray(result.data.items)
+                    ? [...result.data.items.map((brand: any) => ({ type: 'Brand', id: brand.id })), { type: 'Brand', id: 'LIST' }]
+                    : [{ type: 'Brand', id: 'LIST' }],
         }),
 
         // ---------------- Get Single Brand ----------------

@@ -1,5 +1,6 @@
 'use client';
 import UniversalFilter from '@/components/common/UniversalFilter';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { Tag } from 'lucide-react';
 import React from 'react';
@@ -9,18 +10,33 @@ interface BrandFilterProps {
     currentStoreId?: number | null;
 }
 
-const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange, currentStoreId }) => {
+const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange }) => {
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
+    const { userStores } = useCurrentStore();
 
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
     // Handle all filter changes in one effect
     React.useEffect(() => {
-        const apiParams = buildApiParams({
-            status: selectedStatus !== 'all' ? selectedStatus : undefined,
-        });
+        const additionalParams: Record<string, any> = {};
+
+        if (selectedStatus !== 'all') {
+            additionalParams.status = selectedStatus;
+        }
+
+        // Handle store_ids for 'all' stores
+        if (filters.storeId === 'all') {
+            const allStoreIds = userStores.map((store: any) => store.id);
+            if (allStoreIds.length > 1) {
+                additionalParams.store_ids = allStoreIds.join(',');
+            } else if (allStoreIds.length === 1) {
+                additionalParams.store_id = allStoreIds[0];
+            }
+        }
+
+        const apiParams = buildApiParams(additionalParams);
         onFilterChange(apiParams);
-    }, [filters, selectedStatus, buildApiParams, onFilterChange]);
+    }, [filters, selectedStatus, buildApiParams, onFilterChange, userStores]);
 
     // Handle reset callback
     const handleResetFilters = React.useCallback(() => {

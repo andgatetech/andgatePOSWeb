@@ -154,12 +154,23 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const totalRecords = paginationMeta?.total ?? products.length;
     const totalPages = paginationMeta?.last_page ?? Math.max(1, Math.ceil(totalRecords / itemsPerPage));
 
-    // Fetch categories and brands for current store
+    // Fetch categories for current store
     const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(filterQueryParams);
-    const categories = categoriesResponse?.data || [];
+    const categories = useMemo(() => {
+        if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
+            return categoriesResponse.data.items;
+        }
+        return categoriesResponse?.data || [];
+    }, [categoriesResponse]);
 
+    // Fetch brands for current store
     const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(filterQueryParams);
-    const brands = brandsResponse?.data || [];
+    const brands = useMemo(() => {
+        if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
+            return brandsResponse.data.items;
+        }
+        return brandsResponse?.data || [];
+    }, [brandsResponse]);
 
     // Select Redux items based on the slice prop
     const reduxItems = useSelector((state: RootState) => {
