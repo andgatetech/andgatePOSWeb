@@ -35,7 +35,7 @@ const CustomerReportPage = () => {
             lastQueryParams.current = queryString;
             getCustomerReport(queryParams);
         }
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams.store_id, apiParams.store_ids, getCustomerReport]);
 
     const customers = useMemo(() => reportData?.data?.customers || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);

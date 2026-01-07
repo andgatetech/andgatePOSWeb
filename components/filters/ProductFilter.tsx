@@ -64,7 +64,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
 
     // Get categories based on selected store(s)
     const { data: categoriesResponse } = useGetCategoryQuery(categoryQueryParams);
-    const categories = categoriesResponse?.data || [];
+    const categories = React.useMemo(() => {
+        if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
+            return categoriesResponse.data.items;
+        }
+        return categoriesResponse?.data || [];
+    }, [categoriesResponse]);
 
     // Reset filters when store selection changes
     React.useEffect(() => {
