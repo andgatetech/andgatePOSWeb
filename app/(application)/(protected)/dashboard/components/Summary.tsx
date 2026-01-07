@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSummaryQuery } from '@/store/features/dashboard/dashboad';
 import { Clock, DollarSign, FileText, Gift, Layers, RefreshCw, Settings, Shield } from 'lucide-react';
@@ -37,6 +38,7 @@ const DetailCardSkeleton = () => (
 );
 
 const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg, iconColor, numericValue }: any) => {
+    const { symbol } = useCurrency();
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
@@ -44,7 +46,8 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, ico
         <div className="rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-start justify-between">
                 <p className="text-2xl font-bold text-gray-900">
-                    ৳<CountUp end={numericValue} duration={2} decimals={2} separator="," />
+                    {symbol}
+                    <CountUp end={numericValue} duration={2} decimals={2} separator="," />
                 </p>
                 <div className={`${iconBg} flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg`}>
                     <Icon className={`h-5 w-5 ${iconColor}`} />
@@ -63,6 +66,7 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, ico
 };
 
 const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg, bgColor, numericValue }: any) => {
+    const { symbol } = useCurrency();
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
@@ -75,7 +79,8 @@ const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, i
                 <div className="text-right">
                     <p className="text-sm font-medium opacity-90">{title}</p>
                     <p className="text-2xl font-bold">
-                        ৳<CountUp end={numericValue} duration={2} decimals={2} separator="," />
+                        {symbol}
+                        <CountUp end={numericValue} duration={2} decimals={2} separator="," />
                     </p>
                     <span
                         className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
@@ -92,11 +97,8 @@ const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, i
 
 export default function Summary() {
     const { currentStoreId } = useCurrentStore();
+    const { formatCurrency } = useCurrency();
     const { data: dashboardData, isLoading, isError } = useGetDashboardSummaryQuery({ store_id: currentStoreId });
-
-    const formatCurrency = (amount: number) => {
-        return `৳${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    };
 
     const formatPercentage = (percentage: number) => {
         const sign = percentage > 0 ? '+' : '';

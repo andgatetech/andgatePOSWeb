@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileText, Package, Receipt, ShoppingCart, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
 import PaymentReceipt from './PaymentReceipt';
@@ -11,6 +12,7 @@ interface TransactionTrackingModalProps {
 }
 
 const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isOpen, purchaseOrder, onClose }) => {
+    const { formatCurrency } = useCurrency();
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
 
     if (!isOpen || !purchaseOrder) return null;
@@ -24,10 +26,6 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
             hour: '2-digit',
             minute: '2-digit',
         });
-    };
-
-    const formatCurrency = (amount: number) => {
-        return `৳${Number(amount).toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     const getStatusColor = (status: string) => {

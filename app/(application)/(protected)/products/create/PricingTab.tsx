@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import React from 'react';
 
 interface PricingTabProps {
@@ -17,6 +18,7 @@ interface PricingTabProps {
 }
 
 const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+    const { symbol, formatCurrency } = useCurrency();
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Pricing</h3>
@@ -28,7 +30,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                         Purchase Price <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
                         <input
                             id="purchase_price"
                             name="purchase_price"
@@ -54,7 +56,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                         Selling Price <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
                         <input
                             id="price"
                             name="price"
@@ -80,7 +82,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                         Wholesale Price
                     </label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">৳</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
                         <input
                             id="wholesale_price"
                             name="wholesale_price"
@@ -112,7 +114,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                         </div>
                         <div className="text-right">
                             <p className="text-sm font-medium text-green-900">Profit per Unit</p>
-                            <p className="text-2xl font-bold text-green-600">৳{(parseFloat(formData.price) - parseFloat(formData.purchase_price)).toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-green-600">{formatCurrency(parseFloat(formData.price) - parseFloat(formData.purchase_price))}</p>
                         </div>
                     </div>
                 </div>

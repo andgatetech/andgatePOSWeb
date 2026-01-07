@@ -1,3 +1,4 @@
+import { useCurrency } from '@/hooks/useCurrency';
 import { Eye, Package } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
@@ -12,6 +13,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMobileView = false, onAddToCart, onImageShow }) => {
+    const { formatCurrency } = useCurrency();
     // Calculate total quantity from stocks
     const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
     const isUnavailable = product.available === false || totalQuantity <= 0;
@@ -59,14 +61,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
             const maxPrice = Math.max(...prices);
             return (
                 <span className="text-xs font-semibold text-green-600 sm:text-sm">
-                    ৳{minPrice.toFixed(2)} - ৳{maxPrice.toFixed(2)}
+                    {formatCurrency(minPrice)} - {formatCurrency(maxPrice)}
                 </span>
             );
         }
         // Simple product - show regular price
         const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
         const price = parseFloat((primaryStock?.price || product.price || 0) as string);
-        return <span className="text-xs font-semibold text-green-600 sm:text-sm">৳{price.toFixed(2)}</span>;
+        return <span className="text-xs font-semibold text-green-600 sm:text-sm">{formatCurrency(price)}</span>;
     };
 
     return (

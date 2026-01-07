@@ -1,5 +1,6 @@
 'use client';
 import UniversalFilter from '@/components/common/UniversalFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { CreditCard } from 'lucide-react';
@@ -10,6 +11,7 @@ interface OrderFilterProps {
 }
 
 const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
+    const { symbol } = useCurrency();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('all');
     const [minAmount, setMinAmount] = React.useState<string>('');
@@ -95,7 +97,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         onChange={(e) => setMinAmount(e.target.value)}
                         className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">৳</span>
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">{symbol}</span>
                 </div>
                 <span className="hidden text-gray-500 sm:inline">-</span>
                 <div className="relative w-full sm:w-40">
@@ -106,7 +108,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         onChange={(e) => setMaxAmount(e.target.value)}
                         className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">৳</span>
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">{symbol}</span>
                 </div>
             </div>
         </>

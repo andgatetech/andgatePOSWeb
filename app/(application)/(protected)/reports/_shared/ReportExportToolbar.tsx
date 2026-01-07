@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
@@ -55,6 +56,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     fetchAllData,
 }) => {
     const { currentStore } = useCurrentStore();
+    const { code, symbol } = useCurrency();
     const user = useSelector((state: RootState) => state.auth?.user);
     const [isExporting, setIsExporting] = useState(false);
 
@@ -119,12 +121,22 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     }, [reportTitle, dateDisplayText, filterSummary?.customFilters]);
 
     // Helper to sanitize text for PDF (replace unsupported Unicode)
-    const sanitizeForPdf = useCallback((text: string): string => {
-        if (!text) return '';
-        return String(text)
-            .replace(/৳/g, 'BDT ')
-            .replace(/[^\x00-\x7F]/g, '');
-    }, []);
+    const sanitizeForPdf = useCallback(
+        (text: string): string => {
+            if (!text) return '';
+            // Replace currency symbol with code for better PDF font support
+            let cleanText = String(text);
+            if (symbol) {
+                // Escape symbol for regex
+                const escapedSymbol = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                cleanText = cleanText.replace(new RegExp(escapedSymbol, 'g'), `${code} `);
+            }
+            // Fallback for Bengali Taka symbol if any hardcoded instances remain
+            cleanText = cleanText.replace(/৳/g, 'BDT ');
+            return cleanText.replace(/[^\x00-\x7F]/g, '');
+        },
+        [symbol, code]
+    );
 
     // Get export data (all rows)
     const getExportData = useCallback(async (): Promise<any[]> => {
@@ -286,7 +298,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             if (Object.keys(totals).length > 0) {
                 const totalRow = columns.map((col, idx) => {
                     if (idx === 0) return 'TOTAL:';
-                    return totals[col.label] !== undefined ? `BDT ${totals[col.label].toLocaleString()}` : '';
+                    return totals[col.label] !== undefined ? `${code} ${totals[col.label].toLocaleString()}` : '';
                 });
                 tableData.push(totalRow);
             }
@@ -333,7 +345,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
             return doc;
         },
-        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf]
+        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf, code]
     );
 
     // PDF Export

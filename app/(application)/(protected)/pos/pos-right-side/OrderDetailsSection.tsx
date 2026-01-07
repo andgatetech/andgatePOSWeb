@@ -1,5 +1,6 @@
 import IconShoppingCart from '@/components/icon/icon-shopping-cart';
 import IconX from '@/components/icon/icon-x';
+import { useCurrency } from '@/hooks/useCurrency';
 import { Eye, Hash, Shield } from 'lucide-react';
 import { useState } from 'react';
 import ItemPreviewModal from './ItemPreviewModal';
@@ -70,6 +71,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     onRemoveItem,
     onItemWholesaleToggle,
 }) => {
+    const { formatCurrency, symbol } = useCurrency();
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -82,9 +84,9 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         const basePrice = item.rate * item.quantity;
         if (item.tax_rate && !item.tax_included) {
             const taxAmount = basePrice * (item.tax_rate / 100);
-            return (basePrice + taxAmount).toFixed(2);
+            return formatCurrency(basePrice + taxAmount);
         }
-        return basePrice.toFixed(2);
+        return formatCurrency(basePrice);
     };
 
     return (
@@ -213,7 +215,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 {item.isWholesale ? 'Wholesale' : 'Retail'}
                                             </button>
                                             <div className="relative w-full">
-                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">৳</span>
+                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">{symbol}</span>
                                                 <input
                                                     type="number"
                                                     step="0.01"
@@ -241,7 +243,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             <span className="text-gray-400">No tax</span>
                                         )}
                                     </td>
-                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{totalAmountForItem(item)}</td>
+                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">{totalAmountForItem(item)}</td>
                                     <td className="p-3 text-center">
                                         <button
                                             type="button"
@@ -373,7 +375,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
 
                             <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2">
                                 <span className="text-xs font-medium text-gray-600">Amount:</span>
-                                <span className="text-base font-bold text-primary">৳{(item.rate * item.quantity).toFixed(2)}</span>
+                                <span className="text-base font-bold text-primary">{formatCurrency(item.rate * item.quantity)}</span>
                             </div>
                         </div>
                     ))

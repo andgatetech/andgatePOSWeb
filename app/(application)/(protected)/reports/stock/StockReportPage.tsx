@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import StockReportFilter from '@/components/filters/reports/StockReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStockReportMutation } from '@/store/features/reports/reportApi';
 import { AlertTriangle, CheckCircle, FileText, Layers, Package, XCircle } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const StockReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,12 +83,12 @@ const StockReportPage = () => {
             { key: 'category', label: 'Category', width: 15 },
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'quantity', label: 'Stock', width: 10 },
-            { key: 'stock_value', label: 'Stock Value', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'retail_value', label: 'Retail Value', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'stock_value', label: 'Stock Value', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'retail_value', label: 'Retail Value', width: 15, format: (v) => formatCurrency(v) },
             { key: 'profit_margin', label: 'Margin %', width: 10, format: (v) => `${Number(v).toFixed(2)}%` },
-            { key: 'price', label: 'Price', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'price', label: 'Price', width: 12, format: (v) => formatCurrency(v) },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -105,9 +107,9 @@ const StockReportPage = () => {
         () => [
             { label: 'Total Items', value: summary.total_items || 0 },
             { label: 'Total Quantity', value: (summary.total_quantity || 0).toLocaleString() },
-            { label: 'Total Stock Value', value: `৳${Number(summary.total_stock_value || 0).toLocaleString()}` },
+            { label: 'Total Stock Value', value: formatCurrency(summary.total_stock_value) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -169,15 +171,15 @@ const StockReportPage = () => {
                     );
                 },
             },
-            { key: 'stock_value', label: 'Stock Value', sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">৳{Number(v || 0).toLocaleString()}</span> },
-            { key: 'retail_value', label: 'Retail Value', sortable: true, render: (v: any) => <span className="font-semibold text-green-600">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'stock_value', label: 'Stock Value', sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span> },
+            { key: 'retail_value', label: 'Retail Value', sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
             {
                 key: 'profit_margin',
                 label: 'Margin %',
                 sortable: true,
                 render: (v: any) => <span className={`font-semibold ${Number(v) < 0 ? 'text-red-600' : 'text-green-600'}`}>{Number(v).toFixed(2)}%</span>,
             },
-            { key: 'price', label: 'Selling Price', render: (v: any) => <span className="text-sm text-gray-700">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'price', label: 'Selling Price', render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
             {
                 key: 'available',
                 label: 'Status',
@@ -191,7 +193,7 @@ const StockReportPage = () => {
                     ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

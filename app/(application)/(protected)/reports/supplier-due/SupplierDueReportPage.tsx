@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSupplierDueReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, Banknote, FileText, Receipt, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SupplierDueReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -78,9 +80,9 @@ const SupplierDueReportPage = () => {
         () => [
             { key: 'reference', label: 'Reference', width: 15 },
             { key: 'supplier', label: 'Supplier', width: 20 },
-            { key: 'total_amount', label: 'Total', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'paid', label: 'Paid', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'due', label: 'Due', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'total_amount', label: 'Total', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'paid', label: 'Paid', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'due', label: 'Due', width: 15, format: (v) => formatCurrency(v) },
             { key: 'status', label: 'Status', width: 10 },
             { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
         ],
@@ -102,7 +104,7 @@ const SupplierDueReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Orders with Due', value: summary.total_orders_with_due || 0 },
-            { label: 'Total Due', value: `৳${Number(summary.total_due || 0).toLocaleString()}` },
+            { label: 'Total Due', value: formatCurrency(summary.total_due) },
         ],
         [summary]
     );
@@ -119,7 +121,7 @@ const SupplierDueReportPage = () => {
             },
             {
                 label: 'Total Amount',
-                value: `৳${Number(summary.total_amount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -127,7 +129,7 @@ const SupplierDueReportPage = () => {
             },
             {
                 label: 'Total Paid',
-                value: `৳${Number(summary.total_paid || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_paid),
                 icon: <TrendingUp className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -135,7 +137,7 @@ const SupplierDueReportPage = () => {
             },
             {
                 label: 'Total Due',
-                value: `৳${Number(summary.total_due || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_due),
                 icon: <AlertCircle className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -149,9 +151,9 @@ const SupplierDueReportPage = () => {
         () => [
             { key: 'reference', label: 'Reference', sortable: true, render: (v: any) => <span className="font-mono text-sm font-semibold text-gray-900">{v}</span> },
             { key: 'supplier', label: 'Supplier', render: (v: any) => <span className="text-sm text-gray-700">{v || 'N/A'}</span> },
-            { key: 'total_amount', label: 'Total Amount', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">৳{Number(v || 0).toLocaleString()}</span> },
-            { key: 'paid', label: 'Paid', sortable: true, render: (v: any) => <span className="font-semibold text-green-600">৳{Number(v || 0).toLocaleString()}</span> },
-            { key: 'due', label: 'Due', sortable: true, render: (v: any) => <span className="font-bold text-red-600">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'total_amount', label: 'Total Amount', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
+            { key: 'paid', label: 'Paid', sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
+            { key: 'due', label: 'Due', sortable: true, render: (v: any) => <span className="font-bold text-red-600">{formatCurrency(v)}</span> },
             {
                 key: 'status',
                 label: 'Status',

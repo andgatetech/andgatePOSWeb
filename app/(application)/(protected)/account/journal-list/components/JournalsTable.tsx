@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import { useCurrency } from '@/hooks/useCurrency';
 import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -26,9 +27,7 @@ interface JournalsTableProps {
 }
 
 const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
-    const formatCurrency = (amount: string | number) => {
-        return `৳${parseFloat(amount?.toString() || '0').toLocaleString()}`;
-    };
+    const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
         () => [
@@ -105,7 +104,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 render: (value) => <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>,
             },
         ],
-        []
+        [formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(

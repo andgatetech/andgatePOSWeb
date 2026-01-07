@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import { useCurrency } from '@/hooks/useCurrency';
 import { CreditCard, Edit, Eye, Receipt, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -33,9 +34,7 @@ const PAYMENT_TYPE_CONFIG: Record<string, { label: string; color: string; bgColo
 };
 
 const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
-    const formatCurrency = (amount: string | number) => {
-        return `৳${parseFloat(amount?.toString() || '0').toLocaleString()}`;
-    };
+    const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
         () => [
@@ -105,7 +104,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
                 render: (value) => <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>,
             },
         ],
-        []
+        [formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(

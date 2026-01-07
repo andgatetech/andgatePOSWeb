@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { Gift, Star } from 'lucide-react';
 import React from 'react';
 
@@ -12,6 +13,7 @@ interface LoyaltyProgramTabProps {
 }
 
 const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleInputChange }) => {
+    const { symbol } = useCurrency();
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
@@ -48,7 +50,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                         <div className="space-y-2">
                             <label className="flex items-center text-sm font-medium text-gray-700">
                                 <Star className="mr-2 h-4 w-4 text-yellow-600" />
-                                Points Rate (Points per ৳1)
+                                Points Rate (Points per {symbol}1)
                             </label>
                             <input
                                 type="number"
@@ -60,7 +62,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                 min="0"
                                 step="0.01"
                             />
-                            <p className="text-xs text-gray-500">Example: If rate is 1, customer gets 1 point for every ৳1 spent</p>
+                            <p className="text-xs text-gray-500">Example: If rate is 1, customer gets 1 point for every {symbol}1 spent</p>
                         </div>
                     )}
 
@@ -68,7 +70,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                     {formData.loyalty_points_enabled && formData.loyalty_points_rate && (
                         <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
                             <p className="text-sm text-yellow-800">
-                                <strong>Current Rate:</strong> Customers will earn <strong>{formData.loyalty_points_rate}</strong> points for every ৳1 they spend.
+                                <strong>Current Rate:</strong> Customers will earn <strong>{formData.loyalty_points_rate}</strong> points for every {symbol}1 they spend.
                             </p>
                         </div>
                     )}

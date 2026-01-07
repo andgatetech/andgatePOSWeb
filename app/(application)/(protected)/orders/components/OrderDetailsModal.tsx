@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { Dialog, Transition } from '@headlessui/react';
 import { Calendar, CreditCard, Package, Receipt, Store, User, X } from 'lucide-react';
 import { Fragment } from 'react';
@@ -11,6 +12,7 @@ interface OrderDetailsModalProps {
 }
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order }) => {
+    const { formatCurrency } = useCurrency();
     if (!order) return null;
 
     const paymentStatusConfig: Record<string, { bg: string; text: string }> = {
@@ -142,10 +144,10 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                             <td className="px-4 py-3 text-center text-gray-900">
                                                                 {item.quantity} {item.unit}
                                                             </td>
-                                                            <td className="px-4 py-3 text-right text-gray-900">৳{Number(item.unit_price).toFixed(2)}</td>
-                                                            <td className="px-4 py-3 text-right text-red-600">৳{Number(item.discount).toFixed(2)}</td>
-                                                            <td className="px-4 py-3 text-right text-gray-900">৳{Number(item.tax).toFixed(2)}</td>
-                                                            <td className="px-4 py-3 text-right font-semibold text-gray-900">৳{Number(item.subtotal).toFixed(2)}</td>
+                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.unit_price)}</td>
+                                                            <td className="px-4 py-3 text-right text-red-600">{formatCurrency(item.discount)}</td>
+                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.tax)}</td>
+                                                            <td className="px-4 py-3 text-right font-semibold text-gray-900">{formatCurrency(item.subtotal)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -162,37 +164,37 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="space-y-3">
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-gray-600">Subtotal:</span>
-                                                <span className="font-medium text-gray-900">৳{Number(order.total).toFixed(2)}</span>
+                                                <span className="font-medium text-gray-900">{formatCurrency(order.total)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-gray-600">Tax:</span>
-                                                <span className="font-medium text-gray-900">৳{Number(order.tax).toFixed(2)}</span>
+                                                <span className="font-medium text-gray-900">{formatCurrency(order.tax)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-gray-600">Discount:</span>
-                                                <span className="font-medium text-red-600">-৳{Number(order.discount).toFixed(2)}</span>
+                                                <span className="font-medium text-red-600">-{formatCurrency(order.discount)}</span>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between">
                                                     <span className="text-lg font-semibold text-gray-900">Grand Total:</span>
-                                                    <span className="text-2xl font-bold text-blue-600">৳{Number(order.grand_total).toFixed(2)}</span>
+                                                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(order.grand_total)}</span>
                                                 </div>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-600">Amount Paid:</span>
-                                                    <span className="font-medium text-green-600">৳{Number(order.amount_paid).toFixed(2)}</span>
+                                                    <span className="font-medium text-green-600">{formatCurrency(order.amount_paid)}</span>
                                                 </div>
                                                 {order.change_amount > 0 && (
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-gray-600">Change:</span>
-                                                        <span className="font-medium text-gray-900">৳{Number(order.change_amount).toFixed(2)}</span>
+                                                        <span className="font-medium text-gray-900">{formatCurrency(order.change_amount)}</span>
                                                     </div>
                                                 )}
                                                 {order.due_amount > 0 && (
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-gray-600">Due Amount:</span>
-                                                        <span className="font-medium text-red-600">৳{Number(order.due_amount).toFixed(2)}</span>
+                                                        <span className="font-medium text-red-600">{formatCurrency(order.due_amount)}</span>
                                                     </div>
                                                 )}
                                             </div>

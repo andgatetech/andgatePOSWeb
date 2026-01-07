@@ -1,6 +1,16 @@
 // src/store/features/auth/authSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface Currency {
+    currency_code: string;
+    currency_name: string;
+    currency_symbol: string;
+    currency_position: 'before' | 'after';
+    decimal_places: number;
+    thousand_separator: string;
+    decimal_separator: string;
+}
+
 export interface Store {
     id: number;
     store_name: string;
@@ -8,6 +18,7 @@ export interface Store {
     store_contact?: string;
     store_location?: string;
     is_active?: boolean;
+    currency?: Currency;
 }
 
 export interface SubscriptionItem {

@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetExpenseReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calculator, Calendar, CreditCard, FileText, Receipt, Store, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ExpenseReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +37,7 @@ const ExpenseReportPage = () => {
             lastQueryParams.current = queryString;
             getExpenseReport(queryParams);
         }
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams, getExpenseReport]);
 
     const expenses = useMemo(() => reportData?.data?.expenses || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
@@ -82,10 +84,10 @@ const ExpenseReportPage = () => {
             { key: 'store_name', label: 'Store', width: 15 },
             { key: 'user_name', label: 'User', width: 15 },
             { key: 'payment_type', label: 'Payment', width: 10 },
-            { key: 'amount', label: 'Amount', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'amount', label: 'Amount', width: 12, format: (v) => formatCurrency(v) },
             { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -103,10 +105,10 @@ const ExpenseReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Records', value: summary.expense_count || 0 },
-            { label: 'Total', value: `৳${Number(summary.total_expenses || 0).toLocaleString()}` },
-            { label: 'Average', value: `৳${Number(summary.average_expense || 0).toLocaleString()}` },
+            { label: 'Total', value: formatCurrency(summary.total_expenses) },
+            { label: 'Average', value: formatCurrency(summary.average_expense) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -121,7 +123,7 @@ const ExpenseReportPage = () => {
             },
             {
                 label: 'Total Expenses',
-                value: `৳${Number(summary.total_expenses || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_expenses),
                 icon: <Banknote className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
                 lightBg: 'bg-rose-50',
@@ -129,14 +131,14 @@ const ExpenseReportPage = () => {
             },
             {
                 label: 'Avg. Expense',
-                value: `৳${Number(summary.average_expense || 0).toLocaleString()}`,
+                value: formatCurrency(summary.average_expense),
                 icon: <Calculator className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
                 lightBg: 'bg-amber-50',
                 textColor: 'text-amber-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -181,7 +183,7 @@ const ExpenseReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'amount', label: 'Amount', sortable: true, render: (value: any) => <span className="font-bold text-rose-600">৳{Number(value || 0).toLocaleString()}</span> },
+            { key: 'amount', label: 'Amount', sortable: true, render: (value: any) => <span className="font-bold text-rose-600">{formatCurrency(value)}</span> },
             {
                 key: 'created_at',
                 label: 'Date & Time',
@@ -197,7 +199,7 @@ const ExpenseReportPage = () => {
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

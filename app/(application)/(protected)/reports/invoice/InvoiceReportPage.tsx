@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetInvoiceReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calendar, CreditCard, FileText, Hash, Package, Receipt, TrendingDown, User, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const InvoiceReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -79,14 +81,14 @@ const InvoiceReportPage = () => {
             { key: 'invoice_no', label: 'Invoice No', width: 15 },
             { key: 'customer', label: 'Customer', width: 20 },
             { key: 'items_count', label: 'Items', width: 8 },
-            { key: 'amount', label: 'Total', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'paid', label: 'Paid', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'amount_due', label: 'Due', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'amount', label: 'Total', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'paid', label: 'Paid', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'amount_due', label: 'Due', width: 15, format: (v) => formatCurrency(v) },
             { key: 'method', label: 'Method', width: 10 },
             { key: 'status', label: 'Status', width: 10 },
             { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -104,10 +106,10 @@ const InvoiceReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Total Invoices', value: summary.total_invoices || 0 },
-            { label: 'Total Amount', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
-            { label: 'Total Due', value: `৳${Number(summary.total_due || 0).toLocaleString()}` },
+            { label: 'Total Amount', value: formatCurrency(summary.total_amount) },
+            { label: 'Total Due', value: formatCurrency(summary.total_due) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -122,7 +124,7 @@ const InvoiceReportPage = () => {
             },
             {
                 label: 'Total Amount',
-                value: `৳${Number(summary.total_amount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -130,7 +132,7 @@ const InvoiceReportPage = () => {
             },
             {
                 label: 'Total Paid',
-                value: `৳${Number(summary.total_paid || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -138,14 +140,14 @@ const InvoiceReportPage = () => {
             },
             {
                 label: 'Total Due',
-                value: `৳${Number(summary.total_due || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_due),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
                 textColor: 'text-red-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -217,7 +219,7 @@ const InvoiceReportPage = () => {
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">৳{Number(v || 0).toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">{formatCurrency(v)}</span>
                         <div className="flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-500">
                             <CreditCard className="h-2.5 w-2.5" /> {r.method || 'N/A'}
                         </div>
@@ -231,8 +233,8 @@ const InvoiceReportPage = () => {
                     const d = Number(v || 0);
                     return (
                         <div className="flex flex-col">
-                            <span className="text-xs font-semibold text-emerald-600">P: ৳{Number(r.paid || 0).toLocaleString()}</span>
-                            <span className={`text-xs font-semibold ${d > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: ৳{d.toLocaleString()}</span>
+                            <span className="text-xs font-semibold text-emerald-600">P: {formatCurrency(r.paid)}</span>
+                            <span className={`text-xs font-semibold ${d > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: {formatCurrency(d)}</span>
                         </div>
                     );
                 },

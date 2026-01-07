@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import TransactionReportFilter from '@/components/filters/reports/TransactionReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetTransactionReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowLeftRight, Banknote, Calculator, Calendar, CreditCard, FileText, Hash, Store, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TransactionReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,7 +83,7 @@ const TransactionReportPage = () => {
             { key: 'user_name', label: 'User', width: 15 },
             { key: 'payment_status', label: 'Status', width: 10 },
             { key: 'payment_method', label: 'Method', width: 10 },
-            { key: 'amount', label: 'Amount', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'amount', label: 'Amount', width: 15, format: (v) => formatCurrency(v) },
             { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
         ],
         []
@@ -107,8 +109,8 @@ const TransactionReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Total Transactions', value: summary.total_transactions || 0 },
-            { label: 'Total Volume', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
-            { label: 'Average', value: `৳${Number(summary.average_transaction || 0).toLocaleString()}` },
+            { label: 'Total Volume', value: formatCurrency(summary.total_amount) },
+            { label: 'Average', value: formatCurrency(summary.average_transaction) },
         ],
         [summary]
     );
@@ -125,7 +127,7 @@ const TransactionReportPage = () => {
             },
             {
                 label: 'Total Volume',
-                value: `৳${Number(summary.total_amount || 0).toLocaleString()}`,
+                value: formatCurrency(Number(summary.total_amount || 0)),
                 icon: <Banknote className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -133,7 +135,7 @@ const TransactionReportPage = () => {
             },
             {
                 label: 'Avg. Transaction',
-                value: `৳${Number(summary.average_transaction || 0).toLocaleString()}`,
+                value: formatCurrency(Number(summary.average_transaction || 0)),
                 icon: <Calculator className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -193,7 +195,7 @@ const TransactionReportPage = () => {
                 sortable: true,
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">{formatCurrency(value)}</span>
                         <div className="flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-500">
                             <CreditCard className="h-2.5 w-2.5" /> {row.payment_method || 'N/A'}
                         </div>

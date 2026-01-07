@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { Download, Printer, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -14,6 +15,7 @@ interface PaymentReceiptProps {
 const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transaction, onClose }) => {
     const receiptRef = useRef<HTMLDivElement>(null);
     const { currentStore } = useCurrentStore();
+    const { formatCurrency, symbol } = useCurrency();
 
     const handlePrint = () => {
         window.print();
@@ -341,7 +343,6 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                     <div class="info-row">
                                         <span class="info-label">Amount (Tk) :</span>
                                         <div class="amount-box">
-                                            <span>৳</span>
                                             <span>${formatCurrency(transaction.amount)}</span>
                                         </div>
                                     </div>
@@ -378,21 +379,18 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         <div class="balance-row">
                                             <span>Amount of Balance:</span>
                                             <div class="amount">
-                                                <span>৳</span>
                                                 <span>${formatCurrency(purchaseOrder.grand_total)}</span>
                                             </div>
                                         </div>
                                         <div class="balance-row">
                                             <span>Payment Amount:</span>
                                             <div class="amount">
-                                                <span>৳</span>
                                                 <span>${formatCurrency(transaction.amount)}</span>
                                             </div>
                                         </div>
                                         <div class="balance-row">
                                             <span>Balance Due:</span>
                                             <div class="amount">
-                                                <span>৳</span>
                                                 <span>${formatCurrency(purchaseOrder.amount_due)}</span>
                                             </div>
                                         </div>
@@ -444,10 +442,6 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
             month: 'long',
             year: 'numeric',
         });
-    };
-
-    const formatCurrency = (amount: number) => {
-        return Number(amount).toFixed(2);
     };
 
     // Convert number to words
@@ -548,7 +542,6 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         <h1 className="text-xl font-bold text-gray-800">{currentStore?.store_name || '.................................'}</h1>
                                         <p className="text-xs text-gray-500">Number: {currentStore?.store_contact || '.........................'}</p>
                                         <p className="text-xs text-gray-500">Address: {currentStore?.store_location || '.......................'}</p>
-                                        
                                     </div>
                                 </div>
                                 <div className="text-right">
@@ -570,7 +563,6 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                     <div className="flex items-center gap-2">
                                         <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Amount (Tk) :</label>
                                         <div className="flex flex-1 items-center rounded border border-gray-200 bg-gray-50 px-3 py-2">
-                                            <span className="mr-2 text-lg font-bold text-gray-700">৳</span>
                                             <span className="flex-1 text-lg font-bold text-gray-800">{formatCurrency(transaction.amount)}</span>
                                         </div>
                                     </div>
@@ -612,21 +604,18 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="font-semibold text-gray-700">Amount of Balance:</span>
                                             <div className="flex items-center gap-1">
-                                                <span>৳</span>
                                                 <span className="w-20 text-right">{formatCurrency(purchaseOrder.grand_total)}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="font-semibold text-gray-700">Payment Amount:</span>
                                             <div className="flex items-center gap-1">
-                                                <span>৳</span>
                                                 <span className="w-20 text-right">{formatCurrency(transaction.amount)}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="font-semibold text-gray-700">Balance Due:</span>
                                             <div className="flex items-center gap-1">
-                                                <span>৳</span>
                                                 <span className="w-20 text-right">{formatCurrency(purchaseOrder.amount_due)}</span>
                                             </div>
                                         </div>

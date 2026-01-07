@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFiveQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
@@ -179,6 +180,7 @@ const DonutChart = ({ data, colors, count, label }: { data: Array<{ label: strin
 };
 
 export default function SectionsFive() {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
     // Separate filter states for each section (backend now supports independent filters)
@@ -331,7 +333,7 @@ export default function SectionsFive() {
                                 <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                                 Total Revenue
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">৳{top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0).toLocaleString()}</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0))}</span>
                         </div>
                     </div>
                 </div>
@@ -406,7 +408,7 @@ export default function SectionsFive() {
                                 <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                                 Total Revenue
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">৳{top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0).toLocaleString()}</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0))}</span>
                         </div>
                     </div>
                 </div>
@@ -492,7 +494,7 @@ export default function SectionsFive() {
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-green-600 dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">
-                                        ৳{product.total_cost.toLocaleString()} • {product.total_purchased} Purchased
+                                        {formatCurrency(product.total_cost)} • {product.total_purchased} Purchased
                                     </p>
                                 </div>
                                 <div className="flex-shrink-0">

@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetPurchaseReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calculator, CreditCard, FileText, PieChart, ShoppingCart, TrendingDown, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -95,12 +97,12 @@ const PurchaseReportPage = () => {
             { key: 'supplier_name', label: 'Supplier', width: 20, format: (value, row) => value || row?.supplier || 'N/A' },
             { key: 'status', label: 'Status', width: 12 },
             { key: 'payment_status', label: 'Payment', width: 12 },
-            { key: 'grand_total', label: 'Total', width: 15, format: (value) => `৳${Number(value || 0).toLocaleString()}` },
-            { key: 'amount_paid', label: 'Paid', width: 15, format: (value) => `৳${Number(value || 0).toLocaleString()}` },
-            { key: 'amount_due', label: 'Due', width: 15, format: (value) => `৳${Number(value || 0).toLocaleString()}` },
+            { key: 'grand_total', label: 'Total', width: 15, format: (value) => formatCurrency(value) },
+            { key: 'amount_paid', label: 'Paid', width: 15, format: (value) => formatCurrency(value) },
+            { key: 'amount_due', label: 'Due', width: 15, format: (value) => formatCurrency(value) },
             { key: 'created_at', label: 'Date', width: 12, format: (value) => (value ? new Date(value).toLocaleDateString('en-GB') : '') },
         ],
-        []
+        [formatCurrency]
     );
 
     // Filter summary for export
@@ -127,11 +129,11 @@ const PurchaseReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Total Orders', value: summary.total_purchase_orders || 0 },
-            { label: 'Total Value', value: `৳${Number(summary.total_purchase_value || 0).toLocaleString()}` },
-            { label: 'Paid Amount', value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}` },
-            { label: 'Due Amount', value: `৳${Number(summary.total_amount_due || 0).toLocaleString()}` },
+            { label: 'Total Value', value: formatCurrency(summary.total_purchase_value) },
+            { label: 'Paid Amount', value: formatCurrency(summary.total_amount_paid) },
+            { label: 'Due Amount', value: formatCurrency(summary.total_amount_due) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -146,7 +148,7 @@ const PurchaseReportPage = () => {
             },
             {
                 label: 'Total Value',
-                value: `৳${Number(summary.total_purchase_value || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_purchase_value),
                 icon: <Banknote className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -154,7 +156,7 @@ const PurchaseReportPage = () => {
             },
             {
                 label: 'Paid Amount',
-                value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -162,7 +164,7 @@ const PurchaseReportPage = () => {
             },
             {
                 label: 'Due Amount',
-                value: `৳${Number(summary.total_amount_due || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount_due),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -170,14 +172,14 @@ const PurchaseReportPage = () => {
             },
             {
                 label: 'Avg Order Value',
-                value: `৳${Number(summary.average_order_value || 0).toLocaleString()}`,
+                value: formatCurrency(summary.average_order_value),
                 icon: <Calculator className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -221,14 +223,14 @@ const PurchaseReportPage = () => {
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
                 },
             },
-            { key: 'grand_total', label: 'Total', sortable: true, render: (value: any) => <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span> },
+            { key: 'grand_total', label: 'Total', sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
             {
                 key: 'amount_paid',
                 label: 'Paid/Due',
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
-                        <span className="text-xs font-medium text-green-600">P: ৳{Number(value || 0).toLocaleString()}</span>
-                        <span className={`text-xs font-medium ${Number(row.amount_due) > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: ৳{Number(row.amount_due || 0).toLocaleString()}</span>
+                        <span className="text-xs font-medium text-green-600">P: {formatCurrency(value)}</span>
+                        <span className={`text-xs font-medium ${Number(row.amount_due) > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: {formatCurrency(row.amount_due)}</span>
                     </div>
                 ),
             },
@@ -249,7 +251,7 @@ const PurchaseReportPage = () => {
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (
@@ -294,7 +296,7 @@ const PurchaseReportPage = () => {
                                         <span className="text-sm font-medium capitalize text-gray-700">{item.status}</span>
                                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
                                     </div>
-                                    <span className="font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</span>
+                                    <span className="font-bold text-gray-900">{formatCurrency(item.total)}</span>
                                 </div>
                             ))}
                         </div>
@@ -328,8 +330,8 @@ const PurchaseReportPage = () => {
                                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</p>
-                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-red-500">Due: ৳{Number(item.total_due).toLocaleString()}</p>}
+                                        <p className="text-sm font-bold text-gray-900">{formatCurrency(item.total)}</p>
+                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-red-500">Due: {formatCurrency(item.total_due)}</p>}
                                     </div>
                                 </div>
                             ))}

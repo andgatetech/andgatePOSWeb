@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { CurrencyDisplay } from '@/lib/CurrencyDisplay';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
 import { Calendar, Package, TrendingUp } from 'lucide-react';
@@ -242,7 +243,7 @@ export default function DashboardSections() {
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-orange-600 dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">
-                                        ৳{product.total_revenue.toLocaleString()} • {product.total_sales} Sales
+                                        <CurrencyDisplay amount={product.total_revenue} /> • {product.total_sales} Sales
                                     </p>
                                 </div>
                                 <div className="flex-shrink-0">
@@ -389,7 +390,8 @@ export default function DashboardSections() {
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white">{sale.primary_product.name}</p>
                                     <p className="text-xs text-gray-600 transition-colors group-hover:text-gray-900 dark:text-white">
-                                        <span className="font-medium text-gray-900 group-hover:text-blue-600 dark:text-white">{sale.customer_name}</span> • ৳{sale.total_amount.toLocaleString()}
+                                        <span className="font-medium text-gray-900 group-hover:text-blue-600 dark:text-white">{sale.customer_name}</span> •{' '}
+                                        <CurrencyDisplay amount={sale.total_amount} />
                                     </p>
                                     <p className="text-xs text-gray-500">{sale.order_date_formatted}</p>
                                 </div>

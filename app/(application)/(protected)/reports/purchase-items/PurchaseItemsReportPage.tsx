@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetPurchaseItemsReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, CheckCircle, FileText, Package, Truck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseItemsReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,11 +83,11 @@ const PurchaseItemsReportPage = () => {
             { key: 'category', label: 'Category', width: 15 },
             { key: 'purchase_qty', label: 'Qty', width: 10 },
             { key: 'received_qty', label: 'Received', width: 10 },
-            { key: 'unit_price', label: 'Unit Price', width: 12, format: (v) => `৳${Number(v || 0).toFixed(2)}` },
-            { key: 'purchase_amount', label: 'Total', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'unit_price', label: 'Unit Price', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'purchase_amount', label: 'Total', width: 15, format: (v) => formatCurrency(v) },
             { key: 'due_date', label: 'Due Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -104,9 +106,9 @@ const PurchaseItemsReportPage = () => {
         () => [
             { label: 'Unique Items', value: summary.total_items || 0 },
             { label: 'Total Quantity', value: summary.total_quantity || 0 },
-            { label: 'Total Amount', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
+            { label: 'Total Amount', value: formatCurrency(summary.total_amount) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -137,14 +139,14 @@ const PurchaseItemsReportPage = () => {
             },
             {
                 label: 'Total Amount',
-                value: `৳${Number(summary.total_amount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -169,15 +171,15 @@ const PurchaseItemsReportPage = () => {
                     );
                 },
             },
-            { key: 'unit_price', label: 'Unit Price', render: (v: any) => <span className="text-sm text-gray-700">৳{Number(v || 0).toFixed(2)}</span> },
-            { key: 'purchase_amount', label: 'Total', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'unit_price', label: 'Unit Price', render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
+            { key: 'purchase_amount', label: 'Total', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
             {
                 key: 'due_date',
                 label: 'Due Date',
                 render: (v: any) => (v ? <span className="text-sm text-gray-700">{new Date(v).toLocaleDateString('en-GB')}</span> : <span className="text-xs text-gray-400">N/A</span>),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

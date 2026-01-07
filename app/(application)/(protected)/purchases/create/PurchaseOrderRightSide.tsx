@@ -1,5 +1,6 @@
 'use client';
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
@@ -32,6 +33,7 @@ interface PurchaseOrderRightSideProps {
 
 const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId, isEditMode = false, isMobileView: propIsMobileView, showMobileCart: propShowMobileCart }) => {
     const dispatch = useDispatch();
+    const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
@@ -289,7 +291,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 html: `
                     <p>Draft Reference: <strong>${response.data.draft_reference || response.data.draft_id}</strong></p>
                     <p>Total Items: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
-                    <p>Estimated Total: <strong>৳${grandTotal.toFixed(2)}</strong></p>
+                    <p>Estimated Total: <strong>${formatCurrency(grandTotal)}</strong></p>
                 `,
                 confirmButtonText: 'View Drafts',
                 showCancelButton: !isEditMode,
@@ -397,8 +399,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             }),
         };
 
-
-
         try {
             const response = await createPurchaseOrder(purchaseOrderData).unwrap();
 
@@ -409,7 +409,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     <p>Invoice Number: <strong>${response.data.invoice_number || 'N/A'}</strong></p>
                     <p>Order Reference: <strong>${response.data.order_reference || response.data.purchase_reference || response.data.id}</strong></p>
                     <p>Total Items: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
-                    <p>Grand Total: <strong>৳${response.data.totals?.grand_total?.toFixed(2) || grandTotal.toFixed(2)}</strong></p>
+                    <p>Grand Total: <strong>${formatCurrency(response.data.totals?.grand_total || grandTotal)}</strong></p>
                     <p>Status: <strong class="text-orange-600">${response.data.status?.toUpperCase() || 'ORDERED'}</strong></p>
                 `,
                 confirmButtonText: 'View Purchase Orders',
@@ -455,8 +455,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     return (
         <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
-
-
             <div className="panel">
                 <h2 className="mb-5 text-xl font-bold">{isEditMode ? 'Edit Purchase Draft' : 'Purchase Order Draft'}</h2>
 
@@ -708,7 +706,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                             onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
                                                         />
                                                     </td>
-                                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
+                                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">{formatCurrency(item.quantity * item.purchasePrice)}</td>
                                                     <td className="p-3 text-center">
                                                         <button
                                                             onClick={() => handleRemoveItem(item.id)}
@@ -767,7 +765,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         </div>
                                         <div className="mt-3 flex items-center justify-between border-t pt-3">
                                             <span className="text-sm font-medium text-gray-600">Amount</span>
-                                            <span className="text-lg font-bold text-primary">৳{(item.quantity * item.purchasePrice).toFixed(2)}</span>
+                                            <span className="text-lg font-bold text-primary">{formatCurrency(item.quantity * item.purchasePrice)}</span>
                                         </div>
                                     </div>
                                 ))
@@ -786,7 +784,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 <div className="mb-6 rounded-lg border bg-gray-50 p-4">
                     <div className="flex items-center justify-between text-2xl font-bold">
                         <span>Est. Grand Total:</span>
-                        <span className="text-primary">৳{grandTotal.toFixed(2)}</span>
+                        <span className="text-primary">{formatCurrency(grandTotal)}</span>
                     </div>
                     <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>
                 </div>

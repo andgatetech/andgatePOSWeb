@@ -1,6 +1,7 @@
 import IconSearch from '@/components/icon/icon-search';
 import IconUser from '@/components/icon/icon-user';
 import IconX from '@/components/icon/icon-x';
+import { useCurrency } from '@/hooks/useCurrency';
 import type { Customer, PosFormData } from './types';
 
 interface CustomerSectionProps {
@@ -50,11 +51,12 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
     getBadgeClass,
     getMembershipDiscount,
 }) => {
+    const { formatCurrency } = useCurrency();
     return (
         <div className="mt-4 px-3 sm:mt-8 sm:px-4">
             <div className="flex flex-col justify-between lg:flex-row">
                 <div className="mb-4 w-full sm:mb-6 lg:w-full">
-                    <div className="mb-3 flex items-center justify-between sm:mb-4 mt-6 sm:mt-[1.625rem]">
+                    <div className="mb-3 mt-6 flex items-center justify-between sm:mb-4 sm:mt-[1.625rem]">
                         <div className="text-base font-semibold text-gray-800 sm:text-lg ">Bill To :-</div>
                         <button
                             type="button"
@@ -182,7 +184,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                 </div>
                                 <div>
                                     <span className="font-medium text-blue-700">Balance:</span>
-                                    <div className="font-semibold text-blue-900">৳{(Number(selectedCustomer.balance) || 0).toFixed(2)}</div>
+                                    <div className="font-semibold text-blue-900">{formatCurrency(Number(selectedCustomer.balance) || 0)}</div>
                                 </div>
                                 <div>
                                     <span className="font-medium text-blue-700">Status:</span>

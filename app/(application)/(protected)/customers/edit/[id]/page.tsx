@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleCustomerQuery, useUpdateCustomerMutation } from '@/store/features/customer/customer';
@@ -20,6 +21,7 @@ interface CustomerFormData {
 
 const EditCustomerPage = () => {
     const { id } = useParams();
+    const { symbol } = useCurrency();
     const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
@@ -305,7 +307,7 @@ const EditCustomerPage = () => {
                                     {/* Balance */}
                                     <div>
                                         <label htmlFor="balance" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Account Balance (৳)
+                                            Account Balance ({symbol})
                                         </label>
                                         <input
                                             id="balance"

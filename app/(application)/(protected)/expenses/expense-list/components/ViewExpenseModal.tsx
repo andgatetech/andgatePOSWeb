@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { Calendar, CheckCircle, CreditCard, DollarSign, Hash, Receipt, User, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -17,6 +18,7 @@ const PAYMENT_TYPE_CONFIG: Record<string, { label: string; color: string; bgColo
 };
 
 const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, onClose }) => {
+    const { formatCurrency } = useCurrency();
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -36,10 +38,6 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
     }, [isOpen, onClose]);
 
     if (!isOpen || !expense) return null;
-
-    const formatCurrency = (amount: string | number) => {
-        return `৳${parseFloat(amount?.toString() || '0').toLocaleString()}`;
-    };
 
     const paymentConfig = PAYMENT_TYPE_CONFIG[expense.payment_type?.toLowerCase()] || PAYMENT_TYPE_CONFIG.others;
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { Dialog, Transition } from '@headlessui/react';
 import { Check, Package, ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
@@ -13,6 +14,7 @@ interface VariantSelectionModalProps {
 }
 
 export default function VariantSelectionModal({ isOpen, onClose, product, onSelectVariant }: VariantSelectionModalProps) {
+    const { formatCurrency } = useCurrency();
     const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
     const [useWholesale, setUseWholesale] = useState(false);
     const [quantity, setQuantity] = useState(1);
@@ -143,8 +145,8 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     {/* Price */}
                                                     <div className="mb-3">
                                                         <div className="flex items-baseline gap-2">
-                                                            <span className="text-xl font-bold text-green-600">৳{Number(price).toFixed(2)}</span>
-                                                            {useWholesale && <span className="text-sm text-gray-500 line-through">৳{Number(stock.price).toFixed(2)}</span>}
+                                                            <span className="text-xl font-bold text-green-600">{formatCurrency(price)}</span>
+                                                            {useWholesale && <span className="text-sm text-gray-500 line-through">{formatCurrency(stock.price)}</span>}
                                                         </div>
                                                     </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import { useCurrency } from '@/hooks/useCurrency';
 import { Download, Edit, Eye, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -28,6 +29,7 @@ interface OrdersTableProps {
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onDownloadInvoice, onPrintInvoice }) => {
     const router = useRouter();
+    const { formatCurrency } = useCurrency();
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -73,7 +75,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 sortable: true,
                 render: (value, row) => {
                     const total = value ?? row.total ?? row.totals?.grand_total ?? 0;
-                    return <span className="font-semibold text-gray-900">৳{Number(total).toFixed(2)}</span>;
+                    return <span className="font-semibold text-gray-900">{formatCurrency(total)}</span>;
                 },
             },
             {
@@ -83,9 +85,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 render: (value, row) => {
                     const dueAmount = Number(value || 0);
                     if (dueAmount > 0) {
-                        return <span className="font-semibold text-red-600">৳{dueAmount.toFixed(2)}</span>;
+                        return <span className="font-semibold text-red-600">{formatCurrency(dueAmount)}</span>;
                     }
-                    return <span className="text-sm text-gray-500">৳0.00</span>;
+                    return <span className="text-sm text-gray-500">{formatCurrency(0)}</span>;
                 },
             },
             {
@@ -137,7 +139,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(

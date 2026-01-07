@@ -7,7 +7,12 @@ import IconX from '@/components/icon/icon-x';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import { useCurrency } from '@/hooks/useCurrency';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+
 const ComponentsAppsInvoiceEdit = () => {
+    const { formatCurrency } = useCurrency();
+    const { currentStore } = useCurrentStore();
     const currencyList = ['USD - US Dollar', 'GBP - British Pound', 'IDR - Indonesian Rupiah', 'INR - Indian Rupee', 'BRL - Brazilian Real', 'EUR - Germany (Euro)', 'TRY - Turkish Lira'];
     const [tax, setTax] = useState<any>(0);
     const [discount, setDiscount] = useState<any>(0);
@@ -442,7 +447,7 @@ const ComponentsAppsInvoiceEdit = () => {
                                                     onChange={(e) => changeQuantityPrice('price', e.target.value, item.id)}
                                                 />
                                             </td>
-                                            <td>৳{item.quantity * item.amount}</td>
+                                            <td>{formatCurrency(item.quantity * item.amount)}</td>
                                             <td>
                                                 <button type="button" onClick={() => removeItem(item)}>
                                                     <IconX className="h-5 w-5" />
@@ -463,15 +468,15 @@ const ComponentsAppsInvoiceEdit = () => {
                         <div className="sm:w-2/5">
                             <div className="flex items-center justify-between">
                                 <div>Subtotal</div>
-                                <div>$265.00</div>
+                                <div>{formatCurrency(items.reduce((acc: number, item: any) => acc + item.quantity * item.amount, 0))}</div>
                             </div>
                             <div className="mt-4 flex items-center justify-between">
                                 <div>Tax(%)</div>
                                 <div>0%</div>
                             </div>
                             <div className="mt-4 flex items-center justify-between">
-                                <div>Shipping Rate($)</div>
-                                <div>$0.00</div>
+                                <div>Shipping Rate</div>
+                                <div>{formatCurrency(shippingCharge)}</div>
                             </div>
                             <div className="mt-4 flex items-center justify-between">
                                 <div>Discount(%)</div>
@@ -479,7 +484,14 @@ const ComponentsAppsInvoiceEdit = () => {
                             </div>
                             <div className="mt-4 flex items-center justify-between font-semibold">
                                 <div>Total</div>
-                                <div>$265.00</div>
+                                <div>
+                                    {formatCurrency(
+                                        items.reduce((acc: number, item: any) => acc + item.quantity * item.amount, 0) +
+                                            Number(shippingCharge) +
+                                            (items.reduce((acc: number, item: any) => acc + item.quantity * item.amount, 0) * Number(tax)) / 100 -
+                                            (items.reduce((acc: number, item: any) => acc + item.quantity * item.amount, 0) * Number(discount)) / 100
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -512,7 +524,7 @@ const ComponentsAppsInvoiceEdit = () => {
                         </div>
                     </div>
                     <div className="mt-4">
-                        <label htmlFor="shipping-charge">Shipping Charge($) </label>
+                        <label htmlFor="shipping-charge">Shipping Charge </label>
                         <input
                             id="shipping-charge"
                             type="number"

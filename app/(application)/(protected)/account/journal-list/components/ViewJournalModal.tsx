@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { BookOpen, Calendar, CheckCircle, DollarSign, Hash, User, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -10,6 +11,7 @@ interface ViewJournalModalProps {
 }
 
 const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, onClose }) => {
+    const { formatCurrency } = useCurrency();
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -29,10 +31,6 @@ const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, on
     }, [isOpen, onClose]);
 
     if (!isOpen || !journal) return null;
-
-    const formatCurrency = (amount: string | number) => {
-        return `৳${parseFloat(amount?.toString() || '0').toLocaleString()}`;
-    };
 
     const balance = parseFloat(journal.balance || '0');
     const debit = parseFloat(journal.debit || '0');

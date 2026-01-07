@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { AlertCircle, Banknote, CheckCircle, CreditCard, ShoppingCart, XCircle } from 'lucide-react';
 
 interface OrderStatsProps {
@@ -12,6 +13,7 @@ interface OrderStatsProps {
 }
 
 const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders }) => {
+    const { formatCurrency } = useCurrency();
     const stats = [
         {
             label: 'Total Orders',
@@ -23,7 +25,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         },
         {
             label: 'Total Revenue',
-            value: `৳${totalRevenue.toFixed(2)}`,
+            value: formatCurrency(totalRevenue),
             icon: Banknote,
             bgColor: 'bg-green-500',
             lightBg: 'bg-green-50',

@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import IdleProductReportFilter from '@/components/filters/reports/IdleProductReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetIdleProductReportMutation } from '@/store/features/reports/reportApi';
 import { AlertTriangle, Banknote, BarChart3, Box, Calendar, Clock, FileText, Package, Store, Tag, Timer } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const IdleProductReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({ idle_days: 30 });
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,11 +83,11 @@ const IdleProductReportPage = () => {
             { key: 'category', label: 'Category', width: 15 },
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'quantity', label: 'Stock', width: 10 },
-            { key: 'stock_value', label: 'Value', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'stock_value', label: 'Value', width: 12, format: (v) => formatCurrency(v) },
             { key: 'last_sold_at', label: 'Last Sale', width: 15, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : 'Never') },
             { key: 'days_idle', label: 'Days Idle', width: 10 },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -105,10 +107,10 @@ const IdleProductReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Idle Items', value: summary.total_idle_items || 0 },
-            { label: 'Trapped Capital', value: `৳${Number(summary.total_idle_value || 0).toLocaleString()}` },
+            { label: 'Trapped Capital', value: formatCurrency(summary.total_idle_value) },
             { label: 'Date', value: new Date().toLocaleDateString('en-GB') },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -131,7 +133,7 @@ const IdleProductReportPage = () => {
             },
             {
                 label: 'Trapped Capital',
-                value: `৳${Number(summary.total_idle_value || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_idle_value),
                 icon: <Banknote className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
                 lightBg: 'bg-rose-50',
@@ -146,7 +148,7 @@ const IdleProductReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -195,7 +197,7 @@ const IdleProductReportPage = () => {
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <span className="font-bold text-gray-900">{Number(v).toLocaleString()} Units</span>
-                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">Value: ৳{Number(r.stock_value || 0).toLocaleString()}</span>
+                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">Value: {formatCurrency(r.stock_value)}</span>
                     </div>
                 ),
             },
@@ -239,7 +241,7 @@ const IdleProductReportPage = () => {
                 },
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

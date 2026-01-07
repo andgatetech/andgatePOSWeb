@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetTaxReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calculator, FileText, Percent, ShoppingCart } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TaxReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -77,11 +79,11 @@ const TaxReportPage = () => {
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'period', label: 'Period', width: 20 },
-            { key: 'tax_collected', label: 'Tax Collected', width: 15, format: (v) => `৳${Number(v || 0).toFixed(2)}` },
+            { key: 'tax_collected', label: 'Tax Collected', width: 15, format: (v) => formatCurrency(v) },
             { key: 'orders_count', label: 'Orders', width: 10 },
-            { key: 'total_sales', label: 'Total Sales', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'taxable_sales', label: 'Taxable Sales', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'non_taxable_sales', label: 'Non-Taxable', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'total_sales', label: 'Total Sales', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'taxable_sales', label: 'Taxable Sales', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'non_taxable_sales', label: 'Non-Taxable', width: 15, format: (v) => formatCurrency(v) },
             { key: 'effective_rate', label: 'Eff. Rate', width: 10, format: (v) => `${Number(v || 0).toFixed(2)}%` },
         ],
         []
@@ -101,8 +103,8 @@ const TaxReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Total Tax', value: `৳${Number(summary.total_tax_collected || 0).toLocaleString()}` },
-            { label: 'Total Sales', value: `৳${Number(summary.total_sales || 0).toLocaleString()}` },
+            { label: 'Total Tax', value: formatCurrency(summary.total_tax_collected) },
+            { label: 'Total Sales', value: formatCurrency(summary.total_sales) },
             { label: 'Eff. Rate', value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
         ],
         [summary]
@@ -112,7 +114,7 @@ const TaxReportPage = () => {
         () => [
             {
                 label: 'Total Tax',
-                value: `৳${Number(summary.total_tax_collected || 0).toLocaleString()}`,
+                value: formatCurrency(Number(summary.total_tax_collected || 0)),
                 icon: <Calculator className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -128,7 +130,7 @@ const TaxReportPage = () => {
             },
             {
                 label: 'Total Sales',
-                value: `৳${Number(summary.total_sales || 0).toLocaleString()}`,
+                value: formatCurrency(Number(summary.total_sales || 0)),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -149,15 +151,15 @@ const TaxReportPage = () => {
     const columns = useMemo(
         () => [
             { key: 'period', label: 'Period', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{v}</span> },
-            { key: 'tax_collected', label: 'Tax Collected', sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">৳{Number(v || 0).toFixed(2)}</span> },
+            { key: 'tax_collected', label: 'Tax Collected', sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span> },
             {
                 key: 'orders_count',
                 label: 'Orders',
                 render: (v: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{v}</span>,
             },
-            { key: 'total_sales', label: 'Sales', sortable: true, render: (v: any) => <span className="text-gray-900">৳{Number(v || 0).toLocaleString()}</span> },
-            { key: 'taxable_sales', label: 'Taxable Sales', render: (v: any) => <span className="text-gray-700">৳{Number(v || 0).toLocaleString()}</span> },
-            { key: 'non_taxable_sales', label: 'Non-Taxable', render: (v: any) => <span className="text-gray-500">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'total_sales', label: 'Sales', sortable: true, render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
+            { key: 'taxable_sales', label: 'Taxable Sales', render: (v: any) => <span className="text-gray-700">{formatCurrency(v)}</span> },
+            { key: 'non_taxable_sales', label: 'Non-Taxable', render: (v: any) => <span className="text-gray-500">{formatCurrency(v)}</span> },
             { key: 'items_count', label: 'Items', render: (v: any) => <span className="text-gray-700">{value}</span> },
             {
                 key: 'effective_rate',

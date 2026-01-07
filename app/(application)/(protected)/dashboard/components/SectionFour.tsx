@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFourQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
@@ -43,9 +44,6 @@ const SectionSkeleton = () => (
         </div>
     </div>
 );
-
-const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('en-BD', { style: 'currency', currency: 'BDT', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount).replace('BDT', '৳');
 
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -94,6 +92,7 @@ type TabType = 'sale' | 'purchase' | 'quotation';
 type PaymentTabType = 'sales' | 'purchases';
 
 export default function SectionFour() {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
     const [activeTab, setActiveTab] = useState<TabType>('sale');

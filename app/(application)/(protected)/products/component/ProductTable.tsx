@@ -4,6 +4,7 @@ import ImageShowModal from '@/app/(application)/(protected)/products/component/I
 import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
@@ -13,6 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const ProductTable = () => {
     const { currentStoreId, userStores } = useCurrentStore();
+    const { formatCurrency } = useCurrency();
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -585,19 +587,19 @@ const ProductTable = () => {
                                                         <div className="flex items-center justify-between">
                                                             <span className="text-xs text-gray-500">Price Range:</span>
                                                             <span className="text-sm font-semibold text-green-600">
-                                                                ৳{Math.min(...product.stocks.map((s: any) => Number(s.price))).toFixed(0)} - ৳
-                                                                {Math.max(...product.stocks.map((s: any) => Number(s.price))).toFixed(0)}
+                                                                {formatCurrency(Math.min(...product.stocks.map((s: any) => Number(s.price))))} -{' '}
+                                                                {formatCurrency(Math.max(...product.stocks.map((s: any) => Number(s.price))))}
                                                             </span>
                                                         </div>
                                                     ) : (
                                                         <>
                                                             <div className="flex items-center justify-between">
                                                                 <span className="text-xs text-gray-500">Purchase:</span>
-                                                                <span className="text-sm font-medium">৳{Number(displayPurchasePrice).toFixed(2)}</span>
+                                                                <span className="text-sm font-medium">{formatCurrency(displayPurchasePrice)}</span>
                                                             </div>
                                                             <div className="flex items-center justify-between">
                                                                 <span className="text-xs text-gray-500">Selling:</span>
-                                                                <span className="text-sm font-semibold text-green-600">৳{Number(displayPrice).toFixed(2)}</span>
+                                                                <span className="text-sm font-semibold text-green-600">{formatCurrency(displayPrice)}</span>
                                                             </div>
                                                         </>
                                                     )}

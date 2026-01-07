@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import SerialAdjustmentModal from './SerialAdjustmentModal';
@@ -27,6 +28,7 @@ interface AdjustmentItemProps {
  * Individual product item with adjustment controls
  */
 const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpdateQuantity }: AdjustmentItemProps) => {
+    const { formatCurrency } = useCurrency();
     const { currentStore } = useCurrentStore();
     const { data: storeData } = useGetStoreQuery(currentStore?.id ? { store_id: currentStore.id } : undefined, {
         skip: !currentStore?.id,
@@ -70,7 +72,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                             {item.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {item.sku}</span>}
                             <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">Current Stock: {item.PlaceholderQuantity || item.quantity || 0}</span>
                             {item.rate && <span className="text-gray-400">•</span>}
-                            {item.rate && <span className="font-medium text-gray-700">৳{parseFloat(item.rate).toFixed(2)}</span>}
+                            {item.rate && <span className="font-medium text-gray-700">{formatCurrency(item.rate)}</span>}
                         </div>
                     </div>
                     <button onClick={() => onRemove(item.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title="Remove item">

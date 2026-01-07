@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -56,6 +57,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     isCreating,
     isEditMode = false,
 }) => {
+    const { symbol } = useCurrency();
     const [expandedVariantIndex, setExpandedVariantIndex] = useState<number | null>(null);
     const maxImagesPerVariant = 5;
 
@@ -277,7 +279,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 Selling Price <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">৳</span>
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
                                                 <input
                                                     type="number"
                                                     value={stock.price}
@@ -293,7 +295,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 Purchase Price <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">৳</span>
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
                                                 <input
                                                     type="number"
                                                     value={stock.purchase_price}
@@ -307,7 +309,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">Wholesale Price</label>
                                             <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">৳</span>
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
                                                 <input
                                                     type="number"
                                                     value={stock.wholesale_price}

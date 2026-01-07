@@ -1,4 +1,5 @@
 import IconX from '@/components/icon/icon-x';
+import { useCurrency } from '@/hooks/useCurrency';
 import { Hash, Shield } from 'lucide-react';
 import React from 'react';
 
@@ -47,15 +48,16 @@ interface ItemPreviewModalProps {
 }
 
 const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, item }) => {
+    const { formatCurrency } = useCurrency();
     if (!isOpen || !item) return null;
 
     const totalAmount = () => {
         const basePrice = item.rate * item.quantity;
         if (item.tax_rate && !item.tax_included) {
             const taxAmount = basePrice * (item.tax_rate / 100);
-            return (basePrice + taxAmount).toFixed(2);
+            return formatCurrency(basePrice + taxAmount);
         }
-        return basePrice.toFixed(2);
+        return formatCurrency(basePrice);
     };
 
     return (
@@ -184,7 +186,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                         </div>
                         <div className="flex justify-between">
                             <span className="text-sm text-gray-600">Rate per unit:</span>
-                            <span className="text-sm font-semibold text-gray-900">৳{item.rate.toFixed(2)}</span>
+                            <span className="text-sm font-semibold text-gray-900">{formatCurrency(item.rate)}</span>
                         </div>
                         {item.tax_rate && (
                             <div className="flex justify-between">
@@ -196,7 +198,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                         )}
                         <div className="flex justify-between border-t border-gray-300 pt-2">
                             <span className="text-base font-bold text-gray-900">Total Amount:</span>
-                            <span className="text-lg font-bold text-primary">৳{totalAmount()}</span>
+                            <span className="text-lg font-bold text-primary">{totalAmount()}</span>
                         </div>
                     </div>
                 </div>

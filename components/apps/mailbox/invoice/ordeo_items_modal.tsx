@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useGetOrderItemsQuery } from '@/store/features/Order/Order';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -11,6 +12,7 @@ interface OrderItemsModalProps {
 }
 
 export default function OrderItemsModal({ open, onClose, order }: OrderItemsModalProps) {
+    const { formatCurrency } = useCurrency();
     const { data } = useGetOrderItemsQuery(order?.id);
     console.log('data', order?.id);
     const columns = [
@@ -71,11 +73,11 @@ export default function OrderItemsModal({ open, onClose, order }: OrderItemsModa
                                                     <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                                         <td className="border px-4 py-2">{item.product?.category?.name}</td>
                                                         <td className="border px-4 py-2">{item.product?.product_name}</td>
-                                                        <td className="border px-4 py-2">৳{Number(item.product?.purchase_price).toFixed(2)}</td>
-                                                        <td className="border px-4 py-2">৳{Number(item.product?.price).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">{formatCurrency(item.product?.purchase_price)}</td>
+                                                        <td className="border px-4 py-2">{formatCurrency(item.product?.price)}</td>
                                                         <td className="border px-4 py-2">{item.quantity}</td>
-                                                        <td className="border px-4 py-2">৳{Number(item.unit_price).toFixed(2)}</td>
-                                                        <td className="border px-4 py-2">৳{Number(item.subtotal).toFixed(2)}</td>
+                                                        <td className="border px-4 py-2">{formatCurrency(item.unit_price)}</td>
+                                                        <td className="border px-4 py-2">{formatCurrency(item.subtotal)}</td>
                                                     </tr>
                                                 ))
                                             ) : (

@@ -1,4 +1,5 @@
 'use client';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -9,6 +10,7 @@ import Swal from 'sweetalert2';
 const ReceiveItemsPage = () => {
     const params = useParams();
     const router = useRouter();
+    const { formatCurrency } = useCurrency();
     const purchaseOrderId = params?.id as string;
 
     // Fetch purchase order details
@@ -271,7 +273,7 @@ const ReceiveItemsPage = () => {
                         <div className="w-full text-left sm:w-auto sm:text-right">
                             <div className="rounded-lg bg-blue-50 px-4 py-3">
                                 <p className="text-xs text-gray-600">Order Total</p>
-                                <p className="text-xl font-bold text-blue-600 sm:text-2xl">৳{Number(purchaseOrder.grand_total || 0).toFixed(2)}</p>
+                                <p className="text-xl font-bold text-blue-600 sm:text-2xl">{formatCurrency(purchaseOrder.grand_total || 0)}</p>
                             </div>
                         </div>
                     </div>
@@ -288,11 +290,11 @@ const ReceiveItemsPage = () => {
                         </div>
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-white p-3">
                             <p className="text-xs text-gray-600">Amount Paid</p>
-                            <p className="mt-1 text-sm font-semibold text-green-600">৳{Number(purchaseOrder.amount_paid || 0).toFixed(2)}</p>
+                            <p className="mt-1 text-sm font-semibold text-green-600">{formatCurrency(purchaseOrder.amount_paid || 0)}</p>
                         </div>
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-orange-50 to-white p-3">
                             <p className="text-xs text-gray-600">Amount Due</p>
-                            <p className="mt-1 text-sm font-semibold text-orange-600">৳{Number(purchaseOrder.amount_due || 0).toFixed(2)}</p>
+                            <p className="mt-1 text-sm font-semibold text-orange-600">{formatCurrency(purchaseOrder.amount_due || 0)}</p>
                         </div>
                     </div>
                 </div>
@@ -382,7 +384,7 @@ const ReceiveItemsPage = () => {
                                                     placeholder={item.current_stock_purchase_price || 'Purchase price'}
                                                 />
                                                 {!isNewProduct && item.current_stock_purchase_price && (
-                                                    <span className="mt-0.5 block text-xs text-blue-600">Current: ৳{Number(item.current_stock_purchase_price).toFixed(2)}</span>
+                                                    <span className="mt-0.5 block text-xs text-blue-600">Current: {formatCurrency(item.current_stock_purchase_price)}</span>
                                                 )}
                                             </div>
                                         </td>
@@ -398,11 +400,11 @@ const ReceiveItemsPage = () => {
                                                     placeholder={item.current_stock_selling_price || 'Selling price'}
                                                 />
                                                 {!isNewProduct && item.current_stock_selling_price && (
-                                                    <span className="mt-0.5 block text-xs text-green-600">Current: ৳{Number(item.current_stock_selling_price).toFixed(2)}</span>
+                                                    <span className="mt-0.5 block text-xs text-green-600">Current: {formatCurrency(item.current_stock_selling_price)}</span>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="font-bold">৳{calculateItemTotal(item.id).toFixed(2)}</td>
+                                        <td className="font-bold">{formatCurrency(calculateItemTotal(item.id))}</td>
                                         <td>
                                             {isExcluded ? (
                                                 <button onClick={() => handleRestoreItem(item.id)} className="rounded bg-green-500 p-2 text-white hover:bg-green-600" title="Restore item">
@@ -431,15 +433,15 @@ const ReceiveItemsPage = () => {
                     <div className="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-3">
                         <div>
                             <p className="text-sm text-gray-600">Grand Total</p>
-                            <p className="text-2xl font-bold text-gray-900">৳{grandTotal.toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatCurrency(grandTotal)}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600">Already Paid</p>
-                            <p className="text-2xl font-bold text-blue-600">৳{Number(purchaseOrder.amount_paid || 0).toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-blue-600">{formatCurrency(purchaseOrder.amount_paid || 0)}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600">Current Balance</p>
-                            <p className="text-2xl font-bold text-orange-600">৳{Number(purchaseOrder.amount_due || 0).toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-orange-600">{formatCurrency(purchaseOrder.amount_due || 0)}</p>
                         </div>
                     </div>
 
@@ -457,7 +459,7 @@ const ReceiveItemsPage = () => {
                                 onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
                                 placeholder="Enter payment amount"
                             />
-                            <p className="mt-1 text-xs text-gray-500">Maximum: ৳{grandTotal.toFixed(2)}</p>
+                            <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(grandTotal)}</p>
                         </div>
 
                         <div>
@@ -484,19 +486,19 @@ const ReceiveItemsPage = () => {
                         <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Receiving Now:</span>
-                                <span className="font-semibold">৳{grandTotal.toFixed(2)}</span>
+                                <span className="font-semibold">{formatCurrency(grandTotal)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Paying Now:</span>
-                                <span className="font-semibold text-blue-600">৳{paymentAmount.toFixed(2)}</span>
+                                <span className="font-semibold text-blue-600">{formatCurrency(paymentAmount)}</span>
                             </div>
                             <div className="flex justify-between border-t pt-2">
                                 <span className="text-gray-600">Previous Balance:</span>
-                                <span className="font-semibold">৳{Number(purchaseOrder.amount_due || 0).toFixed(2)}</span>
+                                <span className="font-semibold">{formatCurrency(purchaseOrder.amount_due || 0)}</span>
                             </div>
                             <div className="flex justify-between border-t pt-2">
                                 <span className="font-bold">New Balance Due:</span>
-                                <span className={`text-lg font-bold ${grandTotal - paymentAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>৳{(grandTotal - paymentAmount).toFixed(2)}</span>
+                                <span className={`text-lg font-bold ${grandTotal - paymentAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>{formatCurrency(grandTotal - paymentAmount)}</span>
                             </div>
                         </div>
                     </div>

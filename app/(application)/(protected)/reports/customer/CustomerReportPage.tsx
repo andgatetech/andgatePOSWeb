@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import CustomerReportFilter from '@/components/filters/reports/CustomerReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetCustomerReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, Banknote, FileText, Hash, Mail, Phone, ShoppingCart, TrendingDown, Users, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CustomerReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,12 +83,12 @@ const CustomerReportPage = () => {
             { key: 'phone', label: 'Phone', width: 15 },
             { key: 'email', label: 'Email', width: 20 },
             { key: 'total_orders', label: 'Orders', width: 8 },
-            { key: 'amount', label: 'Total', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'paid', label: 'Paid', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'due', label: 'Due', width: 12, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'amount', label: 'Total', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'paid', label: 'Paid', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'due', label: 'Due', width: 12, format: (v) => formatCurrency(v) },
             { key: 'status', label: 'Status', width: 10 },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -106,10 +108,10 @@ const CustomerReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Customers', value: summary.total_customers || 0 },
-            { label: 'Total Amount', value: `৳${Number(summary.total_amount || 0).toLocaleString()}` },
-            { label: 'Total Due', value: `৳${Number(summary.total_due || 0).toLocaleString()}` },
+            { label: 'Total Amount', value: formatCurrency(summary.total_amount) },
+            { label: 'Total Due', value: formatCurrency(summary.total_due) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -132,7 +134,7 @@ const CustomerReportPage = () => {
             },
             {
                 label: 'Total Amount',
-                value: `৳${Number(summary.total_amount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -140,7 +142,7 @@ const CustomerReportPage = () => {
             },
             {
                 label: 'Total Paid',
-                value: `৳${Number(summary.total_paid || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -148,14 +150,14 @@ const CustomerReportPage = () => {
             },
             {
                 label: 'Total Due',
-                value: `৳${Number(summary.total_due || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_due),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
                 textColor: 'text-red-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -204,13 +206,13 @@ const CustomerReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'amount', label: 'Sales Amount', sortable: true, render: (value: any) => <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span> },
-            { key: 'paid', label: 'Paid', render: (value: any) => <span className="font-medium text-emerald-600">৳{Number(value || 0).toLocaleString()}</span> },
+            { key: 'amount', label: 'Sales Amount', sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
+            { key: 'paid', label: 'Paid', render: (value: any) => <span className="font-medium text-emerald-600">{formatCurrency(value)}</span> },
             {
                 key: 'due',
                 label: 'Outstanding Due',
                 sortable: true,
-                render: (value: any) => <span className={`font-bold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>৳{Number(value || 0).toLocaleString()}</span>,
+                render: (value: any) => <span className={`font-bold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
             },
             {
                 key: 'status',
@@ -227,7 +229,7 @@ const CustomerReportPage = () => {
                 },
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

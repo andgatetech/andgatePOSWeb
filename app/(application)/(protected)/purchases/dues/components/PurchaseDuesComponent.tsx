@@ -2,6 +2,7 @@
 import PaymentReceipt from '@/app/(application)/(protected)/purchases/list/components/PaymentReceipt';
 import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
 import PurchaseDuesFilter from '@/components/filters/PurchaseDuesFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useClearFullDueMutation, useGetPurchaseOrdersQuery, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { useDeletePurchaseDueMutation } from '@/store/features/purchaseDue/purchaseDue';
@@ -12,6 +13,7 @@ import PurchaseDuesTable from './PurchaseDuesTable';
 
 const PurchaseDuesComponent = () => {
     const { currentStoreId } = useCurrentStore();
+    const { formatCurrency } = useCurrency();
     const [filters, setFilters] = useState<Record<string, any>>({ exclude_completed: 'true' });
 
     // Pagination and sorting state
@@ -207,7 +209,7 @@ const PurchaseDuesComponent = () => {
                     }
                     <div class="info-box">
                         <h3>Grand Total</h3>
-                        <p style="color: #2563eb; font-size: 20px;">৳${Number(item.grand_total).toFixed(2)}</p>
+                        <p style="color: #2563eb; font-size: 20px;">${formatCurrency(item.grand_total)}</p>
                     </div>
                     <div class="info-box">
                         <h3>Payment Status</h3>
@@ -246,9 +248,9 @@ const PurchaseDuesComponent = () => {
                                         ${isVariant && variantName ? '<br><span style="font-size: 11px; color: #2563eb; font-weight: 600;">Variant: ' + variantName + '</span>' : ''}
                                     </td>
                                     <td class="text-center"><strong>${quantity}</strong></td>
-                                    <td class="text-right">৳${Number(unitPrice).toFixed(2)}</td>
+                                    <td class="text-right">${formatCurrency(unitPrice)}</td>
                                     <td class="text-center">${itm.unit || 'piece'}</td>
-                                    <td class="text-right"><strong>৳${Number(subtotal).toFixed(2)}</strong></td>
+                                    <td class="text-right"><strong>${formatCurrency(subtotal)}</strong></td>
                                 </tr>
                             `;
                             })
@@ -257,7 +259,7 @@ const PurchaseDuesComponent = () => {
                     <tfoot>
                         <tr class="total-row">
                             <td colspan="5" class="text-right">TOTAL:</td>
-                            <td class="text-right" style="color: #dc2626;">৳${total.toFixed(2)}</td>
+                            <td class="text-right" style="color: #dc2626;">${formatCurrency(total)}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -266,11 +268,11 @@ const PurchaseDuesComponent = () => {
                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                         <div>
                             <h3 style="font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 5px;">Amount Paid</h3>
-                            <p style="font-size: 18px; color: #059669; font-weight: 700;">৳${Number(item.amount_paid).toFixed(2)}</p>
+                            <p style="font-size: 18px; color: #059669; font-weight: 700;">${formatCurrency(item.amount_paid)}</p>
                         </div>
                         <div>
                             <h3 style="font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 5px;">Amount Due</h3>
-                            <p style="font-size: 24px; color: #dc2626; font-weight: 700;">৳${Number(item.amount_due).toFixed(2)}</p>
+                            <p style="font-size: 24px; color: #dc2626; font-weight: 700;">${formatCurrency(item.amount_due)}</p>
                         </div>
                     </div>
                 </div>
@@ -518,14 +520,6 @@ const PurchaseDuesComponent = () => {
         });
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount);
-    };
-
     const getStatusBadge = (status: string) => {
         const badges: Record<string, { bg: string; text: string; label: string }> = {
             pending: { bg: 'bg-red-100', text: 'text-red-700', label: 'Pending' },
@@ -598,11 +592,11 @@ const PurchaseDuesComponent = () => {
                                 </div>
                                 <div className="rounded-lg bg-purple-50 p-2.5">
                                     <p className="text-[10px] font-medium text-purple-600">Total Amount</p>
-                                    <p className="text-base font-bold text-purple-900">৳{formatCurrency(stats.total_order_amount || 0)}</p>
+                                    <p className="text-base font-bold text-purple-900">{formatCurrency(stats.total_order_amount || 0)}</p>
                                 </div>
                                 <div className="rounded-lg bg-emerald-50 p-2.5">
                                     <p className="text-[10px] font-medium text-emerald-600">Amount Due</p>
-                                    <p className="text-base font-bold text-emerald-900">৳{formatCurrency(stats.total_amount_due || 0)}</p>
+                                    <p className="text-base font-bold text-emerald-900">{formatCurrency(stats.total_amount_due || 0)}</p>
                                 </div>
                             </div>
                         </div>
@@ -692,15 +686,15 @@ const PurchaseDuesComponent = () => {
                                         <div className="space-y-3">
                                             <div className="flex justify-between">
                                                 <span className="text-sm font-medium text-gray-700">Total Amount:</span>
-                                                <span className="font-semibold text-gray-900">৳{formatCurrency(selectedDue.grand_total)}</span>
+                                                <span className="font-semibold text-gray-900">{formatCurrency(selectedDue.grand_total)}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-sm font-medium text-gray-700">Paid Amount:</span>
-                                                <span className="font-semibold text-green-600">৳{formatCurrency(selectedDue.amount_paid)}</span>
+                                                <span className="font-semibold text-green-600">{formatCurrency(selectedDue.amount_paid)}</span>
                                             </div>
                                             <div className="flex justify-between border-t pt-3">
                                                 <span className="text-base font-bold text-gray-700">Due Amount:</span>
-                                                <span className="text-lg font-bold text-red-600">৳{formatCurrency(selectedDue.amount_due)}</span>
+                                                <span className="text-lg font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -734,7 +728,7 @@ const PurchaseDuesComponent = () => {
                                     <div className="rounded-lg bg-blue-50 p-4">
                                         <div className="flex justify-between">
                                             <span className="text-sm font-medium text-gray-700">Total Due:</span>
-                                            <span className="font-bold text-red-600">৳{formatCurrency(selectedDue.amount_due)}</span>
+                                            <span className="font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
                                         </div>
                                         <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
                                     </div>
@@ -754,7 +748,7 @@ const PurchaseDuesComponent = () => {
                                             placeholder="Enter payment amount"
                                             required
                                         />
-                                        <p className="mt-1 text-xs text-gray-500">Maximum: ৳{formatCurrency(selectedDue.amount_due)}</p>
+                                        <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(selectedDue.amount_due)}</p>
                                     </div>
 
                                     <div>
@@ -805,7 +799,7 @@ const PurchaseDuesComponent = () => {
                                     <div className="rounded-lg bg-blue-50 p-4">
                                         <div className="flex justify-between">
                                             <span className="text-sm font-medium text-gray-700">Total Due:</span>
-                                            <span className="font-bold text-red-600">৳{formatCurrency(selectedDue.amount_due)}</span>
+                                            <span className="font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
                                         </div>
                                         <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
                                     </div>

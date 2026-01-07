@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Archive, Package, Tag, X } from 'lucide-react';
 import Image from 'next/image';
@@ -17,6 +18,7 @@ interface ImageShowModalProps {
 }
 
 export default function ImageShowModal({ isOpen, onClose, product }: ImageShowModalProps) {
+    const { formatCurrency } = useCurrency();
     // State for selected variant (must be before early return)
     const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
 
@@ -161,8 +163,8 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                         <div>
                                                             <p className="mb-1 text-xs text-gray-600">Price Range</p>
                                                             <p className="text-lg font-bold text-gray-900">
-                                                                ৳{Math.min(...product.stocks.map((s: any) => Number(s.price))).toFixed(0)} - ৳
-                                                                {Math.max(...product.stocks.map((s: any) => Number(s.price))).toFixed(0)}
+                                                                {formatCurrency(Math.min(...product.stocks.map((s: any) => Number(s.price))))} -{' '}
+                                                                {formatCurrency(Math.max(...product.stocks.map((s: any) => Number(s.price))))}
                                                             </p>
                                                         </div>
                                                         <div>
@@ -175,15 +177,15 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                 <div className="grid grid-cols-3 gap-4">
                                                     <div>
                                                         <p className="mb-1 text-xs text-gray-600">Retail Price</p>
-                                                        <p className="text-xl font-bold text-gray-900">৳{parseFloat(primaryStock?.price || 0).toFixed(2)}</p>
+                                                        <p className="text-xl font-bold text-gray-900">{formatCurrency(Number(primaryStock?.price || 0))}</p>
                                                     </div>
                                                     <div>
                                                         <p className="mb-1 text-xs text-gray-600">Wholesale</p>
-                                                        <p className="text-lg font-semibold text-gray-700">৳{parseFloat(primaryStock?.wholesale_price || 0).toFixed(2)}</p>
+                                                        <p className="text-lg font-semibold text-gray-700">{formatCurrency(Number(primaryStock?.wholesale_price || 0))}</p>
                                                     </div>
                                                     <div>
                                                         <p className="mb-1 text-xs text-gray-600">Purchase</p>
-                                                        <p className="text-lg font-semibold text-gray-700">৳{parseFloat(primaryStock?.purchase_price || 0).toFixed(2)}</p>
+                                                        <p className="text-lg font-semibold text-gray-700">{formatCurrency(Number(primaryStock?.purchase_price || 0))}</p>
                                                     </div>
                                                 </div>
                                             )}
@@ -277,7 +279,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                     <td className="px-4 py-3 text-sm">
                                                                         <span className="font-mono text-xs text-gray-700">{stock.sku || 'N/A'}</span>
                                                                     </td>
-                                                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">৳{Number(stock.price).toFixed(2)}</td>
+                                                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatCurrency(stock.price)}</td>
                                                                     <td className="px-4 py-3 text-sm text-gray-700">{stock.quantity}</td>
                                                                     <td className="px-4 py-3 text-sm text-gray-700">{stock.unit}</td>
                                                                     {hasVariants && (

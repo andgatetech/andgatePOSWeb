@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProductReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, BarChart3, Box, FileText, Hash, Layers, Package, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ProductReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +37,7 @@ const ProductReportPage = () => {
             lastQueryParams.current = queryString;
             getProductReport(queryParams);
         }
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams, getProductReport]);
 
     const products = useMemo(() => reportData?.data?.products || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
@@ -82,9 +84,9 @@ const ProductReportPage = () => {
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'qty', label: 'Stock', width: 10 },
             { key: 'total_ordered', label: 'Sold', width: 10 },
-            { key: 'revenue', label: 'Revenue', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'revenue', label: 'Revenue', width: 15, format: (v) => formatCurrency(v) },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -102,9 +104,9 @@ const ProductReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Products', value: summary.total_products || 0 },
-            { label: 'Revenue', value: `৳${Number(summary.total_revenue || 0).toLocaleString()}` },
+            { label: 'Revenue', value: formatCurrency(summary.total_revenue) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -135,14 +137,14 @@ const ProductReportPage = () => {
             },
             {
                 label: 'Gross Revenue',
-                value: `৳${Number(summary.total_revenue || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_revenue),
                 icon: <Banknote className="h-4 w-4 text-pink-600" />,
                 bgColor: 'bg-pink-500',
                 lightBg: 'bg-pink-50',
                 textColor: 'text-pink-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -187,7 +189,7 @@ const ProductReportPage = () => {
                         <span className={`font-bold ${Number(v) > 0 ? 'text-gray-900' : 'text-red-600'}`}>
                             {v} <span className="text-[10px] font-normal lowercase text-gray-500">{r.unit || 'pcs'}</span>
                         </span>
-                        <span className="text-[10px] text-gray-400">Rate: ৳{Number(r.price || 0).toLocaleString()}</span>
+                        <span className="text-[10px] text-gray-400">Rate: {formatCurrency(r.price)}</span>
                     </div>
                 ),
             },
@@ -208,12 +210,13 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 font-bold text-emerald-600">
-                        <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />৳{Number(v || 0).toLocaleString()}
+                        <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
+                        {formatCurrency(v)}
                     </div>
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

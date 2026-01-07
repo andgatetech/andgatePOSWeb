@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
@@ -15,6 +16,7 @@ interface PurchaseOrderPreviewProps {
 
 const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onClose }) => {
     const previewRef = useRef(null);
+    const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
     // Redux state
@@ -189,8 +191,8 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                                     <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
                                                 </td>
                                                 <td className="border-gray-300 p-3 text-center text-sm font-medium">{item.quantity}</td>
-                                                <td className="border-gray-300 p-3 text-right text-sm">৳{Number(item.purchasePrice).toFixed(2)}</td>
-                                                <td className="border-gray-300 p-3 text-right text-sm font-bold">৳{(item.quantity * item.purchasePrice).toFixed(2)}</td>
+                                                <td className="border-gray-300 p-3 text-right text-sm">{formatCurrency(item.purchasePrice)}</td>
+                                                <td className="border-gray-300 p-3 text-right text-sm font-bold">{formatCurrency(item.quantity * item.purchasePrice)}</td>
                                             </tr>
                                         ))
                                     )}
@@ -213,11 +215,11 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                             <div className="w-full space-y-1 text-right sm:w-[40%]">
                                 <div className="flex justify-between">
                                     <span>Estimated Subtotal</span>
-                                    <span>৳{subtotal.toFixed(2)}</span>
+                                    <span>{formatCurrency(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
                                     <span>Est. Grand Total</span>
-                                    <span className="text-primary">৳{grandTotal.toFixed(2)}</span>
+                                    <span className="text-primary">{formatCurrency(grandTotal)}</span>
                                 </div>
                                 <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>
                             </div>

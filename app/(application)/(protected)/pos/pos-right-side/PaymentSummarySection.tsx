@@ -1,3 +1,4 @@
+import { useCurrency } from '@/hooks/useCurrency';
 import type { Customer, PosFormData } from './types';
 
 interface PaymentSummarySectionProps {
@@ -29,6 +30,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     totalPayable,
     isWalkInCustomer,
 }) => {
+    const { formatCurrency } = useCurrency();
     const canUsePoints = selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
 
@@ -86,7 +88,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             />
                         </div>
                     )}
-                    {formData.usePoints && formData.pointsToUse > 0 && <div className="mt-2 text-sm text-orange-600">Points discount: -৳{pointsDiscount.toFixed(2)}</div>}
+                    {formData.usePoints && formData.pointsToUse > 0 && <div className="mt-2 text-sm text-orange-600">Points discount: -{formatCurrency(pointsDiscount)}</div>}
                 </div>
             )}
 
@@ -97,7 +99,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             <input type="checkbox" name="useBalance" className="mr-2" checked={formData.useBalance} onChange={onInputChange} />
                             <span className="font-semibold text-teal-700">Use Account Balance</span>
                         </label>
-                        <span className="text-sm text-teal-600">Available:৳{selectedCustomer?.balance}</span>
+                        <span className="text-sm text-teal-600">Available: {formatCurrency(selectedCustomer?.balance)}</span>
                     </div>
                     {formData.useBalance && (
                         <div className="flex items-center justify-between">
@@ -114,43 +116,43 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             />
                         </div>
                     )}
-                    {formData.useBalance && formData.balanceToUse > 0 && <div className="mt-2 text-sm text-teal-600">Balance discount: -৳{balanceDiscount.toFixed(2)}</div>}
+                    {formData.useBalance && formData.balanceToUse > 0 && <div className="mt-2 text-sm text-teal-600">Balance discount: -{formatCurrency(balanceDiscount)}</div>}
                 </div>
             )}
 
             <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
                 <span>Subtotal (without tax)</span>
-                <span>৳{subtotalWithoutTax.toFixed(2)}</span>
+                <span>{formatCurrency(subtotalWithoutTax)}</span>
             </div>
             <div className="flex justify-between text-sm sm:text-base">
                 <span>Tax (from items)</span>
-                <span>৳{taxAmount.toFixed(2)}</span>
+                <span>{formatCurrency(taxAmount)}</span>
             </div>
             <div className="flex justify-between text-sm sm:text-base">
                 <span>Discount</span>
-                <span>৳-{discountAmount.toFixed(2)}</span>
+                <span>-{formatCurrency(discountAmount)}</span>
             </div>
             {selectedCustomer && formData.membershipDiscount > 0 && (
                 <div className="flex justify-between text-sm text-green-600 sm:text-base">
                     <span>Membership Discount</span>
-                    <span>৳-{membershipDiscountAmount.toFixed(2)}</span>
+                    <span>-{formatCurrency(membershipDiscountAmount)}</span>
                 </div>
             )}
             {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
                 <div className="flex justify-between text-sm text-orange-600 sm:text-base">
                     <span>Points Payment ({formData.pointsToUse} pts)</span>
-                    <span>৳-{pointsDiscount.toFixed(2)}</span>
+                    <span>-{formatCurrency(pointsDiscount)}</span>
                 </div>
             )}
             {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
                 <div className="flex justify-between text-sm text-teal-600 sm:text-base">
                     <span>Balance Payment</span>
-                    <span>৳-{balanceDiscount.toFixed(2)}</span>
+                    <span>-{formatCurrency(balanceDiscount)}</span>
                 </div>
             )}
             <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
                 <span>Grand Total</span>
-                <span>৳{totalPayable.toFixed(2)}</span>
+                <span>{formatCurrency(totalPayable)}</span>
             </div>
 
             {/* Payment Method and Payment Status - Moved after Grand Total */}
@@ -194,17 +196,17 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
                     <div className="mb-2 flex items-center justify-between">
                         <label className="text-sm font-semibold text-blue-700">Partial Payment Amount:</label>
-                        <span className="text-xs text-blue-600">Total: ৳{totalPayable.toFixed(2)}</span>
+                        <span className="text-xs text-blue-600">Total: {formatCurrency(totalPayable)}</span>
                     </div>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-blue-600">৳</span>
+                        
                         <input
                             type="number"
                             name="partialPaymentAmount"
                             step="0.01"
                             min="0"
                             max={totalPayable}
-                            className="form-input w-full border-blue-300 pl-8 pr-4 text-lg font-semibold focus:border-blue-500 focus:ring-blue-500"
+                            className="form-input w-full border-blue-300 pl-4 pr-4 text-lg font-semibold focus:border-blue-500 focus:ring-blue-500"
                             placeholder="Enter amount"
                             value={formData.partialPaymentAmount || ''}
                             onChange={onInputChange}
@@ -213,7 +215,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     {formData.partialPaymentAmount > 0 && formData.partialPaymentAmount < totalPayable && (
                         <div className="mt-2 flex justify-between text-sm">
                             <span className="text-blue-600">Remaining Due:</span>
-                            <span className="font-semibold text-red-600">৳{(totalPayable - formData.partialPaymentAmount).toFixed(2)}</span>
+                            <span className="font-semibold text-red-600">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
                         </div>
                     )}
                     {formData.partialPaymentAmount >= totalPayable && <div className="mt-2 text-sm text-amber-600">⚠️ Amount equals or exceeds total. Consider selecting &quot;Paid&quot; status.</div>}
@@ -231,7 +233,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     </div>
                     <div className="mt-2 flex justify-between border-t border-red-200 pt-2">
                         <span className="text-sm text-red-600">Total Due Amount:</span>
-                        <span className="text-lg font-bold text-red-700">৳{totalPayable.toFixed(2)}</span>
+                        <span className="text-lg font-bold text-red-700">{formatCurrency(totalPayable)}</span>
                     </div>
                     <div className="mt-2 text-xs text-red-600">This amount will be recorded as due for customer: {selectedCustomer.name}</div>
                 </div>
@@ -245,17 +247,17 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         <div className="space-y-1">
                             <div className="flex justify-between text-sm">
                                 <span className="text-green-700">Amount Paying Now:</span>
-                                <span className="font-semibold text-green-800">৳{formData.partialPaymentAmount.toFixed(2)}</span>
+                                <span className="font-semibold text-green-800">{formatCurrency(formData.partialPaymentAmount)}</span>
                             </div>
                             <div className="flex justify-between border-t border-blue-200 pt-1 text-sm">
                                 <span className="text-red-700">Amount Due Later:</span>
-                                <span className="font-bold text-red-800">৳{(totalPayable - formData.partialPaymentAmount).toFixed(2)}</span>
+                                <span className="font-bold text-red-800">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-50 p-3 text-blue-900 shadow-sm">
                         <span className="text-lg font-bold">Total Payable Now</span>
-                        <span className="text-2xl font-black">৳{formData.partialPaymentAmount.toFixed(2)}</span>
+                        <span className="text-2xl font-black">{formatCurrency(formData.partialPaymentAmount)}</span>
                     </div>
                 </>
             )}
@@ -267,17 +269,17 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         <div className="space-y-1">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-700">Amount Paying Now:</span>
-                                <span className="font-semibold text-gray-800">৳0.00</span>
+                                <span className="font-semibold text-gray-800">{formatCurrency(0)}</span>
                             </div>
                             <div className="flex justify-between border-t border-red-200 pt-1">
                                 <span className="text-red-700">Full Amount Due:</span>
-                                <span className="text-lg font-bold text-red-800">৳{totalPayable.toFixed(2)}</span>
+                                <span className="text-lg font-bold text-red-800">{formatCurrency(totalPayable)}</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-between rounded-lg bg-gradient-to-r from-red-100 to-red-50 p-3 text-red-900 shadow-sm">
                         <span className="text-lg font-bold">Total Payable Now</span>
-                        <span className="text-2xl font-black">৳0.00</span>
+                        <span className="text-2xl font-black">{formatCurrency(0)}</span>
                     </div>
                 </>
             )}
@@ -285,7 +287,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {formData.paymentStatus === 'paid' && (
                 <div className="flex justify-between rounded-lg bg-gradient-to-r from-green-100 to-green-50 p-3 text-green-900 shadow-sm">
                     <span className="text-lg font-bold">Total Payable Now</span>
-                    <span className="text-2xl font-black">৳{totalPayable.toFixed(2)}</span>
+                    <span className="text-2xl font-black">{formatCurrency(totalPayable)}</span>
                 </div>
             )}
         </div>

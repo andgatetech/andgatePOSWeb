@@ -2,6 +2,7 @@
 
 import IconClock from '@/components/icon/icon-clock';
 import ComponentsUsersProfilePaymentHistory from '@/components/users/profile/components-users-profile-payment-history';
+import { useCurrency } from '@/hooks/useCurrency';
 import { RootState } from '@/store';
 import { AlertTriangle, Calendar, Crown, Edit3, Mail, MapPin, Phone, RefreshCw, Shield, User } from 'lucide-react';
 import Link from 'next/link';
@@ -12,6 +13,7 @@ import { useSelector } from 'react-redux';
 // Enhanced Subscription Progress Component with Advanced Expiry Logic and 15-day marker
 const SubscriptionProgress = () => {
     const subscriptionUser = useSelector((state: RootState) => state.auth.user?.subscription_user);
+    const { formatCurrency } = useCurrency();
     const [timeLeft, setTimeLeft] = useState<string>('');
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -237,7 +239,7 @@ const SubscriptionProgress = () => {
                     </p>
                     {(statusConfig.showRealTime || showHours) && timeLeft && <p className="rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-600">{timeLeft}</p>}
                 </div>
-                <p className="font-bold text-blue-600">৳{price} / month</p>
+                <p className="font-bold text-blue-600">{formatCurrency(price)} / month</p>
             </div>
 
             {/* Progress Bar with dynamic color and 15-day marker */}

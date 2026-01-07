@@ -3,12 +3,14 @@
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowDown, ArrowUp, Banknote, Calendar, MinusCircle, PieChart, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ProfitLossReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
 
@@ -45,8 +47,6 @@ const ProfitLossReportPage = () => {
         setApiParams(n);
     }, []);
 
-    const formatCurrency = (value: number) => `৳${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
         const exportParams: Record<string, any> = { ...apiParams, export: true };
         if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
@@ -62,13 +62,13 @@ const ProfitLossReportPage = () => {
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'month_name', label: 'Period', width: 20 },
-            { key: 'sales', label: 'Sales', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'cogs', label: 'COGS', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'gross_profit', label: 'Gross Profit', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'expenses', label: 'Expenses', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
-            { key: 'net_profit', label: 'Net Profit', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'sales', label: 'Sales', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'cogs', label: 'COGS', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'gross_profit', label: 'Gross Profit', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'expenses', label: 'Expenses', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'net_profit', label: 'Net Profit', width: 15, format: (v) => formatCurrency(v) },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -89,7 +89,7 @@ const ProfitLossReportPage = () => {
             { label: 'Net Profit', value: formatCurrency(netProfit.amount) },
             { label: 'Profit Margin', value: `${netProfit.margin_percentage || 0}%` },
         ],
-        [revenue, netProfit]
+        [revenue, netProfit, formatCurrency]
     );
 
     const trendColumns = useMemo(
@@ -117,7 +117,7 @@ const ProfitLossReportPage = () => {
                 },
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

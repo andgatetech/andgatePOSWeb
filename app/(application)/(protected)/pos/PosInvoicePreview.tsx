@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -50,6 +51,7 @@ interface PosInvoicePreviewProps {
 }
 
 const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) => {
+    const { formatCurrency, symbol } = useCurrency();
     const invoiceRef = useRef(null);
     const [isPrinting, setIsPrinting] = useState(false);
 
@@ -148,12 +150,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div class="item-row">
                     <div class="item-name">${index + 1}. ${item.title}</div>
                     <div class="item-qty">${item.quantity}</div>
-                    <div class="item-price">৳${Number(item.amount).toFixed(2)}</div>
+                    <div class="item-price">${formatCurrency(item.amount)}</div>
                 </div>
                 ${variantInfo}
                 ${serialInfo}
                 ${warrantyInfo}
-                <div class="item-details">${item.quantity} x ৳${Number(item.price).toFixed(2)} ${item.unit ? `(${item.unit})` : ''}</div>
+                <div class="item-details">${item.quantity} x ${formatCurrency(item.price)} ${item.unit ? `(${item.unit})` : ''}</div>
             `;
         });
 
@@ -428,14 +430,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         <div class="totals-section">
             <div class="total-row">
                 <div>Subtotal:</div>
-                <div>৳${subtotal.toFixed(2)}</div>
+                <div>${formatCurrency(subtotal)}</div>
             </div>
             ${
                 calculatedTax > 0
                     ? `
             <div class="total-row">
                 <div>Tax:</div>
-                <div>৳${calculatedTax.toFixed(2)}</div>
+                <div>${formatCurrency(calculatedTax)}</div>
             </div>`
                     : ''
             }
@@ -444,20 +446,20 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     ? `
             <div class="total-row">
                 <div>Discount:</div>
-                <div>-৳${calculatedDiscount.toFixed(2)}</div>
+                <div>-${formatCurrency(calculatedDiscount)}</div>
             </div>`
                     : ''
             }
             <div class="total-row grand-total">
                 <div>TOTAL:</div>
-                <div>৳${grandTotal.toFixed(2)}</div>
+                <div>${formatCurrency(grandTotal)}</div>
             </div>
             ${
                 (displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountPaid > 0
                     ? `
             <div class="total-row" style="color: #059669;">
                 <div>Amount Paid:</div>
-                <div>৳${amountPaid.toFixed(2)}</div>
+                <div>${formatCurrency(amountPaid)}</div>
             </div>`
                     : ''
             }
@@ -466,7 +468,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     ? `
             <div class="total-row" style="color: #dc2626; font-weight: bold;">
                 <div>Amount Due:</div>
-                <div>৳${amountDue.toFixed(2)}</div>
+                <div>${formatCurrency(amountDue)}</div>
             </div>`
                     : ''
             }
@@ -488,7 +490,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 (displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0
                     ? `
             <div style="margin-top: 2mm; padding: 2mm; background: #fee2e2; border-radius: 2mm;">
-                <div style="color: #dc2626; font-weight: bold;">⚠ Amount Due: ৳${amountDue.toFixed(2)}</div>
+                <div style="color: #dc2626; font-weight: bold;">⚠ Amount Due: ${formatCurrency(amountDue)}</div>
             </div>`
                     : ''
             }
@@ -667,14 +669,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             {displayPaymentStatus?.toLowerCase() === 'partial' && amountPaid > 0 && (
                                 <div className="mb-2 flex justify-between">
                                     <span className="text-green-600">Amount Paid:</span>
-                                    <span className="font-semibold text-green-700">৳{amountPaid.toFixed(2)}</span>
+                                    <span className="font-semibold text-green-700">{formatCurrency(amountPaid)}</span>
                                 </div>
                             )}
                             {/* Show amount due for partial/due payments */}
                             {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0 && (
                                 <div className="mb-2 flex justify-between">
                                     <span className="text-red-600">Amount Due:</span>
-                                    <span className="font-bold text-red-700">৳{amountDue.toFixed(2)}</span>
+                                    <span className="font-bold text-red-700">{formatCurrency(amountDue)}</span>
                                 </div>
                             )}
                         </div>
@@ -747,8 +749,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     <td className="border-b border-gray-200 py-3 text-center">
                                         <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
                                     </td>
-                                    <td className="border-b border-gray-200 py-3 text-right">৳{Number(item.price).toFixed(2)}</td>
-                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">৳{Number(item.amount).toFixed(2)}</td>
+                                    <td className="border-b border-gray-200 py-3 text-right">{formatCurrency(Number(item.price))}</td>
+                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">{formatCurrency(Number(item.amount))}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -760,23 +762,23 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     <div className="w-full space-y-1 text-right sm:w-[40%]">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
-                            <span>৳{subtotal.toFixed(2)}</span>
+                            <span>{formatCurrency(subtotal)}</span>
                         </div>
                         {calculatedTax > 0 && (
                             <div className="flex justify-between">
                                 <span>Tax</span>
-                                <span>৳{calculatedTax.toFixed(2)}</span>
+                                <span>{formatCurrency(calculatedTax)}</span>
                             </div>
                         )}
                         {calculatedDiscount > 0 && (
                             <div className="flex justify-between text-red-600">
                                 <span>Discount</span>
-                                <span>-৳{calculatedDiscount.toFixed(2)}</span>
+                                <span>-{formatCurrency(calculatedDiscount)}</span>
                             </div>
                         )}
                         <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
                             <span>Grand Total</span>
-                            <span>৳{grandTotal.toFixed(2)}</span>
+                            <span>{formatCurrency(grandTotal)}</span>
                         </div>
                         {/* Payment Breakdown for Partial/Due */}
                         {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && (
@@ -784,13 +786,13 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 {amountPaid > 0 && (
                                     <div className="flex justify-between border-t border-green-200 pt-2 text-green-700">
                                         <span>Amount Paid</span>
-                                        <span className="font-semibold">৳{amountPaid.toFixed(2)}</span>
+                                        <span className="font-semibold">{formatCurrency(amountPaid)}</span>
                                     </div>
                                 )}
                                 {amountDue > 0 && (
                                     <div className="flex justify-between rounded-lg bg-red-50 p-2 text-red-700">
                                         <span className="font-semibold">Amount Due</span>
-                                        <span className="text-lg font-bold">৳{amountDue.toFixed(2)}</span>
+                                        <span className="text-lg font-bold">{formatCurrency(amountDue)}</span>
                                     </div>
                                 )}
                             </>

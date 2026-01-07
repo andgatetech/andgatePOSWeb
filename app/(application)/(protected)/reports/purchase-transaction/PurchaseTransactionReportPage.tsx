@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetPurchaseTransactionReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowLeftRight, Banknote, CreditCard, FileText, Receipt, Store, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseTransactionReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,11 +83,11 @@ const PurchaseTransactionReportPage = () => {
             { key: 'supplier_name', label: 'Supplier', width: 20 },
             { key: 'store_name', label: 'Store', width: 15 },
             { key: 'payment_method', label: 'Method', width: 10 },
-            { key: 'amount', label: 'Amount', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'amount', label: 'Amount', width: 15, format: (v) => formatCurrency(v) },
             { key: 'user_name', label: 'Processed By', width: 15 },
             { key: 'paid_at', label: 'Date', width: 15, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -103,9 +105,9 @@ const PurchaseTransactionReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Total Transactions', value: summary.total_transactions || 0 },
-            { label: 'Total Paid', value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}` },
+            { label: 'Total Paid', value: formatCurrency(summary.total_amount_paid) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -120,7 +122,7 @@ const PurchaseTransactionReportPage = () => {
             },
             {
                 label: 'Total Paid',
-                value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount_paid),
                 icon: <Banknote className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -128,14 +130,14 @@ const PurchaseTransactionReportPage = () => {
             },
             {
                 label: 'Average Payment',
-                value: `৳${Number(summary.average_payment || 0).toLocaleString()}`,
+                value: formatCurrency(summary.average_payment),
                 icon: <Receipt className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -166,7 +168,7 @@ const PurchaseTransactionReportPage = () => {
                 label: 'Method',
                 render: (v: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium capitalize text-blue-800">{v}</span>,
             },
-            { key: 'amount', label: 'Amount Paid', sortable: true, render: (v: any) => <span className="font-bold text-green-600">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'amount', label: 'Amount Paid', sortable: true, render: (v: any) => <span className="font-bold text-green-600">{formatCurrency(v)}</span> },
             { key: 'user_name', label: 'Processed By', render: (v: any) => <span className="text-sm text-gray-600">{v}</span> },
             {
                 key: 'paid_at',
@@ -189,7 +191,7 @@ const PurchaseTransactionReportPage = () => {
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (
@@ -221,7 +223,7 @@ const PurchaseTransactionReportPage = () => {
                                 <div key={idx} className="p-6">
                                     <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{item.payment_method}</p>
                                     <div className="mt-2 flex items-baseline gap-2">
-                                        <span className="text-2xl font-bold text-gray-900">৳{Number(item.total).toLocaleString()}</span>
+                                        <span className="text-2xl font-bold text-gray-900">{formatCurrency(item.total)}</span>
                                         <span className="text-xs text-gray-500">({item.count} tx)</span>
                                     </div>
                                 </div>

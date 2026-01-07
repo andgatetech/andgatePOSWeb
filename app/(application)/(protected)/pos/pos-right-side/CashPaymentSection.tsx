@@ -1,3 +1,4 @@
+import { useCurrency } from '@/hooks/useCurrency';
 import type { PosFormData } from './types';
 
 interface CashPaymentSectionProps {
@@ -8,6 +9,7 @@ interface CashPaymentSectionProps {
 }
 
 const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInputChange, totalPayable, isWalkInCustomer }) => {
+    const { formatCurrency, symbol } = useCurrency();
     // Only show for Cash payment method and Paid status
     // For partial/due, the amount is handled in PaymentSummarySection
     if (!formData.paymentMethod || formData.paymentMethod.toLowerCase() !== 'cash') {
@@ -44,7 +46,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <label className="text-sm font-semibold text-green-700">Amount Received:</label>
                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-green-600">৳</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-green-600">{symbol}</span>
                         <input
                             type="number"
                             name="amountPaid"
@@ -62,7 +64,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                     <div className="flex flex-col gap-2 rounded-md border-2 border-yellow-300 bg-yellow-50 p-3 sm:flex-row sm:items-center sm:justify-between">
                         <label className="text-sm font-bold text-yellow-800">Change to Return:</label>
                         <div className="flex items-center gap-2">
-                            <span className="text-2xl font-bold text-yellow-900">৳{formData.changeAmount.toFixed(2)}</span>
+                            <span className="text-2xl font-bold text-yellow-900">{formatCurrency(formData.changeAmount)}</span>
                             {formData.changeAmount > 0 && (
                                 <svg className="h-6 w-6 animate-bounce text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
@@ -82,7 +84,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                         <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
-                        <span className="font-medium">Insufficient amount! Still need: ৳{(totalPayable - formData.amountPaid).toFixed(2)}</span>
+                        <span className="font-medium">Insufficient amount! Still need: {formatCurrency(totalPayable - formData.amountPaid)}</span>
                     </div>
                 )}
             </div>

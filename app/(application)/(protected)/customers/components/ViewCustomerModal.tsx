@@ -1,5 +1,6 @@
 'use client';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { Award, Calendar, CheckCircle, CreditCard, Mail, Phone, Star, Store, User, X, XCircle } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -10,6 +11,7 @@ interface ViewCustomerModalProps {
 }
 
 const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen, onClose }) => {
+    const { formatCurrency } = useCurrency();
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -150,7 +152,7 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-gray-500">Account Balance</p>
                                         <p className={`mt-0.5 text-xl font-bold ${customer.balance > 0 ? 'text-green-600' : customer.balance < 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                                            ৳{Math.abs(customer.balance || 0).toFixed(2)}
+                                            {formatCurrency(Math.abs(customer.balance || 0))}
                                             {customer.balance < 0 && <span className="ml-2 text-sm font-normal text-red-500">(Due)</span>}
                                         </p>
                                     </div>

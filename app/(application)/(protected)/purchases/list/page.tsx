@@ -2,6 +2,7 @@
 import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
 
 import UniversalFilter from '@/components/common/UniversalFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useConvertDraftToPurchaseOrderMutation, useDeletePurchaseDraftMutation, useGetPurchaseDraftsQuery, useGetPurchaseOrdersQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { FileText, Package } from 'lucide-react';
@@ -15,6 +16,7 @@ import PurchaseOrdersTable from './components/PurchaseOrdersTable';
 const PurchaseOrderListPage = () => {
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
+    const { formatCurrency } = useCurrency();
     const [activeTab, setActiveTab] = useState<'drafts' | 'orders'>('drafts');
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
@@ -225,7 +227,7 @@ const PurchaseOrderListPage = () => {
                     }
                     <div class="info-box">
                         <h3>${isDraft ? 'Estimated Total' : 'Grand Total'}</h3>
-                        <p style="color: #2563eb; font-size: 20px;">৳${Number(isDraft ? item.estimated_total : item.grand_total).toFixed(2)}</p>
+                        <p style="color: #2563eb; font-size: 20px;">${formatCurrency(isDraft ? item.estimated_total : item.grand_total)}</p>
                     </div>
                     ${
                         !isDraft
@@ -272,9 +274,9 @@ const PurchaseOrderListPage = () => {
                                         ${isNew ? '<span class="badge badge-new">New</span>' : ''}
                                     </td>
                                     <td class="text-center"><strong>${quantity}</strong></td>
-                                    <td class="text-right">৳${Number(unitPrice).toFixed(2)}</td>
+                                    <td class="text-right">${formatCurrency(unitPrice)}</td>
                                     <td class="text-center">${itm.unit || 'piece'}</td>
-                                    <td class="text-right"><strong>৳${Number(subtotal).toFixed(2)}</strong></td>
+                                    <td class="text-right"><strong>${formatCurrency(subtotal)}</strong></td>
                                 </tr>
                             `;
                             })
@@ -283,7 +285,7 @@ const PurchaseOrderListPage = () => {
                     <tfoot>
                         <tr class="total-row">
                             <td colspan="5" class="text-right">TOTAL:</td>
-                            <td class="text-right" style="color: #2563eb;">৳${total.toFixed(2)}</td>
+                            <td class="text-right" style="color: #2563eb;">${formatCurrency(total)}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -294,11 +296,11 @@ const PurchaseOrderListPage = () => {
                     <div class="info-section">
                         <div class="info-box">
                             <h3>Amount Paid</h3>
-                            <p style="color: #059669;">৳${Number(item.amount_paid).toFixed(2)}</p>
+                            <p style="color: #059669;">${formatCurrency(item.amount_paid)}</p>
                         </div>
                         <div class="info-box">
                             <h3>Amount Due</h3>
-                            <p style="color: #dc2626;">৳${Number(item.amount_due).toFixed(2)}</p>
+                            <p style="color: #dc2626;">${formatCurrency(item.amount_due)}</p>
                         </div>
                     </div>
                 `
@@ -362,7 +364,7 @@ const PurchaseOrderListPage = () => {
                 title: 'Purchase Order Created!',
                 html: `
                     <p>Invoice: <strong>${invoiceNumber}</strong></p>
-                    <p>Total: <strong>৳${grandTotal}</strong></p>
+                    <p>Total: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>
                 `,
                 confirmButtonText: 'View Purchase Orders',
             }).then(() => {
@@ -595,11 +597,11 @@ const PurchaseOrderListPage = () => {
                                                         <td className="px-4 py-3 text-center">
                                                             <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800">{quantity}</span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-medium text-gray-900">৳{Number(unitPrice).toFixed(2)}</td>
+                                                        <td className="px-4 py-3 text-right font-medium text-gray-900">{formatCurrency(unitPrice)}</td>
                                                         <td className="px-4 py-3 text-center">
                                                             <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">{unit}</span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-gray-900">৳{Number(subtotal).toFixed(2)}</td>
+                                                        <td className="px-4 py-3 text-right font-bold text-gray-900">{formatCurrency(subtotal)}</td>
                                                     </tr>
                                                 );
                                             })}
@@ -610,16 +612,15 @@ const PurchaseOrderListPage = () => {
                                                     Total:
                                                 </td>
                                                 <td className="px-4 py-3 text-right text-lg font-bold text-primary">
-                                                    ৳
-                                                    {selectedItems
-                                                        .reduce((sum, item) => {
+                                                    {formatCurrency(
+                                                        selectedItems.reduce((sum, item) => {
                                                             const unitPrice = parseFloat(item.purchase_price) || 0;
                                                             const quantity = parseFloat(item.quantity_ordered) || 0;
                                                             // Drafts use 'estimated_subtotal', Orders use 'subtotal' or 'total'
                                                             const subtotal = parseFloat(item.estimated_subtotal) || parseFloat(item.subtotal) || parseFloat(item.total) || quantity * unitPrice;
                                                             return sum + subtotal;
                                                         }, 0)
-                                                        .toFixed(2)}
+                                                    )}
                                                 </td>
                                             </tr>
                                         </tfoot>

@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import { useCurrency } from '@/hooks/useCurrency';
 import { Edit, Eye, FileText, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -28,6 +29,7 @@ interface DraftsTableProps {
 
 const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination, sorting, onViewItems, onConvertToPO, onDelete }) => {
     const router = useRouter();
+    const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
         () => [
@@ -38,7 +40,6 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{value}</span>
-                     
                     </div>
                 ),
             },
@@ -48,7 +49,6 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900">{row.purchase_type === 'walk_in' ? 'Walk-in Purchase' : value?.name || 'N/A'}</span>
-                       
                     </div>
                 ),
             },
@@ -78,7 +78,7 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 key: 'estimated_total',
                 label: 'Estimated Total',
                 sortable: true,
-                render: (value) => <span className="font-semibold text-gray-900">৳{Number(value || 0).toFixed(2)}</span>,
+                render: (value) => <span className="font-semibold text-gray-900">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'status',
@@ -118,7 +118,7 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(

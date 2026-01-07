@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import SalesReportFilter from '@/components/filters/reports/SalesReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSalesReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, FileText, Hash, Percent, Receipt, ShoppingCart, TrendingDown, User, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -124,7 +126,7 @@ const SalesReportPage = () => {
             },
             {
                 label: 'Gross Sales',
-                value: `৳${Number(summary.total_sales || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_sales),
                 icon: <Banknote className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -132,7 +134,7 @@ const SalesReportPage = () => {
             },
             {
                 label: 'Collection',
-                value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_amount_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -140,7 +142,7 @@ const SalesReportPage = () => {
             },
             {
                 label: 'Outstanding',
-                value: `৳${Number(summary.total_due_amount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_due_amount),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -148,7 +150,7 @@ const SalesReportPage = () => {
             },
             {
                 label: 'Discounts',
-                value: `৳${Number(summary.total_discount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_discount),
                 icon: <Percent className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
                 lightBg: 'bg-amber-50',
@@ -156,7 +158,7 @@ const SalesReportPage = () => {
             },
             {
                 label: 'Avg Order',
-                value: `৳${Number(summary.average_order_value || 0).toLocaleString()}`,
+                value: formatCurrency(summary.average_order_value),
                 icon: <Receipt className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -202,17 +204,17 @@ const SalesReportPage = () => {
                 key: 'grand_total',
                 label: 'Total',
                 sortable: true,
-                render: (value: any) => <span className="font-bold text-gray-900">৳{Number(value || 0).toLocaleString()}</span>,
+                render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span>,
             },
             {
                 key: 'amount_paid',
                 label: 'Paid',
-                render: (value: any) => <span className="font-semibold text-emerald-600">৳{Number(value || 0).toLocaleString()}</span>,
+                render: (value: any) => <span className="font-semibold text-emerald-600">{formatCurrency(value)}</span>,
             },
             {
                 key: 'due_amount',
                 label: 'Due',
-                render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>৳{Number(value || 0).toLocaleString()}</span>,
+                render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_status',
@@ -261,19 +263,19 @@ const SalesReportPage = () => {
                 key: 'grand_total',
                 label: 'Total',
                 width: 15,
-                format: (value) => `৳${Number(value || 0).toLocaleString()}`,
+                format: (value) => formatCurrency(value),
             },
             {
                 key: 'amount_paid',
                 label: 'Paid',
                 width: 15,
-                format: (value) => `৳${Number(value || 0).toLocaleString()}`,
+                format: (value) => formatCurrency(value),
             },
             {
                 key: 'due_amount',
                 label: 'Due',
                 width: 15,
-                format: (value) => `৳${Number(value || 0).toLocaleString()}`,
+                format: (value) => formatCurrency(value),
             },
             { key: 'payment_status', label: 'Status', width: 12 },
             {
@@ -329,9 +331,9 @@ const SalesReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Total Orders', value: summary.total_orders || 0 },
-            { label: 'Gross Sales', value: `৳${Number(summary.total_sales || 0).toLocaleString()}` },
-            { label: 'Collection', value: `৳${Number(summary.total_amount_paid || 0).toLocaleString()}` },
-            { label: 'Outstanding', value: `৳${Number(summary.total_due_amount || 0).toLocaleString()}` },
+            { label: 'Gross Sales', value: formatCurrency(summary.total_sales) },
+            { label: 'Collection', value: formatCurrency(summary.total_amount_paid) },
+            { label: 'Outstanding', value: formatCurrency(summary.total_due_amount) },
         ],
         [summary]
     );

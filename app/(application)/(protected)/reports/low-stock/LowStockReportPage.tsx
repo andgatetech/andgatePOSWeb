@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetLowStockReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, AlertTriangle, Box, FileText, Package, Tag, TrendingDown } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LowStockReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -83,9 +85,9 @@ const LowStockReportPage = () => {
             { key: 'quantity', label: 'Stock', width: 10 },
             { key: 'stock_percentage', label: 'Stock %', width: 10, format: (v) => `${Number(v).toFixed(0)}%` },
             { key: 'urgency', label: 'Urgency', width: 10 },
-            { key: 'restock_cost', label: 'Restock Cost', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'restock_cost', label: 'Restock Cost', width: 15, format: (v) => formatCurrency(v) },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -220,13 +222,13 @@ const LowStockReportPage = () => {
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col text-right">
-                        <span className="font-bold text-gray-900">৳{Number(v || 0).toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">{formatCurrency(v)}</span>
                         <span className="text-[10px] font-medium text-gray-400">Need {r.quantity_needed} Units</span>
                     </div>
                 ),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

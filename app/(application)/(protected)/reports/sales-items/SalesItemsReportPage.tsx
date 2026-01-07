@@ -4,12 +4,14 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSalesItemsReportMutation } from '@/store/features/reports/reportApi';
 import { BarChart3, Boxes, FileText, Layers, Package, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesItemsReportPage = () => {
+    const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -81,10 +83,10 @@ const SalesItemsReportPage = () => {
             { key: 'category', label: 'Category', width: 15 },
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'sold_qty', label: 'Sold Qty', width: 10 },
-            { key: 'sold_amount', label: 'Revenue', width: 15, format: (v) => `৳${Number(v || 0).toLocaleString()}` },
+            { key: 'sold_amount', label: 'Revenue', width: 15, format: (v) => formatCurrency(v) },
             { key: 'instock_qty', label: 'Stock', width: 10 },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -103,9 +105,9 @@ const SalesItemsReportPage = () => {
         () => [
             { label: 'Unique Items', value: summary.total_items || 0 },
             { label: 'Total Qty Sold', value: summary.total_sold_qty || 0 },
-            { label: 'Total Revenue', value: `৳${Number(summary.total_sold_amount || 0).toLocaleString()}` },
+            { label: 'Total Revenue', value: formatCurrency(summary.total_sold_amount) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -128,7 +130,7 @@ const SalesItemsReportPage = () => {
             },
             {
                 label: 'Gross Profit (Sold Value)',
-                value: `৳${Number(summary.total_sold_amount || 0).toLocaleString()}`,
+                value: formatCurrency(summary.total_sold_amount),
                 icon: <TrendingUp className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -136,14 +138,14 @@ const SalesItemsReportPage = () => {
             },
             {
                 label: 'Avg Revenue / Item',
-                value: `৳${Number(summary.total_sold_amount / (summary.total_sold_qty || 1)).toFixed(2)}`,
+                value: formatCurrency(summary.total_sold_amount / (summary.total_sold_qty || 1)),
                 icon: <BarChart3 className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -175,7 +177,7 @@ const SalesItemsReportPage = () => {
                 ),
             },
             { key: 'sold_qty', label: 'Sold Qty', sortable: true, render: (v: any) => <span className="font-bold text-gray-900">{Number(v).toLocaleString()}</span> },
-            { key: 'sold_amount', label: 'Revenue Generated', sortable: true, render: (v: any) => <span className="font-bold text-emerald-600">৳{Number(v || 0).toLocaleString()}</span> },
+            { key: 'sold_amount', label: 'Revenue Generated', sortable: true, render: (v: any) => <span className="font-bold text-emerald-600">{formatCurrency(v)}</span> },
             {
                 key: 'instock_qty',
                 label: 'Availability',

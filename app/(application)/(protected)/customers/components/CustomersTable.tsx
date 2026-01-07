@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import { useCurrency } from '@/hooks/useCurrency';
 import { Edit, Eye, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -28,6 +29,7 @@ interface CustomersTableProps {
 
 const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
     const router = useRouter();
+    const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
         () => [
@@ -83,7 +85,7 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                     const isPositive = balance > 0;
                     return (
                         <div className="flex flex-col">
-                            <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : balance < 0 ? 'text-red-600' : 'text-gray-900'}`}>৳{Math.abs(balance).toFixed(2)}</span>
+                            <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : balance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{formatCurrency(Math.abs(balance))}</span>
                             {balance < 0 && <span className="text-xs text-red-500">Due</span>}
                         </div>
                     );

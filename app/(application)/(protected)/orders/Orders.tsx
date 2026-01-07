@@ -1,6 +1,7 @@
 'use client';
 
 import OrderFilter from '@/components/filters/OrderFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog } from '@/lib/toast';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
@@ -9,10 +10,11 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import OrderDetailsModal from './components/OrderDetailsModal';
-import OrdersTable from './components/OrdersTable';
 import OrderStats from './components/OrderStats';
+import OrdersTable from './components/OrdersTable';
 
 const Orders = () => {
+    const { formatCurrency, code, symbol } = useCurrency();
     const { currentStoreId } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -190,9 +192,9 @@ const Orders = () => {
                 <div class="item-row">
                     <div class="item-name">${index + 1}. ${item.product_name}</div>
                     <div class="item-qty">${item.quantity}</div>
-                    <div class="item-price">৳${Number(item.subtotal).toFixed(2)}</div>
+                    <div class="item-price">${symbol}${Number(item.subtotal).toFixed(2)}</div>
                 </div>
-                <div class="item-details">${item.quantity} x ৳${Number(item.unit_price).toFixed(2)}</div>
+                <div class="item-details">${item.quantity} x ${symbol}${Number(item.unit_price).toFixed(2)}</div>
             `;
             });
 
@@ -287,20 +289,20 @@ const Orders = () => {
         <div class="totals-section">
             <div class="total-row">
                 <div>Subtotal:</div>
-                <div>৳${subtotal.toFixed(2)}</div>
+                <div>${symbol}${subtotal.toFixed(2)}</div>
             </div>
-            ${tax > 0 ? `<div class="total-row"><div>Tax:</div><div>৳${tax.toFixed(2)}</div></div>` : ''}
-            ${discount > 0 ? `<div class="total-row"><div>Discount:</div><div>-৳${discount.toFixed(2)}</div></div>` : ''}
+            ${tax > 0 ? `<div class="total-row"><div>Tax:</div><div>${symbol}${tax.toFixed(2)}</div></div>` : ''}
+            ${discount > 0 ? `<div class="total-row"><div>Discount:</div><div>-${symbol}${discount.toFixed(2)}</div></div>` : ''}
             <div class="total-row grand-total">
                 <div>TOTAL:</div>
-                <div>৳${grandTotal.toFixed(2)}</div>
+                <div>${symbol}${grandTotal.toFixed(2)}</div>
             </div>
             ${
                 (order.payment_status === 'partial' || order.payment_status === 'due') && amountPaid > 0
                     ? `
             <div class="total-row" style="color: #059669;">
                 <div>Amount Paid:</div>
-                <div>৳${amountPaid.toFixed(2)}</div>
+                <div>${symbol}${amountPaid.toFixed(2)}</div>
             </div>`
                     : ''
             }
@@ -309,7 +311,7 @@ const Orders = () => {
                     ? `
             <div class="total-row" style="color: #dc2626; font-weight: bold;">
                 <div>Amount Due:</div>
-                <div>৳${amountDue.toFixed(2)}</div>
+                <div>${symbol}${amountDue.toFixed(2)}</div>
             </div>`
                     : ''
             }
@@ -326,7 +328,7 @@ const Orders = () => {
                 (order.payment_status === 'partial' || order.payment_status === 'due') && amountDue > 0
                     ? `
             <div style="margin-top: 2mm; padding: 2mm; background: #fee2e2; border-radius: 2mm;">
-                <div style="color: #dc2626; font-weight: bold;">⚠ Amount Due: ৳${amountDue.toFixed(2)}</div>
+                <div style="color: #dc2626; font-weight: bold;">⚠ Amount Due: ${symbol}${amountDue.toFixed(2)}</div>
             </div>`
                     : ''
             }
@@ -352,7 +354,7 @@ const Orders = () => {
 </body>
 </html>`;
         },
-        [currentStore]
+        [currentStore, symbol]
     );
 
     // Handle print invoice (58mm thermal receipt) - uses generateReceiptHTML
@@ -519,8 +521,8 @@ const Orders = () => {
                                             <td style={{ padding: '12px' }}>{idx + 1}</td>
                                             <td style={{ padding: '12px' }}>{item.product_name}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{item.quantity}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>৳{Number(item.unit_price).toFixed(2)}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>৳{Number(item.subtotal).toFixed(2)}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{formatCurrency(item.unit_price)}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{formatCurrency(item.subtotal)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -530,36 +532,36 @@ const Orders = () => {
                                 <div style={{ width: '256px', textAlign: 'right' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                         <span>Subtotal:</span>
-                                        <span>৳{Number(selectedOrder.total || 0).toFixed(2)}</span>
+                                        <span>{formatCurrency(selectedOrder.total)}</span>
                                     </div>
                                     {Number(selectedOrder.tax || 0) > 0 && (
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                             <span>Tax:</span>
-                                            <span>৳{Number(selectedOrder.tax).toFixed(2)}</span>
+                                            <span>{formatCurrency(selectedOrder.tax)}</span>
                                         </div>
                                     )}
                                     {Number(selectedOrder.discount || 0) > 0 && (
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#dc2626' }}>
                                             <span>Discount:</span>
-                                            <span>-৳{Number(selectedOrder.discount).toFixed(2)}</span>
+                                            <span>-{formatCurrency(selectedOrder.discount)}</span>
                                         </div>
                                     )}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #d1d5db', paddingTop: '8px', fontSize: '20px', fontWeight: 'bold' }}>
                                         <span>Grand Total:</span>
-                                        <span>৳{Number(selectedOrder.grand_total || 0).toFixed(2)}</span>
+                                        <span>{formatCurrency(selectedOrder.grand_total)}</span>
                                     </div>
                                     {(selectedOrder.payment_status === 'partial' || selectedOrder.payment_status === 'due') && (
                                         <>
                                             {Number(selectedOrder.amount_paid || 0) > 0 && (
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #bbf7d0', paddingTop: '8px', color: '#15803d' }}>
                                                     <span>Amount Paid:</span>
-                                                    <span style={{ fontWeight: '600' }}>৳{Number(selectedOrder.amount_paid).toFixed(2)}</span>
+                                                    <span style={{ fontWeight: '600' }}>{formatCurrency(selectedOrder.amount_paid)}</span>
                                                 </div>
                                             )}
                                             {Number(selectedOrder.due_amount || 0) > 0 && (
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', borderRadius: '8px', backgroundColor: '#fef2f2', padding: '8px', color: '#b91c1c' }}>
                                                     <span style={{ fontWeight: '600' }}>Amount Due:</span>
-                                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>৳{Number(selectedOrder.due_amount).toFixed(2)}</span>
+                                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{formatCurrency(selectedOrder.due_amount)}</span>
                                                 </div>
                                             )}
                                         </>
