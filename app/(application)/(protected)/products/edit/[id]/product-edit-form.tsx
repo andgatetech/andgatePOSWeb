@@ -43,9 +43,19 @@ const ProductEditForm = () => {
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
 
     const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams);
-    const categories = categoriesResponse?.data || [];
+    const categories = React.useMemo(() => {
+        if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
+            return categoriesResponse.data.items;
+        }
+        return categoriesResponse?.data || [];
+    }, [categoriesResponse]);
     const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams);
-    const brands = brandsResponse?.data || [];
+    const brands = React.useMemo(() => {
+        if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
+            return brandsResponse.data.items;
+        }
+        return brandsResponse?.data || [];
+    }, [brandsResponse]);
     const [updateProduct, { isLoading: updateLoading, error: updateProductError }] = useUpdateProductMutation();
     const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams);
     const units = unitsResponse?.data || [];
