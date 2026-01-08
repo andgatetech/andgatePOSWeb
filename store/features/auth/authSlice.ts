@@ -11,6 +11,24 @@ export interface Currency {
     decimal_separator: string;
 }
 
+export interface PaymentMethod {
+    id: number;
+    payment_method_name: string;
+    payment_details_number?: string;
+    description?: string;
+    notes?: string;
+    is_active: boolean | number;
+}
+
+export interface PaymentStatus {
+    id: number;
+    status_name: string;
+    status_color?: string;
+    description?: string;
+    is_default?: boolean;
+    is_active: boolean | number;
+}
+
 export interface Store {
     id: number;
     store_name: string;
@@ -19,6 +37,8 @@ export interface Store {
     store_location?: string;
     is_active?: boolean;
     currency?: Currency;
+    payment_methods?: PaymentMethod[];
+    payment_statuses?: PaymentStatus[];
 }
 
 export interface SubscriptionItem {

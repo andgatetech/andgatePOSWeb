@@ -7,8 +7,6 @@ import type { RootState } from '@/store';
 import { useCreateOrderMutation } from '@/store/features/Order/Order';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
-import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
-import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,7 +26,7 @@ const DEFAULT_PAYMENT_METHOD = {
 
 const PosRightSide: React.FC = () => {
     const dispatch = useDispatch();
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const invoiceItems = useSelector((state: RootState) => state.invoice.items);
     const userId = useSelector((state: RootState) => state.auth.user?.id);
@@ -125,11 +123,9 @@ const PosRightSide: React.FC = () => {
         return MEMBERSHIP_DISCOUNTS[key] ?? 0;
     };
 
-    const { data: paymentMethodsResponse } = useGetPaymentMethodsQuery(currentStoreId ? { store_id: currentStoreId } : skipToken);
-
+    // Use payment methods from Redux (loaded during login) - no API call needed
     const paymentMethodOptions = useMemo<any[]>(() => {
-        const payload = paymentMethodsResponse?.data;
-        const methods = Array.isArray(payload) ? payload : [];
+        const methods = Array.isArray(currentStore?.payment_methods) ? currentStore.payment_methods : [];
         const activeMethods = methods.filter((method: any) => {
             if (!method) return false;
             const status = method.is_active;
@@ -148,7 +144,20 @@ const PosRightSide: React.FC = () => {
         }
 
         return activeMethods;
-    }, [paymentMethodsResponse]);
+    }, [currentStore?.payment_methods]);
+
+    // Payment statuses from Redux (can be used for payment status dropdown)
+    const paymentStatusOptions = useMemo(() => {
+        const statuses = Array.isArray(currentStore?.payment_statuses) ? currentStore.payment_statuses : [];
+        return statuses.filter((status: any) => {
+            if (!status) return false;
+            const active = status.is_active;
+            if (active === undefined || active === null) return true;
+            if (typeof active === 'boolean') return active;
+            if (typeof active === 'number') return active === 1;
+            return true;
+        });
+    }, [currentStore?.payment_statuses]);
 
     const {
         data: customersResponse,
@@ -906,6 +915,7 @@ const PosRightSide: React.FC = () => {
                     formData={formData}
                     selectedCustomer={selectedCustomer}
                     paymentMethodOptions={paymentMethodOptions}
+                    paymentStatusOptions={paymentStatusOptions}
                     onInputChange={handleInputChange}
                     subtotalWithoutTax={calculateSubtotalWithoutTax()}
                     taxAmount={calculateTax()}

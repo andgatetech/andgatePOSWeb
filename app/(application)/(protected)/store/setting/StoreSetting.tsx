@@ -5,21 +5,37 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
-import { useCreateAdjustmentReasonMutation, useCreatePaymentMethodMutation, useDeleteAdjustmentReasonMutation, useDeletePaymentMethodMutation, useGetStoreQuery, useUpdateAdjustmentReasonMutation, useUpdatePaymentMethodMutation, useUpdateStoreMutation } from '@/store/features/store/storeApi';
+import {
+    useCreateAdjustmentReasonMutation,
+    useCreateCurrencyMutation,
+    useCreatePaymentMethodMutation,
+    useCreatePaymentStatusMutation,
+    useDeleteAdjustmentReasonMutation,
+    useDeleteCurrencyMutation,
+    useDeletePaymentMethodMutation,
+    useDeletePaymentStatusMutation,
+    useGetStoreQuery,
+    useUpdateAdjustmentReasonMutation,
+    useUpdateCurrencyMutation,
+    useUpdatePaymentMethodMutation,
+    useUpdatePaymentStatusMutation,
+    useUpdateStoreMutation,
+} from '@/store/features/store/storeApi';
 import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
 
 // Import Tab Components
 import MobileStoreSettingFAB from './MobileStoreSettingFAB';
 import StoreSettingTabs from './StoreSettingTabs';
+import AdjustmentReasonsTab from './tabs/AdjustmentReasonsTab';
 import AttributesTab from './tabs/AttributesTab';
 import BasicInfoTab from './tabs/BasicInfoTab';
 import BrandingTab from './tabs/BrandingTab';
+import CurrencyTab, { CurrencyForm } from './tabs/CurrencyTab';
 import LoyaltyProgramTab from './tabs/LoyaltyProgramTab';
 import OperatingHoursTab from './tabs/OperatingHoursTab';
 import PaymentMethodsTab, { PaymentMethodForm } from './tabs/PaymentMethodsTab';
+import PaymentStatusTab, { PaymentStatusForm } from './tabs/PaymentStatusTab';
 import StoreStatusTab from './tabs/StoreStatusTab';
-
-import AdjustmentReasonsTab from './tabs/AdjustmentReasonsTab';
 import UnitsTab from './tabs/UnitsTab';
 import WarrantyTypesTab from './tabs/WarrantyTypesTab';
 
@@ -31,7 +47,26 @@ const createEmptyPaymentMethodForm = (): PaymentMethodForm => ({
     is_active: true,
 });
 
-const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'warranty', 'adjustment', 'loyalty', 'branding', 'status'] as const;
+const createEmptyCurrencyForm = (): CurrencyForm => ({
+    currency_code: '',
+    currency_name: '',
+    currency_symbol: '',
+    currency_position: 'before',
+    decimal_places: 2,
+    thousand_separator: ',',
+    decimal_separator: '.',
+    is_active: true,
+});
+
+const createEmptyPaymentStatusForm = (): PaymentStatusForm => ({
+    status_name: '',
+    status_color: '#22c55e',
+    description: '',
+    is_default: false,
+    is_active: true,
+});
+
+const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'loyalty', 'branding', 'status'] as const;
 
 const StoreSetting = () => {
     const searchParams = useSearchParams();
@@ -73,21 +108,36 @@ const StoreSetting = () => {
     const [editingPaymentMethodId, setEditingPaymentMethodId] = useState<number | null>(null);
     const [editingPaymentMethodForm, setEditingPaymentMethodForm] = useState<PaymentMethodForm>(createEmptyPaymentMethodForm());
 
+    // Currency state
+    const [currencyForm, setCurrencyForm] = useState<CurrencyForm>(createEmptyCurrencyForm());
+    const [editingCurrencyId, setEditingCurrencyId] = useState<number | null>(null);
+    const [editingCurrencyForm, setEditingCurrencyForm] = useState<CurrencyForm>(createEmptyCurrencyForm());
+
+    // Payment Status state
+    const [paymentStatusForm, setPaymentStatusForm] = useState<PaymentStatusForm>(createEmptyPaymentStatusForm());
+    const [editingPaymentStatusId, setEditingPaymentStatusId] = useState<number | null>(null);
+    const [editingPaymentStatusForm, setEditingPaymentStatusForm] = useState<PaymentStatusForm>(createEmptyPaymentStatusForm());
+
     useEffect(() => {
         if (tabQuery && (VALID_SETTING_TABS as readonly string[]).includes(tabQuery)) {
             setActiveTab(tabQuery);
         }
     }, [tabQuery]);
 
-    // Use store data directly instead of separate API calls
-    const attributesData = storeData?.data?.product_attributes || [];
-    const warrantyTypesData = storeData?.data?.warranty_types || [];
-    const adjustmentReasonsData = storeData?.data?.adjustment_reasons || [];
+    // Use store data directly - note: data is under data.store.*
+    const store = storeData?.data?.store;
+    const attributesData = store?.product_attributes || [];
+    const warrantyTypesData = store?.warranty_types || [];
+    const adjustmentReasonsData = store?.adjustment_reasons || [];
+    // currencies is an array, get the first one for display (store typically has one currency)
+    const currenciesData = store?.currencies || [];
+    const currencyData = currenciesData.length > 0 ? currenciesData[0] : null;
+    const paymentStatusesData = store?.payment_statuses || [];
 
     const paymentMethods = useMemo(() => {
-        const payload = storeData?.data?.payment_methods;
+        const payload = store?.payment_methods;
         return Array.isArray(payload) ? payload : [];
-    }, [storeData]);
+    }, [store]);
 
     // Keep mutation APIs for CRUD operations
     const [createAttribute] = useCreateProductAttributeMutation();
@@ -99,6 +149,16 @@ const StoreSetting = () => {
     const [createAdjustmentReason] = useCreateAdjustmentReasonMutation();
     const [updateAdjustmentReason] = useUpdateAdjustmentReasonMutation();
     const [deleteAdjustmentReason] = useDeleteAdjustmentReasonMutation();
+
+    // Currency CRUD mutations
+    const [createCurrency] = useCreateCurrencyMutation();
+    const [updateCurrencyMutation] = useUpdateCurrencyMutation();
+    const [deleteCurrencyMutation] = useDeleteCurrencyMutation();
+
+    // Payment Status CRUD mutations
+    const [createPaymentStatus] = useCreatePaymentStatusMutation();
+    const [updatePaymentStatusMutation] = useUpdatePaymentStatusMutation();
+    const [deletePaymentStatusMutation] = useDeletePaymentStatusMutation();
 
     const [attributeName, setAttributeName] = useState('');
     const [editingAttributeId, setEditingAttributeId] = useState<number | null>(null);
@@ -162,20 +222,20 @@ const StoreSetting = () => {
 
     // Populate form with existing data
     useEffect(() => {
-        if (storeData?.data) {
-            const store = storeData.data;
+        if (storeData?.data?.store) {
+            const storeInfo = storeData.data.store;
             setFormData({
-                store_name: store.store_name || '',
-                store_location: store.store_location || '',
-                store_contact: store.store_contact || '',
-                max_discount: store.max_discount || '',
-                opening_time: store.opening_time ? store.opening_time.slice(0, 5) : '',
-                closing_time: store.closing_time ? store.closing_time.slice(0, 5) : '',
-                loyalty_points_enabled: store.loyalty_points_enabled === 1,
-                loyalty_points_rate: store.loyalty_points_rate || '',
-                is_active: store.is_active === 1,
-                units: Array.isArray(store.units)
-                    ? store.units.map((unit: any) => (typeof unit === 'string' ? { name: unit, is_active: 1 } : { name: unit.name || unit, is_active: unit.is_active ?? 1 }))
+                store_name: storeInfo.store_name || '',
+                store_location: storeInfo.store_location || '',
+                store_contact: storeInfo.store_contact || '',
+                max_discount: storeInfo.max_discount || '',
+                opening_time: storeInfo.opening_time ? storeInfo.opening_time.slice(0, 5) : '',
+                closing_time: storeInfo.closing_time ? storeInfo.closing_time.slice(0, 5) : '',
+                loyalty_points_enabled: storeInfo.loyalty_points_enabled === 1,
+                loyalty_points_rate: storeInfo.loyalty_points_rate || '',
+                is_active: storeInfo.is_active === 1,
+                units: Array.isArray(storeInfo.units)
+                    ? storeInfo.units.map((unit: any) => (typeof unit === 'string' ? { name: unit, is_active: 1 } : { name: unit.name || unit, is_active: unit.is_active ?? 1 }))
                     : [],
             });
         }
@@ -202,7 +262,7 @@ const StoreSetting = () => {
 
         try {
             // Get current units from store data
-            const currentUnits = storeData?.data?.units || [];
+            const currentUnits = storeData?.data?.store?.units || [];
             const unitsToSend = [
                 ...currentUnits.map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active })),
                 { name: unitName.trim(), is_active: true }, // New unit without ID
@@ -234,7 +294,7 @@ const StoreSetting = () => {
 
         try {
             // Get current units and update the specific one
-            const currentUnits = storeData?.data?.units || [];
+            const currentUnits = storeData?.data?.store?.units || [];
             const unitsToSend = currentUnits.map((u: any) => ({
                 id: u.id,
                 name: u.id === id ? name.trim() : u.name,
@@ -266,7 +326,7 @@ const StoreSetting = () => {
 
         try {
             // Get current units and filter out the deleted one
-            const currentUnits = storeData?.data?.units || [];
+            const currentUnits = storeData?.data?.store?.units || [];
             const unitsToSend = currentUnits.filter((u: any) => u.id !== id).map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active }));
 
             await updateStore({
@@ -290,7 +350,7 @@ const StoreSetting = () => {
 
         try {
             // Get current units and update the is_active status
-            const currentUnits = storeData?.data?.units || [];
+            const currentUnits = storeData?.data?.store?.units || [];
             const unitsToSend = currentUnits.map((u: any) => ({
                 id: u.id,
                 name: u.name,
@@ -633,6 +693,377 @@ const StoreSetting = () => {
         }
     };
 
+    // ============ Currency Management Functions ============
+    const setNewCurrencyField = (field: keyof CurrencyForm, value: string | number) => {
+        setCurrencyForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const setEditingCurrencyField = (field: keyof CurrencyForm, value: string | number) => {
+        setEditingCurrencyForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const resetNewCurrencyForm = () => {
+        setCurrencyForm(createEmptyCurrencyForm());
+    };
+
+    const startEditingCurrency = (currency: any) => {
+        setEditingCurrencyId(currency.id);
+        setEditingCurrencyForm({
+            currency_code: currency.currency_code || '',
+            currency_name: currency.currency_name || '',
+            currency_symbol: currency.currency_symbol || '',
+            currency_position: currency.currency_position || 'before',
+            decimal_places: currency.decimal_places ?? 2,
+            thousand_separator: currency.thousand_separator || ',',
+            decimal_separator: currency.decimal_separator || '.',
+        });
+    };
+
+    const cancelEditingCurrency = () => {
+        setEditingCurrencyId(null);
+        setEditingCurrencyForm(createEmptyCurrencyForm());
+    };
+
+    const handleCreateCurrency = async () => {
+        if (!currencyForm.currency_code.trim()) {
+            showErrorDialog('Error', 'Currency code is required');
+            return;
+        }
+        if (!currencyForm.currency_name.trim()) {
+            showErrorDialog('Error', 'Currency name is required');
+            return;
+        }
+        if (!currencyForm.currency_symbol.trim()) {
+            showErrorDialog('Error', 'Currency symbol is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot create currency.');
+            return;
+        }
+
+        try {
+            await createCurrency({
+                store_id: storeId,
+                currency_code: currencyForm.currency_code.trim().toUpperCase(),
+                currency_name: currencyForm.currency_name.trim(),
+                currency_symbol: currencyForm.currency_symbol.trim(),
+                currency_position: currencyForm.currency_position,
+                decimal_places: currencyForm.decimal_places,
+                thousand_separator: currencyForm.thousand_separator,
+                decimal_separator: currencyForm.decimal_separator,
+            }).unwrap();
+
+            showSuccessDialog('Success!', 'Currency added successfully!');
+            resetNewCurrencyForm();
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to create currency';
+            showErrorDialog('Create Failed!', errorMessage);
+        }
+    };
+
+    const handleUpdateCurrency = async (id: number) => {
+        if (!editingCurrencyForm.currency_code.trim()) {
+            showErrorDialog('Error', 'Currency code is required');
+            return;
+        }
+        if (!editingCurrencyForm.currency_name.trim()) {
+            showErrorDialog('Error', 'Currency name is required');
+            return;
+        }
+        if (!editingCurrencyForm.currency_symbol.trim()) {
+            showErrorDialog('Error', 'Currency symbol is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update currency.');
+            return;
+        }
+
+        try {
+            await updateCurrencyMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    currency_code: editingCurrencyForm.currency_code.trim().toUpperCase(),
+                    currency_name: editingCurrencyForm.currency_name.trim(),
+                    currency_symbol: editingCurrencyForm.currency_symbol.trim(),
+                    currency_position: editingCurrencyForm.currency_position,
+                    decimal_places: editingCurrencyForm.decimal_places,
+                    thousand_separator: editingCurrencyForm.thousand_separator,
+                    decimal_separator: editingCurrencyForm.decimal_separator,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', 'Currency updated successfully!');
+            cancelEditingCurrency();
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update currency';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    const handleDeleteCurrency = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot delete currency.');
+            return;
+        }
+
+        const confirmed = await showConfirmDialog('Delete Currency?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
+
+        if (!confirmed) return;
+
+        try {
+            await deleteCurrencyMutation(id).unwrap();
+            showSuccessDialog('Deleted!', 'Currency deleted successfully!');
+            if (editingCurrencyId === id) {
+                cancelEditingCurrency();
+            }
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete currency';
+            showErrorDialog('Delete Failed!', errorMessage);
+        }
+    };
+
+    const handleToggleCurrencyActive = async (id: number, isActive: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected.');
+            return;
+        }
+
+        try {
+            // Find current currency to get all data, as PUT likely requires full object or at least we should be safe
+            // Assuming updateCurrencyMutation works with partials if configured, but let's stick to pattern
+            // Actually usually toggle is just sending the specific field if the backend supports it,
+            // or we fetch the current object.
+            // Since we have currenciesData (array), let's find the one.
+            const currencies = (Array.isArray(storeData?.data?.store?.currencies) ? storeData.data.store.currencies : []) as any[];
+            const currencyToUpdate = currencies.find((c: any) => c.id === id);
+
+            if (!currencyToUpdate) {
+                showErrorDialog('Error', 'Currency not found');
+                return;
+            }
+
+            await updateCurrencyMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    currency_code: currencyToUpdate.currency_code,
+                    currency_name: currencyToUpdate.currency_name,
+                    currency_symbol: currencyToUpdate.currency_symbol,
+                    currency_position: currencyToUpdate.currency_position,
+                    decimal_places: currencyToUpdate.decimal_places,
+                    thousand_separator: currencyToUpdate.thousand_separator,
+                    decimal_separator: currencyToUpdate.decimal_separator,
+                    is_active: isActive ? 1 : 0,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', `Currency ${isActive ? 'activated' : 'deactivated'} successfully!`);
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update currency status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    // ============ Payment Status Management Functions ============
+    const setNewPaymentStatusField = (field: keyof PaymentStatusForm, value: string | boolean) => {
+        setPaymentStatusForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const setEditingPaymentStatusField = (field: keyof PaymentStatusForm, value: string | boolean) => {
+        setEditingPaymentStatusForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const resetNewPaymentStatusForm = () => {
+        setPaymentStatusForm(createEmptyPaymentStatusForm());
+    };
+
+    const startEditingPaymentStatus = (status: any) => {
+        setEditingPaymentStatusId(status.id);
+        setEditingPaymentStatusForm({
+            status_name: status.status_name || '',
+            status_color: status.status_color || '#22c55e',
+            description: status.description || '',
+            is_default: parseIsActive(status.is_default),
+            is_active: parseIsActive(status.is_active),
+        });
+    };
+
+    const cancelEditingPaymentStatus = () => {
+        setEditingPaymentStatusId(null);
+        setEditingPaymentStatusForm(createEmptyPaymentStatusForm());
+    };
+
+    const handleCreatePaymentStatus = async () => {
+        if (!paymentStatusForm.status_name.trim()) {
+            showErrorDialog('Error', 'Status name is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot create payment status.');
+            return;
+        }
+
+        try {
+            await createPaymentStatus({
+                store_id: storeId,
+                status_name: paymentStatusForm.status_name.trim(),
+                status_color: paymentStatusForm.status_color,
+                description: paymentStatusForm.description?.trim() || null,
+                is_default: false,
+                is_active: true,
+            }).unwrap();
+
+            showSuccessDialog('Success!', 'Payment status added successfully!');
+            resetNewPaymentStatusForm();
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to create payment status';
+            showErrorDialog('Create Failed!', errorMessage);
+        }
+    };
+
+    const handleUpdatePaymentStatus = async (id: number) => {
+        if (!editingPaymentStatusForm.status_name.trim()) {
+            showErrorDialog('Error', 'Status name is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update payment status.');
+            return;
+        }
+
+        try {
+            await updatePaymentStatusMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    status_name: editingPaymentStatusForm.status_name.trim(),
+                    status_color: editingPaymentStatusForm.status_color,
+                    description: editingPaymentStatusForm.description?.trim() || null,
+                    is_active: editingPaymentStatusForm.is_active ? 1 : 0,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', 'Payment status updated successfully!');
+            cancelEditingPaymentStatus();
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update payment status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    const handleDeletePaymentStatus = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot delete payment status.');
+            return;
+        }
+
+        const confirmed = await showConfirmDialog('Delete Payment Status?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
+
+        if (!confirmed) return;
+
+        try {
+            await deletePaymentStatusMutation(id).unwrap();
+            showSuccessDialog('Deleted!', 'Payment status deleted successfully!');
+            if (editingPaymentStatusId === id) {
+                cancelEditingPaymentStatus();
+            }
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete payment status';
+            showErrorDialog('Delete Failed!', errorMessage);
+        }
+    };
+
+    const handleTogglePaymentStatusActive = async (id: number, isActive: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update payment status.');
+            return;
+        }
+
+        const status = paymentStatusesData.find((s: any) => s.id === id);
+        if (!status) {
+            showErrorDialog('Error', 'Payment status not found');
+            return;
+        }
+
+        try {
+            await updatePaymentStatusMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    status_name: status.status_name,
+                    status_color: status.status_color,
+                    description: status.description || null,
+                    is_active: isActive ? 1 : 0,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', `Payment status ${isActive ? 'enabled' : 'disabled'} successfully!`);
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update payment status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    const handleSetDefaultPaymentStatus = async (id: number) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot set default payment status.');
+            return;
+        }
+
+        const status = paymentStatusesData.find((s: any) => s.id === id);
+        if (!status) {
+            showErrorDialog('Error', 'Payment status not found');
+            return;
+        }
+
+        try {
+            await updatePaymentStatusMutation({
+                id,
+                data: {
+                    store_id: storeId,
+                    status_name: status.status_name,
+                    status_color: status.status_color,
+                    description: status.description || null,
+                    is_default: true,
+                    is_active: true,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', 'Default payment status set successfully!');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to set default payment status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
     const handleLogoChange = (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -797,12 +1228,19 @@ const StoreSetting = () => {
             case 'basic':
                 return <BasicInfoTab formData={formData} handleInputChange={handleInputChange} />;
             case 'hours':
-                return <OperatingHoursTab formData={formData} handleInputChange={handleInputChange} />;
+                return (
+                    <OperatingHoursTab
+                        openingTime={storeData?.data?.store?.opening_time}
+                        closingTime={storeData?.data?.store?.closing_time}
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                    />
+                );
             case 'units':
                 return (
                     <UnitsTab
                         storeId={storeId}
-                        unitsData={storeData?.data?.units || []}
+                        unitsData={storeData?.data?.store?.units || []}
                         unitName={unitName}
                         setUnitName={setUnitName}
                         handleCreateUnit={handleCreateUnit}
@@ -849,6 +1287,43 @@ const StoreSetting = () => {
                         handleTogglePaymentMethodActive={handleTogglePaymentMethodActive}
                     />
                 );
+            case 'currency':
+                return (
+                    <CurrencyTab
+                        currency={currenciesData}
+                        isLoading={isLoading || isFetching}
+                        newCurrency={currencyForm}
+                        setNewCurrencyField={setNewCurrencyField}
+                        handleCreateCurrency={handleCreateCurrency}
+                        editingCurrencyId={editingCurrencyId}
+                        editingCurrency={editingCurrencyForm}
+                        setEditingCurrencyField={setEditingCurrencyField}
+                        startEditingCurrency={startEditingCurrency}
+                        cancelEditingCurrency={cancelEditingCurrency}
+                        handleUpdateCurrency={handleUpdateCurrency}
+                        handleDeleteCurrency={handleDeleteCurrency}
+                        handleToggleCurrencyActive={handleToggleCurrencyActive}
+                    />
+                );
+            case 'paymentstatus':
+                return (
+                    <PaymentStatusTab
+                        paymentStatuses={paymentStatusesData}
+                        isLoading={isLoading || isFetching}
+                        newPaymentStatus={paymentStatusForm}
+                        setNewPaymentStatusField={setNewPaymentStatusField}
+                        handleCreatePaymentStatus={handleCreatePaymentStatus}
+                        editingPaymentStatusId={editingPaymentStatusId}
+                        editingPaymentStatus={editingPaymentStatusForm}
+                        setEditingPaymentStatusField={setEditingPaymentStatusField}
+                        startEditingPaymentStatus={startEditingPaymentStatus}
+                        cancelEditingPaymentStatus={cancelEditingPaymentStatus}
+                        handleUpdatePaymentStatus={handleUpdatePaymentStatus}
+                        handleDeletePaymentStatus={handleDeletePaymentStatus}
+                        handleTogglePaymentStatusActive={handleTogglePaymentStatusActive}
+                        handleSetDefaultPaymentStatus={handleSetDefaultPaymentStatus}
+                    />
+                );
             case 'warranty':
                 return <WarrantyTypesTab storeId={storeId} warrantyTypesData={warrantyTypesData} warrantyTypesLoading={isLoading} setMessage={setMessage} />;
             case 'adjustment':
@@ -873,7 +1348,7 @@ const StoreSetting = () => {
             case 'branding':
                 return <BrandingTab storeData={storeData} logoFile={logoFile} logoPreview={logoPreview} handleLogoChange={handleLogoChange} clearLogo={clearLogo} />;
             case 'status':
-                return <StoreStatusTab formData={formData} handleInputChange={handleInputChange} />;
+                return <StoreStatusTab active={storeData?.data?.store?.is_active} formData={formData} handleInputChange={handleInputChange} />;
             default:
                 return <BasicInfoTab formData={formData} handleInputChange={handleInputChange} />;
         }
@@ -889,7 +1364,7 @@ const StoreSetting = () => {
                             <Settings className="h-7 w-7 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{storeData?.data?.store_name || 'Store'} Settings</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{storeData?.data?.store?.store_name || 'Store'} Settings</h1>
                             <p className="text-sm text-gray-500">Manage your store configuration and preferences</p>
                         </div>
                     </div>

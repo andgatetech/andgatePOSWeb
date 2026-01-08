@@ -5,6 +5,7 @@ interface PaymentSummarySectionProps {
     formData: PosFormData;
     selectedCustomer: Customer | null;
     paymentMethodOptions: any[];
+    paymentStatusOptions: any[]; // Payment statuses from Redux with colors
     onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     subtotalWithoutTax: number;
     taxAmount: number;
@@ -20,6 +21,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     formData,
     selectedCustomer,
     paymentMethodOptions,
+    paymentStatusOptions,
     onInputChange,
     subtotalWithoutTax,
     taxAmount,
@@ -34,27 +36,49 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     const canUsePoints = selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
 
+    // Default fallback statuses (used if Redux doesn't have statuses)
+    const defaultStatuses = [
+        { id: 1, status_name: 'Paid', status_color: '#22c55e', value: 'paid' },
+        { id: 2, status_name: 'Partial', status_color: '#3b82f6', value: 'partial' },
+        { id: 3, status_name: 'Due', status_color: '#ef4444', value: 'due' },
+    ];
+
     // Determine available payment statuses based on customer type
     const getAvailablePaymentStatuses = () => {
+        // Use Redux data if available, otherwise fallback
+        const baseStatuses = paymentStatusOptions.length > 0 ? paymentStatusOptions : defaultStatuses;
+
+        // Map statuses to include value (lowercase status_name for form submission)
+        const mappedStatuses = baseStatuses.map((s: any) => ({
+            ...s,
+            value: s.value || s.status_name?.toLowerCase(),
+            label: s.status_name || s.label,
+            color: s.status_color || '#6b7280',
+        }));
+
         if (isWalkInCustomer) {
             // Walk-in customers can only pay fully
-            return [{ value: 'paid', label: 'Paid' }];
+            const paidStatus = mappedStatuses.find((s: any) => s.value === 'paid');
+            return paidStatus ? [paidStatus] : [{ value: 'paid', label: 'Paid', color: '#22c55e' }];
         }
 
         if (selectedCustomer) {
-            // Selected customers can have due or partial payments
-            return [
-                { value: 'paid', label: 'Paid' },
-                { value: 'partial', label: 'Partial' },
-                { value: 'due', label: 'Due' },
-            ];
+            // Selected customers can have paid, partial, or due payments
+            return mappedStatuses.filter((s: any) => ['paid', 'partial', 'due'].includes(s.value));
         }
 
         // Manual entry customers (new customers) - only paid
-        return [{ value: 'paid', label: 'Paid' }];
+        const paidStatus = mappedStatuses.find((s: any) => s.value === 'paid');
+        return paidStatus ? [paidStatus] : [{ value: 'paid', label: 'Paid', color: '#22c55e' }];
     };
 
     const availablePaymentStatuses = getAvailablePaymentStatuses();
+
+    // Get color for currently selected payment status
+    const getSelectedStatusColor = () => {
+        const selected = availablePaymentStatuses.find((s: any) => s.value === formData.paymentStatus);
+        return selected?.color || '#6b7280';
+    };
 
     return (
         <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">
@@ -181,14 +205,29 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 <label className="text-sm font-semibold sm:text-base">
                     Payment Status <span className="text-red-500">*</span>
                 </label>
-                <select name="paymentStatus" className="form-select w-full sm:w-40" value={formData.paymentStatus} onChange={onInputChange} required disabled={isWalkInCustomer}>
-                    <option value="">Select</option>
-                    {availablePaymentStatuses.map((status) => (
-                        <option key={status.value} value={status.value}>
-                            {status.label}
-                        </option>
-                    ))}
-                </select>
+                <div className="relative">
+                    {/* Color indicator for selected status */}
+                    {formData.paymentStatus && <span className="absolute left-3 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full" style={{ backgroundColor: getSelectedStatusColor() }} />}
+                    <select
+                        name="paymentStatus"
+                        className="form-select w-full pl-8 sm:w-44"
+                        value={formData.paymentStatus}
+                        onChange={onInputChange}
+                        required
+                        disabled={isWalkInCustomer}
+                        style={{
+                            borderColor: formData.paymentStatus ? getSelectedStatusColor() : undefined,
+                            borderWidth: formData.paymentStatus ? '2px' : undefined,
+                        }}
+                    >
+                        <option value="">Select Status</option>
+                        {availablePaymentStatuses.map((status: any) => (
+                            <option key={status.value} value={status.value}>
+                                {status.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {/* Show partial payment input for partial status */}
@@ -199,7 +238,6 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         <span className="text-xs text-blue-600">Total: {formatCurrency(totalPayable)}</span>
                     </div>
                     <div className="relative">
-                        
                         <input
                             type="number"
                             name="partialPaymentAmount"

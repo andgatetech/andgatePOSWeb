@@ -20,7 +20,7 @@ const StockReportFilter: React.FC<StockReportFilterProps> = ({ onFilterChange, c
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
     // Stabilize the callback to prevent unnecessary re-renders
-    const stableOnFilterChange = React.useCallback(onFilterChange, []);
+    const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
 
     const handleReset = React.useCallback(() => {
         setSelectedCategory('all');
@@ -31,12 +31,7 @@ const StockReportFilter: React.FC<StockReportFilterProps> = ({ onFilterChange, c
     React.useEffect(() => {
         const additionalParams: Record<string, any> = {};
 
-        if (selectedCategory !== 'all') {
-            additionalParams.category_id = parseInt(selectedCategory);
-        }
-        if (selectedBrand !== 'all') {
-            additionalParams.brand_id = parseInt(selectedBrand);
-        }
+       
         if (selectedAvailable !== 'all') {
             additionalParams.available = selectedAvailable;
         }
@@ -63,38 +58,9 @@ const StockReportFilter: React.FC<StockReportFilterProps> = ({ onFilterChange, c
 
     const customFilters = (
         <>
-            <div className="relative">
-                <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
-                >
-                    <option value="all">All Categories</option>
-                    {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                        </option>
-                    ))}
-                </select>
-                <Layers className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            </div>
+           
 
-            <div className="relative">
-                <select
-                    value={selectedBrand}
-                    onChange={(e) => setSelectedBrand(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
-                >
-                    <option value="all">All Brands</option>
-                    {brands.map((brand) => (
-                        <option key={brand.id} value={brand.id}>
-                            {brand.name}
-                        </option>
-                    ))}
-                </select>
-                <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            </div>
-
+          
             <div className="relative">
                 <select
                     value={selectedAvailable}

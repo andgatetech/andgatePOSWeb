@@ -3,7 +3,7 @@ import { setUser } from '../auth/authSlice';
 
 const StoreApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // ✅ Update store (with optional image)
+        // Update store (with optional image)
         updateStore: builder.mutation({
             query: ({ updateData, storeId }: { updateData: any; storeId?: number }) => {
                 const formData = new FormData();
@@ -19,7 +19,7 @@ const StoreApi = baseApi.injectEndpoints({
                 if (updateData.is_active !== undefined) formData.append('is_active', updateData.is_active);
                 if (updateData.logo) formData.append('logo', updateData.logo);
 
-                // ✅ Append units
+                //Append units
                 if (updateData.units && Array.isArray(updateData.units)) {
                     updateData.units.forEach((unit: any, index: number) => {
                         // Include ID for existing units (for update/delete)
@@ -51,7 +51,7 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['Stores'],
         }),
 
-        // ✅ Get specific store by ID (calls your getStore backend function)
+        //  Get specific store by ID (calls your getStore backend function)
         getStore: builder.query({
             query: (params?: { store_id?: number }) => ({
                 url: '/store',
@@ -61,7 +61,7 @@ const StoreApi = baseApi.injectEndpoints({
             providesTags: (result, error, arg) => (result ? [{ type: 'Stores', id: arg?.store_id || 'default' }] : []),
         }),
 
-        // ✅ Currently logged-in user
+        //  Currently logged-in user
         getWhoLogin: builder.query({
             query: () => ({
                 url: '/user',
@@ -70,7 +70,7 @@ const StoreApi = baseApi.injectEndpoints({
             providesTags: ['User'],
         }),
 
-        // ✅ Staff members for a store
+        //Staff members for a store
         getStaffMember: builder.query({
             query: (params = {}) => ({
                 url: '/store/members',
@@ -80,7 +80,7 @@ const StoreApi = baseApi.injectEndpoints({
             providesTags: ['User'],
         }),
 
-        // ✅ Store payment methods
+        //  Store payment methods
         getPaymentMethods: builder.query({
             query: (params: { store_id: number }) => ({
                 url: '/store/payment-methods',
@@ -113,7 +113,7 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.store_id }],
         }),
 
-        // ✅ Register a new staff member
+        //  Register a new staff member
         staffRegister: builder.mutation({
             query: (newStaff) => ({
                 url: '/staff/register',
@@ -122,30 +122,14 @@ const StoreApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['User'],
         }),
-        fullStoreListWithFilter: builder.query({
-            query: (params = {}) => ({
-                url: '/store/list',
-                method: 'GET',
-                params,
-            }),
-            providesTags: ['Stores'],
-        }),
 
-        // ✅ Delete store
+        //  Delete store
         deleteStore: builder.mutation({
             query: (storeId: number) => ({
-                url: `/stores/${storeId}`,
+                url: `/store/${storeId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Stores'],
-        }),
-        // ✅ All stores
-        allStores: builder.query({
-            query: () => ({
-                url: '/stores',
-                method: 'GET',
-            }),
-            providesTags: ['Stores'],
+            invalidatesTags: ['Stores', 'User'],
         }),
 
         createStore: builder.mutation({
@@ -168,7 +152,7 @@ const StoreApi = baseApi.injectEndpoints({
             },
         }),
 
-        // ✅ Product Adjustment Reasons Management
+        // Product Adjustment Reasons Management
         createAdjustmentReason: builder.mutation({
             query: (data: any) => ({
                 url: '/product-adjustment-reasons',
@@ -190,6 +174,57 @@ const StoreApi = baseApi.injectEndpoints({
                 url: `/product-adjustment-reasons/${id}`,
                 method: 'DELETE',
             }),
+
+            invalidatesTags: ['Stores'],
+        }),
+
+        // Currency Management
+        createCurrency: builder.mutation({
+            query: (data: any) => ({
+                url: '/store/currencies',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        updateCurrency: builder.mutation({
+            query: ({ id, data }: { id: number; data: any }) => ({
+                url: `/store/currencies/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        deleteCurrency: builder.mutation({
+            query: (id: number) => ({
+                url: `/store/currencies/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+
+        //  Payment Status Management
+        createPaymentStatus: builder.mutation({
+            query: (data: any) => ({
+                url: '/store/payment-statuses',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        updatePaymentStatus: builder.mutation({
+            query: ({ id, data }: { id: number; data: any }) => ({
+                url: `/store/payment-statuses/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        deletePaymentStatus: builder.mutation({
+            query: (id: number) => ({
+                url: `/store/payment-statuses/${id}`,
+                method: 'DELETE',
+            }),
             invalidatesTags: ['Stores'],
         }),
     }),
@@ -202,9 +237,8 @@ export const {
     useGetWhoLoginQuery,
     useGetStaffMemberQuery,
     useStaffRegisterMutation,
-    useFullStoreListWithFilterQuery,
     useDeleteStoreMutation,
-    useAllStoresQuery,
+
     useCreateStoreMutation, // ← New hook for store registration
     useGetPaymentMethodsQuery,
     useCreatePaymentMethodMutation,
@@ -213,4 +247,10 @@ export const {
     useCreateAdjustmentReasonMutation,
     useUpdateAdjustmentReasonMutation,
     useDeleteAdjustmentReasonMutation,
+    useCreateCurrencyMutation,
+    useUpdateCurrencyMutation,
+    useDeleteCurrencyMutation,
+    useCreatePaymentStatusMutation,
+    useUpdatePaymentStatusMutation,
+    useDeletePaymentStatusMutation,
 } = StoreApi;

@@ -63,9 +63,9 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                         </label>
 
                         <div className="rounded-xl border-2 border-gray-200 bg-gray-50 p-8">
-                            {logoPreview || storeData?.data?.logo ? (
+                            {logoPreview || storeData?.data?.store?.logo_path ? (
                                 <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-white">
-                                    <Image src={logoPreview || storeData.data.logo} alt="Store Logo" fill className="object-contain p-4" />
+                                    <Image src={logoPreview || storeData.data.store.logo_path} alt="Store Logo" fill className="object-contain p-4" />
                                 </div>
                             ) : (
                                 <div className="flex aspect-square w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white">

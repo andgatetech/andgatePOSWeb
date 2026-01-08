@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, CreditCard, Gift, ListChecks, Package, Settings, Shield, Store, Tag, X } from 'lucide-react';
+import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, Settings, Shield, Store, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
@@ -15,6 +15,8 @@ const tabs = [
     { id: 'units', label: 'Units', icon: Package },
     { id: 'attributes', label: 'Attributes', icon: Tag },
     { id: 'payment', label: 'Payment', icon: CreditCard },
+    { id: 'currency', label: 'Currency', icon: Coins },
+    { id: 'paymentstatus', label: 'Pay Status', icon: Flag },
     { id: 'warranty', label: 'Warranty', icon: Shield },
     { id: 'adjustment', label: 'Adjustments', icon: ListChecks },
     { id: 'loyalty', label: 'Loyalty', icon: Gift },
