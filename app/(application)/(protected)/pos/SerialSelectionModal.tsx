@@ -80,10 +80,14 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
     // Get serials filtered by selected stock's ID (for variant products)
     let availableSerials: Serial[] = [];
 
-    if (selectedStock && product.serials && Array.isArray(product.serials)) {
+    if (selectedStock && product.serials && Array.isArray(product.serials) && product.serials.length > 0) {
         // Filter serials by product_stock_id matching the selected variant
         availableSerials = product.serials.filter((s: any) => s.status === 'in_stock' && s.product_stock_id === selectedStock.id);
         console.log(`🔍 Filtered serials for stock ID ${selectedStock.id}:`, availableSerials);
+    } else if (selectedStock && selectedStock.serials && Array.isArray(selectedStock.serials)) {
+        // Fallback: Use serials directly from the selected stock object
+        availableSerials = selectedStock.serials.filter((s: Serial) => s.status === 'in_stock');
+        console.log(`🔍 Using direct stock serials for ID ${selectedStock.id}:`, availableSerials);
     } else if (product.serials && Array.isArray(product.serials)) {
         // For non-variant products, use all available serials
         availableSerials = product.serials.filter((s: Serial) => s.status === 'in_stock');

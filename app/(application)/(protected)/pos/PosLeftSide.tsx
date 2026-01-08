@@ -263,7 +263,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             }
 
             // Check if product has serial numbers (for simple products)
-            if (!disableSerialSelection && product.has_serial && product.serials && product.serials.length > 0) {
+            const hasSerials = (product.serials && product.serials.length > 0) || (product.stocks && product.stocks.some((s: any) => s.serials && s.serials.length > 0));
+
+            if (!disableSerialSelection && product.has_serial && hasSerials) {
                 // Open serial selection modal
                 console.log('🔢 Opening serial selection modal');
                 setSerialProduct(product);

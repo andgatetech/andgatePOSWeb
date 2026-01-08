@@ -216,8 +216,8 @@ export default function DashboardSections() {
                 <div className="mb-3 border-t border-gray-200"></div>
 
                 <motion.div variants={listVariants} className="space-y-2">
-                    {top_selling_products.products.length > 0 ? (
-                        top_selling_products.products.map((product, index) => (
+                    {top_selling_products?.products?.length > 0 ? (
+                        top_selling_products?.products.map((product, index) => (
                             <motion.div
                                 key={product.product_id}
                                 variants={itemVariantsDown}
@@ -299,7 +299,7 @@ export default function DashboardSections() {
                 <div className="mb-3 border-t border-gray-200"></div>
 
                 <motion.div variants={listVariants} className="space-y-2">
-                    {low_stock_products.products.length > 0 ? (
+                    {low_stock_products?.products?.length > 0 ? (
                         low_stock_products.products.map((product, index) => (
                             <motion.div
                                 key={product.product_id}
@@ -363,7 +363,7 @@ export default function DashboardSections() {
                 <div className="mb-3 border-t border-gray-200"></div>
 
                 <motion.div variants={listVariants} className="space-y-3">
-                    {recent_sales.sales.length > 0 ? (
+                    {recent_sales?.sales?.length > 0 ? (
                         recent_sales.sales.map((sale, index) => (
                             <motion.div
                                 key={sale.order_id}

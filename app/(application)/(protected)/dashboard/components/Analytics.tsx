@@ -130,16 +130,17 @@ export default function Analytics() {
     const { sales_purchase_chart, overall_information, customers_overview } = analyticsData.data;
 
     // Prepare chart data
-    const chartData = sales_purchase_chart.chart_data.labels.map((label: string, index: number) => ({
-        name: label,
-        'Total Sales': sales_purchase_chart.chart_data.datasets[0].data[index],
-        'Total Purchase': sales_purchase_chart.chart_data.datasets[1].data[index],
-    }));
+    const chartData =
+        sales_purchase_chart?.chart_data?.labels?.map((label: string, index: number) => ({
+            name: label,
+            'Total Sales': sales_purchase_chart?.chart_data?.datasets?.[0]?.data?.[index] ?? 0,
+            'Total Purchase': sales_purchase_chart?.chart_data?.datasets?.[1]?.data?.[index] ?? 0,
+        })) ?? [];
 
     // Prepare pie chart data
     const rawPieData = [
-        { name: 'First Time', value: customers_overview.first_time.count, percentage: customers_overview.first_time.percentage },
-        { name: 'Return', value: customers_overview.return.count, percentage: customers_overview.return.percentage },
+        { name: 'First Time', value: customers_overview?.first_time?.count ?? 0, percentage: customers_overview?.first_time?.percentage ?? 0 },
+        { name: 'Return', value: customers_overview?.return?.count ?? 0, percentage: customers_overview?.return?.percentage ?? 0 },
     ];
 
     const hasData = rawPieData.some((item) => item.value > 0);
@@ -176,13 +177,13 @@ export default function Analytics() {
                             <div className="flex items-center gap-2">
                                 <div className="h-3 w-3 rounded-full bg-orange-500"></div>
                                 <span className="text-sm text-gray-600">
-                                    Total Purchase: <span className="font-semibold text-gray-900">{sales_purchase_chart.total_purchase.formatted}</span>
+                                    Total Purchase: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_purchase?.formatted ?? '$0.00'}</span>
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="h-3 w-3 rounded-full bg-gray-700"></div>
                                 <span className="text-sm text-gray-600">
-                                    Total Sales: <span className="font-semibold text-gray-900">{sales_purchase_chart.total_sales.formatted}</span>
+                                    Total Sales: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_sales?.formatted ?? '$0.00'}</span>
                                 </span>
                             </div>
                         </div>
@@ -214,9 +215,23 @@ export default function Analytics() {
                         <div className="mb-4">
                             <h2 className="mb-3 text-sm font-bold text-gray-900 sm:text-base">Overall Information</h2>
                             <div className="grid grid-cols-3 gap-2">
-                                <InfoCard title="Suppliers" count={overall_information.suppliers.count} icon={Users} iconColor="text-blue-600" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
-                                <InfoCard title="Customers" count={overall_information.customers.count} icon={UserCheck} iconColor="text-orange-600" iconBg="bg-orange-100" cardBg="bg-orange-50/50" />
-                                <InfoCard title="Orders" count={overall_information.orders.count} icon={ShoppingCart} iconColor="text-emerald-600" iconBg="bg-emerald-100" cardBg="bg-emerald-50/50" />
+                                <InfoCard title="Suppliers" count={overall_information?.suppliers?.count ?? 0} icon={Users} iconColor="text-blue-600" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
+                                <InfoCard
+                                    title="Customers"
+                                    count={overall_information?.customers?.count ?? 0}
+                                    icon={UserCheck}
+                                    iconColor="text-orange-600"
+                                    iconBg="bg-orange-100"
+                                    cardBg="bg-orange-50/50"
+                                />
+                                <InfoCard
+                                    title="Orders"
+                                    count={overall_information?.orders?.count ?? 0}
+                                    icon={ShoppingCart}
+                                    iconColor="text-emerald-600"
+                                    iconBg="bg-emerald-100"
+                                    cardBg="bg-emerald-50/50"
+                                />
                             </div>
                         </div>
 

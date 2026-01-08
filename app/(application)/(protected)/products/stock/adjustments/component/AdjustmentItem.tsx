@@ -34,7 +34,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
         skip: !currentStore?.id,
     });
 
-    const adjustmentReasons = storeData?.data?.adjustment_reasons || [];
+    const adjustmentReasons = storeData?.data?.store?.adjustment_reasons || [];
     const adjustmentType = adjustment?.adjustmentType || 'increase';
     const adjustmentQuantity = adjustment?.adjustmentQuantity || 0;
     const reason = adjustment?.reason || '';

@@ -20,7 +20,7 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
         skip: !currentStore?.id,
     });
 
-    const adjustmentReasons = storeData?.data?.adjustment_reasons || [];
+    const adjustmentReasons = storeData?.data?.store?.adjustment_reasons || [];
     const selectedReason = adjustmentReasons.find((r: any) => r.id?.toString() === globalReason);
 
     return (

@@ -4,16 +4,31 @@ const nextConfig = {
         removeConsole: process.env.NODE_ENV === 'production'
     },
     images: {
-        domains: [
-            'localhost',
-            '127.0.0.1',
-            'images.unsplash.com',
-            'pos.api.andgatetech.net',
-            'img.youtube.com', // for youtube thumbnails
-            'pos.api.andgatetech.net', // ✅ Added API domain
-            'api.andgatepos.com'
-        ],
         remotePatterns: [
+            {
+                protocol: 'http',
+                hostname: 'localhost',
+            },
+            {
+                protocol: 'http',
+                hostname: '127.0.0.1',
+            },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'pos.api.andgatetech.net',
+            },
+            {
+                protocol: 'https',
+                hostname: 'img.youtube.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'api.andgatepos.com',
+            },
             {
                 protocol: 'http',
                 hostname: '127.0.0.1',
