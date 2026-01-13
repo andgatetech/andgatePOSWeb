@@ -773,7 +773,7 @@ const PosRightSide: React.FC = () => {
                 },
                 invoice: orderResponse.data.invoice,
                 order_id: orderResponse.data.order_id,
-                items: orderResponse.data.products.map((product: any, idx: number) => {
+                items: (orderResponse.data.products || []).map((product: any, idx: number) => {
                     // Find matching item from invoiceItems to get variant/serial/warranty data
                     const originalItem = invoiceItems[idx];
 
