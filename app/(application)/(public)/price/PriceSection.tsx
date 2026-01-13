@@ -1,10 +1,10 @@
 
 'use client';
-import MainLayout from '@/components/layouts/MainLayout';
+
 import { getTranslation } from '@/i18n';
-import { ArrowRight, Building2, Check, Clock, HelpCircle, Rocket, Shield, Star, TrendingUp, Users, Zap } from 'lucide-react';
+import {  Check,  Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
-import Footer from '../terms-of-service/Footer';
+
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -51,7 +51,7 @@ const colorClasses = {
 export default function PricingPage() {
     const { t } = getTranslation();
     const [frequency, setFrequency] = useState({ value: 'monthly', label: '', priceSuffix: '' , setupFee: ''});
-    const [openFaq, setOpenFaq] = useState<number | null>(null);
+    
 
     // Get frequencies from translation
     const frequencies = [

@@ -16,7 +16,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 import Image from 'next/image';
 // Icons
 
-import { BarChart, FileText, MessagesSquare, Package, Receipt, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, Crown, FileText, MessagesSquare, Package, Receipt, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
 import IconCaretDown from '../icon/icon-caret-down';
 import IconCaretsDown from '../icon/icon-carets-down';
 
@@ -200,7 +200,7 @@ const Sidebar = () => {
             <nav
                 className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${semidark ? 'text-white-dark' : ''}`}
             >
-                <div className="h-full bg-white dark:bg-black">
+                <div className="flex h-full flex-col bg-white dark:bg-black">
                     {/* Logo */}
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center space-x-2">
@@ -265,8 +265,8 @@ const Sidebar = () => {
                     )}
 
                     {/* Sidebar Menu */}
-                    <PerfectScrollbar className="relative h-[calc(100vh-160px)] overflow-y-auto">
-                        <ul className="relative space-y-0.5 p-4 pb-8 font-semibold">
+                    <PerfectScrollbar className="flex-1 overflow-y-auto">
+                        <ul className="relative space-y-0.5 p-4 pb-4 font-semibold">
                             {menuRoutes.map((route) => (
                                 <li key={route.label} className="menu nav-item">
                                     {route.subMenu ? (
@@ -333,6 +333,34 @@ const Sidebar = () => {
                             ))}
                         </ul>
                     </PerfectScrollbar>
+
+                    {/* Subscription Status Card - Simple Version */}
+                    {user?.subscription_user && (
+                        <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                        <Crown className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+                                        <p className="truncate text-sm font-bold text-gray-800 dark:text-gray-200">{user.subscription_user.subscription?.name || 'Basic'}</p>
+                                    </div>
+
+                                    {user.subscription_user.expire_date && (
+                                        <p className="mt-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                                            <span className={`capitalize text-${user.subscription_user.status === 'active' ? 'green' : 'orange'}-600 mr-1`}>{user.subscription_user.status}</span>•{' '}
+                                            {Math.ceil((new Date(user.subscription_user.expire_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left
+                                        </p>
+                                    )}
+                                </div>
+
+                                <Link
+                                    href="/pricing"
+                                    className="flex-shrink-0 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                >
+                                    Upgrade
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </nav>
         </div>

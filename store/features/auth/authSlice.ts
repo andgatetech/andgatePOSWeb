@@ -63,9 +63,11 @@ export interface SubscriptionUser {
     id: number;
     user_id: number;
     subscription_id: number;
+    store_id: number;
+    billing_cycle: string; // 'trial', 'monthly', 'yearly'
     start_date: string;
     expire_date: string;
-    status: number;
+    status: string; // 'active', 'pending', 'expired', 'blocked', 'hold'
     subscription: Subscription;
 }
 
