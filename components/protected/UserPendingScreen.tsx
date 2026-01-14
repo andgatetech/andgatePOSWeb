@@ -44,7 +44,7 @@ export default function UserPendingScreen() {
                         <div className="lg:col-span-2">
                             <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">Account Pending Approval</h1>
                             <p className="mb-4 text-sm text-gray-600 lg:text-base">
-                                Your account has been created successfully, but it&apos;s currently pending admin approval. Please wait while our team reviews your registration.
+                                Your account has been created successfully, but it&apos;s currently pending for admin approval. Please wait while our team reviews your registration.
                             </p>
 
                             {/* Info Box */}
@@ -72,18 +72,18 @@ export default function UserPendingScreen() {
                             {/* Actions */}
                             <div className="flex flex-wrap gap-2">
                                 <a
-                                    href="mailto:support@andgate.com"
+                                    href="mailto:support@andgatetech.net"
                                     className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-md lg:px-4 lg:text-sm"
                                 >
                                     <Mail className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    Email Support
+                                    support@andgatetech.net
                                 </a>
                                 <a
-                                    href="tel:+8801610108851"
+                                    href="tel:+8801819646514"
                                     className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-md lg:px-4 lg:text-sm"
                                 >
                                     <Phone className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    Call Us
+                                    +880 1819-646514
                                 </a>
                                 <Link
                                     href="/contact"

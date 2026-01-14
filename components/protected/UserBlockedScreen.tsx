@@ -72,18 +72,18 @@ export default function UserBlockedScreen() {
                             {/* Actions */}
                             <div className="flex flex-wrap gap-2">
                                 <a
-                                    href="mailto:support@andgate.com"
+                                    href="mailto:support@andgatetech.net"
                                     className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 hover:shadow-md lg:px-4 lg:text-sm"
                                 >
                                     <Mail className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    Email Support
+                                    support@andgatetech.net
                                 </a>
                                 <a
-                                    href="tel:+8801610108851"
+                                    href="tel:+8801819646514"
                                     className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 hover:shadow-md lg:px-4 lg:text-sm"
                                 >
                                     <Phone className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    Call Us Now
+                                    +880 1819-646514
                                 </a>
                                 <Link
                                     href="/contact"
