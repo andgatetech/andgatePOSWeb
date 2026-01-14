@@ -66,6 +66,26 @@ const InfoCard = ({ title, count, icon: Icon, iconColor, iconBg, cardBg }: any) 
     </div>
 );
 
+// Custom Tooltip Component
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        // Get the original name if available, otherwise use label
+        const displayLabel = payload[0]?.payload?.originalName || label;
+
+        return (
+            <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+                <p className="mb-2 font-semibold text-gray-900">{displayLabel}</p>
+                {payload.map((entry: any, index: number) => (
+                    <p key={index} className="text-sm" style={{ color: entry.color }}>
+                        {entry.name}: <span className="font-semibold">{Number(entry.value).toLocaleString()}</span>
+                    </p>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
+
 export default function Analytics() {
     const { currentStoreId } = useCurrentStore();
     const [chartPeriod, setChartPeriod] = useState('weekly');
@@ -129,13 +149,21 @@ export default function Analytics() {
 
     const { sales_purchase_chart, overall_information, customers_overview } = analyticsData.data;
 
-    // Prepare chart data
+    // Prepare chart data with unique labels to handle duplicate day names
+    const labelCounts: { [key: string]: number } = {};
     const chartData =
-        sales_purchase_chart?.chart_data?.labels?.map((label: string, index: number) => ({
-            name: label,
-            'Total Sales': sales_purchase_chart?.chart_data?.datasets?.[0]?.data?.[index] ?? 0,
-            'Total Purchase': sales_purchase_chart?.chart_data?.datasets?.[1]?.data?.[index] ?? 0,
-        })) ?? [];
+        sales_purchase_chart?.chart_data?.labels?.map((label: string, index: number) => {
+            // Track label occurrences and create unique labels for duplicates
+            labelCounts[label] = (labelCounts[label] || 0) + 1;
+            const uniqueLabel = labelCounts[label] > 1 ? `${label} (${labelCounts[label]})` : label;
+
+            return {
+                name: uniqueLabel,
+                originalName: label,
+                'Total Sales': sales_purchase_chart?.chart_data?.datasets?.[0]?.data?.[index] ?? 0,
+                'Total Purchase': sales_purchase_chart?.chart_data?.datasets?.[1]?.data?.[index] ?? 0,
+            };
+        }) ?? [];
 
     // Prepare pie chart data
     const rawPieData = [
@@ -175,35 +203,37 @@ export default function Analytics() {
 
                         <div className="mb-4 flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                                <div className="h-3 w-3 rounded-full bg-gray-700"></div>
                                 <span className="text-sm text-gray-600">
-                                    Total Purchase: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_purchase?.formatted ?? '$0.00'}</span>
+                                    Total Sales: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_sales?.formatted ?? '0'}</span>
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-gray-700"></div>
+                                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
                                 <span className="text-sm text-gray-600">
-                                    Total Sales: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_sales?.formatted ?? '$0.00'}</span>
+                                    Total Purchase: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_purchase?.formatted ?? '0'}</span>
                                 </span>
                             </div>
                         </div>
 
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={chartData}>
+                            <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#6b7280" />
-                                <YAxis tick={{ fontSize: 12 }} stroke="#6b7280" />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '8px',
-                                        fontSize: '12px',
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#6b7280" interval={0} />
+                                <YAxis
+                                    tick={{ fontSize: 12 }}
+                                    stroke="#6b7280"
+                                    domain={[0, 'auto']}
+                                    tickFormatter={(value) => {
+                                        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                                        if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+                                        return value.toString();
                                     }}
                                 />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ fontSize: '14px' }} />
-                                <Bar dataKey="Total Sales" fill="#374151" radius={[8, 8, 0, 0]} />
-                                <Bar dataKey="Total Purchase" fill="#fb923c" radius={[8, 8, 0, 0]} />
+                                <Bar dataKey="Total Sales" fill="#374151" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
+                                <Bar dataKey="Total Purchase" fill="#fb923c" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -215,10 +245,10 @@ export default function Analytics() {
                         <div className="mb-4">
                             <h2 className="mb-3 text-sm font-bold text-gray-900 sm:text-base">Overall Information</h2>
                             <div className="grid grid-cols-3 gap-2">
-                                <InfoCard title="Suppliers" count={overall_information?.suppliers?.count ?? 0} icon={Users} iconColor="text-blue-600" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
+                                <InfoCard title="Suppliers" count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-blue-600" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
                                 <InfoCard
                                     title="Customers"
-                                    count={overall_information?.customers?.count ?? 0}
+                                    count={overall_information?.pos_customers?.count ?? 0}
                                     icon={UserCheck}
                                     iconColor="text-orange-600"
                                     iconBg="bg-orange-100"
@@ -226,7 +256,7 @@ export default function Analytics() {
                                 />
                                 <InfoCard
                                     title="Orders"
-                                    count={overall_information?.orders?.count ?? 0}
+                                    count={overall_information?.pos_orders?.count ?? 0}
                                     icon={ShoppingCart}
                                     iconColor="text-emerald-600"
                                     iconBg="bg-emerald-100"
