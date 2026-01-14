@@ -1,7 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
-import { Building2, MapPin, Phone, Settings, Store, Trash2 } from 'lucide-react';
+import { Building2, Clock, Coins, CreditCard, MapPin, Package, Phone, Settings, Store, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -70,16 +70,65 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                 ),
             },
             {
-                key: 'currencies',
+                key: 'currency',
                 label: 'Currency',
+                render: (value, row) => {
+                    // Handle both 'currency' (single object) and 'currencies' (array)
+                    const currencyData = row.currency || (row.currencies && row.currencies.length > 0 ? row.currencies[0] : null);
+
+                    return (
+                        <div className="flex items-center gap-1.5">
+                            <Coins className="h-4 w-4 text-gray-400" />
+                            {currencyData ? (
+                                <div className="text-sm">
+                                    <div className="font-medium text-gray-900">{currencyData.currency_code}</div>
+                                    <div className="text-xs text-gray-500">{currencyData.currency_symbol}</div>
+                                </div>
+                            ) : (
+                                <span className="text-sm text-gray-400">Not set</span>
+                            )}
+                        </div>
+                    );
+                },
+            },
+            {
+                key: 'payment_methods',
+                label: 'Payment Methods',
                 render: (value) => (
-                    <div className="text-sm font-medium text-gray-700">
+                    <div className="flex items-center gap-1.5">
+                        <CreditCard className="h-4 w-4 text-gray-400" />
                         {value && value.length > 0 ? (
-                            <span>
-                                {value[0].currency_code} ({value[0].currency_symbol})
-                            </span>
+                            <div className="flex flex-wrap gap-1">
+                                {value.slice(0, 2).map((method: any) => (
+                                    <span key={method.id} className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                        {method.payment_method_name}
+                                    </span>
+                                ))}
+                                {value.length > 2 && <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">+{value.length - 2}</span>}
+                            </div>
                         ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-sm text-gray-400">None</span>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                key: 'units',
+                label: 'Units',
+                render: (value) => (
+                    <div className="flex items-center gap-1.5">
+                        <Package className="h-4 w-4 text-gray-400" />
+                        {value && value.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                                {value.slice(0, 2).map((unit: any) => (
+                                    <span key={unit.id} className="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700">
+                                        {unit.name}
+                                    </span>
+                                ))}
+                                {value.length > 2 && <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">+{value.length - 2}</span>}
+                            </div>
+                        ) : (
+                            <span className="text-sm text-gray-400">None</span>
                         )}
                     </div>
                 ),
@@ -88,13 +137,15 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                 key: 'opening_time',
                 label: 'Working Hours',
                 render: (value, row) => (
-                    <div className="text-sm">
+                    <div className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4 text-gray-400" />
                         {value && row.closing_time ? (
-                            <span className="text-gray-700">
-                                {value} - {row.closing_time}
-                            </span>
+                            <div className="text-sm text-gray-700">
+                                <div>{value}</div>
+                                <div className="text-xs text-gray-500">to {row.closing_time}</div>
+                            </div>
                         ) : (
-                            <span className="text-gray-400">Not set</span>
+                            <span className="text-sm text-gray-400">Not set</span>
                         )}
                     </div>
                 ),
