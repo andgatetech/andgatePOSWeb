@@ -34,7 +34,7 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
     return (
         <>
             {/* Desktop & Tablet Tabs */}
-            <div className="sticky top-16 z-10 mb-6 hidden overflow-x-auto bg-white pb-3 pt-3 [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
+            <div className="sticky top-16 z-10 mb-6 hidden overflow-x-auto border-b-2 border-emerald-200 bg-emerald-50/50 [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
                 <div className="m-1 grid grid-cols-2 gap-1.5 lg:grid-cols-5 xl:grid-cols-8">
                     {displayTabs.map((tab) => {
                         const Icon = tab.icon;

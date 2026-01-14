@@ -2,6 +2,7 @@
 
 import LedgerFilter from '@/components/filters/LedgerFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteLedgerMutation, useGetLedgersQuery } from '@/store/features/ledger/ledger';
 import { BookOpen, Plus } from 'lucide-react';
@@ -108,6 +109,10 @@ const LedgerListPage = () => {
     const handleEditSuccess = useCallback(() => {
         refetch();
     }, [refetch]);
+
+    if (isLoading) {
+        return <Loader message="Loading ledgers..." />;
+    }
 
     return (
         <div className="space-y-6">

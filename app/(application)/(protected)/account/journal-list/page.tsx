@@ -2,6 +2,7 @@
 
 import JournalFilter from '@/components/filters/JournalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteJournalMutation, useGetJournalsQuery } from '@/store/features/journals/journals';
 import { BookOpen, Plus } from 'lucide-react';
@@ -109,6 +110,10 @@ const JournalListPage = () => {
     const handleEditSuccess = useCallback(() => {
         refetch();
     }, [refetch]);
+
+    if (isLoading) {
+        return <Loader message="Loading journals..." />;
+    }
 
     return (
         <div className="space-y-6">

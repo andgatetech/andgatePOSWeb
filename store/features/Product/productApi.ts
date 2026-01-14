@@ -95,10 +95,10 @@ const ProductApi = baseApi.injectEndpoints({
         }),
 
         generateBarCodes: builder.mutation({
-            query: (products) => ({
+            query: (pos_products) => ({
                 url: '/products/barcode',
                 method: 'POST',
-                body: { products },
+                body: { pos_products },
             }),
             transformResponse: (response: any) => {
                 // Backend returns: { success, message, data: { barcodes, total_generated, errors } }
@@ -108,10 +108,10 @@ const ProductApi = baseApi.injectEndpoints({
         }),
 
         generateQRCodes: builder.mutation({
-            query: (products) => ({
+            query: (pos_products) => ({
                 url: '/products/qrcode',
                 method: 'POST',
-                body: { products },
+                body: { pos_products },
             }),
             transformResponse: (response: any) => {
                 // Backend returns: { success, message, data: { barcodes, total_generated, errors } }

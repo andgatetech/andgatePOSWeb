@@ -33,15 +33,28 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             {
                 key: 'logo_path',
                 label: 'Logo',
-                render: (value, row) => (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
-                        {value ? (
-                            <Image src={value} alt={`${row.store_name} logo`} width={48} height={48} className="h-12 w-12 rounded-lg object-cover" />
-                        ) : (
-                            <Store className="h-6 w-6 text-gray-400" />
-                        )}
-                    </div>
-                ),
+                render: (value, row) => {
+                    const logoUrl = value || row.logo_path;
+                    return (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
+                            {logoUrl ? (
+                                <Image
+                                    src={logoUrl}
+                                    alt={`${row.store_name} logo`}
+                                    width={48}
+                                    height={48}
+                                    className="h-12 w-12 rounded-lg object-cover"
+                                    onError={(e) => {
+                                        // Fallback to icon if image fails to load
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                />
+                            ) : null}
+                            <Store className={`h-6 w-6 text-gray-400 ${logoUrl ? 'hidden' : ''}`} />
+                        </div>
+                    );
+                },
             },
             {
                 key: 'store_name',
@@ -136,19 +149,31 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             {
                 key: 'opening_time',
                 label: 'Working Hours',
-                render: (value, row) => (
-                    <div className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        {value && row.closing_time ? (
-                            <div className="text-sm text-gray-700">
-                                <div>{value}</div>
-                                <div className="text-xs text-gray-500">to {row.closing_time}</div>
-                            </div>
-                        ) : (
-                            <span className="text-sm text-gray-400">Not set</span>
-                        )}
-                    </div>
-                ),
+                render: (value, row) => {
+                    // Format time from "09:00:00" to "9:00 AM"
+                    const formatTime = (time: string) => {
+                        if (!time) return '';
+                        const [hours, minutes] = time.split(':');
+                        const hour = parseInt(hours);
+                        const ampm = hour >= 12 ? 'PM' : 'AM';
+                        const displayHour = hour % 12 || 12;
+                        return `${displayHour}:${minutes} ${ampm}`;
+                    };
+
+                    return (
+                        <div className="flex items-center gap-1.5">
+                            <Clock className="h-4 w-4 text-gray-400" />
+                            {value && row.closing_time ? (
+                                <div className="text-sm text-gray-700">
+                                    <div className="font-medium">{formatTime(value)}</div>
+                                    <div className="text-xs text-gray-500">to {formatTime(row.closing_time)}</div>
+                                </div>
+                            ) : (
+                                <span className="text-sm text-gray-400">Not set</span>
+                            )}
+                        </div>
+                    );
+                },
             },
             {
                 key: 'is_active',

@@ -3,6 +3,8 @@ import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
 import { Edit, Eye, ImageIcon, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -152,13 +154,13 @@ const CategoryComponent = () => {
                     store_id: currentStoreId,
                 };
                 await createCategory(categoryData).unwrap();
-                showMessage('Category created successfully', 'success');
+                showSuccessDialog('Success!', 'Category created successfully');
             } else if (modalType === 'edit' && selectedCategory) {
                 await updateCategory({
                     id: selectedCategory.id,
                     updatedCategory: formData,
                 }).unwrap();
-                showMessage('Category updated successfully', 'success');
+                showSuccessDialog('Success!', 'Category updated successfully');
             }
 
             closeModal();
@@ -173,7 +175,7 @@ const CategoryComponent = () => {
                 errorMessage = err.error; // Fallback
             }
 
-            showMessage(errorMessage, 'error');
+            showErrorDialog('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -312,11 +314,7 @@ const CategoryComponent = () => {
     );
 
     if (isLoading) {
-        return (
-            <div className="flex h-64 items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-            </div>
-        );
+        return <Loader message="Loading categories..." />;
     }
 
     if (error) {
@@ -395,8 +393,8 @@ const CategoryComponent = () => {
 
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                    <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 sm:p-4">
+                    <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-xl">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between border-b border-gray-200 p-6">
                             <h2 className="text-xl font-semibold text-gray-900">
@@ -441,11 +439,13 @@ const CategoryComponent = () => {
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     {/* Image Upload */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Category Image</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            Category Image <span className="text-red-500">*</span>
+                                        </label>
                                         <div className="rounded-lg border-2 border-dashed border-gray-300 p-4">
                                             {imagePreview ? (
-                                                <div className="relative">
-                                                    <img src={imagePreview} alt="Preview" className="h-32 w-full rounded-lg object-cover" />
+                                                <div className="relative mx-auto h-24 w-24">
+                                                    <img src={imagePreview} alt="Preview" className="h-full w-full rounded-lg object-cover" />
                                                     <button
                                                         type="button"
                                                         onClick={() => {

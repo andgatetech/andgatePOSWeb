@@ -16,12 +16,21 @@ export interface LabelItem {
     description?: string;
 }
 
+export interface GeneratedLabel {
+    product_name: string;
+    variant_name?: string;
+    sku: string;
+    barcode: string; // Base64 image data
+}
+
 interface LabelState {
     items: LabelItem[];
+    generatedLabels: GeneratedLabel[];
 }
 
 const initialState: LabelState = {
     items: [],
+    generatedLabels: [],
 };
 
 const labelSlice = createSlice({
@@ -50,8 +59,14 @@ const labelSlice = createSlice({
         clearLabelItems: (state) => {
             state.items = [];
         },
+        setGeneratedLabels: (state, action: PayloadAction<GeneratedLabel[]>) => {
+            state.generatedLabels = action.payload;
+        },
+        clearGeneratedLabels: (state) => {
+            state.generatedLabels = [];
+        },
     },
 });
 
-export const { addLabelItem, removeLabelItem, updateLabelItemQuantity, clearLabelItems } = labelSlice.actions;
+export const { addLabelItem, removeLabelItem, updateLabelItemQuantity, clearLabelItems, setGeneratedLabels, clearGeneratedLabels } = labelSlice.actions;
 export default labelSlice.reducer;

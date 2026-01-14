@@ -3,7 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { clearLabelItems, removeLabelItem } from '@/store/features/Label/labelSlice';
+import { clearGeneratedLabels, clearLabelItems, removeLabelItem, setGeneratedLabels } from '@/store/features/Label/labelSlice';
 import { useGenerateBarCodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { Download, FileDown, Minus, Plus, Printer, Settings2, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ const LabelGenerator = () => {
     const [generateQRCodes, { isLoading: isGeneratingQR }] = useGenerateQRCodesMutation();
 
     const [labelType, setLabelType] = useState<LabelType>('barcode');
-    const [generatedLabels, setGeneratedLabels] = useState<any[]>([]);
+    const generatedLabels = useSelector((state: RootState) => state.label.generatedLabels);
 
     // Paper & Label Size Settings with localStorage persistence
     const [paperSize, setPaperSize] = useState(() => {
@@ -153,7 +153,7 @@ const LabelGenerator = () => {
     const handleClearAll = () => {
         dispatch(clearLabelItems());
         setProductQuantities(new Map());
-        setGeneratedLabels([]);
+        dispatch(clearGeneratedLabels());
     };
 
     const handleGenerate = async () => {
@@ -164,21 +164,21 @@ const LabelGenerator = () => {
 
         try {
             if (labelType === 'barcode') {
-                const products = cartItems.map((item) => ({
+                const pos_products = cartItems.map((item) => ({
                     product_id: item.productId,
                     product_stock_id: item.stockId || undefined,
                     quantity: getProductQuantity(item.id),
                     type: globalBarcodeType,
                 }));
 
-                const response = await generateBarcodes(products).unwrap();
+                const response = await generateBarcodes(pos_products).unwrap();
 
                 if (response.success) {
-                    setGeneratedLabels(response.data.barcodes || []);
+                    dispatch(setGeneratedLabels(response.data.barcodes || []));
                     showSuccessDialog('Success!', `${response.data.total_generated} barcodes generated`);
                 }
             } else {
-                const products = cartItems.map((item) => ({
+                const pos_products = cartItems.map((item) => ({
                     product_id: item.productId,
                     product_stock_id: item.stockId || undefined,
                     quantity: getProductQuantity(item.id),
@@ -186,7 +186,7 @@ const LabelGenerator = () => {
                     include_product_info: globalIncludeInfo,
                 }));
 
-                const response = await generateQRCodes(products).unwrap();
+                const response = await generateQRCodes(pos_products).unwrap();
 
                 if (response.success) {
                     // Map QR codes to same structure as barcodes for consistent rendering
@@ -196,7 +196,7 @@ const LabelGenerator = () => {
                         barcode: label.qr_code || label.qrcode || label.barcode,
                     }));
                     console.log('QR Labels generated:', qrLabels);
-                    setGeneratedLabels(qrLabels);
+                    dispatch(setGeneratedLabels(qrLabels));
                     showSuccessDialog('Success!', `${response.data.total_generated} QR codes generated`);
                 }
             }
@@ -614,6 +614,9 @@ const LabelGenerator = () => {
 
             {/* Compact Product List */}
             <div className="flex-1 overflow-auto p-3 md:p-4">
+                <div className="mb-4 rounded-lg bg-blue-50 p-3 text-center text-sm text-blue-800">
+                    Ready to generate <strong className="font-bold">{totalLabels}</strong> label{totalLabels !== 1 ? 's' : ''} for {cartItems.length} product{cartItems.length !== 1 ? 's' : ''}
+                </div>
                 <div className="space-y-2">
                     {cartItems.map((item) => {
                         const qty = getProductQuantity(item.id);
@@ -664,9 +667,7 @@ const LabelGenerator = () => {
             {/* Footer Actions */}
             <div className="border-t bg-gray-50 p-3 md:p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <div className="text-xs text-gray-700 sm:text-sm">
-                        Ready to generate <strong className="text-gray-900">{totalLabels}</strong> label{totalLabels !== 1 ? 's' : ''}
-                    </div>
+                    <div className="text-xs text-gray-700 sm:text-sm"></div>
 
                     <div className="flex flex-wrap gap-2">
                         {generatedLabels.length > 0 && (

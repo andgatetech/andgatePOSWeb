@@ -13,12 +13,14 @@ import StoresTable from './components/StoresTable';
 const StoreComponent = () => {
     // Get current store from Redux
     const { currentStoreId, userStores } = useCurrentStore();
-    
+
     // Modal state
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    // Use the correct API query that calls your getStore endpoint
+    // Fetch detailed store data from API for the current store only
     const {
+        data: storeData,
+        isLoading: isLoadingStore,
         error,
         refetch,
     } = useGetStoreQuery(currentStoreId ? { store_id: currentStoreId } : undefined, {
@@ -26,7 +28,7 @@ const StoreComponent = () => {
         skip: !currentStoreId,
     });
 
-    // Check for subscription errors (from getStore query only now)
+    // Check for subscription errors
     const { hasSubscriptionError, subscriptionError } = useSubscriptionError(error);
 
     // Force refetch when store ID changes
@@ -80,8 +82,24 @@ const StoreComponent = () => {
         }
     };
 
+    // Merge detailed API data for current store with Redux stores
+    const allStores = useMemo(() => {
+        const stores = [...userStores];
+
+        // Replace current store with detailed API data if available
+        if (storeData?.data?.store) {
+            const apiStore = storeData.data.store;
+            const index = stores.findIndex((s) => s.id === currentStoreId);
+            if (index !== -1) {
+                stores[index] = apiStore;
+            }
+        }
+
+        return stores;
+    }, [userStores, storeData, currentStoreId]);
+
     const filteredStores = useMemo(() => {
-        let result = Array.isArray(userStores) ? [...userStores] : [];
+        let result = [...allStores];
 
         if (apiParams.status && apiParams.status !== 'all') {
             const statusFilter = apiParams.status;
@@ -110,7 +128,7 @@ const StoreComponent = () => {
             });
         }
         return result;
-    }, [userStores, apiParams, sortField, sortDirection]);
+    }, [allStores, apiParams, sortField, sortDirection]);
 
     const totalItems = filteredStores.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -155,7 +173,7 @@ const StoreComponent = () => {
                         <StoreFilter onFilterChange={handleFilterChange} />
                         <StoresTable
                             stores={paginatedStores}
-                            isLoading={false}
+                            isLoading={isLoadingStore}
                             onDelete={handleDeleteStore}
                             pagination={{
                                 currentPage,

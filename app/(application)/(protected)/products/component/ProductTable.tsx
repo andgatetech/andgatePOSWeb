@@ -6,6 +6,7 @@ import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Tag, XCircle } from 'lucide-react';
@@ -301,14 +302,7 @@ const ProductTable = () => {
     }, [apiParams]);
 
     if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                <div className="text-center">
-                    <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-                    <p className="mt-4 text-lg font-medium text-gray-700">Loading products...</p>
-                </div>
-            </div>
-        );
+        return <Loader  message="Loading products..." />;
     }
 
     const handleImageShow = (product: any) => {

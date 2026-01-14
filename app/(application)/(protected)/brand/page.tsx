@@ -2,10 +2,11 @@
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import BrandFilter from '@/components/filters/BrandFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { Edit, Eye, Image as ImageIcon, Plus, Save, Store, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
 // Brand Modal Component
@@ -124,11 +125,13 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Image Upload */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">Brand Image</label>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    Brand Image <span className="text-red-500">*</span>
+                                </label>
                                 <div className="rounded-lg border-2 border-dashed border-gray-300 p-3 sm:p-4">
                                     {imagePreview ? (
-                                        <div className="relative">
-                                            <img src={imagePreview} alt="Preview" className="h-28 w-full rounded-lg object-cover sm:h-32" />
+                                        <div className="relative mx-auto h-24 w-24">
+                                            <img src={imagePreview} alt="Preview" className="h-full w-full rounded-lg object-cover" />
                                             <button
                                                 type="button"
                                                 onClick={() => {
@@ -327,15 +330,13 @@ const BrandManagement = () => {
                     if (currentStoreId) brandFormData.append('store_id', currentStoreId.toString());
                     await createBrand(brandFormData).unwrap();
                     setSelectedBrand(null);
-                    toast.dismiss();
-                    toast.success('Brand created successfully', { toastId: 'create-brand' });
+                    showSuccessDialog('Success!', 'Brand created successfully');
                 } else if (modalType === 'edit' && selectedBrand) {
                     await updateBrand({
                         id: selectedBrand.id,
                         formData: brandFormData,
                     }).unwrap();
-                    toast.dismiss();
-                    toast.success('Brand updated successfully', { toastId: 'update-brand' });
+                    showSuccessDialog('Success!', 'Brand updated successfully');
                 }
 
                 closeModal();
@@ -347,8 +348,7 @@ const BrandManagement = () => {
                 } else if (err?.error) {
                     errorMessage = err.error;
                 }
-                toast.dismiss();
-                toast.error(errorMessage, { toastId: 'brand-error' });
+                showErrorDialog('Error', errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -468,6 +468,10 @@ const BrandManagement = () => {
         ],
         [openModal, handleDelete]
     );
+
+    if (isLoading) {
+        return <Loader message="Loading brands..." />;
+    }
 
     if (error) {
         return (
