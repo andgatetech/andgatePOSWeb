@@ -3,6 +3,7 @@
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
+import Loader from '@/lib/Loader';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleProductQuery, useGetUnitsQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
@@ -11,7 +12,6 @@ import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { Store } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
 import AttributesTab, { ProductAttribute } from '../../create/AttributesTab';
 import BasicInfoTab from '../../create/BasicInfoTab';
 import ImagesTab from '../../create/ImagesTab';
@@ -343,16 +343,7 @@ const ProductEditForm = () => {
 
     const handleSubmit = async () => {
         if (!currentStore?.id) {
-            toast.error('Please select a store first!', {
-                duration: 3000,
-                position: 'top-center',
-                style: {
-                    background: '#ef4444',
-                    color: '#fff',
-                    padding: '16px',
-                    borderRadius: '8px',
-                },
-            });
+            showErrorDialog('Store Required', 'Please select a store first!');
             return;
         }
 
@@ -476,20 +467,12 @@ const ProductEditForm = () => {
                             const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
 
                             if (!validMimes.includes(img.file.type)) {
-                                toast.error(`Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`, {
-                                    duration: 3000,
-                                    position: 'top-center',
-                                    style: { background: '#ef4444', color: '#fff' },
-                                });
+                                showErrorDialog('Invalid Image', `Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`);
                                 throw new Error('Invalid image type');
                             }
 
                             if (img.file.size > 2 * 1024 * 1024) {
-                                toast.error(`Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`, {
-                                    duration: 3000,
-                                    position: 'top-center',
-                                    style: { background: '#ef4444', color: '#fff' },
-                                });
+                                showErrorDialog('File Too Large', `Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
                                 throw new Error('Image too large');
                             }
 
@@ -517,20 +500,12 @@ const ProductEditForm = () => {
                         const validMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
                         if (!validMimes.includes(img.file.type)) {
-                            toast.error(`Image ${i + 1}: Only JPG, PNG, and WebP images are allowed!`, {
-                                duration: 3000,
-                                position: 'top-center',
-                                style: { background: '#ef4444', color: '#fff' },
-                            });
+                            showErrorDialog('Invalid Image', `Image ${i + 1}: Only JPG, PNG, and WebP images are allowed!`);
                             return;
                         }
 
                         if (img.file.size > 2 * 1024 * 1024) {
-                            toast.error(`Image ${i + 1}: File size must be less than 2MB!`, {
-                                duration: 3000,
-                                position: 'top-center',
-                                style: { background: '#ef4444', color: '#fff' },
-                            });
+                            showErrorDialog('File Too Large', `Image ${i + 1}: File size must be less than 2MB!`);
                             return;
                         }
 
@@ -612,17 +587,7 @@ const ProductEditForm = () => {
     }
 
     if (productLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-white">
-                <div className="text-center">
-                    <div className="relative mx-auto mb-8 h-20 w-20">
-                        <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-                        <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-primary"></div>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-700">Loading Product...</h3>
-                </div>
-            </div>
-        );
+        return <Loader message="Loading Product..." />;
     }
 
     if (productError) {

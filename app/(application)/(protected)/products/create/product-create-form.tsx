@@ -3,6 +3,7 @@
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
@@ -10,8 +11,6 @@ import { useCreateProductMutation, useGetUnitsQuery } from '@/store/features/Pro
 import { Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
 import AttributesTab, { ProductAttribute } from './AttributesTab';
 import BasicInfoTab from './BasicInfoTab';
 import ImagesTab from './ImagesTab';
@@ -240,7 +239,7 @@ const ProductCreateForm = () => {
     const handleSubmit = async () => {
         // Validation
         if (!formData.product_name.trim()) {
-            toast.error('Please enter Product Name!');
+            showErrorDialog('Validation Error', 'Please enter Product Name!');
             return;
         }
 
@@ -248,7 +247,7 @@ const ProductCreateForm = () => {
         if (formData.has_attributes) {
             // For variant products, validate stocks/variants
             if (!productStocks || productStocks.length === 0) {
-                toast.error('Please configure at least one variant in the Variants tab!');
+                showErrorDialog('Validation Error', 'Please configure at least one variant in the Variants tab!');
                 setActiveTab('variants');
                 return;
             }
@@ -259,32 +258,32 @@ const ProductCreateForm = () => {
                 const variantName = stock.variant_data && Object.keys(stock.variant_data).length > 0 ? Object.values(stock.variant_data).join('-') : `Variant ${i + 1}`;
 
                 if (!stock.price || parseFloat(stock.price) <= 0) {
-                    toast.error(`${variantName}: Please enter valid selling price!`);
+                    showErrorDialog('Validation Error', `${variantName}: Please enter valid selling price!`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.purchase_price || parseFloat(stock.purchase_price) <= 0) {
-                    toast.error(`${variantName}: Please enter valid purchase price!`);
+                    showErrorDialog('Validation Error', `${variantName}: Please enter valid purchase price!`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.quantity || parseFloat(stock.quantity) < 0) {
-                    toast.error(`${variantName}: Please enter valid quantity!`);
+                    showErrorDialog('Validation Error', `${variantName}: Please enter valid quantity!`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.unit || stock.unit.trim() === '') {
-                    toast.error(`${variantName}: Please enter a unit (e.g., pcs, kg, ltr)!`);
+                    showErrorDialog('Validation Error', `${variantName}: Please enter a unit (e.g., pcs, kg, ltr)!`);
                     setActiveTab('variants');
                     return;
                 }
                 if (stock.low_stock_quantity && parseFloat(stock.low_stock_quantity) < 0) {
-                    toast.error(`${variantName}: Low stock quantity cannot be negative!`);
+                    showErrorDialog('Validation Error', `${variantName}: Low stock quantity cannot be negative!`);
                     setActiveTab('variants');
                     return;
                 }
                 if (stock.tax_rate && (parseFloat(stock.tax_rate) < 0 || parseFloat(stock.tax_rate) > 100)) {
-                    toast.error(`${variantName}: Tax rate must be between 0 and 100!`);
+                    showErrorDialog('Validation Error', `${variantName}: Tax rate must be between 0 and 100!`);
                     setActiveTab('variants');
                     return;
                 }
@@ -298,17 +297,17 @@ const ProductCreateForm = () => {
         // For simple products (no variants), validate and auto-create single stock from formData
         // Validate simple product pricing & stock
         if (!formData.price || parseFloat(formData.price) <= 0) {
-            toast.error('Please enter valid selling price!');
+            showErrorDialog('Validation Error', 'Please enter valid selling price!');
             setActiveTab('pricing');
             return;
         }
         if (!formData.purchase_price || parseFloat(formData.purchase_price) <= 0) {
-            toast.error('Please enter valid purchase price!');
+            showErrorDialog('Validation Error', 'Please enter valid purchase price!');
             setActiveTab('pricing');
             return;
         }
         if (!formData.quantity || parseFloat(formData.quantity) < 0) {
-            toast.error('Please enter valid quantity!');
+            showErrorDialog('Validation Error', 'Please enter valid quantity!');
             setActiveTab('stock');
             return;
         }
@@ -343,7 +342,7 @@ const ProductCreateForm = () => {
             if (currentStore?.id) {
                 fd.append('store_id', String(currentStore.id));
             } else {
-                toast.error('Please select a store first!');
+                showErrorDialog('Store Required', 'Please select a store first!');
                 return;
             }
 
@@ -440,12 +439,12 @@ const ProductCreateForm = () => {
                     const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
 
                     if (!validMimes.includes(img.file.type)) {
-                        toast.error(`Image ${i + 1}: Only JPG and PNG images are allowed!`);
+                        showErrorDialog('Invalid Image', `Image ${i + 1}: Only JPG and PNG images are allowed!`);
                         return;
                     }
 
                     if (img.file.size > 2 * 1024 * 1024) {
-                        toast.error(`Image ${i + 1}: File size must be less than 2MB!`);
+                        showErrorDialog('File Too Large', `Image ${i + 1}: File size must be less than 2MB!`);
                         return;
                     }
 
@@ -530,26 +529,8 @@ const ProductCreateForm = () => {
             setProductSerials([]);
             setProductWarranties([]);
 
-            // Success modal
-            await Swal.fire({
-                title: 'Success!',
-                text: 'Product has been created successfully',
-                icon: 'success',
-                confirmButtonText: 'Go to Products',
-                confirmButtonColor: '#10b981',
-                showCancelButton: true,
-                cancelButtonText: 'Create Another',
-                cancelButtonColor: '#6b7280',
-                background: '#ffffff',
-                color: '#374151',
-                customClass: {
-                    popup: 'rounded-xl shadow-2xl',
-                    title: 'text-xl font-semibold',
-                    confirmButton: 'rounded-lg px-4 py-2 font-medium',
-                    cancelButton: 'rounded-lg px-4 py-2 font-medium',
-                },
-            }).then((result) => {
-                if (result.isConfirmed) {
+            showSuccessDialog('Success!', 'Product has been created successfully', 'Go to Products', 'Create Another', true).then((confirmed) => {
+                if (confirmed) {
                     router.push('/products');
                 }
             });
@@ -559,21 +540,7 @@ const ProductCreateForm = () => {
             // Don't show Swal for 403 subscription errors - SubscriptionError component will handle it
             if (error?.status !== 403) {
                 const errorMessage = error?.data?.message || 'Something went wrong while creating the product';
-
-                await Swal.fire({
-                    title: 'Error!',
-                    text: errorMessage,
-                    icon: 'error',
-                    confirmButtonText: 'Try Again',
-                    confirmButtonColor: '#ef4444',
-                    background: '#ffffff',
-                    color: '#374151',
-                    customClass: {
-                        popup: 'rounded-xl shadow-2xl',
-                        title: 'text-xl font-semibold',
-                        confirmButton: 'rounded-lg px-4 py-2 font-medium',
-                    },
-                });
+                showErrorDialog('Error!', errorMessage);
             }
         }
     };

@@ -3,6 +3,7 @@
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateOrderMutation } from '@/store/features/Order/Order';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
@@ -508,9 +509,12 @@ const PosRightSide: React.FC = () => {
         // This function kept for compatibility but does nothing
     };
 
-    const clearAllItems = () => {
-        if (window.confirm('Are you sure you want to clear all items?')) {
+    const clearAllItems = async () => {
+        const isConfirmed = await showConfirmDialog('Are you sure?', 'Do you really want to clear all items?', 'Yes, Clear', 'Cancel');
+
+        if (isConfirmed) {
             dispatch(clearItemsRedux());
+            // showMessage('All items cleared successfully', 'success');
         }
     };
 

@@ -302,7 +302,7 @@ const ProductTable = () => {
     }, [apiParams]);
 
     if (isLoading) {
-        return <Loader  message="Loading products..." />;
+        return <Loader message="Loading products..." />;
     }
 
     const handleImageShow = (product: any) => {

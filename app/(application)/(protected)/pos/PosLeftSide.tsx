@@ -2,6 +2,7 @@
 
 import ImageShowModal from '@/app/(application)/(protected)/products/component/Image Modal/ImageModal2';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import type { RootState } from '@/store';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
@@ -797,20 +798,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     };
 
     if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-white">
-                <div className="text-center">
-                    {/* Modern Spinner */}
-                    <div className="relative mx-auto mb-8 h-20 w-20">
-                        <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-                        <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-primary"></div>
-                    </div>
-
-                    {/* Loading Text */}
-                    <h3 className="text-lg font-semibold text-gray-700">Loading ...</h3>
-                </div>
-            </div>
-        );
+        return <Loader message="Loading products..." />;
     }
 
     // Use products directly from API (already filtered and paginated server-side)
