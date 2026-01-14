@@ -39,7 +39,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
                             {logoUrl ? (
                                 <Image
-                                    src={logoUrl}
+                                    src={logoUrl.startsWith('http') || logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}
                                     alt={`${row.store_name} logo`}
                                     width={48}
                                     height={48}

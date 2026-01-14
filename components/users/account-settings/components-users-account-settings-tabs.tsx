@@ -128,7 +128,17 @@ const ComponentsUsersAccountSettingsTabs = () => {
                         <div className="flex flex-col sm:flex-row">
                             <div className="mb-5 w-full sm:w-2/12 ltr:sm:mr-4 rtl:sm:ml-4">
                                 {userInfo?.data?.user?.profile_image ? (
-                                    <Image src={userInfo.data.user.profile_image} alt="Profile" width={128} height={128} className="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32" />
+                                    <Image
+                                        src={
+                                            userInfo.data.user.profile_image.startsWith('http') || userInfo.data.user.profile_image.startsWith('/')
+                                                ? userInfo.data.user.profile_image
+                                                : `/${userInfo.data.user.profile_image}`
+                                        }
+                                        alt="Profile"
+                                        width={128}
+                                        height={128}
+                                        className="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32"
+                                    />
                                 ) : (
                                     <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg md:h-32 md:w-32">
                                         <IconUser className="h-8 w-8 md:h-16 md:w-16" fill={true} />

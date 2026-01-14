@@ -39,7 +39,7 @@ const LabelGenerator = () => {
     const [generateQRCodes, { isLoading: isGeneratingQR }] = useGenerateQRCodesMutation();
 
     const [labelType, setLabelType] = useState<LabelType>('barcode');
-    const generatedLabels = useSelector((state: RootState) => state.label.generatedLabels);
+    const generatedLabels = useSelector((state: RootState) => state.label.generatedLabels) || [];
 
     // Paper & Label Size Settings with localStorage persistence
     const [paperSize, setPaperSize] = useState(() => {
@@ -330,7 +330,7 @@ const LabelGenerator = () => {
             <body>
                 <div class="page-container">
                     <div class="label-grid">
-                        ${generatedLabels
+                        ${(generatedLabels || [])
                             .map(
                                 (label) => `
                             <div class="label-card">
@@ -354,7 +354,7 @@ const LabelGenerator = () => {
     };
 
     const handlePrint = () => {
-        if (generatedLabels.length === 0) {
+        if (!generatedLabels || generatedLabels.length === 0) {
             showErrorDialog('No Labels', 'Please generate labels first');
             return;
         }
@@ -377,7 +377,7 @@ const LabelGenerator = () => {
     };
 
     const handleDownloadPDF = async () => {
-        if (generatedLabels.length === 0) {
+        if (!generatedLabels || generatedLabels.length === 0) {
             showErrorDialog('No Labels', 'Please generate labels first');
             return;
         }
@@ -670,7 +670,7 @@ const LabelGenerator = () => {
                     <div className="text-xs text-gray-700 sm:text-sm"></div>
 
                     <div className="flex flex-wrap gap-2">
-                        {generatedLabels.length > 0 && (
+                        {generatedLabels && generatedLabels.length > 0 && (
                             <>
                                 <button
                                     onClick={handleDownloadImages}
