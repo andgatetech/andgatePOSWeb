@@ -11,6 +11,7 @@ import { MEMBERSHIP_DISCOUNTS } from '@/app/(application)/(protected)/pos/pos-ri
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useUpdateOrderMutation } from '@/store/features/Order/Order';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderEditSlice';
@@ -18,7 +19,6 @@ import { useGetStoreCustomersListQuery } from '@/store/features/customer/custome
 import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
 import { skipToken } from '@reduxjs/toolkit/query';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 
 const DEFAULT_PAYMENT_METHOD = {
@@ -189,44 +189,6 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             }
         }
     }, [customers, originalOrder, initialCustomerLoaded, isLoadingCustomer]);
-
-    const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
-        if (type === 'success') {
-            toast.success(msg, {
-                duration: 3000,
-                position: 'top-center',
-                style: {
-                    background: '#10b981',
-                    color: '#fff',
-                    padding: '16px',
-                    borderRadius: '8px',
-                    fontWeight: '500',
-                    fontSize: '14px',
-                },
-                iconTheme: {
-                    primary: '#fff',
-                    secondary: '#10b981',
-                },
-            });
-        } else {
-            toast.error(msg, {
-                duration: 4000,
-                position: 'top-center',
-                style: {
-                    background: '#ef4444',
-                    color: '#fff',
-                    padding: '16px',
-                    borderRadius: '8px',
-                    fontWeight: '500',
-                    fontSize: '14px',
-                },
-                iconTheme: {
-                    primary: '#fff',
-                    secondary: '#ef4444',
-                },
-            });
-        }
-    };
 
     const getMembershipBadgeClass = (membership?: string) => {
         switch ((membership || 'normal').toLowerCase()) {
@@ -588,8 +550,9 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         // Global wholesale toggle removed - now using per-item control
     };
 
-    const clearAllItems = () => {
-        if (window.confirm('Are you sure you want to clear all items?')) {
+    const clearAllItems = async () => {
+        const confirmed = await showConfirmDialog('Clear Cart?', 'Are you sure you want to clear all items?', 'Yes, clear all', 'Cancel', false);
+        if (confirmed) {
             dispatch(clearItemsRedux());
         }
     };
@@ -933,7 +896,6 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
     return (
         <div className="relative mt-6 w-full sm:mt-6 xl:mt-0 xl:w-full">
-            <Toaster />
             <LoadingOverlay isLoading={loading} />
             <PreviewModal isOpen={showPreview} data={orderResponse || getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
 

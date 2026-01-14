@@ -3,6 +3,7 @@
 import OrderFilter from '@/components/filters/OrderFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showErrorDialog } from '@/lib/toast';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { useLazyGetStoreQuery } from '@/store/features/store/storeApi';
@@ -402,7 +403,12 @@ const Orders = () => {
     }, [currentStoreId]);
 
     const totalPages = paginationMeta?.last_page || 1;
+
     const totalItems = paginationMeta?.total || 0;
+
+    if (isLoading) {
+        return <Loader message="Loading orders..." />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">

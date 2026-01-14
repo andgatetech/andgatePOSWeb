@@ -1,5 +1,6 @@
 'use client';
 
+import Loader from '@/lib/Loader';
 import { useGetOrderByIdQuery, useUpdateOrderMutation } from '@/store/features/Order/Order';
 import { clearItemsRedux, setItemsRedux, setOrderData } from '@/store/features/Order/OrderEditSlice';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -103,20 +104,7 @@ const OrderEditPage = () => {
     }
 
     if (isLoading || isLoadingOrder) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-white">
-                <div className="text-center">
-                    {/* Modern Spinner */}
-                    <div className="relative mx-auto mb-8 h-20 w-20">
-                        <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-                        <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-primary"></div>
-                    </div>
-
-                    {/* Loading Text */}
-                    <h3 className="text-lg font-semibold text-gray-700">Order Loading ...</h3>
-                </div>
-            </div>
-        );
+        return <Loader message="Order Loading..." />;
     }
 
     if (error || !orderData?.success) {
