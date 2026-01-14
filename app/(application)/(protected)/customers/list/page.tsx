@@ -2,6 +2,7 @@
 
 import CustomerFilter from '@/components/filters/CustomerFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { Plus } from 'lucide-react';
@@ -94,6 +95,10 @@ const CustomersPage = () => {
     const handleAddNew = () => {
         router.push('/customers/create');
     };
+
+    if (isLoading) {
+        return <Loader message="Loading customers..." />;
+    }
 
     return (
         <div className="space-y-6">

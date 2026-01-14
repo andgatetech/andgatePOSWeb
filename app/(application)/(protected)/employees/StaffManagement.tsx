@@ -2,6 +2,8 @@
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
+import { showMessage } from '@/lib/toast';
 import { useGetAllPermissionsQuery, useGetUserPermissionsQuery, useUpdateUserPermissionMutation } from '@/store/features/auth/authApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
 import { CheckCircle, Loader2, Mail, Pencil, Plus, Shield, ShieldCheck, Trash2, User, Users, XCircle } from 'lucide-react';
@@ -240,33 +242,19 @@ const StaffManagement = () => {
 
             await updateUserPermission({ userId: selectedStaff.id, permissionData: { permissions: payload } }).unwrap();
             refetchStaffMembers();
-            showToast('Permissions updated successfully');
+            showMessage('Permissions updated successfully');
             closePermissionsModal();
         } catch (error: any) {
             console.error('Permission update failed:', error);
-            showToast(error?.data?.message || 'Failed to update permissions', 'error');
+            showMessage(error?.data?.message || 'Failed to update permissions', 'error');
         }
     };
 
     const handlePlaceholderAction = (message: string) => {
-        showToast(message, 'info');
+        showMessage(message, 'info');
     };
 
     const selectedPermissionsCount = selectAllPermissions ? allPermissions.length : selectedPermissions.length;
-
-    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-0 ${
-            type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-        }`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.add('translate-x-full', 'opacity-0');
-            setTimeout(() => document.body.removeChild(toast), 300);
-        }, 3000);
-    };
 
     const getRoleBadge = (role: string) => {
         const roleStyles: Record<string, string> = {
@@ -340,7 +328,7 @@ const StaffManagement = () => {
             icon: <Pencil className="h-4 w-4" />,
             className: 'text-blue-700',
             onClick: (row) => {
-                showToast('Employee editing is coming soon.', 'info');
+                showMessage('Employee editing is coming soon.', 'info');
             },
         },
         {
@@ -354,7 +342,7 @@ const StaffManagement = () => {
             icon: <Trash2 className="h-4 w-4" />,
             className: 'text-red-700',
             onClick: (row) => {
-                showToast('Employee deletion is coming soon.', 'info');
+                showMessage('Employee deletion is coming soon.', 'info');
             },
         },
     ];
@@ -388,14 +376,7 @@ const StaffManagement = () => {
     const stats = getStats();
 
     if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="mx-auto h-16 w-16 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                    <p className="mt-4 text-gray-600">Loading staff members...</p>
-                </div>
-            </div>
-        );
+        return <Loader message="Loading staff members..." />;
     }
 
     return (

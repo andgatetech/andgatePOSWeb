@@ -4,11 +4,10 @@ import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
-import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
 import { Edit, Eye, ImageIcon, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import Swal from 'sweetalert2';
 
 const CategoryComponent = () => {
     const { currentStoreId, userStores } = useCurrentStore();
@@ -92,18 +91,6 @@ const CategoryComponent = () => {
         setCurrentPage(1);
     }, []);
 
-    const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
-        Swal.fire({
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 3000,
-            icon: type,
-            title: msg,
-            padding: '10px 20px',
-        });
-    };
-
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -183,13 +170,15 @@ const CategoryComponent = () => {
 
     const handleDelete = useCallback(
         async (id: number) => {
-            if (window.confirm('Are you sure you want to delete this category?')) {
+            const confirmed = await showConfirmDialog('Delete Category?', 'Are you sure you want to delete this category?', 'Yes, delete it!', 'Cancel', false);
+
+            if (confirmed) {
                 try {
                     await deleteCategory(id).unwrap();
-                    showMessage('Category deleted successfully', 'success');
+                    showSuccessDialog('Deleted!', 'Category deleted successfully');
                 } catch (error) {
                     console.error('Error deleting category:', error);
-                    showMessage('Failed to delete category', 'error');
+                    showErrorDialog('Error', 'Failed to delete category');
                 }
             }
         },

@@ -1,5 +1,7 @@
 'use client';
 
+import Loader from '@/lib/Loader';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteFeedbackMutation, useGetAllFeedbacksQuery } from '@/store/features/feedback/feedbackApi';
 import { Bug, Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Download, Eye, Filter, Lightbulb, MessageSquare, RefreshCw, Search, Star, ThumbsUp, Trash2, User, X } from 'lucide-react';
 import { useState } from 'react';
@@ -42,12 +44,16 @@ const FeedbackManagementPage = () => {
     };
 
     const handleDelete = async (feedbackId) => {
-        if (window.confirm('Are you sure you want to delete this feedback?')) {
+        const confirmed = await showConfirmDialog('Delete Feedback?', 'Are you sure you want to delete this feedback?', 'Yes, delete it!', 'Cancel', false);
+
+        if (confirmed) {
             try {
                 await deleteFeedback(feedbackId);
+                showSuccessDialog('Deleted!', 'Feedback deleted successfully');
                 refetch();
             } catch (error) {
                 console.error('Failed to delete feedback:', error);
+                showErrorDialog('Error', 'Failed to delete feedback');
             }
         }
     };
@@ -235,7 +241,7 @@ const FeedbackManagementPage = () => {
                             <div className="flex flex-wrap gap-2">
                                 {filters.search && (
                                     <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
-                                        Search: "{filters.search}"
+                                        Search: &quot;{filters.search}&quot;
                                         <button onClick={() => handleFilterChange('search', '')} className="ml-2">
                                             <X className="h-3 w-3" />
                                         </button>
@@ -260,10 +266,7 @@ const FeedbackManagementPage = () => {
                 {/* Feedback List */}
                 <div className="space-y-6">
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
-                            <span className="ml-3 text-gray-600">Loading feedback...</span>
-                        </div>
+                        <Loader fullScreen={false} message="Loading feedback..." className="py-12" />
                     ) : feedbacks.length === 0 ? (
                         <div className="py-12 text-center">
                             <MessageSquare className="mx-auto mb-4 h-16 w-16 text-gray-300" />

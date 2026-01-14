@@ -3,11 +3,10 @@ import ReusableTable, { TableAction, TableColumn } from '@/components/common/Reu
 import BrandFilter from '@/components/filters/BrandFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
-import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { Edit, Eye, Image as ImageIcon, Plus, Save, Store, Trash2, Upload, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Swal from 'sweetalert2';
 
 // Brand Modal Component
 const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, loading }: any) => {
@@ -358,26 +357,15 @@ const BrandManagement = () => {
 
     const handleDelete = useCallback(
         async (id: number) => {
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-            });
+            const confirmed = await showConfirmDialog('Are you sure?', "You won't be able to revert this!", 'Yes, delete it!', 'Cancel', false);
 
-            if (result.isConfirmed) {
+            if (confirmed) {
                 try {
                     await deleteBrand(id).unwrap();
-                    toast.dismiss();
-                    toast.success('Brand deleted successfully', { toastId: 'delete-brand' });
+                    showSuccessDialog('Success', 'Brand deleted successfully');
                 } catch (error) {
                     console.error('Error deleting brand:', error);
-                    toast.dismiss();
-                    toast.error('Failed to delete brand', { toastId: 'delete-brand-error' });
+                    showErrorDialog('Error', 'Failed to delete brand');
                 }
             }
         },

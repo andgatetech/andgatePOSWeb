@@ -2,6 +2,7 @@
 
 import ExpenseFilter from '@/components/filters/ExpenseFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteExpenseMutation, useGetExpensesQuery } from '@/store/features/expense/expenseApi';
 import { Plus, Receipt } from 'lucide-react';
@@ -109,6 +110,10 @@ const ExpenseListPage = () => {
     const handleEditSuccess = useCallback(() => {
         refetch();
     }, [refetch]);
+
+    if (isLoading) {
+        return <Loader message="Loading expenses..." />;
+    }
 
     return (
         <div className="space-y-6">
