@@ -417,12 +417,12 @@ const ProductCreateForm = () => {
                             const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
 
                             if (!validMimes.includes(img.file.type)) {
-                                toast.error(`Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`);
+                                showErrorDialog('Invalid Image', `Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`);
                                 throw new Error('Invalid image type');
                             }
 
                             if (img.file.size > 2 * 1024 * 1024) {
-                                toast.error(`Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
+                                showErrorDialog('File Too Large', `Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
                                 throw new Error('Image too large');
                             }
 
@@ -529,8 +529,9 @@ const ProductCreateForm = () => {
             setProductSerials([]);
             setProductWarranties([]);
 
-            showSuccessDialog('Success!', 'Product has been created successfully', 'Go to Products', 'Create Another', true).then((confirmed) => {
-                if (confirmed) {
+            // showSuccessDialog(title, text, confirmButtonText, showCancelButton, cancelButtonText)
+            showSuccessDialog('Success!', 'Product has been created successfully', 'Go to Products', true, 'Create Another').then((result) => {
+                if (result.isConfirmed) {
                     router.push('/products');
                 }
             });

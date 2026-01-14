@@ -3,13 +3,14 @@ import IconDollarSignCircle from '@/components/icon/icon-dollar-sign-circle';
 import IconHome from '@/components/icon/icon-home';
 import IconPhone from '@/components/icon/icon-phone';
 import IconUser from '@/components/icon/icon-user';
+import Loader from '@/lib/Loader';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetUserInfoQuery, useUpdateUserMutation } from '@/store/features/auth/authApi';
 import { updateUserProfile } from '@/store/features/auth/authSlice';
 import { AppDispatch } from '@/store/index';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import Swal from 'sweetalert2';
 
 const ComponentsUsersAccountSettingsTabs = () => {
     const [tabs, setTabs] = useState<string>('home');
@@ -72,23 +73,17 @@ const ComponentsUsersAccountSettingsTabs = () => {
                 );
 
                 // Show success notification
-                Swal.fire({
-                    title: 'Success!',
-                    text: result.message || 'Profile updated successfully!',
-                    icon: 'success',
-                    timer: 3000,
-                    showConfirmButton: false,
-                });
+                showSuccessDialog('Success!', result.message || 'Profile updated successfully!', 'OK');
             }
         } catch (error: any) {
-            Swal.fire({
-                title: 'Error!',
-                text: error?.data?.message || 'Failed to update profile',
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
+            showErrorDialog('Error!', error?.data?.message || 'Failed to update profile');
         }
     };
+
+    if (isLoading) {
+        return <Loader message="Loading settings..." />;
+    }
+
     return (
         <div className="pt-5">
             <div className="mb-5 flex items-center justify-between">

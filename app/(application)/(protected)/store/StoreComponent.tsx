@@ -3,10 +3,11 @@ import SubscriptionError from '@/components/common/SubscriptionError';
 import StoreFilter from '@/components/filters/StoreFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
+import Loader from '@/lib/Loader';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteStoreMutation, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { Plus, Store } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Swal from 'sweetalert2';
 import CreateStoreModal from './components/CreateStoreModal';
 import StoresTable from './components/StoresTable';
 
@@ -51,33 +52,14 @@ const StoreComponent = () => {
     }, []);
 
     const handleDeleteStore = async (store: any) => {
-        const result = await Swal.fire({
-            title: 'Are you sure?',
-            text: `Delete "${store.store_name}"? This action cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-        });
+        const confirmed = await showConfirmDialog('Are you sure?', `Delete "${store.store_name}"? This action cannot be undone.`);
 
-        if (result.isConfirmed) {
+        if (confirmed) {
             try {
                 await deleteStore(store.id).unwrap();
-                Swal.fire({
-                    title: 'Deleted!',
-                    text: 'Store has been deleted successfully.',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false,
-                });
+                showSuccessDialog('Deleted!', 'Store has been deleted successfully.');
             } catch (error) {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to delete store. Please try again.',
-                    icon: 'error',
-                });
+                showErrorDialog('Error!', 'Failed to delete store. Please try again.');
             }
         }
     };
@@ -137,6 +119,10 @@ const StoreComponent = () => {
     // Show subscription error component if subscription middleware error occurs
     if (hasSubscriptionError) {
         return <SubscriptionError errorType={subscriptionError.errorType!} message={subscriptionError.message} details={subscriptionError.details} />;
+    }
+
+    if (isLoadingStore) {
+        return <Loader message="Loading stores..." />;
     }
 
     return (

@@ -33,7 +33,7 @@ interface OrderEditRightSideProps {
 
 const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, originalOrder }) => {
     const dispatch = useDispatch();
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const invoiceItems = useSelector((state: RootState) => state.orderEdit.items);
     const userId = useSelector((state: RootState) => state.auth.user?.id);
@@ -232,6 +232,19 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
         return activeMethods;
     }, [paymentMethodsResponse]);
+
+    // Payment statuses from Redux (can be used for payment status dropdown)
+    const paymentStatusOptions = useMemo(() => {
+        const statuses = Array.isArray(currentStore?.payment_statuses) ? currentStore.payment_statuses : [];
+        return statuses.filter((status: any) => {
+            if (!status) return false;
+            const active = status.is_active;
+            if (active === undefined || active === null) return true;
+            if (typeof active === 'boolean') return active;
+            if (typeof active === 'number') return active === 1;
+            return true;
+        });
+    }, [currentStore?.payment_statuses]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value;
@@ -943,6 +956,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                     formData={formData}
                     selectedCustomer={selectedCustomer}
                     paymentMethodOptions={paymentMethodOptions}
+                    paymentStatusOptions={paymentStatusOptions}
                     onInputChange={handleInputChange}
                     subtotalWithoutTax={calculateSubtotalWithoutTax()}
                     taxAmount={calculateTax()}

@@ -73,16 +73,25 @@ export const showConfirmDialog = async (
  * @param text - Success message
  * @param confirmButtonText - Text for OK button (default: 'OK')
  */
-export const showSuccessDialog = (title: string = 'Success!', text: string = 'Your action was completed successfully.', confirmButtonText: string = 'OK') => {
-    Swal.fire({
+export const showSuccessDialog = (
+    title: string = 'Success!',
+    text: string = 'Your action was completed successfully.',
+    confirmButtonText: string = 'OK',
+    showCancelButton: boolean = false,
+    cancelButtonText: string = 'Cancel'
+) => {
+    return Swal.fire({
         icon: 'success',
         title,
         text,
         confirmButtonColor: '#10b981',
         confirmButtonText,
+        showCancelButton,
+        cancelButtonText,
         customClass: {
             popup: 'swal2-success-popup',
             confirmButton: 'swal2-success-button',
+            cancelButton: 'rounded-lg px-4 py-2 font-medium bg-gray-500 text-white ml-2',
         },
     });
 };

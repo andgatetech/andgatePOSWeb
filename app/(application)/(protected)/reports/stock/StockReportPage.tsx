@@ -6,6 +6,7 @@ import ReusableTable from '@/components/common/ReusableTable';
 import StockReportFilter from '@/components/filters/reports/StockReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { useGetStockReportMutation } from '@/store/features/reports/reportApi';
 import { AlertTriangle, CheckCircle, FileText, Layers, Package, XCircle } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -195,6 +196,10 @@ const StockReportPage = () => {
         ],
         [formatCurrency]
     );
+
+    if (isLoading && !reportData?.data) {
+        return <Loader message="Loading stock report..." />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">

@@ -1,10 +1,11 @@
 'use client';
+import Loader from '@/lib/Loader';
 import { useGetPurchaseDraftByIdQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { setItemsRedux, setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { ArrowLeft, Box, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import PosLeftSide from '../../../pos/PosLeftSide';
 import PurchaseOrderRightSide from '../../create/PurchaseOrderRightSide';
@@ -64,14 +65,7 @@ const EditPurchaseDraftPage = () => {
     }, [draftResponse, dispatch]);
 
     if (isLoading) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                <div className="text-center">
-                    <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-                    <p className="text-gray-600">Loading draft...</p>
-                </div>
-            </div>
-        );
+        return <Loader message="Loading draft..." />;
     }
 
     if (error || !draftResponse?.data) {
@@ -114,10 +108,7 @@ const EditPurchaseDraftPage = () => {
                 }}
                 reduxSlice="purchase"
             >
-                <PurchaseOrderRightSide
-                    draftId={Number(draftId)}
-                    isEditMode={true}
-                />
+                <PurchaseOrderRightSide draftId={Number(draftId)} isEditMode={true} />
             </PosLeftSide>
         </div>
     );

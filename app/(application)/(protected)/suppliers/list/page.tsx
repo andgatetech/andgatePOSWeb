@@ -2,6 +2,7 @@
 
 import SupplierFilter from '@/components/filters/SupplierFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Plus } from 'lucide-react';
@@ -94,6 +95,10 @@ const SuppliersPage = () => {
     const handleAddNew = () => {
         router.push('/suppliers/create');
     };
+
+    if (isLoading) {
+        return <Loader message="Loading suppliers..." />;
+    }
 
     return (
         <div className="space-y-6">

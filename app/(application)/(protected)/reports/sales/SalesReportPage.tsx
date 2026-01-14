@@ -6,6 +6,7 @@ import ReusableTable from '@/components/common/ReusableTable';
 import SalesReportFilter from '@/components/filters/reports/SalesReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import Loader from '@/lib/Loader';
 import { useGetSalesReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, FileText, Hash, Percent, Receipt, ShoppingCart, TrendingDown, User, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -335,8 +336,12 @@ const SalesReportPage = () => {
             { label: 'Collection', value: formatCurrency(summary.total_amount_paid) },
             { label: 'Outstanding', value: formatCurrency(summary.total_due_amount) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
+
+    if (isLoading && !reportData?.data) {
+        return <Loader message="Loading report..." />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">

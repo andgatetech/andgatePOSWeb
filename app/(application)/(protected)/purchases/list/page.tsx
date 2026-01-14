@@ -4,12 +4,12 @@ import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useConvertDraftToPurchaseOrderMutation, useDeletePurchaseDraftMutation, useGetPurchaseDraftsQuery, useGetPurchaseOrdersQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { FileText, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Swal from 'sweetalert2';
 import DraftsTable from './components/DraftsTable';
 import PurchaseOrdersTable from './components/PurchaseOrdersTable';
 
@@ -337,16 +337,14 @@ const PurchaseOrderListPage = () => {
     };
 
     const handleConvertToPurchaseOrder = async (draft: any) => {
-        const result = await Swal.fire({
-            title: 'Convert to Purchase Order?',
-            html: `<p>Convert draft <strong>${draft.draft_reference}</strong> to an official purchase order?</p>`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Convert',
-            cancelButtonText: 'Cancel',
-        });
+        const isConfirmed = await showConfirmDialog(
+            'Convert to Purchase Order?',
+            `<p>Convert draft <strong>${draft.draft_reference}</strong> to an official purchase order?</p>`,
+            'Yes, Convert',
+            'Cancel'
+        );
 
-        if (!result.isConfirmed) return;
+        if (!isConfirmed) return;
 
         try {
             const response = await convertToPO({
@@ -359,47 +357,30 @@ const PurchaseOrderListPage = () => {
             const invoiceNumber = purchaseOrder.invoice_number || 'N/A';
             const grandTotal = Number(purchaseOrder.grand_total || purchaseOrder.total || 0).toFixed(2);
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Purchase Order Created!',
-                html: `
-                    <p>Invoice: <strong>${invoiceNumber}</strong></p>
-                    <p>Total: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>
-                `,
-                confirmButtonText: 'View Purchase Orders',
-            }).then(() => {
+            showSuccessDialog(
+                'Purchase Order Created!',
+                `<p>Invoice: <strong>${invoiceNumber}</strong></p><p>Total: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>`,
+                'View Purchase Orders'
+            ).then(() => {
                 setActiveTab('orders');
             });
         } catch (error: any) {
             console.error('Error converting draft:', error);
             const errorMsg = error?.data?.error || error?.data?.message || 'Failed to convert draft';
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Backend Error',
-                html: `<div class="text-left"><p><strong>Error:</strong></p><p class="text-sm">${errorMsg}</p></div>`,
-                width: 600,
-            });
+            showErrorDialog('Backend Error', errorMsg);
         }
     };
 
     const handleDeleteDraft = async (draft: any) => {
-        const result = await Swal.fire({
-            title: 'Delete Draft?',
-            text: `Are you sure you want to delete draft ${draft.draft_reference}?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Delete',
-            confirmButtonColor: '#d33',
-        });
+        const isConfirmed = await showConfirmDialog('Delete Draft?', `Are you sure you want to delete draft ${draft.draft_reference}?`, 'Yes, Delete', 'Cancel');
 
-        if (!result.isConfirmed) return;
+        if (!isConfirmed) return;
 
         try {
             await deleteDraft(draft.id).unwrap();
-            Swal.fire('Deleted!', 'Draft has been deleted', 'success');
+            showSuccessDialog('Deleted!', 'Draft has been deleted');
         } catch (error: any) {
-            Swal.fire('Error', error?.data?.message || 'Failed to record payment', 'error');
+            showErrorDialog('Error', error?.data?.message || 'Failed to delete draft');
         }
     };
 
