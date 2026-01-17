@@ -29,7 +29,7 @@ const PosRightSide: React.FC = () => {
     const dispatch = useDispatch();
     const { currentStoreId, currentStore } = useCurrentStore();
 
-    const invoiceItems = useSelector((state: RootState) => state.invoice.items);
+    const invoiceItems = useSelector((state: RootState) => (currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || [] : []));
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
     const searchInputRef = useRef<HTMLDivElement | null>(null);
@@ -177,7 +177,16 @@ const PosRightSide: React.FC = () => {
 
     const customers: Customer[] = useMemo(() => {
         const response = customersResponse as CustomerApiResponse;
-        return response?.data?.items || [];
+        // Handle both legacy (data: Customer[]) and new (data: { items: Customer[] }) formats
+        if (response?.data) {
+            if (Array.isArray(response.data)) {
+                return response.data;
+            }
+            if ('items' in response.data && Array.isArray(response.data.items)) {
+                return response.data.items;
+            }
+        }
+        return [];
     }, [customersResponse]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -313,7 +322,8 @@ const PosRightSide: React.FC = () => {
     }, []);
 
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeItemRedux(itemId));
+        if (!currentStoreId) return;
+        dispatch(removeItemRedux({ storeId: currentStoreId, id: itemId }));
     };
 
     const handleItemWholesaleToggle = (itemId: number) => {
@@ -334,12 +344,16 @@ const PosRightSide: React.FC = () => {
             newRate: newRate,
         });
 
+        if (!currentStoreId) return;
         dispatch(
             updateItemRedux({
-                ...item,
-                isWholesale: newIsWholesale,
-                rate: newRate,
-                amount: item.quantity * newRate,
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    isWholesale: newIsWholesale,
+                    rate: newRate,
+                    amount: item.quantity * newRate,
+                },
             })
         );
     };
@@ -349,7 +363,8 @@ const PosRightSide: React.FC = () => {
         if (!item) return;
 
         if (value === '') {
-            dispatch(updateItemRedux({ ...item, quantity: 0, amount: 0 }));
+            if (!currentStoreId) return;
+            dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, quantity: 0, amount: 0 } }));
             return;
         }
 
@@ -362,11 +377,15 @@ const PosRightSide: React.FC = () => {
             return;
         }
 
+        if (!currentStoreId) return;
         dispatch(
             updateItemRedux({
-                ...item,
-                quantity: newQuantity,
-                amount: item.rate * newQuantity,
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    quantity: newQuantity,
+                    amount: item.rate * newQuantity,
+                },
             })
         );
     };
@@ -376,11 +395,15 @@ const PosRightSide: React.FC = () => {
         if (!item) return;
 
         if (item.quantity === 0) {
+            if (!currentStoreId) return;
             dispatch(
                 updateItemRedux({
-                    ...item,
-                    quantity: 1,
-                    amount: item.rate * 1,
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        quantity: 1,
+                        amount: item.rate * 1,
+                    },
                 })
             );
         }
@@ -391,18 +414,23 @@ const PosRightSide: React.FC = () => {
         if (!item) return;
 
         if (value === '') {
-            dispatch(updateItemRedux({ ...item, rate: 0, amount: 0 }));
+            if (!currentStoreId) return;
+            dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, rate: 0, amount: 0 } }));
             return;
         }
 
         const newRate = Number(value);
         if (Number.isNaN(newRate) || newRate < 0) return;
 
+        if (!currentStoreId) return;
         dispatch(
             updateItemRedux({
-                ...item,
-                rate: newRate,
-                amount: item.quantity * newRate,
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    rate: newRate,
+                    amount: item.quantity * newRate,
+                },
             })
         );
     };
@@ -412,11 +440,15 @@ const PosRightSide: React.FC = () => {
         if (!item) return;
 
         if (item.quantity === 0) {
+            if (!currentStoreId) return;
             dispatch(
                 updateItemRedux({
-                    ...item,
-                    quantity: 1,
-                    amount: item.rate * 1,
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        quantity: 1,
+                        amount: item.rate * 1,
+                    },
                 })
             );
         }
@@ -512,8 +544,8 @@ const PosRightSide: React.FC = () => {
     const clearAllItems = async () => {
         const isConfirmed = await showConfirmDialog('Are you sure?', 'Do you really want to clear all items?', 'Yes, Clear', 'Cancel');
 
-        if (isConfirmed) {
-            dispatch(clearItemsRedux());
+        if (isConfirmed && currentStoreId) {
+            dispatch(clearItemsRedux(currentStoreId));
             // showMessage('All items cleared successfully', 'success');
         }
     };
@@ -565,18 +597,50 @@ const PosRightSide: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        if (formData.customerId !== 'walk-in' && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
-            showMessage('Name and email are required', 'error');
+        // Validation: Customer Check
+        // If not walk-in and no customer selected/entered (checking customerId null and name/email empty)
+        if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
+            showMessage('Please select a Customer or choose Walk-in', 'error');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        // Validation: Manual Customer Details
+        if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
+            showMessage('Name and email are required for new customer', 'error');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         if (invoiceItems.length === 0) {
             showMessage('At least one item is required', 'error');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
         const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
         if (invalidItems.length > 0) {
             showMessage('Please select products and set quantities for all items', 'error');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
+        }
+
+        const grandTotal = calculateTotal();
+
+        // Validation: Cash Payment Amount Received
+        if (formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
+            if (!formData.amountPaid || formData.amountPaid <= 0) {
+                showMessage('Please enter the Amount Received', 'error');
+                // You might want to scroll to the specific section, but top is safe
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+            // Optional: Check if amount is enough? usually 'paid' implies full payment
+            if (formData.amountPaid < grandTotal) {
+                showMessage('Amount received is less than the total amount', 'error');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
         }
 
         // Validation for partial payment
@@ -585,13 +649,12 @@ const PosRightSide: React.FC = () => {
                 showMessage('Please enter partial payment amount', 'error');
                 return;
             }
-            if (formData.partialPaymentAmount >= calculateTotal()) {
+            if (formData.partialPaymentAmount >= grandTotal) {
+                // Use already calculated grandTotal
                 showMessage('Partial payment amount should be less than total. Use "Paid" status instead.', 'error');
                 return;
             }
         }
-
-        const grandTotal = calculateTotal();
 
         // Calculate amount paid based on payment status
         let actualAmountPaid = 0;
@@ -738,8 +801,8 @@ const PosRightSide: React.FC = () => {
         setShowPreview(false);
 
         // If order was created, clear the items and form
-        if (orderResponse) {
-            dispatch(clearItemsRedux());
+        if (orderResponse && currentStoreId) {
+            dispatch(clearItemsRedux(currentStoreId));
             clearCustomerSelection();
             setFormData({
                 customerId: null,
@@ -767,56 +830,84 @@ const PosRightSide: React.FC = () => {
 
     const getPreviewData = () => {
         if (orderResponse) {
+            // API response structure: response.data contains the order data
+            // Items can be under 'items' or 'products' depending on the API response
+            const orderData = orderResponse.data || orderResponse;
+            const responseItems = orderData.items || orderData.products || [];
+
+            console.log('📋 Invoice Preview - Order Response:', orderResponse);
+            console.log('📋 Invoice Preview - Order Data:', orderData);
+            console.log('📋 Invoice Preview - Response Items:', responseItems);
+
             return {
                 customer: {
-                    name: orderResponse.data.customer.name,
-                    email: orderResponse.data.customer.email,
-                    phone: orderResponse.data.customer.phone,
+                    name: orderData.customer?.name || formData.customerName || 'Walk-in Customer',
+                    email: orderData.customer?.email || formData.customerEmail || '',
+                    phone: orderData.customer?.phone || formData.customerPhone || '',
                     membership: selectedCustomer?.membership || 'normal',
                     points: Number(selectedCustomer?.points) || 0,
                 },
-                invoice: orderResponse.data.invoice,
-                order_id: orderResponse.data.order_id,
-                items: (orderResponse.data.products || []).map((product: any, idx: number) => {
-                    // Find matching item from invoiceItems to get variant/serial/warranty data
-                    const originalItem = invoiceItems[idx];
+                invoice: orderData.invoice || orderData.invoice_number || `#INV-${orderData.order_id || orderData.id || 'N/A'}`,
+                order_id: orderData.order_id || orderData.id,
+                items:
+                    responseItems.length > 0
+                        ? responseItems.map((product: any, idx: number) => {
+                              // Find matching item from invoiceItems to get variant/serial/warranty data
+                              const originalItem = invoiceItems[idx];
 
-                    return {
-                        id: idx + 1,
-                        title: product.name,
-                        quantity: product.quantity,
-                        price: product.unit_price,
-                        amount: product.subtotal,
-                        unit: product.unit || originalItem?.unit || 'piece',
-                        tax_rate: product.tax || originalItem?.tax_rate,
-                        tax_included: product.tax_included || originalItem?.tax_included,
-                        // Include variant data
-                        variantName: originalItem?.variantName,
-                        variantData: originalItem?.variantData,
-                        // Include serial data
-                        has_serial: originalItem?.has_serial || false,
-                        serials: originalItem?.serials || [],
-                        // Include warranty data
-                        has_warranty: originalItem?.has_warranty || false,
-                        warranty: originalItem?.warranty || null,
-                    };
-                }),
-                tax: parseFloat(orderResponse.data.totals.tax),
-                discount: orderResponse.data.totals.discount,
+                              return {
+                                  id: idx + 1,
+                                  title: product.name || product.product_name || originalItem?.title || 'Unknown Item',
+                                  quantity: product.quantity || originalItem?.quantity || 1,
+                                  price: product.unit_price || product.price || originalItem?.rate || 0,
+                                  amount: product.subtotal || product.amount || product.quantity * product.unit_price || originalItem?.amount || 0,
+                                  unit: product.unit || originalItem?.unit || 'piece',
+                                  tax_rate: product.tax || originalItem?.tax_rate,
+                                  tax_included: product.tax_included || originalItem?.tax_included,
+                                  // Include variant data
+                                  variantName: originalItem?.variantName,
+                                  variantData: originalItem?.variantData,
+                                  // Include serial data
+                                  has_serial: originalItem?.has_serial || false,
+                                  serials: originalItem?.serials || [],
+                                  // Include warranty data
+                                  has_warranty: originalItem?.has_warranty || false,
+                                  warranty: originalItem?.warranty || null,
+                              };
+                          })
+                        : // Fallback: if API doesn't return items, use invoiceItems directly
+                          invoiceItems.map((item, idx) => ({
+                              id: idx + 1,
+                              title: item.title || 'Untitled',
+                              quantity: item.quantity,
+                              price: item.rate,
+                              amount: item.rate * item.quantity,
+                              unit: item.unit || 'piece',
+                              tax_rate: item.tax_rate,
+                              tax_included: item.tax_included,
+                              variantName: item.variantName,
+                              variantData: item.variantData,
+                              has_serial: item.has_serial || false,
+                              serials: item.serials || [],
+                              has_warranty: item.has_warranty || false,
+                              warranty: item.warranty || null,
+                          })),
+                tax: parseFloat(orderData.totals?.tax || orderData.tax || 0),
+                discount: orderData.totals?.discount || orderData.discount || 0,
                 membershipDiscount: formData.membershipDiscount,
-                paymentMethod: orderResponse.data.payment_method,
-                payment_status: orderResponse.data.payment_status,
-                amount_paid: orderResponse.data.amount_paid || 0,
-                due_amount: orderResponse.data.due_amount || 0,
+                paymentMethod: orderData.payment_method,
+                payment_status: orderData.payment_status,
+                amount_paid: orderData.amount_paid || 0,
+                due_amount: orderData.due_amount || 0,
                 totals: {
-                    subtotal: parseFloat(orderResponse.data.totals.total),
-                    tax: parseFloat(orderResponse.data.totals.tax),
-                    discount: orderResponse.data.totals.discount,
+                    subtotal: parseFloat(orderData.totals?.total || orderData.total || calculateSubtotalWithoutTax()),
+                    tax: parseFloat(orderData.totals?.tax || orderData.tax || calculateTax()),
+                    discount: orderData.totals?.discount || orderData.discount || calculateDiscount(),
                     membershipDiscount: calculateMembershipDiscount(),
                     pointsDiscount: calculatePointsDiscount(),
                     balanceDiscount: calculateBalanceDiscount(),
-                    total: parseFloat(orderResponse.data.totals.grand_total),
-                    grand_total: parseFloat(orderResponse.data.totals.grand_total),
+                    total: parseFloat(orderData.totals?.grand_total || orderData.grand_total || calculateTotal()),
+                    grand_total: parseFloat(orderData.totals?.grand_total || orderData.grand_total || calculateTotal()),
                 },
                 isOrderCreated: true,
             };

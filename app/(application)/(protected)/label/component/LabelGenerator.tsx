@@ -33,13 +33,13 @@ const PAPER_SIZES = [
 
 const LabelGenerator = () => {
     const dispatch = useDispatch();
-    const { currentStore } = useCurrentStore();
-    const cartItems = useSelector((state: RootState) => state.label.items);
+    const { currentStore, currentStoreId } = useCurrentStore();
+    const cartItems = useSelector((state: RootState) => (currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || [] : []));
     const [generateBarcodes, { isLoading: isGeneratingBarcode }] = useGenerateBarCodesMutation();
     const [generateQRCodes, { isLoading: isGeneratingQR }] = useGenerateQRCodesMutation();
 
     const [labelType, setLabelType] = useState<LabelType>('barcode');
-    const generatedLabels = useSelector((state: RootState) => state.label.generatedLabels) || [];
+    const generatedLabels = useSelector((state: RootState) => (currentStoreId && state.label.generatedLabelsByStore ? state.label.generatedLabelsByStore[currentStoreId] || [] : []));
 
     // Paper & Label Size Settings with localStorage persistence
     const [paperSize, setPaperSize] = useState(() => {
@@ -142,7 +142,8 @@ const LabelGenerator = () => {
     };
 
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeLabelItem(itemId));
+        if (!currentStoreId) return;
+        dispatch(removeLabelItem({ storeId: currentStoreId, id: itemId }));
         setProductQuantities((prev) => {
             const newMap = new Map(prev);
             newMap.delete(itemId);
@@ -151,9 +152,10 @@ const LabelGenerator = () => {
     };
 
     const handleClearAll = () => {
-        dispatch(clearLabelItems());
+        if (!currentStoreId) return;
+        dispatch(clearLabelItems(currentStoreId));
         setProductQuantities(new Map());
-        dispatch(clearGeneratedLabels());
+        dispatch(clearGeneratedLabels(currentStoreId));
     };
 
     const handleGenerate = async () => {
@@ -174,7 +176,9 @@ const LabelGenerator = () => {
                 const response = await generateBarcodes(pos_products).unwrap();
 
                 if (response.success) {
-                    dispatch(setGeneratedLabels(response.data.barcodes || []));
+                    if (currentStoreId) {
+                        dispatch(setGeneratedLabels({ storeId: currentStoreId, labels: response.data.barcodes || [] }));
+                    }
                     showSuccessDialog('Success!', `${response.data.total_generated} barcodes generated`);
                 }
             } else {
@@ -196,7 +200,9 @@ const LabelGenerator = () => {
                         barcode: label.qr_code || label.qrcode || label.barcode,
                     }));
                     console.log('QR Labels generated:', qrLabels);
-                    dispatch(setGeneratedLabels(qrLabels));
+                    if (currentStoreId) {
+                        dispatch(setGeneratedLabels({ storeId: currentStoreId, labels: qrLabels }));
+                    }
                     showSuccessDialog('Success!', `${response.data.total_generated} QR codes generated`);
                 }
             }

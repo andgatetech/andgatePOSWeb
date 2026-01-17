@@ -28,25 +28,27 @@ interface Supplier {
     contact_person?: string;
 }
 
-interface PurchaseOrderState {
+interface PurchaseOrderData {
     items: PurchaseItem[];
-    supplierId?: number; // Selected supplier for the entire PO
-    supplier?: Supplier | null; // Full supplier details
-    storeId?: number; // Store for the purchase order
-    status: string; // draft, preparing, ordered, partially_received, received
-    purchaseType: 'supplier' | 'walk_in' | 'own_purchase'; // Type of purchase
-    draftReference?: string; // Draft reference number
-    invoiceNumber?: string; // Generated invoice number
+    supplierId?: number;
+    supplier?: Supplier | null;
+    status: string;
+    purchaseType: 'supplier' | 'walk_in' | 'own_purchase';
+    draftReference?: string;
+    invoiceNumber?: string;
     grandTotal: number;
-    estimatedTotal?: number; // Estimated total for drafts
+    estimatedTotal?: number;
     notes?: string;
-    // Payment tracking
     paymentStatus?: 'pending' | 'partial' | 'paid';
     amountPaid?: number;
     amountDue?: number;
 }
 
-const initialState: PurchaseOrderState = {
+interface PurchaseOrderState {
+    ordersByStore: { [storeId: number]: PurchaseOrderData };
+}
+
+const createEmptyOrder = (): PurchaseOrderData => ({
     items: [],
     status: 'draft',
     purchaseType: 'supplier',
@@ -54,101 +56,114 @@ const initialState: PurchaseOrderState = {
     paymentStatus: 'pending',
     amountPaid: 0,
     amountDue: 0,
+});
+
+const initialState: PurchaseOrderState = {
+    ordersByStore: {},
+};
+
+// Helper to get or create order for store
+const getStoreOrder = (state: PurchaseOrderState, storeId: number): PurchaseOrderData => {
+    // Ensure ordersByStore exists (handles migration from old state)
+    if (!state.ordersByStore) {
+        state.ordersByStore = {};
+    }
+    if (!state.ordersByStore[storeId]) {
+        state.ordersByStore[storeId] = createEmptyOrder();
+    }
+    return state.ordersByStore[storeId];
 };
 
 const purchaseOrderSlice = createSlice({
     name: 'purchaseOrder',
     initialState,
     reducers: {
-        setItemsRedux(state, action: PayloadAction<PurchaseItem[]>) {
-            // Filter out items without productId to avoid empty items
-            state.items = action.payload.filter((item) => item.productId !== undefined);
-            state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+        setItemsRedux(state, action: PayloadAction<{ storeId: number; items: PurchaseItem[] }>) {
+            const { storeId, items } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.items = items.filter((item) => item.productId !== undefined);
+            order.grandTotal = order.items.reduce((total, item) => total + item.amount, 0);
         },
 
-        addItemRedux(state, action: PayloadAction<PurchaseItem>) {
-            // Handle existing products (with productId)
-            if (action.payload.productId !== undefined) {
-                // For variant products, check both productId AND productStockId
-                const existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId && item.productStockId === action.payload.productStockId);
+        addItemRedux(state, action: PayloadAction<{ storeId: number; item: PurchaseItem }>) {
+            const { storeId, item } = action.payload;
+            const order = getStoreOrder(state, storeId);
+
+            if (item.productId !== undefined) {
+                const existingItemIndex = order.items.findIndex((i) => i.productId === item.productId && i.productStockId === item.productStockId);
 
                 if (existingItemIndex !== -1) {
-                    // Same product AND same variant → increase quantity
-                    const existingItem = state.items[existingItemIndex];
-                    const newQuantity = existingItem.quantity + action.payload.quantity;
-
+                    const existingItem = order.items[existingItemIndex];
+                    const newQuantity = existingItem.quantity + item.quantity;
                     existingItem.quantity = newQuantity;
                     existingItem.amount = existingItem.quantity * existingItem.purchasePrice;
                 } else {
-                    // New product or different variant → add normally
-                    state.items.push(action.payload);
+                    order.items.push(item);
                 }
             } else {
-                // Handle new products (without productId) - always add as separate items
-                state.items.push(action.payload);
+                order.items.push(item);
             }
 
-            // Recalculate grand total
-            state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+            order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
         },
 
-        updateItemRedux(state, action: PayloadAction<PurchaseItem>) {
-            const index = state.items.findIndex((item) => item.id === action.payload.id);
+        updateItemRedux(state, action: PayloadAction<{ storeId: number; item: PurchaseItem }>) {
+            const { storeId, item } = action.payload;
+            const order = getStoreOrder(state, storeId);
+
+            const index = order.items.findIndex((i) => i.id === item.id);
             if (index !== -1) {
-                // Update existing item
-                state.items[index] = { ...state.items[index], ...action.payload };
-                // Recalculate amount for updated item
-                state.items[index].amount = state.items[index].quantity * state.items[index].purchasePrice;
-            } else if (action.payload.productId !== undefined) {
-                // Add new item if it doesn't exist and has a productId
-                state.items.push(action.payload);
+                order.items[index] = { ...order.items[index], ...item };
+                order.items[index].amount = order.items[index].quantity * order.items[index].purchasePrice;
+            } else if (item.productId !== undefined) {
+                order.items.push(item);
             }
 
-            // Recalculate grand total
-            state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+            order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
         },
 
-        removeItemRedux(state, action: PayloadAction<number>) {
-            state.items = state.items.filter((item) => item.id !== action.payload);
-            state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+        removeItemRedux(state, action: PayloadAction<{ storeId: number; id: number }>) {
+            const { storeId, id } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.items = order.items.filter((item) => item.id !== id);
+            order.grandTotal = order.items.reduce((total, item) => total + item.amount, 0);
         },
 
-        clearItemsRedux(state) {
-            state.items = [];
-            state.grandTotal = 0;
+        clearItemsRedux(state, action: PayloadAction<number>) {
+            const storeId = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.items = [];
+            order.grandTotal = 0;
         },
 
-        updateItemQuantityRedux(state, action: PayloadAction<{ id: number; quantity: number }>) {
-            const { id, quantity } = action.payload;
-            const item = state.items.find((item) => item.id === id);
+        updateItemQuantityRedux(state, action: PayloadAction<{ storeId: number; id: number; quantity: number }>) {
+            const { storeId, id, quantity } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            const item = order.items.find((i) => i.id === id);
             if (item && quantity >= 0) {
                 item.quantity = quantity;
                 item.amount = item.purchasePrice * quantity;
-
-                // Recalculate grand total
-                state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+                order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
             }
         },
 
-        updateItemPurchasePriceRedux(state, action: PayloadAction<{ id: number; purchasePrice: number }>) {
-            const { id, purchasePrice } = action.payload;
-            const item = state.items.find((item) => item.id === id);
+        updateItemPurchasePriceRedux(state, action: PayloadAction<{ storeId: number; id: number; purchasePrice: number }>) {
+            const { storeId, id, purchasePrice } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            const item = order.items.find((i) => i.id === id);
             if (item && purchasePrice >= 0) {
                 item.purchasePrice = purchasePrice;
                 item.amount = item.quantity * purchasePrice;
-
-                // Recalculate grand total
-                state.grandTotal = state.items.reduce((total, item) => total + item.amount, 0);
+                order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
             }
         },
 
-        updateItemReceivedQuantityRedux(state, action: PayloadAction<{ id: number; quantityReceived: number }>) {
-            const { id, quantityReceived } = action.payload;
-            const item = state.items.find((item) => item.id === id);
+        updateItemReceivedQuantityRedux(state, action: PayloadAction<{ storeId: number; id: number; quantityReceived: number }>) {
+            const { storeId, id, quantityReceived } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            const item = order.items.find((i) => i.id === id);
             if (item && quantityReceived >= 0) {
                 item.quantityReceived = quantityReceived;
-
-                // Update item status based on received quantity
                 if (quantityReceived >= item.quantity) {
                     item.status = 'received';
                 } else if (quantityReceived > 0) {
@@ -159,62 +174,82 @@ const purchaseOrderSlice = createSlice({
             }
         },
 
-        setSupplierRedux(state, action: PayloadAction<number>) {
-            state.supplierId = action.payload;
+        setSupplierRedux(state, action: PayloadAction<{ storeId: number; supplierId: number }>) {
+            const { storeId, supplierId } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.supplierId = supplierId;
         },
 
-        setSupplierDetailsRedux(state, action: PayloadAction<Supplier>) {
-            state.supplier = action.payload;
-            state.supplierId = action.payload.id;
+        setSupplierDetailsRedux(state, action: PayloadAction<{ storeId: number; supplier: Supplier }>) {
+            const { storeId, supplier } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.supplier = supplier;
+            order.supplierId = supplier.id;
         },
 
-        setPurchaseTypeRedux(state, action: PayloadAction<'supplier' | 'walk_in' | 'own_purchase'>) {
-            state.purchaseType = action.payload;
+        setPurchaseTypeRedux(state, action: PayloadAction<{ storeId: number; purchaseType: 'supplier' | 'walk_in' | 'own_purchase' }>) {
+            const { storeId, purchaseType } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.purchaseType = purchaseType;
         },
 
-        setDraftReferenceRedux(state, action: PayloadAction<string>) {
-            state.draftReference = action.payload;
+        setDraftReferenceRedux(state, action: PayloadAction<{ storeId: number; draftReference: string }>) {
+            const { storeId, draftReference } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.draftReference = draftReference;
         },
 
-        setPaymentStatusRedux(state, action: PayloadAction<'pending' | 'partial' | 'paid'>) {
-            state.paymentStatus = action.payload;
+        setPaymentStatusRedux(state, action: PayloadAction<{ storeId: number; paymentStatus: 'pending' | 'partial' | 'paid' }>) {
+            const { storeId, paymentStatus } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.paymentStatus = paymentStatus;
         },
 
-        updatePaymentRedux(state, action: PayloadAction<{ amountPaid: number }>) {
-            state.amountPaid = (state.amountPaid || 0) + action.payload.amountPaid;
-            state.amountDue = state.grandTotal - state.amountPaid;
+        updatePaymentRedux(state, action: PayloadAction<{ storeId: number; amountPaid: number }>) {
+            const { storeId, amountPaid } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.amountPaid = (order.amountPaid || 0) + amountPaid;
+            order.amountDue = order.grandTotal - order.amountPaid;
 
-            if (state.amountPaid >= state.grandTotal) {
-                state.paymentStatus = 'paid';
-            } else if (state.amountPaid > 0) {
-                state.paymentStatus = 'partial';
+            if (order.amountPaid >= order.grandTotal) {
+                order.paymentStatus = 'paid';
+            } else if (order.amountPaid > 0) {
+                order.paymentStatus = 'partial';
             } else {
-                state.paymentStatus = 'pending';
+                order.paymentStatus = 'pending';
             }
         },
 
-        setStoreRedux(state, action: PayloadAction<number>) {
-            state.storeId = action.payload;
+        setStatusRedux(state, action: PayloadAction<{ storeId: number; status: string }>) {
+            const { storeId, status } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.status = status;
         },
 
-        setStatusRedux(state, action: PayloadAction<string>) {
-            state.status = action.payload;
+        setInvoiceNumberRedux(state, action: PayloadAction<{ storeId: number; invoiceNumber: string }>) {
+            const { storeId, invoiceNumber } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.invoiceNumber = invoiceNumber;
         },
 
-        setInvoiceNumberRedux(state, action: PayloadAction<string>) {
-            state.invoiceNumber = action.payload;
+        setNotesRedux(state, action: PayloadAction<{ storeId: number; notes: string }>) {
+            const { storeId, notes } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            order.notes = notes;
         },
 
-        setNotesRedux(state, action: PayloadAction<string>) {
-            state.notes = action.payload;
+        resetPurchaseOrderRedux(state, action: PayloadAction<number>) {
+            const storeId = action.payload;
+            state.ordersByStore[storeId] = createEmptyOrder();
         },
 
-        resetPurchaseOrderRedux(state) {
-            return initialState;
+        resetAllPurchaseOrdersRedux(state) {
+            state.ordersByStore = {};
         },
 
-        loadPurchaseOrderRedux(state, action: PayloadAction<PurchaseOrderState>) {
-            return { ...action.payload };
+        loadPurchaseOrderRedux(state, action: PayloadAction<{ storeId: number; order: PurchaseOrderData }>) {
+            const { storeId, order } = action.payload;
+            state.ordersByStore[storeId] = order;
         },
     },
 });
@@ -234,12 +269,18 @@ export const {
     setDraftReferenceRedux,
     setPaymentStatusRedux,
     updatePaymentRedux,
-    setStoreRedux,
     setStatusRedux,
     setInvoiceNumberRedux,
     setNotesRedux,
     resetPurchaseOrderRedux,
+    resetAllPurchaseOrdersRedux,
     loadPurchaseOrderRedux,
 } = purchaseOrderSlice.actions;
+
+// Selectors
+export const selectPurchaseOrderForStore = (storeId: number | null) => (state: { purchaseOrder: PurchaseOrderState }) =>
+    storeId ? state.purchaseOrder.ordersByStore[storeId] || createEmptyOrder() : createEmptyOrder();
+
+export const selectPurchaseItemsForStore = (storeId: number | null) => (state: { purchaseOrder: PurchaseOrderState }) => storeId ? state.purchaseOrder.ordersByStore[storeId]?.items || [] : [];
 
 export default purchaseOrderSlice.reducer;

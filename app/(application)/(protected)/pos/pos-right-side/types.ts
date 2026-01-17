@@ -12,7 +12,7 @@ export interface Customer {
 }
 
 export interface CustomerApiResponse {
-    data: Customer[];
+    data: Customer[] | { items: Customer[]; pagination?: any };
 }
 
 export const MEMBERSHIP_DISCOUNTS: Record<MembershipTier, number> = {

@@ -19,7 +19,7 @@ interface Warranty {
     remaining_days: number | null;
 }
 
-interface Item {
+export interface Item {
     id: number; // Local row ID
     productId?: number; // Product ID from backend
     stockId?: number; // Stock ID for variants
@@ -46,38 +46,56 @@ interface Item {
 }
 
 interface InvoiceState {
-    items: Item[];
+    itemsByStore: { [storeId: number]: Item[] };
 }
 
 const initialState: InvoiceState = {
-    items: [],
+    itemsByStore: {},
 };
 
 const invoiceSlice = createSlice({
     name: 'invoice',
     initialState,
     reducers: {
-        setItemsRedux(state, action: PayloadAction<Item[]>) {
+        setItemsRedux(state, action: PayloadAction<{ storeId: number; items: Item[] }>) {
+            const { storeId, items } = action.payload;
+            // Ensure itemsByStore exists (handles migration from old state)
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
             // Filter out items without productId to avoid empty items
-            state.items = action.payload.filter((item) => item.productId !== undefined);
+            state.itemsByStore[storeId] = items.filter((item) => item.productId !== undefined);
         },
-        addItemRedux(state, action: PayloadAction<Item>) {
-            if (action.payload.productId !== undefined) {
+        addItemRedux(state, action: PayloadAction<{ storeId: number; item: Item }>) {
+            const { storeId, item } = action.payload;
+
+            // Ensure itemsByStore exists (handles migration from old state)
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+
+            // Initialize store items array if not exists
+            if (!state.itemsByStore[storeId]) {
+                state.itemsByStore[storeId] = [];
+            }
+
+            if (item.productId !== undefined) {
                 // For serialized products, ALWAYS add as new item (each serial is unique)
-                if (action.payload.has_serial && action.payload.serials && action.payload.serials.length > 0) {
-                    state.items.push(action.payload);
+                if (item.has_serial && item.serials && item.serials.length > 0) {
+                    state.itemsByStore[storeId].push(item);
                     return;
                 }
 
                 // For variant products, check both productId AND stockId
-                const existingItemIndex = action.payload.stockId
-                    ? state.items.findIndex((item) => item.productId === action.payload.productId && item.stockId === action.payload.stockId && !item.has_serial)
-                    : state.items.findIndex((item) => item.productId === action.payload.productId && !item.stockId && !item.has_serial);
+                const storeItems = state.itemsByStore[storeId];
+                const existingItemIndex = item.stockId
+                    ? storeItems.findIndex((i) => i.productId === item.productId && i.stockId === item.stockId && !i.has_serial)
+                    : storeItems.findIndex((i) => i.productId === item.productId && !i.stockId && !i.has_serial);
 
                 if (existingItemIndex !== -1) {
                     // Product already exists → increase quantity
-                    const existingItem = state.items[existingItemIndex];
-                    const newQuantity = existingItem.quantity + action.payload.quantity;
+                    const existingItem = storeItems[existingItemIndex];
+                    const newQuantity = existingItem.quantity + item.quantity;
 
                     // Respect available stock limit if PlaceholderQuantity exists
                     if (existingItem.PlaceholderQuantity && newQuantity > existingItem.PlaceholderQuantity) {
@@ -89,46 +107,75 @@ const invoiceSlice = createSlice({
                     existingItem.amount = existingItem.quantity * existingItem.rate;
                 } else {
                     // New product/variant → add normally
-                    state.items.push(action.payload);
+                    state.itemsByStore[storeId].push(item);
                 }
             }
         },
 
-        updateItemRedux(state, action: PayloadAction<Item>) {
-            const index = state.items.findIndex((item) => item.id === action.payload.id);
+        updateItemRedux(state, action: PayloadAction<{ storeId: number; item: Item }>) {
+            const { storeId, item } = action.payload;
+
+            // Ensure itemsByStore exists (handles migration from old state)
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+
+            if (!state.itemsByStore[storeId]) {
+                state.itemsByStore[storeId] = [];
+            }
+
+            const storeItems = state.itemsByStore[storeId];
+            const index = storeItems.findIndex((i) => i.id === item.id);
             if (index !== -1) {
                 // Update existing item
-                state.items[index] = { ...state.items[index], ...action.payload };
-            } else if (action.payload.productId !== undefined) {
+                storeItems[index] = { ...storeItems[index], ...item };
+            } else if (item.productId !== undefined) {
                 // Add new item if it doesn't exist and has a productId
-                state.items.push(action.payload);
+                state.itemsByStore[storeId].push(item);
             }
         },
-        removeItemRedux(state, action: PayloadAction<number>) {
-            state.items = state.items.filter((item) => item.id !== action.payload);
-        },
-        clearItemsRedux(state) {
-            state.items = [];
-        },
-        updateItemQuantityRedux(state, action: PayloadAction<{ id: number; quantity: number }>) {
-            const { id, quantity } = action.payload;
-            const item = state.items.find((item) => item.id === id);
-            if (item && quantity >= 0) {
-                item.quantity = quantity;
-                item.amount = item.rate * quantity;
+        removeItemRedux(state, action: PayloadAction<{ storeId: number; id: number }>) {
+            const { storeId, id } = action.payload;
+            if (state.itemsByStore && state.itemsByStore[storeId]) {
+                state.itemsByStore[storeId] = state.itemsByStore[storeId].filter((item) => item.id !== id);
             }
         },
-        updateItemRateRedux(state, action: PayloadAction<{ id: number; rate: number }>) {
-            const { id, rate } = action.payload;
-            const item = state.items.find((item) => item.id === id);
-            if (item && rate >= 0) {
-                item.rate = rate;
-                item.amount = item.quantity * rate;
+        clearItemsRedux(state, action: PayloadAction<number>) {
+            const storeId = action.payload;
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+            state.itemsByStore[storeId] = [];
+        },
+        clearAllItemsRedux(state) {
+            state.itemsByStore = {};
+        },
+        updateItemQuantityRedux(state, action: PayloadAction<{ storeId: number; id: number; quantity: number }>) {
+            const { storeId, id, quantity } = action.payload;
+            if (state.itemsByStore && state.itemsByStore[storeId]) {
+                const item = state.itemsByStore[storeId].find((i) => i.id === id);
+                if (item && quantity >= 0) {
+                    item.quantity = quantity;
+                    item.amount = item.rate * quantity;
+                }
+            }
+        },
+        updateItemRateRedux(state, action: PayloadAction<{ storeId: number; id: number; rate: number }>) {
+            const { storeId, id, rate } = action.payload;
+            if (state.itemsByStore && state.itemsByStore[storeId]) {
+                const item = state.itemsByStore[storeId].find((i) => i.id === id);
+                if (item && rate >= 0) {
+                    item.rate = rate;
+                    item.amount = item.quantity * rate;
+                }
             }
         },
     },
 });
 
-export const { setItemsRedux, addItemRedux, updateItemRedux, removeItemRedux, clearItemsRedux, updateItemQuantityRedux, updateItemRateRedux } = invoiceSlice.actions;
+export const { setItemsRedux, addItemRedux, updateItemRedux, removeItemRedux, clearItemsRedux, clearAllItemsRedux, updateItemQuantityRedux, updateItemRateRedux } = invoiceSlice.actions;
+
+// Selector to get items for a specific store
+export const selectItemsForStore = (storeId: number | null) => (state: { invoice: InvoiceState }) => storeId ? state.invoice.itemsByStore[storeId] || [] : [];
 
 export default invoiceSlice.reducer;

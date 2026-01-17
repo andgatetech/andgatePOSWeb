@@ -21,41 +21,74 @@ export interface StockAdjustmentItem {
 }
 
 interface StockAdjustmentState {
-    items: StockAdjustmentItem[];
+    itemsByStore: { [storeId: number]: StockAdjustmentItem[] };
 }
 
 const initialState: StockAdjustmentState = {
-    items: [],
+    itemsByStore: {},
 };
 
 const stockAdjustmentSlice = createSlice({
     name: 'stockAdjustment',
     initialState,
     reducers: {
-        addStockItem: (state, action: PayloadAction<StockAdjustmentItem>) => {
-            const existingItem = state.items.find((item) => item.productId === action.payload.productId && item.stockId === action.payload.stockId);
+        addStockItem: (state, action: PayloadAction<{ storeId: number; item: StockAdjustmentItem }>) => {
+            const { storeId, item } = action.payload;
+            // Ensure itemsByStore exists (handles migration from old state)
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+            if (!state.itemsByStore[storeId]) {
+                state.itemsByStore[storeId] = [];
+            }
+
+            const existingItem = state.itemsByStore[storeId].find((i) => i.productId === item.productId && i.stockId === item.stockId);
 
             if (!existingItem) {
-                state.items.push({
-                    ...action.payload,
+                state.itemsByStore[storeId].push({
+                    ...item,
                     id: Date.now() + Math.random(), // Unique ID
                 });
             }
         },
-        removeStockItem: (state, action: PayloadAction<number>) => {
-            state.items = state.items.filter((item) => item.id !== action.payload);
-        },
-        updateStockItemQuantity: (state, action: PayloadAction<{ id: number; quantity: number }>) => {
-            const item = state.items.find((item) => item.id === action.payload.id);
-            if (item) {
-                item.quantity = action.payload.quantity;
+        removeStockItem: (state, action: PayloadAction<{ storeId: number; id: number }>) => {
+            const { storeId, id } = action.payload;
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+            if (state.itemsByStore[storeId]) {
+                state.itemsByStore[storeId] = state.itemsByStore[storeId].filter((item) => item.id !== id);
             }
         },
-        clearStockItems: (state) => {
-            state.items = [];
+        updateStockItemQuantity: (state, action: PayloadAction<{ storeId: number; id: number; quantity: number }>) => {
+            const { storeId, id, quantity } = action.payload;
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+            if (state.itemsByStore[storeId]) {
+                const item = state.itemsByStore[storeId].find((i) => i.id === id);
+                if (item) {
+                    item.quantity = quantity;
+                }
+            }
+        },
+        clearStockItems: (state, action: PayloadAction<number>) => {
+            const storeId = action.payload;
+            if (!state.itemsByStore) {
+                state.itemsByStore = {};
+            }
+            state.itemsByStore[storeId] = [];
+        },
+        clearAllStockItems: (state) => {
+            state.itemsByStore = {};
         },
     },
 });
 
-export const { addStockItem, removeStockItem, updateStockItemQuantity, clearStockItems } = stockAdjustmentSlice.actions;
+export const { addStockItem, removeStockItem, updateStockItemQuantity, clearStockItems, clearAllStockItems } = stockAdjustmentSlice.actions;
+
+// Selector for getting items for a specific store
+export const selectStockItemsForStore = (storeId: number | null) => (state: { stockAdjustment: StockAdjustmentState }) =>
+    storeId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[storeId] || [] : [];
+
 export default stockAdjustmentSlice.reducer;

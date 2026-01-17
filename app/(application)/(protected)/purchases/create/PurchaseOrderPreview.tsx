@@ -14,19 +14,31 @@ interface PurchaseOrderPreviewProps {
     onClose: () => void;
 }
 
+interface PurchaseItem {
+    id: number;
+    title: string;
+    description?: string;
+    variantName?: string;
+    itemType?: string;
+    unit?: string;
+    quantity: number;
+    purchasePrice: number;
+}
+
 const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onClose }) => {
     const previewRef = useRef(null);
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
-    // Redux state
-    const purchaseItems = useSelector((state: RootState) => state.purchaseOrder.items);
-    const supplierId = useSelector((state: RootState) => state.purchaseOrder.supplierId);
-    const supplierName = useSelector((state: RootState) => state.purchaseOrder.supplierName);
-    const supplierEmail = useSelector((state: RootState) => state.purchaseOrder.supplierEmail);
-    const supplierPhone = useSelector((state: RootState) => state.purchaseOrder.supplierPhone);
-    const notes = useSelector((state: RootState) => state.purchaseOrder.notes || '');
-    const purchaseType = useSelector((state: RootState) => state.purchaseOrder.purchaseType);
+    // Redux state - per-store
+    const storeOrder = useSelector((state: RootState) => (currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId] : null));
+    const purchaseItems: PurchaseItem[] = storeOrder?.items || [];
+    const supplierId = storeOrder?.supplierId;
+    const supplierName = storeOrder?.supplier?.name || '';
+    const supplierEmail = storeOrder?.supplier?.email || '';
+    const supplierPhone = storeOrder?.supplier?.phone || '';
+    const notes = storeOrder?.notes || '';
+    const purchaseType = storeOrder?.purchaseType || 'supplier';
 
     // Fetch store details
     const { data: storeData } = useGetStoreQuery(currentStoreId ? { store_id: currentStoreId } : undefined);

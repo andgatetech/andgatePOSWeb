@@ -2,6 +2,7 @@
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
 import { useCreatePurchaseDraftMutation, useCreatePurchaseOrderMutation, useUpdatePurchaseDraftMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
@@ -37,11 +38,12 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const { currentStoreId } = useCurrentStore();
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
-    // Redux state
-    const purchaseItems = useSelector((state: RootState) => state.purchaseOrder.items);
-    const supplierId = useSelector((state: RootState) => state.purchaseOrder.supplierId);
-    const notes = useSelector((state: RootState) => state.purchaseOrder.notes || '');
-    const purchaseType = useSelector((state: RootState) => state.purchaseOrder.purchaseType);
+    // Redux state - per-store
+    const storeOrder = useSelector((state: RootState) => (currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId] : null));
+    const purchaseItems = storeOrder?.items || [];
+    const supplierId = storeOrder?.supplierId;
+    const notes = storeOrder?.notes || '';
+    const purchaseType = storeOrder?.purchaseType || 'supplier';
 
     // Local state
     const [supplierSearch, setSupplierSearch] = useState('');
@@ -120,13 +122,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         setSelectedSupplier(supplier);
         setSupplierSearch(supplier.name);
         setShowSupplierResults(false);
+        if (!currentStoreId) return;
         dispatch(
             setSupplierDetailsRedux({
-                id: supplier.id,
-                name: supplier.name,
-                email: supplier.email,
-                phone: supplier.phone,
-                contact_person: supplier.contact_person,
+                storeId: currentStoreId,
+                supplier: {
+                    id: supplier.id,
+                    name: supplier.name,
+                    email: supplier.email,
+                    phone: supplier.phone,
+                    contact_person: supplier.contact_person,
+                },
             })
         );
     };
@@ -139,19 +145,20 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     // Item management
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeItemRedux(itemId));
+        if (!currentStoreId) return;
+        dispatch(removeItemRedux({ storeId: currentStoreId, id: itemId }));
     };
 
     const handleQuantityChange = (itemId: number, value: string) => {
         const quantity = parseFloat(value) || 0;
-        if (quantity < 0) return;
-        dispatch(updateItemQuantityRedux({ id: itemId, quantity }));
+        if (quantity < 0 || !currentStoreId) return;
+        dispatch(updateItemQuantityRedux({ storeId: currentStoreId, id: itemId, quantity }));
     };
 
     const handlePurchasePriceChange = (itemId: number, value: string) => {
         const price = parseFloat(value) || 0;
-        if (price < 0) return;
-        dispatch(updateItemPurchasePriceRedux({ id: itemId, purchasePrice: price }));
+        if (price < 0 || !currentStoreId) return;
+        dispatch(updateItemPurchasePriceRedux({ storeId: currentStoreId, id: itemId, purchasePrice: price }));
     };
 
     // Add new product (not in inventory)
@@ -185,8 +192,12 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             status: 'ordered',
         };
 
-        // ✅ Fixed: Use the imported action
-        dispatch(addItemRedux(newItem));
+        // ✅ Fixed: Use the imported action with storeId
+        if (!currentStoreId) {
+            showMessage('Please select a store', 'error');
+            return;
+        }
+        dispatch(addItemRedux({ storeId: currentStoreId, item: newItem }));
         setNewProductName('');
         setNewProductDescription('');
         setNewProductQty(1);
@@ -299,8 +310,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = '/purchases/list';
-                } else if (!isEditMode) {
-                    dispatch(resetPurchaseOrderRedux());
+                } else if (!isEditMode && currentStoreId) {
+                    dispatch(resetPurchaseOrderRedux(currentStoreId));
                     clearSupplierSelection();
                 }
             });
@@ -418,8 +429,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = '/purchases/list';
-                } else {
-                    dispatch(resetPurchaseOrderRedux());
+                } else if (currentStoreId) {
+                    dispatch(resetPurchaseOrderRedux(currentStoreId));
                     clearSupplierSelection();
                 }
             });
@@ -447,9 +458,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         }
     };
 
-    const clearAllItems = () => {
-        if (window.confirm('Are you sure you want to clear all items?')) {
-            dispatch(clearItemsRedux());
+    const clearAllItems = async () => {
+        const confirmed = await showConfirmDialog('Clear All Items?', 'This will remove all items from your purchase order.', 'Yes, Clear All', 'Cancel', true, 'All items cleared successfully!');
+
+        if (confirmed && currentStoreId) {
+            dispatch(clearItemsRedux(currentStoreId));
         }
     };
 
@@ -468,7 +481,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 purchaseType === 'supplier' ? 'border-primary bg-primary text-white' : 'border-gray-300 hover:border-primary'
                             }`}
                             onClick={() => {
-                                dispatch(setPurchaseTypeRedux('supplier'));
+                                if (!currentStoreId) return;
+                                dispatch(setPurchaseTypeRedux({ storeId: currentStoreId, purchaseType: 'supplier' }));
                                 if (purchaseType === 'walk_in') {
                                     clearSupplierSelection();
                                 }
@@ -482,7 +496,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 purchaseType === 'walk_in' ? 'border-primary bg-primary text-white' : 'border-gray-300 hover:border-primary'
                             }`}
                             onClick={() => {
-                                dispatch(setPurchaseTypeRedux('walk_in'));
+                                if (!currentStoreId) return;
+                                dispatch(setPurchaseTypeRedux({ storeId: currentStoreId, purchaseType: 'walk_in' }));
                                 clearSupplierSelection();
                             }}
                         >
@@ -777,7 +792,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 {/* Notes */}
                 <div className="mb-6">
                     <label className="mb-2 block font-semibold">Notes</label>
-                    <textarea className="form-textarea" rows={3} placeholder="Add notes for this purchase order..." value={notes} onChange={(e) => dispatch(setNotesRedux(e.target.value))} />
+                    <textarea
+                        className="form-textarea"
+                        rows={3}
+                        placeholder="Add notes for this purchase order..."
+                        value={notes}
+                        onChange={(e) => currentStoreId && dispatch(setNotesRedux({ storeId: currentStoreId, notes: e.target.value }))}
+                    />
                 </div>
 
                 {/* Total */}

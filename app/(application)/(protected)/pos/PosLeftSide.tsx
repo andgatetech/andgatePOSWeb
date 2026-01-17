@@ -173,20 +173,21 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         return brandsResponse?.data || [];
     }, [brandsResponse]);
 
-    // Select Redux items based on the slice prop
+    // Select Redux items based on the slice prop and current store
+    // Select Redux items based on the slice prop and current store
     const reduxItems = useSelector((state: RootState) => {
         switch (reduxSlice) {
             case 'stock':
-                return state.stockAdjustment.items;
+                return currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || [] : [];
             case 'label':
-                return state.label.items;
+                return currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || [] : [];
             case 'orderEdit':
-                return state.orderEdit.items;
+                return currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : [];
             case 'purchase':
-                return state.purchaseOrder.items;
+                return currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId]?.items || [] : [];
             case 'pos':
             default:
-                return state.invoice.items;
+                return currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || [] : [];
         }
     });
 
@@ -327,32 +328,40 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 warranty: product.has_warranty && product.warranties && product.warranties.length > 0 ? product.warranties[0] : null,
             };
 
-            // Dispatch to appropriate Redux slice
+            // Dispatch to appropriate Redux slice with storeId
+            if (!currentStoreId) {
+                showMessage('No store selected!', 'error');
+                return;
+            }
+
             switch (reduxSlice) {
                 case 'stock':
-                    dispatch(addStockItem(itemToAdd));
+                    dispatch(addStockItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'label':
-                    dispatch(addLabelItem(itemToAdd));
+                    dispatch(addLabelItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'orderEdit':
-                    dispatch(addOrderEditItem(itemToAdd));
+                    dispatch(addOrderEditItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'purchase':
                     dispatch(
                         addPurchaseItem({
-                            ...itemToAdd,
-                            itemType: 'existing',
-                            productStockId: primaryStock?.id,
-                            purchasePrice: productPurchasePrice,
-                            amount: productPurchasePrice * 1,
-                            variantData: {},
+                            storeId: currentStoreId,
+                            item: {
+                                ...itemToAdd,
+                                itemType: 'existing',
+                                productStockId: primaryStock?.id,
+                                purchasePrice: productPurchasePrice,
+                                amount: productPurchasePrice * 1,
+                                variantData: {},
+                            },
                         })
                     );
                     break;
                 case 'pos':
                 default:
-                    dispatch(addItemRedux(itemToAdd));
+                    dispatch(addItemRedux({ storeId: currentStoreId, item: itemToAdd }));
                     break;
             }
 
@@ -364,7 +373,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             setCurrentPage(1);
         },
-        [reduxItems, dispatch, disableSerialSelection, reduxSlice]
+        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
     );
 
     // Handle variant selection from modal
@@ -443,31 +452,39 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 warranty: variantWarranty,
             };
 
-            // Dispatch to appropriate Redux slice
+            // Dispatch to appropriate Redux slice with storeId
+            if (!currentStoreId) {
+                showMessage('No store selected!', 'error');
+                return;
+            }
+
             switch (reduxSlice) {
                 case 'stock':
-                    dispatch(addStockItem(itemToAdd));
+                    dispatch(addStockItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'label':
-                    dispatch(addLabelItem(itemToAdd));
+                    dispatch(addLabelItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'orderEdit':
-                    dispatch(addOrderEditItem(itemToAdd));
+                    dispatch(addOrderEditItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'purchase':
                     dispatch(
                         addPurchaseItem({
-                            ...itemToAdd,
-                            itemType: 'existing',
-                            productStockId: variant.id,
-                            purchasePrice: variantPurchasePrice,
-                            amount: variantPurchasePrice * quantity,
+                            storeId: currentStoreId,
+                            item: {
+                                ...itemToAdd,
+                                itemType: 'existing',
+                                productStockId: variant.id,
+                                purchasePrice: variantPurchasePrice,
+                                amount: variantPurchasePrice * quantity,
+                            },
                         })
                     );
                     break;
                 case 'pos':
                 default:
-                    dispatch(addItemRedux(itemToAdd));
+                    dispatch(addItemRedux({ storeId: currentStoreId, item: itemToAdd }));
                     break;
             }
 
@@ -479,7 +496,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             setCurrentPage(1);
         },
-        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice]
+        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
     );
 
     // Handle serial selection from modal
@@ -528,31 +545,36 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
                 console.log(`📦 Adding item #${index + 1} with serial: ${serial.serial_number}, ID: ${uniqueId}`);
 
-                // Dispatch to appropriate Redux slice
+                // Dispatch to appropriate Redux slice with storeId
+                if (!currentStoreId) return;
+
                 switch (reduxSlice) {
                     case 'stock':
-                        dispatch(addStockItem(itemToAdd));
+                        dispatch(addStockItem({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                     case 'label':
-                        dispatch(addLabelItem(itemToAdd));
+                        dispatch(addLabelItem({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                     case 'orderEdit':
-                        dispatch(addOrderEditItem(itemToAdd));
+                        dispatch(addOrderEditItem({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                     case 'purchase':
                         dispatch(
                             addPurchaseItem({
-                                ...itemToAdd,
-                                itemType: 'existing',
-                                productStockId: serialStock?.id,
-                                purchasePrice: serialPurchasePrice,
-                                amount: serialPurchasePrice * 1,
+                                storeId: currentStoreId,
+                                item: {
+                                    ...itemToAdd,
+                                    itemType: 'existing',
+                                    productStockId: serialStock?.id,
+                                    purchasePrice: serialPurchasePrice,
+                                    amount: serialPurchasePrice * 1,
+                                },
                             })
                         );
                         break;
                     case 'pos':
                     default:
-                        dispatch(addItemRedux(itemToAdd));
+                        dispatch(addItemRedux({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                 }
             });
@@ -575,7 +597,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSerialProduct(null);
             setSerialStock(null);
         },
-        [serialProduct, serialStock, dispatch, reduxSlice]
+        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId]
     );
 
     const handleSearchChange = useCallback(

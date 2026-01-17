@@ -35,7 +35,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     const dispatch = useDispatch();
     const { currentStoreId, currentStore } = useCurrentStore();
 
-    const invoiceItems = useSelector((state: RootState) => state.orderEdit.items);
+    const invoiceItems = useSelector((state: RootState) => (currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : []));
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
     const searchInputRef = useRef<HTMLDivElement | null>(null);
@@ -379,7 +379,8 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     }, []);
 
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeItemRedux(itemId));
+        if (!currentStoreId) return;
+        dispatch(removeItemRedux({ storeId: currentStoreId, id: itemId }));
     };
 
     const handleItemWholesaleToggle = (itemId: number) => {
@@ -389,12 +390,16 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         const newIsWholesale = !item.isWholesale;
         const newRate = newIsWholesale ? item.wholesalePrice || item.regularPrice || item.rate : item.regularPrice || item.rate;
 
+        if (!currentStoreId) return;
         dispatch(
             updateItemRedux({
-                ...item,
-                isWholesale: newIsWholesale,
-                rate: newRate,
-                amount: item.quantity * newRate,
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    isWholesale: newIsWholesale,
+                    rate: newRate,
+                    amount: item.quantity * newRate,
+                },
             })
         );
     };
@@ -404,7 +409,8 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         if (!item) return;
 
         if (value === '') {
-            dispatch(updateItemRedux({ ...item, quantity: 0, amount: 0 }));
+            if (!currentStoreId) return;
+            dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, quantity: 0, amount: 0 } }));
             return;
         }
 
@@ -417,11 +423,15 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             return;
         }
 
+        if (!currentStoreId) return;
         dispatch(
             updateItemRedux({
-                ...item,
-                quantity: newQuantity,
-                amount: item.rate * newQuantity,
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    quantity: newQuantity,
+                    amount: item.rate * newQuantity,
+                },
             })
         );
     };
@@ -431,11 +441,15 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         if (!item) return;
 
         if (item.quantity === 0) {
+            if (!currentStoreId) return;
             dispatch(
                 updateItemRedux({
-                    ...item,
-                    quantity: 1,
-                    amount: item.rate * 1,
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        quantity: 1,
+                        amount: item.rate * 1,
+                    },
                 })
             );
         }
@@ -446,18 +460,23 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         if (!item) return;
 
         if (value === '') {
-            dispatch(updateItemRedux({ ...item, rate: 0, amount: 0 }));
+            if (!currentStoreId) return;
+            dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, rate: 0, amount: 0 } }));
             return;
         }
 
         const newRate = Number(value);
         if (Number.isNaN(newRate) || newRate < 0) return;
 
+        if (!currentStoreId) return;
         dispatch(
             updateItemRedux({
-                ...item,
-                rate: newRate,
-                amount: item.quantity * newRate,
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    rate: newRate,
+                    amount: item.quantity * newRate,
+                },
             })
         );
     };
@@ -467,11 +486,15 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         if (!item) return;
 
         if (item.quantity === 0) {
+            if (!currentStoreId) return;
             dispatch(
                 updateItemRedux({
-                    ...item,
-                    quantity: 1,
-                    amount: item.rate * 1,
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        quantity: 1,
+                        amount: item.rate * 1,
+                    },
                 })
             );
         }
@@ -565,8 +588,8 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
     const clearAllItems = async () => {
         const confirmed = await showConfirmDialog('Clear Cart?', 'Are you sure you want to clear all items?', 'Yes, clear all', 'Cancel', false);
-        if (confirmed) {
-            dispatch(clearItemsRedux());
+        if (confirmed && currentStoreId) {
+            dispatch(clearItemsRedux(currentStoreId));
         }
     };
 

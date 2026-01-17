@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateStockAdjustmentMutation, useUpdateSerialStatusMutation } from '@/store/features/Product/productApi';
-import { clearStockItems, removeStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+import { clearStockItems, removeStockItem, updateStockItemQuantity } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { useCreateProductSerialsMutation } from '@/store/features/warrenty/ProductSerialApi';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,8 +27,9 @@ import GlobalSettings from './GlobalSettings';
  */
 const StockAdjustment = () => {
     const dispatch = useDispatch();
-    const { currentStore } = useCurrentStore();
-    const cartItems = useSelector((state: RootState) => state.stockAdjustment.items);
+    const { currentStore, currentStoreId } = useCurrentStore();
+    // Use per-store items
+    const cartItems = useSelector((state: RootState) => (currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || [] : []));
     const [createStockAdjustment, { isLoading: isSaving }] = useCreateStockAdjustmentMutation();
     const [updateSerialStatus] = useUpdateSerialStatusMutation();
     const [createProductSerials] = useCreateProductSerialsMutation();
@@ -76,14 +77,15 @@ const StockAdjustment = () => {
 
     // Remove item from cart
     const handleRemoveItem = (itemId: number) => {
-        dispatch(removeStockItem(itemId));
+        if (!currentStoreId) return;
+        dispatch(removeStockItem({ storeId: currentStoreId, id: itemId }));
         setAdjustments((prev) => prev.filter((a) => a.itemId !== itemId));
     };
 
     // Update item quantity in cart
     const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
-        if (newQuantity < 1) return;
-        dispatch(updateItemQuantityRedux({ id: itemId, quantity: newQuantity }));
+        if (newQuantity < 1 || !currentStoreId) return;
+        dispatch(updateStockItemQuantity({ storeId: currentStoreId, id: itemId, quantity: newQuantity }));
     };
 
     // Clear all adjustments
@@ -92,8 +94,8 @@ const StockAdjustment = () => {
 
         const confirmed = await showConfirmDialog('Clear All Items?', 'Are you sure you want to remove all items from stock adjustment?', 'Yes, clear all!');
 
-        if (confirmed) {
-            dispatch(clearStockItems());
+        if (confirmed && currentStoreId) {
+            dispatch(clearStockItems(currentStoreId));
             setAdjustments([]);
             setGlobalReason('');
             setGlobalNotes('');
@@ -228,7 +230,9 @@ const StockAdjustment = () => {
             showSuccessDialog('Success!', 'Stock adjustments saved successfully');
 
             // Clear all after successful save
-            dispatch(clearStockItems());
+            if (currentStoreId) {
+                dispatch(clearStockItems(currentStoreId));
+            }
             setAdjustments([]);
             setGlobalReason('');
             setGlobalNotes('');

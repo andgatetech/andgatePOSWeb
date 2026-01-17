@@ -49,35 +49,63 @@ interface Item {
     has_warranty?: boolean; // Flag from backend
 }
 
-interface OrderEditState {
+// Per-store session state
+interface OrderEditSession {
     items: Item[];
     orderId: number | null;
     originalOrder: any | null; // Store original order data
 }
 
-const initialState: OrderEditState = {
+interface OrderEditState {
+    sessionsByStore: { [storeId: number]: OrderEditSession };
+}
+
+const createEmptySession = (): OrderEditSession => ({
     items: [],
     orderId: null,
     originalOrder: null,
+});
+
+const initialState: OrderEditState = {
+    sessionsByStore: {},
+};
+
+// Helper to get or create session
+const getStoreSession = (state: OrderEditState, storeId: number): OrderEditSession => {
+    // Ensure sessionsByStore exists (migration)
+    if (!state.sessionsByStore) {
+        state.sessionsByStore = {};
+    }
+    if (!state.sessionsByStore[storeId]) {
+        state.sessionsByStore[storeId] = createEmptySession();
+    }
+    return state.sessionsByStore[storeId];
 };
 
 const orderEditSlice = createSlice({
     name: 'orderEdit',
     initialState,
     reducers: {
-        setOrderData(state, action: PayloadAction<{ orderId: number; order: any }>) {
-            state.orderId = action.payload.orderId;
-            state.originalOrder = action.payload.order;
+        setOrderData(state, action: PayloadAction<{ storeId: number; orderId: number; order: any }>) {
+            const { storeId, orderId, order } = action.payload;
+            const session = getStoreSession(state, storeId);
+            session.orderId = orderId;
+            session.originalOrder = order;
         },
-        setItemsRedux(state, action: PayloadAction<Item[]>) {
+        setItemsRedux(state, action: PayloadAction<{ storeId: number; items: Item[] }>) {
+            const { storeId, items } = action.payload;
+            const session = getStoreSession(state, storeId);
             // Filter out items without productId to avoid empty items
-            state.items = action.payload.filter((item) => item.productId !== undefined);
+            session.items = items.filter((item) => item.productId !== undefined);
         },
-        addItemRedux(state, action: PayloadAction<Item>) {
-            if (action.payload.productId !== undefined) {
+        addItemRedux(state, action: PayloadAction<{ storeId: number; item: Item }>) {
+            const { storeId, item } = action.payload;
+            const session = getStoreSession(state, storeId);
+
+            if (item.productId !== undefined) {
                 // For serialized products, ALWAYS add as new item (each serial is unique)
-                if (action.payload.has_serial && action.payload.serials && action.payload.serials.length > 0) {
-                    state.items.push(action.payload);
+                if (item.has_serial && item.serials && item.serials.length > 0) {
+                    session.items.push(item);
                     return;
                 }
 
@@ -85,32 +113,32 @@ const orderEditSlice = createSlice({
                 // For products without stockId (e.g., loaded from DB), match by productId only
                 let existingItemIndex = -1;
 
-                if (action.payload.stockId) {
+                if (item.stockId) {
                     // New item has stockId - try to find exact match first
-                    existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId && item.stockId === action.payload.stockId && !item.has_serial);
+                    existingItemIndex = session.items.findIndex((i) => i.productId === item.productId && i.stockId === item.stockId && !i.has_serial);
 
                     // If no exact match, try to find item with same productId but no stockId (from DB)
                     if (existingItemIndex === -1) {
-                        existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId && !item.stockId && !item.has_serial);
+                        existingItemIndex = session.items.findIndex((i) => i.productId === item.productId && !i.stockId && !i.has_serial);
 
                         // If found, update the stockId of existing item to match new stockId
                         if (existingItemIndex !== -1) {
-                            state.items[existingItemIndex].stockId = action.payload.stockId;
+                            session.items[existingItemIndex].stockId = item.stockId;
                             // Also update PlaceholderQuantity and other stock-related fields
-                            if (action.payload.PlaceholderQuantity) {
-                                state.items[existingItemIndex].PlaceholderQuantity = action.payload.PlaceholderQuantity;
+                            if (item.PlaceholderQuantity) {
+                                session.items[existingItemIndex].PlaceholderQuantity = item.PlaceholderQuantity;
                             }
                         }
                     }
                 } else {
                     // New item has no stockId - find by productId only
-                    existingItemIndex = state.items.findIndex((item) => item.productId === action.payload.productId && !item.stockId && !item.has_serial);
+                    existingItemIndex = session.items.findIndex((i) => i.productId === item.productId && !i.stockId && !i.has_serial);
                 }
 
                 if (existingItemIndex !== -1) {
                     // Product already exists → increase quantity
-                    const existingItem = state.items[existingItemIndex];
-                    const newQuantity = existingItem.quantity + action.payload.quantity;
+                    const existingItem = session.items[existingItemIndex];
+                    const newQuantity = existingItem.quantity + item.quantity;
 
                     // Respect available stock limit if PlaceholderQuantity exists
                     if (existingItem.PlaceholderQuantity && newQuantity > existingItem.PlaceholderQuantity) {
@@ -122,40 +150,50 @@ const orderEditSlice = createSlice({
                     existingItem.amount = existingItem.quantity * existingItem.rate;
                 } else {
                     // New product/variant → add normally
-                    state.items.push(action.payload);
+                    session.items.push(item);
                 }
             }
         },
 
-        updateItemRedux(state, action: PayloadAction<Item>) {
-            const index = state.items.findIndex((item) => item.id === action.payload.id);
+        updateItemRedux(state, action: PayloadAction<{ storeId: number; item: Item }>) {
+            const { storeId, item } = action.payload;
+            const session = getStoreSession(state, storeId);
+
+            const index = session.items.findIndex((i) => i.id === item.id);
             if (index !== -1) {
                 // Update existing item
-                state.items[index] = { ...state.items[index], ...action.payload };
-            } else if (action.payload.productId !== undefined) {
+                session.items[index] = { ...session.items[index], ...item };
+            } else if (item.productId !== undefined) {
                 // Add new item if it doesn't exist and has a productId
-                state.items.push(action.payload);
+                session.items.push(item);
             }
         },
-        removeItemRedux(state, action: PayloadAction<number>) {
-            state.items = state.items.filter((item) => item.id !== action.payload);
+        removeItemRedux(state, action: PayloadAction<{ storeId: number; id: number }>) {
+            const { storeId, id } = action.payload;
+            const session = getStoreSession(state, storeId);
+            session.items = session.items.filter((item) => item.id !== id);
         },
-        clearItemsRedux(state) {
-            state.items = [];
-            state.orderId = null;
-            state.originalOrder = null;
+        clearItemsRedux(state, action: PayloadAction<number>) {
+            const storeId = action.payload;
+            // Careful: we might want to clear session completely or just reset it
+            const session = getStoreSession(state, storeId);
+            session.items = [];
+            session.orderId = null;
+            session.originalOrder = null;
         },
-        updateItemQuantityRedux(state, action: PayloadAction<{ id: number; quantity: number }>) {
-            const { id, quantity } = action.payload;
-            const item = state.items.find((item) => item.id === id);
+        updateItemQuantityRedux(state, action: PayloadAction<{ storeId: number; id: number; quantity: number }>) {
+            const { storeId, id, quantity } = action.payload;
+            const session = getStoreSession(state, storeId);
+            const item = session.items.find((i) => i.id === id);
             if (item && quantity >= 0) {
                 item.quantity = quantity;
                 item.amount = item.rate * quantity;
             }
         },
-        updateItemRateRedux(state, action: PayloadAction<{ id: number; rate: number }>) {
-            const { id, rate } = action.payload;
-            const item = state.items.find((item) => item.id === id);
+        updateItemRateRedux(state, action: PayloadAction<{ storeId: number; id: number; rate: number }>) {
+            const { storeId, id, rate } = action.payload;
+            const session = getStoreSession(state, storeId);
+            const item = session.items.find((i) => i.id === id);
             if (item && rate >= 0) {
                 item.rate = rate;
                 item.amount = item.quantity * rate;
@@ -165,5 +203,11 @@ const orderEditSlice = createSlice({
 });
 
 export const { setOrderData, setItemsRedux, addItemRedux, updateItemRedux, removeItemRedux, clearItemsRedux, updateItemQuantityRedux, updateItemRateRedux } = orderEditSlice.actions;
+
+// Selectors
+export const selectOrderEditSession = (storeId: number | null) => (state: { orderEdit: OrderEditState }) =>
+    storeId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[storeId] || createEmptySession() : createEmptySession();
+
+export const selectOrderEditItems = (storeId: number | null) => (state: { orderEdit: OrderEditState }) => selectOrderEditSession(storeId)(state).items;
 
 export default orderEditSlice.reducer;

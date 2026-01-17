@@ -10,8 +10,9 @@ import IconUser from '@/components/icon/icon-user';
 import IconXCircle from '@/components/icon/icon-x-circle';
 
 import { getTranslation } from '@/i18n';
-import { IRootState } from '@/store';
+import { IRootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
+import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
@@ -38,6 +39,13 @@ const Header = () => {
         } catch (err) {
             console.error('Logout API failed:', err);
         }
+
+        // Clear Redux state
+        dispatch(logoutAction());
+
+        // Purge all persisted Redux state
+        await persistor.purge();
+        console.log('🧹 Cleared all persisted Redux state');
 
         localStorage.clear();
         sessionStorage.clear();
