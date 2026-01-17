@@ -399,10 +399,7 @@ export default function SectionFour() {
                         </table>
                     </div>
 
-                    {/* Settings FAB */}
-                    <button className="text-primary-foreground absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary shadow-lg transition-all hover:scale-105 hover:shadow-xl">
-                        <Settings className="h-5 w-5" />
-                    </button>
+
                 </div>
             </motion.div>
         </motion.div>

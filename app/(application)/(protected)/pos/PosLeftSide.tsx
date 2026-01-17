@@ -371,7 +371,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSearchTerm('');
             setSelectedCategory(null);
             setSelectedBrand(null);
-            setCurrentPage(1);
+            // currentPage maintained
         },
         [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
     );
@@ -494,7 +494,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSearchTerm('');
             setSelectedCategory(null);
             setSelectedBrand(null);
-            setCurrentPage(1);
+            // currentPage maintained
         },
         [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
     );
@@ -590,7 +590,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSearchTerm('');
             setSelectedCategory(null);
             setSelectedBrand(null);
-            setCurrentPage(1);
+            // currentPage maintained
 
             // Close modal and reset state
             setSerialModalOpen(false);
@@ -907,7 +907,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         <CameraScanner isOpen={showCameraScanner} onClose={() => setShowCameraScanner(false)} />
 
                         <ProductGrid products={currentProducts} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={addToCart} onImageShow={handleImageShow} />
+                    </div>
 
+                    {/* Fixed Pagination Footer */}
+                    <div className="border-t border-gray-200 bg-white">
                         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </div>
                 </div>
