@@ -37,7 +37,8 @@ const SalesItemsReportPage = () => {
             lastQueryParams.current = queryString;
             getSalesItemsReport(queryParams);
         }
-    }, [queryParams, currentStoreId, apiParams, getSalesItemsReport]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [queryParams]);
 
     const items = useMemo(() => reportData?.data?.items || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);

@@ -31,15 +31,21 @@ const CustomerReportPage = () => {
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
     useEffect(() => {
-        const queryString = JSON.stringify(queryParams);
-        if (lastQueryParams.current === queryString) return;
-        if (currentStoreId || apiParams.store_id || apiParams.store_ids) {
-            lastQueryParams.current = queryString;
-            getCustomerReport(queryParams);
-        }
-    }, [queryParams, currentStoreId, apiParams.store_id, apiParams.store_ids, getCustomerReport]);
+        const timeoutId = setTimeout(() => {
+            const queryString = JSON.stringify(queryParams);
+            if (lastQueryParams.current === queryString) return;
 
-    const customers = useMemo(() => reportData?.data?.customers || [], [reportData]);
+            if (currentStoreId || apiParams.store_id || apiParams.store_ids) {
+                lastQueryParams.current = queryString;
+                getCustomerReport(queryParams);
+            }
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [queryParams]);
+
+    const customers = useMemo(() => reportData?.data?.pos_customers || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
@@ -69,7 +75,7 @@ const CustomerReportPage = () => {
         if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
         try {
             const result = await getCustomerReportForExport(exportParams).unwrap();
-            return result?.data?.customers || [];
+            return result?.data?.pos_customers || [];
         } catch (error) {
             console.error('Failed to fetch export data:', error);
             return customers;

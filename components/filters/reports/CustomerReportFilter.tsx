@@ -12,16 +12,17 @@ interface CustomerReportFilterProps {
 
 const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterChange }) => {
     const { userStores } = useCurrentStore();
-    const { filters, handleFilterChange, buildApiParams } = useUniversalFilter({
-        initialFilters: {
-            customFilters: { only_due: false },
-        },
-    });
+    const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
+    const [isOnlyDue, setIsOnlyDue] = React.useState(false);
 
     const stableOnFilterChange = React.useCallback(onFilterChange, []);
 
     React.useEffect(() => {
         const additionalParams: Record<string, any> = {};
+
+        if (isOnlyDue) {
+            additionalParams.only_due = true;
+        }
 
         if (filters.storeId === 'all') {
             const allStoreIds = userStores.map((store: any) => store.id);
@@ -35,29 +36,22 @@ const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterCha
         const apiParams = buildApiParams(additionalParams);
         stableOnFilterChange(apiParams);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, buildApiParams, userStores]);
+    }, [filters, isOnlyDue, userStores]);
 
     const handleDueToggle = useCallback(() => {
-        const isOnlyDue = filters.customFilters?.only_due || false;
-        handleFilterChange({
-            ...filters,
-            customFilters: {
-                ...filters.customFilters,
-                only_due: !isOnlyDue,
-            },
-        });
-    }, [filters, handleFilterChange]);
+        setIsOnlyDue((prev) => !prev);
+    }, []);
 
     const customFiltersSlot = (
         <div className="flex items-center gap-2">
             <button
                 onClick={handleDueToggle}
                 className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                    filters.customFilters?.only_due ? 'border-red-600 bg-red-50 text-red-600 shadow-sm' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    isOnlyDue ? 'border-red-600 bg-red-50 text-red-600 shadow-sm' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                 }`}
             >
-                <CircleAlert className={`h-4 w-4 ${filters.customFilters?.only_due ? 'text-red-600' : 'text-gray-400'}`} />
-                {filters.customFilters?.only_due ? 'Only Dues Active' : 'Filter Only Due'}
+                <CircleAlert className={`h-4 w-4 ${isOnlyDue ? 'text-red-600' : 'text-gray-400'}`} />
+                {isOnlyDue ? 'Only Dues Active' : 'Filter Only Due'}
             </button>
         </div>
     );
