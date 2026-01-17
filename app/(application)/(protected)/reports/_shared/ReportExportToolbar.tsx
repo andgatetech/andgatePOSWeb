@@ -165,7 +165,12 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const getTotals = useCallback(
         (exportData: any[]) => {
             const totals: Record<string, number> = {};
+            const skippedKeys = ['invoice', 'date', 'created_at', 'status', 'payment', 'customer', 'user', 'id', 'name', 'email', 'phone'];
+
             columns.forEach((col) => {
+                // Skip columns that shouldn't be summed
+                if (skippedKeys.some((key) => col.key.toLowerCase().includes(key))) return;
+
                 const values = exportData.map((row) => {
                     const val = row[col.key];
                     return typeof val === 'number' ? val : parseFloat(String(val).replace(/[^\d.-]/g, '')) || 0;
@@ -219,41 +224,44 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const generatePdfDocument = useCallback(
         async (forPrint: boolean = false) => {
             const exportData = await getExportData();
-            const isLandscape = columns.length > 5;
+            // Force landscape if many columns (e.g. > 6)
+            const isLandscape = columns.length > 6;
             const doc = new jsPDF({ orientation: isLandscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
 
             const pageWidth = doc.internal.pageSize.getWidth();
-            const tableWidth = pageWidth - 28;
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 14;
+            const tableWidth = pageWidth - margin * 2;
             let yPos = 12;
 
             // === HEADER SECTION ===
             // Left side: Store Details
-            doc.setFontSize(16);
+            doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(30);
-            doc.text(sanitizeForPdf(storeDetails.name), 14, yPos);
+            doc.text(sanitizeForPdf(storeDetails.name), margin, yPos);
             yPos += 5;
 
             doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
             if (storeDetails.contact) {
-                doc.text(`Phone: ${storeDetails.contact}`, 14, yPos);
+                doc.text(`Phone: ${storeDetails.contact}`, margin, yPos);
                 yPos += 4;
             }
             if (storeDetails.location) {
-                doc.text(`Address: ${sanitizeForPdf(storeDetails.location)}`, 14, yPos);
+                doc.text(`Address: ${sanitizeForPdf(storeDetails.location)}`, margin, yPos);
                 yPos += 4;
             }
 
             // Right side: Report Info (at same height as store name)
-            const rightX = pageWidth - 14;
-            doc.setFontSize(14);
+            const rightX = pageWidth - margin;
+            doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(59, 130, 246);
             doc.text(reportTitle, rightX, 12, { align: 'right' });
 
-            doc.setFontSize(9);
+            doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
             doc.text(`Period: ${dateDisplayText}`, rightX, 17, { align: 'right' });
@@ -272,7 +280,8 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             // Divider line
             yPos += 3;
             doc.setDrawColor(200);
-            doc.line(14, yPos, pageWidth - 14, yPos);
+            doc.setLineWidth(0.1);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
             yPos += 6;
 
             // Summary section
@@ -280,13 +289,19 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 doc.setFontSize(9);
                 doc.setTextColor(60);
                 const summaryText = summary.map((s) => `${s.label}: ${sanitizeForPdf(String(s.value))}`).join('   |   ');
-                doc.text(summaryText, 14, yPos);
-                yPos += 8;
+
+                // Wrap text if too long
+                const splitTitle = doc.splitTextToSize(summaryText, tableWidth);
+                doc.text(splitTitle, margin, yPos);
+                yPos += splitTitle.length * 4 + 4;
             }
 
-            // Table data
-            const tableData = exportData.map((row) =>
+            // Table data transformation
+            const tableData = exportData.map((row, index) =>
                 columns.map((col) => {
+                    // Special handling for serial number if key matches
+                    if (col.key === 'serial' || col.label === '#') return String(index + 1);
+
                     const value = row[col.key];
                     const formatted = col.format ? col.format(value, row) : String(value ?? '');
                     return sanitizeForPdf(formatted);
@@ -297,55 +312,86 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const totals = getTotals(exportData);
             if (Object.keys(totals).length > 0) {
                 const totalRow = columns.map((col, idx) => {
-                    if (idx === 0) return 'TOTAL:';
-                    return totals[col.label] !== undefined ? `${code} ${totals[col.label].toLocaleString()}` : '';
+                    if (idx === 0) return 'TOTAL';
+                    if (col.key === 'serial' || col.label === '#') return '';
+                    // Only show total if the column was calculated in getTotals
+                    return totals[col.label] !== undefined ? `${totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
                 });
                 tableData.push(totalRow);
             }
 
-            // Calculate column widths
-            const colCount = columns.length;
-            const defaultColWidth = tableWidth / colCount;
+            // Calculate exact column widths based on weights or defaults
+            // If width is provided in ExportColumn, treat it as a weight (e.g. 15, 20 etc)
+            const totalWeight = columns.reduce((sum, col) => sum + (col.width || 10), 0);
+
+            const columnStyles = columns.reduce((acc, col, idx) => {
+                const weight = col.width || 10;
+                // Calculate proportional width: (weight / totalWeight) * usableTableWidth
+                const proportionalWidth = (weight / totalWeight) * tableWidth;
+
+                acc[idx] = {
+                    cellWidth: proportionalWidth,
+                    halign: ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some((k) => col.key.includes(k) || col.label.toLowerCase().includes(k)) ? 'right' : 'left',
+                };
+                return acc;
+            }, {} as Record<number, { cellWidth: number; halign: 'left' | 'right' | 'center' }>);
+
+            // Dynamically adjust font size based on column count to fit width
+            const fontSize = columns.length > 10 ? 6 : columns.length > 8 ? 7 : 8;
 
             autoTable(doc, {
                 startY: yPos,
                 head: [columns.map((col) => col.label)],
                 body: tableData,
                 styles: {
-                    fontSize: 8,
-                    cellPadding: 3,
+                    fontSize: fontSize,
+                    cellPadding: 2,
                     overflow: 'linebreak',
                     halign: 'left',
+                    valign: 'middle',
+                    lineWidth: 0.1,
+                    lineColor: [230, 230, 230],
                 },
                 headStyles: {
                     fillColor: [59, 130, 246],
                     textColor: 255,
                     fontStyle: 'bold',
-                    halign: 'left',
+                    halign: 'center', // Headers centered looks better usually
+                    lineWidth: 0,
                 },
                 alternateRowStyles: { fillColor: [248, 250, 252] },
-                margin: { left: 14, right: 14 },
-                tableWidth: tableWidth,
-                columnStyles: columns.reduce((acc, col, idx) => {
-                    const width = col.width ? Math.min(col.width * 2.5, defaultColWidth * 1.5) : defaultColWidth;
-                    acc[idx] = { cellWidth: width, minCellWidth: 12 };
-                    return acc;
-                }, {} as Record<number, { cellWidth: number; minCellWidth: number }>),
+                margin: { left: margin, right: margin },
+                tableWidth: 'auto', // We set specific col widths so auto is fine, or set strict tableWidth
+                columnStyles: columnStyles,
+                didParseCell: (data) => {
+                    // Style the totals row
+                    if (tableData.length > 0 && data.row.index === tableData.length - 1) {
+                        const isTotalRow =
+                            data.cell.raw === 'TOTAL' ||
+                            Object.values(totals).some((v) => data.cell.text.includes(v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
+
+                        // Double check it's the last row
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fillColor = [220, 230, 245]; // Darker blue-gray
+                        data.cell.styles.textColor = [0, 0, 0];
+                        data.cell.styles.fontSize = fontSize + 1; // Slightly larger
+                    }
+                },
             });
 
             // Footer with page numbers
             const pageCount = doc.internal.pages.length - 1;
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
-                doc.setFontSize(8);
+                doc.setFontSize(7);
                 doc.setTextColor(150);
-                doc.text(`Page ${i} of ${pageCount}`, pageWidth - 25, doc.internal.pageSize.getHeight() - 10);
-                doc.text(`${storeDetails.name} - ${reportTitle}`, 14, doc.internal.pageSize.getHeight() - 10);
+                doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+                doc.text(`${storeDetails.name} - ${reportTitle}`, margin, pageHeight - 10);
             }
 
             return doc;
         },
-        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf, code]
+        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf]
     );
 
     // PDF Export

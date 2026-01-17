@@ -62,7 +62,7 @@ const SalesReportPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryParams]);
 
-    const orders = useMemo(() => reportData?.data?.orders || [], [reportData]);
+    const orders = useMemo(() => reportData?.data?.pos_orders || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
@@ -82,7 +82,7 @@ const SalesReportPage = () => {
         try {
             // Use separate RTK Query mutation instance to fetch export data without affecting UI
             const result = await getSalesReportForExport(exportParams).unwrap();
-            return result?.data?.orders || [];
+            return result?.data?.pos_orders || [];
         } catch (error) {
             console.error('Failed to fetch all data for export:', error);
             // Fallback to currently loaded data
@@ -197,9 +197,24 @@ const SalesReportPage = () => {
                 ),
             },
             {
-                key: 'items_count',
-                label: 'Qty',
-                render: (value: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{value}</span>,
+                key: 'user_name',
+                label: 'Created By',
+                render: (value: any) => <span className="text-xs text-gray-600">{value || 'N/A'}</span>,
+            },
+            {
+                key: 'subtotal',
+                label: 'Subtotal',
+                render: (value: any) => <span className="text-gray-900">{formatCurrency(value)}</span>,
+            },
+            {
+                key: 'tax',
+                label: 'Tax',
+                render: (value: any) => <span className="text-gray-600">{formatCurrency(value)}</span>,
+            },
+            {
+                key: 'discount',
+                label: 'Discount',
+                render: (value: any) => <span className="text-red-500">-{formatCurrency(value)}</span>,
             },
             {
                 key: 'grand_total',
@@ -259,7 +274,25 @@ const SalesReportPage = () => {
                 width: 25,
                 format: (_, row) => (row?.is_walk_in ? 'Walk-in' : row?.customer?.name || 'N/A'),
             },
-            { key: 'items_count', label: 'Qty', width: 8 },
+            { key: 'user_name', label: 'Created By', width: 15 },
+            {
+                key: 'subtotal',
+                label: 'Subtotal',
+                width: 15,
+                format: (value) => formatCurrency(value),
+            },
+            {
+                key: 'tax',
+                label: 'Tax',
+                width: 10,
+                format: (value) => formatCurrency(value),
+            },
+            {
+                key: 'discount',
+                label: 'Discount',
+                width: 10,
+                format: (value) => formatCurrency(value),
+            },
             {
                 key: 'grand_total',
                 label: 'Total',
