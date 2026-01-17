@@ -39,7 +39,7 @@ const TransactionReportPage = () => {
         }
     }, [queryParams]);
 
-    const transactions = useMemo(() => reportData?.data?.transactions || [], [reportData]);
+    const transactions = useMemo(() => reportData?.data?.pos_transactions || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
@@ -69,7 +69,7 @@ const TransactionReportPage = () => {
         if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
         try {
             const result = await getTransactionReportForExport(exportParams).unwrap();
-            return result?.data?.transactions || [];
+            return result?.data?.pos_transactions || [];
         } catch (error) {
             console.error('Failed to fetch export data:', error);
             return transactions;
@@ -80,7 +80,7 @@ const TransactionReportPage = () => {
         () => [
             { key: 'invoice', label: 'Invoice', width: 15 },
             { key: 'store_name', label: 'Store', width: 15 },
-            { key: 'user_name', label: 'User', width: 15 },
+            { key: 'user_name', label: 'Created By', width: 15 },
             { key: 'payment_status', label: 'Status', width: 10 },
             { key: 'payment_method', label: 'Method', width: 10 },
             { key: 'amount', label: 'Amount', width: 15, format: (v) => formatCurrency(v) },
@@ -112,7 +112,7 @@ const TransactionReportPage = () => {
             { label: 'Total Volume', value: formatCurrency(summary.total_amount) },
             { label: 'Average', value: formatCurrency(summary.average_transaction) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -142,7 +142,7 @@ const TransactionReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -160,16 +160,21 @@ const TransactionReportPage = () => {
             },
             {
                 key: 'store_name',
-                label: 'Registry / Store',
-                render: (value: any, row: any) => (
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 font-medium text-gray-700">
-                            <Store className="h-3.5 w-3.5 text-gray-400" />
-                            {value}
-                        </div>
-                        <div className="flex items-center gap-1.5 pl-5 text-[10px] text-gray-400">
-                            <User className="h-3 w-3" /> {row.user_name}
-                        </div>
+                label: 'Store',
+                render: (value: any) => (
+                    <div className="flex items-center gap-1.5 font-medium text-gray-700">
+                        <Store className="h-3.5 w-3.5 text-gray-400" />
+                        {value}
+                    </div>
+                ),
+            },
+            {
+                key: 'user_name',
+                label: 'Created By',
+                render: (value: any) => (
+                    <div className="flex items-center gap-1.5 text-gray-600">
+                        <User className="h-3.5 w-3.5 text-gray-400" />
+                        <span className="text-xs">{value}</span>
                     </div>
                 ),
             },

@@ -83,7 +83,7 @@ const SalesItemsReportPage = () => {
             { key: 'category', label: 'Category', width: 15 },
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'sold_qty', label: 'Sold Qty', width: 10 },
-            { key: 'sold_amount', label: 'Revenue', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'sold_amount', label: 'Sold Amount', width: 15, format: (v) => formatCurrency(v) },
             { key: 'instock_qty', label: 'Stock', width: 10 },
         ],
         [formatCurrency]
@@ -105,7 +105,7 @@ const SalesItemsReportPage = () => {
         () => [
             { label: 'Unique Items', value: summary.total_items || 0 },
             { label: 'Total Qty Sold', value: summary.total_sold_qty || 0 },
-            { label: 'Total Revenue', value: formatCurrency(summary.total_sold_amount) },
+            { label: 'Total Sold Amount', value: formatCurrency(summary.total_sold_amount) },
         ],
         [summary, formatCurrency]
     );
@@ -129,7 +129,7 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Gross Profit (Sold Value)',
+                label: 'Total Sold Amount',
                 value: formatCurrency(summary.total_sold_amount),
                 icon: <TrendingUp className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -137,7 +137,7 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Avg Revenue / Item',
+                label: 'Avg Sold Amount / Item',
                 value: formatCurrency(summary.total_sold_amount / (summary.total_sold_qty || 1)),
                 icon: <BarChart3 className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -152,23 +152,30 @@ const SalesItemsReportPage = () => {
         () => [
             {
                 key: 'product_name',
-                label: 'Product Information',
+                label: 'Product',
                 sortable: true,
-                render: (v: any, r: any) => (
-                    <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">{v}</span>
-                        <div className="mt-0.5 flex items-center gap-2">
-                            <span className="rounded border bg-gray-50 px-1 font-mono text-[10px] text-gray-400">{r.sku}</span>
-                            <span className="flex items-center gap-1 text-[10px] text-gray-500">
-                                <Layers className="h-2.5 w-2.5" /> {r.category}
-                            </span>
-                        </div>
-                    </div>
+                render: (v: any) => <span className="font-bold text-gray-900">{v}</span>,
+            },
+            {
+                key: 'sku',
+                label: 'SKU',
+                sortable: true,
+                render: (v: any) => <span className="font-mono text-xs text-gray-500">{v}</span>,
+            },
+            {
+                key: 'category',
+                label: 'Category',
+                sortable: true,
+                render: (v: any) => (
+                    <span className="inline-flex items-center gap-1.5 rounded bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600">
+                        <Layers className="h-3 w-3" /> {v || 'N/A'}
+                    </span>
                 ),
             },
             {
                 key: 'brand',
                 label: 'Brand',
+                sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 text-sm text-gray-600">
                         <Tag className="h-3.5 w-3.5 text-gray-400" />
@@ -177,20 +184,20 @@ const SalesItemsReportPage = () => {
                 ),
             },
             { key: 'sold_qty', label: 'Sold Qty', sortable: true, render: (v: any) => <span className="font-bold text-gray-900">{Number(v).toLocaleString()}</span> },
-            { key: 'sold_amount', label: 'Revenue Generated', sortable: true, render: (v: any) => <span className="font-bold text-emerald-600">{formatCurrency(v)}</span> },
+            { key: 'sold_amount', label: 'Sold Amount', sortable: true, render: (v: any) => <span className="font-bold text-emerald-600">{formatCurrency(v)}</span> },
             {
                 key: 'instock_qty',
-                label: 'Availability',
+                label: 'Stock',
                 render: (v: any) => {
                     const s = Number(v);
                     let c = 'bg-blue-100 text-blue-800';
                     let l = 'In Stock';
                     if (s === 0) {
                         c = 'bg-red-100 text-red-800';
-                        l = 'Out of Stock';
+                        l = 'Out';
                     } else if (s < 10) {
                         c = 'bg-amber-100 text-amber-800';
-                        l = 'Low Stock';
+                        l = 'Low';
                     }
                     return (
                         <div className="flex flex-col gap-1">
@@ -203,7 +210,7 @@ const SalesItemsReportPage = () => {
                 },
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (
