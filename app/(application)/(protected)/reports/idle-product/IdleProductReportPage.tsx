@@ -39,7 +39,7 @@ const IdleProductReportPage = () => {
         }
     }, [queryParams, currentStoreId, apiParams, getIdleProductReport]);
 
-    const products = useMemo(() => reportData?.data?.products || [], [reportData]);
+    const products = useMemo(() => reportData?.data?.pos_products || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
@@ -69,7 +69,7 @@ const IdleProductReportPage = () => {
         if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
         try {
             const result = await getIdleProductReportForExport(exportParams).unwrap();
-            return result?.data?.products || [];
+            return result?.data?.pos_products || [];
         } catch (e) {
             console.error('Export failed:', e);
             return products;
