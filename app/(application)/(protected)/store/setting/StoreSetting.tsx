@@ -8,15 +8,18 @@ import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, u
 import {
     useCreateAdjustmentReasonMutation,
     useCreateCurrencyMutation,
+    useCreateOrderReturnReasonMutation,
     useCreatePaymentMethodMutation,
     useCreatePaymentStatusMutation,
     useDeleteAdjustmentReasonMutation,
     useDeleteCurrencyMutation,
+    useDeleteOrderReturnReasonMutation,
     useDeletePaymentMethodMutation,
     useDeletePaymentStatusMutation,
     useGetStoreQuery,
     useUpdateAdjustmentReasonMutation,
     useUpdateCurrencyMutation,
+    useUpdateOrderReturnReasonMutation,
     useUpdatePaymentMethodMutation,
     useUpdatePaymentStatusMutation,
     useUpdateStoreMutation,
@@ -33,6 +36,7 @@ import BrandingTab from './tabs/BrandingTab';
 import CurrencyTab, { CurrencyForm } from './tabs/CurrencyTab';
 import LoyaltyProgramTab from './tabs/LoyaltyProgramTab';
 import OperatingHoursTab from './tabs/OperatingHoursTab';
+import OrderReturnReasonsTab from './tabs/OrderReturnReasonsTab';
 import PaymentMethodsTab, { PaymentMethodForm } from './tabs/PaymentMethodsTab';
 import PaymentStatusTab, { PaymentStatusForm } from './tabs/PaymentStatusTab';
 import StoreStatusTab from './tabs/StoreStatusTab';
@@ -66,7 +70,7 @@ const createEmptyPaymentStatusForm = (): PaymentStatusForm => ({
     is_active: true,
 });
 
-const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'loyalty', 'branding', 'status'] as const;
+const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
 
 const StoreSetting = () => {
     const searchParams = useSearchParams();
@@ -129,6 +133,7 @@ const StoreSetting = () => {
     const attributesData = store?.product_attributes || [];
     const warrantyTypesData = store?.warranty_types || [];
     const adjustmentReasonsData = store?.adjustment_reasons || [];
+    const orderReturnReasonsData = store?.return_reasons || [];
     // currencies is an array, get the first one for display (store typically has one currency)
     const currenciesData = store?.currencies || [];
     const currencyData = currenciesData.length > 0 ? currenciesData[0] : null;
@@ -150,6 +155,11 @@ const StoreSetting = () => {
     const [updateAdjustmentReason] = useUpdateAdjustmentReasonMutation();
     const [deleteAdjustmentReason] = useDeleteAdjustmentReasonMutation();
 
+    // Order Return Reasons CRUD mutations
+    const [createOrderReturnReason] = useCreateOrderReturnReasonMutation();
+    const [updateOrderReturnReason] = useUpdateOrderReturnReasonMutation();
+    const [deleteOrderReturnReason] = useDeleteOrderReturnReasonMutation();
+
     // Currency CRUD mutations
     const [createCurrency] = useCreateCurrencyMutation();
     const [updateCurrencyMutation] = useUpdateCurrencyMutation();
@@ -167,6 +177,10 @@ const StoreSetting = () => {
     // Adjustment Reasons state
     const [adjustmentReasonName, setAdjustmentReasonName] = useState('');
     const [adjustmentReasonDescription, setAdjustmentReasonDescription] = useState('');
+
+    // Order Return Reasons state
+    const [orderReturnReasonName, setOrderReturnReasonName] = useState('');
+    const [orderReturnReasonDescription, setOrderReturnReasonDescription] = useState('');
 
     const parseIsActive = (value: any) => value === true || value === 1 || value === '1' || value === 'true';
 
@@ -689,6 +703,149 @@ const StoreSetting = () => {
             await refetchStore();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to update adjustment reason status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    // ============ Order Return Reasons Management Functions ============
+    const handleCreateOrderReturnReason = async () => {
+        if (!orderReturnReasonName.trim()) {
+            showErrorDialog('Error', 'Order return reason name is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot create order return reason.');
+            return;
+        }
+
+        try {
+            const payload: any = {
+                store_id: storeId,
+                name: orderReturnReasonName.trim(),
+                description: orderReturnReasonDescription?.trim() || null,
+            };
+
+            await createOrderReturnReason(payload).unwrap();
+
+            showSuccessDialog('Success!', 'Order return reason added successfully!');
+            setOrderReturnReasonName('');
+            setOrderReturnReasonDescription('');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to create order return reason';
+            showErrorDialog('Create Failed!', errorMessage);
+        }
+    };
+
+    const handleUpdateOrderReturnReason = async (id: number, name: string, description: string) => {
+        if (!name.trim()) {
+            showErrorDialog('Error', 'Order return reason name is required');
+            return;
+        }
+
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update order return reason.');
+            return;
+        }
+
+        try {
+            await updateOrderReturnReason({
+                id,
+                data: {
+                    store_id: storeId,
+                    name: name.trim(),
+                    description: description?.trim() || null,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', 'Order return reason updated successfully!');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update order return reason';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    const handleDeleteOrderReturnReason = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot delete order return reason.');
+            return;
+        }
+
+        const confirmed = await showConfirmDialog('Delete Order Return Reason?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
+
+        if (!confirmed) return;
+
+        try {
+            await deleteOrderReturnReason(id).unwrap();
+            showSuccessDialog('Deleted!', 'Order return reason deleted successfully!');
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to delete order return reason';
+            showErrorDialog('Delete Failed!', errorMessage);
+        }
+    };
+
+    const handleToggleOrderReturnReasonActive = async (id: number, isActive: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update order return reason status.');
+            return;
+        }
+
+        const reason = orderReturnReasonsData.find((r: any) => r.id === id);
+        if (!reason) {
+            showErrorDialog('Error', 'Order return reason not found');
+            return;
+        }
+
+        try {
+            await updateOrderReturnReason({
+                id,
+                data: {
+                    store_id: storeId,
+                    name: reason.name,
+                    description: typeof reason.description === 'string' && reason.description.trim().length ? reason.description.trim() : null,
+                    is_active: isActive ? 1 : 0,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', `Order return reason ${isActive ? 'enabled' : 'disabled'} successfully!`);
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update order return reason status';
+            showErrorDialog('Update Failed!', errorMessage);
+        }
+    };
+
+    const handleToggleReturnToStock = async (id: number, returnToStock: boolean) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog('Error', 'No valid store selected. Cannot update return to stock setting.');
+            return;
+        }
+
+        const reason = orderReturnReasonsData.find((r: any) => r.id === id);
+        if (!reason) {
+            showErrorDialog('Error', 'Order return reason not found');
+            return;
+        }
+
+        try {
+            await updateOrderReturnReason({
+                id,
+                data: {
+                    store_id: storeId,
+                    name: reason.name,
+                    description: typeof reason.description === 'string' && reason.description.trim().length ? reason.description.trim() : null,
+                    is_active: reason.is_active === true || reason.is_active === 1 ? 1 : 0,
+                    return_to_stock: returnToStock ? 1 : 0,
+                },
+            }).unwrap();
+
+            showSuccessDialog('Updated!', `Return to stock ${returnToStock ? 'enabled' : 'disabled'} successfully!`);
+            await refetchStore();
+        } catch (error: any) {
+            const errorMessage = error?.data?.message || 'Failed to update return to stock setting';
             showErrorDialog('Update Failed!', errorMessage);
         }
     };
@@ -1340,6 +1497,24 @@ const StoreSetting = () => {
                         handleUpdateAdjustmentReason={handleUpdateAdjustmentReason}
                         handleDeleteAdjustmentReason={handleDeleteAdjustmentReason}
                         handleToggleAdjustmentReasonActive={handleToggleAdjustmentReasonActive}
+                        setMessage={setMessage}
+                    />
+                );
+            case 'returnreasons':
+                return (
+                    <OrderReturnReasonsTab
+                        storeId={storeId}
+                        orderReturnReasonsData={orderReturnReasonsData}
+                        orderReturnReasonsLoading={isLoading}
+                        orderReturnReasonName={orderReturnReasonName}
+                        setOrderReturnReasonName={setOrderReturnReasonName}
+                        orderReturnReasonDescription={orderReturnReasonDescription}
+                        setOrderReturnReasonDescription={setOrderReturnReasonDescription}
+                        handleCreateOrderReturnReason={handleCreateOrderReturnReason}
+                        handleUpdateOrderReturnReason={handleUpdateOrderReturnReason}
+                        handleDeleteOrderReturnReason={handleDeleteOrderReturnReason}
+                        handleToggleOrderReturnReasonActive={handleToggleOrderReturnReasonActive}
+                        handleToggleReturnToStock={handleToggleReturnToStock}
                         setMessage={setMessage}
                     />
                 );

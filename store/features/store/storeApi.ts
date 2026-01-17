@@ -178,6 +178,31 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['Stores'],
         }),
 
+        // Order Return Reasons Management
+        createOrderReturnReason: builder.mutation({
+            query: (data: any) => ({
+                url: '/order-return-reasons',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        updateOrderReturnReason: builder.mutation({
+            query: ({ id, data }: { id: number; data: any }) => ({
+                url: `/order-return-reasons/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+        deleteOrderReturnReason: builder.mutation({
+            query: (id: number) => ({
+                url: `/order-return-reasons/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Stores'],
+        }),
+
         // Currency Management
         createCurrency: builder.mutation({
             query: (data: any) => ({
@@ -247,6 +272,9 @@ export const {
     useCreateAdjustmentReasonMutation,
     useUpdateAdjustmentReasonMutation,
     useDeleteAdjustmentReasonMutation,
+    useCreateOrderReturnReasonMutation,
+    useUpdateOrderReturnReasonMutation,
+    useDeleteOrderReturnReasonMutation,
     useCreateCurrencyMutation,
     useUpdateCurrencyMutation,
     useDeleteCurrencyMutation,

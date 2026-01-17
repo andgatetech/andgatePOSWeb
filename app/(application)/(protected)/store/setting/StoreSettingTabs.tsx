@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, Settings as SettingsIcon, Shield, Store, Tag } from 'lucide-react';
+import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings as SettingsIcon, Shield, Store, Tag } from 'lucide-react';
 import React from 'react';
 
 interface Tab {
@@ -20,6 +20,7 @@ const tabs: Tab[] = [
     { id: 'paymentstatus', label: 'Payment Status', icon: Flag, description: 'Status options' },
     { id: 'warranty', label: 'Warranty Types', icon: Shield, description: 'Warranty options' },
     { id: 'adjustment', label: 'Adjustment Reasons', icon: ListChecks, description: 'Stock adjustments' },
+    { id: 'returnreasons', label: 'Return Reasons', icon: RotateCcw, description: 'Order returns' },
     { id: 'loyalty', label: 'Loyalty Program', icon: Gift, description: 'Rewards settings' },
     { id: 'branding', label: 'Branding', icon: Camera, description: 'Logo & visuals' },
     { id: 'status', label: 'Store Status', icon: SettingsIcon, description: 'Active/Inactive' },
