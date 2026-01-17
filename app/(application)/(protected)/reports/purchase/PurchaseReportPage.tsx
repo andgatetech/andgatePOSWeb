@@ -33,16 +33,21 @@ const PurchaseReportPage = () => {
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
     useEffect(() => {
-        const queryString = JSON.stringify(queryParams);
-        if (lastQueryParams.current === queryString) return;
-        if (currentStoreId || apiParams.store_id || apiParams.store_ids) {
-            lastQueryParams.current = queryString;
-            getPurchaseReport(queryParams);
-        }
+        const timeoutId = setTimeout(() => {
+            const queryString = JSON.stringify(queryParams);
+            if (lastQueryParams.current === queryString) return;
+
+            if (currentStoreId || apiParams.store_id || apiParams.store_ids) {
+                lastQueryParams.current = queryString;
+                getPurchaseReport(queryParams);
+            }
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryParams]);
 
-    const orders = useMemo(() => reportData?.data?.purchase_orders || [], [reportData]);
+    const orders = useMemo(() => reportData?.data?.pos_purchase_orders || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const byStatus = useMemo(() => reportData?.data?.by_status || [], [reportData]);
     const byPaymentStatus = useMemo(() => reportData?.data?.by_payment_status || [], [reportData]);
@@ -82,7 +87,7 @@ const PurchaseReportPage = () => {
         }
         try {
             const result = await getPurchaseReportForExport(exportParams).unwrap();
-            return result?.data?.purchase_orders || [];
+            return result?.data?.pos_purchase_orders || [];
         } catch (error) {
             console.error('Failed to fetch all data for export:', error);
             return orders;
@@ -192,7 +197,6 @@ const PurchaseReportPage = () => {
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-700">{value || row.supplier || 'N/A'}</span>
-                        {row.store_name && <span className="text-[10px] text-gray-400">{row.store_name}</span>}
                     </div>
                 ),
             },

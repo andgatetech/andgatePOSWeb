@@ -37,9 +37,10 @@ const PurchaseTransactionReportPage = () => {
             lastQueryParams.current = queryString;
             getPurchaseTransactionReport(queryParams);
         }
-    }, [queryParams, currentStoreId, apiParams, getPurchaseTransactionReport]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [queryParams]);
 
-    const transactions = useMemo(() => reportData?.data?.transactions || [], [reportData]);
+    const transactions = useMemo(() => reportData?.data?.pos_transactions || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const byPaymentMethod = useMemo(() => reportData?.data?.by_payment_method || [], [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
@@ -70,7 +71,7 @@ const PurchaseTransactionReportPage = () => {
         if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
         try {
             const result = await getPurchaseTransactionReportForExport(exportParams).unwrap();
-            return result?.data?.transactions || [];
+            return result?.data?.pos_transactions || [];
         } catch (e) {
             console.error('Export failed:', e);
             return transactions;

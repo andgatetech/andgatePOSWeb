@@ -46,7 +46,7 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
         const apiParams = buildApiParams(additionalParams);
         stableOnFilterChange(apiParams);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, selectedStatus, selectedPaymentStatus]);
+    }, [filters, selectedStatus, selectedPaymentStatus, userStores]);
 
     React.useEffect(() => {
         setSelectedStatus('all');

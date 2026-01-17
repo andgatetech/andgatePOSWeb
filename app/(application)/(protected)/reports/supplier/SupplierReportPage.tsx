@@ -37,9 +37,10 @@ const SupplierReportPage = () => {
             lastQueryParams.current = queryString;
             getSupplierReport(queryParams);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryParams]);
 
-    const orders = useMemo(() => reportData?.data?.orders || [], [reportData]);
+    const orders = useMemo(() => reportData?.data?.pos_orders || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
@@ -69,7 +70,7 @@ const SupplierReportPage = () => {
         if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
         try {
             const result = await getSupplierReportForExport(exportParams).unwrap();
-            return result?.data?.orders || [];
+            return result?.data?.pos_orders || [];
         } catch (e) {
             console.error('Export failed:', e);
             return orders;
