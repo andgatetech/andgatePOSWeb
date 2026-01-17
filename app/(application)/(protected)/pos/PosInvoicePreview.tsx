@@ -633,9 +633,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div className="relative z-10 flex flex-col justify-between gap-6 px-4 lg:flex-row">
                     <div className="flex-1 space-y-1">
                         <div>Issue For:</div>
-                        <div className="font-semibold text-black">{customer.name || 'Customer'}</div>
-                        <div>{customer.email || 'No Email'}</div>
-                        <div>{customer.phone || 'No Phone'}</div>
+                        <div className="font-semibold text-black">{customer?.name || 'Customer'}</div>
+                        <div>{customer?.email || 'No Email'}</div>
+                        <div>{customer?.phone || 'No Phone'}</div>
                     </div>
 
                     <div className="flex flex-col gap-6 sm:flex-row lg:w-2/3">

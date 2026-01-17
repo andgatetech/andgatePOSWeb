@@ -11,10 +11,13 @@ import { useDispatch } from 'react-redux';
 import PosLeftSide from '../../../pos/PosLeftSide';
 import OrderEditRightSide from './components/OrderEditRightSide';
 
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+
 const OrderEditPage = () => {
     const params = useParams();
     const router = useRouter();
     const dispatch = useDispatch();
+    const { currentStoreId } = useCurrentStore();
     const orderId = params?.id ? parseInt(params.id as string) : null;
 
     const [isLoadingOrder, setIsLoadingOrder] = useState(true);
@@ -32,11 +35,11 @@ const OrderEditPage = () => {
 
     // Load order data into Redux when fetched
     useEffect(() => {
-        if (orderData?.success && orderData?.data) {
+        if (orderData?.success && orderData?.data && currentStoreId) {
             const order = orderData.data;
 
             // Store original order data
-            dispatch(setOrderData({ orderId: order.id, order }));
+            dispatch(setOrderData({ storeId: currentStoreId, orderId: order.id, order }));
 
             // Transform order items to match Item interface
             // Single order API has nested product object: item.product.id, item.product.name, etc.
@@ -78,17 +81,19 @@ const OrderEditPage = () => {
                     };
                 }) || [];
 
-            dispatch(setItemsRedux(transformedItems));
+            dispatch(setItemsRedux({ storeId: currentStoreId, items: transformedItems }));
             setIsLoadingOrder(false);
         }
-    }, [orderData, dispatch]);
+    }, [orderData, dispatch, currentStoreId]);
 
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            dispatch(clearItemsRedux());
+            if (currentStoreId) {
+                dispatch(clearItemsRedux(currentStoreId));
+            }
         };
-    }, [dispatch]);
+    }, [dispatch, currentStoreId]);
 
     if (!orderId) {
         return (

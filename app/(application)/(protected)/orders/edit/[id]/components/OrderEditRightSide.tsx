@@ -93,7 +93,14 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     );
 
     const customers: Customer[] = useMemo(() => {
-        return (customersResponse as CustomerApiResponse)?.data || [];
+        const payload = (customersResponse as CustomerApiResponse)?.data;
+        if (Array.isArray(payload)) {
+            return payload;
+        }
+        if (payload && 'items' in payload && Array.isArray(payload.items)) {
+            return payload.items;
+        }
+        return [];
     }, [customersResponse]);
 
     // Initialize from original order
@@ -838,7 +845,9 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     const handleBackToEdit = () => {
         // If order was successfully updated, redirect to orders page
         if (orderResponse) {
-            dispatch(clearItemsRedux());
+            if (currentStoreId) {
+                dispatch(clearItemsRedux(currentStoreId));
+            }
             window.location.href = '/orders';
         } else {
             // Just close preview if not yet updated

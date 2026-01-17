@@ -96,7 +96,7 @@ const orderEditSlice = createSlice({
             const { storeId, items } = action.payload;
             const session = getStoreSession(state, storeId);
             // Filter out items without productId to avoid empty items
-            session.items = items.filter((item) => item.productId !== undefined);
+            session.items = (items || []).filter((item) => item.productId !== undefined);
         },
         addItemRedux(state, action: PayloadAction<{ storeId: number; item: Item }>) {
             const { storeId, item } = action.payload;
