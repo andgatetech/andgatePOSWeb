@@ -6,6 +6,7 @@ import { baseApi } from '@/store/api/baseApi';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
 import orderEditReducer from '@/store/features/Order/OrderEditSlice';
+import orderReturnReducer from '@/store/features/Order/OrderReturnSlice';
 import invoiceReducer from '@/store/features/Order/OrderSlice';
 import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import stockAdjustmentReducer from '@/store/features/StockAdjustment/stockAdjustmentSlice';
@@ -25,7 +26,7 @@ const storage = typeof window !== 'undefined' ? createWebStorage('local') : crea
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'invoice', 'orderEdit', 'purchaseOrder', 'stockAdjustment', 'label'], // slices to persist
+    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn', 'purchaseOrder', 'stockAdjustment', 'label'], // slices to persist
     blacklist: [baseApi.reducerPath], // do not persist API cache
 };
 
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
     supplier: supplierReducer,
     invoice: invoiceReducer,
     orderEdit: orderEditReducer,
+    orderReturn: orderReturnReducer,
     purchaseOrder: purchaseOrderReducer,
     stockAdjustment: stockAdjustmentReducer,
     label: labelReducer,

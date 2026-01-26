@@ -14,7 +14,12 @@ interface PaymentSummarySectionProps {
     pointsDiscount: number;
     balanceDiscount: number;
     totalPayable: number;
-    isWalkInCustomer: boolean; // New prop to determine if walk-in customer
+    isWalkInCustomer: boolean;
+    // Return mode props
+    isReturnMode?: boolean;
+    returnTotal?: number;
+    newItemsTotal?: number;
+    returnNetAmount?: number;
 }
 
 const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
@@ -31,6 +36,11 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     balanceDiscount,
     totalPayable,
     isWalkInCustomer,
+    // Return mode props
+    isReturnMode = false,
+    returnTotal = 0,
+    newItemsTotal = 0,
+    returnNetAmount = 0,
 }) => {
     const { formatCurrency } = useCurrency();
     const canUsePoints = selectedCustomer && Number(selectedCustomer.points) > 0;
@@ -322,7 +332,127 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 </>
             )}
 
-            {formData.paymentStatus === 'paid' && (
+            {/* Return Mode Summary - Clean POS Design */}
+            {isReturnMode && (
+                <div className="mt-4 space-y-3">
+                    {/* Header Badge */}
+                    <div className="flex items-center justify-center">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                            </svg>
+                            Return Mode
+                        </div>
+                    </div>
+
+                    {/* Transaction Lines */}
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+                        {/* Return Amount Row */}
+                        <div className="flex items-center justify-between py-2">
+                            <span className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5" />
+                                    </svg>
+                                </span>
+                                Returned Items
+                            </span>
+                            <span className="text-lg font-bold text-red-600 dark:text-red-400">−{formatCurrency(returnTotal)}</span>
+                        </div>
+
+                        {/* Exchange Amount Row */}
+                        {newItemsTotal > 0 && (
+                            <div className="flex items-center justify-between border-t border-slate-200 py-2 dark:border-slate-700">
+                                <span className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </span>
+                                    Exchange Items
+                                </span>
+                                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(newItemsTotal)}</span>
+                            </div>
+                        )}
+
+                        {/* Net Amount Row */}
+                        <div className="flex items-center justify-between border-t-2 border-slate-300 pt-2 dark:border-slate-600">
+                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Net Amount</span>
+                            <span
+                                className={`text-lg font-bold ${
+                                    returnNetAmount < 0 ? 'text-emerald-600 dark:text-emerald-400' : returnNetAmount > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'
+                                }`}
+                            >
+                                {formatCurrency(returnNetAmount)}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Action Card */}
+                    {returnNetAmount < 0 ? (
+                        /* Refund */
+                        <div className="rounded-lg bg-emerald-600 p-4 shadow-md">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-white">Refund Customer</p>
+                                        <p className="text-xs text-white/70">Cash/Card refund</p>
+                                    </div>
+                                </div>
+                                <p className="text-2xl font-black text-white">{formatCurrency(Math.abs(returnNetAmount))}</p>
+                            </div>
+                        </div>
+                    ) : returnNetAmount > 0 ? (
+                        /* Customer Pays */
+                        <div className="rounded-lg bg-blue-600 p-4 shadow-md">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-white">Collect Payment</p>
+                                        <p className="text-xs text-white/70">Additional amount</p>
+                                    </div>
+                                </div>
+                                <p className="text-2xl font-black text-white">{formatCurrency(returnNetAmount)}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        /* Even Exchange */
+                        <div className="rounded-lg bg-slate-500 p-4 shadow-md">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-white">Even Exchange</p>
+                                        <p className="text-xs text-white/70">No payment needed</p>
+                                    </div>
+                                </div>
+                                <p className="text-2xl font-black text-white">{formatCurrency(0)}</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Normal POS Mode - Total Payable */}
+            {!isReturnMode && formData.paymentStatus === 'paid' && (
                 <div className="flex justify-between rounded-lg bg-gradient-to-r from-green-100 to-green-50 p-3 text-green-900 shadow-sm">
                     <span className="text-lg font-bold">Total Payable Now</span>
                     <span className="text-2xl font-black">{formatCurrency(totalPayable)}</span>

@@ -42,6 +42,8 @@ interface InvoiceItem {
     warranty?: Warranty | null;
     has_serial?: boolean;
     has_warranty?: boolean;
+    isReturned?: boolean;
+    isExchange?: boolean;
 }
 
 interface PosInvoicePreviewProps {
@@ -76,6 +78,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         due_amount, // From backend
         partialPaymentAmount, // From preview
         dueAmount, // From preview
+        isReturn = false,
+        keptItems = [],
+        returnedItems = [],
+        exchangeItems = [],
+        original_order_id,
+        returnTotal = 0,
+        exchangeTotal = 0,
+        netTransaction = 0,
     } = data || {};
 
     // Use whichever is available (backend uses payment_status, preview uses paymentStatus)
@@ -416,6 +426,105 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         <div class="divider"></div>
         
         <!-- Items -->
+        ${
+            isReturn
+                ? `
+            <!-- Kept Items from Original Order -->
+            ${
+                keptItems.length > 0
+                    ? `
+            <div class="items-header" style="border-bottom: 1px solid #10b981; color: #10b981; margin-top: 5px;">
+                <div class="item-row">
+                    <div class="item-name">ITEMS KEPT</div>
+                    <div class="item-qty">QTY</div>
+                    <div class="item-price">AMOUNT</div>
+                </div>
+            </div>
+            ${keptItems
+                .map((item: any, index: number) => {
+                    let extras = '';
+                    if (item.variantName) extras += `<div class="item-variant">${item.variantName}</div>`;
+
+                    return `
+                <div class="item-row">
+                    <div class="item-name">${index + 1}. ${item.title}</div>
+                    <div class="item-qty">${item.quantity}</div>
+                    <div class="item-price">${formatCurrency(item.amount)}</div>
+                </div>
+                ${extras}
+                <div class="item-details" style="margin-bottom: 5px;">${item.quantity} x ${formatCurrency(item.price)}</div>
+                    `;
+                })
+                .join('')}
+            `
+                    : ''
+            }
+
+            <!-- Returned Items Section -->
+            ${
+                returnedItems.length > 0
+                    ? `
+            <div class="items-header" style="border-bottom: 1px solid #dc2626; color: #dc2626; margin-top: 10px;">
+                <div class="item-row">
+                    <div class="item-name">RETURNED ITEMS</div>
+                    <div class="item-qty">QTY</div>
+                    <div class="item-price">REFUND</div>
+                </div>
+            </div>
+            ${returnedItems
+                .map((item: any, index: number) => {
+                    let extras = '';
+                    if (item.variantName) extras += `<div class="item-variant">${item.variantName}</div>`;
+                    return `
+                <div class="item-row">
+                    <div class="item-name">${index + 1}. ${item.title}</div>
+                    <div class="item-qty">-${item.quantity}</div>
+                    <div class="item-price">-${formatCurrency(item.amount)}</div>
+                </div>
+                ${extras}
+                <div class="item-details" style="margin-bottom: 5px;">${item.quantity} x ${formatCurrency(item.price)}</div>
+            `;
+                })
+                .join('')}
+            `
+                    : ''
+            }
+
+            <!-- Exchange Items Section -->
+            ${
+                exchangeItems.length > 0
+                    ? `
+            <div class="items-header" style="border-bottom: 1px solid #3b82f6; color: #3b82f6; margin-top: 10px;">
+                <div class="item-row">
+                    <div class="item-name">EXCHANGE ITEMS</div>
+                    <div class="item-qty">QTY</div>
+                    <div class="item-price">AMOUNT</div>
+                </div>
+            </div>
+            ${exchangeItems
+                .map((item: any, index: number) => {
+                    // Variant/Serial logic for HTML receipt (simplified from original loop)
+                    let extras = '';
+                    if (item.variantName) extras += `<div class="item-variant">${item.variantName}</div>`;
+                    if (item.has_serial && item.serials?.[0]) extras += `<div class="item-serial">S/N: ${item.serials[0].serial_number}</div>`;
+
+                    return `
+                <div class="item-row">
+                    <div class="item-name">${index + 1}. ${item.title}</div>
+                    <div class="item-qty">${item.quantity}</div>
+                    <div class="item-price">${formatCurrency(item.amount)}</div>
+                </div>
+                ${extras}
+                <div class="item-details">${item.quantity} x ${formatCurrency(item.price)}</div>
+                    `;
+                })
+                .join('')}
+            `
+                    : ''
+            }
+        `
+                : `
+        <!-- Normal Invoice Items -->
         <div class="items-header">
             <div class="item-row">
                 <div class="item-name">ITEM</div>
@@ -423,15 +532,29 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div class="item-price">AMOUNT</div>
             </div>
         </div>
-        
         ${itemsHTML}
+        `
+        }
         
         <!-- Totals -->
         <div class="totals-section">
             <div class="total-row">
                 <div>Subtotal:</div>
-                <div>${formatCurrency(subtotal)}</div>
+                <div>${formatCurrency(isReturn ? exchangeTotal : subtotal)}</div>
             </div>
+            ${
+                isReturn
+                    ? `
+            <div class="total-row" style="color: #dc2626;">
+                <div>Return Credit:</div>
+                <div>-${formatCurrency(returnTotal)}</div>
+            </div>
+            <div class="total-row grand-total">
+                <div>${netTransaction >= 0 ? 'NET PAYABLE:' : 'NET REFUND:'}</div>
+                <div>${formatCurrency(Math.abs(netTransaction))}</div>
+            </div>
+            `
+                    : `
             ${
                 calculatedTax > 0
                     ? `
@@ -454,6 +577,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 <div>TOTAL:</div>
                 <div>${formatCurrency(grandTotal)}</div>
             </div>
+            `
+            }
             ${
                 (displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountPaid > 0
                     ? `
@@ -604,7 +729,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             <div className="panel relative" ref={invoiceRef}>
                 {/* Header */}
                 <div className="relative z-10 flex items-center justify-between px-4">
-                    <h2 className="text-2xl font-semibold uppercase">Invoice</h2>
+                    <h2 className="text-2xl font-semibold uppercase">{isReturn ? 'Return Receipt' : 'Invoice'}</h2>
                     {currentStore?.logo_path ? (
                         <Image
                             src={currentStore.logo_path.startsWith('/') ? currentStore.logo_path : `/assets/images/${currentStore.logo_path}`}
@@ -641,17 +766,23 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     <div className="flex flex-col gap-6 sm:flex-row lg:w-2/3">
                         <div className="sm:w-1/2 lg:w-2/5">
                             <div className="mb-2 flex justify-between">
-                                <span>Invoice:</span>
+                                <span>{isReturn ? 'Return Slip:' : 'Invoice:'}</span>
                                 <span>{invoice}</span>
                             </div>
                             <div className="mb-2 flex justify-between">
-                                <span>Issue Date:</span>
+                                <span>{isReturn ? 'Return Date:' : 'Issue Date:'}</span>
                                 <span>{currentDate}</span>
                             </div>
                             {order_id && (
                                 <div className="mb-2 flex justify-between">
-                                    <span>Order ID:</span>
+                                    <span>{isReturn ? 'Return ID:' : 'Order ID:'}</span>
                                     <span>#{order_id}</span>
+                                </div>
+                            )}
+                            {original_order_id && (
+                                <div className="mb-2 flex justify-between text-xs text-gray-500">
+                                    <span>Ref Order:</span>
+                                    <span>#{original_order_id}</span>
                                 </div>
                             )}
                         </div>
@@ -696,108 +827,242 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             </tr>
                         </thead>
                         <tbody>
-                            {invoiceItems.map((item: InvoiceItem, idx: number) => (
-                                <tr key={idx}>
-                                    <td className="border-b border-gray-200 py-3">{idx + 1}</td>
-                                    <td className="border-b border-gray-200 py-3">
-                                        <div className="flex flex-col gap-1">
-                                            <div className="font-medium text-gray-900">{item.title}</div>
+                            {/* Return Mode Rendering */}
+                            {isReturn ? (
+                                <>
+                                    {/* Items Kept from Original Order */}
+                                    {keptItems.length > 0 && (
+                                        <>
+                                            <tr className="bg-green-50">
+                                                <td colSpan={6} className="px-3 py-2 text-xs font-bold uppercase text-green-700">
+                                                    Items Kept from Original Order
+                                                </td>
+                                            </tr>
+                                            {keptItems.map((item: any, idx: number) => (
+                                                <tr key={`kept-${idx}`}>
+                                                    <td className="border-b border-gray-200 py-3">{idx + 1}</td>
+                                                    <td className="border-b border-gray-200 py-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="font-medium text-gray-900">{item.title}</div>
+                                                            {item.variantName && (
+                                                                <div className="flex flex-wrap items-center gap-1">
+                                                                    <span className="text-xs text-indigo-600">Variant:</span>
+                                                                    <span className="text-xs font-medium text-indigo-700">{item.variantName}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-b border-gray-200 py-3 text-center">{item.quantity}</td>
+                                                    <td className="border-b border-gray-200 py-3 text-center">
+                                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                                    </td>
+                                                    <td className="border-b border-gray-200 py-3 text-right">{formatCurrency(Number(item.price))}</td>
+                                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">{formatCurrency(Number(item.amount))}</td>
+                                                </tr>
+                                            ))}
+                                        </>
+                                    )}
 
-                                            {/* Variant Information */}
-                                            {item.variantName && (
-                                                <div className="flex flex-wrap items-center gap-1">
-                                                    <span className="text-xs text-indigo-600">Variant:</span>
-                                                    <span className="text-xs font-medium text-indigo-700">{item.variantName}</span>
-                                                </div>
-                                            )}
+                                    {/* Returned Items Section */}
+                                    {returnedItems.length > 0 && (
+                                        <>
+                                            <tr className="bg-red-50">
+                                                <td colSpan={6} className="px-3 py-2 text-xs font-bold uppercase text-red-700">
+                                                    Returned Items (Refunds)
+                                                </td>
+                                            </tr>
+                                            {returnedItems.map((item: any, idx: number) => (
+                                                <tr key={`return-${idx}`} className="text-red-600">
+                                                    <td className="border-b border-gray-200 py-3">{idx + 1}</td>
+                                                    <td className="border-b border-gray-200 py-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="font-medium">{item.title}</div>
+                                                            {item.variantName && (
+                                                                <div className="flex flex-wrap items-center gap-1">
+                                                                    <span className="text-xs text-indigo-600">Variant:</span>
+                                                                    <span className="text-xs font-medium text-indigo-700">{item.variantName}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-b border-gray-200 py-3 text-center">-{item.quantity}</td>
+                                                    <td className="border-b border-gray-200 py-3 text-center">
+                                                        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs text-red-800">{item.unit || 'piece'}</span>
+                                                    </td>
+                                                    <td className="border-b border-gray-200 py-3 text-right">-{formatCurrency(Number(item.price))}</td>
+                                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">-{formatCurrency(Number(item.amount))}</td>
+                                                </tr>
+                                            ))}
+                                        </>
+                                    )}
 
-                                            {/* Variant Attributes */}
-                                            {item.variantData && Object.keys(item.variantData).length > 0 && (
-                                                <div className="flex flex-wrap gap-1">
-                                                    {Object.entries(item.variantData).map(([key, value]) => (
-                                                        <span key={key} className="inline-block rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-700">
-                                                            {value}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
+                                    {/* Exchange Items Section */}
+                                    {exchangeItems.length > 0 && (
+                                        <>
+                                            <tr className="bg-blue-50">
+                                                <td colSpan={6} className="px-3 py-2 text-xs font-bold uppercase text-blue-700">
+                                                    Exchange / New Items
+                                                </td>
+                                            </tr>
+                                            {exchangeItems.map((item: any, idx: number) => (
+                                                <tr key={`exchange-${idx}`}>
+                                                    <td className="border-b border-gray-200 py-3">{idx + 1}</td>
+                                                    <td className="border-b border-gray-200 py-3">
+                                                        {/* Reusing existing item render logic for details */}
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="font-medium text-gray-900">{item.title}</div>
+                                                            {item.variantName && (
+                                                                <div className="flex flex-wrap items-center gap-1">
+                                                                    <span className="text-xs text-indigo-600">Variant:</span>
+                                                                    <span className="text-xs font-medium text-indigo-700">{item.variantName}</span>
+                                                                </div>
+                                                            )}
+                                                            {item.has_serial && item.serials?.[0] && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <Hash className="h-3 w-3 text-indigo-600" />
+                                                                    <span className="text-xs font-semibold text-indigo-700">S/N: {item.serials[0].serial_number}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-b border-gray-200 py-3 text-center">{item.quantity}</td>
+                                                    <td className="border-b border-gray-200 py-3 text-center">
+                                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                                    </td>
+                                                    <td className="border-b border-gray-200 py-3 text-right">{formatCurrency(Number(item.price))}</td>
+                                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">{formatCurrency(Number(item.amount))}</td>
+                                                </tr>
+                                            ))}
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                /* Normal Invoice Items */
+                                invoiceItems.map((item: InvoiceItem, idx: number) => (
+                                    <tr key={idx}>
+                                        <td className="border-b border-gray-200 py-3">{idx + 1}</td>
+                                        <td className="border-b border-gray-200 py-3">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="font-medium text-gray-900">{item.title}</div>
 
-                                            {/* Serial Number */}
-                                            {item.has_serial && item.serials && item.serials.length > 0 && (
-                                                <div className="flex items-center gap-1">
-                                                    <Hash className="h-3 w-3 text-indigo-600" />
-                                                    <span className="text-xs font-semibold text-indigo-700">S/N: {item.serials[0].serial_number}</span>
-                                                </div>
-                                            )}
-
-                                            {/* Warranty Information */}
-                                            {item.has_warranty &&
-                                                item.warranty &&
-                                                item.warranty !== null &&
-                                                (item.warranty.warranty_type_name || item.warranty.duration_days || item.warranty.duration_months) && (
-                                                    <div className="flex items-center gap-1">
-                                                        <Shield className="h-3 w-3 text-green-600" />
-                                                        <span className="text-xs text-green-700">
-                                                            {item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : 'Warranty: '}
-                                                            {formatWarrantyDuration(item.warranty)}
-                                                        </span>
+                                                {/* Variant Information */}
+                                                {item.variantName && (
+                                                    <div className="flex flex-wrap items-center gap-1">
+                                                        <span className="text-xs text-indigo-600">Variant:</span>
+                                                        <span className="text-xs font-medium text-indigo-700">{item.variantName}</span>
                                                     </div>
                                                 )}
-                                        </div>
-                                    </td>
-                                    <td className="border-b border-gray-200 py-3 text-center">{item.quantity}</td>
-                                    <td className="border-b border-gray-200 py-3 text-center">
-                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
-                                    </td>
-                                    <td className="border-b border-gray-200 py-3 text-right">{formatCurrency(Number(item.price))}</td>
-                                    <td className="border-b border-gray-200 py-3 text-right font-semibold">{formatCurrency(Number(item.amount))}</td>
-                                </tr>
-                            ))}
+
+                                                {/* Variant Attributes */}
+                                                {item.variantData && Object.keys(item.variantData).length > 0 && (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {Object.entries(item.variantData).map(([key, value]) => (
+                                                            <span key={key} className="inline-block rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-700">
+                                                                {value}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Serial Number */}
+                                                {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                    <div className="flex items-center gap-1">
+                                                        <Hash className="h-3 w-3 text-indigo-600" />
+                                                        <span className="text-xs font-semibold text-indigo-700">S/N: {item.serials[0].serial_number}</span>
+                                                    </div>
+                                                )}
+
+                                                {/* Warranty Information */}
+                                                {item.has_warranty &&
+                                                    item.warranty &&
+                                                    item.warranty !== null &&
+                                                    (item.warranty.warranty_type_name || item.warranty.duration_days || item.warranty.duration_months) && (
+                                                        <div className="flex items-center gap-1">
+                                                            <Shield className="h-3 w-3 text-green-600" />
+                                                            <span className="text-xs text-green-700">
+                                                                {item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : 'Warranty: '}
+                                                                {formatWarrantyDuration(item.warranty)}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        </td>
+                                        <td className="border-b border-gray-200 py-3 text-center">{item.quantity}</td>
+                                        <td className="border-b border-gray-200 py-3 text-center">
+                                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                        </td>
+                                        <td className="border-b border-gray-200 py-3 text-right">{formatCurrency(Number(item.price))}</td>
+                                        <td className="border-b border-gray-200 py-3 text-right font-semibold">{formatCurrency(Number(item.amount))}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Totals */}
                 <div className="relative z-10 mt-6 flex flex-col justify-end gap-2 px-4 sm:flex-row sm:justify-end">
-                    <div className="w-full space-y-1 text-right sm:w-[40%]">
-                        <div className="flex justify-between">
-                            <span>Subtotal</span>
-                            <span>{formatCurrency(subtotal)}</span>
+                    {isReturn ? (
+                        <div className="w-full space-y-1 text-right sm:w-[40%]">
+                            {exchangeTotal > 0 && (
+                                <div className="flex justify-between text-green-700">
+                                    <span>New Items Total:</span>
+                                    <span>{formatCurrency(exchangeTotal)}</span>
+                                </div>
+                            )}
+                            {returnTotal > 0 && (
+                                <div className="flex justify-between text-red-600">
+                                    <span>Return Credit:</span>
+                                    <span>-{formatCurrency(returnTotal)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
+                                <span>{netTransaction >= 0 ? 'NET PAYABLE' : 'NET REFUND'}</span>
+                                <span className={netTransaction >= 0 ? 'text-black' : 'text-red-600'}>{formatCurrency(Math.abs(netTransaction))}</span>
+                            </div>
                         </div>
-                        {calculatedTax > 0 && (
+                    ) : (
+                        <div className="w-full space-y-1 text-right sm:w-[50%]">
                             <div className="flex justify-between">
-                                <span>Tax</span>
-                                <span>{formatCurrency(calculatedTax)}</span>
+                                <span>Subtotal</span>
+                                <span>{formatCurrency(subtotal)}</span>
                             </div>
-                        )}
-                        {calculatedDiscount > 0 && (
-                            <div className="flex justify-between text-red-600">
-                                <span>Discount</span>
-                                <span>-{formatCurrency(calculatedDiscount)}</span>
+                            {calculatedTax > 0 && (
+                                <div className="flex justify-between">
+                                    <span>Tax</span>
+                                    <span>{formatCurrency(calculatedTax)}</span>
+                                </div>
+                            )}
+                            {calculatedDiscount > 0 && (
+                                <div className="flex justify-between text-red-600">
+                                    <span>Discount</span>
+                                    <span>-{formatCurrency(calculatedDiscount)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
+                                <span>Grand Total</span>
+                                <span>{formatCurrency(grandTotal)}</span>
                             </div>
-                        )}
-                        <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
-                            <span>Grand Total</span>
-                            <span>{formatCurrency(grandTotal)}</span>
                         </div>
-                        {/* Payment Breakdown for Partial/Due */}
-                        {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && (
-                            <>
-                                {amountPaid > 0 && (
-                                    <div className="flex justify-between border-t border-green-200 pt-2 text-green-700">
-                                        <span>Amount Paid</span>
-                                        <span className="font-semibold">{formatCurrency(amountPaid)}</span>
-                                    </div>
-                                )}
-                                {amountDue > 0 && (
-                                    <div className="flex justify-between rounded-lg bg-red-50 p-2 text-red-700">
-                                        <span className="font-semibold">Amount Due</span>
-                                        <span className="text-lg font-bold">{formatCurrency(amountDue)}</span>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
+                    )}
+
+                    {/* Payment Breakdown for Partial/Due */}
+                    {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && !isReturn && (
+                        <>
+                            {amountPaid > 0 && (
+                                <div className="flex justify-between border-t border-green-200 pt-2 text-green-700">
+                                    <span>Amount Paid</span>
+                                    <span className="font-semibold">{formatCurrency(amountPaid)}</span>
+                                </div>
+                            )}
+                            {amountDue > 0 && (
+                                <div className="flex justify-between rounded-lg bg-red-50 p-2 text-red-700">
+                                    <span className="font-semibold">Amount Due</span>
+                                    <span className="text-lg font-bold">{formatCurrency(amountDue)}</span>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
 
                 {/* Footer */}

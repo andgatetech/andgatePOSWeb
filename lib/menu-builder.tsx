@@ -121,6 +121,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/orders',
                 requiredPermissions: ['orders.view', 'orders.index'],
             },
+            {
+                label: 'Order Returns List',
+                href: '/orders/return/list',
+                requiredPermissions: ['orders.view', 'orders.index'],
+            },
         ],
     },
     {

@@ -5,12 +5,24 @@ import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { useCreateOrderMutation } from '@/store/features/Order/Order';
+import { useCreateOrderMutation, useCreateOrderReturnMutation } from '@/store/features/Order/Order';
+import {
+    clearReturnSession,
+    removeExchangeItem,
+    selectExchangeItems,
+    selectReturnItems,
+    selectReturnReason,
+    setReturnReason,
+    updateExchangeItem,
+    updateReturnQuantity,
+} from '@/store/features/Order/OrderReturnSlice';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import CashPaymentSection from './pos-right-side/CashPaymentSection';
 import CustomerSection from './pos-right-side/CustomerSection';
 import LoadingOverlay from './pos-right-side/LoadingOverlay';
@@ -25,11 +37,61 @@ const DEFAULT_PAYMENT_METHOD = {
     payment_method_name: 'Cash',
 };
 
-const PosRightSide: React.FC = () => {
+export interface PosRightSideProps {
+    mode?: 'pos' | 'return';
+    reduxSlice?: 'pos' | 'orderReturn';
+    orderId?: number;
+    originalOrder?: any;
+}
+
+const EMPTY_ARRAY: any[] = [];
+const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 'pos', orderId, originalOrder }) => {
     const dispatch = useDispatch();
+    const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
 
-    const invoiceItems = useSelector((state: RootState) => (currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || [] : []));
+    const isReturnMode = mode === 'return';
+
+    // Select items based on reduxSlice
+    // Select raw data from Redux
+    const returnItemsData = useSelector((state: RootState) => selectReturnItems(currentStoreId)(state));
+    const exchangeItemsData = useSelector((state: RootState) => selectExchangeItems(currentStoreId)(state));
+    const returnReasonData = useSelector((state: RootState) => selectReturnReason(currentStoreId)(state));
+    const posItemsData = useSelector((state: RootState) => (currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || EMPTY_ARRAY : EMPTY_ARRAY));
+
+    // Memoize invoice items to prevent new references on every render
+    const invoiceItems = useMemo(() => {
+        if (reduxSlice === 'orderReturn') {
+            // In return mode, combine original order items (returnItems) with new exchange items
+            // Map return items to match Item interface
+            const mappedReturns = returnItemsData
+                .map((item) => ({
+                    ...item,
+                    // In POS view, quantity = what they keep (Original - Returning)
+                    quantity: item.originalQuantity - item.returnQuantity,
+                    // Amount = value of kept items
+                    amount: item.rate * (item.originalQuantity - item.returnQuantity),
+                    // Helper to identify
+                    isReturnItem: true,
+                }))
+                // Filter out fully returned items (customer keeping 0 = returning all)
+                // These items are still tracked in returnItemsData for the return summary
+                .filter((item) => item.quantity > 0);
+
+            // Return items come first, then exchange items
+            return [...mappedReturns, ...exchangeItemsData];
+        }
+        return posItemsData;
+    }, [reduxSlice, returnItemsData, exchangeItemsData, posItemsData]);
+
+    // Return items from original order (for return mode)
+    const returnItems = useMemo(() => {
+        if (isReturnMode) {
+            return returnItemsData;
+        }
+        return [];
+    }, [isReturnMode, returnItemsData]);
+
     const userId = useSelector((state: RootState) => state.auth.user?.id);
 
     const searchInputRef = useRef<HTMLDivElement | null>(null);
@@ -41,6 +103,7 @@ const PosRightSide: React.FC = () => {
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [orderResponse, setOrderResponse] = useState<any>(null);
     const [showPreview, setShowPreview] = useState(false);
+    const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
 
     const [formData, setFormData] = useState<PosFormData>({
         customerId: null,
@@ -66,7 +129,92 @@ const PosRightSide: React.FC = () => {
     const showManualCustomerForm = isManualCustomerEntry || !!selectedCustomer;
 
     const [createOrder] = useCreateOrderMutation();
+    const [createOrderReturn] = useCreateOrderReturnMutation();
     const [loading, setLoading] = useState(false);
+
+    // Return reasons from store settings (for return mode)
+    const returnReasons = useMemo(() => {
+        const store = currentStore as any;
+        // Check both possible keys
+        const storeReasons = store?.return_reasons || store?.order_return_reasons;
+
+        if (storeReasons && Array.isArray(storeReasons) && storeReasons.length > 0) {
+            return storeReasons;
+        }
+        // No defaults - must be configured in settings
+        return [];
+    }, [currentStore]);
+
+    // Calculate return totals (for return mode)
+    // Value of items being returned
+    const returnTotal = useMemo(() => {
+        if (!isReturnMode) return 0;
+        return returnItems.reduce((sum: number, item: any) => sum + item.rate * item.returnQuantity, 0);
+    }, [isReturnMode, returnItems]);
+
+    // Value of NEW exchange items only (not kept items from original order)
+    const newItemsTotal = useMemo(() => {
+        if (!isReturnMode) return 0;
+        return exchangeItemsData.reduce((sum: number, item: any) => sum + item.amount, 0);
+    }, [isReturnMode, exchangeItemsData]);
+
+    // Net transaction for this return:
+    // Positive = Customer pays extra (exchange with more expensive items)
+    // Negative = Store refunds customer (pure return or exchange with cheaper items)
+    const returnNetAmount = useMemo(() => {
+        return newItemsTotal - returnTotal;
+    }, [newItemsTotal, returnTotal]);
+
+    // Initialize customer from original order in return mode
+    // Initialize customer from original order in return mode
+    useEffect(() => {
+        // Using formData.customerId as initialization check to prevent loop
+        if (isReturnMode && originalOrder && !formData.customerId) {
+            if (originalOrder.customer) {
+                setSelectedCustomer(originalOrder.customer);
+            }
+
+            setFormData((prev) => {
+                const newState = { ...prev };
+
+                if (originalOrder.customer) {
+                    newState.customerId = originalOrder.customer.id;
+                    newState.customerName = originalOrder.customer.name || '';
+                    newState.customerEmail = originalOrder.customer.email || '';
+                    newState.customerPhone = originalOrder.customer.phone || '';
+                } else if (originalOrder.is_walk_in) {
+                    newState.customerId = 'walk-in';
+                }
+
+                // Default payment settings
+                const incomingMethod = originalOrder.payment?.payment_method;
+
+                if (incomingMethod) {
+                    const lowerMethod = incomingMethod.toLowerCase();
+                    if (lowerMethod === 'cash') {
+                        newState.paymentMethod = 'cash';
+                    } else {
+                        // Try to find matching store method to get correct casing
+                        const storeMethods = Array.isArray(currentStore?.payment_methods) ? currentStore.payment_methods : [];
+                        const matched = storeMethods.find((m: any) => m.payment_method_name?.toLowerCase() === lowerMethod);
+                        newState.paymentMethod = matched ? matched.payment_method_name : incomingMethod;
+                    }
+                } else if (!newState.paymentMethod) {
+                    newState.paymentMethod = 'cash'; // Default to Cash
+                }
+
+                if (!newState.paymentStatus) newState.paymentStatus = 'paid';
+
+                return newState;
+            });
+        }
+    }, [isReturnMode, originalOrder, formData.customerId, currentStore]);
+
+    // Handle return quantity change
+    const handleReturnQuantityChange = (itemId: number, newQuantity: number) => {
+        if (!currentStoreId) return;
+        dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: newQuantity }));
+    };
 
     const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
         if (type === 'success') {
@@ -321,9 +469,123 @@ const PosRightSide: React.FC = () => {
         };
     }, []);
 
-    const handleRemoveItem = (itemId: number) => {
+    const checkReturnReasons = async () => {
+        if (returnReasons.length === 0) {
+            const result = await Swal.fire({
+                title: 'No Return Reasons Found',
+                text: 'Please configure return reasons in store settings first.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Go to Settings',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#d1d5db',
+            });
+
+            if (result.isConfirmed) {
+                router.push('/store/setting?tab=returnreasons');
+            }
+            return false;
+        }
+        return true;
+    };
+
+    const handleRemoveItem = async (itemId: number) => {
         if (!currentStoreId) return;
-        dispatch(removeItemRedux({ storeId: currentStoreId, id: itemId }));
+
+        if (reduxSlice === 'orderReturn') {
+            const item = invoiceItems.find((i: any) => i.id === itemId);
+            // Check if this is an original order item (has isReturnItem flag) or exchange item
+            if (item && (item as any).isReturnItem) {
+                const currentReturnQty = (item as any).returnQuantity || 0;
+                const originalQty = (item as any).originalQuantity || 0;
+
+                // If already fully marked for return, offer to undo
+                if (currentReturnQty >= originalQty) {
+                    const result = await Swal.fire({
+                        title: '<h3 class="text-xl font-bold">Item Already Marked for Return</h3>',
+                        html: `
+                            <div class="text-left mt-2">
+                                <div class="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
+                                    <p class="text-sm text-gray-500 mb-1">Item</p>
+                                    <p class="font-bold text-gray-800 text-lg">${item.title}</p>
+                                    <p class="text-sm text-amber-600 font-medium mt-1">All ${originalQty} unit(s) are marked for return</p>
+                                </div>
+                                <p class="text-sm text-gray-600">Would you like to undo the return and keep this item?</p>
+                            </div>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Undo Return (Keep Item)',
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#e5e7eb',
+                        cancelButtonText: '<span class="text-gray-700">Keep as Return</span>',
+                        customClass: {
+                            popup: 'rounded-xl',
+                            confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
+                            cancelButton: 'px-6 py-2.5 rounded-lg font-medium',
+                        },
+                    });
+
+                    if (result.isConfirmed) {
+                        // Undo return - set return quantity to 0
+                        dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: 0 }));
+                    }
+                    return;
+                }
+
+                // Not fully returned yet - show modal to confirm full return
+                if (!(await checkReturnReasons())) return;
+
+                const result = await Swal.fire({
+                    title: '<h3 class="text-xl font-bold">Confirm Full Return</h3>',
+                    html: `
+                        <div class="text-left mt-2">
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                                <p class="text-sm text-gray-500 mb-1">Item to Return</p>
+                                <p class="font-bold text-gray-800 text-lg">${item.title}</p>
+                                <p class="text-sm text-amber-600 font-medium mt-1">Full Return: ${originalQty} Unit(s)</p>
+                            </div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Select Reason:</label>
+                        </div>
+                    `,
+                    input: 'select',
+                    inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
+                        acc[reason.id] = reason.name;
+                        return acc;
+                    }, {}),
+                    inputPlaceholder: 'Select a reason...',
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirm Return',
+                    confirmButtonColor: '#f59e0b',
+                    cancelButtonColor: '#e5e7eb',
+                    cancelButtonText: '<span class="text-gray-700">Cancel</span>',
+                    customClass: {
+                        popup: 'rounded-xl',
+                        confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
+                        cancelButton: 'px-6 py-2.5 rounded-lg font-medium',
+                        input: 'border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500',
+                    },
+                    inputValidator: (value) => {
+                        if (!value) return 'Please select a return reason';
+                        return null;
+                    },
+                });
+
+                if (result.isConfirmed && result.value) {
+                    const reasonId = parseInt(result.value);
+                    dispatch(setReturnReason({ storeId: currentStoreId, reasonId }));
+                    // Set return quantity to max (full return)
+                    dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: originalQty }));
+                }
+                // DO NOT remove the item - it stays in the list
+            } else {
+                // This is an exchange item - remove normally
+                dispatch(removeExchangeItem({ storeId: currentStoreId, id: itemId }));
+            }
+        } else {
+            dispatch(removeItemRedux({ storeId: currentStoreId, id: itemId }));
+        }
     };
 
     const handleItemWholesaleToggle = (itemId: number) => {
@@ -345,26 +607,49 @@ const PosRightSide: React.FC = () => {
         });
 
         if (!currentStoreId) return;
-        dispatch(
-            updateItemRedux({
-                storeId: currentStoreId,
-                item: {
-                    ...item,
-                    isWholesale: newIsWholesale,
-                    rate: newRate,
-                    amount: item.quantity * newRate,
-                },
-            })
-        );
+        if (reduxSlice === 'orderReturn') {
+            dispatch(
+                updateExchangeItem({
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        isWholesale: newIsWholesale,
+                        rate: newRate,
+                        amount: item.quantity * newRate,
+                    },
+                })
+            );
+        } else {
+            dispatch(
+                updateItemRedux({
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        isWholesale: newIsWholesale,
+                        rate: newRate,
+                        amount: item.quantity * newRate,
+                    },
+                })
+            );
+        }
     };
 
-    const handleQuantityChange = (itemId: number, value: string) => {
+    const handleQuantityChange = async (itemId: number, value: string) => {
         const item = invoiceItems.find((line) => line.id === itemId);
         if (!item) return;
 
         if (value === '') {
             if (!currentStoreId) return;
-            dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, quantity: 0, amount: 0 } }));
+            if (reduxSlice === 'orderReturn') {
+                // Check if original order item
+                if ('orderItemId' in item) {
+                    dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: 0 }));
+                } else {
+                    dispatch(updateExchangeItem({ storeId: currentStoreId, item: { ...item, quantity: 0, amount: 0 } }));
+                }
+            } else {
+                dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, quantity: 0, amount: 0 } }));
+            }
             return;
         }
 
@@ -378,16 +663,98 @@ const PosRightSide: React.FC = () => {
         }
 
         if (!currentStoreId) return;
-        dispatch(
-            updateItemRedux({
-                storeId: currentStoreId,
-                item: {
-                    ...item,
-                    quantity: newQuantity,
-                    amount: item.rate * newQuantity,
-                },
-            })
-        );
+        if (reduxSlice === 'orderReturn') {
+            // Check if this is an original order item
+            if ((item as any).isReturnItem) {
+                const currentReturnQty = (item as any).returnQuantity || 0;
+                const originalQty = (item as any).originalQuantity || 0;
+                const currentKeptQty = originalQty - currentReturnQty; // What's currently being kept
+
+                // Only show modal when DECREASING the kept quantity (marking MORE items for return)
+                // Not when INCREASING (undoing a return)
+                if (newQuantity < currentKeptQty) {
+                    if (!(await checkReturnReasons())) return;
+
+                    const returnQty = originalQty - newQuantity;
+                    const result = await Swal.fire({
+                        title: '<h3 class="text-xl font-bold">Confirm Partial Return</h3>',
+                        html: `
+                            <div class="text-left mt-2">
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                                    <p class="text-sm text-gray-500 mb-1">Item to Return</p>
+                                    <p class="font-bold text-gray-800 text-lg">${item.title}</p>
+                                    <div class="flex gap-4 mt-2 text-sm">
+                                        <div class="bg-white px-3 py-1 rounded border border-gray-200">
+                                            <span class="text-gray-500">Keeping:</span> 
+                                            <span class="font-bold text-gray-900">${newQuantity}</span>
+                                        </div>
+                                        <div class="bg-amber-50 px-3 py-1 rounded border border-amber-200">
+                                            <span class="text-amber-700">Returning:</span> 
+                                            <span class="font-bold text-amber-700">${returnQty}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Reason:</label>
+                            </div>
+                        `,
+                        input: 'select',
+                        inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
+                            acc[reason.id] = reason.name;
+                            return acc;
+                        }, {}),
+                        inputPlaceholder: 'Select a reason...',
+                        showCancelButton: true,
+                        confirmButtonText: 'Confirm Return',
+                        confirmButtonColor: '#f59e0b',
+                        cancelButtonColor: '#e5e7eb',
+                        cancelButtonText: '<span class="text-gray-700">Cancel</span>',
+                        customClass: {
+                            popup: 'rounded-xl',
+                            confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
+                            cancelButton: 'px-6 py-2.5 rounded-lg font-medium',
+                            input: 'border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500',
+                        },
+                        inputValidator: (value) => {
+                            if (!value) return 'Please select a return reason';
+                            return null;
+                        },
+                    });
+
+                    if (result.isConfirmed && result.value) {
+                        const reasonId = parseInt(result.value);
+                        dispatch(setReturnReason({ storeId: currentStoreId, reasonId }));
+                        dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: returnQty }));
+                    }
+                } else {
+                    // Increasing quantity (undoing return) - no modal needed
+                    const returnQty = originalQty - newQuantity;
+                    dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: Math.max(0, returnQty) }));
+                }
+            } else {
+                // Exchange item - normal behavior
+                dispatch(
+                    updateExchangeItem({
+                        storeId: currentStoreId,
+                        item: {
+                            ...item,
+                            quantity: newQuantity,
+                            amount: item.rate * newQuantity,
+                        },
+                    })
+                );
+            }
+        } else {
+            dispatch(
+                updateItemRedux({
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        quantity: newQuantity,
+                        amount: item.rate * newQuantity,
+                    },
+                })
+            );
+        }
     };
 
     const handleQuantityBlur = (itemId: number) => {
@@ -396,16 +763,36 @@ const PosRightSide: React.FC = () => {
 
         if (item.quantity === 0) {
             if (!currentStoreId) return;
-            dispatch(
-                updateItemRedux({
-                    storeId: currentStoreId,
-                    item: {
-                        ...item,
-                        quantity: 1,
-                        amount: item.rate * 1,
-                    },
-                })
-            );
+            if (reduxSlice === 'orderReturn') {
+                // Check if this is an original order item
+                if ((item as any).isReturnItem) {
+                    // Original order items with quantity 0 are fully returned - don't reset them
+                    // The quantity 0 means all items are marked for return, which is valid
+                    return;
+                }
+                // Only reset exchange items to 1 when they have 0 quantity
+                dispatch(
+                    updateExchangeItem({
+                        storeId: currentStoreId,
+                        item: {
+                            ...item,
+                            quantity: 1,
+                            amount: item.rate * 1,
+                        },
+                    })
+                );
+            } else {
+                dispatch(
+                    updateItemRedux({
+                        storeId: currentStoreId,
+                        item: {
+                            ...item,
+                            quantity: 1,
+                            amount: item.rate * 1,
+                        },
+                    })
+                );
+            }
         }
     };
 
@@ -415,7 +802,11 @@ const PosRightSide: React.FC = () => {
 
         if (value === '') {
             if (!currentStoreId) return;
-            dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, rate: 0, amount: 0 } }));
+            if (reduxSlice === 'orderReturn') {
+                dispatch(updateExchangeItem({ storeId: currentStoreId, item: { ...item, rate: 0, amount: 0 } }));
+            } else {
+                dispatch(updateItemRedux({ storeId: currentStoreId, item: { ...item, rate: 0, amount: 0 } }));
+            }
             return;
         }
 
@@ -423,16 +814,29 @@ const PosRightSide: React.FC = () => {
         if (Number.isNaN(newRate) || newRate < 0) return;
 
         if (!currentStoreId) return;
-        dispatch(
-            updateItemRedux({
-                storeId: currentStoreId,
-                item: {
-                    ...item,
-                    rate: newRate,
-                    amount: item.quantity * newRate,
-                },
-            })
-        );
+        if (reduxSlice === 'orderReturn') {
+            dispatch(
+                updateExchangeItem({
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        rate: newRate,
+                        amount: item.quantity * newRate,
+                    },
+                })
+            );
+        } else {
+            dispatch(
+                updateItemRedux({
+                    storeId: currentStoreId,
+                    item: {
+                        ...item,
+                        rate: newRate,
+                        amount: item.quantity * newRate,
+                    },
+                })
+            );
+        }
     };
 
     const handleUnitPriceBlur = (itemId: number) => {
@@ -468,7 +872,9 @@ const PosRightSide: React.FC = () => {
     };
 
     const calculateTax = () => {
-        return invoiceItems.reduce((total, item) => total + calculateItemTax(item), 0);
+        return invoiceItems.reduce((total, item) => {
+            return total + calculateItemTax(item);
+        }, 0);
     };
 
     const calculateSubtotalWithoutTax = () => {
@@ -545,8 +951,11 @@ const PosRightSide: React.FC = () => {
         const isConfirmed = await showConfirmDialog('Are you sure?', 'Do you really want to clear all items?', 'Yes, Clear', 'Cancel');
 
         if (isConfirmed && currentStoreId) {
-            dispatch(clearItemsRedux(currentStoreId));
-            // showMessage('All items cleared successfully', 'success');
+            if (reduxSlice === 'orderReturn') {
+                dispatch(clearReturnSession(currentStoreId));
+            } else {
+                dispatch(clearItemsRedux(currentStoreId));
+            }
         }
     };
 
@@ -789,6 +1198,126 @@ const PosRightSide: React.FC = () => {
         }
     };
 
+    // Return mode submit handler
+    const handleReturnSubmit = async () => {
+        if (invoiceItems.length === 0) {
+            showMessage('Please add exchange items or select items to return', 'error');
+            return;
+        }
+
+        if (!(await checkReturnReasons())) return;
+
+        // Calculate valid return items
+        const validReturnItems = returnItemsData
+            .filter((item) => item.returnQuantity > 0)
+            .map((item) => ({
+                order_item_id: item.orderItemId,
+                quantity_returned: item.returnQuantity,
+            }));
+
+        // Validate that at least one item is being returned
+        if (validReturnItems.length === 0) {
+            showMessage('Please reduce the quantity of the items you want to return.', 'error');
+            return;
+        }
+
+        // Check if return reason is already set in Redux
+        let reasonId = returnReasonData.reasonId;
+        let notes = returnReasonData.notes;
+
+        if (!reasonId) {
+            // Show return reason selection modal ONLY if not already set
+            const result = await Swal.fire({
+                title: 'Select Return Reason',
+                input: 'select',
+                inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
+                    acc[reason.id] = reason.name;
+                    return acc;
+                }, {}),
+                inputPlaceholder: 'Select a reason',
+                showCancelButton: true,
+                confirmButtonText: 'Submit Return',
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#6b7280',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Please select a return reason';
+                    }
+                    return null;
+                },
+            });
+
+            if (!result.isConfirmed || !result.value) return;
+
+            reasonId = parseInt(result.value);
+
+            // Optional: ask for notes
+            const notesResult = await Swal.fire({
+                title: 'Return Notes (Optional)',
+                input: 'textarea',
+                inputPlaceholder: 'Add any additional notes...',
+                showCancelButton: true,
+                confirmButtonText: 'Complete Return',
+                confirmButtonColor: '#10b981',
+                cancelButtonText: 'Skip',
+            });
+
+            notes = notesResult.value || '';
+
+            // Update return reason in Redux
+            if (currentStoreId) {
+                dispatch(setReturnReason({ storeId: currentStoreId, reasonId, notes }));
+            }
+        }
+
+        // Prepare return data
+        const returnData = {
+            order_id: orderId,
+            store_id: currentStoreId,
+            return_reason_id: reasonId,
+            notes: notes,
+            payment_method: formData.paymentMethod || 'cash',
+            return_items: validReturnItems,
+            new_items: exchangeItemsData.map((item) => ({
+                product_id: item.productId,
+                stock_id: item.stockId,
+                quantity: item.quantity,
+                unit_price: item.rate,
+            })),
+        };
+
+        // Capture snapshot for preview (persist against redux resets)
+        const previewSnapshot = {
+            returnItems: returnItemsData.filter((item) => item.returnQuantity > 0),
+            exchangeItems: exchangeItemsData,
+            returnTotal,
+            exchangeTotal: newItemsTotal,
+            netTransaction: returnNetAmount,
+            returnReasonId: reasonId,
+            notes: notes,
+        };
+
+        try {
+            setLoading(true);
+            const response = await createOrderReturn(returnData).unwrap();
+
+            // Store response and show preview (same as main order flow)
+            setReturnPreviewSnapshot(previewSnapshot);
+            setOrderResponse(response);
+            setShowPreview(true);
+            setLoading(false);
+            showMessage('Return processed successfully!', 'success');
+
+            // Don't clear session yet - we need it for the preview
+            // It will be cleared when preview is closed (handleBackToEdit)
+        } catch (error: any) {
+            console.error('Return error:', error);
+            const message = error?.data?.message || 'Failed to process return';
+            showMessage(message, 'error');
+            setLoading(false);
+        }
+    };
+
     const handlePreview = () => {
         if (invoiceItems.length === 0) {
             showMessage('No items to preview', 'error');
@@ -800,29 +1329,39 @@ const PosRightSide: React.FC = () => {
     const handleBackToEdit = () => {
         setShowPreview(false);
 
-        // If order was created, clear the items and form
+        // If order/return was created, clear the items and form
         if (orderResponse && currentStoreId) {
-            dispatch(clearItemsRedux(currentStoreId));
-            clearCustomerSelection();
-            setFormData({
-                customerId: null,
-                customerName: '',
-                customerEmail: '',
-                customerPhone: '',
-                discount: 0,
-                membershipDiscount: 0,
-                paymentMethod: '',
-                paymentStatus: '',
-                usePoints: false,
-                useBalance: false,
-                pointsToUse: 0,
-                balanceToUse: 0,
-                useWholesale: false,
-                amountPaid: 0,
-                changeAmount: 0,
-                partialPaymentAmount: 0,
-                dueAmount: 0,
-            });
+            if (isReturnMode) {
+                // Clear return session and navigate to orders page
+                dispatch(clearReturnSession(currentStoreId));
+                setOrderResponse(null);
+                setReturnPreviewSnapshot(null);
+                router.push('/orders');
+                return;
+            } else {
+                // Normal POS - clear items and reset form
+                dispatch(clearItemsRedux(currentStoreId));
+                clearCustomerSelection();
+                setFormData({
+                    customerId: null,
+                    customerName: '',
+                    customerEmail: '',
+                    customerPhone: '',
+                    discount: 0,
+                    membershipDiscount: 0,
+                    paymentMethod: '',
+                    paymentStatus: '',
+                    usePoints: false,
+                    useBalance: false,
+                    pointsToUse: 0,
+                    balanceToUse: 0,
+                    useWholesale: false,
+                    amountPaid: 0,
+                    changeAmount: 0,
+                    partialPaymentAmount: 0,
+                    dueAmount: 0,
+                });
+            }
         }
 
         setOrderResponse(null);
@@ -838,6 +1377,99 @@ const PosRightSide: React.FC = () => {
             console.log('📋 Invoice Preview - Order Response:', orderResponse);
             console.log('📋 Invoice Preview - Order Data:', orderData);
             console.log('📋 Invoice Preview - Response Items:', responseItems);
+
+            // For return mode, build special preview data
+            if (isReturnMode) {
+                // Use snapshot if available (stable data), otherwise live Redux data
+                const activeReturnItems = returnPreviewSnapshot?.returnItems || returnItemsData.filter((item) => item.returnQuantity > 0);
+                const activeExchangeItems = returnPreviewSnapshot?.exchangeItems || exchangeItemsData;
+                const activeReturnTotal = returnPreviewSnapshot ? returnPreviewSnapshot.returnTotal : returnTotal;
+                const activeExchangeTotal = returnPreviewSnapshot ? returnPreviewSnapshot.exchangeTotal : newItemsTotal;
+                const activeNetTransaction = returnPreviewSnapshot ? returnPreviewSnapshot.netTransaction : returnNetAmount;
+                const activeReasonId = returnPreviewSnapshot ? returnPreviewSnapshot.returnReasonId : returnReasonData.reasonId;
+                const activeNotes = returnPreviewSnapshot ? returnPreviewSnapshot.notes : returnReasonData.notes;
+
+                // Get items that customer is KEEPING from original order (originalQuantity - returnQuantity)
+                const keptItems = activeReturnItems
+                    .filter((item: any) => item.originalQuantity - item.returnQuantity > 0)
+                    .map((item: any, idx: number) => ({
+                        id: idx + 1,
+                        title: item.title || 'Unknown Item',
+                        quantity: item.originalQuantity - item.returnQuantity, // Items kept
+                        price: item.rate,
+                        amount: item.rate * (item.originalQuantity - item.returnQuantity),
+                        unit: item.unit || 'piece',
+                        isKept: true,
+                        variantName: item.variantName,
+                        variantData: item.variantData,
+                    }));
+
+                // Get items that were RETURNED (have returnQuantity > 0)
+                const returnedItems = activeReturnItems
+                    .filter((item: any) => item.returnQuantity > 0)
+                    .map((item: any, idx: number) => ({
+                        id: keptItems.length + idx + 1,
+                        title: item.title || 'Unknown Item',
+                        quantity: item.returnQuantity,
+                        price: item.rate,
+                        amount: item.rate * item.returnQuantity,
+                        unit: item.unit || 'piece',
+                        isReturned: true,
+                        variantName: item.variantName,
+                        variantData: item.variantData,
+                    }));
+
+                // Get exchange items
+                const exchangeItems = activeExchangeItems.map((item: any, idx: number) => ({
+                    id: keptItems.length + returnedItems.length + idx + 1,
+                    title: item.title || 'Unknown Item',
+                    quantity: item.quantity,
+                    price: item.rate,
+                    amount: item.amount || item.rate * item.quantity,
+                    unit: item.unit || 'piece',
+                    isExchange: true,
+                    variantName: item.variantName,
+                    variantData: item.variantData,
+                }));
+
+                const customer = orderData.customer || originalOrder?.customer;
+
+                // Calculate subtotal of kept + exchange items (what customer has now)
+                const keptItemsTotal = keptItems.reduce((sum: number, item: any) => sum + item.amount, 0);
+                const newOrderSubtotal = keptItemsTotal + activeExchangeTotal;
+
+                return {
+                    customer: {
+                        name: customer?.name || 'Customer',
+                        email: customer?.email || '',
+                        phone: customer?.phone || '',
+                    },
+                    invoice: orderData.return_number || orderData.invoice_number || `#RTN-${orderData.id || 'N/A'}`,
+                    order_id: orderData.id || orderData.return_id,
+                    original_order_id: orderId,
+                    isReturn: true,
+                    keptItems: keptItems, // Items kept from original order
+                    returnedItems: returnedItems, // Items being returned
+                    exchangeItems: exchangeItems, // New exchange items
+                    items: [...keptItems, ...exchangeItems, ...returnedItems], // All items for table display
+                    returnTotal: activeReturnTotal,
+                    exchangeTotal: activeExchangeTotal,
+                    netTransaction: activeNetTransaction,
+                    keptItemsTotal: keptItemsTotal, // Total value of items kept
+                    return_reason: returnReasons.find((r: any) => r.id === activeReasonId)?.name || 'N/A',
+                    notes: activeNotes || '',
+                    paymentMethod: orderData.payment_method || formData.paymentMethod || 'Cash',
+                    totals: {
+                        returnAmount: activeReturnTotal,
+                        exchangeAmount: activeExchangeTotal,
+                        netAmount: activeNetTransaction,
+                        subtotal: newOrderSubtotal, // Subtotal of kept + exchange items
+                        total: Math.abs(activeNetTransaction),
+                        grand_total: Math.abs(activeNetTransaction),
+                    },
+                    isOrderCreated: true,
+                };
+            }
 
             return {
                 customer: {
@@ -1004,6 +1636,7 @@ const PosRightSide: React.FC = () => {
                     onUnitPriceBlur={handleUnitPriceBlur}
                     onRemoveItem={handleRemoveItem}
                     onItemWholesaleToggle={handleItemWholesaleToggle}
+                    isReturnMode={isReturnMode}
                 />
 
                 <PaymentSummarySection
@@ -1020,17 +1653,42 @@ const PosRightSide: React.FC = () => {
                     balanceDiscount={calculateBalanceDiscount()}
                     totalPayable={calculateTotal()}
                     isWalkInCustomer={formData.customerId === 'walk-in'}
+                    // Return mode props
+                    isReturnMode={isReturnMode}
+                    returnTotal={returnTotal}
+                    newItemsTotal={newItemsTotal}
+                    returnNetAmount={returnNetAmount}
                 />
 
-                <CashPaymentSection formData={formData} onInputChange={handleInputChange} totalPayable={calculateTotal()} isWalkInCustomer={formData.customerId === 'walk-in'} />
+                <CashPaymentSection
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    totalPayable={calculateTotal()}
+                    isWalkInCustomer={formData.customerId === 'walk-in'}
+                    isReturnMode={isReturnMode}
+                    returnNetAmount={returnNetAmount}
+                />
 
                 <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
-                    <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
-                        Confirm Order <IconSave />
-                    </button>
-                    <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
-                        Preview <IconEye />
-                    </button>
+                    {isReturnMode ? (
+                        <>
+                            <button type="button" className="btn btn-warning flex-1 text-sm sm:text-base" onClick={handleReturnSubmit} disabled={loading}>
+                                Submit Return <IconSave />
+                            </button>
+                            <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={() => router.push('/orders')}>
+                                Cancel
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
+                                Confirm Order <IconSave />
+                            </button>
+                            <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
+                                Preview <IconEye />
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

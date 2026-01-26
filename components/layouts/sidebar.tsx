@@ -204,14 +204,7 @@ const Sidebar = () => {
                     {/* Logo */}
                     <div className="flex items-center justify-between px-4 py-3">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center space-x-2">
-                            <Image
-                                src="/images/andgatePOS.jpeg"
-                                alt="AndGate POS logo"
-                                width={160} // adjust as needed
-                                height={40} // adjust as needed
-                                className="object-contain"
-                                priority // ensures logo loads fast
-                            />
+                            <Image src="/images/andgatePOS.jpeg" alt="AndGate POS logo" width={0} height={0} sizes="100vw" className="h-10 w-auto object-contain" priority />
                             {/* You can add site name text here if needed */}
                         </Link>
 

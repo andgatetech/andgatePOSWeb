@@ -44,6 +44,11 @@ interface InvoiceItem {
     warranty?: Warranty | null;
     has_serial?: boolean;
     has_warranty?: boolean;
+    // Return mode fields
+    isReturnItem?: boolean;
+    orderItemId?: number;
+    originalQuantity?: number;
+    returnQuantity?: number;
 }
 
 interface OrderDetailsSectionProps {
@@ -57,6 +62,7 @@ interface OrderDetailsSectionProps {
     onUnitPriceBlur: (itemId: number) => void;
     onRemoveItem: (itemId: number) => void;
     onItemWholesaleToggle: (itemId: number) => void;
+    isReturnMode?: boolean;
 }
 
 const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
@@ -70,6 +76,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     onUnitPriceBlur,
     onRemoveItem,
     onItemWholesaleToggle,
+    isReturnMode = false,
 }) => {
     const { formatCurrency, symbol } = useCurrency();
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
@@ -128,134 +135,171 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                 </td>
                             </tr>
                         ) : (
-                            invoiceItems.map((item, index) => (
-                                <tr key={item.id} className={`transition-colors hover:bg-blue-50 ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
-                                    <td className="border-r border-gray-300 p-3 text-center text-sm font-bold text-gray-700">{index + 1}</td>
-                                    <td className="border-r border-gray-300 p-3 text-sm font-medium">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => handlePreview(item)}
-                                                className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
-                                                title="View details"
-                                            >
-                                                <Eye className="h-4 w-4" />
-                                            </button>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span title={item.title}>{item.title.length > 20 ? `${item.title.substring(0, 20)}...` : item.title}</span>
-                                                </div>
-                                                {/* Variant Info - Inline */}
-                                                {item.variantName && (
-                                                    <div className="mt-1 text-xs text-gray-600">
-                                                        <span className="font-medium">{item.variantName}</span>
-                                                        {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
-                                                    </div>
-                                                )}
-                                                {/* Serial Number Badge */}
-                                                {item.has_serial && item.serials && item.serials.length > 0 && (
-                                                    <div className="mt-1">
-                                                        <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
-                                                            <Hash className="h-3 w-3" />
-                                                            S/N: {item.serials[0].serial_number}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                {/* Warranty Badge */}
-                                                {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
-                                                    <div className="mt-1">
-                                                        <span
-                                                            className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700"
-                                                            title={`${item.warranty.warranty_type_name} warranty`}
-                                                        >
-                                                            <Shield className="h-3 w-3" />
-                                                            {item.warranty.duration_months
-                                                                ? `${item.warranty.duration_months}mo`
-                                                                : item.warranty.duration_days
-                                                                ? `${item.warranty.duration_days}d`
-                                                                : 'Lifetime'}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="border-r border-gray-300 p-3 text-center">
-                                        <div className="relative">
-                                            {item.has_serial ? (
-                                                // Serialized products have fixed quantity = 1
-                                                <span className="inline-block rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">1</span>
-                                            ) : (
-                                                <input
-                                                    type="number"
-                                                    className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
-                                                    min={0}
-                                                    max={item.PlaceholderQuantity || 9999}
-                                                    value={item.quantity === 0 ? '' : item.quantity}
-                                                    onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                                    onBlur={() => onQuantityBlur(item.id)}
-                                                />
-                                            )}
-                                            {item.quantity === 0 && <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>}
-                                        </div>
-                                    </td>
-                                    <td className="border-r border-gray-300 p-3 text-center text-sm">
-                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
-                                    </td>
-                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">
-                                        <div className="flex flex-col items-end gap-1">
-                                            <button
-                                                type="button"
-                                                onClick={() => onItemWholesaleToggle(item.id)}
-                                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-                                                    item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                }`}
-                                                title={`Click to switch to ${item.isWholesale ? 'Retail' : 'Wholesale'} price`}
-                                            >
-                                                {item.isWholesale ? 'Wholesale' : 'Retail'}
-                                            </button>
-                                            <div className="relative w-full">
-                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">{symbol}</span>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
-                                                    value={item.rate}
-                                                    onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
-                                                    onBlur={() => onUnitPriceBlur(item.id)}
-                                                />
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="border-r border-gray-300 p-3 text-center text-sm">
-                                        {item.tax_rate ? (
-                                            <div className="text-xs">
-                                                <div className="font-medium">{item.tax_rate}%</div>
-                                                <div
-                                                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${
-                                                        item.tax_included ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                                                    }`}
+                            invoiceItems.map((item, index) => {
+                                // Check if this is a fully returned item (in return mode)
+                                const isFullyReturned = isReturnMode && item.isReturnItem && item.quantity === 0;
+                                const isPartiallyReturned = isReturnMode && item.isReturnItem && item.returnQuantity && item.returnQuantity > 0 && item.quantity > 0;
+
+                                return (
+                                    <tr
+                                        key={item.id}
+                                        className={`transition-colors ${
+                                            isFullyReturned ? 'bg-amber-50 hover:bg-amber-100' : isPartiallyReturned ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-blue-50'
+                                        } ${index < invoiceItems.length - 1 ? 'border-b border-gray-200' : ''}`}
+                                    >
+                                        <td className="border-r border-gray-300 p-3 text-center text-sm font-bold text-gray-700">{index + 1}</td>
+                                        <td className="border-r border-gray-300 p-3 text-sm font-medium">
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handlePreview(item)}
+                                                    className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
+                                                    title="View details"
                                                 >
-                                                    {item.tax_included ? 'Incl.' : 'Excl.'}
+                                                    <Eye className="h-4 w-4" />
+                                                </button>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span title={item.title}>{item.title.length > 20 ? `${item.title.substring(0, 20)}...` : item.title}</span>
+                                                        {/* Return Status Badge */}
+                                                        {isFullyReturned && (
+                                                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-medium text-white">Returning All</span>
+                                                        )}
+                                                        {isPartiallyReturned && (
+                                                            <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-medium text-white">
+                                                                Returning {item.returnQuantity}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {/* Variant Info - Inline */}
+                                                    {item.variantName && (
+                                                        <div className="mt-1 text-xs text-gray-600">
+                                                            <span className="font-medium">{item.variantName}</span>
+                                                            {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
+                                                        </div>
+                                                    )}
+                                                    {/* Serial Number Badge */}
+                                                    {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                        <div className="mt-1">
+                                                            <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
+                                                                <Hash className="h-3 w-3" />
+                                                                S/N: {item.serials[0].serial_number}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {/* Warranty Badge */}
+                                                    {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                                        <div className="mt-1">
+                                                            <span
+                                                                className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700"
+                                                                title={`${item.warranty.warranty_type_name} warranty`}
+                                                            >
+                                                                <Shield className="h-3 w-3" />
+                                                                {item.warranty.duration_months
+                                                                    ? `${item.warranty.duration_months}mo`
+                                                                    : item.warranty.duration_days
+                                                                    ? `${item.warranty.duration_days}d`
+                                                                    : 'Lifetime'}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                        ) : (
-                                            <span className="text-gray-400">No tax</span>
-                                        )}
-                                    </td>
-                                    <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">{totalAmountForItem(item)}</td>
-                                    <td className="p-3 text-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => onRemoveItem(item.id)}
-                                            className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
-                                            title="Remove item"
-                                        >
-                                            <IconX className="h-4 w-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                                        </td>
+                                        <td className="border-r border-gray-300 p-3 text-center">
+                                            <div className="relative">
+                                                {item.has_serial ? (
+                                                    // Serialized products have fixed quantity = 1
+                                                    <span className="inline-block rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">1</span>
+                                                ) : isReturnMode && item.isReturnItem ? (
+                                                    // Return item - show kept quantity with original
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <input
+                                                            type="number"
+                                                            className={`form-input w-16 text-center ${isFullyReturned ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}`}
+                                                            min={0}
+                                                            max={item.originalQuantity || item.PlaceholderQuantity || 9999}
+                                                            value={item.quantity === 0 ? '0' : item.quantity}
+                                                            onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                            onBlur={() => onQuantityBlur(item.id)}
+                                                        />
+                                                        <span className="text-xs text-gray-500">of {item.originalQuantity}</span>
+                                                    </div>
+                                                ) : (
+                                                    <input
+                                                        type="number"
+                                                        className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
+                                                        min={0}
+                                                        max={item.PlaceholderQuantity || 9999}
+                                                        value={item.quantity === 0 ? '' : item.quantity}
+                                                        onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                        onBlur={() => onQuantityBlur(item.id)}
+                                                    />
+                                                )}
+                                                {/* Only show warning for non-return items */}
+                                                {item.quantity === 0 && !(isReturnMode && item.isReturnItem) && (
+                                                    <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">Quantity must be at least 1</div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-gray-300 p-3 text-center text-sm">
+                                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                        </td>
+                                        <td className="border-r border-gray-300 p-3 text-right text-sm font-medium">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onItemWholesaleToggle(item.id)}
+                                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                        item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                    }`}
+                                                    title={`Click to switch to ${item.isWholesale ? 'Retail' : 'Wholesale'} price`}
+                                                >
+                                                    {item.isWholesale ? 'Wholesale' : 'Retail'}
+                                                </button>
+                                                <div className="relative">
+                                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">{symbol}</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
+                                                        value={item.rate}
+                                                        onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
+                                                        onBlur={() => onUnitPriceBlur(item.id)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-gray-300 p-3 text-center text-sm">
+                                            {item.tax_rate ? (
+                                                <div className="text-xs">
+                                                    <div className="font-medium">{item.tax_rate}%</div>
+                                                    <div
+                                                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${
+                                                            item.tax_included ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                                                        }`}
+                                                    >
+                                                        {item.tax_included ? 'Incl.' : 'Excl.'}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">No tax</span>
+                                            )}
+                                        </td>
+                                        <td className="border-r border-gray-300 p-3 text-right text-sm font-bold">{totalAmountForItem(item)}</td>
+                                        <td className="p-3 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => onRemoveItem(item.id)}
+                                                className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
+                                                title="Remove item"
+                                            >
+                                                <IconX className="h-4 w-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>
@@ -269,116 +313,159 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                         <p className="text-xs text-gray-400">Add products to start your order</p>
                     </div>
                 ) : (
-                    invoiceItems.map((item, index) => (
-                        <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
-                            <div className="mb-2 flex items-start justify-between">
-                                <div className="flex items-start gap-2">
-                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">{index + 1}</span>
-                                    <div className="flex-1">
-                                        <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
-                                        {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
+                    invoiceItems.map((item, index) => {
+                        const isFullyReturned = isReturnMode && item.isReturnItem && item.quantity === 0;
+                        const isPartiallyReturned = isReturnMode && item.isReturnItem && item.returnQuantity && item.returnQuantity > 0 && item.quantity > 0;
 
-                                        {/* Variant Info - Mobile */}
-                                        {item.variantName && (
-                                            <div className="mt-1 text-xs text-gray-600">
-                                                <span className="font-medium">{item.variantName}</span>
-                                                {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
-                                            </div>
-                                        )}
-
-                                        {/* Serial & Warranty Badges - Mobile */}
-                                        <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                            {item.has_serial && item.serials && item.serials.length > 0 && (
-                                                <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
-                                                    <Hash className="h-3 w-3" />
-                                                    S/N: {item.serials[0].serial_number}
-                                                </span>
-                                            )}
-                                            {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
-                                                <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                                                    <Shield className="h-3 w-3" />
-                                                    {item.warranty.duration_months
-                                                        ? `${item.warranty.duration_months}mo`
-                                                        : item.warranty.duration_days
-                                                        ? `${item.warranty.duration_days}d`
-                                                        : 'Lifetime'}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="ml-2 flex flex-shrink-0 gap-1">
-                                    <button type="button" onClick={() => handlePreview(item)} className="rounded-full bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100">
-                                        <Eye className="h-4 w-4" />
-                                    </button>
-                                    <button type="button" onClick={() => onRemoveItem(item.id)} className="rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
-                                        <IconX className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Qty:</span>
-                                    {item.has_serial ? (
-                                        <span className="font-medium">1</span>
-                                    ) : (
-                                        <input
-                                            type="number"
-                                            className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                            placeholder="Quantity"
-                                            value={item.quantity === 0 ? '' : item.quantity}
-                                            onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                            onBlur={() => onQuantityBlur(item.id)}
-                                            min="0"
-                                        />
-                                    )}
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Unit:</span>
-                                    <span className="font-medium">{item.unit || 'N/A'}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-600">Rate:</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => onItemWholesaleToggle(item.id)}
-                                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-                                                item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                        return (
+                            <div
+                                key={item.id}
+                                className={`rounded-lg border p-3 shadow-sm ${
+                                    isFullyReturned ? 'border-amber-300 bg-amber-50' : isPartiallyReturned ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-white'
+                                }`}
+                            >
+                                <div className="mb-2 flex items-start justify-between">
+                                    <div className="flex items-start gap-2">
+                                        <span
+                                            className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                                                isFullyReturned ? 'bg-amber-200 text-amber-700' : 'bg-blue-100 text-blue-700'
                                             }`}
                                         >
-                                            {item.isWholesale ? 'W' : 'R'}
+                                            {index + 1}
+                                        </span>
+                                        <div className="flex-1">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
+                                                {/* Return Status Badge - Mobile */}
+                                                {isFullyReturned && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-medium text-white">Returning All</span>
+                                                )}
+                                                {isPartiallyReturned && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-medium text-white">
+                                                        Returning {item.returnQuantity}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {item.description && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{item.description}</p>}
+
+                                            {/* Variant Info - Mobile */}
+                                            {item.variantName && (
+                                                <div className="mt-1 text-xs text-gray-600">
+                                                    <span className="font-medium">{item.variantName}</span>
+                                                    {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
+                                                </div>
+                                            )}
+
+                                            {/* Serial & Warranty Badges - Mobile */}
+                                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                                {item.has_serial && item.serials && item.serials.length > 0 && (
+                                                    <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
+                                                        <Hash className="h-3 w-3" />
+                                                        S/N: {item.serials[0].serial_number}
+                                                    </span>
+                                                )}
+                                                {item.has_warranty && item.warranty && typeof item.warranty === 'object' && (
+                                                    <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                                                        <Shield className="h-3 w-3" />
+                                                        {item.warranty.duration_months
+                                                            ? `${item.warranty.duration_months}mo`
+                                                            : item.warranty.duration_days
+                                                            ? `${item.warranty.duration_days}d`
+                                                            : 'Lifetime'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="ml-2 flex flex-shrink-0 gap-1">
+                                        <button type="button" onClick={() => handlePreview(item)} className="rounded-full bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100">
+                                            <Eye className="h-4 w-4" />
+                                        </button>
+                                        <button type="button" onClick={() => onRemoveItem(item.id)} className="rounded-full bg-red-50 p-1.5 text-red-600 hover:bg-red-100">
+                                            <IconX className="h-4 w-4" />
                                         </button>
                                     </div>
-                                    <input
-                                        type="number"
-                                        className="form-input w-full rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                        placeholder="Rate"
-                                        value={item.rate}
-                                        onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
-                                        onBlur={() => onUnitPriceBlur(item.id)}
-                                        min="0"
-                                    />
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Tax:</span>
-                                    {item.tax_rate ? (
-                                        <span className="font-medium">
-                                            {item.tax_rate}% <span className={item.tax_included ? 'text-green-600' : 'text-blue-600'}>({item.tax_included ? 'Incl' : 'Excl'})</span>
-                                        </span>
-                                    ) : (
-                                        <span className="text-gray-400">No tax</span>
-                                    )}
-                                </div>
-                            </div>
 
-                            <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2">
-                                <span className="text-xs font-medium text-gray-600">Amount:</span>
-                                <span className="text-base font-bold text-primary">{formatCurrency(item.rate * item.quantity)}</span>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600">Qty:</span>
+                                        {item.has_serial ? (
+                                            <span className="font-medium">1</span>
+                                        ) : isReturnMode && item.isReturnItem ? (
+                                            <div className="flex items-center gap-1">
+                                                <input
+                                                    type="number"
+                                                    className={`form-input ml-2 w-12 rounded border px-2 py-1 text-center text-xs ${
+                                                        isFullyReturned ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                                                    }`}
+                                                    placeholder="Qty"
+                                                    value={item.quantity === 0 ? '0' : item.quantity}
+                                                    onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                    onBlur={() => onQuantityBlur(item.id)}
+                                                    min="0"
+                                                    max={item.originalQuantity}
+                                                />
+                                                <span className="text-gray-500">/{item.originalQuantity}</span>
+                                            </div>
+                                        ) : (
+                                            <input
+                                                type="number"
+                                                className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
+                                                placeholder="Quantity"
+                                                value={item.quantity === 0 ? '' : item.quantity}
+                                                onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                onBlur={() => onQuantityBlur(item.id)}
+                                                min="0"
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Unit:</span>
+                                        <span className="font-medium">{item.unit || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600">Rate:</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => onItemWholesaleToggle(item.id)}
+                                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                    item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                }`}
+                                            >
+                                                {item.isWholesale ? 'W' : 'R'}
+                                            </button>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            className="form-input w-full rounded border border-gray-300 px-2 py-1 text-center text-xs"
+                                            placeholder="Rate"
+                                            value={item.rate}
+                                            onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
+                                            onBlur={() => onUnitPriceBlur(item.id)}
+                                            min="0"
+                                        />
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Tax:</span>
+                                        {item.tax_rate ? (
+                                            <span className="font-medium">
+                                                {item.tax_rate}% <span className={item.tax_included ? 'text-green-600' : 'text-blue-600'}>({item.tax_included ? 'Incl' : 'Excl'})</span>
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-400">No tax</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2">
+                                    <span className="text-xs font-medium text-gray-600">Amount:</span>
+                                    <span className="text-base font-bold text-primary">{formatCurrency(item.rate * item.quantity)}</span>
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>

@@ -8,6 +8,7 @@ import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
+import { addItemRedux as addOrderReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
@@ -37,7 +38,7 @@ interface PosLeftSideProps {
         hideIcon: React.ReactNode;
         label?: string;
     };
-    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'purchase'; // Which Redux slice to use
+    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase'; // Which Redux slice to use
 }
 
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
@@ -174,7 +175,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     }, [brandsResponse]);
 
     // Select Redux items based on the slice prop and current store
-    // Select Redux items based on the slice prop and current store
     const reduxItems = useSelector((state: RootState) => {
         switch (reduxSlice) {
             case 'stock':
@@ -183,6 +183,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 return currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || [] : [];
             case 'orderEdit':
                 return currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : [];
+            case 'orderReturn':
+                return currentStoreId && state.orderReturn?.sessionsByStore ? state.orderReturn.sessionsByStore[currentStoreId]?.exchangeItems || [] : [];
             case 'purchase':
                 return currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId]?.items || [] : [];
             case 'pos':
@@ -344,6 +346,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 case 'orderEdit':
                     dispatch(addOrderEditItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
+                case 'orderReturn':
+                    dispatch(addOrderReturnItem({ storeId: currentStoreId, item: itemToAdd }));
+                    break;
                 case 'purchase':
                     dispatch(
                         addPurchaseItem({
@@ -468,6 +473,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 case 'orderEdit':
                     dispatch(addOrderEditItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
+                case 'orderReturn':
+                    dispatch(addOrderReturnItem({ storeId: currentStoreId, item: itemToAdd }));
+                    break;
                 case 'purchase':
                     dispatch(
                         addPurchaseItem({
@@ -557,6 +565,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         break;
                     case 'orderEdit':
                         dispatch(addOrderEditItem({ storeId: currentStoreId, item: itemToAdd }));
+                        break;
+                    case 'orderReturn':
+                        dispatch(addOrderReturnItem({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                     case 'purchase':
                         dispatch(

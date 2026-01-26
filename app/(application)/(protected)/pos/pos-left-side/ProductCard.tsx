@@ -25,7 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
                 typeof product.images[0] === 'string'
                     ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
                     : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`;
-            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" />;
+            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
         }
 
         // If no product images, try first variant's first image
@@ -40,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
             }
             const cleanPath = imgPath.startsWith('/') ? imgPath.substring(1) : imgPath;
             const imgSrc = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${cleanPath}`;
-            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" />;
+            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
         }
 
         // No images - show placeholder

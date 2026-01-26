@@ -2,9 +2,12 @@
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
-import { Download, Edit, Eye, Printer } from 'lucide-react';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { setReturnOrderId } from '@/store/features/Order/OrderReturnSlice';
+import { Download, Edit, Eye, Printer, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 
 interface OrdersTableProps {
     orders: any[];
@@ -30,6 +33,8 @@ interface OrdersTableProps {
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onDownloadInvoice, onPrintInvoice }) => {
     const router = useRouter();
     const { formatCurrency } = useCurrency();
+    const dispatch = useDispatch();
+    const { currentStoreId } = useCurrentStore();
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -151,6 +156,17 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 icon: <Edit className="h-4 w-4" />,
             },
             {
+                label: 'Make Return',
+                onClick: (order) => {
+                    if (currentStoreId) {
+                        dispatch(setReturnOrderId({ storeId: currentStoreId, orderId: order.id }));
+                        router.push(`/orders/return?orderId=${order.id}`);
+                    }
+                },
+                className: 'text-amber-600',
+                icon: <RotateCcw className="h-4 w-4" />,
+            },
+            {
                 label: 'View Details',
                 onClick: onViewDetails,
                 className: 'text-blue-600',
@@ -169,7 +185,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 icon: <Printer className="h-4 w-4" />,
             },
         ],
-        [router, onViewDetails, onDownloadInvoice, onPrintInvoice]
+        [router, onViewDetails, onDownloadInvoice, onPrintInvoice, currentStoreId, dispatch]
     );
 
     return (
