@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import AnimateHeight from 'react-animate-height';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -13,10 +13,8 @@ import { RootState } from '@/store';
 import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 
+import { Crown, Store } from 'lucide-react';
 import Image from 'next/image';
-// Icons
-
-import { BarChart, Crown, FileText, MessagesSquare, Package, Receipt, ShoppingCart, Store, Tag, Truck, Users, Wallet } from 'lucide-react';
 import IconCaretDown from '../icon/icon-caret-down';
 import IconCaretsDown from '../icon/icon-carets-down';
 
@@ -27,111 +25,11 @@ function getCookieValue(name: string): string | null {
     return match ? decodeURIComponent(match[2]) : null;
 }
 
-const menuRoutes = [
-    {
-        label: 'Brand',
-        icon: <Tag />,
-        subMenu: [{ label: 'Brand List', href: '/brand' }],
-    },
-    {
-        label: 'Product',
-        icon: <Package />,
-        subMenu: [
-            { label: 'Add Product', href: '/products/create' },
-            { label: 'Product List', href: '/products' },
-            { label: 'Stock Adjustment', href: '/products/stock/create-stock-adjustment' },
-            { label: 'Print Label', href: '/label' },
-        ],
-    },
-    {
-        label: 'POS',
-        icon: <ShoppingCart />,
-        subMenu: [{ label: 'POS Interface', href: '/pos' }],
-    },
-    {
-        label: 'Orders',
-        icon: <FileText />,
-        subMenu: [{ label: 'Order List', href: '/orders' }],
-    },
-    {
-        label: 'Purchases Order',
-        icon: <ShoppingCart />,
-        subMenu: [
-            { label: 'Add Purchase', href: '/purchases/create' },
-            { label: 'Purchase List', href: '/purchases/list' },
-        ],
-    },
-    {
-        label: 'Supplier',
-        icon: <Truck />,
-        subMenu: [
-            { label: 'Add Supplier', href: '/suppliers/create-supplier' },
-            { label: 'Supplier List', href: '/suppliers' },
-        ],
-    },
-    {
-        label: 'Account',
-        icon: <Wallet />,
-        subMenu: [
-            { label: 'Ledger List', href: '/account/ledger-list' },
-            { label: 'Journal List', href: '/account/journal-list' },
-        ],
-    },
-    {
-        label: 'Expenses',
-        icon: <Receipt />,
-        subMenu: [{ label: 'Expense List ', href: '/expenses/expense-list' }],
-    },
-    {
-        label: 'Customer',
-        icon: <Users />,
-        subMenu: [{ label: 'Customer List', href: '/customer' }],
-    },
-    {
-        label: 'Report',
-        icon: <BarChart />,
-        subMenu: [
-            { label: 'Activity Logs', href: '/reports/activity' },
-            { label: 'Sales ', href: '/reports/sales' },
-
-            { label: 'Income', href: '/reports/income' },
-            { label: 'Expenses ', href: '/reports/expenses' },
-            { label: 'Profit & Loss', href: '/reports/profit-loss' },
-            { label: 'Tax', href: '/reports/tax' },
-            { label: 'Idle Products', href: '/reports/idle-product' },
-            { label: 'Purchase', href: '/reports/purchase-order' },
-            { label: 'POS Transactions', href: '/reports/pos-transaction' },
-            { label: 'Purchase Transactions', href: '/reports/purchase-transaction' },
-
-            // ✅ No `href` here, only subMenu
-            {
-                label: 'Stock Reports',
-                subMenu: [
-                    // { label: 'Current Stock', href: '/products/stock/stock-report' },
-                    { label: 'Current Stock', href: '/reports/stock/current' },
-                    { label: 'Low Stock', href: '/reports/stock/low' },
-                    { label: 'Stock Transactions', href: '/reports/stock/transactions' },
-                    { label: 'Stock Adjustments', href: '/products/stock/stock-adjustment-list' },
-                    { label: 'Stock Adjustments', href: '/reports/stock/adjustments' },
-                    // ``,
-                ],
-            },
-        ],
-    },
-    {
-        label: 'Feedback',
-        icon: <MessagesSquare />,
-        subMenu: [
-            { label: 'Give Feedback', href: '/feedbacks/create-feedback' },
-            { label: 'View Feedback', href: '/feedbacks' },
-        ],
-    },
-];
-
 const Sidebar = () => {
     const dispatch = useDispatch();
     const { t } = getTranslation();
     const pathname = usePathname();
+    const router = useRouter();
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
 
@@ -149,26 +47,24 @@ const Sidebar = () => {
     };
 
     const handleStoreChange = (store: any) => {
-        console.log('🏪 BEFORE Store Change:');
-        console.log('  - Previous Store:', currentStore?.store_name, 'ID:', currentStoreId);
-        console.log('  - Selecting Store:', store.store_name, 'ID:', store.id);
+        
 
         dispatch(setCurrentStore(store));
         setIsStoreDropdownOpen(false);
 
-        // Log after dispatch (this will show in next render)
-        console.log('🔄 Store change dispatched successfully');
+        
+
+        // Check if user is on an order return page (detail or with query params) and redirect to list
+        const returnDetailMatch = pathname?.match(/^\/orders\/return\/(\d+)$/);
+        const returnWithQueryMatch = pathname === '/orders/return';
+
+        if (returnDetailMatch || returnWithQueryMatch) {
+            
+            router.push('/orders/return/list');
+        }
     };
 
-    // Log store changes for verification
-    useEffect(() => {
-        if (currentStore && currentStoreId) {
-            console.log('✅ REDUX STATE UPDATED:');
-            console.log('  - Current Store:', currentStore.store_name);
-            console.log('  - Current Store ID:', currentStoreId);
-            console.log('  - Full Store Object:', currentStore);
-        }
-    }, [currentStore, currentStoreId]);
+    
 
     // Highlight active route
     useEffect(() => {
@@ -190,8 +86,7 @@ const Sidebar = () => {
         const userPermissions = user?.permissions || [];
         const userRole = user?.role;
 
-        console.log('🔧 Building menu with permissions:', userPermissions);
-        console.log('👤 User role:', userRole);
+        
         return buildMenuFromPermissions(userPermissions, userRole);
     }, [user]);
 
