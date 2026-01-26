@@ -60,7 +60,9 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, ico
                     {isPositive ? '+' : ''}
                     {change}
                 </p>
-                <Link href={route} className="text-sm font-medium text-blue-600 hover:underline">View All</Link>
+                <Link href={route} className="text-sm font-medium text-blue-600 hover:underline">
+                    View All
+                </Link>
             </div>
         </div>
     );

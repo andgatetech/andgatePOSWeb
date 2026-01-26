@@ -462,7 +462,9 @@ export default function SectionsFive() {
                 )}
 
                 {/* View All Button */}
-                <Link href="/reports/purchases" className="mb-3 block w-full text-center text-sm font-medium text-green-600 transition-all duration-200 hover:scale-105 hover:text-green-700">View All</Link>
+                <Link href="/reports/purchases" className="mb-3 block w-full text-center text-sm font-medium text-green-600 transition-all duration-200 hover:scale-105 hover:text-green-700">
+                    View All
+                </Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>

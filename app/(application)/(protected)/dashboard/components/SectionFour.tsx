@@ -373,7 +373,9 @@ export default function SectionFour() {
                             <Receipt className="h-5 w-5 text-primary" />
                             Recent Transactions
                         </h2>
-                        <Link href="/reports/transaction" className="text-sm font-medium text-primary transition-all hover:underline">View All</Link>
+                        <Link href="/reports/transaction" className="text-sm font-medium text-primary transition-all hover:underline">
+                            View All
+                        </Link>
                     </div>
 
                     {/* Tabs */}

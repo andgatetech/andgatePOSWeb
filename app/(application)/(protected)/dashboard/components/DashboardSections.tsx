@@ -211,7 +211,9 @@ export default function DashboardSections() {
                 )}
 
                 {/* View All Button */}
-                <Link href="/reports/product" className="mb-3 block w-full text-center text-sm font-medium text-orange-600 transition-all duration-200 hover:scale-105 hover:text-orange-700">View All</Link>
+                <Link href="/reports/product" className="mb-3 block w-full text-center text-sm font-medium text-orange-600 transition-all duration-200 hover:scale-105 hover:text-orange-700">
+                    View All
+                </Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
@@ -294,7 +296,9 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <Link href="/reports/stock" className="mb-3 block w-full text-center text-sm font-medium text-red-600 transition-all duration-200 hover:scale-105 hover:text-red-700">View All</Link>
+                <Link href="/reports/stock" className="mb-3 block w-full text-center text-sm font-medium text-red-600 transition-all duration-200 hover:scale-105 hover:text-red-700">
+                    View All
+                </Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
@@ -358,7 +362,9 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <Link href="/reports/sales" className="mb-3 block w-full text-center text-sm font-medium text-blue-600 transition-all duration-200 hover:scale-105 hover:text-blue-700">View All</Link>
+                <Link href="/reports/sales" className="mb-3 block w-full text-center text-sm font-medium text-blue-600 transition-all duration-200 hover:scale-105 hover:text-blue-700">
+                    View All
+                </Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
