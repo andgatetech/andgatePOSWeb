@@ -4,6 +4,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSummaryQuery } from '@/store/features/dashboard/dashboad';
 import { Clock, DollarSign, FileText, Gift, Layers, RefreshCw, Settings, Shield } from 'lucide-react';
+import Link from 'next/link';
 import CountUp from 'react-countup';
 
 // Skeleton component for loading state
@@ -37,7 +38,7 @@ const DetailCardSkeleton = () => (
     </div>
 );
 
-const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg, iconColor, numericValue }: any) => {
+const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, iconBg, iconColor, numericValue, route }: any) => {
     const { symbol } = useCurrency();
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
@@ -59,39 +60,41 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, bgColor, ico
                     {isPositive ? '+' : ''}
                     {change}
                 </p>
-                <button className="text-sm font-medium text-blue-600 hover:underline">View All</button>
+                <Link href={route} className="text-sm font-medium text-blue-600 hover:underline">View All</Link>
             </div>
         </div>
     );
 };
 
-const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg, bgColor, numericValue }: any) => {
+const DetailCard = ({ title, value, change, changeType, icon: Icon, iconColor, iconBg, bgColor, numericValue, route }: any) => {
     const { symbol } = useCurrency();
     const isPositive = changeType === 'positive';
     const isNegative = changeType === 'negative';
 
     return (
-        <div className={`rounded-lg p-4 text-white ${bgColor}`}>
-            <div className="flex items-start justify-between">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
-                    <Icon className="h-5 w-5" />
-                </div>
-                <div className="text-right">
-                    <p className="text-sm font-medium opacity-90">{title}</p>
-                    <p className="text-2xl font-bold">
-                        {symbol}
-                        <CountUp end={numericValue} duration={2} decimals={2} separator="," />
-                    </p>
-                    <span
-                        className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
-                            isPositive ? 'bg-white/20 text-white' : isNegative ? 'bg-red-500/20 text-white' : 'bg-white/20 text-white'
-                        }`}
-                    >
-                        {isPositive ? '↑' : isNegative ? '↓' : ''} {change}
-                    </span>
+        <Link href={route} className="block transition-transform hover:scale-[1.02]">
+            <div className={`rounded-lg p-4 text-white ${bgColor}`}>
+                <div className="flex items-start justify-between">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
+                        <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm font-medium opacity-90">{title}</p>
+                        <p className="text-2xl font-bold">
+                            {symbol}
+                            <CountUp end={numericValue} duration={2} decimals={2} separator="," />
+                        </p>
+                        <span
+                            className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
+                                isPositive ? 'bg-white/20 text-white' : isNegative ? 'bg-red-500/20 text-white' : 'bg-white/20 text-white'
+                            }`}
+                        >
+                            {isPositive ? '↑' : isNegative ? '↓' : ''} {change}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };
 
@@ -145,6 +148,7 @@ export default function Summary() {
             icon: FileText,
             bgColor: 'bg-gradient-to-br from-orange-400 to-orange-500',
             iconBg: 'bg-white/20',
+            route: '/reports/sales',
         },
         {
             title: 'Total Sales Return',
@@ -155,6 +159,7 @@ export default function Summary() {
             icon: RefreshCw,
             bgColor: 'bg-gradient-to-br from-slate-700 to-slate-800',
             iconBg: 'bg-white/20',
+            route: '/reports/order-returns',
         },
         {
             title: 'Total Purchase',
@@ -165,6 +170,7 @@ export default function Summary() {
             icon: Gift,
             bgColor: 'bg-gradient-to-br from-teal-500 to-teal-600',
             iconBg: 'bg-white/20',
+            route: '/reports/purchases',
         },
         {
             title: 'Total Purchase Return',
@@ -175,6 +181,7 @@ export default function Summary() {
             icon: Shield,
             bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
             iconBg: 'bg-white/20',
+            route: '/reports/purchases',
         },
     ];
 
@@ -188,6 +195,7 @@ export default function Summary() {
             icon: Layers,
             iconColor: 'text-cyan-600',
             iconBg: 'bg-cyan-50',
+            route: '/reports/profit-loss',
         },
         {
             title: 'Invoice Due',
@@ -198,6 +206,7 @@ export default function Summary() {
             icon: Clock,
             iconColor: 'text-green-600',
             iconBg: 'bg-green-50',
+            route: '/reports/sales',
         },
         {
             title: 'Total Expenses',
@@ -208,6 +217,7 @@ export default function Summary() {
             icon: Settings,
             iconColor: 'text-orange-600',
             iconBg: 'bg-orange-50',
+            route: '/reports/expenses',
         },
         {
             title: 'Total Payment Returns',
@@ -218,6 +228,7 @@ export default function Summary() {
             icon: DollarSign,
             iconColor: 'text-purple-600',
             iconBg: 'bg-purple-50',
+            route: '/reports/order-returns',
         },
     ];
 

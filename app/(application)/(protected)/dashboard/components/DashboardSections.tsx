@@ -6,6 +6,7 @@ import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboa
 import { motion } from 'framer-motion';
 import { Calendar, Package, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 // Animation Variants
@@ -210,14 +211,14 @@ export default function DashboardSections() {
                 )}
 
                 {/* View All Button */}
-                <button className="mb-3 w-full text-center text-sm font-medium text-orange-600 transition-all duration-200 hover:scale-105 hover:text-orange-700">View All</button>
+                <Link href="/reports/product" className="mb-3 block w-full text-center text-sm font-medium text-orange-600 transition-all duration-200 hover:scale-105 hover:text-orange-700">View All</Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
                 <motion.div variants={listVariants} className="space-y-2">
-                    {top_selling_products?.products?.length > 0 ? (
-                        top_selling_products?.products.map((product, index) => (
+                    {top_selling_products?.pos_products?.length > 0 ? (
+                        top_selling_products?.pos_products.map((product, index) => (
                             <motion.div
                                 key={product.product_id}
                                 variants={itemVariantsDown}
@@ -293,14 +294,14 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <button className="mb-3 w-full text-center text-sm font-medium text-red-600 transition-all duration-200 hover:scale-105 hover:text-red-700">View All</button>
+                <Link href="/reports/stock" className="mb-3 block w-full text-center text-sm font-medium text-red-600 transition-all duration-200 hover:scale-105 hover:text-red-700">View All</Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>
 
                 <motion.div variants={listVariants} className="space-y-2">
-                    {low_stock_products?.products?.length > 0 ? (
-                        low_stock_products.products.map((product, index) => (
+                    {low_stock_products?.pos_products?.length > 0 ? (
+                        low_stock_products.pos_products.map((product, index) => (
                             <motion.div
                                 key={product.product_id}
                                 variants={itemVariants}
@@ -357,7 +358,7 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <button className="mb-3 w-full text-center text-sm font-medium text-blue-600 transition-all duration-200 hover:scale-105 hover:text-blue-700">View All</button>
+                <Link href="/reports/sales" className="mb-3 block w-full text-center text-sm font-medium text-blue-600 transition-all duration-200 hover:scale-105 hover:text-blue-700">View All</Link>
 
                 {/* Divider */}
                 <div className="mb-3 border-t border-gray-200"></div>

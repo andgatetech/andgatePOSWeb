@@ -4,7 +4,8 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFourQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
-import { Banknote, Clock, CreditCard, FileText, MoreHorizontal, Receipt, Settings, ShoppingCart, TrendingUp } from 'lucide-react';
+import { Banknote, Clock, CreditCard, FileText, MoreHorizontal, Receipt, ShoppingCart, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 // Animation Variants
@@ -88,8 +89,8 @@ const getAvatarColor = (name: string) => {
     return colors[name.charCodeAt(0) % colors.length];
 };
 
-type TabType = 'sale' | 'purchase' | 'quotation';
-type PaymentTabType = 'sales' | 'purchases';
+type TabType = 'sale' | 'purchase' | 'refund';
+type PaymentTabType = 'sales' | 'refunds' | 'purchases';
 
 export default function SectionFour() {
     const { formatCurrency } = useCurrency();
@@ -135,16 +136,16 @@ export default function SectionFour() {
         );
     }
 
-    const payment_summary = sectionData?.data?.payment_summary || { sales_by_method: [], purchases_by_method: [] };
-    const recent_transactions = sectionData?.data?.recent_transactions || { sales: [], purchases: [], quotations: [] };
+    const payment_summary = sectionData?.data?.payment_summary || { sales_by_method: [], refunds_by_method: [], purchases_by_method: [], totals: {} };
+    const recent_transactions = sectionData?.data?.recent_transactions || { sales: [], refunds: [], purchases: [] };
 
     const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
         { id: 'sale', label: 'Sale', icon: <TrendingUp className="h-4 w-4" /> },
         { id: 'purchase', label: 'Purchase', icon: <ShoppingCart className="h-4 w-4" /> },
-        { id: 'quotation', label: 'Quotation', icon: <FileText className="h-4 w-4" /> },
+        { id: 'refund', label: 'Refunds', icon: <FileText className="h-4 w-4" /> },
     ];
 
-    const currentPaymentMethods = paymentTab === 'sales' ? payment_summary.sales_by_method : payment_summary.purchases_by_method;
+    const currentPaymentMethods = paymentTab === 'sales' ? payment_summary.sales_by_method : paymentTab === 'refunds' ? payment_summary.refunds_by_method : payment_summary.purchases_by_method;
     const totalAmount = currentPaymentMethods.reduce((acc: number, m: any) => acc + m.amount, 0);
 
     const renderRows = () => {
@@ -153,8 +154,8 @@ export default function SectionFour() {
                 ? recent_transactions.sales.map((s: any) => ({ ...s, name: s.customer_name, ref: s.order_id }))
                 : activeTab === 'purchase'
                 ? recent_transactions.purchases.map((p: any) => ({ ...p, name: p.supplier_name, ref: p.invoice_number }))
-                : activeTab === 'quotation'
-                ? recent_transactions.quotations.map((q: any) => ({ ...q, name: q.supplier_name, ref: q.draft_reference, total: q.estimated_total }))
+                : activeTab === 'refund'
+                ? recent_transactions.refunds.map((r: any) => ({ ...r, name: r.customer_name, ref: r.order_id }))
                 : [];
 
         if (!data.length)
@@ -271,6 +272,15 @@ export default function SectionFour() {
                             Sales
                         </button>
                         <button
+                            onClick={() => setPaymentTab('refunds')}
+                            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                paymentTab === 'refunds' ? 'bg-red-500 text-white shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            }`}
+                        >
+                            <FileText className="mr-1.5 inline h-4 w-4" />
+                            Refunds
+                        </button>
+                        <button
                             onClick={() => setPaymentTab('purchases')}
                             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                                 paymentTab === 'purchases' ? 'bg-orange-500 text-white shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -339,7 +349,7 @@ export default function SectionFour() {
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2 text-gray-600">
                                     <div className="h-2 w-2 rounded-full bg-blue-900"></div>
-                                    Total {paymentTab === 'sales' ? 'Sales' : 'Purchases'}
+                                    Total {paymentTab === 'sales' ? 'Sales' : paymentTab === 'refunds' ? 'Refunds' : 'Purchases'}
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(totalAmount)}</span>
                             </div>
@@ -363,7 +373,7 @@ export default function SectionFour() {
                             <Receipt className="h-5 w-5 text-primary" />
                             Recent Transactions
                         </h2>
-                        <button className="text-sm font-medium text-primary transition-all hover:underline">View All</button>
+                        <Link href="/reports/transaction" className="text-sm font-medium text-primary transition-all hover:underline">View All</Link>
                     </div>
 
                     {/* Tabs */}
@@ -389,7 +399,7 @@ export default function SectionFour() {
                                 <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Date & Time</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
-                                        {activeTab === 'purchase' || activeTab === 'quotation' ? 'Supplier' : 'Customer'}
+                                        {activeTab === 'purchase' ? 'Supplier' : 'Customer'}
                                     </th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Status</th>
                                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Total</th>
@@ -398,8 +408,6 @@ export default function SectionFour() {
                             <tbody>{renderRows()}</tbody>
                         </table>
                     </div>
-
-
                 </div>
             </motion.div>
         </motion.div>
