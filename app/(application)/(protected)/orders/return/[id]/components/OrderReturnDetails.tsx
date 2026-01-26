@@ -38,7 +38,11 @@ const OrderReturnDetails: React.FC<OrderReturnDetailsProps> = ({ orderReturn }) 
                 </div>
                 <div className="rounded-lg bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-600">Status</p>
-                    <span className={`mt-1 inline-flex rounded-md px-2 py-1 text-sm font-medium ${orderReturn.payment_status === 'refunded' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                    <span
+                        className={`mt-1 inline-flex rounded-md px-2 py-1 text-sm font-medium ${
+                            orderReturn.payment_status === 'refunded' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}
+                    >
                         {orderReturn.payment_status || 'N/A'}
                     </span>
                 </div>
@@ -65,7 +69,9 @@ const OrderReturnDetails: React.FC<OrderReturnDetailsProps> = ({ orderReturn }) 
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">Original Order</h3>
-                            <p className="mt-1 text-sm text-gray-500">Invoice: {orderReturn.order?.invoice || 'N/A'} | Order Total: {formatCurrency(orderBeforeReturn?.grand_total || 0)}</p>
+                            <p className="mt-1 text-sm text-gray-500">
+                                Invoice: {orderReturn.order?.invoice || 'N/A'} | Order Total: {formatCurrency(orderBeforeReturn?.grand_total || 0)}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -132,7 +138,11 @@ const OrderReturnDetails: React.FC<OrderReturnDetailsProps> = ({ orderReturn }) 
                                         <td className="px-6 py-4 text-right text-sm font-semibold text-red-600">{formatCurrency(item.return_amount)}</td>
                                         <td className="px-6 py-4 text-center">
                                             {item.return_to_stock ? (
-                                                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.stock_restored ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                <span
+                                                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                                                        item.stock_restored ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                    }`}
+                                                >
                                                     {item.stock_restored ? 'Restored' : 'Pending'}
                                                 </span>
                                             ) : (
@@ -229,4 +239,3 @@ const OrderReturnDetails: React.FC<OrderReturnDetailsProps> = ({ orderReturn }) 
 };
 
 export default OrderReturnDetails;
-

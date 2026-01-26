@@ -72,9 +72,18 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
+        // 5. Order Returns Report
+        getOrderReturnsReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/order-returns',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
         // ========== CUSTOMER REPORTS ==========
 
-        // 5. Customer Report
+        // 6. Customer Report
         getCustomerReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/customer',
@@ -83,7 +92,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 6. Customer Due Report
+        // 7. Customer Due Report
         getCustomerDueReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/customer-due',
@@ -94,7 +103,7 @@ const ReportApi = baseApi.injectEndpoints({
 
         // ========== PURCHASE & SUPPLIER REPORTS ==========
 
-        // 7. Purchase Report
+        // 8. Purchase Report
         getPurchaseReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/purchase',
@@ -103,7 +112,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 8. Purchase Items Report
+        // 9. Purchase Items Report
         getPurchaseItemsReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/purchase-items',
@@ -112,7 +121,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 9. Purchase Transaction Report
+        // 10. Purchase Transaction Report
         getPurchaseTransactionReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/purchase-transaction',
@@ -121,7 +130,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 10. Supplier Report
+        // 11. Supplier Report
         getSupplierReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/supplier',
@@ -130,7 +139,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 11. Supplier Due Report
+        // 12. Supplier Due Report
         getSupplierDueReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/supplier-due',
@@ -141,7 +150,7 @@ const ReportApi = baseApi.injectEndpoints({
 
         // ========== INVENTORY REPORTS ==========
 
-        // 12. Stock Report
+        // 13. Stock Report
         getStockReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/stock',
@@ -150,7 +159,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 13. Low Stock Report
+        // 14. Low Stock Report
         getLowStockReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/low-stock',
@@ -159,7 +168,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 14. Idle Product Report
+        // 15. Idle Product Report
         getIdleProductReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/idle-product',
@@ -168,7 +177,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 15. Stock Adjustment Report
+        // 16. Stock Adjustment Report
         getStockAdjustmentReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/adjustment',
@@ -177,7 +186,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 16. Product Report
+        // 17. Product Report
         getProductReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/product',
@@ -188,7 +197,7 @@ const ReportApi = baseApi.injectEndpoints({
 
         // ========== FINANCIAL REPORTS ==========
 
-        // 17. Profit & Loss Report
+        // 18. Profit & Loss Report
         getProfitLossReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/profit-loss',
@@ -197,7 +206,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 18. Expense Report
+        // 19. Expense Report
         getExpenseReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/expense',
@@ -206,7 +215,7 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // 19. Tax Report
+        // 20. Tax Report
         getTaxReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/tax',
@@ -226,6 +235,7 @@ export const {
     useGetTransactionReportMutation,
     useGetInvoiceReportMutation,
     useGetSalesItemsReportMutation,
+    useGetOrderReturnsReportMutation,
     // Customer
     useGetCustomerReportMutation,
     useGetCustomerDueReportMutation,

@@ -235,6 +235,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['reports.sales', 'reports.transaction'],
                 subMenu: [
                     { label: 'Sales Report', href: '/reports/sales', requiredPermissions: ['reports.sales'] },
+                    { label: 'Order Returns', href: '/reports/order-returns', requiredPermissions: ['reports.sales'] },
                     { label: 'Transactions', href: '/reports/transaction', requiredPermissions: ['reports.transaction'] },
                     { label: 'Invoices', href: '/reports/invoice', requiredPermissions: ['reports.sales'] },
                     { label: 'Sales Items', href: '/reports/sales-items', requiredPermissions: ['reports.sales'] },

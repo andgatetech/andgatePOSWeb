@@ -92,6 +92,10 @@ const CustomerReportPage = () => {
             { key: 'amount', label: 'Total', width: 12, format: (v) => formatCurrency(v) },
             { key: 'paid', label: 'Paid', width: 12, format: (v) => formatCurrency(v) },
             { key: 'due', label: 'Due', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'total_returns', label: 'Returns', width: 8 },
+            { key: 'total_return_amount', label: 'Return Amount', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'net_purchase_value', label: 'Net Purchase', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'return_rate', label: 'Return Rate %', width: 10, format: (v) => `${Number(v || 0).toFixed(2)}%` },
             { key: 'status', label: 'Status', width: 10 },
         ],
         [formatCurrency]
@@ -115,6 +119,9 @@ const CustomerReportPage = () => {
         () => [
             { label: 'Customers', value: summary.total_customers || 0 },
             { label: 'Total Amount', value: formatCurrency(summary.total_amount) },
+            { label: 'Total Returned', value: formatCurrency(summary.total_returned) },
+            { label: 'Net Purchase Value', value: formatCurrency(summary.net_purchase_value) },
+            { label: 'Return Rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
             { label: 'Total Due', value: formatCurrency(summary.total_due) },
         ],
         [summary, formatCurrency]
@@ -161,6 +168,30 @@ const CustomerReportPage = () => {
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
                 textColor: 'text-red-600',
+            },
+            {
+                label: 'Total Returned',
+                value: formatCurrency(summary.total_returned),
+                icon: <AlertCircle className="h-4 w-4 text-orange-600" />,
+                bgColor: 'bg-orange-500',
+                lightBg: 'bg-orange-50',
+                textColor: 'text-orange-600',
+            },
+            {
+                label: 'Net Purchase Value',
+                value: formatCurrency(summary.net_purchase_value),
+                icon: <Banknote className="h-4 w-4 text-emerald-600" />,
+                bgColor: 'bg-emerald-500',
+                lightBg: 'bg-emerald-50',
+                textColor: 'text-emerald-600',
+            },
+            {
+                label: 'Return Rate',
+                value: `${Number(summary.return_rate || 0).toFixed(2)}%`,
+                icon: <TrendingDown className="h-4 w-4 text-amber-600" />,
+                bgColor: 'bg-amber-500',
+                lightBg: 'bg-amber-50',
+                textColor: 'text-amber-600',
             },
         ],
         [summary, formatCurrency]
@@ -219,6 +250,47 @@ const CustomerReportPage = () => {
                 label: 'Outstanding Due',
                 sortable: true,
                 render: (value: any) => <span className={`font-bold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
+            },
+            {
+                key: 'total_returns',
+                label: 'Returns',
+                sortable: true,
+                render: (value: any) => (
+                    <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${Number(value) > 0 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-600'}`}>
+                            {value || 0}
+                        </span>
+                    </div>
+                ),
+            },
+            {
+                key: 'total_return_amount',
+                label: 'Return Amount',
+                sortable: true,
+                render: (value: any) => (
+                    <span className={`font-medium ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{Number(value) > 0 ? `-${formatCurrency(value)}` : formatCurrency(0)}</span>
+                ),
+            },
+            {
+                key: 'net_purchase_value',
+                label: 'Net Purchase',
+                sortable: true,
+                render: (value: any) => <span className="font-bold text-emerald-600">{formatCurrency(value)}</span>,
+            },
+            {
+                key: 'return_rate',
+                label: 'Return Rate %',
+                sortable: true,
+                render: (value: any) => {
+                    const rate = Number(value || 0);
+                    const colorClass = rate > 20 ? 'text-red-600 bg-red-100' : rate > 10 ? 'text-yellow-600 bg-yellow-100' : 'text-green-600 bg-green-100';
+                    return (
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colorClass}`}>
+                            {rate > 20 && <AlertCircle className="mr-0.5 h-3 w-3" />}
+                            {rate.toFixed(2)}%
+                        </span>
+                    );
+                },
             },
             {
                 key: 'status',

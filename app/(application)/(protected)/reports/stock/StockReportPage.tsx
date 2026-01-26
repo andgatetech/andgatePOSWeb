@@ -108,6 +108,7 @@ const StockReportPage = () => {
         () => [
             { label: 'Total Items', value: summary.total_items || 0 },
             { label: 'Total Quantity', value: (summary.total_quantity || 0).toLocaleString() },
+            { label: 'Returned to Stock', value: (summary.quantity_returned_to_stock || 0).toLocaleString() },
             { label: 'Total Stock Value', value: formatCurrency(summary.total_stock_value) },
         ],
         [summary, formatCurrency]
@@ -126,6 +127,14 @@ const StockReportPage = () => {
             },
             { label: 'In Stock', value: summary.in_stock || 0, icon: <CheckCircle className="h-4 w-4 text-green-600" />, bgColor: 'bg-green-500', lightBg: 'bg-green-50', textColor: 'text-green-600' },
             { label: 'Out of Stock', value: summary.out_of_stock || 0, icon: <XCircle className="h-4 w-4 text-red-600" />, bgColor: 'bg-red-500', lightBg: 'bg-red-50', textColor: 'text-red-600' },
+            {
+                label: 'Returned to Stock',
+                value: (summary.quantity_returned_to_stock || 0).toLocaleString(),
+                icon: <Package className="h-4 w-4 text-emerald-600" />,
+                bgColor: 'bg-emerald-500',
+                lightBg: 'bg-emerald-50',
+                textColor: 'text-emerald-600',
+            },
         ],
         [summary]
     );

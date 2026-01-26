@@ -166,6 +166,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // Reports - Sales & Revenue
     '/reports/sales': ['reports.sales'],
+    '/reports/order-returns': ['reports.sales'],
     '/reports/transaction': ['reports.transaction'],
     '/reports/invoice': ['reports.sales'],
     '/reports/sales-items': ['reports.sales'],

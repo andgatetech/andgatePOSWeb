@@ -84,7 +84,12 @@ const ProductReportPage = () => {
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'qty', label: 'Stock', width: 10 },
             { key: 'total_ordered', label: 'Sold', width: 10 },
-            { key: 'revenue', label: 'Revenue', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'quantity_returned', label: 'Returned', width: 10 },
+            { key: 'net_quantity_sold', label: 'Net Qty', width: 10 },
+            { key: 'revenue', label: 'Gross Revenue', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'return_amount', label: 'Return Amount', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'net_revenue', label: 'Net Revenue', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'return_rate', label: 'Return Rate %', width: 12, format: (v) => `${Number(v || 0).toFixed(2)}%` },
         ],
         [formatCurrency]
     );
@@ -104,7 +109,13 @@ const ProductReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'Products', value: summary.total_products || 0 },
-            { label: 'Revenue', value: formatCurrency(summary.total_revenue) },
+            { label: 'Quantity Sold', value: summary.total_ordered || 0 },
+            { label: 'Quantity Returned', value: summary.total_returned || 0 },
+            { label: 'Net Quantity', value: summary.net_quantity_sold || 0 },
+            { label: 'Gross Revenue', value: formatCurrency(summary.total_revenue) },
+            { label: 'Return Amount', value: formatCurrency(summary.total_return_amount) },
+            { label: 'Net Revenue', value: formatCurrency(summary.net_revenue) },
+            { label: 'Return Rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
         ],
         [summary, formatCurrency]
     );
@@ -136,12 +147,52 @@ const ProductReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
+                label: 'Total Returned',
+                value: Number(summary.total_returned || 0).toLocaleString(),
+                icon: <Package className="h-4 w-4 text-red-600" />,
+                bgColor: 'bg-red-500',
+                lightBg: 'bg-red-50',
+                textColor: 'text-red-600',
+            },
+            {
+                label: 'Net Quantity Sold',
+                value: Number(summary.net_quantity_sold || 0).toLocaleString(),
+                icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
+                bgColor: 'bg-blue-500',
+                lightBg: 'bg-blue-50',
+                textColor: 'text-blue-600',
+            },
+            {
                 label: 'Gross Revenue',
                 value: formatCurrency(summary.total_revenue),
                 icon: <Banknote className="h-4 w-4 text-pink-600" />,
                 bgColor: 'bg-pink-500',
                 lightBg: 'bg-pink-50',
                 textColor: 'text-pink-600',
+            },
+            {
+                label: 'Return Amount',
+                value: formatCurrency(summary.total_return_amount),
+                icon: <TrendingUp className="h-4 w-4 text-orange-600" />,
+                bgColor: 'bg-orange-500',
+                lightBg: 'bg-orange-50',
+                textColor: 'text-orange-600',
+            },
+            {
+                label: 'Net Revenue',
+                value: formatCurrency(summary.net_revenue),
+                icon: <Banknote className="h-4 w-4 text-emerald-600" />,
+                bgColor: 'bg-emerald-500',
+                lightBg: 'bg-emerald-50',
+                textColor: 'text-emerald-600',
+            },
+            {
+                label: 'Return Rate',
+                value: `${Number(summary.return_rate || 0).toFixed(2)}%`,
+                icon: <BarChart3 className="h-4 w-4 text-amber-600" />,
+                bgColor: 'bg-amber-500',
+                lightBg: 'bg-amber-50',
+                textColor: 'text-amber-600',
             },
         ],
         [summary, formatCurrency]
@@ -205,8 +256,47 @@ const ProductReportPage = () => {
                 ),
             },
             {
+                key: 'quantity_returned',
+                label: 'Qty Returned',
+                sortable: true,
+                render: (v: any) => (
+                    <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${Number(v) > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-600'}`}>
+                            {v || 0}
+                        </span>
+                    </div>
+                ),
+            },
+            {
+                key: 'net_quantity_sold',
+                label: 'Net Qty',
+                sortable: true,
+                render: (v: any) => (
+                    <div className="flex items-center gap-1.5">
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">{v || 0}</span>
+                    </div>
+                ),
+            },
+            {
                 key: 'revenue',
-                label: 'Total Sales',
+                label: 'Gross Sales',
+                sortable: true,
+                render: (v: any) => (
+                    <div className="flex items-center gap-1.5 font-bold text-gray-700">
+                        <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
+                        {formatCurrency(v)}
+                    </div>
+                ),
+            },
+            {
+                key: 'return_amount',
+                label: 'Return Amount',
+                sortable: true,
+                render: (v: any) => <div className="flex items-center gap-1.5 font-medium text-red-600">{Number(v) > 0 ? `-${formatCurrency(v)}` : formatCurrency(0)}</div>,
+            },
+            {
+                key: 'net_revenue',
+                label: 'Net Revenue',
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 font-bold text-emerald-600">
@@ -214,6 +304,16 @@ const ProductReportPage = () => {
                         {formatCurrency(v)}
                     </div>
                 ),
+            },
+            {
+                key: 'return_rate',
+                label: 'Return Rate %',
+                sortable: true,
+                render: (v: any) => {
+                    const rate = Number(v || 0);
+                    const colorClass = rate > 15 ? 'text-red-600 bg-red-100' : rate > 5 ? 'text-yellow-600 bg-yellow-100' : 'text-green-600 bg-green-100';
+                    return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colorClass}`}>{rate.toFixed(2)}%</span>;
+                },
             },
         ],
         [formatCurrency]

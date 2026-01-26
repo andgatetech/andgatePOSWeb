@@ -172,7 +172,7 @@ const ProfitLossReportPage = () => {
                                 </div>
                             </div>
                             <div className="p-6">
-                                <div className="grid gap-4 md:grid-cols-4">
+                                <div className="grid gap-4 md:grid-cols-5">
                                     <div className="rounded-lg bg-gray-50 p-4">
                                         <p className="text-sm text-gray-500">Total Sales</p>
                                         <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenue.total_sales)}</p>
@@ -182,14 +182,25 @@ const ProfitLossReportPage = () => {
                                         <p className="text-sm text-gray-500">Discounts</p>
                                         <p className="text-2xl font-bold text-red-600">-{formatCurrency(revenue.total_discount)}</p>
                                     </div>
+                                    <div className="rounded-lg bg-orange-50 p-4">
+                                        <p className="text-sm text-orange-600">Sales Returns</p>
+                                        <p className="text-2xl font-bold text-orange-600">-{formatCurrency(revenue.sales_returns || 0)}</p>
+                                        <p className="mt-1 text-xs text-orange-500">
+                                            {revenue.return_count || 0} returns | {Number(revenue.return_rate || 0).toFixed(2)}%
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg bg-blue-50 p-4">
+                                        <p className="text-sm text-blue-600">Exchange Amount</p>
+                                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(revenue.exchange_amount || 0)}</p>
+                                    </div>
                                     <div className="rounded-lg bg-gray-50 p-4">
                                         <p className="text-sm text-gray-500">Tax Collected</p>
                                         <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenue.total_tax_collected)}</p>
                                     </div>
-                                    <div className="rounded-lg bg-green-100 p-4">
-                                        <p className="text-sm text-green-700">Net Sales</p>
-                                        <p className="text-2xl font-bold text-green-700">{formatCurrency(revenue.net_sales)}</p>
-                                    </div>
+                                </div>
+                                <div className="mt-4 rounded-lg bg-green-100 p-4">
+                                    <p className="text-sm text-green-700">Net Sales</p>
+                                    <p className="text-2xl font-bold text-green-700">{formatCurrency(revenue.net_sales)}</p>
                                 </div>
                             </div>
                         </div>
