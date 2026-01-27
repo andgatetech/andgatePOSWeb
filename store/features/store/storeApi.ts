@@ -27,11 +27,9 @@ const StoreApi = baseApi.injectEndpoints({
                             formData.append(`pos_units[${index}][id]`, unit.id.toString());
                         }
                         formData.append(`pos_units[${index}][name]`, unit.name);
-                        if (unit.is_active !== undefined && unit.is_active !== null) {
-                            // Convert to boolean string "true" or "false"
-                            const isActiveValue = unit.is_active === true || unit.is_active === 1 || unit.is_active === '1' || unit.is_active === 'true';
-                            formData.append(`pos_units[${index}][is_active]`, isActiveValue ? '1' : '0');
-                        }
+                        // Always include is_active (default to 1 if not specified)
+                        const isActiveValue = unit.is_active === true || unit.is_active === 1 || unit.is_active === '1' || unit.is_active === 'true';
+                        formData.append(`pos_units[${index}][is_active]`, isActiveValue ? '1' : '0');
                     });
                 }
 
