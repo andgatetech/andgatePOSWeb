@@ -19,18 +19,18 @@ const StoreApi = baseApi.injectEndpoints({
                 if (updateData.is_active !== undefined) formData.append('is_active', updateData.is_active);
                 if (updateData.logo) formData.append('logo', updateData.logo);
 
-                //Append units
-                if (updateData.units && Array.isArray(updateData.units)) {
-                    updateData.units.forEach((unit: any, index: number) => {
+                //Append pos_units (backend expects pos_units, not units)
+                if (updateData.pos_units && Array.isArray(updateData.pos_units)) {
+                    updateData.pos_units.forEach((unit: any, index: number) => {
                         // Include ID for existing units (for update/delete)
                         if (unit.id !== undefined && unit.id !== null) {
-                            formData.append(`units[${index}][id]`, unit.id.toString());
+                            formData.append(`pos_units[${index}][id]`, unit.id.toString());
                         }
-                        formData.append(`units[${index}][name]`, unit.name);
+                        formData.append(`pos_units[${index}][name]`, unit.name);
                         if (unit.is_active !== undefined && unit.is_active !== null) {
                             // Convert to boolean string "true" or "false"
                             const isActiveValue = unit.is_active === true || unit.is_active === 1 || unit.is_active === '1' || unit.is_active === 'true';
-                            formData.append(`units[${index}][is_active]`, isActiveValue ? '1' : '0');
+                            formData.append(`pos_units[${index}][is_active]`, isActiveValue ? '1' : '0');
                         }
                     });
                 }
