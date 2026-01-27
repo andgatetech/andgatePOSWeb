@@ -370,9 +370,10 @@ const ProductEditForm = () => {
                 fd.append('sku', formData.sku.trim());
             }
 
-            // Add unit field as units array (backend expects units array)
+            // Add unit field as pos_units array (backend expects pos_units array)
             if (formData.units) {
-                fd.append('units[0][name]', formData.units);
+                fd.append('pos_units[0][name]', formData.units);
+                fd.append('pos_units[0][is_active]', '1');
             }
 
             // Add flags

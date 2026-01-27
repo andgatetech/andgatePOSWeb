@@ -283,7 +283,7 @@ const StoreSetting = () => {
             ];
 
             await updateStore({
-                updateData: { units: unitsToSend },
+                updateData: { pos_units: unitsToSend },
                 storeId: storeId,
             }).unwrap();
 
@@ -316,7 +316,7 @@ const StoreSetting = () => {
             }));
 
             await updateStore({
-                updateData: { units: unitsToSend },
+                updateData: { pos_units: unitsToSend },
                 storeId: storeId,
             }).unwrap();
 
@@ -344,7 +344,7 @@ const StoreSetting = () => {
             const unitsToSend = currentUnits.filter((u: any) => u.id !== id).map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active }));
 
             await updateStore({
-                updateData: { units: unitsToSend },
+                updateData: { pos_units: unitsToSend },
                 storeId: storeId,
             }).unwrap();
 
@@ -372,7 +372,7 @@ const StoreSetting = () => {
             }));
 
             await updateStore({
-                updateData: { units: unitsToSend },
+                updateData: { pos_units: unitsToSend },
                 storeId: storeId,
             }).unwrap();
 
