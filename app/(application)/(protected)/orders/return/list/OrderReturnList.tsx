@@ -49,7 +49,7 @@ const OrderReturnList = () => {
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
     // Fetch order returns
-    const { data: returnsData, isLoading } = useGetAllOrderReturnsQuery(queryParams);
+    const { data: returnsData, isLoading } = useGetAllOrderReturnsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
     // Extract returns and pagination
     const returns = useMemo(() => {

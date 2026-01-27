@@ -28,7 +28,7 @@ interface AttributesTabProps {
 const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttributes, setProductAttributes, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
-    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams);
+    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: true });
     const attributes = attributesResponse?.data || [];
 
     // Selected attributes: can be from DB (has id) or custom (has name only)

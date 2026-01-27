@@ -37,7 +37,7 @@ const CategoryComponent = () => {
         return params;
     }, [apiParams, currentPage, itemsPerPage, sortField, sortDirection, currentStoreId]);
 
-    const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams);
+    const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: true });
     const [createCategory] = useCreateCategoryMutation();
     const [updateCategory] = useUpdateCategoryMutation();
     const [deleteCategory] = useDeleteCategoryMutation();

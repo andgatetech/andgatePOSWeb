@@ -259,7 +259,7 @@ const BrandManagement = () => {
         return params;
     }, [apiParams, currentPage, itemsPerPage, sortField, sortDirection, currentStoreId]);
 
-    const { data: brandsResponse, error, isLoading } = useGetBrandsQuery(queryParams);
+    const { data: brandsResponse, error, isLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: true });
     const [createBrand] = useCreateBrandMutation();
     const [updateBrand] = useUpdateBrandMutation();
     const [deleteBrand] = useDeleteBrandMutation();

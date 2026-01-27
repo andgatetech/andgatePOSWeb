@@ -69,7 +69,7 @@ const ProductTable = () => {
     }, [apiParams, currentStoreId, userStores, currentPage, itemsPerPage, sortField, sortDirection]);
 
     // API calls - RTK Query will auto-refetch when queryParams change
-    const { data: pds, isLoading } = useGetAllProductsQuery(queryParams);
+    const { data: pds, isLoading } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
     const ensureArray = (value: unknown): any[] => {
         if (Array.isArray(value)) {

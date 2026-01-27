@@ -25,6 +25,11 @@ const ProfitLossReportPage = () => {
         return params;
     }, [apiParams, currentStoreId]);
 
+    // Reset lastQueryParams when store changes to force API recall
+    useEffect(() => {
+        lastQueryParams.current = '';
+    }, [currentStoreId]);
+
     useEffect(() => {
         const queryString = JSON.stringify(queryParams);
         if (lastQueryParams.current === queryString) return;

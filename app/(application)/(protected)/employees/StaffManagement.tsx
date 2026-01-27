@@ -66,7 +66,7 @@ const StaffManagement = () => {
         }
     }
 
-    const { data: staffResponse, isLoading, refetch: refetchStaffMembers } = useGetStaffMemberQuery(queryParams);
+    const { data: staffResponse, isLoading, refetch: refetchStaffMembers } = useGetStaffMemberQuery(queryParams, { refetchOnMountOrArgChange: true });
     const staffMembers = useMemo(() => (staffResponse?.data || []) as StaffMember[], [staffResponse?.data]);
 
     useEffect(() => {

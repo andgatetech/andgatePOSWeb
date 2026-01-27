@@ -59,7 +59,7 @@ const Orders = () => {
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
     // Fetch orders
-    const { data: ordersData, isLoading } = useGetAllOrdersQuery(queryParams);
+    const { data: ordersData, isLoading } = useGetAllOrdersQuery(queryParams, { refetchOnMountOrArgChange: true });
 
     // Extract orders and pagination
     const orders = useMemo(() => {

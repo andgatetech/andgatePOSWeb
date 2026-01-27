@@ -43,7 +43,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
 }) => {
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
-    const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams);
+    const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams, { refetchOnMountOrArgChange: true });
     const warrantyTypes = warrantyTypesResponse?.data || [];
     const [createWarrantyType] = useCreateWarrantyTypeMutation();
 

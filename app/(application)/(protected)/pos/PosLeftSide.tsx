@@ -120,7 +120,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     }, [currentStoreId]);
 
     // Fetch products for current store only
-    const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams);
+    const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
     // Handle both success and 404 "not found" responses - NEW API FORMAT
     const products = useMemo(() => {

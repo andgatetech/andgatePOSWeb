@@ -46,6 +46,11 @@ const SalesReportPage = () => {
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
+    // Reset lastQueryParams when store changes to force API recall
+    useEffect(() => {
+        lastQueryParams.current = '';
+    }, [currentStoreId]);
+
     // Fetch data - with deduplication to prevent multiple calls
     useEffect(() => {
         const queryString = JSON.stringify(queryParams);

@@ -42,14 +42,14 @@ const ProductEditForm = () => {
     // Send store_id for the currently selected store only
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
 
-    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams);
+    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: true });
     const categories = React.useMemo(() => {
         if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
             return categoriesResponse.data.items;
         }
         return categoriesResponse?.data || [];
     }, [categoriesResponse]);
-    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams);
+    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: true });
     const brands = React.useMemo(() => {
         if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
             return brandsResponse.data.items;
@@ -57,9 +57,9 @@ const ProductEditForm = () => {
         return brandsResponse?.data || [];
     }, [brandsResponse]);
     const [updateProduct, { isLoading: updateLoading, error: updateProductError }] = useUpdateProductMutation();
-    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams);
+    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams, { refetchOnMountOrArgChange: true });
     const units = unitsResponse?.data || [];
-    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams);
+    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: true });
     const attributes = attributesResponse?.data || [];
 
     // Fetch the product data

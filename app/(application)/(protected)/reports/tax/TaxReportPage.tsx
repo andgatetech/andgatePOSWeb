@@ -31,6 +31,11 @@ const TaxReportPage = () => {
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
+    // Reset lastQueryParams when store changes to force API recall
+    useEffect(() => {
+        lastQueryParams.current = '';
+    }, [currentStoreId]);
+
     useEffect(() => {
         const queryString = JSON.stringify(queryParams);
         if (lastQueryParams.current === queryString) return;

@@ -1,10 +1,10 @@
 'use client';
-import { PropsWithChildren, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { IRootState } from '@/store';
-import { toggleRTL, toggleTheme, toggleMenu, toggleLayout, toggleAnimation, toggleNavbar, toggleSemidark } from '@/store/themeConfigSlice';
 import Loading from '@/components/layouts/loading';
 import { getTranslation } from '@/i18n';
+import { IRootState } from '@/store';
+import { toggleAnimation, toggleLayout, toggleMenu, toggleNavbar, toggleRTL, toggleSemidark, toggleTheme } from '@/store/themeConfigSlice';
+import { PropsWithChildren, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
@@ -19,7 +19,7 @@ function App({ children }: PropsWithChildren) {
 
     useEffect(() => {
         if (!isMounted) return;
-        
+
         dispatch(toggleTheme(localStorage.getItem('theme') || themeConfig.theme));
         dispatch(toggleMenu(localStorage.getItem('menu') || themeConfig.menu));
         dispatch(toggleLayout(localStorage.getItem('layout') || themeConfig.layout));
@@ -31,7 +31,19 @@ function App({ children }: PropsWithChildren) {
         initLocale(themeConfig.locale);
 
         setIsLoading(false);
-    }, [isMounted, dispatch, initLocale, themeConfig.theme, themeConfig.menu, themeConfig.layout, themeConfig.rtlClass, themeConfig.animation, themeConfig.navbar, themeConfig.locale, themeConfig.semidark]);
+    }, [
+        isMounted,
+        dispatch,
+        initLocale,
+        themeConfig.theme,
+        themeConfig.menu,
+        themeConfig.layout,
+        themeConfig.rtlClass,
+        themeConfig.animation,
+        themeConfig.navbar,
+        themeConfig.locale,
+        themeConfig.semidark,
+    ]);
 
     return (
         <div
