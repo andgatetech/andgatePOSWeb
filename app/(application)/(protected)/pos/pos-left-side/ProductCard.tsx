@@ -10,9 +10,10 @@ interface ProductCardProps {
     isMobileView?: boolean;
     onAddToCart: (product: Product) => void;
     onImageShow: (product: Product) => void;
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMobileView = false, onAddToCart, onImageShow }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMobileView = false, onAddToCart, onImageShow, mode = 'pos' }) => {
     const { formatCurrency } = useCurrency();
     // Calculate total quantity from stocks
     const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
@@ -61,8 +62,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
 
     return (
         <div
-            className={`relative cursor-pointer rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md ${isUnavailable ? 'opacity-60' : 'hover:scale-[1.02]'}`}
-            onClick={() => !isUnavailable && onAddToCart(product)}
+            className={`relative rounded-lg border-2 border-gray-800 bg-white shadow-md transition-all duration-200 ${
+                isUnavailable && mode === 'pos' ? 'cursor-not-allowed border-gray-400 opacity-60' : 'cursor-pointer hover:scale-[1.02] hover:border-blue-600 hover:shadow-xl'
+            }`}
+            onClick={() => !(isUnavailable && mode === 'pos') && onAddToCart(product)}
         >
             {/* Product Image */}
             <div className="relative h-32 overflow-hidden rounded-t-lg bg-gray-100 sm:h-40 md:h-44">

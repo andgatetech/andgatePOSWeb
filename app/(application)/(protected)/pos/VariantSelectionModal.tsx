@@ -11,9 +11,10 @@ interface VariantSelectionModalProps {
     onClose: () => void;
     product: any;
     onSelectVariant: (variant: any, quantity: number, useWholesale: boolean) => void;
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
 }
 
-export default function VariantSelectionModal({ isOpen, onClose, product, onSelectVariant }: VariantSelectionModalProps) {
+export default function VariantSelectionModal({ isOpen, onClose, product, onSelectVariant, mode = 'pos' }: VariantSelectionModalProps) {
     const { formatCurrency } = useCurrency();
     const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
     const [useWholesale, setUseWholesale] = useState(false);
@@ -30,7 +31,8 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
 
         const selectedVariant = product.stocks[selectedVariantIndex];
 
-        if (quantity > selectedVariant.quantity) {
+        // Only validate stock quantity in POS mode
+        if (mode === 'pos' && quantity > selectedVariant.quantity) {
             alert(`Only ${selectedVariant.quantity} items available in stock`);
             return;
         }
@@ -96,7 +98,8 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                         {product.stocks?.map((stock: any, index: number) => {
                                             const price = useWholesale ? stock.wholesale_price : stock.price;
                                             const isSelected = selectedVariantIndex === index;
-                                            const isAvailable = stock.available === 'yes' && stock.quantity > 0;
+                                            // In POS mode, check both available and quantity. In other modes, allow all variants.
+                                            const isAvailable = mode === 'pos' ? stock.available === 'yes' && stock.quantity > 0 : true;
 
                                             // Find warranty for this variant
                                             const variantWarranty = product.warranties?.find((w: any) => w.product_stock_id === stock.id);
@@ -104,12 +107,12 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                             return (
                                                 <button
                                                     key={stock.id}
-                                                    onClick={() => isAvailable && setSelectedVariantIndex(index)}
-                                                    disabled={!isAvailable}
+                                                    onClick={() => setSelectedVariantIndex(index)}
+                                                    disabled={mode === 'pos' ? !isAvailable : false}
                                                     className={`group relative overflow-hidden rounded-xl border-2 p-4 text-left transition-all duration-200 ${
                                                         isSelected
                                                             ? 'scale-[1.02] border-blue-500 bg-blue-50 shadow-lg ring-2 ring-blue-200'
-                                                            : isAvailable
+                                                            : mode !== 'pos' || isAvailable
                                                             ? 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
                                                             : 'cursor-not-allowed border-gray-200 bg-gray-100 opacity-60'
                                                     }`}

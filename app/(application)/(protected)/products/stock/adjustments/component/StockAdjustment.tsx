@@ -258,6 +258,16 @@ const StockAdjustment = () => {
 
     return (
         <div className="flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Full Screen Loading Overlay */}
+            {isSaving && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className="text-center">
+                        <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+                        <p className="mt-4 text-lg font-medium text-gray-700">Processing...</p>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <AdjustmentHeader storeName={currentStore?.store_name} itemCount={totalItems} onClearAll={handleClearAll} />
 

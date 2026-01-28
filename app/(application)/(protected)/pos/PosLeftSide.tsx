@@ -84,12 +84,16 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     // Build query parameters for current store only - with pagination and sorting support
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
-            available: 'yes', // Only show available products in POS
             page: currentPage,
             per_page: itemsPerPage,
             sort_field: 'product_name',
             sort_direction: 'asc',
         };
+
+        // Only filter by available in POS mode
+        if (reduxSlice === 'pos') {
+            params.available = 'yes';
+        }
 
         // Always use current store from sidebar for POS
         if (currentStoreId) {
@@ -112,7 +116,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         }
 
         return params;
-    }, [currentStoreId, selectedCategory, selectedBrand, searchTerm, currentPage, itemsPerPage]);
+    }, [currentStoreId, selectedCategory, selectedBrand, searchTerm, currentPage, itemsPerPage, reduxSlice]);
 
     // Category and Brand query params for current store
     const filterQueryParams = useMemo(() => {
@@ -251,11 +255,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     const addToCart = useCallback(
         (product: any) => {
-            console.log('🛒 addToCart called for product:', product.product_name);
-            console.log('Has serial:', product.has_serial);
-            console.log('Has warranty:', product.has_warranty);
-            console.log('Available serials:', product.serials);
-
             // Check if product has variants
             const hasVariants = product.stocks && product.stocks.length > 0 && product.stocks.some((s: any) => s.is_variant);
 
@@ -271,7 +270,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
             if (!disableSerialSelection && product.has_serial && hasSerials) {
                 // Open serial selection modal
-                console.log('🔢 Opening serial selection modal');
+
                 setSerialProduct(product);
                 setSerialStock(product.stocks && product.stocks.length > 0 ? product.stocks[0] : null);
                 setSerialModalOpen(true);
@@ -281,15 +280,16 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             // Simple product (no variants, no serials) - original logic
             const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
-            if (product.available === false || totalQuantity <= 0) {
+            // Only check availability and stock in POS mode
+            if (reduxSlice === 'pos' && (product.available === false || totalQuantity <= 0)) {
                 showMessage('Product is not available', 'error');
                 return;
             }
 
-            // Check stock limit
+            // Check stock limit - only in POS mode
             const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
 
-            if (currentQuantityInCart >= totalQuantity) {
+            if (reduxSlice === 'pos' && currentQuantityInCart >= totalQuantity) {
                 showMessage('Cannot add more, stock limit reached!', 'error');
                 return;
             }
@@ -386,12 +386,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         (variant: any, quantity: number, useWholesale: boolean) => {
             if (!variantProduct) return;
 
-            console.log('🎯 Variant selected:', variant);
-            console.log('Product has serial:', variantProduct.has_serial);
-
             // If variant product has serial numbers and serial selection is enabled, open serial selection modal
             if (!disableSerialSelection && variantProduct.has_serial && variantProduct.serials && variantProduct.serials.length > 0) {
-                console.log('🔢 Variant has serials, opening serial modal');
                 setSerialProduct(variantProduct);
                 setSerialStock(variant);
                 setSerialModalOpen(true);
@@ -405,7 +401,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const variantPurchasePrice = parseFloat(variant.purchase_price || 0);
             const price = useWholesale ? wholesalePrice : regularPrice;
 
-            // Check stock limit for this specific variant
+            // Check stock limit for this specific variant - only in POS mode
             const currentQuantityInCart = reduxItems
                 .filter((item) => {
                     const itemStockId = 'stockId' in item ? item.stockId : 'productStockId' in item ? item.productStockId : undefined;
@@ -413,7 +409,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 })
                 .reduce((sum, item) => sum + item.quantity, 0);
 
-            if (currentQuantityInCart + quantity > parseFloat(variant.quantity)) {
+            if (reduxSlice === 'pos' && currentQuantityInCart + quantity > parseFloat(variant.quantity)) {
                 showMessage('Cannot add more, stock limit reached for this variant!', 'error');
                 return;
             }
@@ -646,8 +642,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     console.log('✅ handleBarcodeScan completed successfully');
                 }
             } catch (err: any) {
-                console.error('❌ Error in handleBarcodeScan:', err);
-                console.error('Error stack:', err.stack);
                 alert(`Scan Handler Error: ${err.message}\n\nPlease refresh the page`);
             }
         },
@@ -915,7 +909,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
                         <CameraScanner isOpen={showCameraScanner} onClose={() => setShowCameraScanner(false)} />
 
-                        <ProductGrid products={currentProducts} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={addToCart} onImageShow={handleImageShow} />
+                        <ProductGrid products={currentProducts} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={addToCart} onImageShow={handleImageShow} mode={reduxSlice} />
                     </div>
 
                     {/* Fixed Pagination Footer */}
@@ -959,6 +953,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     }}
                     product={variantProduct}
                     onSelectVariant={handleVariantSelect}
+                    mode={reduxSlice}
                 />
                 <SerialSelectionModal
                     isOpen={serialModalOpen}

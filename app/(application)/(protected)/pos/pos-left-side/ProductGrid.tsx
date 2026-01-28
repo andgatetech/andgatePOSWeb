@@ -9,9 +9,10 @@ interface ProductGridProps {
     isMobileView: boolean;
     onAddToCart: (product: Product) => void;
     onImageShow: (product: Product) => void;
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products, leftWidth, isMobileView, onAddToCart, onImageShow }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ products, leftWidth, isMobileView, onAddToCart, onImageShow, mode = 'pos' }) => {
     if (products.length === 0) {
         return (
             <div className="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-12 sm:py-16">
@@ -40,7 +41,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, leftWidth, isMobile
             }}
         >
             {products.map((product) => (
-                <ProductCard key={product.id} product={product} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={onAddToCart} onImageShow={onImageShow} />
+                <ProductCard key={product.id} product={product} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={onAddToCart} onImageShow={onImageShow} mode={mode} />
             ))}
         </div>
     );

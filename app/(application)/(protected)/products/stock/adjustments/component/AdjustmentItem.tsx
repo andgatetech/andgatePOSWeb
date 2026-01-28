@@ -70,7 +70,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                             {item.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {item.sku}</span>}
-                            <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">Current Stock: {item.PlaceholderQuantity || item.quantity || 0}</span>
+                            <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">Current Stock: {item.PlaceholderQuantity ?? 0}</span>
                             {item.rate && <span className="text-gray-400">•</span>}
                             {item.rate && <span className="font-medium text-gray-700">{formatCurrency(item.rate)}</span>}
                         </div>
