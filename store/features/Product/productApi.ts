@@ -146,6 +146,39 @@ const ProductApi = baseApi.injectEndpoints({
             invalidatesTags: ['Products', 'Orders'],
         }),
 
+        downloadBulkUploadTemplate: builder.mutation<{ success: boolean }, void>({
+            queryFn: async (arg, api, extraOptions, baseQuery) => {
+                const result = await baseQuery({
+                    url: '/products/bulk-upload/template',
+                    method: 'GET',
+                    responseHandler: async (response) => {
+                        if (!response.ok) {
+                            throw new Error('Failed to download template');
+                        }
+                        return response.blob();
+                    },
+                });
+
+                if (result.error) {
+                    return { error: result.error };
+                }
+
+                // Handle blob download immediately
+                const blob = result.data as Blob;
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'product_upload_template.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Return simple success flag instead of blob
+                return { data: { success: true } };
+            },
+        }),
+
         createStockAdjustment: builder.mutation({
             query: (adjustmentData) => ({
                 url: '/product-adjustments',
@@ -180,6 +213,7 @@ export const {
     useGetActivityLogsQuery,
     useGetUnitsQuery,
     useProductBulkUploadMutation,
+    useDownloadBulkUploadTemplateMutation,
     useCreateStockAdjustmentMutation,
     useUpdateSerialStatusMutation,
 } = ProductApi;

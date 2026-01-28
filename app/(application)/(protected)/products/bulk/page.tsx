@@ -4,11 +4,9 @@ import IconDownload from '@/components/icon/icon-download';
 import IconX from '@/components/icon/icon-x';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { RootState } from '@/store';
-import { useProductBulkUploadMutation } from '@/store/features/Product/productApi';
+import { useDownloadBulkUploadTemplateMutation, useProductBulkUploadMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle2, FileSpreadsheet, Upload, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 interface UploadFailure {
     row: number;
@@ -26,42 +24,17 @@ const BulkUploadPage = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
     const [dragActive, setDragActive] = useState(false);
-    const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
     const [productBulkUpload, { isLoading: uploading }] = useProductBulkUploadMutation();
-    const token = useSelector((state: RootState) => state.auth.token);
+    const [downloadTemplate, { isLoading: downloadingTemplate }] = useDownloadBulkUploadTemplateMutation();
 
     const handleDownloadTemplate = async () => {
-        setDownloadingTemplate(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/bulk-upload/template`, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to download template');
-            }
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'product_upload_template.xlsx';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
+            await downloadTemplate().unwrap();
             showSuccessDialog('Success', 'Template downloaded successfully');
         } catch (error: any) {
             console.error('Download error:', error);
-            showErrorDialog('Error', error?.message || 'Failed to download template');
-        } finally {
-            setDownloadingTemplate(false);
+            showErrorDialog('Error', error?.data?.message || error?.message || 'Failed to download template');
         }
     };
 
