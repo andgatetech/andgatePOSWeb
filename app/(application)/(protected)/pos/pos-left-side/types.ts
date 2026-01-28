@@ -6,8 +6,21 @@ export interface Product {
     price: number;
     available: boolean;
     unit?: string;
-    images?: any[];
     stocks?: Stock[];
+    category_id?: number;
+    category_name?: string;
+    brand_id?: number;
+    brand_name?: string;
+    has_serial?: boolean;
+    has_warranty?: boolean;
+    has_attribute?: boolean;
+    created_at?: string;
+    serials?: any[];
+    available_serial_count?: number;
+    warranties?: any[];
+    warranty_count?: number;
+    available_warranty_count?: number;
+    attributes?: any;
 }
 
 export interface Stock {
@@ -21,7 +34,17 @@ export interface Stock {
     is_variant?: boolean;
     variant_name?: string;
     variant_data?: any;
-    images?: any[];
+    sku?: string;
+    barcode?: string;
+    low_stock_quantity?: number;
+    available?: string;
+    images?: ProductImage[];
+}
+
+export interface ProductImage {
+    id: number;
+    url: string;
+    path: string;
 }
 
 export interface Category {

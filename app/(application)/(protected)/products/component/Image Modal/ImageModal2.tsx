@@ -35,11 +35,11 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
     // Calculate available status - check if any stock is available
     const isAvailable = product.stocks && product.stocks.length > 0 ? product.stocks.some((stock: any) => stock.available === 'yes') : product.available === true || product.available === 'yes';
 
-    // Get images based on selected variant or all images
+    // Get images based on selected variant or all images from all stocks
     const displayImages =
         selectedVariantIndex !== null && product.stocks && product.stocks[selectedVariantIndex]
             ? product.stocks[selectedVariantIndex].images || []
-            : [...(product.images || []), ...(product.stocks?.flatMap((stock: any) => stock.images || []) || [])];
+            : product.stocks?.flatMap((stock: any) => stock.images || []) || [];
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -109,14 +109,17 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                             <div className="overflow-hidden rounded-lg border border-gray-200">
                                                 <Swiper navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full bg-gray-50">
                                                     {displayImages.map((img: any, index: number) => {
-                                                        const imagePath = img?.url || img?.path || img?.image_path || '';
+                                                        const imagePath = img?.url || img?.path || '';
                                                         if (!imagePath) return null;
+
+                                                        // Clean the path - remove leading slash if present
+                                                        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
 
                                                         return (
                                                             <SwiperSlide key={index} className="flex h-full items-center justify-center">
                                                                 <div className="relative h-full w-full">
                                                                     <Image
-                                                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`}
+                                                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${cleanPath}`}
                                                                         alt={product.product_name}
                                                                         fill
                                                                         className="object-contain p-4"

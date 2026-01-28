@@ -141,10 +141,11 @@ const ProductEditForm = () => {
                 has_serial: product.has_serial || false,
             });
 
-            // Set images - preserve image IDs for existing images
-            if (product.images && product.images.length > 0) {
-                const loadedImages = product.images.map((img: any) => ({
-                    dataURL: img.url || img.image_url,
+            // Set images - Now images are in stocks, get from first stock for simple products
+            // For variant products, images are handled in VariantsTab
+            if (!product.has_attributes && firstStock?.images && firstStock.images.length > 0) {
+                const loadedImages = firstStock.images.map((img: any) => ({
+                    dataURL: img.url ? `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${img.url.startsWith('/') ? img.url.substring(1) : img.url}` : '',
                     id: img.id, // Preserve the image ID for existing images
                 }));
                 setImages(loadedImages);
@@ -175,9 +176,22 @@ const ProductEditForm = () => {
                 console.log('❌ No attributes found in product');
             }
 
-            // Set stocks/variants
+            // Set stocks/variants - Transform images to data_url format for ImageUploading component
             if (product.stocks && product.stocks.length > 0) {
-                setProductStocks(product.stocks);
+                const transformedStocks = product.stocks.map((stock: any) => {
+                    // Transform stock images to ImageUploading format
+                    const transformedImages =
+                        stock.images?.map((img: any) => ({
+                            data_url: img.url ? `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${img.url.startsWith('/') ? img.url.substring(1) : img.url}` : '',
+                            id: img.id, // Preserve image ID
+                        })) || [];
+
+                    return {
+                        ...stock,
+                        images: transformedImages,
+                    };
+                });
+                setProductStocks(transformedStocks);
             }
 
             // Set serials

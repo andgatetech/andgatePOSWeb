@@ -19,25 +19,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
     const isUnavailable = product.available === false || totalQuantity <= 0;
 
     const renderProductImage = () => {
-        // Try product-level images first
-        if (product.images && product.images.length > 0) {
-            const imgSrc =
-                typeof product.images[0] === 'string'
-                    ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0]}`
-                    : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.images[0].image_path || product.images[0]}`;
-            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
-        }
+        // Get first stock with images
+        const stockWithImage = product.stocks?.find((s: any) => s.images && s.images.length > 0);
 
-        // If no product images, try first variant's first image
-        const firstVariant = product.stocks?.find((s: any) => s.is_variant && s.images && s.images.length > 0);
-        if (firstVariant && firstVariant.images && firstVariant.images.length > 0) {
-            const variantImg = firstVariant.images[0];
-            let imgPath = '';
-            if (typeof variantImg === 'string') {
-                imgPath = variantImg;
-            } else {
-                imgPath = variantImg.path || variantImg.url || '';
-            }
+        if (stockWithImage && stockWithImage.images && stockWithImage.images.length > 0) {
+            const img = stockWithImage.images[0];
+            // Use the url property from the image object
+            const imgPath = img.url || img.path || '';
             const cleanPath = imgPath.startsWith('/') ? imgPath.substring(1) : imgPath;
             const imgSrc = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${cleanPath}`;
             return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;

@@ -803,8 +803,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
     const handleImageShow = (product: any) => {
-        console.log('Opening image modal for product:', product.product_name);
-        console.log('Product images:', product.images);
         setSelectedProduct(product);
         setOpen(true);
     };
