@@ -51,14 +51,24 @@ export interface Category {
     id: number;
     name?: string;
     category_name?: string;
-    image?: string;
+    image_url?: string;
+    description?: string;
+    store_id?: number;
+    store_name?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface Brand {
     id: number;
     name?: string;
     brand_name?: string;
-    image?: string;
+    image_url?: string;
+    description?: string;
+    store_id?: number;
+    store_name?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface FilterQueryParams {

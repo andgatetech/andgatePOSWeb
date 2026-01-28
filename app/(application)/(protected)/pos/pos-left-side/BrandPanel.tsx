@@ -60,15 +60,9 @@ const BrandPanel: React.FC<BrandPanelProps> = ({ isOpen, brands, isLoading, sear
                                     onClick={() => onSelect(brand)}
                                     className="cursor-pointer rounded-lg border border-gray-200 p-3 text-center transition-all duration-200 hover:border-green-300 hover:bg-green-50"
                                 >
-                                    {brand.image ? (
+                                    {brand.image_url ? (
                                         <div className="mx-auto mb-2 h-12 w-12 overflow-hidden rounded-lg bg-gray-100">
-                                            <Image
-                                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${brand.image}`}
-                                                alt={brand.name || brand.brand_name}
-                                                width={48}
-                                                height={48}
-                                                className="h-full w-full object-cover"
-                                            />
+                                            <Image src={brand.image_url} alt={brand.name || brand.brand_name} width={48} height={48} className="h-full w-full object-cover" />
                                         </div>
                                     ) : (
                                         <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
