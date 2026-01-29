@@ -660,11 +660,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 <tbody className="bg-white">
                                     {purchaseItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={8} className="border-b border-gray-300 p-8 text-center text-gray-500">
-                                                <div className="flex flex-col items-center justify-center py-4">
-                                                    <div className="mb-2 text-3xl">📦</div>
-                                                    <div className="font-medium">No items added yet</div>
-                                                    <div className="text-sm">Select products from the left or add new products</div>
+                                            <td colSpan={8} className="border-b border-gray-300 p-8">
+                                                <div className="flex flex-col items-center justify-center py-8">
+                                                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                                                        <ShoppingCart className="h-8 w-8 text-gray-600" />
+                                                    </div>
+                                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">No Items Added</h3>
+                                                    <p className="text-sm text-gray-600">Select products from the left or add new items</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -742,7 +744,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         /* Mobile Card View */
                         <div className="space-y-3">
                             {purchaseItems.length === 0 ? (
-                                <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center text-gray-500">No items added. Select products from the left or add new products.</div>
+                                <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+                                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                                        <ShoppingCart className="h-8 w-8 text-gray-600" />
+                                    </div>
+                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">No Items Added</h3>
+                                    <p className="text-sm text-gray-600">Select products from the left or add new items</p>
+                                </div>
                             ) : (
                                 purchaseItems.map((item, index) => (
                                     <div key={item.id} className="rounded-lg border bg-white p-4 shadow-sm">
