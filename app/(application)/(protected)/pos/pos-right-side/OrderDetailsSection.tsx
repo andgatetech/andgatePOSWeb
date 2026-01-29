@@ -103,9 +103,11 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                 <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Order Details</h3>
                 <div className="flex items-center gap-3">
                     <span className="text-xs sm:text-sm">Items: {invoiceItems.length}</span>
-                    <button type="button" onClick={onClearItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
-                        Clear all
-                    </button>
+                    {!isReturnMode && (
+                        <button type="button" onClick={onClearItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
+                            Clear all
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -214,27 +216,69 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 ) : isReturnMode && item.isReturnItem ? (
                                                     // Return item - show kept quantity with original
                                                     <div className="flex flex-col items-center gap-1">
-                                                        <input
-                                                            type="number"
-                                                            className={`form-input w-16 text-center ${isFullyReturned ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}`}
-                                                            min={0}
-                                                            max={item.originalQuantity || item.PlaceholderQuantity || 9999}
-                                                            value={item.quantity === 0 ? '0' : item.quantity}
-                                                            onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                                            onBlur={() => onQuantityBlur(item.id)}
-                                                        />
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
+                                                                className="flex h-7 w-7 items-center justify-center rounded-l border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                disabled={item.quantity <= 0}
+                                                            >
+                                                                −
+                                                            </button>
+                                                            <input
+                                                                type="number"
+                                                                className={`form-input h-7 w-16 border-y border-gray-300 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                                                                    isFullyReturned ? 'bg-amber-50' : ''
+                                                                }`}
+                                                                min={0}
+                                                                max={item.originalQuantity || item.PlaceholderQuantity || 9999}
+                                                                value={item.quantity === 0 ? '0' : item.quantity}
+                                                                onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                                onBlur={() => onQuantityBlur(item.id)}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    onQuantityChange(item.id, Math.min(item.originalQuantity || item.PlaceholderQuantity || 9999, item.quantity + 1).toString())
+                                                                }
+                                                                className="flex h-7 w-7 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                disabled={item.quantity >= (item.originalQuantity || item.PlaceholderQuantity || 9999)}
+                                                            >
+                                                                +
+                                                            </button>
+                                                        </div>
                                                         <span className="text-xs text-gray-500">of {item.originalQuantity}</span>
                                                     </div>
                                                 ) : (
-                                                    <input
-                                                        type="number"
-                                                        className={`form-input w-16 text-center ${item.quantity === 0 ? 'border-yellow-400' : 'border-gray-300'}`}
-                                                        min={0}
-                                                        max={item.PlaceholderQuantity || 9999}
-                                                        value={item.quantity === 0 ? '' : item.quantity}
-                                                        onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                                        onBlur={() => onQuantityBlur(item.id)}
-                                                    />
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
+                                                            className="flex h-7 w-7 items-center justify-center rounded-l border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                            disabled={item.quantity <= 0}
+                                                        >
+                                                            −
+                                                        </button>
+                                                        <input
+                                                            type="number"
+                                                            className={`form-input h-7 w-16 border-y border-gray-300 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                                                                item.quantity === 0 ? 'border-yellow-400' : ''
+                                                            }`}
+                                                            min={0}
+                                                            max={item.PlaceholderQuantity || 9999}
+                                                            value={item.quantity === 0 ? '' : item.quantity}
+                                                            onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                            onBlur={() => onQuantityBlur(item.id)}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
+                                                            className="flex h-7 w-7 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                            disabled={item.quantity >= (item.PlaceholderQuantity || 9999)}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
                                                 )}
                                                 {/* Only show warning for non-return items */}
                                                 {item.quantity === 0 && !(isReturnMode && item.isReturnItem) && (
@@ -394,10 +438,18 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             <span className="font-medium">1</span>
                                         ) : isReturnMode && item.isReturnItem ? (
                                             <div className="flex items-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
+                                                    className="flex h-6 w-6 items-center justify-center rounded-l border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    disabled={item.quantity <= 0}
+                                                >
+                                                    −
+                                                </button>
                                                 <input
                                                     type="number"
-                                                    className={`form-input ml-2 w-12 rounded border px-2 py-1 text-center text-xs ${
-                                                        isFullyReturned ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
+                                                    className={`form-input h-6 w-14 border-y border-gray-300 px-1 py-0 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                                                        isFullyReturned ? 'bg-amber-50' : ''
                                                     }`}
                                                     placeholder="Qty"
                                                     value={item.quantity === 0 ? '0' : item.quantity}
@@ -406,18 +458,43 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     min="0"
                                                     max={item.originalQuantity}
                                                 />
-                                                <span className="text-gray-500">/{item.originalQuantity}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onQuantityChange(item.id, Math.min(item.originalQuantity || 9999, item.quantity + 1).toString())}
+                                                    className="flex h-6 w-6 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    disabled={item.quantity >= item.originalQuantity}
+                                                >
+                                                    +
+                                                </button>
+                                                <span className="ml-1 text-gray-500">/{item.originalQuantity}</span>
                                             </div>
                                         ) : (
-                                            <input
-                                                type="number"
-                                                className="form-input ml-2 w-16 rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                                placeholder="Quantity"
-                                                value={item.quantity === 0 ? '' : item.quantity}
-                                                onChange={(e) => onQuantityChange(item.id, e.target.value)}
-                                                onBlur={() => onQuantityBlur(item.id)}
-                                                min="0"
-                                            />
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
+                                                    className="flex h-6 w-6 items-center justify-center rounded-l border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    disabled={item.quantity <= 0}
+                                                >
+                                                    −
+                                                </button>
+                                                <input
+                                                    type="number"
+                                                    className="form-input h-6 w-14 border-y border-gray-300 px-2 py-0 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                    placeholder="Quantity"
+                                                    value={item.quantity === 0 ? '' : item.quantity}
+                                                    onChange={(e) => onQuantityChange(item.id, e.target.value)}
+                                                    onBlur={() => onQuantityBlur(item.id)}
+                                                    min="0"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
+                                                    className="flex h-6 w-6 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                     <div className="flex justify-between">

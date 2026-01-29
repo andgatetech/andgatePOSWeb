@@ -97,11 +97,23 @@ const Orders = () => {
     // Calculate stats
     const stats = useMemo(() => {
         const totalOrders = paginationMeta?.total || 0;
-        const totalRevenue = orders.reduce((sum: number, order: any) => sum + Number(order.grand_total || 0), 0);
-        const paidOrders = orders.filter((order: any) => order.payment_status === 'paid' || order.payment_status === 'completed').length;
-        const partialOrders = orders.filter((order: any) => order.payment_status === 'partial').length;
-        const dueOrders = orders.filter((order: any) => order.payment_status === 'due' || order.payment_status === 'unpaid').length;
-        const pendingOrders = orders.filter((order: any) => order.payment_status === 'pending').length;
+        const totalRevenue = orders.reduce((sum: number, order: any) => sum + Number(order.financial?.grand_total ?? order.grand_total ?? 0), 0);
+        const paidOrders = orders.filter((order: any) => {
+            const paymentStatus = order.payment?.status ?? order.payment_status;
+            return paymentStatus === 'paid' || paymentStatus === 'completed';
+        }).length;
+        const partialOrders = orders.filter((order: any) => {
+            const paymentStatus = order.payment?.status ?? order.payment_status;
+            return paymentStatus === 'partial';
+        }).length;
+        const dueOrders = orders.filter((order: any) => {
+            const paymentStatus = order.payment?.status ?? order.payment_status;
+            return paymentStatus === 'due' || paymentStatus === 'unpaid';
+        }).length;
+        const pendingOrders = orders.filter((order: any) => {
+            const paymentStatus = order.payment?.status ?? order.payment_status;
+            return paymentStatus === 'pending';
+        }).length;
 
         return { totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders };
     }, [orders, paginationMeta]);
@@ -223,12 +235,13 @@ const Orders = () => {
             `;
             });
 
-            const subtotal = Number(order.total || 0);
-            const tax = Number(order.tax || 0);
-            const discount = Number(order.discount || 0);
-            const grandTotal = Number(order.grand_total || 0);
-            const amountPaid = Number(order.amount_paid || 0);
-            const amountDue = Number(order.due_amount || 0);
+            const subtotal = Number(order.financial?.total ?? order.total ?? 0);
+            const tax = Number(order.financial?.tax ?? order.tax ?? 0);
+            const discount = Number(order.financial?.discount ?? order.discount ?? 0);
+            const grandTotal = Number(order.financial?.grand_total ?? order.grand_total ?? 0);
+            const amountPaid = Number(order.financial?.amount_paid ?? order.amount_paid ?? 0);
+            const amountDue = Number(order.financial?.due_amount ?? order.due_amount ?? 0);
+            const paymentStatus = order.payment?.status ?? order.payment_status ?? 'paid';
 
             return `
 <!DOCTYPE html>
@@ -323,7 +336,7 @@ const Orders = () => {
                 <div>${symbol}${grandTotal.toFixed(2)}</div>
             </div>
             ${
-                (order.payment_status === 'partial' || order.payment_status === 'due') && amountPaid > 0
+                (paymentStatus === 'partial' || paymentStatus === 'due') && amountPaid > 0
                     ? `
             <div class="total-row" style="color: #059669;">
                 <div>Amount Paid:</div>
@@ -332,7 +345,7 @@ const Orders = () => {
                     : ''
             }
             ${
-                (order.payment_status === 'partial' || order.payment_status === 'due') && amountDue > 0
+                (paymentStatus === 'partial' || paymentStatus === 'due') && amountDue > 0
                     ? `
             <div class="total-row" style="color: #dc2626; font-weight: bold;">
                 <div>Amount Due:</div>

@@ -58,9 +58,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 ),
             },
             {
-                key: 'store_name',
+                key: 'store',
                 label: 'Store',
-                render: (value, row) => <span className="text-sm text-gray-700">{value || row.store?.store_name || 'N/A'}</span>,
+                render: (value, row) => <span className="text-sm text-gray-700">{value?.name || row.store?.name || 'N/A'}</span>,
             },
             {
                 key: 'items_count',
@@ -75,20 +75,20 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
             {
-                key: 'grand_total',
+                key: 'financial',
                 label: 'Total Amount',
                 sortable: true,
                 render: (value, row) => {
-                    const total = value ?? row.total ?? row.totals?.grand_total ?? 0;
+                    const total = value?.grand_total ?? row.grand_total ?? row.total ?? 0;
                     return <span className="font-semibold text-gray-900">{formatCurrency(total)}</span>;
                 },
             },
             {
-                key: 'due_amount',
+                key: 'financial',
                 label: 'Due Amount',
                 sortable: true,
                 render: (value, row) => {
-                    const dueAmount = Number(value || 0);
+                    const dueAmount = Number(value?.due_amount ?? row.due_amount ?? 0);
                     if (dueAmount > 0) {
                         return <span className="font-semibold text-red-600">{formatCurrency(dueAmount)}</span>;
                     }
@@ -96,11 +96,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
             {
-                key: 'payment_status',
+                key: 'payment',
                 label: 'Payment Status',
                 sortable: true,
-                render: (value) => {
-                    const status = value?.toLowerCase() || 'pending';
+                render: (value, row) => {
+                    const status = (value?.status ?? row.payment_status)?.toLowerCase() || 'pending';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
                         paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
                         completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
@@ -109,37 +109,75 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                         unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: 'Unpaid' },
                         pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Pending' },
                     };
-                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
+                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
                 },
             },
             {
-                key: 'payment_method',
+                key: 'payment',
                 label: 'Payment Method',
-                render: (value) => {
-                    const method = value || 'cash';
+                render: (value, row) => {
+                    const method = value?.method ?? row.payment_method ?? 'cash';
                     return <span className="text-sm capitalize text-gray-700">{method === 'due' ? 'Due' : method}</span>;
                 },
             },
             {
-                key: 'created_at',
-                label: 'Created Date',
+                key: 'status',
+                label: 'Order Status',
                 sortable: true,
-                render: (value) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value, row) => {
+                    const status = value?.toLowerCase() || 'completed';
+                    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
+                        fully_returned: { bg: 'bg-red-100', text: 'text-red-800', label: 'Fully Returned' },
+                        partially_returned: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Partially Returned' },
+                        pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
+                    };
+                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
+                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
+                },
             },
             {
-                key: 'updated_at',
-                label: 'Updated Date',
+                key: 'returns',
+                label: 'Refund Amount',
+                render: (value, row) => {
+                    const hasReturns = value?.has_returns ?? false;
+                    const totalReturned = value?.total_returned ?? 0;
+                    if (!hasReturns || totalReturned === 0) {
+                        return <span className="text-sm text-gray-500">-</span>;
+                    }
+                    return (
+                        <div className="flex flex-col">
+                            <span className="font-semibold text-red-600">{formatCurrency(totalReturned)}</span>
+                            {value?.count > 0 && (
+                                <span className="text-xs text-gray-500">
+                                    {value.count} return{value.count > 1 ? 's' : ''}
+                                </span>
+                            )}
+                        </div>
+                    );
+                },
+            },
+            {
+                key: 'created_at',
+                label: 'Date',
                 sortable: true,
-                render: (value) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                render: (value, row) => (
+                    <div className="flex flex-col gap-1">
+                        <div className="flex flex-col">
+                            <span className="text-xs font-medium text-gray-500">Created:</span>
+                            <div className="flex items-center gap-1">
+                                <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
+                                <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-medium text-gray-500">Updated:</span>
+                            <div className="flex items-center gap-1">
+                                <span className="text-sm text-gray-900">{new Date(row.updated_at).toLocaleDateString('en-GB')}</span>
+                                <span className="text-xs text-gray-500">{new Date(row.updated_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        </div>
                     </div>
                 ),
             },
@@ -154,6 +192,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 onClick: (order) => router.push(`/orders/edit/${order.id}`),
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
+                hidden: (order) => order.status === 'fully_returned',
             },
             {
                 label: 'Make Return',
@@ -165,6 +204,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
                 className: 'text-amber-600',
                 icon: <RotateCcw className="h-4 w-4" />,
+                hidden: (order) => {
+                    // Hide if order is fully returned
+                    if (order.status === 'fully_returned') return true;
+                    // Hide if return_status is 'full'
+                    if (order.return_status === 'full') return true;
+                    // Hide if all items have been fully returned (returnable_quantity = 0 for all items)
+                    if (order.items && order.items.length > 0) {
+                        const hasReturnableItems = order.items.some((item: any) => (item.returnable_quantity ?? item.quantity ?? 0) > 0);
+                        if (!hasReturnableItems) return true;
+                    }
+                    return false;
+                },
             },
             {
                 label: 'View Details',

@@ -2,7 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { Dialog, Transition } from '@headlessui/react';
-import { Calendar, CreditCard, Package, Receipt, Store, User, X } from 'lucide-react';
+import { Calendar, CreditCard, Package, Receipt, RotateCcw, Store, User, X } from 'lucide-react';
 import { Fragment } from 'react';
 
 interface OrderDetailsModalProps {
@@ -21,7 +21,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
         due: { bg: 'bg-red-100', text: 'text-red-800' },
     };
 
-    const statusStyle = paymentStatusConfig[order.payment_status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
+    const paymentStatus = order.payment?.status ?? order.payment_status ?? 'paid';
+    const statusStyle = paymentStatusConfig[paymentStatus] || { bg: 'bg-gray-100', text: 'text-gray-800' };
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -81,8 +82,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                 <h3 className="font-semibold text-gray-900">Store Information</h3>
                                             </div>
                                             <div className="space-y-2 text-sm">
-                                                <p className="font-medium text-gray-900">{order.store_name || 'N/A'}</p>
-                                                <p className="text-gray-600">Served by: {order.user_name || 'N/A'}</p>
+                                                <p className="font-medium text-gray-900">{order.store?.name || order.store_name || 'N/A'}</p>
+                                                <p className="text-gray-600">Served by: {order.user?.name || order.user_name || 'N/A'}</p>
                                             </div>
                                         </div>
 
@@ -104,11 +105,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                             <div className="space-y-2 text-sm">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-gray-600">Method:</span>
-                                                    <span className="font-medium capitalize text-gray-900">{order.payment_method}</span>
+                                                    <span className="font-medium capitalize text-gray-900">{order.payment?.method ?? order.payment_method ?? 'N/A'}</span>
                                                 </div>
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-gray-600">Status:</span>
-                                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>{order.payment_status.toUpperCase()}</span>
+                                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>{paymentStatus.toUpperCase()}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -137,17 +138,17 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <tr key={index} className="hover:bg-gray-50">
                                                             <td className="px-4 py-3">
                                                                 <div className="flex flex-col">
-                                                                    <span className="font-medium text-gray-900">{item.product_name}</span>
-                                                                    {item.sku && <span className="text-xs text-gray-500">SKU: {item.sku}</span>}
+                                                                    <span className="font-medium text-gray-900">{item.product?.name ?? item.product_name ?? 'N/A'}</span>
+                                                                    {(item.product?.sku ?? item.sku) && <span className="text-xs text-gray-500">SKU: {item.product?.sku ?? item.sku}</span>}
                                                                 </div>
                                                             </td>
                                                             <td className="px-4 py-3 text-center text-gray-900">
-                                                                {item.quantity} {item.unit}
+                                                                {item.quantity ?? 0} {item.unit ?? 'Piece'}
                                                             </td>
-                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.unit_price)}</td>
-                                                            <td className="px-4 py-3 text-right text-red-600">{formatCurrency(item.discount)}</td>
-                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.tax)}</td>
-                                                            <td className="px-4 py-3 text-right font-semibold text-gray-900">{formatCurrency(item.subtotal)}</td>
+                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.unit_price ?? 0)}</td>
+                                                            <td className="px-4 py-3 text-right text-red-600">{formatCurrency(item.discount ?? 0)}</td>
+                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.tax ?? 0)}</td>
+                                                            <td className="px-4 py-3 text-right font-semibold text-gray-900">{formatCurrency(item.subtotal ?? 0)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -164,42 +165,83 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="space-y-3">
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-gray-600">Subtotal:</span>
-                                                <span className="font-medium text-gray-900">{formatCurrency(order.total)}</span>
+                                                <span className="font-medium text-gray-900">{formatCurrency(order.financial?.total ?? order.total ?? 0)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-gray-600">Tax:</span>
-                                                <span className="font-medium text-gray-900">{formatCurrency(order.tax)}</span>
+                                                <span className="font-medium text-gray-900">{formatCurrency(order.financial?.tax ?? order.tax ?? 0)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-gray-600">Discount:</span>
-                                                <span className="font-medium text-red-600">-{formatCurrency(order.discount)}</span>
+                                                <span className="font-medium text-red-600">-{formatCurrency(order.financial?.discount ?? order.discount ?? 0)}</span>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between">
                                                     <span className="text-lg font-semibold text-gray-900">Grand Total:</span>
-                                                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(order.grand_total)}</span>
+                                                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(order.financial?.grand_total ?? order.grand_total ?? 0)}</span>
                                                 </div>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-600">Amount Paid:</span>
-                                                    <span className="font-medium text-green-600">{formatCurrency(order.amount_paid)}</span>
+                                                    <span className="font-medium text-green-600">{formatCurrency(order.financial?.amount_paid ?? order.amount_paid ?? 0)}</span>
                                                 </div>
-                                                {order.change_amount > 0 && (
+                                                {(order.financial?.change_amount ?? order.change_amount ?? 0) > 0 && (
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-gray-600">Change:</span>
-                                                        <span className="font-medium text-gray-900">{formatCurrency(order.change_amount)}</span>
+                                                        <span className="font-medium text-gray-900">{formatCurrency(order.financial?.change_amount ?? order.change_amount ?? 0)}</span>
                                                     </div>
                                                 )}
-                                                {order.due_amount > 0 && (
+                                                {(order.financial?.due_amount ?? order.due_amount ?? 0) > 0 && (
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-gray-600">Due Amount:</span>
-                                                        <span className="font-medium text-red-600">{formatCurrency(order.due_amount)}</span>
+                                                        <span className="font-medium text-red-600">{formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0)}</span>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Returns/Refunds Section */}
+                                    {order.returns?.has_returns && (
+                                        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-6">
+                                            <div className="mb-4 flex items-center gap-2">
+                                                <RotateCcw className="h-5 w-5 text-red-600" />
+                                                <h3 className="text-lg font-semibold text-red-900">Return & Refund Information</h3>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-red-700">Total Returned Amount:</span>
+                                                    <span className="font-bold text-red-900">{formatCurrency(order.returns.total_returned ?? 0)}</span>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-red-700">Number of Returns:</span>
+                                                    <span className="font-medium text-red-900">{order.returns.count ?? 0}</span>
+                                                </div>
+                                                {order.returns.items && order.returns.items.length > 0 && (
+                                                    <div className="mt-4 border-t border-red-200 pt-3">
+                                                        <h4 className="mb-2 text-sm font-semibold text-red-900">Return Details:</h4>
+                                                        <div className="space-y-2">
+                                                            {order.returns.items.map((returnItem: any) => (
+                                                                <div key={returnItem.id} className="rounded bg-white p-3 text-sm">
+                                                                    <div className="flex justify-between">
+                                                                        <span className="font-medium text-gray-900">{returnItem.return_number}</span>
+                                                                        <span className="font-bold text-red-600">{formatCurrency(returnItem.return_amount ?? 0)}</span>
+                                                                    </div>
+                                                                    <div className="mt-1 flex justify-between text-xs text-gray-600">
+                                                                        <span>
+                                                                            {returnItem.items_count} item{returnItem.items_count !== 1 ? 's' : ''}
+                                                                        </span>
+                                                                        <span>{new Date(returnItem.return_date).toLocaleString()}</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Footer */}
