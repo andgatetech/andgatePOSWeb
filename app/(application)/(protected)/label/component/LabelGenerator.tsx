@@ -454,86 +454,96 @@ const LabelGenerator = () => {
     const totalLabels = cartItems.reduce((sum, item) => sum + getProductQuantity(item.id), 0);
 
     return (
-        <div className="flex h-full flex-col bg-white">
-            {/* Compact Header */}
-            <div className="border-b bg-gray-50 px-3 py-3 md:px-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                        <div>
-                            <h2 className="text-base font-bold text-gray-900 md:text-lg">Label Generator</h2>
-                            <p className="text-xs text-gray-600">
-                                {cartItems.length} product{cartItems.length !== 1 ? 's' : ''} • {totalLabels} label{totalLabels !== 1 ? 's' : ''}
-                            </p>
-                        </div>
+        <div className="flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Full Screen Loading Overlay */}
+            {isGenerating && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className="text-center">
+                        <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
+                        <p className="mt-4 text-lg font-medium text-gray-700">Generating {labelType === 'barcode' ? 'Barcodes' : 'QR Codes'}...</p>
+                    </div>
+                </div>
+            )}
 
-                        {/* Label Type Toggle */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setLabelType('barcode')}
-                                className={`rounded px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${
-                                    labelType === 'barcode' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                Barcode
-                            </button>
-                            <button
-                                onClick={() => setLabelType('qrcode')}
-                                className={`rounded px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${
-                                    labelType === 'qrcode' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                QR Code
-                            </button>
-                        </div>
+            {/* Header */}
+            <div className="border-b border-gray-200 bg-white px-4 py-4 shadow-sm sm:px-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Label Generator</h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            {cartItems.length} product{cartItems.length !== 1 ? 's' : ''} • {totalLabels} label{totalLabels !== 1 ? 's' : ''}
+                        </p>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button onClick={handleClearAll} className="rounded bg-red-50 px-2 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 sm:px-3 sm:text-sm">
-                            <Trash2 className="inline h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Clear All</span>
+                        <button onClick={() => setShowSettings(!showSettings)} className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-600 hover:to-blue-700 hover:shadow-lg">
+                            <Settings2 className="mr-2 inline h-4 w-4" />
+                            {showSettings ? 'Hide' : 'Show'} Settings
                         </button>
 
-                        <button onClick={() => setShowSettings(!showSettings)} className="rounded bg-blue-50 px-2 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100 sm:px-3 sm:text-sm">
-                            <Settings2 className="inline h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">{showSettings ? 'Hide' : 'Label'} Settings</span>
+                        <button onClick={handleClearAll} className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all hover:bg-red-100 hover:shadow-md">
+                            <Trash2 className="mr-2 inline h-4 w-4" />
+                            Clear All
                         </button>
                     </div>
                 </div>
 
+                {/* Label Type Toggle */}
+                <div className="mt-4 flex gap-2">
+                    <button
+                        onClick={() => setLabelType('barcode')}
+                        className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all sm:flex-none sm:px-6 ${
+                            labelType === 'barcode' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                    >
+                        Barcode
+                    </button>
+                    <button
+                        onClick={() => setLabelType('qrcode')}
+                        className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all sm:flex-none sm:px-6 ${
+                            labelType === 'qrcode' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                    >
+                        QR Code
+                    </button>
+                </div>
+
                 {/* Label Size Settings Panel */}
                 {showSettings && (
-                    <div className="mt-3 rounded border border-blue-200 bg-blue-50 p-4">
-                        <h3 className="mb-3 text-sm font-bold text-gray-900">Label & Paper Settings</h3>
+                    <div className="mt-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                        <h3 className="mb-4 text-base font-bold text-gray-900">Label & Paper Settings</h3>
 
                         {/* Quick Presets */}
                         <div className="mb-4">
-                            <label className="mb-2 block text-xs font-semibold text-gray-700">Quick Presets</label>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Quick Presets</label>
                             <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-                                <button onClick={() => saveLabelSize({ width: 150, height: 80 })} className="rounded border border-gray-300 bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50">
+                                <button onClick={() => saveLabelSize({ width: 150, height: 80 })} className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50">
                                     Small Sticker
                                     <br />
-                                    150×80
+                                    <span className="text-gray-600">150×80</span>
                                 </button>
-                                <button onClick={() => saveLabelSize({ width: 250, height: 120 })} className="rounded border border-gray-300 bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50">
+                                <button onClick={() => saveLabelSize({ width: 250, height: 120 })} className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50">
                                     Standard
                                     <br />
-                                    250×120
+                                    <span className="text-gray-600">250×120</span>
                                 </button>
-                                <button onClick={() => saveLabelSize({ width: 400, height: 200 })} className="rounded border border-gray-300 bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50">
+                                <button onClick={() => saveLabelSize({ width: 400, height: 200 })} className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50">
                                     Large Tag
                                     <br />
-                                    400×200
+                                    <span className="text-gray-600">400×200</span>
                                 </button>
-                                <button onClick={() => saveLabelSize({ width: 300, height: 150 })} className="rounded border border-gray-300 bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50">
+                                <button onClick={() => saveLabelSize({ width: 300, height: 150 })} className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50">
                                     Wide Label
                                     <br />
-                                    300×150
+                                    <span className="text-gray-600">300×150</span>
                                 </button>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <label className="mb-1 block text-xs font-semibold text-gray-700">Paper Size</label>
-                                <select value={paperSize} onChange={(e) => savePaperSize(e.target.value)} className="w-full rounded border px-3 py-1.5 text-sm">
+                                <label className="mb-2 block text-sm font-semibold text-gray-700">Paper Size</label>
+                                <select value={paperSize} onChange={(e) => savePaperSize(e.target.value)} className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none">
                                     {PAPER_SIZES.map((size) => (
                                         <option key={size.value} value={size.value}>
                                             {size.label}
@@ -543,126 +553,140 @@ const LabelGenerator = () => {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-xs font-semibold text-gray-700">Custom Width (px)</label>
+                                <label className="mb-2 block text-sm font-semibold text-gray-700">Custom Width (px)</label>
                                 <input
                                     type="number"
                                     min="100"
                                     max="800"
                                     value={labelSize.width}
                                     onChange={(e) => saveLabelSize({ ...labelSize, width: parseInt(e.target.value) || 250 })}
-                                    className="w-full rounded border px-3 py-1.5 text-sm"
+                                    className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
                                 />
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-xs font-semibold text-gray-700">Custom Height (px)</label>
+                                <label className="mb-2 block text-sm font-semibold text-gray-700">Custom Height (px)</label>
                                 <input
                                     type="number"
                                     min="80"
                                     max="600"
                                     value={labelSize.height}
                                     onChange={(e) => saveLabelSize({ ...labelSize, height: parseInt(e.target.value) || 120 })}
-                                    className="w-full rounded border px-3 py-1.5 text-sm"
+                                    className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
                                 />
                             </div>
                         </div>
-                        <p className="mt-2 text-xs text-gray-600">
-                            📏 Current: {labelSize.width}×{labelSize.height}px • 📄 Paper: {PAPER_SIZES.find((p) => p.value === paperSize)?.label} • 🏷️ Per Row: ~
-                            {Math.floor((PAPER_SIZES.find((p) => p.value === paperSize)?.width || 210 - 20) / (labelSize.width * 0.264583))}
-                        </p>
+                        <div className="mt-4 rounded-lg bg-blue-50 p-3">
+                            <p className="text-sm text-blue-800">
+                                📏 Current: <strong>{labelSize.width}×{labelSize.height}px</strong> • 📄 Paper: <strong>{PAPER_SIZES.find((p) => p.value === paperSize)?.label}</strong> • 🏷️ Per Row: <strong>~
+                                {Math.floor((PAPER_SIZES.find((p) => p.value === paperSize)?.width || 210 - 20) / (labelSize.width * 0.264583))}</strong>
+                            </p>
+                        </div>
                     </div>
                 )}
 
                 {/* Global Settings */}
-                <div className="mt-3 flex flex-col gap-3 rounded bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:gap-4">
-                    <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold text-gray-700">Default Qty:</label>
-                        <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            value={globalQuantity}
-                            onChange={(e) => saveGlobalQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 100))}
-                            className="w-16 rounded border px-2 py-1 text-sm font-semibold"
-                        />
-                    </div>
-
-                    {labelType === 'barcode' ? (
+                <div className="mt-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                    <h3 className="mb-3 text-sm font-bold text-gray-900">Global Settings</h3>
+                    <div className="flex flex-wrap gap-4">
                         <div className="flex items-center gap-2">
-                            <label className="text-xs font-semibold text-gray-700">Type:</label>
-                            <select value={globalBarcodeType} onChange={(e) => saveGlobalBarcodeType(e.target.value)} className="rounded border px-2 py-1 text-xs sm:text-sm">
-                                {BARCODE_TYPES.map((type) => (
-                                    <option key={type.value} value={type.value}>
-                                        {type.label}
-                                    </option>
-                                ))}
-                            </select>
+                            <label className="text-sm font-semibold text-gray-700">Default Qty:</label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="100"
+                                value={globalQuantity}
+                                onChange={(e) => saveGlobalQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 100))}
+                                className="w-20 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm font-semibold transition-all focus:border-blue-500 focus:outline-none"
+                            />
                         </div>
-                    ) : (
-                        <>
+
+                        {labelType === 'barcode' ? (
                             <div className="flex items-center gap-2">
-                                <label className="text-xs font-semibold text-gray-700">Size:</label>
-                                <select value={globalQRSize} onChange={(e) => saveGlobalQRSize(parseInt(e.target.value))} className="rounded border px-2 py-1 text-xs sm:text-sm">
-                                    <option value={100}>Small (100px)</option>
-                                    <option value={150}>Medium (150px)</option>
-                                    <option value={200}>Large (200px)</option>
-                                    <option value={300}>XL (300px)</option>
+                                <label className="text-sm font-semibold text-gray-700">Type:</label>
+                                <select value={globalBarcodeType} onChange={(e) => saveGlobalBarcodeType(e.target.value)} className="rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none">
+                                    {BARCODE_TYPES.map((type) => (
+                                        <option key={type.value} value={type.value}>
+                                            {type.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
-                            <label className="flex items-center gap-2 text-xs">
-                                <input type="checkbox" checked={globalIncludeInfo} onChange={(e) => saveGlobalIncludeInfo(e.target.checked)} className="rounded" />
-                                <span className="font-semibold text-gray-700">Include Product Info</span>
-                            </label>
-                        </>
-                    )}
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <label className="text-sm font-semibold text-gray-700">Size:</label>
+                                    <select value={globalQRSize} onChange={(e) => saveGlobalQRSize(parseInt(e.target.value))} className="rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none">
+                                        <option value={100}>Small (100px)</option>
+                                        <option value={150}>Medium (150px)</option>
+                                        <option value={200}>Large (200px)</option>
+                                        <option value={300}>XL (300px)</option>
+                                    </select>
+                                </div>
+                                <label className="flex items-center gap-2 text-sm">
+                                    <input type="checkbox" checked={globalIncludeInfo} onChange={(e) => saveGlobalIncludeInfo(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                    <span className="font-semibold text-gray-700">Include Product Info</span>
+                                </label>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* Compact Product List */}
-            <div className="flex-1 overflow-auto p-3 md:p-4">
-                <div className="mb-4 rounded-lg bg-blue-50 p-3 text-center text-sm text-blue-800">
-                    Ready to generate <strong className="font-bold">{totalLabels}</strong> label{totalLabels !== 1 ? 's' : ''} for {cartItems.length} product{cartItems.length !== 1 ? 's' : ''}
-                </div>
-                <div className="space-y-2">
+            {/* Items List */}
+            <div className="flex-1 overflow-auto p-4 sm:p-6">
+                <div className="mx-auto max-w-4xl space-y-4">
                     {cartItems.map((item) => {
                         const qty = getProductQuantity(item.id);
                         return (
-                            <div key={item.id} className="flex items-center gap-2 rounded border bg-gray-50 p-2 hover:bg-gray-100 sm:gap-3 sm:p-3">
-                                <button onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-700">
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
+                            <div key={item.id} className="transform rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
+                                <div className="flex items-center gap-3">
+                                    {/* Remove Button */}
+                                    <button
+                                        onClick={() => handleRemoveItem(item.id)}
+                                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-all hover:bg-red-100 hover:shadow-md"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
 
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
-                                        <h3 className="truncate text-sm font-semibold text-gray-900 sm:text-base">{item.title}</h3>
-                                        {(item as any).variant_name && <span className="text-xs text-gray-600">({(item as any).variant_name})</span>}
+                                    {/* Product Info */}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-col gap-1">
+                                            <h3 className="truncate text-base font-bold text-gray-900">{item.title}</h3>
+                                            {(item as any).variant_name && (
+                                                <span className="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                                                    {(item as any).variant_name}
+                                                </span>
+                                            )}
+                                            {(item as any).sku && <p className="text-sm text-gray-600">SKU: <span className="font-semibold text-gray-800">{(item as any).sku}</span></p>}
+                                        </div>
                                     </div>
-                                    {(item as any).sku && <p className="text-xs text-gray-600">SKU: {(item as any).sku}</p>}
-                                </div>
 
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                    <button
-                                        onClick={() => updateProductQuantity(item.id, qty - 1)}
-                                        disabled={qty <= 1}
-                                        className="flex h-7 w-7 items-center justify-center rounded border bg-white hover:bg-gray-100 disabled:opacity-50 sm:h-8 sm:w-8"
-                                    >
-                                        <Minus className="h-3 w-3" />
-                                    </button>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="100"
-                                        value={qty}
-                                        onChange={(e) => updateProductQuantity(item.id, parseInt(e.target.value) || 1)}
-                                        className="w-12 rounded border px-1 py-1 text-center text-sm font-semibold sm:w-14 sm:px-2"
-                                    />
-                                    <button
-                                        onClick={() => updateProductQuantity(item.id, qty + 1)}
-                                        disabled={qty >= 100}
-                                        className="flex h-7 w-7 items-center justify-center rounded border bg-white hover:bg-gray-100 disabled:opacity-50 sm:h-8 sm:w-8"
-                                    >
-                                        <Plus className="h-3 w-3" />
-                                    </button>
+                                    {/* Quantity Controls */}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => updateProductQuantity(item.id, qty - 1)}
+                                            disabled={qty <= 1}
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-gray-300 bg-white transition-all hover:border-blue-500 hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                        >
+                                            <Minus className="h-4 w-4 text-gray-700" />
+                                        </button>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="100"
+                                            value={qty}
+                                            onChange={(e) => updateProductQuantity(item.id, parseInt(e.target.value) || 1)}
+                                            className="w-16 rounded-lg border-2 border-gray-300 px-3 py-2 text-center text-sm font-bold transition-all focus:border-blue-500 focus:outline-none"
+                                        />
+                                        <button
+                                            onClick={() => updateProductQuantity(item.id, qty + 1)}
+                                            disabled={qty >= 100}
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-gray-300 bg-white transition-all hover:border-blue-500 hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                        >
+                                            <Plus className="h-4 w-4 text-gray-700" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         );
@@ -671,36 +695,40 @@ const LabelGenerator = () => {
             </div>
 
             {/* Footer Actions */}
-            <div className="border-t bg-gray-50 p-3 md:p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <div className="text-xs text-gray-700 sm:text-sm"></div>
+            <div className="border-t border-gray-200 bg-white px-4 py-4 shadow-lg sm:px-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Summary Info */}
+                    <div className="rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2">
+                        <p className="text-sm font-semibold text-gray-700">
+                            Ready to generate <span className="font-bold text-blue-600">{totalLabels}</span> label{totalLabels !== 1 ? 's' : ''} for{' '}
+                            <span className="font-bold text-purple-600">{cartItems.length}</span> product{cartItems.length !== 1 ? 's' : ''}
+                        </p>
+                    </div>
 
+                    {/* Action Buttons */}
                     <div className="flex flex-wrap gap-2">
                         {generatedLabels && generatedLabels.length > 0 && (
                             <>
                                 <button
                                     onClick={handleDownloadImages}
-                                    className="flex items-center gap-1 rounded bg-gray-600 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-700 sm:gap-2 sm:px-4 sm:text-sm"
+                                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-gray-600 to-gray-700 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-gray-700 hover:to-gray-800 hover:shadow-lg"
                                 >
-                                    <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">Images ({generatedLabels.length})</span>
-                                    <span className="sm:hidden">IMG</span>
+                                    <Download className="h-4 w-4" />
+                                    <span>Images ({generatedLabels.length})</span>
                                 </button>
                                 <button
                                     onClick={handleDownloadPDF}
-                                    className="flex items-center gap-1 rounded bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700 sm:gap-2 sm:px-4 sm:text-sm"
+                                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-green-700 hover:to-green-800 hover:shadow-lg"
                                 >
-                                    <FileDown className="h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">Download PDF</span>
-                                    <span className="sm:hidden">PDF</span>
+                                    <FileDown className="h-4 w-4" />
+                                    <span>Download PDF</span>
                                 </button>
                                 <button
                                     onClick={handlePrint}
-                                    className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 sm:gap-2 sm:px-4 sm:text-sm"
+                                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-lg"
                                 >
-                                    <Printer className="h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">Print</span>
-                                    <span className="sm:hidden">Print</span>
+                                    <Printer className="h-4 w-4" />
+                                    <span>Print</span>
                                 </button>
                             </>
                         )}
@@ -708,11 +736,11 @@ const LabelGenerator = () => {
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating}
-                            className="flex items-center gap-1 rounded bg-purple-600 px-4 py-2 text-xs font-semibold text-white hover:bg-purple-700 disabled:opacity-50 sm:gap-2 sm:px-6 sm:text-sm"
+                            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-purple-700 hover:to-purple-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {isGenerating ? (
                                 <>
-                                    <svg className="h-3 w-3 animate-spin sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24">
+                                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path
                                             className="opacity-75"
@@ -720,13 +748,11 @@ const LabelGenerator = () => {
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         ></path>
                                     </svg>
-                                    <span className="hidden sm:inline">Generating...</span>
-                                    <span className="sm:hidden">Gen...</span>
+                                    <span>Generating...</span>
                                 </>
                             ) : (
                                 <>
-                                    <span className="hidden sm:inline">Generate {labelType === 'barcode' ? 'Barcodes' : 'QR Codes'}</span>
-                                    <span className="sm:hidden">Generate</span>
+                                    <span>Generate {labelType === 'barcode' ? 'Barcodes' : 'QR Codes'}</span>
                                 </>
                             )}
                         </button>
