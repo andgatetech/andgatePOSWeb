@@ -1200,14 +1200,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     // Return mode submit handler
     const handleReturnSubmit = async () => {
-        if (invoiceItems.length === 0) {
-            showMessage('Please add exchange items or select items to return', 'error');
-            return;
-        }
-
-        if (!(await checkReturnReasons())) return;
-
-        // Calculate valid return items
+        // Calculate valid return items first
         const validReturnItems = returnItemsData
             .filter((item) => item.returnQuantity > 0)
             .map((item) => ({
@@ -1215,11 +1208,19 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 quantity_returned: item.returnQuantity,
             }));
 
-        // Validate that at least one item is being returned
-        if (validReturnItems.length === 0) {
+        // Validate: Must have either exchange items OR return items (or both)
+        if (invoiceItems.length === 0 && validReturnItems.length === 0) {
+            showMessage('Please add exchange items or select items to return', 'error');
+            return;
+        }
+
+        // Validate that at least one item is being returned (only if no exchange items)
+        if (invoiceItems.length === 0 && validReturnItems.length === 0) {
             showMessage('Please reduce the quantity of the items you want to return.', 'error');
             return;
         }
+
+        if (!(await checkReturnReasons())) return;
 
         // Check if return reason is already set in Redux
         let reasonId = returnReasonData.reasonId;
@@ -1301,15 +1302,16 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             setLoading(true);
             const response = await createOrderReturn(returnData).unwrap();
 
-            // Store response and show preview (same as main order flow)
-            setReturnPreviewSnapshot(previewSnapshot);
-            setOrderResponse(response);
-            setShowPreview(true);
             setLoading(false);
             showMessage('Return processed successfully!', 'success');
 
-            // Don't clear session yet - we need it for the preview
-            // It will be cleared when preview is closed (handleBackToEdit)
+            // Clear return session immediately to prevent API refetch
+            if (currentStoreId) {
+                dispatch(clearReturnSession(currentStoreId));
+            }
+
+            // Redirect to orders page with return data to show invoice there
+            router.push(`/orders?showReturn=${response.data.id}`);
         } catch (error: any) {
             console.error('Return error:', error);
             const message = error?.data?.message || 'Failed to process return';
@@ -1329,39 +1331,41 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const handleBackToEdit = () => {
         setShowPreview(false);
 
+        // If in return mode, always redirect to orders page
+        if (isReturnMode) {
+            if (currentStoreId) {
+                dispatch(clearReturnSession(currentStoreId));
+            }
+            setOrderResponse(null);
+            setReturnPreviewSnapshot(null);
+            router.push('/orders');
+            return;
+        }
+
         // If order/return was created, clear the items and form
         if (orderResponse && currentStoreId) {
-            if (isReturnMode) {
-                // Clear return session and navigate to orders page
-                dispatch(clearReturnSession(currentStoreId));
-                setOrderResponse(null);
-                setReturnPreviewSnapshot(null);
-                router.push('/orders');
-                return;
-            } else {
-                // Normal POS - clear items and reset form
-                dispatch(clearItemsRedux(currentStoreId));
-                clearCustomerSelection();
-                setFormData({
-                    customerId: null,
-                    customerName: '',
-                    customerEmail: '',
-                    customerPhone: '',
-                    discount: 0,
-                    membershipDiscount: 0,
-                    paymentMethod: '',
-                    paymentStatus: '',
-                    usePoints: false,
-                    useBalance: false,
-                    pointsToUse: 0,
-                    balanceToUse: 0,
-                    useWholesale: false,
-                    amountPaid: 0,
-                    changeAmount: 0,
-                    partialPaymentAmount: 0,
-                    dueAmount: 0,
-                });
-            }
+            // Normal POS - clear items and reset form
+            dispatch(clearItemsRedux(currentStoreId));
+            clearCustomerSelection();
+            setFormData({
+                customerId: null,
+                customerName: '',
+                customerEmail: '',
+                customerPhone: '',
+                discount: 0,
+                membershipDiscount: 0,
+                paymentMethod: '',
+                paymentStatus: '',
+                usePoints: false,
+                useBalance: false,
+                pointsToUse: 0,
+                balanceToUse: 0,
+                useWholesale: false,
+                amountPaid: 0,
+                changeAmount: 0,
+                partialPaymentAmount: 0,
+                dueAmount: 0,
+            });
         }
 
         setOrderResponse(null);

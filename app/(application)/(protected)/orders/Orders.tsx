@@ -5,11 +5,13 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { showErrorDialog } from '@/lib/toast';
-import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
+import { useGetAllOrdersQuery, useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
 import { useLazyGetStoreQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import PosInvoicePreview from '../pos/PosInvoicePreview';
 import OrderDetailsModal from './components/OrderDetailsModal';
 import OrderStats from './components/OrderStats';
 import OrdersTable from './components/OrdersTable';
@@ -17,6 +19,8 @@ import OrdersTable from './components/OrdersTable';
 const Orders = () => {
     const { formatCurrency, code, symbol } = useCurrency();
     const { currentStoreId } = useCurrentStore();
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
@@ -25,7 +29,27 @@ const Orders = () => {
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [showReturnInvoice, setShowReturnInvoice] = useState(false);
     const invoiceRef = useRef<HTMLDivElement>(null);
+
+    // Check if we should show return invoice
+    const returnId = searchParams.get('showReturn');
+
+    // Fetch return details if returnId is present
+    const { data: returnData } = useGetOrderReturnByIdQuery(returnId ? parseInt(returnId) : 0, { skip: !returnId });
+
+    // Show return invoice when data is loaded
+    useEffect(() => {
+        if (returnData?.success && returnData?.data) {
+            setShowReturnInvoice(true);
+        }
+    }, [returnData]);
+
+    // Close return invoice and clear URL parameter
+    const handleCloseReturnInvoice = useCallback(() => {
+        setShowReturnInvoice(false);
+        router.push('/orders');
+    }, [router]);
 
     // Lazy fetch store details - only load when needed for invoice generation
     const [fetchStore, { data: storeData }] = useLazyGetStoreQuery();
@@ -581,6 +605,23 @@ const Orders = () => {
                                     Payment Method: {selectedOrder.payment_method || 'Cash'} | Status: {selectedOrder.payment_status || 'Pending'}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Return Invoice Preview Modal */}
+                {showReturnInvoice && returnData?.data && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                        <div className="max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg bg-white">
+                            <PosInvoicePreview
+                                data={{
+                                    ...returnData.data,
+                                    isReturn: true,
+                                    isOrderCreated: true,
+                                }}
+                                storeId={currentStoreId}
+                                onClose={handleCloseReturnInvoice}
+                            />
                         </div>
                     </div>
                 )}

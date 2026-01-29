@@ -28,20 +28,24 @@ const OrderReturnPage = () => {
 
     const [isLoadingOrder, setIsLoadingOrder] = useState(true);
 
-    // Redirect if no order ID found at all
+    // Redirect if no order ID found at all OR if session is cleared but URL has orderId
     useEffect(() => {
         if (currentStoreId && !orderId) {
             router.push('/orders');
         }
-    }, [orderId, router, currentStoreId]);
+        // If URL has orderId but no session exists, redirect (means return was completed)
+        if (currentStoreId && urlOrderId && !returnSession) {
+            router.push('/orders');
+        }
+    }, [orderId, urlOrderId, returnSession, router, currentStoreId]);
 
-    // Fetch order data
+    // Fetch order data - skip if returnSession is already cleared (after successful return)
     const {
         data: orderData,
         isLoading,
         error,
     } = useGetOrderByIdQuery(orderId!, {
-        skip: !orderId,
+        skip: !orderId || !returnSession || (urlOrderId && !returnSession),
     });
 
     // Initialize return session when order is loaded
@@ -58,6 +62,9 @@ const OrderReturnPage = () => {
                 })
             );
 
+            setIsLoadingOrder(false);
+        } else if (orderData && !orderData.success) {
+            // Order not found or deleted
             setIsLoadingOrder(false);
         }
     }, [orderData, dispatch, currentStoreId]);
@@ -83,14 +90,29 @@ const OrderReturnPage = () => {
         return <Loader message="Loading Order for Return..." />;
     }
 
-    if (error || !orderData?.success) {
+    if (error || !orderData?.success || !orderData?.data) {
+        // Check if it's a 404 or order not found error
+        const isOrderNotFound = error && 'status' in error && error.status === 404;
+        const errorMessage =
+            error && 'data' in error && error.data && typeof error.data === 'object' && 'message' in error.data
+                ? String(error.data.message)
+                : isOrderNotFound
+                ? 'This order no longer exists or has been fully returned'
+                : 'Failed to load order';
+
         return (
-            <div className="flex min-h-screen items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-red-600">Failed to load order</h1>
-                    <p className="mt-2 text-gray-600">Please try again later</p>
-                    <Link href="/orders" className="mt-4 inline-block rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
-                        ← Back to Orders
+            <div className="flex min-h-screen items-center justify-center bg-gray-50">
+                <div className="rounded-lg bg-white p-8 text-center shadow-lg">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                        <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <h1 className="mb-2 text-2xl font-bold text-gray-900">Order Not Available</h1>
+                    <p className="mb-6 text-gray-600">{errorMessage}</p>
+                    <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Orders
                     </Link>
                 </div>
             </div>
@@ -98,6 +120,35 @@ const OrderReturnPage = () => {
     }
 
     const order = orderData.data;
+
+    // Check if order has any returnable items
+    const hasReturnableItems = order?.items?.some((item: any) => item.returnable_quantity > 0);
+
+    if (!hasReturnableItems) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-gray-50">
+                <div className="rounded-lg bg-white p-8 text-center shadow-lg">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                        <svg className="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                        </svg>
+                    </div>
+                    <h1 className="mb-2 text-2xl font-bold text-gray-900">No Items Available for Return</h1>
+                    <p className="mb-2 text-gray-600">This order has been fully returned.</p>
+                    <p className="mb-6 text-sm text-gray-500">Invoice: {order.invoice}</p>
+                    <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Orders
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
