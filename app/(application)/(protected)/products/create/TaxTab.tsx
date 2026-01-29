@@ -38,7 +38,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                             value={formData.tax_rate}
                             onChange={handleChange}
                             placeholder="0.00"
-                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 pr-8 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 pr-8 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">%</span>
                     </div>
@@ -56,7 +56,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                                 value="false"
                                 checked={!formData.tax_included}
                                 onChange={() => setFormData((prev: any) => ({ ...prev, tax_included: false }))}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                className="h-4 w-4 text-gray-600 focus:ring-gray-500"
                             />
                             <span className="ml-2 text-sm text-gray-700">Tax Exclusive</span>
                         </label>
@@ -67,7 +67,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                                 value="true"
                                 checked={formData.tax_included}
                                 onChange={() => setFormData((prev: any) => ({ ...prev, tax_included: true }))}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                className="h-4 w-4 text-gray-600 focus:ring-gray-500"
                             />
                             <span className="ml-2 text-sm text-gray-700">Tax Inclusive</span>
                         </label>
@@ -79,7 +79,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
             {/* Tax Information Card */}
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <div className="flex items-start gap-3">
-                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
@@ -120,7 +120,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
@@ -149,3 +149,5 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
 };
 
 export default TaxTab;
+
+

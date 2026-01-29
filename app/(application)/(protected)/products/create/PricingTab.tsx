@@ -45,7 +45,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                                 }
                             }}
                             placeholder="0.00"
-                            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
                 </div>
@@ -71,7 +71,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                                 }
                             }}
                             placeholder="0.00"
-                            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
                 </div>
@@ -97,7 +97,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                                 }
                             }}
                             placeholder="0.00"
-                            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
                     <p className="mt-1 text-xs text-gray-500">Price for bulk purchases</p>
@@ -106,15 +106,15 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
 
             {/* Profit Margin Display */}
             {formData.price && formData.purchase_price && parseFloat(formData.price) > 0 && parseFloat(formData.purchase_price) > 0 && (
-                <div className="rounded-lg border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+                <div className="rounded-lg border border-gray-200 bg-gray-100 p-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-green-900">Profit Margin</p>
-                            <p className="text-2xl font-bold text-green-600">{(((parseFloat(formData.price) - parseFloat(formData.purchase_price)) / parseFloat(formData.price)) * 100).toFixed(2)}%</p>
+                            <p className="text-sm font-medium text-gray-700">Profit Margin</p>
+                            <p className="text-2xl font-bold text-gray-600">{(((parseFloat(formData.price) - parseFloat(formData.purchase_price)) / parseFloat(formData.price)) * 100).toFixed(2)}%</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-sm font-medium text-green-900">Profit per Unit</p>
-                            <p className="text-2xl font-bold text-green-600">{formatCurrency(parseFloat(formData.price) - parseFloat(formData.purchase_price))}</p>
+                            <p className="text-sm font-medium text-gray-700">Profit per Unit</p>
+                            <p className="text-2xl font-bold text-gray-600">{formatCurrency(parseFloat(formData.price) - parseFloat(formData.purchase_price))}</p>
                         </div>
                     </div>
                 </div>
@@ -146,7 +146,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
@@ -175,3 +175,5 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
 };
 
 export default PricingTab;
+
+

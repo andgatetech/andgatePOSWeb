@@ -567,7 +567,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                             <span className={`text-xs font-medium sm:text-sm ${isActiveRow ? 'text-purple-700' : 'text-gray-700'}`}>{info.label}</span>
                             {info.subtitle && <span className="text-[11px] text-gray-500 sm:text-xs">{info.subtitle}</span>}
                         </div>
-                        {serialValue && <span className="text-xs font-medium text-green-600">✓</span>}
+                        {serialValue && <span className="text-xs font-medium text-gray-600">✓</span>}
                     </div>
                     {isActiveRow && <span className="text-xs font-semibold text-purple-600">Scanning</span>}
                 </div>
@@ -883,7 +883,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         type="button"
                         onClick={onCreateProduct}
                         disabled={isCreating}
-                        className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:bg-emerald-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-2.5"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:bg-gray-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-2.5"
                     >
                         {isCreating ? (
                             <>
@@ -913,3 +913,5 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
 };
 
 export default SerialTab;
+
+

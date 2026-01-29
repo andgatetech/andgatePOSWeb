@@ -47,24 +47,29 @@ const Sidebar = () => {
     };
 
     const handleStoreChange = (store: any) => {
-        
-
         dispatch(setCurrentStore(store));
         setIsStoreDropdownOpen(false);
-
-        
 
         // Check if user is on an order return page (detail or with query params) and redirect to list
         const returnDetailMatch = pathname?.match(/^\/orders\/return\/(\d+)$/);
         const returnWithQueryMatch = pathname === '/orders/return';
 
         if (returnDetailMatch || returnWithQueryMatch) {
-            
             router.push('/orders/return/list');
         }
-    };
 
-    
+        // Check if user is on a product edit page and redirect to products list
+        const productEditMatch = pathname?.match(/^\/products\/edit\/(\d+)$/);
+        if (productEditMatch) {
+            router.push('/products');
+        }
+
+        // Check if user is on a purchase receive page and redirect to purchases list
+        const purchaseReceiveMatch = pathname?.match(/^\/purchases\/receive\/(\d+)$/);
+        if (purchaseReceiveMatch) {
+            router.push('/purchases/receive');
+        }
+    };
 
     // Highlight active route
     useEffect(() => {
@@ -86,7 +91,6 @@ const Sidebar = () => {
         const userPermissions = user?.permissions || [];
         const userRole = user?.role;
 
-        
         return buildMenuFromPermissions(userPermissions, userRole);
     }, [user]);
 

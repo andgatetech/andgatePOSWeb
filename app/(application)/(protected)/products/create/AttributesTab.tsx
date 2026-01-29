@@ -162,20 +162,20 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
             <div className="border-b border-gray-200 pb-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-emerald-100 p-2">
-                            <Tag className="h-5 w-5 text-emerald-600" />
+                        <div className="rounded-lg bg-blue-100 p-2">
+                            <Tag className="h-5 w-5 text-gray-600" />
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">Product Attributes</h3>
                             <p className="text-sm text-gray-600">
-                                Product: <span className="font-semibold text-emerald-700">{formData.product_name || 'Not Set'}</span>
+                                Product: <span className="font-semibold text-blue-700">{formData.product_name || 'Not Set'}</span>
                             </p>
                         </div>
                     </div>
                     <button
                         type="button"
                         onClick={handleAddAttributeField}
-                        className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 sm:px-6 sm:py-3"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 sm:px-6 sm:py-3"
                     >
                         <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
                         <span>Add Attribute</span>
@@ -186,10 +186,10 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
 
             {/* Selected Attributes Display */}
             {selectedAttributes.length > 0 && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="mb-3 flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-emerald-900">Product Attributes ({selectedAttributes.length})</h4>
-                        <p className="text-xs text-emerald-700">These attributes will be used for variants</p>
+                        <h4 className="text-sm font-semibold text-gray-700">Product Attributes ({selectedAttributes.length})</h4>
+                        <p className="text-xs text-blue-700">These attributes will be used for variants</p>
                     </div>
                     <div className="space-y-3">
                         {selectedAttributes.map((attr) => (
@@ -210,7 +210,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                     }, 200);
                                                 }}
                                                 placeholder="Select from dropdown or type custom attribute (e.g., Size, Color, Material)"
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-gray-500"
                                                 disabled={attr.name !== '' && (attr.isCustom || typeof attr.id === 'number')}
                                             />
 
@@ -219,7 +219,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                 <button
                                                     type="button"
                                                     onClick={() => handleAddCustomAttribute(attr.id, searchQueries[attr.id])}
-                                                    className="flex items-center justify-center rounded-lg bg-emerald-600 p-2.5 text-white transition-colors hover:bg-emerald-700"
+                                                    className="flex items-center justify-center rounded-lg bg-gray-600 p-2.5 text-white transition-colors hover:bg-gray-700"
                                                     title="Add this custom attribute"
                                                 >
                                                     <Check className="h-5 w-5" />
@@ -240,9 +240,9 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                                 key={dbAttr.id}
                                                                 type="button"
                                                                 onMouseDown={() => handleSelectAttribute(attr.id, dbAttr)}
-                                                                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-emerald-50"
+                                                                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50"
                                                             >
-                                                                <Tag className="h-4 w-4 text-emerald-600" />
+                                                                <Tag className="h-4 w-4 text-gray-600" />
                                                                 <span className="font-medium text-gray-900">{dbAttr.name}</span>
                                                             </button>
                                                         ))}
@@ -284,7 +284,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
             {/* Info Card */}
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <div className="flex items-start gap-3">
-                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
@@ -332,7 +332,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
@@ -361,3 +361,5 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
 };
 
 export default AttributesTab;
+
+

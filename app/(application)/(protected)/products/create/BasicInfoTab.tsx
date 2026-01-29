@@ -80,7 +80,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         value={formData.product_name}
                         onChange={handleChange}
                         placeholder="Enter product name"
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                 </div>
 
@@ -97,7 +97,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         placeholder="Enter product description"
                         rows={4}
                         maxLength={1000}
-                        className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                     <p className="mt-1 text-sm text-gray-500">{formData.description.length}/1000 characters</p>
                 </div>
@@ -110,14 +110,14 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                             <button
                                 type="button"
                                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                                className={`w-full rounded-lg border px-4 py-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                                    formData.category_name ? 'border-emerald-300 bg-emerald-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
+                                className={`w-full rounded-lg border px-4 py-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
+                                    formData.category_name ? 'border-blue-300 bg-blue-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
                                 }`}
                             >
                                 <span className="block truncate pr-8">{formData.category_name || 'Select a category'}</span>
                                 <svg
                                     className={`absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-transform duration-200 ${
-                                        showCategoryDropdown ? 'rotate-180 text-emerald-600' : 'text-gray-400'
+                                        showCategoryDropdown ? 'rotate-180 text-gray-600' : 'text-gray-400'
                                     }`}
                                     fill="none"
                                     stroke="currentColor"
@@ -131,32 +131,32 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                             {showCategoryDropdown && (
                                 <>
                                     {/* Backdrop */}
-                                    <div className="fixed inset-0 z-10 bg-black/20" onClick={() => setShowCategoryDropdown(false)} />
+                                    <div className="fixed inset-0 z-10" onClick={() => setShowCategoryDropdown(false)} />
 
-                                    <div className="absolute bottom-full z-20 mb-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl">
+                                    <div className="absolute bottom-full z-20 mb-2 w-full rounded-lg border border-gray-300 bg-white shadow-xl">
                                         {/* Search Input */}
-                                        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-4">
+                                        <div className="border-b border-gray-200 bg-gray-50 p-3">
                                             <div className="relative">
                                                 <input
                                                     type="text"
                                                     placeholder="Search categories..."
                                                     value={categorySearchTerm}
                                                     onChange={(e) => setCategorySearchTerm(e.target.value)}
-                                                    className="w-full rounded-lg border-2 border-emerald-200 bg-white px-4 py-2.5 pl-10 text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                                                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                                                     autoFocus
                                                 />
-                                                <svg className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                                 </svg>
                                             </div>
                                         </div>
 
                                         {/* Categories List */}
-                                        <div className="max-h-72 overflow-y-auto p-2">
+                                        <div className="max-h-64 overflow-y-auto">
                                             {/* Quick Add Button */}
                                             <a
                                                 href="/category"
-                                                className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100"
+                                                className="flex items-center gap-2 border-b border-gray-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-gray-100"
                                             >
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -164,11 +164,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                 Add New Category
                                             </a>
 
-                                            <p className="mb-2 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-600">
-                                                {categorySearchTerm.trim() ? `Found ${filteredCategories.length} categories` : 'Available Categories'}
-                                            </p>
                                             {filteredCategories.length > 0 ? (
-                                                <div className="space-y-1">
+                                                <div className="py-1">
                                                     {filteredCategories.map((cat: any) => (
                                                         <button
                                                             key={cat.id}
@@ -177,41 +174,36 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                                 handleCategorySelect(cat);
                                                                 setShowCategoryDropdown(false);
                                                             }}
-                                                            className="w-full rounded-lg px-3 py-3 text-left transition-all duration-150 hover:bg-emerald-50 hover:shadow-sm focus:bg-emerald-50 focus:outline-none"
+                                                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                                         >
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100">
-                                                                    {cat.image_url ? (
-                                                                        <img
-                                                                            src={cat.image_url}
-                                                                            alt={cat.name}
-                                                                            className="h-full w-full rounded-lg object-cover"
-                                                                            onError={(e) => {
-                                                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                                            }}
+                                                            {cat.image_url ? (
+                                                                <img
+                                                                    src={cat.image_url}
+                                                                    alt={cat.name}
+                                                                    className="h-8 w-8 flex-shrink-0 rounded object-cover"
+                                                                    onError={(e) => {
+                                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-gray-100">
+                                                                    <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                                                         />
-                                                                    ) : (
-                                                                        <svg className="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path
-                                                                                strokeLinecap="round"
-                                                                                strokeLinejoin="round"
-                                                                                strokeWidth={2}
-                                                                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                                                            />
-                                                                        </svg>
-                                                                    )}
+                                                                    </svg>
                                                                 </div>
-                                                                <div className="min-w-0 flex-1">
-                                                                    <p className="font-semibold text-gray-900">{cat.name}</p>
-                                                                    {cat.description && <p className="mt-0.5 truncate text-sm text-gray-500">{cat.description}</p>}
-                                                                </div>
-                                                            </div>
+                                                            )}
+                                                            <span className="flex-1 truncate text-sm font-medium text-gray-900">{cat.name}</span>
                                                         </button>
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <div className="px-4 py-8 text-center">
-                                                    <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div className="px-4 py-6 text-center">
+                                                    <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path
                                                             strokeLinecap="round"
                                                             strokeLinejoin="round"
@@ -219,18 +211,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                                                         />
                                                     </svg>
-                                                    <p className="mt-2 text-sm font-medium text-gray-500">{categorySearchTerm.trim() ? 'No categories found' : 'No categories available'}</p>
-                                                    {!categorySearchTerm.trim() && filteredCategories.length === 0 && (
-                                                        <a
-                                                            href="/category"
-                                                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                                                        >
-                                                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                            </svg>
-                                                            Add Category First
-                                                        </a>
-                                                    )}
+                                                    <p className="mt-2 text-sm text-gray-500">{categorySearchTerm.trim() ? 'No categories found' : 'No categories available'}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -240,11 +221,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         </div>
 
                         {formData.category_id && (
-                            <div className="mt-3 flex items-center gap-2 rounded-lg border-2 border-emerald-200 bg-emerald-50 px-4 py-2">
-                                <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="mt-3 flex items-center gap-2 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="flex-1 text-sm font-medium text-emerald-900">{formData.category_name}</span>
+                                <span className="flex-1 text-sm font-medium text-gray-700">{formData.category_name}</span>
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -256,7 +237,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         } as any);
                                         setCategorySearchTerm('');
                                     }}
-                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-200 text-emerald-700 transition-colors hover:bg-emerald-300"
+                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-200 text-blue-700 transition-colors hover:bg-blue-300"
                                 >
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -275,14 +256,14 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                             <button
                                 type="button"
                                 onClick={() => setShowBrandDropdown(!showBrandDropdown)}
-                                className={`w-full rounded-lg border px-4 py-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
-                                    formData.brand_name ? 'border-cyan-300 bg-cyan-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
+                                className={`w-full rounded-lg border px-4 py-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
+                                    formData.brand_name ? 'border-blue-300 bg-blue-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
                                 }`}
                             >
                                 <span className="block truncate pr-8">{formData.brand_name || 'Select a brand'}</span>
                                 <svg
                                     className={`absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-transform duration-200 ${
-                                        showBrandDropdown ? 'rotate-180 text-cyan-600' : 'text-gray-400'
+                                        showBrandDropdown ? 'rotate-180 text-gray-600' : 'text-gray-400'
                                     }`}
                                     fill="none"
                                     stroke="currentColor"
@@ -296,32 +277,32 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                             {showBrandDropdown && (
                                 <>
                                     {/* Backdrop */}
-                                    <div className="fixed inset-0 z-10 bg-black/20" onClick={() => setShowBrandDropdown(false)} />
+                                    <div className="fixed inset-0 z-10" onClick={() => setShowBrandDropdown(false)} />
 
-                                    <div className="absolute bottom-full z-20 mb-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl">
+                                    <div className="absolute bottom-full z-20 mb-2 w-full rounded-lg border border-gray-300 bg-white shadow-xl">
                                         {/* Search Input */}
-                                        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-4">
+                                        <div className="border-b border-gray-200 bg-gray-50 p-3">
                                             <div className="relative">
                                                 <input
                                                     type="text"
                                                     placeholder="Search brands..."
                                                     value={brandSearchTerm}
                                                     onChange={(e) => setBrandSearchTerm(e.target.value)}
-                                                    className="w-full rounded-lg border-2 border-cyan-200 bg-white px-4 py-2.5 pl-10 text-sm focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                                                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pl-9 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                                                     autoFocus
                                                 />
-                                                <svg className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                                 </svg>
                                             </div>
                                         </div>
 
                                         {/* Brands List */}
-                                        <div className="max-h-72 overflow-y-auto p-2">
+                                        <div className="max-h-64 overflow-y-auto">
                                             {/* Quick Add Button */}
                                             <a
                                                 href="/brand"
-                                                className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-cyan-300 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-700 transition-all hover:border-cyan-400 hover:bg-cyan-100"
+                                                className="flex items-center gap-2 border-b border-gray-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-gray-100"
                                             >
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -329,11 +310,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                 Add New Brand
                                             </a>
 
-                                            <p className="mb-2 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-600">
-                                                {brandSearchTerm.trim() ? `Found ${filteredBrands.length} brands` : 'Available Brands'}
-                                            </p>
                                             {filteredBrands.length > 0 ? (
-                                                <div className="space-y-1">
+                                                <div className="py-1">
                                                     {filteredBrands.map((brand: any) => (
                                                         <button
                                                             key={brand.id}
@@ -342,36 +320,31 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                                 handleBrandSelect(brand);
                                                                 setShowBrandDropdown(false);
                                                             }}
-                                                            className="w-full rounded-lg px-3 py-3 text-left transition-all duration-150 hover:bg-cyan-50 hover:shadow-sm focus:bg-cyan-50 focus:outline-none"
+                                                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                                         >
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-100 to-blue-100">
-                                                                    {brand.image_url ? (
-                                                                        <img
-                                                                            src={brand.image_url}
-                                                                            alt={brand.name}
-                                                                            className="h-full w-full rounded-lg object-cover"
-                                                                            onError={(e) => {
-                                                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                                            }}
-                                                                        />
-                                                                    ) : (
-                                                                        <svg className="h-6 w-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                                                        </svg>
-                                                                    )}
+                                                            {brand.image_url ? (
+                                                                <img
+                                                                    src={brand.image_url}
+                                                                    alt={brand.name}
+                                                                    className="h-8 w-8 flex-shrink-0 rounded object-cover"
+                                                                    onError={(e) => {
+                                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-gray-100">
+                                                                    <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                                                    </svg>
                                                                 </div>
-                                                                <div className="min-w-0 flex-1">
-                                                                    <p className="font-semibold text-gray-900">{brand.name}</p>
-                                                                    {brand.description && <p className="mt-0.5 truncate text-sm text-gray-500">{brand.description}</p>}
-                                                                </div>
-                                                            </div>
+                                                            )}
+                                                            <span className="flex-1 truncate text-sm font-medium text-gray-900">{brand.name}</span>
                                                         </button>
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <div className="px-4 py-8 text-center">
-                                                    <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div className="px-4 py-6 text-center">
+                                                    <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path
                                                             strokeLinecap="round"
                                                             strokeLinejoin="round"
@@ -379,18 +352,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                                         />
                                                     </svg>
-                                                    <p className="mt-2 text-sm font-medium text-gray-500">{brandSearchTerm.trim() ? 'No brands found' : 'No brands available'}</p>
-                                                    {!brandSearchTerm.trim() && filteredBrands.length === 0 && (
-                                                        <a
-                                                            href="/brand"
-                                                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
-                                                        >
-                                                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                            </svg>
-                                                            Add Brand First
-                                                        </a>
-                                                    )}
+                                                    <p className="mt-2 text-sm text-gray-500">{brandSearchTerm.trim() ? 'No brands found' : 'No brands available'}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -400,11 +362,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         </div>
 
                         {formData.brand_id && (
-                            <div className="mt-3 flex items-center gap-2 rounded-lg border-2 border-cyan-200 bg-cyan-50 px-4 py-2">
-                                <svg className="h-5 w-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="mt-3 flex items-center gap-2 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="flex-1 text-sm font-medium text-cyan-900">{formData.brand_name}</span>
+                                <span className="flex-1 text-sm font-medium text-gray-700">{formData.brand_name}</span>
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -416,7 +378,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         } as any);
                                         setBrandSearchTerm('');
                                     }}
-                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-200 text-cyan-700 transition-colors hover:bg-cyan-300"
+                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-200 text-blue-700 transition-colors hover:bg-blue-300"
                                 >
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -435,7 +397,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {/* Has Attributes */}
-                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-sm">
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
                         <input
                             type="checkbox"
                             name="has_attributes"
@@ -448,11 +410,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     },
                                 } as any);
                             }}
-                            className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                            className="mt-1 h-5 w-5 rounded border-gray-300 text-gray-600 focus:ring-2 focus:ring-gray-500"
                         />
                         <div className="flex-1">
                             <div className="flex items-center gap-2">
-                                <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -467,7 +429,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     </label>
 
                     {/* Has Warranty */}
-                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-green-300 hover:shadow-sm">
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
                         <input
                             type="checkbox"
                             name="has_warranty"
@@ -480,11 +442,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     },
                                 } as any);
                             }}
-                            className="mt-1 h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-2 focus:ring-green-500"
+                            className="mt-1 h-5 w-5 rounded border-gray-300 text-gray-600 focus:ring-2 focus:ring-gray-500"
                         />
                         <div className="flex-1">
                             <div className="flex items-center gap-2">
-                                <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -549,7 +511,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         type="button"
                         onClick={onCreateProduct}
                         disabled={isCreating}
-                        className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                     >
                         {isCreating ? (
                             <>
@@ -579,3 +541,5 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 };
 
 export default BasicInfoTab;
+
+

@@ -1,9 +1,9 @@
 'use client';
 
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateWarrantyTypeMutation, useDeleteWarrantyTypeMutation, useUpdateWarrantyTypeMutation } from '@/store/features/warrenty/WarrantyTypeApi';
-import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { showConfirmDialog, showSuccessDialog, showErrorDialog } from '@/lib/toast';
 import Dropdown from './Dropdown';
 
 interface WarrantyTypesTabProps {
@@ -336,13 +336,11 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                             setEditingWarrantyData({
                                                                 ...editingWarrantyData,
                                                                 duration_months: e.target.value,
-                                                                duration_days: e.target.value ? '' : editingWarrantyData.duration_days,
                                                             });
                                                         }}
-                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                                                         min="0"
                                                         placeholder="Months"
-                                                        disabled={!!editingWarrantyData.duration_days}
                                                     />
                                                     <input
                                                         type="number"
@@ -351,13 +349,11 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                             setEditingWarrantyData({
                                                                 ...editingWarrantyData,
                                                                 duration_days: e.target.value,
-                                                                duration_months: e.target.value ? '' : editingWarrantyData.duration_months,
                                                             });
                                                         }}
-                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                                                         min="0"
                                                         placeholder="Days"
-                                                        disabled={!!editingWarrantyData.duration_months}
                                                     />
                                                 </div>
                                             ) : (
@@ -388,7 +384,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                             </label>
                                         </td>
                                         {/* Actions */}
-                                        <td className="px-4 py-4">
+                                        <td className="px-4 py-4 text-center">
                                             {editingWarrantyId === warranty.id ? (
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
@@ -406,7 +402,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                             ) : (
                                                 <Dropdown
                                                     offset={[0, 5]}
-                                                    placement="bottom-end"
+                                                    placement="bottom"
                                                     btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                                                     button={<MoreVertical className="h-5 w-5" />}
                                                 >

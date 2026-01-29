@@ -111,10 +111,23 @@ const ProductEditForm = () => {
             // Get first stock data (for non-variant products)
             const firstStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
 
-            // Capitalize first letter of unit to match dropdown options
-            const formatUnit = (unit: string | null | undefined) => {
-                if (!unit) return '';
-                return unit.charAt(0).toUpperCase() + unit.slice(1);
+            // Match unit from API with unit options (case-insensitive)
+            const matchUnit = (apiUnit: string | null | undefined) => {
+                if (!apiUnit) return '';
+
+                // Check if it matches "Piece" (case-insensitive)
+                if (apiUnit.toLowerCase() === 'piece') {
+                    return 'Piece'; // Return with capital P to match dropdown
+                }
+
+                // Check if it matches any unit in the units list
+                const matchedUnit = units.find((u: any) => u.name.toLowerCase() === apiUnit.toLowerCase());
+                if (matchedUnit) {
+                    return matchedUnit.name; // Return the exact name from database
+                }
+
+                // If no match, return as is
+                return apiUnit;
             };
 
             setFormData({
@@ -133,7 +146,7 @@ const ProductEditForm = () => {
                 sku: firstStock?.sku || '',
                 skuOption: firstStock?.sku ? 'manual' : 'auto',
                 barcode: firstStock?.barcode || '',
-                units: formatUnit(firstStock?.unit),
+                units: matchUnit(firstStock?.unit),
                 tax_rate: firstStock?.tax_rate?.toString() || '',
                 tax_included: firstStock?.tax_included || false,
                 has_attributes: product.has_attributes || product.has_attribute || false,
@@ -186,8 +199,28 @@ const ProductEditForm = () => {
                             id: img.id, // Preserve image ID
                         })) || [];
 
+                    // Match unit from API with unit options (case-insensitive)
+                    const matchUnit = (apiUnit: string | null | undefined) => {
+                        if (!apiUnit) return '';
+
+                        // Check if it matches "Piece" (case-insensitive)
+                        if (apiUnit.toLowerCase() === 'piece') {
+                            return 'Piece'; // Return with capital P to match dropdown
+                        }
+
+                        // Check if it matches any unit in the units list
+                        const matchedUnit = units.find((u: any) => u.name.toLowerCase() === apiUnit.toLowerCase());
+                        if (matchedUnit) {
+                            return matchedUnit.name; // Return the exact name from database
+                        }
+
+                        // If no match, return as is
+                        return apiUnit;
+                    };
+
                     return {
                         ...stock,
+                        unit: matchUnit(stock.unit), // Normalize unit name
                         images: transformedImages,
                     };
                 });

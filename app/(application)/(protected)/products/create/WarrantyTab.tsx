@@ -212,7 +212,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Shield className="h-6 w-6 text-green-600" />
+                    <Shield className="h-6 w-6 text-gray-600" />
                     <h3 className="text-lg font-semibold text-gray-900">Warranty Information</h3>
                 </div>
             </div>
@@ -241,7 +241,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
             {/* Variants Info - Show if has variants */}
             {hasVariants && (
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4">
-                    <p className="text-sm font-medium text-blue-900">
+                    <p className="text-sm font-medium text-gray-700">
                         This product has <span className="font-bold">{productStocks.length} variants</span>. Each variant can have its own warranty.
                     </p>
                     {displayUnitCount > 0 && <p className="text-xs text-blue-700">Total units across variants: {displayUnitCount}</p>}
@@ -252,7 +252,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                 {warrantyTypesLoading ? (
                     <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
                         <div className="text-center">
-                            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent"></div>
+                            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
                             <p className="text-sm text-gray-600">Loading warranty types...</p>
                         </div>
                     </div>
@@ -291,7 +291,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                             setTimeout(() => setShowDropdowns({ ...showDropdowns, [0]: false }), 200);
                                         }}
                                         placeholder="Select from dropdown or type duration in days (e.g., 365, 730)"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-gray-500"
                                         disabled={
                                             !!(productWarranties[0]?.warranty_type_id > 0 || (productWarranties[0]?.duration_days && productWarranties[0]?.duration_days > 0)) &&
                                             searchQueries[0] === undefined
@@ -303,7 +303,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => handleAddCustomWarranty(0)}
-                                            className="flex items-center justify-center rounded-lg bg-green-600 p-2.5 text-white transition-colors hover:bg-green-700"
+                                            className="flex items-center justify-center rounded-lg bg-gray-600 p-2.5 text-white transition-colors hover:bg-gray-700"
                                             title="Create custom warranty"
                                         >
                                             <Check className="h-5 w-5" />
@@ -322,10 +322,10 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                         key={wt.id}
                                                         type="button"
                                                         onMouseDown={() => handleSelectWarranty(0, wt)}
-                                                        className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-green-50"
+                                                        className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50"
                                                     >
                                                         <div className="flex items-center gap-2">
-                                                            <Shield className="h-4 w-4 text-green-600" />
+                                                            <Shield className="h-4 w-4 text-gray-600" />
                                                             <span className="font-medium text-gray-900">
                                                                 {wt.duration_months ? `${wt.duration_months} months` : ''}
                                                                 {wt.duration_months && wt.duration_days ? ', ' : ''}
@@ -375,7 +375,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                             {hasVariants ? getVariantName(index) : `Warranty #${index + 1}`}
                                             {hasVariants && <span className="ml-2 text-xs font-normal text-gray-500">Qty: {variantUnitCounts[index] || 0}</span>}
                                         </label>
-                                        {productWarranties[index]?.warranty_type_id > 0 && <span className="text-xs font-medium text-green-600">✓ Selected</span>}
+                                        {productWarranties[index]?.warranty_type_id > 0 && <span className="text-xs font-medium text-gray-600">✓ Selected</span>}
                                     </div>
 
                                     <div className="relative">
@@ -404,7 +404,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                     setTimeout(() => setShowDropdowns({ ...showDropdowns, [index]: false }), 200);
                                                 }}
                                                 placeholder="Select from dropdown or type days (e.g., 365)"
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-gray-500"
                                                 disabled={
                                                     !!(productWarranties[index]?.warranty_type_id > 0 || (productWarranties[index]?.duration_days && productWarranties[index]?.duration_days > 0)) &&
                                                     searchQueries[index] === undefined
@@ -416,7 +416,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                 <button
                                                     type="button"
                                                     onClick={() => handleAddCustomWarranty(index)}
-                                                    className="flex items-center justify-center rounded-lg bg-green-600 p-2 text-white hover:bg-green-700"
+                                                    className="flex items-center justify-center rounded-lg bg-gray-600 p-2 text-white hover:bg-gray-700"
                                                     title="Create warranty"
                                                 >
                                                     <Check className="h-4 w-4" />
@@ -437,10 +437,10 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                                 key={wt.id}
                                                                 type="button"
                                                                 onMouseDown={() => handleSelectWarranty(index, wt)}
-                                                                className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-green-50"
+                                                                className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-blue-50"
                                                             >
                                                                 <div className="flex items-center gap-1">
-                                                                    <Shield className="h-3 w-3 text-green-600" />
+                                                                    <Shield className="h-3 w-3 text-gray-600" />
                                                                     <span className="font-medium text-gray-900">
                                                                         {wt.duration_months ? `${wt.duration_months} months` : ''}
                                                                         {wt.duration_months && wt.duration_days ? ', ' : ''}
@@ -482,22 +482,22 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
             </div>
             {/* Summary */}
             {!sameWarrantyForAll && filledWarranties.length > 0 && entryCount > 0 && (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="mb-2 flex items-center justify-between text-sm text-gray-600">
                         <span>
                             Progress: {filledWarranties.length} / {entryCount}
                         </span>
-                        <span className="font-medium text-green-600">{progressPercentage}%</span>
+                        <span className="font-medium text-gray-600">{progressPercentage}%</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-gray-200">
-                        <div className="h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-300" style={{ width: progressWidth }}></div>
+                        <div className="h-2 rounded-full bg-gray-600 transition-all duration-300" style={{ width: progressWidth }}></div>
                     </div>
                 </div>
             )}
             {/* Info Card */}
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <div className="flex items-start gap-3">
-                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
@@ -536,7 +536,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
@@ -565,3 +565,5 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
 };
 
 export default WarrantyTab;
+
+

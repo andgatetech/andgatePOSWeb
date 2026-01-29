@@ -1571,26 +1571,28 @@ const StoreSetting = () => {
                 {/* Tab Content */}
                 <div className="min-h-[400px]">{renderTabContent()}</div>
 
-                {/* Save Button */}
-                <div className="flex justify-center pt-4">
-                    <button
-                        type="submit"
-                        disabled={isUpdating}
-                        className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-                    >
-                        {isUpdating ? (
-                            <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                Updating...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                                Save Settings
-                            </>
-                        )}
-                    </button>
-                </div>
+                {/* Save Button - Only show for tabs that need form submission */}
+                {['basic', 'hours', 'loyalty', 'branding', 'status'].includes(activeTab) && (
+                    <div className="flex justify-center pt-4">
+                        <button
+                            type="submit"
+                            disabled={isUpdating}
+                            className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                        >
+                            {isUpdating ? (
+                                <>
+                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    Updating...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                                    Save Settings
+                                </>
+                            )}
+                        </button>
+                    </div>
+                )}
             </form>
 
             {/* Mobile FAB */}

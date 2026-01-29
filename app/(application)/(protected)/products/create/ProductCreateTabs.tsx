@@ -34,8 +34,8 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
     return (
         <>
             {/* Desktop & Tablet Tabs */}
-            <div className="sticky top-16 z-10 mb-6 hidden overflow-x-auto border-b-2 border-emerald-200 bg-emerald-50/50 [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
-                <div className="m-1 grid grid-cols-2 gap-1.5 lg:grid-cols-5 xl:grid-cols-8">
+            <div className="sticky top-0 z-10 mb-4 hidden overflow-x-auto border-b border-gray-200 bg-white [-ms-overflow-style:none] [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
+                <div className="flex gap-2 p-3">
                     {displayTabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActive = activeTab === tab.id;
@@ -46,22 +46,20 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
                                 type="button"
                                 onClick={() => onTabChange(tab.id)}
                                 className={`
-                                    group relative flex flex-col items-center gap-1 rounded-lg border p-2 transition-all duration-200
-                                    ${isActive ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'}
+                                    group relative flex flex-col items-center gap-1.5 rounded-lg border px-4 py-2.5 transition-all duration-200
+                                    ${isActive ? 'border-gray-300 bg-gray-100 shadow-sm' : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'}
                                 `}
                             >
                                 <div
-                                    className={`rounded-md p-1 transition-colors ${
-                                        isActive ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-emerald-100 group-hover:text-emerald-600'
-                                    }`}
+                                    className={`rounded-lg p-1.5 transition-colors ${isActive ? 'bg-gray-700 text-white' : 'bg-white text-gray-600 group-hover:bg-gray-200 group-hover:text-gray-800'}`}
                                 >
-                                    <Icon className="h-3.5 w-3.5" />
+                                    <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="text-center">
-                                    <p className={`text-[11px] font-semibold ${isActive ? 'text-emerald-900' : 'text-gray-700'}`}>{tab.label}</p>
-                                    <p className={`text-[9px] leading-tight ${isActive ? 'text-emerald-700' : 'text-gray-500'}`}>{tab.description}</p>
+                                    <p className={`text-xs font-semibold ${isActive ? 'text-gray-900' : 'text-gray-700'}`}>{tab.label}</p>
+                                    <p className={`text-[10px] leading-tight ${isActive ? 'text-gray-600' : 'text-gray-500'}`}>{tab.description}</p>
                                 </div>
-                                {isActive && <div className="absolute -bottom-0.5 left-1/2 h-0.5 w-1/2 -translate-x-1/2 rounded-full bg-emerald-500" />}
+                                {isActive && <div className="absolute -bottom-[1px] left-0 h-[2px] w-full bg-gray-700" />}
                             </button>
                         );
                     })}

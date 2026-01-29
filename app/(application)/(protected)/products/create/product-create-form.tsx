@@ -166,23 +166,20 @@ const ProductCreateForm = () => {
         return getVisibleTabs().includes(tabId);
     };
 
-    // Get recent 5 categories for dropdown and filter based on search
-    const recentCategories = categories.slice(0, 5);
-    const recentBrands = brands.slice(0, 5);
-
+    // Show all categories and brands, with search filtering
     // Filter categories based on search term
     const filteredCategories = categorySearchTerm.trim()
         ? categories.filter(
               (cat: any) => cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase()) || (cat.description && cat.description.toLowerCase().includes(categorySearchTerm.toLowerCase()))
           )
-        : recentCategories;
+        : categories;
 
     // Filter brands based on search term
     const filteredBrands = brandSearchTerm.trim()
         ? brands.filter(
               (brand: any) => brand.name.toLowerCase().includes(brandSearchTerm.toLowerCase()) || (brand.description && brand.description.toLowerCase().includes(brandSearchTerm.toLowerCase()))
           )
-        : recentBrands;
+        : brands;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -529,6 +526,7 @@ const ProductCreateForm = () => {
             setProductStocks([]);
             setProductSerials([]);
             setProductWarranties([]);
+            setActiveTab('basic'); // Reset to basic tab
 
             // showSuccessDialog(title, text, confirmButtonText, showCancelButton, cancelButtonText)
             showSuccessDialog('Success!', 'Product has been created successfully', 'Go to Products', true, 'Create Another').then((result) => {
@@ -556,15 +554,15 @@ const ProductCreateForm = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                                    <Store className="h-6 w-6 text-white" />
+                <div className="mb-3">
+                    <div className="rounded-lg bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
+                                    <Store className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Create New Product</h1>
+                                    <h1 className="text-xl font-bold text-gray-900">Create New Product</h1>
                                     <p className="text-sm text-gray-500">{currentStore ? `Add to ${currentStore.store_name}` : 'Add to your inventory'}</p>
                                 </div>
                             </div>
@@ -577,36 +575,6 @@ const ProductCreateForm = () => {
 
                 {/* Mobile FAB */}
                 <MobileTabFAB activeTab={activeTab} onTabChange={setActiveTab} visibleTabs={getVisibleTabs()} />
-
-                {/* Store Info Section */}
-                {currentStore && (
-                    <div className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 shadow-lg">
-                        <div className="relative p-6">
-                            {/* Decorative circles */}
-                            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10"></div>
-                            <div className="absolute -bottom-6 right-20 h-24 w-24 rounded-full bg-white/5"></div>
-
-                            <div className="relative flex items-center justify-between">
-                                <div className="flex items-center space-x-4">
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg">
-                                        <Store className="h-8 w-8 text-emerald-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-emerald-50">Adding Product To</p>
-                                        <h3 className="text-2xl font-bold text-white drop-shadow-sm">{currentStore.store_name}</h3>
-                                        <p className="mt-1 text-xs text-emerald-50">Build your inventory with ease</p>
-                                    </div>
-                                </div>
-                                <div className="hidden items-center space-x-6 md:flex">
-                                    <div className="text-right">
-                                        <p className="text-xs font-medium text-blue-100">Store ID</p>
-                                        <p className="text-lg font-semibold text-white">#{currentStore.id}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {/* Main Form Card */}
                 <div className="mb-8 overflow-hidden rounded-2xl bg-white shadow-xl">

@@ -244,7 +244,7 @@ const CategoryComponent = () => {
                     <div className="flex justify-center">
                         <Dropdown
                             offset={[0, 5]}
-                            placement="bottom-end"
+                            placement="bottom"
                             btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                             button={
                                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

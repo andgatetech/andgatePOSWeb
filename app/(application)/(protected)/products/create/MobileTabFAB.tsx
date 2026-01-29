@@ -70,13 +70,13 @@ const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, vis
                                     type="button"
                                     onClick={() => handleTabClick(tab.id)}
                                     className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 transition-all ${
-                                        isActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 bg-white hover:border-emerald-300'
+                                        isActive ? 'border-gray-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'
                                     }`}
                                 >
-                                    <div className={`rounded-lg p-1.5 ${isActive ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                    <div className={`rounded-lg p-1.5 ${isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}>
                                         <Icon className="h-4 w-4" />
                                     </div>
-                                    <span className={`text-xs font-medium ${isActive ? 'text-emerald-900' : 'text-gray-700'}`}>{tab.label}</span>
+                                    <span className={`text-xs font-medium ${isActive ? 'text-blue-900' : 'text-gray-700'}`}>{tab.label}</span>
                                 </button>
                             );
                         })}
@@ -108,7 +108,7 @@ const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, vis
                                 if (parent) {
                                     const icon = document.createElement('div');
                                     icon.innerHTML =
-                                        '<svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>';
+                                        '<svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>';
                                     parent.appendChild(icon);
                                 }
                             }}
@@ -121,3 +121,5 @@ const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, vis
 };
 
 export default MobileTabFAB;
+
+

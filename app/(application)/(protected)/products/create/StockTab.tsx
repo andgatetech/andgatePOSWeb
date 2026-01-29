@@ -34,7 +34,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         name="units"
                         value={formData.units}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     >
                         <option value="">Select Unit</option>
                         <option value="Piece">Piece (Default)</option>
@@ -68,7 +68,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         value={formData.quantity}
                         onChange={handleChange}
                         placeholder="0"
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                 </div>
 
@@ -85,7 +85,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         value={formData.low_stock_quantity}
                         onChange={handleChange}
                         placeholder="0"
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                     <p className="mt-1 text-xs text-gray-500">Alert when stock reaches this level</p>
                 </div>
@@ -100,7 +100,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         name="available"
                         value={formData.available}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     >
                         <option value="yes">Available</option>
                         <option value="no">Out of Stock</option>
@@ -114,23 +114,23 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                     className={`rounded-lg border p-4 ${
                         parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0')
                             ? 'border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50'
-                            : 'border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50'
+                            : 'border-gray-200 bg-gray-100'
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className={`text-sm font-medium ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-900' : 'text-blue-900'}`}>
+                            <p className={`text-sm font-medium ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-900' : 'text-gray-700'}`}>
                                 Stock Status
                             </p>
-                            <p className={`text-2xl font-bold ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-600' : 'text-blue-600'}`}>
+                            <p className={`text-2xl font-bold ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-600' : 'text-gray-600'}`}>
                                 {parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'Low Stock' : 'In Stock'}
                             </p>
                         </div>
                         <div className="text-right">
-                            <p className={`text-sm font-medium ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-900' : 'text-blue-900'}`}>
+                            <p className={`text-sm font-medium ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-900' : 'text-gray-700'}`}>
                                 Available Quantity
                             </p>
-                            <p className={`text-2xl font-bold ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-600' : 'text-blue-600'}`}>
+                            <p className={`text-2xl font-bold ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-600' : 'text-gray-600'}`}>
                                 {formData.quantity} {formData.units}
                             </p>
                         </div>
@@ -164,7 +164,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
@@ -193,3 +193,5 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
 };
 
 export default StockTab;
+
+

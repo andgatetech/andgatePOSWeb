@@ -233,7 +233,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => handleDuplicateVariant(index)}
-                                    className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-100"
+                                    className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100"
                                     title="Duplicate variant"
                                 >
                                     <Copy className="h-4 w-4" />
@@ -349,6 +349,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             >
                                                 <option value="">Select Unit</option>
+                                                <option value="Piece">Piece (Default)</option>
                                                 {units.map((unit: any) => (
                                                     <option key={unit.id} value={unit.name}>
                                                         {unit.name}
@@ -478,7 +479,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                             // Collapse the variant after saving
                                             setExpandedVariantIndex(null);
                                         }}
-                                        className="flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                                        className="flex items-center gap-2 rounded-lg bg-gray-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700"
                                     >
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -521,7 +522,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                         type="button"
                         onClick={onCreateProduct}
                         disabled={isCreating || productStocks.length === 0}
-                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial"
                     >
                         {isCreating ? (
                             <>

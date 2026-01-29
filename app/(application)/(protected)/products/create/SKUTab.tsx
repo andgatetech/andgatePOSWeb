@@ -41,7 +41,7 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
                                 value="auto"
                                 checked={formData.skuOption === 'auto'}
                                 onChange={() => setFormData((prev: any) => ({ ...prev, skuOption: 'auto', sku: '' }))}
-                                className="h-5 w-5 text-blue-600 focus:ring-blue-500"
+                                className="h-5 w-5 text-gray-600 focus:ring-gray-500"
                             />
                             <div className="flex-1">
                                 <p className="font-medium text-gray-900">Auto-generate</p>
@@ -60,7 +60,7 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
                                 value="manual"
                                 checked={formData.skuOption === 'manual'}
                                 onChange={() => setFormData((prev: any) => ({ ...prev, skuOption: 'manual', sku: '' }))}
-                                className="h-5 w-5 text-blue-600 focus:ring-blue-500"
+                                className="h-5 w-5 text-gray-600 focus:ring-gray-500"
                             />
                             <div className="flex-1">
                                 <p className="font-medium text-gray-900">Manual input</p>
@@ -82,7 +82,7 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
                         value={formData.sku}
                         onChange={handleChange}
                         placeholder={formData.skuOption === 'manual' ? 'Enter SKU code (e.g., PRD-12345)' : 'Will be generated automatically'}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                         disabled={formData.skuOption === 'auto'}
                         maxLength={100}
                     />
@@ -134,7 +134,7 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
                     type="button"
                     onClick={onCreateProduct}
                     disabled={isCreating}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                 >
                     {isCreating ? (
                         <>
@@ -163,3 +163,5 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
 };
 
 export default SKUTab;
+
+

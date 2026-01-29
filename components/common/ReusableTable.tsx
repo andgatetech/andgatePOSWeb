@@ -67,7 +67,7 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
 
             // Calculate position
             let top = rect.bottom + 5;
-            let left = rect.right - dropdownWidth;
+            let left = rect.left + rect.width / 2 - dropdownWidth / 2;
 
             // Adjust if dropdown goes below viewport
             if (top + dropdownHeight > window.innerHeight) {
