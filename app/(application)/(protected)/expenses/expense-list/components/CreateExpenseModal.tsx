@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
-import { ChevronDown, Plus, Receipt, Store, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 
 interface CreateExpenseModalProps {
@@ -15,7 +15,7 @@ interface CreateExpenseModalProps {
 
 const PAYMENT_TYPES = [
     { value: 'cash', label: 'Cash', icon: '💵' },
-    { value: 'bank', label: 'Bank Transfer', icon: '🏦' },
+    { value: 'bank_transfer', label: 'Bank Transfer', icon: '🏦' },
     { value: 'card', label: 'Card', icon: '💳' },
     { value: 'others', label: 'Others', icon: '📋' },
 ];
@@ -106,176 +106,135 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 sm:p-4">
-            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={handleClose}>
+            <div className="w-full max-w-[360px] rounded-lg border bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
                 {/* Modal Header */}
-                <div className="border-b border-gray-200 bg-gradient-to-r from-red-500 to-rose-600 px-6 py-5">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-opacity-20 shadow-lg">
-                                <Receipt className="h-6 w-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-white">Create Expense</h2>
-                                {currentStore && (
-                                    <div className="mt-1 flex items-center text-sm text-red-100">
-                                        <Store className="mr-1.5 h-4 w-4" />
-                                        <span>{currentStore.store_name}</span>
-                                    </div>
-                                )}
-                            </div>
+                <div className="border-b px-6 py-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-base font-medium">Create Expense</h2>
+                            <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
+                                <X className="h-4 w-4" />
+                            </button>
                         </div>
-                        <button onClick={handleClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-white bg-opacity-20 text-white transition-colors hover:bg-opacity-30">
-                            <X className="h-5 w-5" />
-                        </button>
+                        {currentStore && <p className="text-xs text-gray-500">{currentStore.store_name}</p>}
                     </div>
                 </div>
 
-                {/* Modal Content */}
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="space-y-5">
-                        {/* Title Input */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                Title <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => {
-                                    setFormData({ ...formData, title: e.target.value });
-                                    if (errors.title) setErrors({ ...errors, title: '' });
-                                }}
-                                className={`w-full rounded-xl border px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:outline-none focus:ring-2 ${
-                                    errors.title ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-red-500 focus:ring-red-200'
-                                }`}
-                                placeholder="e.g., Office Rent, Utilities"
-                            />
-                            {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
-                        </div>
-
-                        {/* Ledger Select (Optional) */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">Ledger (Optional)</label>
-                            <div className="relative">
-                                <select
-                                    value={formData.ledger_id}
-                                    onChange={(e) => {
-                                        const selectedId = e.target.value;
-                                        const selectedLedger = ledgers.find((l: any) => l.id.toString() === selectedId);
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            ledger_id: selectedId,
-                                            expense_ledger_type: selectedLedger ? selectedLedger.title : '',
-                                        }));
-                                    }}
-                                    className="w-full appearance-none rounded-xl border border-gray-300 px-4 py-3 pr-10 text-gray-900 transition-all focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
-                                >
-                                    <option value="">Auto-create expense ledger</option>
-                                    {ledgers.map((ledger: any) => (
-                                        <option key={ledger.id} value={ledger.id}>
-                                            {ledger.title}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                            </div>
-                            <p className="mt-1 text-xs text-gray-500">Select an existing expense ledger or leave empty to auto-create</p>
-                        </div>
-
-                        {/* Amount */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                Amount <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={formData.debit}
-                                onChange={(e) => {
-                                    setFormData({ ...formData, debit: e.target.value });
-                                    if (errors.debit) setErrors({ ...errors, debit: '' });
-                                }}
-                                className={`w-full rounded-xl border px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:outline-none focus:ring-2 ${
-                                    errors.debit ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-red-500 focus:ring-red-200'
-                                }`}
-                                placeholder="0.00"
-                            />
-                            {errors.debit && <p className="mt-1.5 text-xs text-red-500">{errors.debit}</p>}
-                        </div>
-
-                        {/* Payment Type */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                Payment Type <span className="text-red-500">*</span>
-                            </label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {PAYMENT_TYPES.map((type) => (
-                                    <button
-                                        key={type.value}
-                                        type="button"
-                                        onClick={() => {
-                                            setFormData({ ...formData, payment_type: type.value });
-                                            if (errors.payment_type) setErrors({ ...errors, payment_type: '' });
-                                        }}
-                                        className={`flex items-center gap-2 rounded-xl border-2 px-4 py-3 transition-all ${
-                                            formData.payment_type === type.value ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                                        }`}
-                                    >
-                                        <span className="text-lg">{type.icon}</span>
-                                        <span className="font-medium">{type.label}</span>
-                                    </button>
-                                ))}
-                            </div>
-                            {errors.payment_type && <p className="mt-1.5 text-xs text-red-500">{errors.payment_type}</p>}
-                        </div>
-
-                        {/* Notes */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">Notes</label>
-                            <textarea
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                rows={3}
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
-                                placeholder="Add notes for this expense..."
-                            />
-                        </div>
+                <form onSubmit={handleSubmit} className="space-y-4 p-6">
+                    <div className="space-y-1.5">
+                        <label htmlFor="expense-title" className="text-xs text-gray-500">
+                            Title <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="expense-title"
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => {
+                                setFormData({ ...formData, title: e.target.value });
+                                if (errors.title) setErrors({ ...errors, title: '' });
+                            }}
+                            placeholder="Enter expense title"
+                            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                            required
+                        />
+                        {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
                     </div>
 
-                    {/* Form Actions */}
-                    <div className="mt-6 flex gap-3">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                    <div className="space-y-1.5">
+                        <label htmlFor="expense-ledger" className="text-xs text-gray-500">
+                            Ledger <span className="text-gray-400">(Optional)</span>
+                        </label>
+                        <select
+                            id="expense-ledger"
+                            value={formData.ledger_id}
+                            onChange={(e) => {
+                                const selectedId = e.target.value;
+                                const selectedLedger = ledgers.find((l: any) => l.id.toString() === selectedId);
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    ledger_id: selectedId,
+                                    expense_ledger_type: selectedLedger ? selectedLedger.title : '',
+                                }));
+                            }}
+                            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         >
+                            <option value="">Auto-create expense ledger</option>
+                            {ledgers.map((ledger: any) => (
+                                <option key={ledger.id} value={ledger.id}>
+                                    {ledger.title}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-[10px] text-gray-500">Select an existing expense ledger or leave empty to auto-create</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label htmlFor="expense-amount" className="text-xs text-gray-500">
+                            Amount <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="expense-amount"
+                            type="number"
+                            value={formData.debit}
+                            onChange={(e) => {
+                                setFormData({ ...formData, debit: e.target.value });
+                                if (errors.debit) setErrors({ ...errors, debit: '' });
+                            }}
+                            placeholder="0.00"
+                            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                            min="0"
+                            step="0.01"
+                            required
+                        />
+                        {errors.debit && <p className="mt-1.5 text-xs text-red-500">{errors.debit}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs text-gray-500">
+                            Payment Type <span className="text-red-500">*</span>
+                        </label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                            {PAYMENT_TYPES.map((type) => (
+                                <button
+                                    key={type.value}
+                                    type="button"
+                                    onClick={() => {
+                                        setFormData({ ...formData, payment_type: type.value });
+                                        if (errors.payment_type) setErrors({ ...errors, payment_type: '' });
+                                    }}
+                                    className={`flex flex-col items-center justify-center gap-0.5 rounded-md border p-2 text-xs transition-colors ${
+                                        formData.payment_type === type.value ? 'border-black bg-black/5 text-black' : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <span className="text-base">{type.icon}</span>
+                                    <span className="text-[10px] leading-tight">{type.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                        {errors.payment_type && <p className="mt-1.5 text-xs text-red-500">{errors.payment_type}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label htmlFor="expense-notes" className="text-xs text-gray-500">
+                            Notes
+                        </label>
+                        <textarea
+                            id="expense-notes"
+                            value={formData.notes}
+                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                            placeholder="Add notes..."
+                            rows={2}
+                            className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                        />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                        <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:from-red-600 hover:to-rose-700 disabled:opacity-50"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
-                                    </svg>
-                                    Creating...
-                                </>
-                            ) : (
-                                <>
-                                    <Plus className="h-5 w-5" />
-                                    Create Expense
-                                </>
-                            )}
+                        <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
+                            {isLoading ? 'Creating...' : 'Create Expense'}
                         </button>
                     </div>
                 </form>
