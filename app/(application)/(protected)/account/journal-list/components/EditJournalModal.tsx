@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import { useUpdateJournalMutation } from '@/store/features/journals/journals';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
-import { BookOpen, ChevronDown, Save, Store, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EditJournalModalProps {
@@ -98,142 +98,97 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
     if (!isOpen || !journal) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 sm:p-4">
-            <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-[360px] rounded-lg border bg-white shadow-lg">
                 {/* Modal Header */}
-                <div className="border-b border-gray-200 bg-gradient-to-r from-orange-500 to-amber-600 px-6 py-5">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-opacity-20 shadow-lg">
-                                <BookOpen className="h-6 w-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-white">Edit Journal Entry</h2>
-                                {currentStore && (
-                                    <div className="mt-1 flex items-center text-sm text-orange-100">
-                                        <Store className="mr-1.5 h-4 w-4" />
-                                        <span>{currentStore.store_name}</span>
-                                    </div>
-                                )}
-                            </div>
+                <div className="border-b px-6 py-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-base font-medium">Edit Journal</h2>
+                            <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
+                                <X className="h-4 w-4" />
+                            </button>
                         </div>
-                        <button onClick={handleClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-white bg-opacity-20 text-white transition-colors hover:bg-opacity-30">
-                            <X className="h-5 w-5" />
-                        </button>
+                        {currentStore && <p className="text-xs text-gray-500">{currentStore.store_name}</p>}
                     </div>
                 </div>
 
                 {/* Modal Content */}
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="space-y-5">
-                        {/* Ledger Select */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                Ledger <span className="text-red-500">*</span>
+                <form onSubmit={handleSubmit} className="space-y-4 p-6">
+                    <div className="space-y-1.5">
+                        <label htmlFor="journal-ledger" className="text-xs text-gray-500">
+                            Ledger
+                        </label>
+                        <select
+                            id="journal-ledger"
+                            value={formData.ledger_id}
+                            onChange={(e) => setFormData({ ...formData, ledger_id: e.target.value })}
+                            className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                        >
+                            <option value="">Select ledger</option>
+                            {ledgers.map((ledger: any) => (
+                                <option key={ledger.id} value={ledger.id}>
+                                    {ledger.title}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.ledger_id && <p className="text-xs text-red-500">{errors.ledger_id}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <label htmlFor="debit-amount" className="text-xs text-gray-500">
+                                Debit
                             </label>
-                            <div className="relative">
-                                <select
-                                    value={formData.ledger_id}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, ledger_id: e.target.value });
-                                        if (errors.ledger_id) setErrors({ ...errors, ledger_id: '' });
-                                    }}
-                                    className={`w-full appearance-none rounded-xl border px-4 py-3 pr-10 text-gray-900 transition-all focus:outline-none focus:ring-2 ${
-                                        errors.ledger_id ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-orange-500 focus:ring-orange-200'
-                                    }`}
-                                >
-                                    <option value="">Select a ledger</option>
-                                    {ledgers.map((ledger: any) => (
-                                        <option key={ledger.id} value={ledger.id}>
-                                            {ledger.title}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                            </div>
-                            {errors.ledger_id && <p className="mt-1.5 text-xs text-red-500">{errors.ledger_id}</p>}
+                            <input
+                                id="debit-amount"
+                                type="number"
+                                value={formData.debit}
+                                onChange={(e) => setFormData({ ...formData, debit: e.target.value })}
+                                placeholder="0.00"
+                                className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                                min="0"
+                                step="0.01"
+                            />
                         </div>
-
-                        {/* Debit and Credit */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Debit Amount</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={formData.debit}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, debit: e.target.value, credit: '' });
-                                        if (errors.amount) setErrors({ ...errors, amount: '' });
-                                    }}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
-                                    placeholder="0.00"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Credit Amount</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={formData.credit}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, credit: e.target.value, debit: '' });
-                                        if (errors.amount) setErrors({ ...errors, amount: '' });
-                                    }}
-                                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
-                                    placeholder="0.00"
-                                />
-                            </div>
-                        </div>
-                        {errors.amount && <p className="-mt-3 text-xs text-red-500">{errors.amount}</p>}
-
-                        {/* Notes */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">Notes</label>
-                            <textarea
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                rows={3}
-                                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200"
-                                placeholder="Add notes for this journal entry..."
+                        <div className="space-y-1.5">
+                            <label htmlFor="credit-amount" className="text-xs text-gray-500">
+                                Credit
+                            </label>
+                            <input
+                                id="credit-amount"
+                                type="number"
+                                value={formData.credit}
+                                onChange={(e) => setFormData({ ...formData, credit: e.target.value })}
+                                placeholder="0.00"
+                                className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                                min="0"
+                                step="0.01"
                             />
                         </div>
                     </div>
+                    {errors.amount && <p className="text-xs text-red-500">{errors.amount}</p>}
 
-                    {/* Form Actions */}
-                    <div className="mt-6 flex gap-3">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
-                        >
+                    <div className="space-y-1.5">
+                        <label htmlFor="journal-notes" className="text-xs text-gray-500">
+                            Notes
+                        </label>
+                        <textarea
+                            id="journal-notes"
+                            value={formData.notes}
+                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                            placeholder="Add notes..."
+                            rows={2}
+                            className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                        />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                        <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:from-orange-600 hover:to-amber-700 disabled:opacity-50"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
-                                    </svg>
-                                    Updating...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="h-5 w-5" />
-                                    Update Entry
-                                </>
-                            )}
+                        <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
+                            {isLoading ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 </form>
