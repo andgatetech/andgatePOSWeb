@@ -4,8 +4,8 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import { useUpdateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
-import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface EditExpenseModalProps {
     isOpen: boolean;
@@ -199,10 +199,8 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                                         setFormData({ ...formData, payment_type: type.value });
                                         if (errors.payment_type) setErrors({ ...errors, payment_type: '' });
                                     }}
-                                    className={`flex flex-col items-center justify-center gap-0.5 p-2 rounded-md border text-xs transition-colors ${
-                                        formData.payment_type === type.value
-                                            ? 'border-black bg-black/5 text-black'
-                                            : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                                    className={`flex flex-col items-center justify-center gap-0.5 rounded-md border p-2 text-xs transition-colors ${
+                                        formData.payment_type === type.value ? 'border-black bg-black/5 text-black' : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                                     }`}
                                 >
                                     <span className="text-base">{type.icon}</span>
@@ -214,30 +212,24 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                     </div>
 
                     <div className="space-y-1.5">
-                        <label htmlFor="edit-expense-notes" className="text-xs text-gray-500">Notes</label>
+                        <label htmlFor="edit-expense-notes" className="text-xs text-gray-500">
+                            Notes
+                        </label>
                         <textarea
                             id="edit-expense-notes"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             placeholder="Add notes..."
                             rows={2}
-                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm resize-none focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                            className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         />
                     </div>
 
                     <div className="flex gap-2 pt-2">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="flex-1 h-9 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50"
-                        >
+                        <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="flex-1 h-9 rounded-md bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
-                        >
+                        <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
                             {isLoading ? 'Updating...' : 'Update Expense'}
                         </button>
                     </div>

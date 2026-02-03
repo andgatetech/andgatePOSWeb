@@ -1,8 +1,8 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
-import { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface ViewExpenseModalProps {
     expense: any;
@@ -55,36 +55,32 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                         </div>
                         <div className="flex items-center gap-2">
                             <p className="text-xs text-gray-500">ID: #{expense.id}</p>
-                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                                {paymentTypeLabel}
-                            </span>
+                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{paymentTypeLabel}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Modal Content */}
-                <div className="p-6 space-y-4">
+                <div className="space-y-4 p-6">
                     {/* Total Amount */}
-                    <div className="text-center py-3 bg-gray-50 rounded-lg">
-                        <p className="text-xs text-gray-500 mb-1">Total Expense Amount</p>
+                    <div className="rounded-lg bg-gray-50 py-3 text-center">
+                        <p className="mb-1 text-xs text-gray-500">Total Expense Amount</p>
                         <p className="text-2xl font-semibold">{formatCurrency(expense.debit)}</p>
                     </div>
 
                     {/* Expense Information */}
                     <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            Expense Information
-                        </p>
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Expense Information</p>
                         <div className="space-y-2 text-sm">
-                            <div className="flex justify-between py-1.5 border-b border-gray-200">
+                            <div className="flex justify-between border-b border-gray-200 py-1.5">
                                 <span className="text-gray-500">Expense ID</span>
                                 <span className="font-medium">#{expense.id}</span>
                             </div>
-                            <div className="flex justify-between py-1.5 border-b border-gray-200">
+                            <div className="flex justify-between border-b border-gray-200 py-1.5">
                                 <span className="text-gray-500">Ledger</span>
                                 <span className="font-medium">{expense.ledger_title || 'N/A'}</span>
                             </div>
-                            <div className="flex justify-between py-1.5 border-b border-gray-200">
+                            <div className="flex justify-between border-b border-gray-200 py-1.5">
                                 <span className="text-gray-500">Notes</span>
                                 <span>{expense.notes || 'No notes'}</span>
                             </div>
@@ -93,15 +89,13 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
 
                     {/* Details */}
                     <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            Details
-                        </p>
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Details</p>
                         <div className="space-y-2 text-sm">
-                            <div className="flex justify-between py-1.5 border-b border-gray-200">
+                            <div className="flex justify-between border-b border-gray-200 py-1.5">
                                 <span className="text-gray-500">Created By</span>
                                 <span>{expense.user_name || 'N/A'}</span>
                             </div>
-                            <div className="flex justify-between py-1.5 border-b border-gray-200">
+                            <div className="flex justify-between border-b border-gray-200 py-1.5">
                                 <span className="text-gray-500">Store</span>
                                 <span>{expense.store_name || 'N/A'}</span>
                             </div>
@@ -113,8 +107,8 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                     </div>
 
                     {/* Footer Note */}
-                    <div className="bg-gray-50 rounded-md p-3">
-                        <p className="text-xs text-gray-600 leading-relaxed">
+                    <div className="rounded-md bg-gray-50 p-3">
+                        <p className="text-xs leading-relaxed text-gray-600">
                             <span className="font-medium">Expense Record</span>
                             <br />
                             This expense is recorded in your financial records and linked to the associated ledger and journal entries.
@@ -124,10 +118,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
 
                 {/* Modal Footer */}
                 <div className="flex gap-2 px-6 pb-6 pt-3">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 h-9 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50"
-                    >
+                    <button onClick={onClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
                         Close
                     </button>
                 </div>
