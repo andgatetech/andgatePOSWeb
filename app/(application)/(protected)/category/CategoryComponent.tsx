@@ -428,9 +428,7 @@ const CategoryComponent = () => {
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     {/* Image Upload */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Category Image <span className="text-red-500">*</span>
-                                        </label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Category Image (Optional)</label>
                                         <div className="rounded-lg border-2 border-dashed border-gray-300 p-4">
                                             {imagePreview ? (
                                                 <div className="relative mx-auto h-24 w-24">
@@ -478,16 +476,13 @@ const CategoryComponent = () => {
 
                                     {/* Description */}
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-700">
-                                            Description <span className="text-red-500">*</span>
-                                        </label>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">Description (Optional)</label>
                                         <textarea
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                             rows={3}
                                             className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                                             placeholder="Enter category description"
-                                            required
                                         />
                                     </div>
 

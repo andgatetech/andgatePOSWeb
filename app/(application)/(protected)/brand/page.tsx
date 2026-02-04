@@ -124,9 +124,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Image Upload */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">
-                                    Brand Image <span className="text-red-500">*</span>
-                                </label>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">Brand Image (Optional)</label>
                                 <div className="rounded-lg border-2 border-dashed border-gray-300 p-3 sm:p-4">
                                     {imagePreview ? (
                                         <div className="relative mx-auto h-24 w-24">
@@ -174,7 +172,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 
                             {/* Description */}
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">Description (Optional)</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
