@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -57,9 +58,20 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const invoiceRef = useRef(null);
     const [isPrinting, setIsPrinting] = useState(false);
 
-    // Fetch store details
-    const { data: storeData } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined);
-    const currentStore = storeData?.data || {};
+    // Get current store from hook (has all store data including logo, name, address, etc.)
+    const { currentStore: hookStore } = useCurrentStore();
+
+    // Fetch store details as fallback if storeId is provided
+    const { data: storeData } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined, {
+        skip: !storeId,
+    });
+
+    // Use hookStore first (has full data), fallback to API data if storeId was provided
+    const currentStore = hookStore || storeData?.data || {};
+
+    // Debug: Log store data to check logo_path
+    console.log('Store Data:', currentStore);
+    console.log('Logo Path:', currentStore?.logo_path);
 
     const {
         customer = {},
@@ -727,89 +739,214 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             )}
 
             <div className="panel relative" ref={invoiceRef}>
+                {/* Decorative header bar */}
+                <div className="absolute left-0 right-0 top-0 h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
+
                 {/* Header */}
-                <div className="relative z-10 flex items-center justify-between px-4">
-                    <h2 className="text-2xl font-semibold uppercase">{isReturn ? 'Return Receipt' : 'Invoice'}</h2>
-                    {currentStore?.logo_path ? (
-                        <Image
-                            src={currentStore.logo_path.startsWith('/') ? currentStore.logo_path : `/assets/images/${currentStore.logo_path}`}
-                            alt="Store Logo"
-                            width={56}
-                            height={56}
-                            className="h-14 w-14 rounded object-contain"
-                            onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                            priority={false}
-                        />
-                    ) : (
-                        <Image src="/assets/images/Logo-PNG.png" alt="Default Logo" width={56} height={56} className="w-14" priority={false} />
+                <div className="relative z-10 flex items-start justify-between px-6 pt-8">
+                    <div className="flex-1">
+                        <h2 className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold uppercase tracking-tight text-transparent">
+                            {isReturn ? 'Return Receipt' : 'Invoice'}
+                        </h2>
+                        <div className="mt-1 h-1 w-24 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+                    </div>
+                    {(currentStore?.logo_path || currentStore?.logo_url || currentStore?.logo) && (
+                        <div className="flex flex-col items-end gap-2">
+                            <div className="overflow-hidden rounded-xl border-2 border-gray-100 bg-white p-2 shadow-lg ring-2 ring-blue-50">
+                                <Image
+                                    src={
+                                        currentStore.logo_path
+                                            ? currentStore.logo_path.startsWith('http')
+                                                ? currentStore.logo_path
+                                                : currentStore.logo_path.startsWith('/')
+                                                ? currentStore.logo_path
+                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${currentStore.logo_path}`
+                                            : currentStore.logo_url
+                                            ? currentStore.logo_url.startsWith('http')
+                                                ? currentStore.logo_url
+                                                : currentStore.logo_url.startsWith('/')
+                                                ? currentStore.logo_url
+                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${currentStore.logo_url}`
+                                            : currentStore.logo
+                                            ? currentStore.logo.startsWith('http')
+                                                ? currentStore.logo
+                                                : currentStore.logo.startsWith('/')
+                                                ? currentStore.logo
+                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${currentStore.logo}`
+                                            : '/assets/images/Logo-PNG.png'
+                                    }
+                                    alt="Store Logo"
+                                    width={80}
+                                    height={80}
+                                    className="h-20 w-20 object-contain"
+                                    onError={(e) => {
+                                        console.log('Logo failed to load:', currentStore?.logo_path);
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                    priority={false}
+                                />
+                            </div>
+                        </div>
                     )}
                 </div>
 
                 {/* Company Info */}
-                <div className="relative z-10 mt-6 space-y-1 px-4 text-right">
-                    <div className="font-semibold text-black">{currentStore?.store_name || 'AndGate POS'}</div>
-                    <div>{currentStore?.store_location || 'Dhaka, Bangladesh, 1212'}</div>
-                    <div>{currentStore?.store_contact || '+8801600000'}</div>
-                </div>
-
-                <hr className="relative z-10 my-6 border-gray-300" />
-
-                {/* Customer & Invoice Details */}
-                <div className="relative z-10 flex flex-col justify-between gap-6 px-4 lg:flex-row">
-                    <div className="flex-1 space-y-1">
-                        <div>Issue For:</div>
-                        <div className="font-semibold text-black">{customer?.name || 'Customer'}</div>
-                        <div>{customer?.email || 'No Email'}</div>
-                        <div>{customer?.phone || 'No Phone'}</div>
-                    </div>
-
-                    <div className="flex flex-col gap-6 sm:flex-row lg:w-2/3">
-                        <div className="sm:w-1/2 lg:w-2/5">
-                            <div className="mb-2 flex justify-between">
-                                <span>{isReturn ? 'Return Slip:' : 'Invoice:'}</span>
-                                <span>{invoice}</span>
-                            </div>
-                            <div className="mb-2 flex justify-between">
-                                <span>{isReturn ? 'Return Date:' : 'Issue Date:'}</span>
-                                <span>{currentDate}</span>
-                            </div>
-                            {order_id && (
-                                <div className="mb-2 flex justify-between">
-                                    <span>{isReturn ? 'Return ID:' : 'Order ID:'}</span>
-                                    <span>#{order_id}</span>
+                {(currentStore?.store_name || currentStore?.store_location || currentStore?.store_contact || currentStore?.store_email) && (
+                    <div className="relative z-10 mx-6 mt-6 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-5 py-4 shadow-sm">
+                        {currentStore?.store_name && <div className="mb-2 text-2xl font-bold text-gray-900">{currentStore.store_name}</div>}
+                        <div className="flex flex-col gap-2 text-sm text-gray-700">
+                            {currentStore?.store_location && (
+                                <div className="flex items-start gap-2">
+                                    <div className="mt-0.5 rounded-lg bg-blue-100 p-1.5">
+                                        <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <span className="flex-1 leading-relaxed">{currentStore.store_location}</span>
                                 </div>
                             )}
-                            {original_order_id && (
-                                <div className="mb-2 flex justify-between text-xs text-gray-500">
-                                    <span>Ref Order:</span>
-                                    <span>#{original_order_id}</span>
+                            {currentStore?.store_contact && (
+                                <div className="flex items-center gap-2">
+                                    <div className="rounded-lg bg-green-100 p-1.5">
+                                        <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <span className="font-semibold">{currentStore.store_contact}</span>
+                                </div>
+                            )}
+                            {currentStore?.store_email && (
+                                <div className="flex items-center gap-2">
+                                    <div className="rounded-lg bg-purple-100 p-1.5">
+                                        <svg className="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <span>{currentStore.store_email}</span>
                                 </div>
                             )}
                         </div>
+                    </div>
+                )}
 
-                        <div className="sm:w-1/2 lg:w-2/5">
-                            <div className="mb-2 flex justify-between">
-                                <span className="text-gray-600">Payment Status:</span>
-                                <span className={`font-semibold uppercase ${getPaymentStatusColor(displayPaymentStatus || '')}`}>{displayPaymentStatus || 'Pending'}</span>
+                <hr className="relative z-10 my-6 border-t-2 border-dashed border-gray-200" />
+
+                {/* Customer & Invoice Details */}
+                <div className="relative z-10 flex flex-col justify-between gap-6 px-6 lg:flex-row">
+                    <div className="flex-1 rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 p-4 shadow-sm">
+                        <div className="mb-3 flex items-center gap-2">
+                            <div className="rounded-lg bg-blue-600 p-2">
+                                <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
                             </div>
-                            <div className="mb-2 flex justify-between">
-                                <span className="text-gray-600">Payment Method:</span>
-                                <span className="font-medium capitalize">{displayPaymentMethod === 'due' ? 'Due' : displayPaymentMethod || 'Cash'}</span>
-                            </div>
-                            {/* Show amount paid for partial payments */}
-                            {displayPaymentStatus?.toLowerCase() === 'partial' && amountPaid > 0 && (
-                                <div className="mb-2 flex justify-between">
-                                    <span className="text-green-600">Amount Paid:</span>
-                                    <span className="font-semibold text-green-700">{formatCurrency(amountPaid)}</span>
+                            <span className="text-sm font-semibold uppercase tracking-wide text-gray-600">Bill To</span>
+                        </div>
+                        <div className="space-y-1.5">
+                            <div className="text-lg font-bold text-gray-900">{customer?.name || 'Customer'}</div>
+                            {customer?.email && customer.email !== 'No Email' && (
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                    {customer.email}
                                 </div>
                             )}
-                            {/* Show amount due for partial/due payments */}
-                            {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0 && (
-                                <div className="mb-2 flex justify-between">
-                                    <span className="text-red-600">Amount Due:</span>
-                                    <span className="font-bold text-red-700">{formatCurrency(amountDue)}</span>
+                            {customer?.phone && customer.phone !== 'No Phone' && (
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                        />
+                                    </svg>
+                                    {customer.phone}
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4 sm:flex-row lg:w-2/3">
+                        <div className="flex-1 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 shadow-sm">
+                            <div className="space-y-2.5 text-sm">
+                                <div className="flex items-center justify-between border-b border-blue-200 pb-2">
+                                    <span className="font-medium text-gray-600">Invoice Number</span>
+                                    <span className="rounded-lg bg-blue-600 px-3 py-1 font-mono text-sm font-bold text-white shadow-sm">{invoice}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">{isReturn ? 'Return Date' : 'Issue Date'}</span>
+                                    <span className="font-semibold text-gray-900">{currentDate}</span>
+                                </div>
+                                {order_id && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">{isReturn ? 'Return ID' : 'Order ID'}</span>
+                                        <span className="rounded bg-white px-2 py-0.5 font-mono text-xs font-bold text-blue-600">#{order_id}</span>
+                                    </div>
+                                )}
+                                {original_order_id && (
+                                    <div className="flex justify-between text-xs text-gray-500">
+                                        <span>Reference Order</span>
+                                        <span className="font-mono">#{original_order_id}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex-1 rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4 shadow-sm">
+                            <div className="space-y-2.5 text-sm">
+                                <div className="flex items-center justify-between border-b border-green-200 pb-2">
+                                    <span className="font-medium text-gray-600">Payment Status</span>
+                                    <span
+                                        className={`rounded-lg px-3 py-1 text-xs font-bold uppercase shadow-sm ${
+                                            displayPaymentStatus?.toLowerCase() === 'paid' || displayPaymentStatus?.toLowerCase() === 'completed'
+                                                ? 'bg-green-600 text-white'
+                                                : displayPaymentStatus?.toLowerCase() === 'due' || displayPaymentStatus?.toLowerCase() === 'unpaid'
+                                                ? 'bg-yellow-500 text-white'
+                                                : displayPaymentStatus?.toLowerCase() === 'partial'
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-500 text-white'
+                                        }`}
+                                    >
+                                        {displayPaymentStatus || 'Pending'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Payment Method</span>
+                                    <span className="rounded bg-white px-2 py-1 text-xs font-semibold capitalize text-gray-900">
+                                        {displayPaymentMethod === 'due' ? 'Due' : displayPaymentMethod || 'Cash'}
+                                    </span>
+                                </div>
+                                {displayPaymentStatus?.toLowerCase() === 'partial' && amountPaid > 0 && (
+                                    <div className="flex justify-between rounded-lg bg-green-100 px-2 py-1.5">
+                                        <span className="font-medium text-green-700">Amount Paid</span>
+                                        <span className="font-bold text-green-800">{formatCurrency(amountPaid)}</span>
+                                    </div>
+                                )}
+                                {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0 && (
+                                    <div className="flex justify-between rounded-lg bg-red-100 px-2 py-1.5">
+                                        <span className="font-medium text-red-700">Amount Due</span>
+                                        <span className="font-bold text-red-800">{formatCurrency(amountDue)}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1022,54 +1159,66 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             </div>
                         </div>
                     ) : (
-                        <div className="w-full space-y-1 text-right sm:w-[50%]">
-                            <div className="flex justify-between">
-                                <span>Subtotal</span>
-                                <span>{formatCurrency(subtotal)}</span>
-                            </div>
-                            {calculatedTax > 0 && (
-                                <div className="flex justify-between">
-                                    <span>Tax</span>
-                                    <span>{formatCurrency(calculatedTax)}</span>
+                        <div className="w-full space-y-2 text-right sm:w-[50%]">
+                            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-gray-700">
+                                        <span className="font-medium">Subtotal</span>
+                                        <span className="font-semibold">{formatCurrency(subtotal)}</span>
+                                    </div>
+                                    {calculatedTax > 0 && (
+                                        <div className="flex justify-between text-gray-700">
+                                            <span className="font-medium">Tax</span>
+                                            <span className="font-semibold text-blue-600">{formatCurrency(calculatedTax)}</span>
+                                        </div>
+                                    )}
+                                    {calculatedDiscount > 0 && (
+                                        <div className="flex justify-between text-red-600">
+                                            <span className="font-medium">Discount</span>
+                                            <span className="font-semibold">-{formatCurrency(calculatedDiscount)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between border-t-2 border-gray-300 pt-3">
+                                        <span className="text-xl font-bold text-gray-900">Grand Total</span>
+                                        <span className="text-xl font-bold text-blue-600">{formatCurrency(grandTotal)}</span>
+                                    </div>
+
+                                    {/* Payment Breakdown for Partial/Due */}
+                                    {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && (
+                                        <div className="mt-4 space-y-2 border-t border-gray-200 pt-4">
+                                            {amountPaid > 0 && (
+                                                <div className="flex justify-between rounded-lg bg-green-50 px-3 py-2">
+                                                    <span className="font-semibold text-green-700">Amount Paid</span>
+                                                    <span className="text-lg font-bold text-green-800">{formatCurrency(amountPaid)}</span>
+                                                </div>
+                                            )}
+                                            {amountDue > 0 && (
+                                                <div className="flex justify-between rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-4 py-3 shadow-md">
+                                                    <span className="text-lg font-bold text-white">Amount Due</span>
+                                                    <span className="text-2xl font-extrabold text-white">{formatCurrency(amountDue)}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                            {calculatedDiscount > 0 && (
-                                <div className="flex justify-between text-red-600">
-                                    <span>Discount</span>
-                                    <span>-{formatCurrency(calculatedDiscount)}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
-                                <span>Grand Total</span>
-                                <span>{formatCurrency(grandTotal)}</span>
                             </div>
                         </div>
-                    )}
-
-                    {/* Payment Breakdown for Partial/Due */}
-                    {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && !isReturn && (
-                        <>
-                            {amountPaid > 0 && (
-                                <div className="flex justify-between border-t border-green-200 pt-2 text-green-700">
-                                    <span>Amount Paid</span>
-                                    <span className="font-semibold">{formatCurrency(amountPaid)}</span>
-                                </div>
-                            )}
-                            {amountDue > 0 && (
-                                <div className="flex justify-between rounded-lg bg-red-50 p-2 text-red-700">
-                                    <span className="font-semibold">Amount Due</span>
-                                    <span className="text-lg font-bold">{formatCurrency(amountDue)}</span>
-                                </div>
-                            )}
-                        </>
                     )}
                 </div>
 
                 {/* Footer */}
                 {isOrderCreated && (
-                    <div className="relative z-10 mt-6 border-t border-gray-200 px-4 pt-4 text-center">
-                        <div className="text-sm text-gray-600">Thank you for your business!</div>
-                        <div className="mt-1 text-xs text-gray-500">Order processed on {currentDate}</div>
+                    <div className="relative z-10 mt-8 border-t-2 border-dashed border-gray-200 px-6 pt-6 text-center">
+                        <div className="mx-auto max-w-2xl rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+                            <div className="text-lg font-bold text-gray-900">Thank you for your business!</div>
+                            <div className="mt-1 text-sm text-gray-600">Order processed on {currentDate}</div>
+                            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Powered by AndGate POS</span>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

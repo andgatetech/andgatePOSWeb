@@ -17,7 +17,7 @@ import {
     updateReturnQuantity,
 } from '@/store/features/Order/OrderReturnSlice';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
-import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useCreateCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -130,6 +130,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const [createOrder] = useCreateOrderMutation();
     const [createOrderReturn] = useCreateOrderReturnMutation();
+    const [createCustomer] = useCreateCustomerMutation();
     const [loading, setLoading] = useState(false);
 
     // Return reasons from store settings (for return mode)
@@ -1007,18 +1008,34 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const handleSubmit = async () => {
         // Validation: Customer Check
-        // If not walk-in and no customer selected/entered (checking customerId null and name/email empty)
-        if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
+        // If not walk-in and no customer selected/entered (checking customerId null and name/phone empty)
+        if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerPhone.trim())) {
             showMessage('Please select a Customer or choose Walk-in', 'error');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
-        // Validation: Manual Customer Details
-        if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerEmail.trim())) {
-            showMessage('Name and email are required for new customer', 'error');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
+        // Validation: Manual Customer Details - Name and Phone are required, email is optional
+        if (formData.customerId !== 'walk-in' && !formData.customerId) {
+            if (!formData.customerName.trim()) {
+                showMessage('Customer name is required', 'error');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+            if (!formData.customerPhone.trim()) {
+                showMessage('Customer phone number is required', 'error');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+            // Email validation only if provided
+            if (formData.customerEmail.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(formData.customerEmail)) {
+                    showMessage('Please enter a valid email address', 'error');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+            }
         }
 
         if (invoiceItems.length === 0) {
@@ -1138,11 +1155,34 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             orderData.customer_id = formData.customerId;
             orderData.is_walk_in = false;
         } else {
-            orderData.customer_id = null;
-            orderData.is_walk_in = false;
-            orderData.customer_name = formData.customerName;
-            orderData.customer_number = formData.customerPhone;
-            orderData.customer_email = formData.customerEmail;
+            // Create customer instantly if new customer data is provided
+            try {
+                const newCustomerData = {
+                    name: formData.customerName.trim(),
+                    phone: formData.customerPhone.trim(),
+                    email: formData.customerEmail.trim() || null,
+                    store_id: currentStoreId,
+                    membership: 'normal',
+                    points: 0,
+                    balance: 0,
+                    is_active: true,
+                };
+
+                const createdCustomer = await createCustomer(newCustomerData).unwrap();
+                orderData.customer_id = createdCustomer.data.id;
+                orderData.is_walk_in = false;
+
+                showMessage('Customer created successfully', 'success');
+            } catch (customerErr: any) {
+                console.error('Failed to create customer:', customerErr);
+                // If customer creation fails, still proceed with order but without customer ID
+                orderData.customer_id = null;
+                orderData.is_walk_in = false;
+                orderData.customer_name = formData.customerName;
+                orderData.customer_number = formData.customerPhone;
+                orderData.customer_email = formData.customerEmail;
+                showMessage('Customer creation failed, proceeding with order', 'error');
+            }
         }
 
         try {

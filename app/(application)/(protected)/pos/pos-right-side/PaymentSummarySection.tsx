@@ -72,14 +72,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             return paidStatus ? [paidStatus] : [{ value: 'paid', label: 'Paid', color: '#22c55e' }];
         }
 
-        if (selectedCustomer) {
-            // Selected customers can have paid, partial, or due payments
-            return mappedStatuses.filter((s: any) => ['paid', 'partial', 'due'].includes(s.value));
-        }
-
-        // Manual entry customers (new customers) - only paid
-        const paidStatus = mappedStatuses.find((s: any) => s.value === 'paid');
-        return paidStatus ? [paidStatus] : [{ value: 'paid', label: 'Paid', color: '#22c55e' }];
+        // For both existing customers and new manual entry customers - allow paid, partial, or due payments
+        return mappedStatuses.filter((s: any) => ['paid', 'partial', 'due'].includes(s.value));
     };
 
     const availablePaymentStatuses = getAvailablePaymentStatuses();
@@ -241,7 +235,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             </div>
 
             {/* Show partial payment input for partial status */}
-            {formData.paymentStatus === 'partial' && selectedCustomer && (
+            {formData.paymentStatus === 'partial' && !isWalkInCustomer && (
                 <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
                     <div className="mb-2 flex items-center justify-between">
                         <label className="text-sm font-semibold text-blue-700">Partial Payment Amount:</label>

@@ -211,9 +211,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                 />
                             </div>
                             <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                <label className="text-sm font-medium sm:w-1/3">
-                                    Email <span className="text-red-500">*</span>
-                                </label>
+                                <label className="text-sm font-medium sm:w-1/3">Email (Optional)</label>
                                 <input
                                     type="email"
                                     name="customerEmail"
@@ -225,7 +223,9 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                 />
                             </div>
                             <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                <label className="text-sm font-medium sm:w-1/3">Phone Number</label>
+                                <label className="text-sm font-medium sm:w-1/3">
+                                    Phone Number <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     name="customerPhone"

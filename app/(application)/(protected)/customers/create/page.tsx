@@ -73,10 +73,7 @@ const CreateCustomerPage = () => {
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email.trim()) {
-            newErrors.email = 'Email is required';
-            if (!newErrors.name) showMessage('Email is required', 'error');
-        } else if (!emailRegex.test(formData.email)) {
+        if (formData.email.trim() && !emailRegex.test(formData.email)) {
             newErrors.email = 'Please enter a valid email address';
             if (!newErrors.name) showMessage('Please enter a valid email address', 'error');
         }
@@ -225,7 +222,7 @@ const CreateCustomerPage = () => {
                                     {/* Email */}
                                     <div>
                                         <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Email Address <span className="text-red-500">*</span>
+                                            Email Address (Optional)
                                         </label>
                                         <input
                                             id="email"
