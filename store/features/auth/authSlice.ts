@@ -35,6 +35,7 @@ export interface Store {
     logo_path?: string;
     store_contact?: string;
     store_location?: string;
+    store_email?: string;
     is_active?: boolean;
     currency?: Currency;
     payment_methods?: PaymentMethod[];

@@ -2,6 +2,7 @@ import { baseApi } from '@/store/api/baseApi';
 import { setUser } from '../auth/authSlice';
 
 const StoreApi = baseApi.injectEndpoints({
+    overrideExisting: true,
     endpoints: (builder) => ({
         // Update store (with optional image)
         updateStore: builder.mutation({
@@ -250,6 +251,15 @@ const StoreApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Stores'],
         }),
+
+        // Get store logo as base64
+        getStoreLogo: builder.query({
+            query: (storeId: number) => ({
+                url: `/store/${storeId}/logo-base64`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, storeId) => [{ type: 'Stores', id: storeId }],
+        }),
     }),
 });
 
@@ -279,4 +289,5 @@ export const {
     useCreatePaymentStatusMutation,
     useUpdatePaymentStatusMutation,
     useDeletePaymentStatusMutation,
+    useGetStoreLogoQuery, // ← New hook for fetching store logo as base64
 } = StoreApi;

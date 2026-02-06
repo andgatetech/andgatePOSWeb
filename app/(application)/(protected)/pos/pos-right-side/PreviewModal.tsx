@@ -13,17 +13,9 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, data, storeId, onCl
     }
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-2">
-            <div className="relative max-h-[95vh] w-full max-w-[90vw] overflow-auto rounded-lg bg-white p-6 shadow-2xl">
-                <button onClick={onClose} className="absolute right-4 top-4 text-gray-500 hover:text-gray-800"></button>
-                <div className="mb-4">
-                    <PosInvoicePreview data={data} storeId={storeId} onClose={onClose} />
-                </div>
-                <div className="mt-6 flex justify-end">
-                    <button className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200" onClick={onClose}>
-                        Close
-                    </button>
-                </div>
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center overflow-auto bg-black bg-opacity-50">
+            <div className="relative min-h-screen w-full max-w-6xl bg-white shadow-2xl">
+                <PosInvoicePreview data={data} storeId={storeId} onClose={onClose} />
             </div>
         </div>
     );

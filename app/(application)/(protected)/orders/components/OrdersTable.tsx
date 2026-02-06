@@ -4,7 +4,7 @@ import ReusableTable, { TableAction, TableColumn } from '@/components/common/Reu
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { setReturnOrderId } from '@/store/features/Order/OrderReturnSlice';
-import { Download, Edit, Eye, Printer, RotateCcw } from 'lucide-react';
+import { Download, Edit, Eye, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
@@ -26,11 +26,10 @@ interface OrdersTableProps {
         onSort: (field: string) => void;
     };
     onViewDetails: (order: any) => void;
-    onDownloadInvoice: (order: any) => void;
-    onPrintInvoice: (order: any) => void;
+    onOpenInvoicePreview: (order: any) => void;
 }
 
-const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onDownloadInvoice, onPrintInvoice }) => {
+const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview }) => {
     const router = useRouter();
     const { formatCurrency } = useCurrency();
     const dispatch = useDispatch();
@@ -84,11 +83,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
             {
-                key: 'financial',
+                key: 'financial_due',
                 label: 'Due Amount',
                 sortable: true,
                 render: (value, row) => {
-                    const dueAmount = Number(value?.due_amount ?? row.due_amount ?? 0);
+                    const dueAmount = Number(row.financial?.due_amount ?? row.due_amount ?? 0);
                     if (dueAmount > 0) {
                         return <span className="font-semibold text-red-600">{formatCurrency(dueAmount)}</span>;
                     }
@@ -114,10 +113,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
             {
-                key: 'payment',
+                key: 'payment_method',
                 label: 'Payment Method',
                 render: (value, row) => {
-                    const method = value?.method ?? row.payment_method ?? 'cash';
+                    const method = row.payment?.method ?? row.payment_method ?? 'cash';
                     return <span className="text-sm capitalize text-gray-700">{method === 'due' ? 'Due' : method}</span>;
                 },
             },
@@ -189,14 +188,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
         () => [
             {
                 label: 'Edit Order',
-                onClick: (order) => router.push(`/orders/edit/${order.id}`),
+                onClick: (order: any) => router.push(`/orders/edit/${order.id}`),
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
-                hidden: (order) => order.status === 'fully_returned',
+                hidden: (order: any) => order.status === 'fully_returned',
             },
             {
                 label: 'Make Return',
-                onClick: (order) => {
+                onClick: (order: any) => {
                     if (currentStoreId) {
                         dispatch(setReturnOrderId({ storeId: currentStoreId, orderId: order.id }));
                         router.push(`/orders/return?orderId=${order.id}`);
@@ -204,7 +203,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
                 className: 'text-amber-600',
                 icon: <RotateCcw className="h-4 w-4" />,
-                hidden: (order) => {
+                hidden: (order: any) => {
                     // Hide if order is fully returned
                     if (order.status === 'fully_returned') return true;
                     // Hide if return_status is 'full'
@@ -224,19 +223,13 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'Download Invoice',
-                onClick: onDownloadInvoice,
+                label: 'Invoice / Receipt',
+                onClick: onOpenInvoicePreview,
                 className: 'text-green-600',
                 icon: <Download className="h-4 w-4" />,
             },
-            {
-                label: 'Print Invoice',
-                onClick: onPrintInvoice,
-                className: 'text-purple-600',
-                icon: <Printer className="h-4 w-4" />,
-            },
         ],
-        [router, onViewDetails, onDownloadInvoice, onPrintInvoice, currentStoreId, dispatch]
+        [router, onViewDetails, onOpenInvoicePreview, currentStoreId, dispatch]
     );
 
     return (
