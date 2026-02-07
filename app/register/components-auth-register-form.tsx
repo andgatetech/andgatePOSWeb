@@ -14,7 +14,7 @@ const ComponentsAuthRegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [runTour, setRunTour] = useState(false);
-    const [tourKey, setTourKey] = useState(0);
+
 
     const router = useRouter();
     const dispatch = useDispatch();

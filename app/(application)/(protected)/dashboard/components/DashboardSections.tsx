@@ -3,6 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { CurrencyDisplay } from '@/lib/CurrencyDisplay';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
+import { DashboardProduct } from '@/types/dashboard.types';
 import { motion } from 'framer-motion';
 import { Calendar, Package, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
@@ -220,9 +221,9 @@ export default function DashboardSections() {
 
                 <motion.div variants={listVariants} className="space-y-2">
                     {top_selling_products?.pos_products?.length > 0 ? (
-                        top_selling_products?.pos_products.map((product, index) => (
+                        top_selling_products?.pos_products.map((product: DashboardProduct, index) => (
                             <motion.div
-                                key={product.product_id}
+                                key={`top-selling-${product.product_id}-${index}`}
                                 variants={itemVariantsDown}
                                 initial="hidden"
                                 whileInView="visible"
@@ -305,9 +306,9 @@ export default function DashboardSections() {
 
                 <motion.div variants={listVariants} className="space-y-2">
                     {low_stock_products?.pos_products?.length > 0 ? (
-                        low_stock_products.pos_products.map((product, index) => (
+                        low_stock_products.pos_products.map((product: DashboardProduct, index: number) => (
                             <motion.div
-                                key={product.product_id}
+                                key={`low-stock-${product.product_id}-${index}`}
                                 variants={itemVariants}
                                 initial="hidden"
                                 whileInView="visible"
@@ -373,7 +374,7 @@ export default function DashboardSections() {
                     {recent_sales?.sales?.length > 0 ? (
                         recent_sales.sales.map((sale, index) => (
                             <motion.div
-                                key={sale.order_id}
+                                key={`recent-sale-${sale.order_id}-${index}`}
                                 variants={itemVariantsDown}
                                 initial="hidden"
                                 whileInView="visible"

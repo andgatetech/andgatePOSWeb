@@ -309,7 +309,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 cancelButtonText: 'Create Another',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '/purchases/list';
+                    window.location.href = '/purchases/dues';
                 } else if (!isEditMode && currentStoreId) {
                     dispatch(resetPurchaseOrderRedux(currentStoreId));
                     clearSupplierSelection();
@@ -428,7 +428,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 cancelButtonText: 'Create Another',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '/purchases/list';
+                    window.location.href = '/purchases/dues';
                 } else if (currentStoreId) {
                     dispatch(resetPurchaseOrderRedux(currentStoreId));
                     clearSupplierSelection();

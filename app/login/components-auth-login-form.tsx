@@ -9,8 +9,9 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import { login } from '@/store/features/auth/authSlice';
-import IconLockDots from '../icon/icon-lock-dots';
-import IconMail from '../icon/icon-mail';
+import IconMail from '@/components/icon/icon-mail';
+import IconLockDots from '@/components/icon/icon-lock-dots';
+
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
@@ -61,7 +62,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
                 try {
                     return btoa(JSON.stringify(permissions ?? []));
                 } catch (err) {
-                    console.error('Failed to encode permissions cookie', err);
+                   
                     return btoa('[]');
                 }
             })();

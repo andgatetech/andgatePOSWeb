@@ -4,10 +4,12 @@ import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/
 import PurchaseDuesFilter from '@/components/filters/PurchaseDuesFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import type { RootState } from '@/store';
 import { useClearFullDueMutation, useGetPurchaseOrdersQuery, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { useDeletePurchaseDueMutation } from '@/store/features/purchaseDue/purchaseDue';
 import { DollarSign, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import PurchaseDuesTable from './PurchaseDuesTable';
 
@@ -27,8 +29,12 @@ const PurchaseDuesComponent = () => {
     const [modalType, setModalType] = useState<'view' | 'partial' | 'full'>('view');
     const [selectedDue, setSelectedDue] = useState<any>(null);
     const [paymentAmount, setPaymentAmount] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [paymentMethod, setPaymentMethod] = useState('');
     const [paymentNotes, setPaymentNotes] = useState('');
+
+    // Get payment methods from Redux
+    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
+    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
 
     // Payment receipt state
     const [showReceipt, setShowReceipt] = useState(false);
@@ -324,7 +330,7 @@ const PurchaseDuesComponent = () => {
         setSelectedDue(due);
         setShowModal(true);
         setPaymentAmount('');
-        setPaymentMethod('cash');
+        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || '');
         setPaymentNotes('');
     };
 
@@ -332,7 +338,7 @@ const PurchaseDuesComponent = () => {
         setShowModal(false);
         setSelectedDue(null);
         setPaymentAmount('');
-        setPaymentMethod('cash');
+        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || '');
         setPaymentNotes('');
     };
 
@@ -756,12 +762,15 @@ const PurchaseDuesComponent = () => {
                                             Payment Method <span className="text-red-500">*</span>
                                         </label>
                                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full" required>
-                                            <option value="cash">Cash</option>
-                                            <option value="debit">Debit Card</option>
-                                            <option value="credit">Credit Card</option>
-                                            <option value="bank_transfer">Bank Transfer</option>
-                                            <option value="cheque">Cheque</option>
-                                            <option value="other">Other</option>
+                                            {activePaymentMethods.length > 0 ? (
+                                                activePaymentMethods.map((method) => (
+                                                    <option key={method.id} value={method.payment_method_name}>
+                                                        {method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                <option value="cash">Cash</option>
+                                            )}
                                         </select>
                                     </div>
 
@@ -817,12 +826,15 @@ const PurchaseDuesComponent = () => {
                                             Payment Method <span className="text-red-500">*</span>
                                         </label>
                                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full" required>
-                                            <option value="cash">Cash</option>
-                                            <option value="debit">Debit Card</option>
-                                            <option value="credit">Credit Card</option>
-                                            <option value="bank_transfer">Bank Transfer</option>
-                                            <option value="cheque">Cheque</option>
-                                            <option value="other">Other</option>
+                                            {activePaymentMethods.length > 0 ? (
+                                                activePaymentMethods.map((method) => (
+                                                    <option key={method.id} value={method.payment_method_name}>
+                                                        {method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                <option value="cash">Cash</option>
+                                            )}
                                         </select>
                                     </div>
 

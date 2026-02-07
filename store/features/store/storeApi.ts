@@ -1,5 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
-import { setUser } from '../auth/authSlice';
+import { setUser, updateCurrentStoreData } from '../auth/authSlice';
 
 const StoreApi = baseApi.injectEndpoints({
     overrideExisting: true,
@@ -58,6 +58,32 @@ const StoreApi = baseApi.injectEndpoints({
                 params: params,
             }),
             providesTags: (result, error, arg) => (result ? [{ type: 'Stores', id: arg?.store_id || 'default' }] : []),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+
+                    // Update Redux auth state with the latest store data
+                    if (data?.data?.store) {
+                        const storeData = data.data.store;
+                        dispatch(
+                            updateCurrentStoreData({
+                                id: storeData.id,
+                                store_name: storeData.store_name,
+                                logo_path: storeData.logo_path,
+                                store_contact: storeData.store_contact,
+                                store_location: storeData.store_location,
+                                is_active: storeData.is_active,
+                                payment_methods: storeData.payment_methods || [],
+                                payment_statuses: storeData.payment_statuses || [],
+                                currency: storeData.currencies?.[0] || undefined,
+                            })
+                        );
+                    }
+                } catch (error) {
+                    // Query failed, no need to update Redux
+                    console.error('Failed to sync store data to Redux:', error);
+                }
+            },
         }),
 
         //  Currently logged-in user

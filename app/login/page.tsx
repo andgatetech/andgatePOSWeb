@@ -1,12 +1,13 @@
 'use client';
 
 
-import ComponentsAuthLoginForm from '@/components/auth/components-auth-login-form';
+
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
+import ComponentsAuthLoginForm from './components-auth-login-form';
 
 const LoginPage = () => {
     const [activeTab, setActiveTab] = useState<'login' | 'supplier'>('login');

@@ -180,8 +180,28 @@ const authSlice = createSlice({
                 };
             }
         },
+        updateCurrentStoreData(state, action: PayloadAction<Partial<Store>>) {
+            // Update current store with new data (e.g., payment methods, payment statuses)
+            if (state.currentStore) {
+                state.currentStore = {
+                    ...state.currentStore,
+                    ...action.payload,
+                };
+            }
+
+            // Also update the store in user.stores array
+            if (state.user?.stores && state.currentStoreId) {
+                const storeIndex = state.user.stores.findIndex((s) => s.id === state.currentStoreId);
+                if (storeIndex !== -1) {
+                    state.user.stores[storeIndex] = {
+                        ...state.user.stores[storeIndex],
+                        ...action.payload,
+                    };
+                }
+            }
+        },
     },
 });
 
-export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile } = authSlice.actions;
+export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile, updateCurrentStoreData } = authSlice.actions;
 export default authSlice.reducer;
