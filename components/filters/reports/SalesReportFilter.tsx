@@ -2,8 +2,10 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import type { RootState } from '@/store';
 import { CreditCard, Wallet } from 'lucide-react';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 interface SalesReportFilterProps {
     onFilterChange: (apiParams: Record<string, any>) => void;
@@ -15,6 +17,12 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
 
     const { userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
+
+    // Get payment methods and statuses from Redux
+    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
+    const paymentStatuses = useSelector((state: RootState) => state.auth.currentStore?.payment_statuses || []);
+    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
+    const activePaymentStatuses = paymentStatuses.filter((ps) => ps.is_active);
 
     // Stabilize the callback to prevent unnecessary re-renders
     const stableOnFilterChange = React.useCallback(onFilterChange, []);
@@ -63,10 +71,19 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
                 >
                     <option value="all">All Status</option>
-                    <option value="paid">Paid</option>
-                    <option value="partial">Partial</option>
-                    <option value="due">Due</option>
-                    <option value="pending">Pending</option>
+                    {activePaymentStatuses.length > 0 ? (
+                        activePaymentStatuses.map((status) => (
+                            <option key={status.id} value={status.status_name}>
+                                {status.status_name.charAt(0).toUpperCase() + status.status_name.slice(1)}
+                            </option>
+                        ))
+                    ) : (
+                        <>
+                            <option value="paid">Paid</option>
+                            <option value="partial">Partial</option>
+                            <option value="pending">Pending</option>
+                        </>
+                    )}
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -79,10 +96,15 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
                 >
                     <option value="all">All Methods</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="bkash">bKash</option>
-                    <option value="other">Other</option>
+                    {activePaymentMethods.length > 0 ? (
+                        activePaymentMethods.map((method) => (
+                            <option key={method.id} value={method.payment_method_name}>
+                                {method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}
+                            </option>
+                        ))
+                    ) : (
+                        <option value="cash">Cash</option>
+                    )}
                 </select>
                 <Wallet className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>

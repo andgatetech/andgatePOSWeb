@@ -2,10 +2,12 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showMessage } from '@/lib/toast';
+import type { RootState } from '@/store';
 import { useUpdateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 interface EditExpenseModalProps {
     isOpen: boolean;
@@ -14,16 +16,13 @@ interface EditExpenseModalProps {
     expense: any;
 }
 
-const PAYMENT_TYPES = [
-    { value: 'cash', label: 'Cash', icon: '💵' },
-    { value: 'bank_transfer', label: 'Bank Transfer', icon: '🏦' },
-    { value: 'card', label: 'Card', icon: '💳' },
-    { value: 'others', label: 'Others', icon: '📋' },
-];
-
 const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, onSuccess, expense }) => {
     const { currentStore, currentStoreId } = useCurrentStore();
     const [updateExpense, { isLoading }] = useUpdateExpenseMutation();
+
+    // Get payment methods from Redux
+    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
+    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
 
     // Fetch only Expense type ledgers
     const { data: ledgersResponse } = useGetLedgersQuery({ store_id: currentStoreId, ledger_type: 'Expenses', per_page: 100 }, { skip: !currentStoreId || !isOpen });
@@ -33,7 +32,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
         title: '',
         ledger_id: '',
         debit: '',
-        payment_type: 'cash',
+        payment_type: '',
         notes: '',
     });
 
@@ -191,22 +190,38 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                             Payment Type <span className="text-red-500">*</span>
                         </label>
                         <div className="grid grid-cols-4 gap-1.5">
-                            {PAYMENT_TYPES.map((type) => (
+                            {activePaymentMethods.length > 0 ? (
+                                activePaymentMethods.map((method) => (
+                                    <button
+                                        key={method.id}
+                                        type="button"
+                                        onClick={() => {
+                                            setFormData({ ...formData, payment_type: method.payment_method_name });
+                                            if (errors.payment_type) setErrors({ ...errors, payment_type: '' });
+                                        }}
+                                        className={`flex flex-col items-center justify-center gap-0.5 rounded-md border p-2 text-xs transition-colors ${
+                                            formData.payment_type === method.payment_method_name ? 'border-black bg-black/5 text-black' : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <span className="text-base">💳</span>
+                                        <span className="text-[10px] leading-tight">{method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}</span>
+                                    </button>
+                                ))
+                            ) : (
                                 <button
-                                    key={type.value}
                                     type="button"
                                     onClick={() => {
-                                        setFormData({ ...formData, payment_type: type.value });
+                                        setFormData({ ...formData, payment_type: 'cash' });
                                         if (errors.payment_type) setErrors({ ...errors, payment_type: '' });
                                     }}
                                     className={`flex flex-col items-center justify-center gap-0.5 rounded-md border p-2 text-xs transition-colors ${
-                                        formData.payment_type === type.value ? 'border-black bg-black/5 text-black' : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                                        formData.payment_type === 'cash' ? 'border-black bg-black/5 text-black' : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                                     }`}
                                 >
-                                    <span className="text-base">{type.icon}</span>
-                                    <span className="text-[10px] leading-tight">{type.label}</span>
+                                    <span className="text-base">💵</span>
+                                    <span className="text-[10px] leading-tight">Cash</span>
                                 </button>
-                            ))}
+                            )}
                         </div>
                         {errors.payment_type && <p className="mt-1.5 text-xs text-red-500">{errors.payment_type}</p>}
                     </div>

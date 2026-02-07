@@ -3,8 +3,10 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import type { RootState } from '@/store';
 import { CreditCard } from 'lucide-react';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 interface OrderFilterProps {
     onFilterChange: (apiParams: Record<string, any>) => void;
@@ -20,6 +22,10 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
     const { currentStore, userStores } = useCurrentStore();
 
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
+
+    // Get payment statuses from Redux
+    const paymentStatuses = useSelector((state: RootState) => state.auth.currentStore?.payment_statuses || []);
+    const activePaymentStatuses = paymentStatuses.filter((ps) => ps.is_active);
 
     // Reset function to reset all custom filters
     const handleReset = React.useCallback(() => {
@@ -78,11 +84,19 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
                 >
                     <option value="all">All Payment Status</option>
-                    <option value="paid">Paid</option>
-                    <option value="partial">Partial</option>
-                    <option value="due">Due</option>
-                    <option value="unpaid">Unpaid</option>
-                    <option value="pending">Pending</option>
+                    {activePaymentStatuses.length > 0 ? (
+                        activePaymentStatuses.map((status) => (
+                            <option key={status.id} value={status.status_name}>
+                                {status.status_name.charAt(0).toUpperCase() + status.status_name.slice(1)}
+                            </option>
+                        ))
+                    ) : (
+                        <>
+                            <option value="paid">Paid</option>
+                            <option value="partial">Partial</option>
+                            <option value="pending">Pending</option>
+                        </>
+                    )}
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>

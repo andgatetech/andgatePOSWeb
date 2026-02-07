@@ -1,10 +1,12 @@
 'use client';
 import { useCurrency } from '@/hooks/useCurrency';
+import type { RootState } from '@/store';
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
 const ReceiveItemsPage = () => {
@@ -28,8 +30,12 @@ const ReceiveItemsPage = () => {
     const [variantData, setVariantData] = useState<Record<number, any>>({});
     const [excludedItems, setExcludedItems] = useState<Set<number>>(new Set());
     const [paymentAmount, setPaymentAmount] = useState(0);
-    const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [paymentMethod, setPaymentMethod] = useState('');
     const [paymentNotes, setPaymentNotes] = useState('');
+
+    // Get payment methods from Redux
+    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
+    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
 
     // Initialize received quantities and prices from PO data
     useEffect(() => {
@@ -65,6 +71,13 @@ const ReceiveItemsPage = () => {
             setVariantData(variants);
         }
     }, [purchaseOrder]);
+
+    // Set default payment method when payment methods are loaded
+    useEffect(() => {
+        if (activePaymentMethods.length > 0 && !paymentMethod) {
+            setPaymentMethod(activePaymentMethods[0].payment_method_name);
+        }
+    }, [activePaymentMethods, paymentMethod]);
 
     const handleQuantityChange = (itemId: number, value: string) => {
         const quantity = parseFloat(value) || 0;
@@ -465,12 +478,15 @@ const ReceiveItemsPage = () => {
                         <div>
                             <label className="mb-2 block text-sm font-semibold">Payment Method</label>
                             <select className="form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                                <option value="cash">Cash</option>
-                                <option value="debit">Debit Card</option>
-                                <option value="credit">Credit Card</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="cheque">Cheque</option>
-                                <option value="other">Other</option>
+                                {activePaymentMethods.length > 0 ? (
+                                    activePaymentMethods.map((method) => (
+                                        <option key={method.id} value={method.payment_method_name}>
+                                            {method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option value="cash">Cash</option>
+                                )}
                             </select>
                         </div>
                     </div>
