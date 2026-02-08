@@ -1,4 +1,5 @@
 'use client';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
@@ -185,16 +186,6 @@ const CategoryComponent = () => {
         [deleteCategory]
     );
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
     // Define table columns
     const columns: TableColumn[] = useMemo(
         () => [
@@ -223,13 +214,16 @@ const CategoryComponent = () => {
                 key: 'created_at',
                 label: 'Created At',
                 sortable: true,
-                render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
+                key: 'created_at',
+                label: 'Created At',
+                sortable: true,
+                render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
                 label: 'Updated At',
                 sortable: true,
-                render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
+                render: (value) => <DateColumn date={value} />,
             },
         ],
         []

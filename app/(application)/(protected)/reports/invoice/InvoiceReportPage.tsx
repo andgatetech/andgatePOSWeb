@@ -2,12 +2,13 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetInvoiceReportMutation } from '@/store/features/reports/reportApi';
-import { Banknote, Calendar, CreditCard, FileText, Hash, Package, Receipt, TrendingDown, User, Wallet } from 'lucide-react';
+import { Banknote, CreditCard, FileText, Hash, Package, Receipt, TrendingDown, User, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const InvoiceReportPage = () => {
@@ -91,7 +92,7 @@ const InvoiceReportPage = () => {
             { key: 'amount_due', label: 'Due', width: 15, format: (v) => formatCurrency(v) },
             { key: 'method', label: 'Method', width: 10 },
             { key: 'status', label: 'Status', width: 10 },
-            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
         ],
         [formatCurrency]
     );
@@ -185,28 +186,12 @@ const InvoiceReportPage = () => {
                 key: 'created_at',
                 label: 'Order Date',
                 sortable: true,
-                render: (v: any) => (
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                            <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            {new Date(v).toLocaleDateString('en-GB')}
-                        </div>
-                        <span className="pl-5 text-[10px] text-gray-400">{new Date(v).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (v) => <DateColumn date={v} />,
             },
             {
                 key: 'due_date',
                 label: 'Due Date',
-                render: (v: any) =>
-                    v ? (
-                        <div className="flex items-center gap-1.5 text-sm text-amber-700">
-                            <Calendar className="h-3.5 w-3.5 text-amber-400" />
-                            {new Date(v).toLocaleDateString('en-GB')}
-                        </div>
-                    ) : (
-                        <span className="pl-5 text-[10px] lowercase italic text-gray-400">not specified</span>
-                    ),
+                render: (v) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">not specified</span>),
             },
             {
                 key: 'items_count',

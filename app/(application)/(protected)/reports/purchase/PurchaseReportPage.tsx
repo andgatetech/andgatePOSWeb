@@ -6,6 +6,7 @@ import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import DateColumn from '@/components/common/DateColumn';
 import { useGetPurchaseReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calculator, CreditCard, FileText, PieChart, ShoppingCart, TrendingDown, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -110,7 +111,7 @@ const PurchaseReportPage = () => {
             { key: 'grand_total', label: 'Total', width: 15, format: (value) => formatCurrency(value) },
             { key: 'amount_paid', label: 'Paid', width: 15, format: (value) => formatCurrency(value) },
             { key: 'amount_due', label: 'Due', width: 15, format: (value) => formatCurrency(value) },
-            { key: 'created_at', label: 'Date', width: 12, format: (value) => (value ? new Date(value).toLocaleDateString('en-GB') : '') },
+            { key: 'created_at', label: 'Date', width: 12, format: (value) => value || '' },
         ],
         [formatCurrency]
     );
@@ -252,12 +253,7 @@ const PurchaseReportPage = () => {
                 key: 'created_at',
                 label: 'Date',
                 sortable: true,
-                render: (value: any) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => <DateColumn date={value} />,
             },
         ],
         [formatCurrency]

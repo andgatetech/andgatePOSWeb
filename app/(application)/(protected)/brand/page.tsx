@@ -6,6 +6,7 @@ import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { Edit, Eye, Image as ImageIcon, Plus, Save, Store, Trash2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // Brand Modal Component
@@ -49,16 +50,6 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit(formData);
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
     };
 
     if (!showModal) return null;
@@ -112,11 +103,17 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                             <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
                                 <div>
                                     <label className="mb-1 block font-medium text-gray-700">Created</label>
-                                    <p className="text-gray-600">{formatDate(selectedBrand?.created_at)}</p>
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-900">{selectedBrand?.created_at?.split(' ')[0]}</span>
+                                        <span className="text-xs text-gray-500">{selectedBrand?.created_at?.split(' ').slice(1).join(' ')}</span>
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="mb-1 block font-medium text-gray-700">Updated</label>
-                                    <p className="text-gray-600">{formatDate(selectedBrand?.updated_at)}</p>
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-900">{selectedBrand?.updated_at?.split(' ')[0]}</span>
+                                        <span className="text-xs text-gray-500">{selectedBrand?.updated_at?.split(' ').slice(1).join(' ')}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -128,7 +125,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                 <div className="rounded-lg border-2 border-dashed border-gray-300 p-3 sm:p-4">
                                     {imagePreview ? (
                                         <div className="relative mx-auto h-24 w-24">
-                                            <img src={imagePreview} alt="Preview" className="h-full w-full rounded-lg object-cover" />
+                                            <Image src={imagePreview} alt="Preview" fill className="rounded-lg object-cover" />
                                             <button
                                                 type="button"
                                                 onClick={() => {
@@ -370,14 +367,6 @@ const BrandManagement = () => {
         [deleteBrand]
     );
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
-    };
-
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -419,13 +408,23 @@ const BrandManagement = () => {
                 key: 'created_at',
                 label: 'Created',
                 sortable: true,
-                render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
+                render: (value: string) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">{value?.split(' ')[0]}</span>
+                        <span className="text-xs text-gray-500">{value?.split(' ').slice(1).join(' ')}</span>
+                    </div>
+                ),
             },
             {
                 key: 'updated_at',
                 label: 'Updated',
                 sortable: true,
-                render: (value) => <span className="text-sm text-gray-500">{formatDate(value)}</span>,
+                render: (value: string) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">{value?.split(' ')[0]}</span>
+                        <span className="text-xs text-gray-500">{value?.split(' ').slice(1).join(' ')}</span>
+                    </div>
+                ),
             },
         ],
         []

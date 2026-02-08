@@ -1,5 +1,6 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
@@ -81,12 +82,12 @@ const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, on
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
                         <span className="text-gray-500">Created</span>
-                        <span>{new Date(journal.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        <DateColumn date={journal.created_at} />
                     </div>
 
                     <div className="flex justify-between py-2">
                         <span className="text-gray-500">Updated</span>
-                        <span>{new Date(journal.updated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        <DateColumn date={journal.updated_at} />
                     </div>
                 </div>
 

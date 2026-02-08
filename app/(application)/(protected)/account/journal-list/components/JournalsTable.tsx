@@ -1,5 +1,6 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
@@ -101,7 +102,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 key: 'created_at',
                 label: 'Date',
                 sortable: true,
-                render: (value) => <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>,
+                render: (value) => <DateColumn date={value} />,
             },
         ],
         [formatCurrency]

@@ -77,16 +77,6 @@ const FeedbackManagementPage = () => {
         return <div className={`inline-flex rounded-lg bg-gradient-to-r p-2 ${categoryConfig.color} text-white`}>{categoryConfig.icon}</div>;
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
     const clearFilters = () => {
         setFilters({
             search: '',

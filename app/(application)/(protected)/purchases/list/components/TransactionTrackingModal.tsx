@@ -1,5 +1,6 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileText, Package, Receipt, ShoppingCart, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
@@ -16,17 +17,6 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
 
     if (!isOpen || !purchaseOrder) return null;
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
 
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {
@@ -174,7 +164,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                                 <p className="text-lg font-bold text-green-600 sm:text-xl">{formatCurrency(transaction.amount)}</p>
                                                                 <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
                                                                     <Calendar className="h-3 w-3" />
-                                                                    {formatDate(transaction.paid_at)}
+                                                                    <DateColumn date={transaction.paid_at} />
                                                                 </div>
                                                             </div>
                                                             <button
@@ -273,7 +263,9 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                     </div>
                                     <div className="flex-1 rounded-lg bg-gradient-to-r from-blue-50 to-transparent p-4">
                                         <h3 className="font-bold text-gray-900">Order Created</h3>
-                                        <p className="text-sm text-gray-600">{formatDate(purchaseOrder.created_at)}</p>
+                                        <div className="text-sm text-gray-600">
+                                            <DateColumn date={purchaseOrder.created_at} />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -285,7 +277,10 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                         <div className="flex-1 rounded-lg bg-gradient-to-r from-green-50 to-transparent p-4">
                                             <h3 className="font-bold text-gray-900">Payment Received - {formatCurrency(transaction.amount)}</h3>
                                             <p className="text-sm capitalize text-gray-600">
-                                                {transaction.payment_method} • {formatDate(transaction.paid_at)}
+                                                {transaction.payment_method} •{' '}
+                                                <span className="inline-block align-middle">
+                                                    <DateColumn date={transaction.paid_at} />
+                                                </span>
                                             </p>
                                         </div>
                                     </div>
@@ -297,7 +292,9 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                     </div>
                                     <div className="flex-1 rounded-lg bg-gradient-to-r from-purple-50 to-transparent p-4">
                                         <h3 className="font-bold text-gray-900">Last Updated</h3>
-                                        <p className="text-sm text-gray-600">{formatDate(purchaseOrder.updated_at)}</p>
+                                        <div className="text-sm text-gray-600">
+                                            <DateColumn date={purchaseOrder.updated_at} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

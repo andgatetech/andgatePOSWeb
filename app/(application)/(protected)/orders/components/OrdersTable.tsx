@@ -159,26 +159,40 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: 'Timeline',
                 sortable: true,
-                render: (value, row) => (
-                    <div className="flex flex-col gap-1">
-                        <div className="flex flex-col">
-                            <span className="text-xs font-medium text-gray-500">Created:</span>
-                            <div className="flex items-center gap-1">
-                                <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                                <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                render: (value, row) => {
+                    const formatRawDateTime = (dateTimeStr: string) => {
+                        if (!dateTimeStr) return { date: '-', time: '' };
+                        const parts = dateTimeStr.split(' ');
+                        return {
+                            date: parts[0] || '-',
+                            time: parts.slice(1).join(' ') || '',
+                        };
+                    };
+
+                    const created = formatRawDateTime(value);
+                    const updated = formatRawDateTime(row.updated_at);
+
+                    return (
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                                <span className="w-12 text-[10px] font-bold uppercase text-emerald-600">Created:</span>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-xs font-medium text-gray-900">{created.date}</span>
+                                    <span className="text-[10px] text-gray-500">{created.time}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-12 text-[10px] font-bold uppercase text-amber-600">Updated:</span>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-xs font-medium text-gray-900">{updated.date}</span>
+                                    <span className="text-[10px] text-gray-500">{updated.time}</span>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs font-medium text-gray-500">Updated:</span>
-                            <div className="flex items-center gap-1">
-                                <span className="text-sm text-gray-900">{new Date(row.updated_at).toLocaleDateString('en-GB')}</span>
-                                <span className="text-xs text-gray-500">{new Date(row.updated_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                            </div>
-                        </div>
-                    </div>
-                ),
+                    );
+                },
             },
         ],
         [formatCurrency]

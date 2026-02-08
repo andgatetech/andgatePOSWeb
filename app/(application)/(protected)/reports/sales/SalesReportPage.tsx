@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import SalesReportFilter from '@/components/filters/reports/SalesReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -171,7 +172,7 @@ const SalesReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     // Table columns
@@ -258,15 +259,10 @@ const SalesReportPage = () => {
                 key: 'created_at',
                 label: 'Date',
                 sortable: true,
-                render: (value: any) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-700">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => <DateColumn date={value} />,
             },
         ],
-        []
+        [formatCurrency]
     );
 
     // Export columns configuration
@@ -321,10 +317,10 @@ const SalesReportPage = () => {
                 key: 'created_at',
                 label: 'Date',
                 width: 12,
-                format: (value) => (value ? new Date(value).toLocaleDateString('en-GB') : ''),
+                format: (value) => value || '',
             },
         ],
-        []
+        [formatCurrency]
     );
 
     // Filter summary for export

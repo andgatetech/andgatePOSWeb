@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -89,7 +90,7 @@ const SupplierDueReportPage = () => {
             { key: 'paid', label: 'Paid', width: 15, format: (v) => formatCurrency(v) },
             { key: 'due', label: 'Due', width: 15, format: (v) => formatCurrency(v) },
             { key: 'status', label: 'Status', width: 10 },
-            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
         ],
         []
     );
@@ -111,7 +112,7 @@ const SupplierDueReportPage = () => {
             { label: 'Orders with Due', value: summary.total_orders_with_due || 0 },
             { label: 'Total Due', value: formatCurrency(summary.total_due) },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -149,7 +150,7 @@ const SupplierDueReportPage = () => {
                 textColor: 'text-red-600',
             },
         ],
-        [summary]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -175,20 +176,15 @@ const SupplierDueReportPage = () => {
                 key: 'created_at',
                 label: 'Order Date',
                 sortable: true,
-                render: (v: any) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(v).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(v).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (v) => <DateColumn date={v} />,
             },
             {
                 key: 'due_date',
                 label: 'Due Date',
-                render: (v: any) => (v ? <span className="text-sm text-gray-700">{new Date(v).toLocaleDateString('en-GB')}</span> : <span className="text-xs text-gray-400">Not set</span>),
+                render: (v: any) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">Not set</span>),
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

@@ -4,7 +4,7 @@ import ReusableTable, { TableAction, TableColumn } from '@/components/common/Reu
 import { useCurrency } from '@/hooks/useCurrency';
 import { Eye, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 interface OrderReturnsTableProps {
     returns: any[];
@@ -29,9 +29,12 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
     const { formatCurrency } = useCurrency();
     const router = useRouter();
 
-    const handleViewDetails = (orderReturn: any) => {
-        router.push(`/orders/return/${orderReturn.id}`);
-    };
+    const handleViewDetails = useCallback(
+        (orderReturn: any) => {
+            router.push(`/orders/return/${orderReturn.id}`);
+        },
+        [router]
+    );
 
     const columns: TableColumn[] = useMemo(
         () => [
@@ -86,7 +89,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 },
             },
             {
-                key: 'return_items',
+                key: 'return_items_qty',
                 label: 'Qty',
                 render: (value, row) => {
                     const items = row.return_items || [];
@@ -158,12 +161,18 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 key: 'created_at',
                 label: 'Return Date',
                 sortable: true,
-                render: (value) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => {
+                    if (!value) return <span className="text-sm text-gray-500">-</span>;
+                    const parts = value.split(' ');
+                    const date = parts[0] || '-';
+                    const time = parts.slice(1).join(' ') || '';
+                    return (
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900">{date}</span>
+                            <span className="text-xs text-gray-500">{time}</span>
+                        </div>
+                    );
+                },
             },
         ],
         [formatCurrency]

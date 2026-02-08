@@ -256,17 +256,13 @@ const SubscriptionProgress = () => {
                 <div className="flex justify-between text-xs text-gray-600">
                     <span>Started:</span>
                     <span>
-                        {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        {' at '}
-                        {startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        {startDate.toISOString().split('T')[0]} {startDate.toISOString().split('T')[1].substring(0, 8)}
                     </span>
                 </div>
                 <div className="flex justify-between text-xs">
                     <span className="text-gray-600">{isExpired ? 'Expired:' : 'Expires:'}</span>
                     <span className={isExpired ? 'font-semibold text-red-600' : 'text-gray-600'}>
-                        {expireDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        {' at '}
-                        {expireDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        {expireDate.toISOString().split('T')[0]} {expireDate.toISOString().split('T')[1].substring(0, 8)}
                     </span>
                 </div>
 
@@ -434,15 +430,7 @@ const AdminProfile = () => {
                         <Calendar className="mt-0.5 h-4 w-4 text-gray-400" />
                         <div className="min-w-0 flex-1">
                             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Member Since</p>
-                            <p className="text-sm text-gray-900">
-                                {user.created_at
-                                    ? new Date(user.created_at).toLocaleDateString('en-US', {
-                                          year: 'numeric',
-                                          month: 'long',
-                                          day: 'numeric',
-                                      })
-                                    : 'Not available'}
-                            </p>
+                            <p className="text-sm text-gray-900">{user.created_at || 'Not available'}</p>
                         </div>
                     </div>
                 </div>

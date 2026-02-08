@@ -25,7 +25,7 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
     const activePaymentStatuses = paymentStatuses.filter((ps) => ps.is_active);
 
     // Stabilize the callback to prevent unnecessary re-renders
-    const stableOnFilterChange = React.useCallback(onFilterChange, []);
+    const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
 
     const handleReset = React.useCallback(() => {
         setSelectedPaymentStatus('all');

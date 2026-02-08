@@ -1,5 +1,6 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { Download, Printer, X } from 'lucide-react';
@@ -16,6 +17,12 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
     const receiptRef = useRef<HTMLDivElement>(null);
     const { currentStore } = useCurrentStore();
     const { formatCurrency, symbol } = useCurrency();
+
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '';
+        // Return raw date from database (e.g., "2026-01-29 11:07:32 PM")
+        return dateString.split(' ')[0]; // Return just the date part
+    };
 
     const handlePrint = () => {
         window.print();
@@ -436,14 +443,6 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
         }, 500);
     };
 
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-        });
-    };
-
     // Convert number to words
     const numberToWords = (num: number): string => {
         const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
@@ -547,7 +546,9 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                 <div className="text-right">
                                     <p className="mb-1 text-xs text-gray-600">Receipt No :</p>
                                     <p className="text-2xl font-bold text-gray-800">{String(transaction.id).padStart(6, '0')}</p>
-                                    <p className="mt-1 text-xs text-gray-500">Date: {formatDate(transaction.paid_at)}</p>
+                                    <div className="mt-1 flex justify-end gap-1 text-xs text-gray-500">
+                                        Date: <DateColumn date={transaction.paid_at} />
+                                    </div>
                                 </div>
                             </div>
 

@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import IdleProductReportFilter from '@/components/filters/reports/IdleProductReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -89,7 +90,7 @@ const IdleProductReportPage = () => {
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'quantity', label: 'Stock', width: 10 },
             { key: 'stock_value', label: 'Value', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'last_sold_at', label: 'Last Sale', width: 15, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : 'Never') },
+            { key: 'last_sold_at', label: 'Last Sale', width: 15, format: (v) => v || 'Never' },
             { key: 'days_idle', label: 'Days Idle', width: 10 },
         ],
         [formatCurrency]
@@ -113,7 +114,7 @@ const IdleProductReportPage = () => {
         () => [
             { label: 'Idle Items', value: summary.total_idle_items || 0 },
             { label: 'Trapped Capital', value: formatCurrency(summary.total_idle_value) },
-            { label: 'Date', value: new Date().toLocaleDateString('en-GB') },
+            { label: 'Date', value: new Date().toISOString() },
         ],
         [summary, formatCurrency]
     );
@@ -146,7 +147,7 @@ const IdleProductReportPage = () => {
             },
             {
                 label: 'Analysis Cutoff',
-                value: summary.cutoff_date ? new Date(summary.cutoff_date).toLocaleDateString('en-GB') : 'N/A',
+                value: summary.cutoff_date || 'N/A',
                 icon: <Calendar className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -215,7 +216,7 @@ const IdleProductReportPage = () => {
                             {v ? (
                                 <>
                                     <BarChart3 className="h-3.5 w-3.5" />
-                                    {new Date(v).toLocaleDateString('en-GB')}
+                                    <DateColumn date={v} />
                                 </>
                             ) : (
                                 <>
@@ -224,7 +225,7 @@ const IdleProductReportPage = () => {
                                 </>
                             )}
                         </div>
-                        <span className="mt-1 pl-5 text-[10px] text-gray-400">Purchased: {r.purchase_date ? new Date(r.purchase_date).toLocaleDateString('en-GB') : 'Unknown'}</span>
+                        <span className="mt-1 pl-5 text-[10px] text-gray-400">Purchased: {r.purchase_date || 'Unknown'}</span>
                     </div>
                 ),
             },

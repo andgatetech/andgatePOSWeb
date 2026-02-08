@@ -2,12 +2,13 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetExpenseReportMutation } from '@/store/features/reports/reportApi';
-import { Banknote, Calculator, Calendar, CreditCard, FileText, Receipt, Store, User } from 'lucide-react';
+import { Banknote, Calculator, CreditCard, FileText, Receipt, Store, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ExpenseReportPage = () => {
@@ -90,7 +91,7 @@ const ExpenseReportPage = () => {
             { key: 'user_name', label: 'User', width: 15 },
             { key: 'payment_type', label: 'Payment', width: 10 },
             { key: 'amount', label: 'Amount', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
         ],
         [formatCurrency]
     );
@@ -193,15 +194,7 @@ const ExpenseReportPage = () => {
                 key: 'created_at',
                 label: 'Date & Time',
                 sortable: true,
-                render: (value: any) => (
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                            <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            {new Date(value).toLocaleDateString('en-GB')}
-                        </div>
-                        <span className="pl-5 text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => <DateColumn date={value} />,
             },
         ],
         [formatCurrency]

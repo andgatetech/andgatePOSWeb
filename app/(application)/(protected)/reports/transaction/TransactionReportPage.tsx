@@ -2,12 +2,13 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import TransactionReportFilter from '@/components/filters/reports/TransactionReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetTransactionReportMutation } from '@/store/features/reports/reportApi';
-import { ArrowLeftRight, Banknote, Calculator, Calendar, CreditCard, FileText, Hash, Store, User } from 'lucide-react';
+import { ArrowLeftRight, Banknote, Calculator, CreditCard, FileText, Hash, Store, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TransactionReportPage = () => {
@@ -42,7 +43,7 @@ const TransactionReportPage = () => {
             lastQueryParams.current = queryString;
             getTransactionReport(queryParams);
         }
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams, getTransactionReport]);
 
     const transactions = useMemo(() => reportData?.data?.pos_transactions || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
@@ -89,9 +90,9 @@ const TransactionReportPage = () => {
             { key: 'payment_status', label: 'Status', width: 10 },
             { key: 'payment_method', label: 'Method', width: 10 },
             { key: 'amount', label: 'Amount', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'created_at', label: 'Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -252,18 +253,10 @@ const TransactionReportPage = () => {
                 key: 'created_at',
                 label: 'Execution Time',
                 sortable: true,
-                render: (value: any, row: any) => (
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                            <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            {new Date(value).toLocaleDateString('en-GB')}
-                        </div>
-                        <span className="pl-5 text-[10px] text-gray-400">{row.time}</span>
-                    </div>
-                ),
+                render: (value) => <DateColumn date={value} />,
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (

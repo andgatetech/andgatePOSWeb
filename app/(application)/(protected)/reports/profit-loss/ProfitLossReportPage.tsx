@@ -3,7 +3,7 @@
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
-import { useCurrency } from '@/hooks/useCurrency';
+
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowDown, ArrowUp, Banknote, Calendar, MinusCircle, PieChart, TrendingUp } from 'lucide-react';
@@ -157,8 +157,7 @@ const ProfitLossReportPage = () => {
                         {period.start_date && (
                             <div className="rounded-lg bg-gray-50 px-4 py-3">
                                 <p className="text-sm text-gray-600">
-                                    <span className="font-medium">Report Period:</span> {new Date(period.start_date).toLocaleDateString('en-GB')} to{' '}
-                                    {new Date(period.end_date).toLocaleDateString('en-GB')} ({Math.round(period.days)} days)
+                                    <span className="font-medium">Report Period:</span> {period.start_date || ''} to {period.end_date || ''} ({Math.round(period.days)} days)
                                 </p>
                             </div>
                         )}

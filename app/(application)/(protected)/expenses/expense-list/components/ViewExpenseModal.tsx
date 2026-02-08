@@ -1,5 +1,6 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
@@ -101,7 +102,9 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                             </div>
                             <div className="flex justify-between py-1.5">
                                 <span className="text-gray-500">Created Date</span>
-                                <span>{new Date(expense.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                <span>
+                                    <DateColumn date={expense.created_at} />
+                                </span>
                             </div>
                         </div>
                     </div>

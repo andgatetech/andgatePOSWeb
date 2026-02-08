@@ -147,13 +147,13 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                             {item.warranty.start_date && (
                                 <div className="flex justify-between">
                                     <span className="text-sm text-gray-600">Start Date:</span>
-                                    <span className="text-sm font-semibold text-gray-900">{new Date(item.warranty.start_date).toLocaleDateString()}</span>
+                                    <span className="text-sm font-semibold text-gray-900">{item.warranty.start_date}</span>
                                 </div>
                             )}
                             {item.warranty.end_date && (
                                 <div className="flex justify-between">
                                     <span className="text-sm text-gray-600">End Date:</span>
-                                    <span className="text-sm font-semibold text-gray-900">{new Date(item.warranty.end_date).toLocaleDateString()}</span>
+                                    <span className="text-sm font-semibold text-gray-900">{item.warranty.end_date}</span>
                                 </div>
                             )}
                             {item.warranty.remaining_days !== null && (

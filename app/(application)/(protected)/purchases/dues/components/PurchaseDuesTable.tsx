@@ -141,23 +141,35 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
                 key: 'created_at',
                 label: 'Created Date',
                 sortable: true,
-                render: (value) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => {
+                    if (!value) return <span className="text-sm text-gray-500">-</span>;
+                    const parts = value.split(' ');
+                    const date = parts[0] || '-';
+                    const time = parts.slice(1).join(' ') || '';
+                    return (
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900">{date}</span>
+                            <span className="text-xs text-gray-500">{time}</span>
+                        </div>
+                    );
+                },
             },
             {
                 key: 'updated_at',
                 label: 'Updated Date',
                 sortable: true,
-                render: (value) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => {
+                    if (!value) return <span className="text-sm text-gray-500">-</span>;
+                    const parts = value.split(' ');
+                    const date = parts[0] || '-';
+                    const time = parts.slice(1).join(' ') || '';
+                    return (
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900">{date}</span>
+                            <span className="text-xs text-gray-500">{time}</span>
+                        </div>
+                    );
+                },
             },
         ],
         []

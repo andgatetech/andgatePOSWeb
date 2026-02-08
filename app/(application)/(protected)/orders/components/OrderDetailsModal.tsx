@@ -1,8 +1,9 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { Dialog, Transition } from '@headlessui/react';
-import { Calendar, CreditCard, Package, Receipt, RotateCcw, Store, User, X } from 'lucide-react';
+import { AlertCircle, Calendar, Clock, CreditCard, Hash, Package, Receipt, RotateCcw, Shield, Store, TrendingUp, User, X } from 'lucide-react';
 import { Fragment } from 'react';
 
 interface OrderDetailsModalProps {
@@ -56,6 +57,26 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
                                 {/* Content */}
                                 <div className="max-h-[70vh] overflow-y-auto p-6">
+                                    {/* Status Badges */}
+                                    <div className="mb-6 flex flex-wrap gap-3">
+                                        {/* Order Status */}
+                                        <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2">
+                                            <TrendingUp className="h-4 w-4 text-blue-600" />
+                                            <span className="text-sm font-medium text-blue-900">
+                                                Status: <span className="capitalize">{order.status?.replace('_', ' ') || 'N/A'}</span>
+                                            </span>
+                                        </div>
+                                        {/* Return Status */}
+                                        {order.return_status && order.return_status !== 'none' && (
+                                            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2">
+                                                <RotateCcw className="h-4 w-4 text-red-600" />
+                                                <span className="text-sm font-medium text-red-900">
+                                                    Return: <span className="capitalize">{order.return_status?.replace('_', ' ')}</span>
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     {/* Order Info Grid */}
                                     <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                                         {/* Customer Info */}
@@ -91,9 +112,36 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                             <div className="mb-3 flex items-center gap-2">
                                                 <Calendar className="h-5 w-5 text-green-600" />
-                                                <h3 className="font-semibold text-gray-900">Order Date</h3>
+                                                <h3 className="font-semibold text-gray-900">Timeline</h3>
                                             </div>
-                                            <p className="text-sm text-gray-900">{new Date(order.created_at).toLocaleString()}</p>
+                                            <div className="space-y-3 text-sm">
+                                                <div>
+                                                    <p className="mb-1 text-xs font-semibold uppercase text-gray-500">Created</p>
+                                                    <div className="text-gray-900">
+                                                        {order.created_at ? (
+                                                            <>
+                                                                <div className="font-medium">{order.created_at.split(' ')[0]}</div>
+                                                                <div className="text-xs text-gray-500">{order.created_at.split(' ').slice(1).join(' ')}</div>
+                                                            </>
+                                                        ) : (
+                                                            'N/A'
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="mb-1 text-xs font-semibold uppercase text-gray-500">Updated</p>
+                                                    <div className="text-gray-900">
+                                                        {order.updated_at ? (
+                                                            <>
+                                                                <div className="font-medium">{order.updated_at.split(' ')[0]}</div>
+                                                                <div className="text-xs text-gray-500">{order.updated_at.split(' ').slice(1).join(' ')}</div>
+                                                            </>
+                                                        ) : (
+                                                            'N/A'
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {/* Payment Info */}
@@ -121,38 +169,150 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                             <Package className="h-5 w-5 text-indigo-600" />
                                             <h3 className="text-lg font-semibold text-gray-900">Order Items ({order.items_count})</h3>
                                         </div>
-                                        <div className="overflow-hidden rounded-lg border border-gray-200">
-                                            <table className="w-full">
-                                                <thead className="bg-gray-50">
-                                                    <tr>
-                                                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Product</th>
-                                                        <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-600">Quantity</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Unit Price</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Discount</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Tax</th>
-                                                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Subtotal</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-200 bg-white">
-                                                    {order.items?.map((item: any, index: number) => (
-                                                        <tr key={index} className="hover:bg-gray-50">
-                                                            <td className="px-4 py-3">
-                                                                <div className="flex flex-col">
-                                                                    <span className="font-medium text-gray-900">{item.product?.name ?? item.product_name ?? 'N/A'}</span>
-                                                                    {(item.product?.sku ?? item.sku) && <span className="text-xs text-gray-500">SKU: {item.product?.sku ?? item.sku}</span>}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center text-gray-900">
+                                        <div className="space-y-4">
+                                            {order.items?.map((item: any, index: number) => (
+                                                <div key={index} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                                                    {/* Product Header */}
+                                                    <div className="mb-3 flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <h4 className="text-lg font-semibold text-gray-900">{item.product?.name ?? item.product_name ?? 'N/A'}</h4>
+                                                            <div className="mt-1 flex flex-wrap gap-2 text-xs">
+                                                                {(item.product?.sku ?? item.sku) && (
+                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">SKU: {item.product?.sku ?? item.sku}</span>
+                                                                )}
+                                                                {item.product?.category && <span className="rounded bg-blue-100 px-2 py-1 text-blue-700">{item.product.category}</span>}
+                                                                {item.product?.brand && <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">{item.product.brand}</span>}
+                                                                {item.stock?.variant_name && (
+                                                                    <span className="rounded bg-indigo-100 px-2 py-1 text-indigo-700">Variant: {item.stock.variant_name}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {/* Return Status Badge */}
+                                                        {item.return_status && item.return_status !== 'none' && (
+                                                            <span
+                                                                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                                                    item.return_status === 'full'
+                                                                        ? 'bg-red-100 text-red-800'
+                                                                        : item.return_status === 'partial'
+                                                                        ? 'bg-orange-100 text-orange-800'
+                                                                        : 'bg-gray-100 text-gray-800'
+                                                                }`}
+                                                            >
+                                                                {item.return_status === 'full' ? 'Fully Returned' : 'Partially Returned'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Item Details Grid */}
+                                                    <div className="mb-3 grid grid-cols-2 gap-4 md:grid-cols-4">
+                                                        <div>
+                                                            <p className="mb-1 text-xs text-gray-500">Quantity</p>
+                                                            <p className="font-semibold text-gray-900">
                                                                 {item.quantity ?? 0} {item.unit ?? 'Piece'}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.unit_price ?? 0)}</td>
-                                                            <td className="px-4 py-3 text-right text-red-600">{formatCurrency(item.discount ?? 0)}</td>
-                                                            <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(item.tax ?? 0)}</td>
-                                                            <td className="px-4 py-3 text-right font-semibold text-gray-900">{formatCurrency(item.subtotal ?? 0)}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                            </p>
+                                                            {item.quantity_returned > 0 && <p className="text-xs text-red-600">Returned: {item.quantity_returned}</p>}
+                                                        </div>
+                                                        <div>
+                                                            <p className="mb-1 text-xs text-gray-500">Unit Price</p>
+                                                            <p className="font-semibold text-gray-900">{formatCurrency(item.unit_price ?? 0)}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="mb-1 text-xs text-gray-500">Discount</p>
+                                                            <p className="font-semibold text-red-600">{formatCurrency(item.discount ?? 0)}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="mb-1 text-xs text-gray-500">Subtotal</p>
+                                                            <p className="font-bold text-gray-900">{formatCurrency(item.subtotal ?? 0)}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Stock Info */}
+                                                    {item.stock && (
+                                                        <div className="mb-3 rounded-md bg-gray-50 p-3">
+                                                            <div className="mb-2 flex items-center gap-2">
+                                                                <AlertCircle className="h-4 w-4 text-gray-600" />
+                                                                <span className="text-xs font-semibold text-gray-700">Stock Information</span>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
+                                                                <div>
+                                                                    <span className="text-gray-500">Current Stock:</span>
+                                                                    <span className={`ml-1 font-semibold ${item.stock.is_low_stock ? 'text-red-600' : 'text-green-600'}`}>
+                                                                        {item.stock.current_quantity}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-500">Purchase Price:</span>
+                                                                    <span className="ml-1 font-semibold text-gray-700">{formatCurrency(item.stock.purchase_price ?? 0)}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-500">Wholesale:</span>
+                                                                    <span className="ml-1 font-semibold text-gray-700">{formatCurrency(item.stock.wholesale_price ?? 0)}</span>
+                                                                </div>
+                                                                {item.stock.is_low_stock && (
+                                                                    <div>
+                                                                        <span className="rounded bg-red-100 px-2 py-0.5 font-semibold text-red-700">Low Stock!</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Serials */}
+                                                    {item.has_serials && item.serials && item.serials.length > 0 && (
+                                                        <div className="mb-3 rounded-md bg-blue-50 p-3">
+                                                            <div className="mb-2 flex items-center gap-2">
+                                                                <Hash className="h-4 w-4 text-blue-600" />
+                                                                <span className="text-xs font-semibold text-blue-900">Serial Numbers</span>
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {item.serials.map((serial: any) => (
+                                                                    <span key={serial.id} className="rounded border border-blue-200 bg-white px-2 py-1 font-mono text-xs text-gray-700">
+                                                                        {serial.serial_number}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Warranty */}
+                                                    {item.warranty && (
+                                                        <div className="rounded-md bg-green-50 p-3">
+                                                            <div className="mb-2 flex items-center gap-2">
+                                                                <Shield className="h-4 w-4 text-green-600" />
+                                                                <span className="text-xs font-semibold text-green-900">Warranty Information</span>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-3 text-xs">
+                                                                <div>
+                                                                    <span className="text-green-700">Type:</span>
+                                                                    <span className="ml-1 font-semibold text-green-900">{item.warranty.warranty_type_name}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-green-700">Duration:</span>
+                                                                    <span className="ml-1 font-semibold text-green-900">
+                                                                        {item.warranty.duration_months
+                                                                            ? `${item.warranty.duration_months} months`
+                                                                            : item.warranty.duration_days
+                                                                            ? `${item.warranty.duration_days} days`
+                                                                            : 'Lifetime'}
+                                                                    </span>
+                                                                </div>
+                                                                {item.warranty.start_date && (
+                                                                    <div>
+                                                                        <span className="text-green-700">Start:</span>
+                                                                        <span className="ml-1 font-semibold text-green-900">{item.warranty.start_date.split(' ')[0]}</span>
+                                                                    </div>
+                                                                )}
+                                                                {item.warranty.end_date && (
+                                                                    <div>
+                                                                        <span className="text-green-700">End:</span>
+                                                                        <span className="ml-1 font-semibold text-green-900">{item.warranty.end_date.split(' ')[0]}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -232,13 +392,82 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                         <span>
                                                                             {returnItem.items_count} item{returnItem.items_count !== 1 ? 's' : ''}
                                                                         </span>
-                                                                        <span>{new Date(returnItem.return_date).toLocaleString()}</span>
+                                                                        <span>
+                                                                            <DateColumn date={returnItem.return_date} />
+                                                                        </span>
                                                                     </div>
                                                                 </div>
                                                             ))}
                                                         </div>
                                                     </div>
                                                 )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Transactions History */}
+                                    {order.transactions && order.transactions.length > 0 && (
+                                        <div className="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-6">
+                                            <div className="mb-4 flex items-center gap-2">
+                                                <CreditCard className="h-5 w-5 text-indigo-600" />
+                                                <h3 className="text-lg font-semibold text-indigo-900">Transaction History</h3>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {order.transactions.map((transaction: any) => (
+                                                    <div key={transaction.id} className="rounded-lg bg-white p-4 shadow-sm">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Hash className="h-4 w-4 text-gray-400" />
+                                                                    <span className="font-semibold text-gray-900">Transaction #{transaction.id}</span>
+                                                                    <span
+                                                                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                                            transaction.type === 'sale' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                                        }`}
+                                                                    >
+                                                                        {transaction.type?.toUpperCase()}
+                                                                    </span>
+                                                                    <span
+                                                                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                                            transaction.payment_status === 'paid'
+                                                                                ? 'bg-emerald-100 text-emerald-800'
+                                                                                : transaction.payment_status === 'refunded'
+                                                                                ? 'bg-orange-100 text-orange-800'
+                                                                                : 'bg-gray-100 text-gray-800'
+                                                                        }`}
+                                                                    >
+                                                                        {transaction.payment_status?.toUpperCase()}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <CreditCard className="h-3.5 w-3.5" />
+                                                                        <span className="capitalize">{transaction.payment_method}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1">
+                                                                        <Clock className="h-3.5 w-3.5" />
+                                                                        <span>
+                                                                            {transaction.created_at ? (
+                                                                                <>
+                                                                                    {transaction.created_at.split(' ')[0]}{' '}
+                                                                                    <span className="text-gray-400">{transaction.created_at.split(' ').slice(1).join(' ')}</span>
+                                                                                </>
+                                                                            ) : (
+                                                                                'N/A'
+                                                                            )}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className={`text-xl font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    {transaction.amount >= 0 ? '+' : ''}
+                                                                    {formatCurrency(transaction.amount)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     )}

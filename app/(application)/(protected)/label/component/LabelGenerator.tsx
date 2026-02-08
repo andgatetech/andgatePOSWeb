@@ -13,8 +13,8 @@ import EmptyLabelState from './EmptyLabelState';
 type LabelType = 'barcode' | 'qrcode';
 
 interface LabelSize {
-    width: number;
-    height: number;
+    width: number; // in millimeters
+    height: number; // in millimeters
 }
 
 const BARCODE_TYPES = [
@@ -27,8 +27,13 @@ const BARCODE_TYPES = [
 ];
 
 const PAPER_SIZES = [
-    { value: 'a4', label: 'A4 (210×297 mm)', width: 210, height: 297 },
-    { value: 'letter', label: 'Letter (8.5×11 in)', width: 215.9, height: 279.4 },
+    // Thermal Printer Rolls (most common for POS)
+    { value: 'thermal_40mm', label: '🖨️ Thermal 40mm Roll', width: 40, height: 200, isThermal: true },
+    { value: 'thermal_50mm', label: '🖨️ Thermal 50mm Roll', width: 50, height: 200, isThermal: true },
+    { value: 'thermal_80mm', label: '🖨️ Thermal 80mm Roll', width: 80, height: 200, isThermal: true },
+    // Standard Paper (for laser/inkjet printers)
+    { value: 'a4', label: 'A4 (210×297mm)', width: 210, height: 297, isThermal: false },
+    { value: 'letter', label: 'Letter (8.5×11in)', width: 215.9, height: 279.4, isThermal: false },
 ];
 
 const LabelGenerator = () => {
@@ -44,16 +49,16 @@ const LabelGenerator = () => {
     // Paper & Label Size Settings with localStorage persistence
     const [paperSize, setPaperSize] = useState(() => {
         if (typeof window !== 'undefined') {
-            return localStorage.getItem('labelPaperSize') || 'a4';
+            return localStorage.getItem('labelPaperSize') || 'thermal_40mm';
         }
-        return 'a4';
+        return 'thermal_40mm';
     });
     const [labelSize, setLabelSize] = useState<LabelSize>(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('labelSize');
-            return saved ? JSON.parse(saved) : { width: 250, height: 120 };
+            return saved ? JSON.parse(saved) : { width: 38, height: 25 };
         }
-        return { width: 250, height: 120 };
+        return { width: 38, height: 25 };
     });
     const [showSettings, setShowSettings] = useState(false);
 
@@ -214,7 +219,10 @@ const LabelGenerator = () => {
 
     const generatePrintHTML = () => {
         const selectedPaper = PAPER_SIZES.find((p) => p.value === paperSize) || PAPER_SIZES[0];
-        const labelsPerRow = Math.floor((selectedPaper.width - 20) / (labelSize.width * 0.264583)); // Convert px to mm
+        const labelsPerRow = Math.floor((selectedPaper.width - 4) / (labelSize.width + 2)); // mm calculation with 2mm gap
+
+        // Determine page size for @page rule
+        const pageSize = selectedPaper.value === 'a4' ? 'A4' : selectedPaper.value === 'letter' ? 'letter' : `${selectedPaper.width}mm ${selectedPaper.height}mm`;
 
         return `
             <!DOCTYPE html>
@@ -224,8 +232,8 @@ const LabelGenerator = () => {
                 <title>Labels - ${currentStore?.store_name || 'Store'}</title>
                 <style>
                     @page {
-                        size: ${selectedPaper.value === 'a4' ? 'A4' : 'letter'};
-                        margin: 10mm;
+                        size: ${pageSize};
+                        margin: ${selectedPaper.isThermal ? '2mm' : '10mm'};
                     }
                     
                     * {
@@ -237,7 +245,7 @@ const LabelGenerator = () => {
                     body {
                         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                         background: white;
-                        padding: 5mm;
+                        padding: ${selectedPaper.isThermal ? '2mm' : '5mm'};
                     }
                     
                     .page-container {
@@ -247,15 +255,15 @@ const LabelGenerator = () => {
                     .label-grid {
                         display: grid;
                         grid-template-columns: repeat(${Math.max(labelsPerRow, 1)}, minmax(0, 1fr));
-                        gap: 4mm;
+                        gap: 2mm;
                         width: 100%;
                     }
                     
                     .label-card {
-                        width: ${labelSize.width}px;
-                        height: ${labelSize.height}px;
-                        border: 1.5px solid #e0e0e0;
-                        padding: 8px;
+                        width: ${labelSize.width}mm;
+                        height: ${labelSize.height}mm;
+                        border: 0.5mm solid #e0e0e0;
+                        padding: 2mm;
                         background: white;
                         display: flex;
                         flex-direction: column;
@@ -268,10 +276,10 @@ const LabelGenerator = () => {
                     }
                     
                     .label-card h3 {
-                        font-size: 11px;
+                        font-size: 3mm;
                         font-weight: 700;
                         color: #1a1a1a;
-                        margin-bottom: 4px;
+                        margin-bottom: 1mm;
                         line-height: 1.2;
                         max-height: none;
                         overflow: visible;
@@ -281,23 +289,23 @@ const LabelGenerator = () => {
                     }
                     
                     .variant {
-                        font-size: 10px;
+                        font-size: 2.5mm;
                         color: #666;
-                        margin-bottom: 3px;
+                        margin-bottom: 1mm;
                         font-weight: 500;
                     }
                     
                     .sku {
-                        font-size: 10px;
+                        font-size: 2.5mm;
                         font-weight: 700;
                         color: #2563eb;
-                        margin-bottom: 6px;
-                        letter-spacing: 0.3px;
+                        margin-bottom: 1.5mm;
+                        letter-spacing: 0.1mm;
                     }
                     
                     .label-card img {
-                        max-width: calc(100% - 8px);
-                        max-height: ${labelSize.height - 70}px;
+                        max-width: calc(100% - 2mm);
+                        max-height: ${labelSize.height - 15}mm;
                         height: auto;
                         width: auto;
                         object-fit: contain;
@@ -342,7 +350,7 @@ const LabelGenerator = () => {
                             <div class="label-card">
                                 <h3>${label.product_name || 'Product'}</h3>
                                 ${label.variant_name ? `<p class="variant">${label.variant_name}</p>` : ''}
-                                <p class="sku">SKU: ${label.sku || 'N/A'}</p>
+                                <p class="sku"> ${label.sku || 'N/A'}</p>
                                 ${
                                     label.barcode
                                         ? `<img src="${label.barcode}" alt="${label.sku || 'label'}" onerror="this.parentElement.innerHTML+='<p class=no-image>Image failed to load</p>'" />`
@@ -522,90 +530,115 @@ const LabelGenerator = () => {
                         {/* Quick Presets */}
                         <div className="mb-4">
                             <label className="mb-2 block text-sm font-semibold text-gray-700">Quick Presets</label>
-                            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
                                 <button
-                                    onClick={() => saveLabelSize({ width: 150, height: 80 })}
-                                    className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50"
+                                    onClick={() => saveLabelSize({ width: 38, height: 25 })}
+                                    className="rounded-lg border-2 border-blue-500 bg-blue-50 px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-600 hover:bg-blue-100"
+                                    title="Most popular retail POS label - Works with thermal printers (Xprinter, Zebra, TSC)"
                                 >
-                                    Small Sticker
+                                    <span className="text-blue-600">⭐ 1.5&quot; × 1&quot;</span>
                                     <br />
-                                    <span className="text-gray-600">150×80</span>
+                                    <span className="text-gray-600">38×25mm</span>
                                 </button>
                                 <button
-                                    onClick={() => saveLabelSize({ width: 250, height: 120 })}
+                                    onClick={() => saveLabelSize({ width: 20, height: 10 })}
                                     className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50"
                                 >
-                                    Standard
+                                    Tiny
                                     <br />
-                                    <span className="text-gray-600">250×120</span>
+                                    <span className="text-gray-600">20×10mm</span>
                                 </button>
                                 <button
-                                    onClick={() => saveLabelSize({ width: 400, height: 200 })}
+                                    onClick={() => saveLabelSize({ width: 30, height: 20 })}
                                     className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50"
                                 >
-                                    Large Tag
+                                    Small
                                     <br />
-                                    <span className="text-gray-600">400×200</span>
+                                    <span className="text-gray-600">30×20mm</span>
                                 </button>
                                 <button
-                                    onClick={() => saveLabelSize({ width: 300, height: 150 })}
+                                    onClick={() => saveLabelSize({ width: 50, height: 30 })}
                                     className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50"
                                 >
-                                    Wide Label
+                                    Medium
                                     <br />
-                                    <span className="text-gray-600">300×150</span>
+                                    <span className="text-gray-600">50×30mm</span>
+                                </button>
+                                <button
+                                    onClick={() => saveLabelSize({ width: 70, height: 40 })}
+                                    className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-xs font-semibold transition-all hover:border-blue-500 hover:bg-blue-50"
+                                >
+                                    Large
+                                    <br />
+                                    <span className="text-gray-600">70×40mm</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Paper Size</label>
-                                <select
-                                    value={paperSize}
-                                    onChange={(e) => savePaperSize(e.target.value)}
-                                    className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
-                                >
-                                    {PAPER_SIZES.map((size) => (
-                                        <option key={size.value} value={size.value}>
-                                            {size.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                        <div className="border-t border-gray-200 pt-4">
+                            <h4 className="mb-3 text-sm font-bold text-gray-900">Custom Label Size</h4>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-gray-700">Paper Size</label>
+                                    <select
+                                        value={paperSize}
+                                        onChange={(e) => savePaperSize(e.target.value)}
+                                        className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
+                                    >
+                                        {PAPER_SIZES.map((size) => (
+                                            <option key={size.value} value={size.value}>
+                                                {size.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Custom Width (px)</label>
-                                <input
-                                    type="number"
-                                    min="100"
-                                    max="800"
-                                    value={labelSize.width}
-                                    onChange={(e) => saveLabelSize({ ...labelSize, width: parseInt(e.target.value) || 250 })}
-                                    className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
-                                />
-                            </div>
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                        Width (millimeters)
+                                        <span className="ml-1 text-xs font-normal text-gray-500">≈ {(labelSize.width / 25.4).toFixed(2)}&quot;</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="10"
+                                        max="200"
+                                        step="1"
+                                        value={labelSize.width}
+                                        onChange={(e) => saveLabelSize({ ...labelSize, width: parseInt(e.target.value) || 38 })}
+                                        className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
+                                        placeholder="e.g., 38"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">10-200mm range</p>
+                                </div>
 
-                            <div>
-                                <label className="mb-2 block text-sm font-semibold text-gray-700">Custom Height (px)</label>
-                                <input
-                                    type="number"
-                                    min="80"
-                                    max="600"
-                                    value={labelSize.height}
-                                    onChange={(e) => saveLabelSize({ ...labelSize, height: parseInt(e.target.value) || 120 })}
-                                    className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
-                                />
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                        Height (millimeters)
+                                        <span className="ml-1 text-xs font-normal text-gray-500">≈ {(labelSize.height / 25.4).toFixed(2)}&quot;</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="10"
+                                        max="150"
+                                        step="1"
+                                        value={labelSize.height}
+                                        onChange={(e) => saveLabelSize({ ...labelSize, height: parseInt(e.target.value) || 25 })}
+                                        className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-all focus:border-blue-500 focus:outline-none"
+                                        placeholder="e.g., 25"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">10-150mm range</p>
+                                </div>
                             </div>
                         </div>
                         <div className="mt-4 rounded-lg bg-blue-50 p-3">
                             <p className="text-sm text-blue-800">
                                 📏 Current:{' '}
                                 <strong>
-                                    {labelSize.width}×{labelSize.height}px
+                                    {labelSize.width}×{labelSize.height}mm
                                 </strong>{' '}
-                                • 📄 Paper: <strong>{PAPER_SIZES.find((p) => p.value === paperSize)?.label}</strong> • 🏷️ Per Row:{' '}
-                                <strong>~{Math.floor((PAPER_SIZES.find((p) => p.value === paperSize)?.width || 210 - 20) / (labelSize.width * 0.264583))}</strong>
+                                ({(labelSize.width / 25.4).toFixed(2)}&quot; × {(labelSize.height / 25.4).toFixed(2)}&quot;) • 📄 Paper:{' '}
+                                <strong>{PAPER_SIZES.find((p) => p.value === paperSize)?.label}</strong> • 🏷️ Per Row:{' '}
+                                <strong>~{Math.floor((PAPER_SIZES.find((p) => p.value === paperSize)?.width || 40) / (labelSize.width + 2))}</strong>
                             </p>
                         </div>
                     </div>
@@ -697,7 +730,7 @@ const LabelGenerator = () => {
                                             )}
                                             {(item as any).sku && (
                                                 <p className="text-sm text-gray-600">
-                                                    SKU: <span className="font-semibold text-gray-800">{(item as any).sku}</span>
+                                                     <span className="font-semibold text-gray-800">{(item as any).sku}</span>
                                                 </p>
                                             )}
                                         </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { Edit, Eye, Trash2, Users } from 'lucide-react';
@@ -113,12 +114,7 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                 key: 'created_at',
                 label: 'Joined Date',
                 sortable: true,
-                render: (value) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => <DateColumn date={value} />,
             },
         ],
         []

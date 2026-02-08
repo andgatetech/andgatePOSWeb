@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -90,7 +91,7 @@ const PurchaseItemsReportPage = () => {
             { key: 'received_qty', label: 'Received', width: 10 },
             { key: 'unit_price', label: 'Unit Price', width: 12, format: (v) => formatCurrency(v) },
             { key: 'purchase_amount', label: 'Total', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'due_date', label: 'Due Date', width: 12, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'due_date', label: 'Due Date', width: 12, format: (v) => v || '' },
         ],
         [formatCurrency]
     );
@@ -181,7 +182,7 @@ const PurchaseItemsReportPage = () => {
             {
                 key: 'due_date',
                 label: 'Due Date',
-                render: (v: any) => (v ? <span className="text-sm text-gray-700">{new Date(v).toLocaleDateString('en-GB')}</span> : <span className="text-xs text-gray-400">N/A</span>),
+                render: (v: any) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">N/A</span>),
             },
         ],
         [formatCurrency]

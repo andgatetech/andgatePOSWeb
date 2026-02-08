@@ -2,11 +2,12 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import AdjustmentReportFilter from '@/components/filters/reports/AdjustmentReportFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
-import { ArrowDown, ArrowDownUp, ArrowUp, Calendar, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
+import { ArrowDown, ArrowDownUp, ArrowUp, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const AdjustmentReportPage = () => {
@@ -87,7 +88,7 @@ const AdjustmentReportPage = () => {
             { key: 'adjustment_quantity', label: 'Qty', width: 10, format: (v, r) => `${r.direction === 'increase' ? '+' : ''}${v}` },
             { key: 'reason', label: 'Reason', width: 20 },
             { key: 'adjusted_by_name', label: 'Adjusted By', width: 15 },
-            { key: 'adjusted_at', label: 'Date', width: 15, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'adjusted_at', label: 'Date', width: 15, format: (v) => v || '' },
         ],
         []
     );
@@ -227,15 +228,7 @@ const AdjustmentReportPage = () => {
                 key: 'adjusted_at',
                 label: 'Date & Time',
                 sortable: true,
-                render: (v: any) => (
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                            <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            {new Date(v).toLocaleDateString('en-GB')}
-                        </div>
-                        <span className="pl-5 text-[10px] text-gray-400">{new Date(v).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (v) => <DateColumn date={v} />,
             },
         ],
         []

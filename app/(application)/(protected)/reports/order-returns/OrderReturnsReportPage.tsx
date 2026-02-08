@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import OrderReturnsReportFilter from '@/components/filters/reports/OrderReturnsReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -240,12 +241,7 @@ const OrderReturnsReportPage = () => {
                 key: 'created_at',
                 label: 'Date',
                 sortable: true,
-                render: (value: any) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-700">{new Date(value).toLocaleDateString('en-GB')}</span>
-                        <span className="text-[10px] text-gray-400">{new Date(value).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (value) => <DateColumn date={value} />,
             },
         ],
         [formatCurrency]
@@ -279,7 +275,7 @@ const OrderReturnsReportPage = () => {
                 key: 'created_at',
                 label: 'Date',
                 width: 12,
-                format: (value) => (value ? new Date(value).toLocaleDateString('en-GB') : ''),
+                format: (value) => value || '',
             },
         ],
         [formatCurrency]

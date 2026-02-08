@@ -308,7 +308,7 @@ const PurchaseOrderListPage = () => {
                 }
 
                 <div class="footer">
-                    <p>Generated on ${new Date().toLocaleString()}</p>
+                    <p>Generated on ${new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     <p style="margin-top: 5px;">Thank you for your business!</p>
                 </div>
 

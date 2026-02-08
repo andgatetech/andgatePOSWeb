@@ -85,10 +85,10 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
         if (type === 'this_year') return 'This Year';
 
         if (startDate && endDate) {
-            return `${format(new Date(startDate), 'dd MMM yyyy')} - ${format(new Date(endDate), 'dd MMM yyyy')}`;
+            return `${format(parseSafeDate(startDate), 'dd MMM yyyy')} - ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
         }
-        if (startDate) return `From ${format(new Date(startDate), 'dd MMM yyyy')}`;
-        if (endDate) return `Until ${format(new Date(endDate), 'dd MMM yyyy')}`;
+        if (startDate) return `From ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
+        if (endDate) return `Until ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
 
         return 'Custom Range';
     }, [filterSummary?.dateRange]);

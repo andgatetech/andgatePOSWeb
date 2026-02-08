@@ -1,6 +1,7 @@
 'use client';
 import PaymentReceipt from '@/app/(application)/(protected)/purchases/list/components/PaymentReceipt';
 import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
+import DateColumn from '@/components/common/DateColumn'; // Added import
 import PurchaseDuesFilter from '@/components/filters/PurchaseDuesFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -516,15 +517,7 @@ const PurchaseDuesComponent = () => {
     };
 
     // Utility functions
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
+    // Removed local formatDate function
 
     const getStatusBadge = (status: string) => {
         const badges: Record<string, { bg: string; text: string; label: string }> = {
@@ -715,11 +708,15 @@ const PurchaseDuesComponent = () => {
                                     <div className="grid grid-cols-2 gap-4 border-t pt-4 text-sm">
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-gray-700">Created At</label>
-                                            <p className="text-gray-600">{formatDate(selectedDue.created_at)}</p>
+                                            <div className="text-gray-600">
+                                                <DateColumn date={selectedDue.created_at} />
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-gray-700">Updated At</label>
-                                            <p className="text-gray-600">{formatDate(selectedDue.updated_at)}</p>
+                                            <div className="text-gray-600">
+                                                <DateColumn date={selectedDue.updated_at} />
+                                            </div>
                                         </div>
                                     </div>
 

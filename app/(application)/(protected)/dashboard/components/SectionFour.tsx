@@ -46,11 +46,6 @@ const SectionSkeleton = () => (
     </div>
 );
 
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
-};
-
 const getMethodIcon = (method: string) => {
     const icons: Record<string, React.ReactNode> = {
         bkash: <CreditCard className="h-5 w-5" />,
@@ -177,7 +172,7 @@ export default function SectionFour() {
                 className="border-border group cursor-pointer border-b transition-all duration-300 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
                 <td className="whitespace-nowrap px-4 py-3.5">
-                    <div className="text-foreground text-sm font-medium">{formatDate(item.date)}</div>
+                    <div className="text-foreground text-sm font-medium">{item.date}</div>
                     <div className="text-muted-foreground text-xs">{item.time || ''}</div>
                 </td>
                 <td className="px-4 py-3.5">

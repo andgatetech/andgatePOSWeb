@@ -126,29 +126,6 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
 };
 
 /**
- * Format date for display
- */
-export const formatDate = (dateString: string, format: 'short' | 'long' = 'short'): string => {
-    const date = new Date(dateString);
-
-    if (format === 'long') {
-        return date.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    }
-
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
-};
-
-/**
  * Get status badge color
  */
 export const getStatusBadgeColor = (

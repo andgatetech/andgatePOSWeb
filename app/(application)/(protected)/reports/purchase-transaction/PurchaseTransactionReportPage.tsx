@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -91,7 +92,7 @@ const PurchaseTransactionReportPage = () => {
             { key: 'payment_method', label: 'Method', width: 10 },
             { key: 'amount', label: 'Amount', width: 15, format: (v) => formatCurrency(v) },
             { key: 'user_name', label: 'Processed By', width: 15 },
-            { key: 'paid_at', label: 'Date', width: 15, format: (v) => (v ? new Date(v).toLocaleDateString('en-GB') : '') },
+            { key: 'paid_at', label: 'Date', width: 15, format: (v) => v || '' },
         ],
         [formatCurrency]
     );
@@ -180,12 +181,7 @@ const PurchaseTransactionReportPage = () => {
                 key: 'paid_at',
                 label: 'Payment Date',
                 sortable: true,
-                render: (v: any) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{new Date(v).toLocaleDateString('en-GB')}</span>
-                        <span className="text-xs text-gray-500">{new Date(v).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                ),
+                render: (v) => <DateColumn date={v} />,
             },
             {
                 key: 'notes',
