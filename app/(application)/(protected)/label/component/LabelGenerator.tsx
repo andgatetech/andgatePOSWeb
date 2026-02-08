@@ -34,6 +34,7 @@ const PAPER_SIZES = [
     // Standard Paper (for laser/inkjet printers)
     { value: 'a4', label: 'A4 (210×297mm)', width: 210, height: 297, isThermal: false },
     { value: 'letter', label: 'Letter (8.5×11in)', width: 215.9, height: 279.4, isThermal: false },
+    { value: 'custom', label: 'Custom Paper Size', width: 0, height: 0, isThermal: true },
 ];
 
 const LabelGenerator = () => {
@@ -60,6 +61,15 @@ const LabelGenerator = () => {
         }
         return { width: 38, height: 25 };
     });
+
+    const [customPaperDims, setCustomPaperDims] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('labelCustomPaperDims');
+            return saved ? JSON.parse(saved) : { width: 40, height: 200 };
+        }
+        return { width: 40, height: 200 };
+    });
+
     const [showSettings, setShowSettings] = useState(false);
 
     // Global settings with localStorage persistence
@@ -146,6 +156,11 @@ const LabelGenerator = () => {
         localStorage.setItem('labelIncludeInfo', include.toString());
     };
 
+    const saveCustomPaperDims = (dims: { width: number; height: number }) => {
+        setCustomPaperDims(dims);
+        localStorage.setItem('labelCustomPaperDims', JSON.stringify(dims));
+    };
+
     const handleRemoveItem = (itemId: number) => {
         if (!currentStoreId) return;
         dispatch(removeLabelItem({ storeId: currentStoreId, id: itemId }));
@@ -218,7 +233,11 @@ const LabelGenerator = () => {
     };
 
     const generatePrintHTML = () => {
-        const selectedPaper = PAPER_SIZES.find((p) => p.value === paperSize) || PAPER_SIZES[0];
+        let selectedPaper = PAPER_SIZES.find((p) => p.value === paperSize) || PAPER_SIZES[0];
+        if (paperSize === 'custom') {
+            selectedPaper = { ...selectedPaper, width: customPaperDims.width, height: customPaperDims.height };
+        }
+
         const labelsPerRow = Math.floor((selectedPaper.width - 4) / (labelSize.width + 2)); // mm calculation with 2mm gap
 
         // Determine page size for @page rule
@@ -400,7 +419,10 @@ const LabelGenerator = () => {
             // Dynamic import of html2pdf
             const html2pdf = (await import('html2pdf.js')).default;
 
-            const selectedPaper = PAPER_SIZES.find((p) => p.value === paperSize) || PAPER_SIZES[0];
+            let selectedPaper = PAPER_SIZES.find((p) => p.value === paperSize) || PAPER_SIZES[0];
+            if (paperSize === 'custom') {
+                selectedPaper = { ...selectedPaper, width: customPaperDims.width, height: customPaperDims.height };
+            }
 
             const element = document.createElement('div');
             element.innerHTML = generatePrintHTML();
@@ -591,6 +613,31 @@ const LabelGenerator = () => {
                                             </option>
                                         ))}
                                     </select>
+
+                                    {paperSize === 'custom' && (
+                                        <div className="mt-3 space-y-3 rounded-md bg-gray-50 p-2">
+                                            <div>
+                                                <label className="mb-1 block text-xs font-semibold text-gray-700">Paper Width (mm)</label>
+                                                <input
+                                                    type="number"
+                                                    value={customPaperDims.width}
+                                                    onChange={(e) => saveCustomPaperDims({ ...customPaperDims, width: parseInt(e.target.value) || 0 })}
+                                                    className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
+                                                    placeholder="Width"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-semibold text-gray-700">Paper Height (mm)</label>
+                                                <input
+                                                    type="number"
+                                                    value={customPaperDims.height}
+                                                    onChange={(e) => saveCustomPaperDims({ ...customPaperDims, height: parseInt(e.target.value) || 0 })}
+                                                    className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
+                                                    placeholder="Height"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
@@ -730,7 +777,7 @@ const LabelGenerator = () => {
                                             )}
                                             {(item as any).sku && (
                                                 <p className="text-sm text-gray-600">
-                                                     <span className="font-semibold text-gray-800">{(item as any).sku}</span>
+                                                    <span className="font-semibold text-gray-800">{(item as any).sku}</span>
                                                 </p>
                                             )}
                                         </div>
