@@ -83,7 +83,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                         </div>
                         <div>
                             <p className="text-sm text-gray-600">Return Date</p>
-                            <p className="font-semibold text-gray-900">{new Date(orderReturn.created_at).toLocaleString('en-GB')}</p>
+                            <p className="font-semibold text-gray-900">{orderReturn.created_at || 'N/A'}</p>
                         </div>
                     </div>
 

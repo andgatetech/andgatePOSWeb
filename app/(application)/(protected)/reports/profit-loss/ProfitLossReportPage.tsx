@@ -4,6 +4,7 @@ import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protecte
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowDown, ArrowUp, Banknote, Calendar, MinusCircle, PieChart, TrendingUp } from 'lucide-react';
