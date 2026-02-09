@@ -558,7 +558,15 @@ const LabelGenerator = () => {
                                                       {t.label}
                                                   </option>
                                               ))
-                                            : [<option value={100}>Small</option>, <option value={150}>Medium</option>, <option value={200}>Large</option>].map((o: any) => o)}
+                                            : [
+                                                  { value: 100, label: 'Small' },
+                                                  { value: 150, label: 'Medium' },
+                                                  { value: 200, label: 'Large' },
+                                              ].map((s) => (
+                                                  <option key={s.value} value={s.value}>
+                                                      {s.label}
+                                                  </option>
+                                              ))}
                                     </select>
                                 </div>
                                 {labelType === 'qrcode' && (
