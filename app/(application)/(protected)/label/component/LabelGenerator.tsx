@@ -238,11 +238,132 @@ const LabelGenerator = () => {
             selectedPaper = { ...selectedPaper, width: customPaperDims.width, height: customPaperDims.height };
         }
 
-        const labelsPerRow = Math.floor((selectedPaper.width - 4) / (labelSize.width + 2)); // mm calculation with 2mm gap
+        const labelsPerRow = Math.floor((selectedPaper.width - 4) / (labelSize.width + 2));
+        const isThermalRoll = selectedPaper.isThermal;
 
-        // Determine page size for @page rule
-        const pageSize = selectedPaper.value === 'a4' ? 'A4' : selectedPaper.value === 'letter' ? 'letter' : `${selectedPaper.width}mm ${selectedPaper.height}mm`;
+        // For thermal roll: use label size as page size (1 label per page)
+        // For sheet printing: use paper size
+        const pageSize = isThermalRoll
+            ? `${labelSize.width}mm ${labelSize.height}mm`
+            : selectedPaper.value === 'a4'
+            ? 'A4'
+            : selectedPaper.value === 'letter'
+            ? 'letter'
+            : `${selectedPaper.width}mm ${selectedPaper.height}mm`;
 
+        // Thermal roll printing: each label is a separate page
+        if (isThermalRoll) {
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Labels - ${currentStore?.store_name || 'Store'}</title>
+                    <style>
+                        @page {
+                            size: ${labelSize.width}mm ${labelSize.height}mm;
+                            margin: 0;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background: white;
+                        }
+                        
+                        .label-card {
+                            width: ${labelSize.width}mm;
+                            height: ${labelSize.height}mm;
+                            padding: 1mm;
+                            background: white;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            text-align: center;
+                            overflow: hidden;
+                            page-break-after: always;
+                            break-after: page;
+                        }
+                        
+                        .label-card:last-child {
+                            page-break-after: avoid;
+                            break-after: avoid;
+                        }
+                        
+                        .label-card h3 {
+                            font-size: 2.5mm;
+                            font-weight: 700;
+                            color: #1a1a1a;
+                            margin-bottom: 0.5mm;
+                            line-height: 1.1;
+                            width: 100%;
+                            word-wrap: break-word;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        
+                        .variant {
+                            font-size: 2mm;
+                            color: #666;
+                            margin-bottom: 0.5mm;
+                            font-weight: 500;
+                        }
+                        
+                        .sku {
+                            font-size: 2mm;
+                            font-weight: 700;
+                            color: #000;
+                            margin-bottom: 0.5mm;
+                        }
+                        
+                        .label-card img {
+                            max-width: calc(${labelSize.width}mm - 2mm);
+                            max-height: calc(${labelSize.height}mm - 10mm);
+                            height: auto;
+                            width: auto;
+                            object-fit: contain;
+                        }
+                        
+                        .no-image {
+                            color: red;
+                            font-size: 2mm;
+                            font-weight: bold;
+                        }
+                        
+                        @media print {
+                            body {
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${(generatedLabels || [])
+                        .map(
+                            (label) => `
+                        <div class="label-card">
+                            <h3>${label.product_name || 'Product'}</h3>
+                            ${label.variant_name ? `<p class="variant">${label.variant_name}</p>` : ''}
+                            <p class="sku">${label.sku || 'N/A'}</p>
+                            ${label.barcode ? `<img src="${label.barcode}" alt="${label.sku || 'label'}" />` : '<p class="no-image">No image data</p>'}
+                        </div>
+                    `
+                        )
+                        .join('')}
+                </body>
+                </html>
+            `;
+        }
+
+        // Sheet printing (A4, Letter, etc.): grid layout
         return `
             <!DOCTYPE html>
             <html>
@@ -252,7 +373,7 @@ const LabelGenerator = () => {
                 <style>
                     @page {
                         size: ${pageSize};
-                        margin: ${selectedPaper.isThermal ? '2mm' : '10mm'};
+                        margin: 10mm;
                     }
                     
                     * {
@@ -264,25 +385,31 @@ const LabelGenerator = () => {
                     body {
                         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                         background: white;
-                        padding: ${selectedPaper.isThermal ? '2mm' : '5mm'};
+                        padding: 5mm;
                     }
                     
                     .page-container {
                         width: 100%;
+                        max-width: ${selectedPaper.width}mm;
+                        margin: 0 auto;
                     }
                     
                     .label-grid {
                         display: grid;
-                        grid-template-columns: repeat(${Math.max(labelsPerRow, 1)}, minmax(0, 1fr));
+                        grid-template-columns: repeat(${Math.max(labelsPerRow, 1)}, ${labelSize.width}mm);
                         gap: 2mm;
-                        width: 100%;
+                        justify-content: flex-start;
                     }
                     
                     .label-card {
                         width: ${labelSize.width}mm;
                         height: ${labelSize.height}mm;
+                        min-width: ${labelSize.width}mm;
+                        min-height: ${labelSize.height}mm;
+                        max-width: ${labelSize.width}mm;
+                        max-height: ${labelSize.height}mm;
                         border: 0.5mm solid #e0e0e0;
-                        padding: 2mm;
+                        padding: 1mm;
                         background: white;
                         display: flex;
                         flex-direction: column;
@@ -295,46 +422,47 @@ const LabelGenerator = () => {
                     }
                     
                     .label-card h3 {
-                        font-size: 3mm;
+                        font-size: 2.5mm;
                         font-weight: 700;
                         color: #1a1a1a;
-                        margin-bottom: 1mm;
-                        line-height: 1.2;
-                        max-height: none;
-                        overflow: visible;
+                        margin-bottom: 0.5mm;
+                        line-height: 1.1;
                         width: 100%;
                         word-wrap: break-word;
                         white-space: normal;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 6mm;
                     }
                     
                     .variant {
-                        font-size: 2.5mm;
+                        font-size: 2mm;
                         color: #666;
-                        margin-bottom: 1mm;
+                        margin-bottom: 0.5mm;
                         font-weight: 500;
                     }
                     
                     .sku {
-                        font-size: 2.5mm;
+                        font-size: 2mm;
                         font-weight: 700;
                         color: #2563eb;
-                        margin-bottom: 1.5mm;
-                        letter-spacing: 0.1mm;
+                        margin-bottom: 1mm;
+                        letter-spacing: 0.05mm;
                     }
                     
                     .label-card img {
-                        max-width: calc(100% - 2mm);
-                        max-height: ${labelSize.height - 15}mm;
+                        max-width: calc(100% - 1mm);
+                        max-height: calc(${labelSize.height}mm - 12mm);
                         height: auto;
                         width: auto;
                         object-fit: contain;
                         display: block;
-                        margin: 0 auto;
+                        margin: auto;
                     }
                     
                     .no-image {
                         color: red;
-                        font-size: 10px;
+                        font-size: 2mm;
                         font-weight: bold;
                     }
                     
@@ -343,19 +471,10 @@ const LabelGenerator = () => {
                             background: white;
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
-                            padding: 0;
-                        }
-                        
-                        .page-container {
-                            padding: 0;
-                        }
-                        
-                        .label-grid {
-                            gap: 3mm;
                         }
                         
                         .label-card {
-                            border: 1px solid #d0d0d0;
+                            border: 0.5mm solid #d0d0d0;
                         }
                     }
                 </style>
@@ -369,7 +488,7 @@ const LabelGenerator = () => {
                             <div class="label-card">
                                 <h3>${label.product_name || 'Product'}</h3>
                                 ${label.variant_name ? `<p class="variant">${label.variant_name}</p>` : ''}
-                                <p class="sku"> ${label.sku || 'N/A'}</p>
+                                <p class="sku">${label.sku || 'N/A'}</p>
                                 ${
                                     label.barcode
                                         ? `<img src="${label.barcode}" alt="${label.sku || 'label'}" onerror="this.parentElement.innerHTML+='<p class=no-image>Image failed to load</p>'" />`
