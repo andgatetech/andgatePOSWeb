@@ -10,7 +10,7 @@ import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
 import { addItemRedux as addOrderReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
-import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
+import { useGetAllProductsQuery, useLazyGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 
@@ -727,7 +727,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const handleCameraClose = useCallback(() => {
         setShowCameraScanner(false);
         setSearchTerm('');
-        setPendingScanTerm(null);
         setCurrentPage(1);
     }, []);
 
