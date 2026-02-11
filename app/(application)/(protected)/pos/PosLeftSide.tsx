@@ -13,7 +13,7 @@ import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
-import { Html5Qrcode } from 'html5-qrcode';
+
 import { GripVertical } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
@@ -74,6 +74,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const [isMobileView, setIsMobileView] = useState(false);
     const [barcodeEnabled, setBarcodeEnabled] = useState(false);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
+    const [pendingScanTerm, setPendingScanTerm] = useState<string | null>(null);
 
     const dispatch = useDispatch();
     const [itemsPerPage, setItemsPerPage] = useState(12); // Items per page for POS
@@ -624,15 +625,13 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         [products, addToCart]
     );
 
-    // Barcode scan handler (for both keyboard scanner and camera scanner)
+    // Barcode scan handler for keyboard scanner (auto-adds immediately from current products)
     const handleBarcodeScan = useCallback(
         (data: string) => {
             console.log('📥 handleBarcodeScan called with:', data);
             try {
                 if (data) {
-                    // Use handleSearchChange to trigger auto-add for SKU format
                     handleSearchChange(data);
-                    // Note: Camera scanner closure is handled in the scanner callback
 
                     // Play beep sound
                     if (beepRef.current) {
@@ -648,6 +647,57 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         [handleSearchChange]
     );
 
+    // Camera scan handler — sets pending scan, triggers API search, camera stays open
+    const handleCameraScan = useCallback((data: string) => {
+        console.log('📸 Camera scan received:', data);
+        if (data) {
+            setPendingScanTerm(data);
+            setSearchTerm(data);
+            setCurrentPage(1);
+        }
+    }, []);
+
+    // Watch for API results after a camera scan
+    useEffect(() => {
+        if (!pendingScanTerm || isLoading) return;
+
+        // API has returned results for the scanned term
+        // Try to find an exact match by barcode or SKU
+        const matchedProduct = products.find((p: any) => {
+            // Check product-level barcode/SKU
+            if (p.barcode?.toLowerCase() === pendingScanTerm.toLowerCase()) return true;
+            if (p.sku?.toLowerCase() === pendingScanTerm.toLowerCase()) return true;
+
+            // Check stock-level barcodes/SKUs
+            if (p.stocks && Array.isArray(p.stocks)) {
+                return p.stocks.some((s: any) => s.barcode?.toLowerCase() === pendingScanTerm.toLowerCase() || s.sku?.toLowerCase() === pendingScanTerm.toLowerCase());
+            }
+            return false;
+        });
+
+        if (matchedProduct) {
+            // Product found — add to cart
+            addToCart(matchedProduct);
+            if (beepRef.current) {
+                beepRef.current.currentTime = 0;
+                beepRef.current.play().catch(() => {});
+            }
+        } else if (products.length > 0) {
+            // Products returned but no exact match — add the first result
+            addToCart(products[0]);
+            if (beepRef.current) {
+                beepRef.current.currentTime = 0;
+                beepRef.current.play().catch(() => {});
+            }
+        } else {
+            // No products found at all
+            showMessage('Product not found!', 'error');
+        }
+
+        // Clear pending scan — keep searchTerm so user can see what was scanned
+        setPendingScanTerm(null);
+    }, [pendingScanTerm, products, isLoading, addToCart]);
+
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
     };
@@ -660,96 +710,19 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         }
     };
 
+    // Handle camera scanner close — clear search and refresh product list
+    const handleCameraClose = useCallback(() => {
+        setShowCameraScanner(false);
+        setSearchTerm('');
+        setPendingScanTerm(null);
+        setCurrentPage(1);
+    }, []);
+
     // Toggle barcode scanner
     const toggleBarcodeScanner = () => {
         setBarcodeEnabled(!barcodeEnabled);
         if (showCameraScanner) setShowCameraScanner(false);
     };
-
-    // Initialize html5-qrcode scanner
-    useEffect(() => {
-        let html5QrCode: Html5Qrcode | null = null;
-
-        if (showCameraScanner) {
-            console.log('🎥 Initializing camera scanner...');
-            // Small delay to ensure DOM element is ready
-            const timer = setTimeout(async () => {
-                const element = document.getElementById('qr-reader');
-                if (!element) {
-                    console.error('❌ QR reader element not found!');
-                    return;
-                }
-
-                try {
-                    html5QrCode = new Html5Qrcode('qr-reader');
-                    console.log('Scanner instance created:', html5QrCode);
-
-                    const config = {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0,
-                    };
-
-                    console.log('Starting camera...');
-                    await html5QrCode.start(
-                        { facingMode: 'environment' },
-                        config,
-                        (decodedText: string, decodedResult: any) => {
-                            console.log(`✅ CODE SCANNED: "${decodedText}"`);
-                            handleBarcodeScan(decodedText);
-
-                            // Auto-close scanner after successful scan
-                            setTimeout(() => {
-                                setShowCameraScanner(false);
-                            }, 500);
-                        },
-                        (errorMessage: string) => {
-                            // Silent error logging (scanner constantly tries to read)
-                        }
-                    );
-
-                    console.log('✅ Camera started successfully');
-                } catch (err: any) {
-                    console.error('❌ Camera start FAILED:', err);
-                    console.error('Error name:', err.name);
-                    console.error('Error message:', err.message);
-                    console.error('Full error:', err);
-
-                    let userMessage = 'Failed to start camera scanner.';
-
-                    if (err.name === 'NotAllowedError' || err.message?.includes('permission')) {
-                        userMessage = 'Camera permission denied. Please allow camera access in browser settings.';
-                    } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
-                        userMessage = 'No camera found on this device.';
-                    } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
-                        userMessage = 'Camera is in use by another application. Please close other apps using the camera.';
-                    } else if (err.message) {
-                        userMessage = `Camera error: ${err.message}`;
-                    }
-
-                    alert(`📷 ${userMessage}\n\nTry:\n• Allowing camera permission\n• Closing other camera apps\n• Refreshing the page\n• Using USB barcode scanner instead`);
-
-                    setShowCameraScanner(false);
-                }
-            }, 100);
-
-            return () => {
-                clearTimeout(timer);
-                if (html5QrCode) {
-                    console.log('🧹 Cleaning up camera scanner...');
-                    html5QrCode
-                        .stop()
-                        .then(() => {
-                            console.log('✅ Camera stopped');
-                            html5QrCode?.clear();
-                        })
-                        .catch((err: any) => {
-                            console.error('⚠️ Error stopping camera:', err);
-                        });
-                }
-            };
-        }
-    }, [showCameraScanner, handleBarcodeScan]);
 
     // Resizable functionality
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -831,23 +804,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     return (
         <>
-            {/* Custom styles for html5-qrcode scanner */}
-            <style jsx global>{`
-                #qr-reader {
-                    border: none !important;
-                }
-                #qr-reader__dashboard_section {
-                    display: none !important;
-                }
-                #qr-reader__camera_selection {
-                    margin: 10px auto;
-                    text-align: center;
-                }
-                #qr-reader video {
-                    border-radius: 8px;
-                }
-            `}</style>
-
             {/* Barcode Reader - Hidden component that listens for scans */}
             {barcodeEnabled && <BarcodeReader onScan={handleBarcodeScan} onError={handleBarcodeError} />}
 
@@ -907,7 +863,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                             onToggleCameraScanner={toggleCameraScanner}
                         />
 
-                        <CameraScanner isOpen={showCameraScanner} onClose={() => setShowCameraScanner(false)} />
+                        <CameraScanner isOpen={showCameraScanner} onClose={handleCameraClose} onScan={handleCameraScan} autoClose={false} />
 
                         <ProductGrid products={currentProducts} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={addToCart} onImageShow={handleImageShow} mode={reduxSlice} />
                     </div>
