@@ -10,7 +10,7 @@ import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
 import { addItemRedux as addOrderReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
-import { useGetAllProductsQuery, useLazyGetAllProductsQuery } from '@/store/features/Product/productApi';
+import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 
@@ -381,6 +381,29 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
     );
 
+    // Auto-add product when exact match found (for camera/barcode scans)
+    useEffect(() => {
+        // Only auto-add if there's a search term and products loaded
+        if (!searchTerm || products.length === 0 || isLoading) return;
+
+        // Try to find exact match by barcode or SKU
+        const scannedLower = searchTerm.toLowerCase().trim();
+        const matchedProduct = products.find((p: any) => {
+            if (p.barcode?.toLowerCase() === scannedLower) return true;
+            if (p.sku?.toLowerCase() === scannedLower) return true;
+            if (p.stocks && Array.isArray(p.stocks)) {
+                return p.stocks.some((s: any) => s.barcode?.toLowerCase() === scannedLower || s.sku?.toLowerCase() === scannedLower);
+            }
+            return false;
+        });
+
+        // If exact match found, auto-add and clear search
+        if (matchedProduct) {
+            addToCart(matchedProduct);
+            setSearchTerm(''); // Clear search after adding
+        }
+    }, [products, searchTerm, isLoading, addToCart]);
+
     // Handle variant selection from modal
     const handleVariantSelect = useCallback(
         (variant: any, quantity: number, useWholesale: boolean) => {
@@ -646,70 +669,42 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         [handleSearchChange]
     );
 
-    // Lazy query for camera scan — makes a direct API call without timing issues
-    const [triggerProductSearch] = useLazyGetAllProductsQuery();
+    // Camera scan handler — simple like SKU tab: just fill search field and show toast
+    const handleCameraScan = useCallback((data: string) => {
+        console.log('📸 Camera scan received:', data);
+        if (!data) return;
 
-    // Camera scan handler — directly fetches and processes results (no race conditions)
-    const handleCameraScan = useCallback(
-        async (data: string) => {
-            console.log('📸 Camera scan received:', data);
-            if (!data) return;
+        // Fill the search input with scanned value
+        setSearchTerm(data);
+        setCurrentPage(1);
 
-            // Show the scanned text in the search bar
-            setSearchTerm(data);
-            setCurrentPage(1);
+        // Show success toast
+        toast.success(`Scanned: ${data}`, {
+            duration: 2000,
+            position: 'top-center',
+            style: {
+                background: '#10b981',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+                fontWeight: '500',
+                fontSize: '14px',
+            },
+            iconTheme: {
+                primary: '#fff',
+                secondary: '#10b981',
+            },
+        });
 
-            try {
-                // Build query params for this specific scan
-                const scanParams: Record<string, any> = {
-                    page: 1,
-                    per_page: 20,
-                    search: data.trim(),
-                };
-                if (currentStoreId) scanParams.store_id = currentStoreId;
-                if (reduxSlice === 'pos') scanParams.available = 'yes';
+        // Play beep sound
+        if (beepRef.current) {
+            beepRef.current.currentTime = 0;
+            beepRef.current.play().catch(() => {});
+        }
 
-                // Use RTK Query lazy trigger — same auth, base URL, response parsing
-                const result = await triggerProductSearch(scanParams).unwrap();
-
-                // Parse API response — handle both formats
-                let items: any[] = [];
-                if (result?.data && typeof result.data === 'object' && !Array.isArray(result.data)) {
-                    if (Array.isArray((result.data as any).items)) items = (result.data as any).items;
-                } else if (result?.data && Array.isArray(result.data)) {
-                    items = result.data;
-                }
-
-                if (items.length === 0) {
-                    showMessage('Product not found!', 'error');
-                    return;
-                }
-
-                // Try to find exact match by barcode or SKU
-                const scannedLower = data.toLowerCase();
-                const matchedProduct =
-                    items.find((p: any) => {
-                        if (p.barcode?.toLowerCase() === scannedLower) return true;
-                        if (p.sku?.toLowerCase() === scannedLower) return true;
-                        if (p.stocks && Array.isArray(p.stocks)) {
-                            return p.stocks.some((s: any) => s.barcode?.toLowerCase() === scannedLower || s.sku?.toLowerCase() === scannedLower);
-                        }
-                        return false;
-                    }) || items[0]; // Fallback to first search result
-
-                // Add to cart
-                addToCart(matchedProduct);
-                if (beepRef.current) {
-                    beepRef.current.currentTime = 0;
-                    beepRef.current.play().catch(() => {});
-                }
-            } catch (err: any) {
-                console.error('❌ Camera scan search failed:', err);
-                showMessage('Product not found!', 'error');
-            }
-        },
-        [currentStoreId, reduxSlice, addToCart, triggerProductSearch]
-    );
+        // Close scanner
+        setShowCameraScanner(false);
+    }, []);
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
