@@ -1,7 +1,9 @@
 'use client';
 
-import { Barcode } from 'lucide-react';
-import React from 'react';
+import CameraScanner from '@/app/(application)/(protected)/pos/pos-left-side/CameraScanner';
+import { Barcode, Camera } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface SKUTabProps {
     formData: {
@@ -18,6 +20,33 @@ interface SKUTabProps {
 }
 
 const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+    const [showScanner, setShowScanner] = useState(false);
+
+    // Handle camera scan — fill the SKU field with scanned value
+    const handleScan = useCallback(
+        (decodedText: string) => {
+            setFormData((prev: any) => ({ ...prev, sku: decodedText, skuOption: 'manual' }));
+            toast.success(`Scanned: ${decodedText}`, {
+                duration: 2000,
+                position: 'top-center',
+                style: {
+                    background: '#10b981',
+                    color: '#fff',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                },
+            });
+            setShowScanner(false);
+        },
+        [setFormData]
+    );
+
+    const handleScannerClose = useCallback(() => {
+        setShowScanner(false);
+    }, []);
+
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3">
@@ -70,24 +99,51 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
                     </div>
                 </div>
 
-                {/* SKU Input */}
+                {/* SKU Input with Scan Button */}
                 <div>
                     <label htmlFor="sku" className="mb-2 block text-sm font-medium text-gray-700">
                         SKU Code {formData.skuOption === 'manual' && <span className="text-red-500">*</span>}
                     </label>
-                    <input
-                        id="sku"
-                        name="sku"
-                        type="text"
-                        value={formData.sku}
-                        onChange={handleChange}
-                        placeholder={formData.skuOption === 'manual' ? 'Enter SKU code (e.g., PRD-12345)' : 'Will be generated automatically'}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
-                        disabled={formData.skuOption === 'auto'}
-                        maxLength={100}
-                    />
+                    <div className="flex gap-2">
+                        <input
+                            id="sku"
+                            name="sku"
+                            type="text"
+                            value={formData.sku}
+                            onChange={handleChange}
+                            placeholder={formData.skuOption === 'manual' ? 'Enter SKU code (e.g., PRD-12345)' : 'Will be generated automatically'}
+                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                            disabled={formData.skuOption === 'auto'}
+                            maxLength={100}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setFormData((prev: any) => ({ ...prev, skuOption: 'manual' }));
+                                setShowScanner(!showScanner);
+                            }}
+                            className={`flex items-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                                showScanner ? 'border-red-400 bg-red-50 text-red-600 hover:bg-red-100' : 'border-blue-400 bg-blue-50 text-blue-600 hover:bg-blue-100'
+                            }`}
+                            title={showScanner ? 'Close camera scanner' : 'Scan barcode with camera'}
+                        >
+                            <Camera className="h-5 w-5" />
+                            <span className="hidden sm:inline">{showScanner ? 'Close' : 'Scan'}</span>
+                        </button>
+                    </div>
                     {formData.skuOption === 'auto' && <p className="mt-1 text-xs text-gray-500">A unique SKU will be automatically generated when you create the product</p>}
                 </div>
+
+                {/* Camera Scanner */}
+                <CameraScanner
+                    isOpen={showScanner}
+                    onClose={handleScannerClose}
+                    onScan={handleScan}
+                    autoClose={false}
+                    title="Scan SKU / Barcode"
+                    helperText="Point camera at the product barcode"
+                    subHelperText="Scanned value will be saved as the SKU code"
+                />
             </div>
 
             {/* SKU Information Card */}
@@ -103,6 +159,7 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
                             <li>• Use a consistent naming convention for easy management</li>
                             <li>• Examples: PROD-001, SHIRT-BLU-M, LAPTOP-HP-15</li>
                             <li>• Auto-generated SKUs ensure uniqueness across your inventory</li>
+                            <li>• 📷 Use the Scan button to capture a barcode with your camera</li>
                         </ul>
                     </div>
                 </div>
@@ -163,5 +220,3 @@ const SKUTab: React.FC<SKUTabProps> = ({ formData, handleChange, setFormData, on
 };
 
 export default SKUTab;
-
-

@@ -125,7 +125,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     }, [currentStoreId]);
 
     // Fetch products for current store only
-    const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: productsData, isLoading, isFetching, isError, error } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
     // Handle both success and 404 "not found" responses - NEW API FORMAT
     const products = useMemo(() => {
@@ -659,9 +659,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     // Watch for API results after a camera scan
     useEffect(() => {
-        if (!pendingScanTerm || isLoading) return;
+        // Wait until we have a pending scan AND the API has finished fetching
+        if (!pendingScanTerm || isFetching) return;
 
-        // API has returned results for the scanned term
+        // API has returned fresh results for the scanned term
         // Try to find an exact match by barcode or SKU
         const matchedProduct = products.find((p: any) => {
             // Check product-level barcode/SKU
@@ -676,27 +677,20 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         });
 
         if (matchedProduct) {
-            // Product found — add to cart
+            // Exact match found — add to cart
             addToCart(matchedProduct);
             if (beepRef.current) {
                 beepRef.current.currentTime = 0;
                 beepRef.current.play().catch(() => {});
             }
-        } else if (products.length > 0) {
-            // Products returned but no exact match — add the first result
-            addToCart(products[0]);
-            if (beepRef.current) {
-                beepRef.current.currentTime = 0;
-                beepRef.current.play().catch(() => {});
-            }
         } else {
-            // No products found at all
+            // No matching product found
             showMessage('Product not found!', 'error');
         }
 
         // Clear pending scan — keep searchTerm so user can see what was scanned
         setPendingScanTerm(null);
-    }, [pendingScanTerm, products, isLoading, addToCart]);
+    }, [pendingScanTerm, products, isFetching, addToCart]);
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);

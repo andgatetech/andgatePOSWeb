@@ -41,6 +41,10 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
     const isStartingRef = useRef(false);
     const isStoppingRef = useRef(false);
 
+    // Cooldown: prevent the same barcode from firing multiple times
+    const lastScanRef = useRef<{ text: string; time: number }>({ text: '', time: 0 });
+    const SCAN_COOLDOWN_MS = 3000; // 3 second cooldown for same barcode
+
     // Stable refs for callbacks to avoid re-triggering the effect
     const onScanRef = useRef(onScan);
     onScanRef.current = onScan;
@@ -139,6 +143,17 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                     { facingMode: 'environment' },
                     config,
                     (decodedText: string) => {
+                        const now = Date.now();
+                        const last = lastScanRef.current;
+
+                        // Skip if same barcode scanned within cooldown period
+                        if (last.text === decodedText && now - last.time < SCAN_COOLDOWN_MS) {
+                            return;
+                        }
+
+                        // Record this scan
+                        lastScanRef.current = { text: decodedText, time: now };
+
                         console.log(`✅ CODE SCANNED: "${decodedText}"`);
                         onScanRef.current(decodedText);
 
