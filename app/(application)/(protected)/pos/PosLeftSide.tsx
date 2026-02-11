@@ -74,7 +74,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const [isMobileView, setIsMobileView] = useState(false);
     const [barcodeEnabled, setBarcodeEnabled] = useState(false);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
-    const [pendingScanTerm, setPendingScanTerm] = useState<string | null>(null);
 
     const dispatch = useDispatch();
     const [itemsPerPage, setItemsPerPage] = useState(12); // Items per page for POS
@@ -125,7 +124,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     }, [currentStoreId]);
 
     // Fetch products for current store only
-    const { data: productsData, isLoading, isFetching, isError, error } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
 
     // Handle both success and 404 "not found" responses - NEW API FORMAT
     const products = useMemo(() => {
@@ -647,50 +646,70 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         [handleSearchChange]
     );
 
-    // Camera scan handler — sets pending scan, triggers API search, camera stays open
-    const handleCameraScan = useCallback((data: string) => {
-        console.log('📸 Camera scan received:', data);
-        if (data) {
-            setPendingScanTerm(data);
+    // Lazy query for camera scan — makes a direct API call without timing issues
+    const [triggerProductSearch] = useLazyGetAllProductsQuery();
+
+    // Camera scan handler — directly fetches and processes results (no race conditions)
+    const handleCameraScan = useCallback(
+        async (data: string) => {
+            console.log('📸 Camera scan received:', data);
+            if (!data) return;
+
+            // Show the scanned text in the search bar
             setSearchTerm(data);
             setCurrentPage(1);
-        }
-    }, []);
 
-    // Watch for API results after a camera scan
-    useEffect(() => {
-        // Wait until we have a pending scan AND the API has finished fetching
-        if (!pendingScanTerm || isFetching) return;
+            try {
+                // Build query params for this specific scan
+                const scanParams: Record<string, any> = {
+                    page: 1,
+                    per_page: 20,
+                    search: data.trim(),
+                };
+                if (currentStoreId) scanParams.store_id = currentStoreId;
+                if (reduxSlice === 'pos') scanParams.available = 'yes';
 
-        // API has returned fresh results for the scanned term
-        // Try to find an exact match by barcode or SKU
-        const matchedProduct = products.find((p: any) => {
-            // Check product-level barcode/SKU
-            if (p.barcode?.toLowerCase() === pendingScanTerm.toLowerCase()) return true;
-            if (p.sku?.toLowerCase() === pendingScanTerm.toLowerCase()) return true;
+                // Use RTK Query lazy trigger — same auth, base URL, response parsing
+                const result = await triggerProductSearch(scanParams).unwrap();
 
-            // Check stock-level barcodes/SKUs
-            if (p.stocks && Array.isArray(p.stocks)) {
-                return p.stocks.some((s: any) => s.barcode?.toLowerCase() === pendingScanTerm.toLowerCase() || s.sku?.toLowerCase() === pendingScanTerm.toLowerCase());
+                // Parse API response — handle both formats
+                let items: any[] = [];
+                if (result?.data && typeof result.data === 'object' && !Array.isArray(result.data)) {
+                    if (Array.isArray((result.data as any).items)) items = (result.data as any).items;
+                } else if (result?.data && Array.isArray(result.data)) {
+                    items = result.data;
+                }
+
+                if (items.length === 0) {
+                    showMessage('Product not found!', 'error');
+                    return;
+                }
+
+                // Try to find exact match by barcode or SKU
+                const scannedLower = data.toLowerCase();
+                const matchedProduct =
+                    items.find((p: any) => {
+                        if (p.barcode?.toLowerCase() === scannedLower) return true;
+                        if (p.sku?.toLowerCase() === scannedLower) return true;
+                        if (p.stocks && Array.isArray(p.stocks)) {
+                            return p.stocks.some((s: any) => s.barcode?.toLowerCase() === scannedLower || s.sku?.toLowerCase() === scannedLower);
+                        }
+                        return false;
+                    }) || items[0]; // Fallback to first search result
+
+                // Add to cart
+                addToCart(matchedProduct);
+                if (beepRef.current) {
+                    beepRef.current.currentTime = 0;
+                    beepRef.current.play().catch(() => {});
+                }
+            } catch (err: any) {
+                console.error('❌ Camera scan search failed:', err);
+                showMessage('Product not found!', 'error');
             }
-            return false;
-        });
-
-        if (matchedProduct) {
-            // Exact match found — add to cart
-            addToCart(matchedProduct);
-            if (beepRef.current) {
-                beepRef.current.currentTime = 0;
-                beepRef.current.play().catch(() => {});
-            }
-        } else {
-            // No matching product found
-            showMessage('Product not found!', 'error');
-        }
-
-        // Clear pending scan — keep searchTerm so user can see what was scanned
-        setPendingScanTerm(null);
-    }, [pendingScanTerm, products, isFetching, addToCart]);
+        },
+        [currentStoreId, reduxSlice, addToCart, triggerProductSearch]
+    );
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
