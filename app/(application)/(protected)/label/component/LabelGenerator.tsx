@@ -150,9 +150,11 @@ const LabelGenerator = () => {
             let response = labelType === 'barcode' ? await generateBarcodes(pos_products).unwrap() : await generateQRCodes(pos_products).unwrap();
 
             if (response.success) {
-                const labels = (response.data.barcodes || response.data.qr_codes || []).map((l: any) => ({
+                const rawLabels = response.data.barcodes || response.data.qr_codes || response.data.qrcodes || [];
+                const labels = rawLabels.map((l: any) => ({
                     ...l,
-                    barcode: l.barcode || l.qr_code || l.qrcode,
+                    // Map the image data: QR API may return qr_code, qrcode, or image field
+                    barcode: l.barcode || l.qr_code || l.qrcode || l.image || '',
                 }));
                 if (currentStoreId) dispatch(setGeneratedLabels({ storeId: currentStoreId, labels }));
                 showSuccessDialog('Success!', `${response.data.total_generated} labels generated`);
@@ -188,19 +190,25 @@ const LabelGenerator = () => {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center; 
+                justify-content: flex-start; 
                 text-align: center;
                 border: 1px solid transparent;
                 page-break-inside: avoid;
+                overflow: hidden;
             }
             @media print { .label-card { border: ${isSheet ? '0.1mm dashed #ddd' : 'none'}; } }
             h3 { font-size: 8pt; font-weight: 700; margin: 0 0 1px 0; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .variant, .sku { font-size: 6pt; font-weight: 600; margin: 0; }
             .barcode-container { width: 100%; display: flex; justify-content: center; align-items: center; max-height: 45%; margin-top: 1mm; }
             .barcode-container img { max-width: 100%; height: auto; max-height: 100%; object-fit: contain; }
+            .qr-container { width: 100%; display: flex; justify-content: center; align-items: center; max-height: 50%; margin-top: 1mm; overflow: hidden; }
+            .qr-container img { max-width: 50%; max-height: 100%; aspect-ratio: 1/1; object-fit: contain; image-rendering: pixelated; }
             .break-page { page-break-after: always; }
             .page-container { width: 100%; padding: 5mm; display: grid; grid-template-columns: repeat(${Math.max(labelsPerRow, 1)}, ${labelSize.width}mm); gap: 2mm; }
         `;
+
+        const isQR = labelType === 'qrcode';
+        const containerClass = isQR ? 'qr-container' : 'barcode-container';
 
         const content = generatedLabels
             .map(
@@ -211,7 +219,7 @@ const LabelGenerator = () => {
                     ${l.variant_name ? `<div class="variant">${l.variant_name}</div>` : ''}
                     <div class="sku">${l.sku || 'N/A'}</div>
                 </div>
-                <div class="barcode-container">${l.barcode ? `<img src="${l.barcode}"/>` : ''}</div>
+                <div class="${containerClass}">${l.barcode ? `<img src="${l.barcode}"/>` : ''}</div>
             </div>
         `
             )
@@ -230,6 +238,27 @@ const LabelGenerator = () => {
                 setTimeout(() => win.print(), 250);
             };
         }
+    };
+
+    // Helper: Convert any image data URI (SVG, PNG, JPEG) to a PNG data URL via canvas
+    const convertImageToPng = (dataUri: string, size: number = 400): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return reject('Canvas not supported');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+                ctx.drawImage(img, 0, 0, size, size);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = () => reject('Failed to load image');
+            img.src = dataUri;
+        });
     };
 
     const handleDownloadPDF = async () => {
@@ -262,6 +291,27 @@ const LabelGenerator = () => {
             const cols = isSheet ? Math.floor((pdfWidth - margin * 2) / (labelSize.width + gap)) : 1;
             const rows = isSheet ? Math.floor((pdfHeight - margin * 2) / (labelSize.height + gap)) : 1;
             const itemsPerPage = cols * rows;
+
+            // Pre-convert all images to PNG for jsPDF compatibility (SVG not supported by jsPDF)
+            const isQRLabel = labelType === 'qrcode';
+            const convertedImages: (string | null)[] = [];
+            for (const label of generatedLabels) {
+                if (label.barcode) {
+                    try {
+                        // If it's SVG or any non-PNG/JPEG, convert to PNG via canvas
+                        if (label.barcode.includes('data:image/svg') || isQRLabel) {
+                            const pngData = await convertImageToPng(label.barcode, 400);
+                            convertedImages.push(pngData);
+                        } else {
+                            convertedImages.push(label.barcode);
+                        }
+                    } catch {
+                        convertedImages.push(null);
+                    }
+                } else {
+                    convertedImages.push(null);
+                }
+            }
 
             for (let i = 0; i < generatedLabels.length; i++) {
                 const label = generatedLabels[i];
@@ -300,12 +350,35 @@ const LabelGenerator = () => {
                 doc.setFont('helvetica', 'bold');
                 doc.text(label.sku || 'N/A', centerX, currentY, { align: 'center' });
 
-                if (label.barcode) {
-                    const imgHeight = labelSize.height * 0.4;
-                    const imgY = yPos + labelSize.height - imgHeight - 1;
+                const imgData = convertedImages[i];
+                if (imgData) {
+                    // Detect format from the converted data
+                    const imgFormat = imgData.includes('data:image/png') ? 'PNG' : 'JPEG';
+
+                    let imgWidth, imgHeight, imgX, imgY;
+
+                    if (isQRLabel) {
+                        // QR codes are square - fit within available space
+                        const availableHeight = labelSize.height * 0.55;
+                        const availableWidth = labelSize.width - 4;
+                        const qrSize = Math.min(availableWidth, availableHeight);
+                        imgWidth = qrSize;
+                        imgHeight = qrSize;
+                        imgX = xPos + (labelSize.width - qrSize) / 2;
+                        imgY = yPos + labelSize.height - qrSize - 1;
+                    } else {
+                        // Barcodes are wide and short
+                        imgHeight = labelSize.height * 0.4;
+                        imgWidth = labelSize.width - 4;
+                        imgX = xPos + 2;
+                        imgY = yPos + labelSize.height - imgHeight - 1;
+                    }
+
                     try {
-                        doc.addImage(label.barcode, 'JPEG', xPos + 2, imgY, labelSize.width - 4, imgHeight, undefined, 'FAST');
-                    } catch (e) {}
+                        doc.addImage(imgData, imgFormat, imgX, imgY, imgWidth, imgHeight, undefined, 'FAST');
+                    } catch (e) {
+                        console.error('Failed to add image to PDF:', e);
+                    }
                 }
                 if (isSheet) {
                     doc.setDrawColor(220, 220, 220);
@@ -580,6 +653,40 @@ const LabelGenerator = () => {
                 )}
             </div>
 
+            {/* Action Bar */}
+            <div className="border-b border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="text-sm font-medium text-gray-600">
+                        Total: <span className="font-bold text-gray-900">{totalLabels} labels</span> for <span className="font-bold text-gray-900">{cartItems.length} items</span>
+                    </div>
+                    <div className="flex gap-2">
+                        {generatedLabels.length > 0 && (
+                            <>
+                                <button
+                                    onClick={handleDownloadPDF}
+                                    className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-green-700"
+                                >
+                                    <FileDown className="h-4 w-4" /> PDF
+                                </button>
+                                <button
+                                    onClick={handlePrint}
+                                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-700"
+                                >
+                                    <Printer className="h-4 w-4" /> Print
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={handleGenerate}
+                            disabled={isGenerating}
+                            className="flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-purple-700 disabled:opacity-50"
+                        >
+                            {isGenerating ? 'Generating...' : 'Generate Labels'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {/* Items List */}
             <div className="flex-1 overflow-auto p-4 sm:p-6">
                 <div className="mx-auto max-w-4xl space-y-4">
@@ -620,40 +727,6 @@ const LabelGenerator = () => {
                             </div>
                         );
                     })}
-                </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-gray-200 bg-white px-4 py-4 shadow-lg sm:px-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-sm font-medium text-gray-600">
-                        Total: <span className="font-bold text-gray-900">{totalLabels} labels</span> for <span className="font-bold text-gray-900">{cartItems.length} items</span>
-                    </div>
-                    <div className="flex gap-2">
-                        {generatedLabels.length > 0 && (
-                            <>
-                                <button
-                                    onClick={handleDownloadPDF}
-                                    className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-green-700"
-                                >
-                                    <FileDown className="h-4 w-4" /> PDF
-                                </button>
-                                <button
-                                    onClick={handlePrint}
-                                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-700"
-                                >
-                                    <Printer className="h-4 w-4" /> Print
-                                </button>
-                            </>
-                        )}
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isGenerating}
-                            className="flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-purple-700 disabled:opacity-50"
-                        >
-                            {isGenerating ? 'Generating...' : 'Generate Labels'}
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
