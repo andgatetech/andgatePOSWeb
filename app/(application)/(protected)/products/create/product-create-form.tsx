@@ -32,6 +32,7 @@ const ProductCreateForm = () => {
     const [showBrandDropdown, setShowBrandDropdown] = useState(false);
     const [brandSearchTerm, setBrandSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('basic');
+    const [skuError, setSkuError] = useState<string | null>(null);
     const router = useRouter();
 
     const { currentStore } = useCurrentStore();
@@ -119,9 +120,6 @@ const ProductCreateForm = () => {
             // Show: Basic → Attributes → Variants (all pricing, stock, tax, images configured per variant)
             tabs.push('attributes', 'variants');
 
-            // SKU is still separate (optional)
-            tabs.push('sku');
-
             // Optional tabs
             if (formData.has_warranty) {
                 tabs.push('warranty');
@@ -129,6 +127,9 @@ const ProductCreateForm = () => {
             if (formData.has_serial) {
                 tabs.push('serial');
             }
+
+            // SKU is last (each variant gets its own SKU)
+            tabs.push('sku');
 
             return tabs;
         }
@@ -148,7 +149,7 @@ const ProductCreateForm = () => {
         const stockCompleted = isBasicInfoComplete() && isPricingComplete() && isStockComplete();
 
         if (stockCompleted) {
-            tabs.push('tax', 'sku', 'images');
+            tabs.push('tax', 'images', 'sku');
 
             // Optional tabs
             if (formData.has_warranty) {
@@ -237,6 +238,13 @@ const ProductCreateForm = () => {
         // Validation
         if (!formData.product_name.trim()) {
             showErrorDialog('Validation Error', 'Please enter Product Name!');
+            setActiveTab('basic');
+            return;
+        }
+
+        if (!formData.category_id) {
+            showErrorDialog('Validation Error', 'Please select a Category!');
+            setActiveTab('basic');
             return;
         }
 
@@ -352,10 +360,8 @@ const ProductCreateForm = () => {
             fd.append('product_name', formData.product_name.trim());
             fd.append('description', formData.description.trim());
 
-            // Add SKU if manual
-            if (formData.skuOption === 'manual' && formData.sku.trim()) {
-                fd.append('sku', formData.sku.trim());
-            }
+            // SKU is now sent at stock level (stocks[0][sku]), not at product level
+            // This is handled below in the stocks.forEach loop
 
             // Add unit field as pos_units array (backend expects pos_units array)
             if (formData.units) {
@@ -384,6 +390,14 @@ const ProductCreateForm = () => {
 
             // Add stocks/variants array (NEW - replaces single product pricing)
             stocks.forEach((stock, index) => {
+                // Add SKU at stock level
+                if (stock.sku && stock.sku.trim()) {
+                    fd.append(`stocks[${index}][sku]`, stock.sku.trim());
+                } else if (!formData.has_attributes && formData.skuOption === 'manual' && formData.sku.trim()) {
+                    // Simple product: use formData.sku for stocks[0]
+                    fd.append(`stocks[${index}][sku]`, formData.sku.trim());
+                }
+
                 fd.append(`stocks[${index}][price]`, String(stock.price));
                 fd.append(`stocks[${index}][purchase_price]`, String(stock.purchase_price));
                 fd.append(`stocks[${index}][wholesale_price]`, stock.wholesale_price || '0');
@@ -537,6 +551,21 @@ const ProductCreateForm = () => {
         } catch (error: any) {
             console.error('Create product failed', error);
 
+            // Check for SKU validation errors from backend
+            // Backend may return errors in error.data.data or error.data.errors
+            const errorData = error?.data?.data || error?.data?.errors;
+            if (errorData) {
+                // Look for SKU-related validation keys like 'stocks.0.sku', 'stocks.1.sku', 'sku', etc.
+                const skuErrorKey = Object.keys(errorData).find((key) => key.toLowerCase().includes('sku'));
+                if (skuErrorKey) {
+                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : 'SKU validation failed';
+                    showErrorDialog('SKU Error', skuMsg);
+                    setSkuError(skuMsg);
+                    setActiveTab('sku');
+                    return;
+                }
+            }
+
             // Don't show Swal for 403 subscription errors - SubscriptionError component will handle it
             if (error?.status !== 403) {
                 const errorMessage = error?.data?.message || 'Something went wrong while creating the product';
@@ -686,12 +715,25 @@ const ProductCreateForm = () => {
                         {activeTab === 'sku' && (
                             <SKUTab
                                 formData={formData}
-                                handleChange={handleChange}
-                                setFormData={setFormData}
+                                handleChange={(e) => {
+                                    handleChange(e);
+                                    // Clear SKU error when user edits the SKU field
+                                    if (e.target.name === 'sku') {
+                                        setSkuError(null);
+                                    }
+                                }}
+                                setFormData={(val) => {
+                                    setFormData(val);
+                                    // Clear SKU error when formData changes via setFormData (e.g. scan)
+                                    setSkuError(null);
+                                }}
                                 onPrevious={handlePrevious}
                                 onNext={handleNext}
                                 onCreateProduct={handleSubmit}
                                 isCreating={createLoading}
+                                skuError={skuError}
+                                productStocks={productStocks}
+                                setProductStocks={setProductStocks}
                             />
                         )}
 
@@ -730,7 +772,7 @@ const ProductCreateForm = () => {
                                 <li className="ml-4">• Go to Variants tab → Click &quot;Add Variant&quot;</li>
                                 <li className="ml-4">• For each variant: Enter attribute values (Red, Blue, etc.)</li>
                                 <li className="ml-4">• Configure Price, Stock, Tax, Images for each variant</li>
-                                <li className="ml-4">• Click &quot;Save & Close&quot; to save variant and add another</li>
+                                <li className="ml-4">• Go to SKU tab → Set unique SKU for each variant</li>
                                 <li className="ml-4">
                                     • <strong>Price/Stock/Tax/Images tabs are hidden</strong> - all data entered in Variants tab!
                                 </li>

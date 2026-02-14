@@ -121,8 +121,6 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/products/stock/adjustments': ['stock.adjustments'],
     '/products/qr-code': ['products.view'],
     '/label': ['products.view'],
-    '/products/in-stock': ['products.view'],
-    '/products/low-stock': ['products.view'],
 
     // Product Attributes
     '/product-attributes': ['products.index'],

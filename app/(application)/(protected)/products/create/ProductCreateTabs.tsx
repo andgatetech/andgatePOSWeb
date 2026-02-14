@@ -17,8 +17,8 @@ const tabs: Tab[] = [
     { id: 'warranty', label: 'Warranty', icon: Shield, description: 'Warranty terms & period' },
     { id: 'serial', label: 'Serial/IMEI', icon: Hash, description: 'Serial number tracking' },
     { id: 'tax', label: 'Tax', icon: Receipt, description: 'Tax rate & inclusion' },
-    { id: 'sku', label: 'SKU', icon: Barcode, description: 'Stock keeping unit' },
     { id: 'images', label: 'Images', icon: ImageIcon, description: 'Product photos' },
+    { id: 'sku', label: 'SKU', icon: Barcode, description: 'Stock keeping unit' },
 ];
 
 interface ProductCreateTabsProps {

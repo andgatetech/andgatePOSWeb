@@ -35,6 +35,7 @@ const ProductEditForm = () => {
     const [showBrandDropdown, setShowBrandDropdown] = useState(false);
     const [brandSearchTerm, setBrandSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('basic');
+    const [skuError, setSkuError] = useState<string | null>(null);
     const router = useRouter();
 
     const { currentStore } = useCurrentStore();
@@ -622,6 +623,21 @@ const ProductEditForm = () => {
         } catch (error: any) {
             console.error('Update product failed', error);
 
+            // Check for SKU validation errors from backend
+            // Backend may return errors in error.data.data or error.data.errors
+            const errorData = error?.data?.data || error?.data?.errors;
+            if (errorData) {
+                // Look for SKU-related validation keys like 'stocks.0.sku', 'stocks.1.sku', 'sku', etc.
+                const skuErrorKey = Object.keys(errorData).find((key) => key.toLowerCase().includes('sku'));
+                if (skuErrorKey) {
+                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : 'SKU validation failed';
+                    showErrorDialog('SKU Error', skuMsg);
+                    setSkuError(skuMsg);
+                    setActiveTab('sku');
+                    return;
+                }
+            }
+
             if (error?.status !== 403) {
                 const errorMessage = error?.data?.message || 'Something went wrong while updating the product';
                 showErrorDialog('Error!', errorMessage);
@@ -823,13 +839,24 @@ const ProductEditForm = () => {
                         {activeTab === 'sku' && (
                             <SKUTab
                                 formData={formData}
-                                handleChange={handleChange}
-                                setFormData={setFormData}
+                                handleChange={(e) => {
+                                    handleChange(e);
+                                    if (e.target.name === 'sku') {
+                                        setSkuError(null);
+                                    }
+                                }}
+                                setFormData={(val) => {
+                                    setFormData(val);
+                                    setSkuError(null);
+                                }}
                                 onPrevious={handlePrevious}
                                 onNext={handleNext}
                                 onCreateProduct={handleSubmit}
                                 isCreating={updateLoading}
                                 isEditMode={true}
+                                skuError={skuError}
+                                productStocks={productStocks}
+                                setProductStocks={setProductStocks}
                             />
                         )}
 

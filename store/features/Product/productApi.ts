@@ -65,26 +65,7 @@ const ProductApi = baseApi.injectEndpoints({
             providesTags: ['Products'],
         }),
 
-        getAllProductsWithStock: builder.query({
-            query: ({ store_id, search }) => {
-                const params = new URLSearchParams();
-                if (store_id) params.append('store_id', store_id);
-                if (search) params.append('search', search);
-                return {
-                    url: `/products/in-stock?${params.toString()}`,
-                    method: 'GET',
-                };
-            },
-            providesTags: ['Products', 'Orders'],
-        }),
-        getAllLowStockProducts: builder.query({
-            query: (params) => ({
-                url: '/products/low-stock',
-                method: 'GET',
-                params,
-            }),
-            providesTags: ['Products', 'Orders'],
-        }),
+       
 
         getActivityLogs: builder.query({
             query: () => ({
@@ -203,8 +184,6 @@ export const {
     useCreateProductMutation,
     useGetAllProductsQuery,
     useLazyGetAllProductsQuery,
-    useGetAllProductsWithStockQuery,
-    useGetAllLowStockProductsQuery,
     useGetSingleProductQuery,
     useUpdateProductMutation,
     useDeleteProductMutation,
