@@ -213,55 +213,58 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     };
 
     return (
-        <div className={`rounded-xl border border-gray-200 bg-white p-4 shadow-sm ${className}`}>
-            <div className="flex flex-wrap items-center gap-4">
-                {/* Search Input */}
-                {showSearch && (
-                    <div className="min-w-[200px] flex-1">
-                        <div className="relative flex gap-2">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder={placeholder}
-                                    value={localSearch}
-                                    onChange={(e) => setLocalSearch(e.target.value)}
-                                    onKeyDown={handleSearchKeyDown}
-                                    className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
-                                />
-                                {localSearch && (
-                                    <button onClick={handleClearSearch} className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                )}
-                            </div>
-                            <button
-                                onClick={handleSearchClick}
-                                className="flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-white transition-colors hover:bg-blue-700"
-                                title="Search"
-                            >
-                                <Search className="h-5 w-5" />
-                            </button>
+        <div className={`rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4 ${className}`}>
+            {/* Search Row - full width on mobile */}
+            {showSearch && (
+                <div className="w-full">
+                    <div className="relative flex gap-2">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder={placeholder}
+                                value={localSearch}
+                                onChange={(e) => setLocalSearch(e.target.value)}
+                                onKeyDown={handleSearchKeyDown}
+                                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                            />
+                            {localSearch && (
+                                <button onClick={handleClearSearch} className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
                         </div>
+                        <button
+                            onClick={handleSearchClick}
+                            className="flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-white transition-colors hover:bg-blue-700"
+                            title="Search"
+                        >
+                            <Search className="h-5 w-5" />
+                        </button>
                     </div>
-                )}
+                </div>
+            )}
 
+            {/* Filters Row - wraps on mobile */}
+            <div className={`flex flex-wrap items-center gap-2 sm:gap-3 ${showSearch ? 'mt-3' : ''}`}>
                 {/* Store Filter Dropdown */}
                 {showStoreFilter && userStores.length > 0 && (
                     <div className="relative">
                         <button
                             onClick={() => setShowStoreDropdown(!showStoreDropdown)}
-                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:px-4 sm:py-2.5"
                         >
-                            <Store className="h-5 w-5 text-gray-400" />
-                            <span className="text-sm">{selectedStore === 'all' ? 'All Stores' : userStores.find((store) => store.id === selectedStore)?.store_name || 'Select Store'}</span>
-                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                            <Store className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
+                            <span className="max-w-[120px] truncate text-xs sm:max-w-none sm:text-sm">
+                                {selectedStore === 'all' ? 'All Stores' : userStores.find((store) => store.id === selectedStore)?.store_name || 'Select Store'}
+                            </span>
+                            <ChevronDown className="h-3 w-3 text-gray-400 sm:h-4 sm:w-4" />
                         </button>
 
                         {showStoreDropdown && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowStoreDropdown(false)} />
-                                <div className="absolute right-0 top-full z-20 mt-1 w-64 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
+                                <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg sm:left-auto sm:right-0 sm:w-64">
                                     <button
                                         onClick={() => {
                                             setSelectedStore('all');
@@ -294,17 +297,17 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     <div className="relative">
                         <button
                             onClick={() => setShowDateDropdown(!showDateDropdown)}
-                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:px-4 sm:py-2.5"
                         >
-                            <Calendar className="h-5 w-5 text-gray-400" />
-                            <span className="text-sm">{DATE_FILTER_OPTIONS.find((option) => option.value === dateFilterType)?.label}</span>
-                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                            <Calendar className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
+                            <span className="max-w-[100px] truncate text-xs sm:max-w-none sm:text-sm">{DATE_FILTER_OPTIONS.find((option) => option.value === dateFilterType)?.label}</span>
+                            <ChevronDown className="h-3 w-3 text-gray-400 sm:h-4 sm:w-4" />
                         </button>
 
                         {showDateDropdown && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowDateDropdown(false)} />
-                                <div className="absolute right-0 top-full z-20 mt-1 w-64 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
+                                <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg sm:left-auto sm:right-0 sm:w-64">
                                     {DATE_FILTER_OPTIONS.map((option) => (
                                         <button
                                             key={option.value}
@@ -362,17 +365,17 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                 {hasActiveFilters() && (
                     <button
                         onClick={resetFilters}
-                        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:gap-2 sm:px-4 sm:py-2.5"
                         title="Reset Filters"
                     >
-                        <RotateCcw className="h-4 w-4" />
-                        <span className="text-sm">Reset</span>
+                        <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">Reset</span>
                     </button>
                 )}
 
                 {/* Filter Icon */}
                 <div className="flex items-center">
-                    <Filter className="h-5 w-5 text-gray-400" />
+                    <Filter className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
                 </div>
             </div>
 

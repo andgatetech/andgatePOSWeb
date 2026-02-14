@@ -64,19 +64,27 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
             const rect = buttonRef.current.getBoundingClientRect();
             const dropdownWidth = 192; // w-48 = 12rem = 192px
             const dropdownHeight = actions.length * 48; // Approximate height per item
+            const viewportWidth = window.innerWidth;
 
             // Calculate position
             let top = rect.bottom + 5;
-            let left = rect.left + rect.width / 2 - dropdownWidth / 2;
+
+            // Right-align: dropdown's right edge aligns with button's right edge
+            let left = rect.right - dropdownWidth;
 
             // Adjust if dropdown goes below viewport
             if (top + dropdownHeight > window.innerHeight) {
                 top = rect.top - dropdownHeight - 5;
             }
 
-            // Adjust if dropdown goes off left edge
-            if (left < 10) {
-                left = 10;
+            // Clamp: don't go off left edge
+            if (left < 8) {
+                left = 8;
+            }
+
+            // Clamp: don't go off right edge
+            if (left + dropdownWidth > viewportWidth - 8) {
+                left = viewportWidth - dropdownWidth - 8;
             }
 
             setPosition({ top, left });
