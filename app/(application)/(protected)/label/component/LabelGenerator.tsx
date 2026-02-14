@@ -56,23 +56,19 @@ const LabelGenerator = () => {
     const [labelType, setLabelType] = useState<LabelType>('barcode');
     const generatedLabels = useSelector((state: RootState) => (currentStoreId && state.label.generatedLabelsByStore ? state.label.generatedLabelsByStore[currentStoreId] || [] : []));
 
-    // --- State ---
-    const [paperSize, setPaperSize] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('labelPaperSize') || 'thermal_40mm' : 'thermal_40mm'));
-    const [labelSize, setLabelSize] = useState<LabelSize>(() =>
-        typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('labelSize') || '{"width":38,"height":25}') : { width: 38, height: 25 }
-    );
-    const [customPaperDims, setCustomPaperDims] = useState(() =>
-        typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('labelCustomPaperDims') || '{"width":40,"height":200}') : { width: 40, height: 200 }
-    );
+    // --- State (initialize with defaults to avoid hydration mismatch) ---
+    const [paperSize, setPaperSize] = useState('thermal_40mm');
+    const [labelSize, setLabelSize] = useState<LabelSize>({ width: 38, height: 25 });
+    const [customPaperDims, setCustomPaperDims] = useState({ width: 40, height: 200 });
 
     // Tracks if "Custom" preset is active to show inputs
     const [isCustomLabel, setIsCustomLabel] = useState(false);
 
     const [showSettings, setShowSettings] = useState(false);
-    const [globalQuantity, setGlobalQuantity] = useState(() => (typeof window !== 'undefined' ? parseInt(localStorage.getItem('labelGlobalQuantity') || '1') : 1));
-    const [globalBarcodeType, setGlobalBarcodeType] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('labelBarcodeType') || 'C128' : 'C128'));
-    const [globalQRSize, setGlobalQRSize] = useState(() => (typeof window !== 'undefined' ? parseInt(localStorage.getItem('labelQRSize') || '200') : 200));
-    const [globalIncludeInfo, setGlobalIncludeInfo] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('labelIncludeInfo') === 'true' : false));
+    const [globalQuantity, setGlobalQuantity] = useState(1);
+    const [globalBarcodeType, setGlobalBarcodeType] = useState('C128');
+    const [globalQRSize, setGlobalQRSize] = useState(200);
+    const [globalIncludeInfo, setGlobalIncludeInfo] = useState(false);
 
     const [productQuantities, setProductQuantities] = useState<Map<number, number>>(new Map());
 
@@ -90,35 +86,6 @@ const LabelGenerator = () => {
     // --- Helpers ---
     const getProductQuantity = (itemId: number) => productQuantities.get(itemId) ?? globalQuantity;
     const updateProductQuantity = (itemId: number, q: number) => setProductQuantities((prev) => new Map(prev).set(itemId, Math.min(Math.max(q, 1), 100)));
-
-    const saveLabelSize = (s: LabelSize) => {
-        setLabelSize(s);
-        localStorage.setItem('labelSize', JSON.stringify(s));
-    };
-    const savePaperSize = (s: string) => {
-        setPaperSize(s);
-        localStorage.setItem('labelPaperSize', s);
-    };
-    const saveCustomPaperDims = (d: any) => {
-        setCustomPaperDims(d);
-        localStorage.setItem('labelCustomPaperDims', JSON.stringify(d));
-    };
-    const saveGlobalQuantity = (q: number) => {
-        setGlobalQuantity(q);
-        localStorage.setItem('labelGlobalQuantity', q.toString());
-    };
-    const saveGlobalBarcodeType = (t: string) => {
-        setGlobalBarcodeType(t);
-        localStorage.setItem('labelBarcodeType', t);
-    };
-    const saveGlobalQRSize = (s: number) => {
-        setGlobalQRSize(s);
-        localStorage.setItem('labelQRSize', s.toString());
-    };
-    const saveGlobalIncludeInfo = (b: boolean) => {
-        setGlobalIncludeInfo(b);
-        localStorage.setItem('labelIncludeInfo', b.toString());
-    };
 
     const handleRemoveItem = (id: number) => {
         if (currentStoreId) dispatch(removeLabelItem({ storeId: currentStoreId, id }));
@@ -459,7 +426,7 @@ const LabelGenerator = () => {
                                             <button
                                                 key={preset.label}
                                                 onClick={() => {
-                                                    saveLabelSize({ width: preset.width, height: preset.height });
+                                                    setLabelSize({ width: preset.width, height: preset.height });
                                                     setIsCustomLabel(false);
                                                 }}
                                                 className={`rounded-lg border-2 px-3 py-2.5 text-xs font-semibold transition-all ${
@@ -499,7 +466,7 @@ const LabelGenerator = () => {
                                                 min="10"
                                                 max="200"
                                                 value={labelSize.width}
-                                                onChange={(e) => saveLabelSize({ ...labelSize, width: parseInt(e.target.value) || 10 })}
+                                                onChange={(e) => setLabelSize({ ...labelSize, width: parseInt(e.target.value) || 10 })}
                                                 className="w-full rounded border px-2 py-1.5 text-sm"
                                             />
                                         </div>
@@ -510,7 +477,7 @@ const LabelGenerator = () => {
                                                 min="10"
                                                 max="150"
                                                 value={labelSize.height}
-                                                onChange={(e) => saveLabelSize({ ...labelSize, height: parseInt(e.target.value) || 10 })}
+                                                onChange={(e) => setLabelSize({ ...labelSize, height: parseInt(e.target.value) || 10 })}
                                                 className="w-full rounded border px-2 py-1.5 text-sm"
                                             />
                                         </div>
@@ -519,7 +486,7 @@ const LabelGenerator = () => {
 
                                 <div className="border-t border-gray-100 pt-4">
                                     <label className="mb-2 block text-sm font-semibold text-gray-700">Paper Size</label>
-                                    <select value={paperSize} onChange={(e) => savePaperSize(e.target.value)} className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm">
+                                    <select value={paperSize} onChange={(e) => setPaperSize(e.target.value)} className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm">
                                         {PAPER_SIZES.map((size) => (
                                             <option key={size.value} value={size.value}>
                                                 {size.label}
@@ -533,7 +500,7 @@ const LabelGenerator = () => {
                                                 <input
                                                     type="number"
                                                     value={customPaperDims.width}
-                                                    onChange={(e) => saveCustomPaperDims({ ...customPaperDims, width: parseInt(e.target.value) || 0 })}
+                                                    onChange={(e) => setCustomPaperDims({ ...customPaperDims, width: parseInt(e.target.value) || 0 })}
                                                     className="w-full rounded border px-2 py-1 text-sm"
                                                 />
                                             </div>
@@ -542,7 +509,7 @@ const LabelGenerator = () => {
                                                 <input
                                                     type="number"
                                                     value={customPaperDims.height}
-                                                    onChange={(e) => saveCustomPaperDims({ ...customPaperDims, height: parseInt(e.target.value) || 0 })}
+                                                    onChange={(e) => setCustomPaperDims({ ...customPaperDims, height: parseInt(e.target.value) || 0 })}
                                                     className="w-full rounded border px-2 py-1 text-sm"
                                                 />
                                             </div>
@@ -614,7 +581,7 @@ const LabelGenerator = () => {
                                         min="1"
                                         max="100"
                                         value={globalQuantity}
-                                        onChange={(e) => saveGlobalQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 100))}
+                                        onChange={(e) => setGlobalQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 100))}
                                         className="w-20 rounded-lg border-2 border-gray-200 px-3 py-1.5 text-sm font-bold"
                                     />
                                 </div>
@@ -622,7 +589,7 @@ const LabelGenerator = () => {
                                     <label className="text-sm font-semibold text-gray-700">Type:</label>
                                     <select
                                         value={labelType === 'barcode' ? globalBarcodeType : globalQRSize}
-                                        onChange={(e) => (labelType === 'barcode' ? saveGlobalBarcodeType(e.target.value) : saveGlobalQRSize(parseInt(e.target.value)))}
+                                        onChange={(e) => (labelType === 'barcode' ? setGlobalBarcodeType(e.target.value) : setGlobalQRSize(parseInt(e.target.value)))}
                                         className="rounded-lg border-2 border-gray-200 px-3 py-1.5 text-sm"
                                     >
                                         {labelType === 'barcode'
@@ -644,7 +611,7 @@ const LabelGenerator = () => {
                                 </div>
                                 {labelType === 'qrcode' && (
                                     <label className="flex items-center gap-2 text-sm">
-                                        <input type="checkbox" checked={globalIncludeInfo} onChange={(e) => saveGlobalIncludeInfo(e.target.checked)} className="h-4 w-4 rounded" /> Info
+                                        <input type="checkbox" checked={globalIncludeInfo} onChange={(e) => setGlobalIncludeInfo(e.target.checked)} className="h-4 w-4 rounded" /> Info
                                     </label>
                                 )}
                             </div>
