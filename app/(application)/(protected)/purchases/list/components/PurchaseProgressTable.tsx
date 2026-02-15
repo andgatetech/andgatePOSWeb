@@ -1,11 +1,13 @@
 'use client';
+
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
-import { Clock, CreditCard, Download, Eye, PackageCheck, Printer, Trash2 } from 'lucide-react';
+import { Clock, CreditCard, Download, Eye, PackageCheck, Printer } from 'lucide-react';
 import { useMemo } from 'react';
 
-interface PurchaseDuesTableProps {
-    dues: any[];
+interface PurchaseProgressTableProps {
+    orders: any[];
     isLoading: boolean;
     pagination: {
         currentPage: number;
@@ -20,17 +22,16 @@ interface PurchaseDuesTableProps {
         direction: 'asc' | 'desc';
         onSort: (field: string) => void;
     };
-    onViewItems: (due: any) => void;
-    onPrint: (due: any) => void;
-    onReceiveItems: (due: any) => void;
-    onViewTransactions: (due: any) => void;
-    onPartialPayment: (due: any) => void;
-    onClearFullDue: (due: any) => void;
-    onDelete: (due: any) => void;
+    onViewItems: (order: any) => void;
+    onPrint: (order: any) => void;
+    onReceiveItems: (order: any) => void;
+    onViewTransactions: (order: any) => void;
+    onPartialPayment: (order: any) => void;
+    onClearFullDue: (order: any) => void;
 }
 
-const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
-    dues,
+const PurchaseProgressTable: React.FC<PurchaseProgressTableProps> = ({
+    orders,
     isLoading,
     pagination,
     sorting,
@@ -40,9 +41,9 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
     onViewTransactions,
     onPartialPayment,
     onClearFullDue,
-    onDelete,
 }) => {
     const { formatCurrency } = useCurrency();
+
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -131,7 +132,6 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
                         partially_received: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partially Received' },
                         received: { bg: 'bg-green-100', text: 'text-green-800', label: 'Received' },
                         cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' },
-                        draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Draft' },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -141,38 +141,16 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
                 key: 'created_at',
                 label: 'Created Date',
                 sortable: true,
-                render: (value) => {
-                    if (!value) return <span className="text-sm text-gray-500">-</span>;
-                    const parts = value.split(' ');
-                    const date = parts[0] || '-';
-                    const time = parts.slice(1).join(' ') || '';
-                    return (
-                        <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-900">{date}</span>
-                            <span className="text-xs text-gray-500">{time}</span>
-                        </div>
-                    );
-                },
+                render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
                 label: 'Updated Date',
                 sortable: true,
-                render: (value) => {
-                    if (!value) return <span className="text-sm text-gray-500">-</span>;
-                    const parts = value.split(' ');
-                    const date = parts[0] || '-';
-                    const time = parts.slice(1).join(' ') || '';
-                    return (
-                        <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-900">{date}</span>
-                            <span className="text-xs text-gray-500">{time}</span>
-                        </div>
-                    );
-                },
+                render: (value) => <DateColumn date={value} />,
             },
         ],
-        []
+        [formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
@@ -225,19 +203,13 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
                 className: 'text-gray-600',
                 icon: <Printer className="h-4 w-4" />,
             },
-            {
-                label: 'Delete',
-                onClick: onDelete,
-                className: 'text-red-600',
-                icon: <Trash2 className="h-4 w-4" />,
-            },
         ],
-        [onViewItems, onReceiveItems, onViewTransactions, onPartialPayment, onClearFullDue, onPrint, onDelete]
+        [onViewItems, onReceiveItems, onViewTransactions, onPartialPayment, onClearFullDue, onPrint]
     );
 
     return (
         <ReusableTable
-            data={dues}
+            data={orders}
             columns={columns}
             actions={actions}
             isLoading={isLoading}
@@ -245,11 +217,11 @@ const PurchaseDuesTable: React.FC<PurchaseDuesTableProps> = ({
             sorting={sorting}
             emptyState={{
                 icon: <Download className="mx-auto h-16 w-16" />,
-                title: 'No Purchase Dues Found',
-                description: 'No purchase dues match your current filters. Try adjusting your search criteria.',
+                title: 'No In-Progress Purchase Orders',
+                description: 'No in-progress purchase orders found. Orders appear here when they are partially received or have partial payments.',
             }}
         />
     );
 };
 
-export default PurchaseDuesTable;
+export default PurchaseProgressTable;

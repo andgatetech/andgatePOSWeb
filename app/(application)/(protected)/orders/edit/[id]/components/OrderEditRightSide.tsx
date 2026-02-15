@@ -18,6 +18,7 @@ import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/featu
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
 import { skipToken } from '@reduxjs/toolkit/query';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -33,6 +34,7 @@ interface OrderEditRightSideProps {
 
 const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, originalOrder }) => {
     const dispatch = useDispatch();
+    const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
 
     const invoiceItems = useSelector((state: RootState) => (currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : []));
@@ -848,7 +850,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             if (currentStoreId) {
                 dispatch(clearItemsRedux(currentStoreId));
             }
-            window.location.href = '/orders';
+            router.push('/orders');
         } else {
             // Just close preview if not yet updated
             setShowPreview(false);

@@ -4,6 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateFeedbackMutation } from '@/store/features/feedback/feedbackApi';
 import { TextInput } from '@mantine/core';
 import { AlertCircle, ArrowRight, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Store, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -464,7 +465,7 @@ const FeedbackPage = () => {
                                                     <div className="flex-shrink-0">
                                                         {fileObj.preview ? (
                                                             <div className="relative">
-                                                                <img src={fileObj.preview} alt={fileObj.name} className="h-10 w-10 rounded-lg object-cover" />
+                                                                <Image src={fileObj.preview} alt={fileObj.name} width={40} height={40} className="h-10 w-10 rounded-lg object-cover" unoptimized />
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => window.open(fileObj.preview, '_blank')}

@@ -49,7 +49,7 @@ export const showConfirmDialog = async (
 ): Promise<boolean> => {
     const result = await Swal.fire({
         title,
-        text,
+        html: text,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -83,7 +83,7 @@ export const showSuccessDialog = (
     return Swal.fire({
         icon: 'success',
         title,
-        text,
+        html: text,
         confirmButtonColor: '#10b981',
         confirmButtonText,
         showCancelButton,
@@ -106,7 +106,7 @@ export const showErrorDialog = (title: string = 'Error!', text: string = 'Someth
     Swal.fire({
         icon: 'error',
         title,
-        text,
+        html: text,
         confirmButtonColor: '#ef4444',
         confirmButtonText,
         customClass: {

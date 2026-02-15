@@ -1,4 +1,5 @@
 'use client';
+import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import BrandFilter from '@/components/filters/BrandFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -84,8 +85,8 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                     {modalType === 'view' ? (
                         <div className="space-y-4">
                             {selectedBrand?.image_url && (
-                                <div className="h-40 w-full overflow-hidden rounded-lg bg-gray-100 sm:h-48">
-                                    <img src={selectedBrand.image_url} alt={selectedBrand.name} className="h-full w-full object-cover" />
+                                <div className="relative h-40 w-full overflow-hidden rounded-lg bg-gray-100 sm:h-48">
+                                    <Image src={selectedBrand.image_url} alt={selectedBrand.name} fill className="object-cover" />
                                 </div>
                             )}
                             <div>
@@ -375,9 +376,9 @@ const BrandManagement = () => {
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex items-center">
-                        <div className="h-12 w-12 flex-shrink-0">
+                        <div className="relative h-12 w-12 flex-shrink-0">
                             {row.image_url ? (
-                                <img className="h-12 w-12 rounded-lg object-cover" src={row.image_url} alt={value} />
+                                <Image src={row.image_url} alt={value} fill className="rounded-lg object-cover" />
                             ) : (
                                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
                                     <ImageIcon className="h-6 w-6 text-gray-400" />
@@ -408,23 +409,13 @@ const BrandManagement = () => {
                 key: 'created_at',
                 label: 'Created',
                 sortable: true,
-                render: (value: string) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">{value?.split(' ')[0]}</span>
-                        <span className="text-xs text-gray-500">{value?.split(' ').slice(1).join(' ')}</span>
-                    </div>
-                ),
+                render: (value: string) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
                 label: 'Updated',
                 sortable: true,
-                render: (value: string) => (
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">{value?.split(' ')[0]}</span>
-                        <span className="text-xs text-gray-500">{value?.split(' ').slice(1).join(' ')}</span>
-                    </div>
-                ),
+                render: (value: string) => <DateColumn date={value} />,
             },
         ],
         []

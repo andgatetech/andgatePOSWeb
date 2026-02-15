@@ -8,6 +8,7 @@ import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
 import { Edit, Eye, ImageIcon, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const CategoryComponent = () => {
@@ -193,8 +194,8 @@ const CategoryComponent = () => {
                 key: 'image_url',
                 label: 'Image',
                 render: (value, row) => (
-                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-                        {value ? <img src={value} alt={row.name} className="h-full w-full object-cover" /> : <ImageIcon className="h-8 w-8 text-gray-400" />}
+                    <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                        {value ? <Image src={value} alt={row.name} fill className="object-cover" sizes="64px" /> : <ImageIcon className="h-8 w-8 text-gray-400" />}
                     </div>
                 ),
             },
@@ -214,9 +215,7 @@ const CategoryComponent = () => {
                 key: 'created_at',
                 label: 'Created At',
                 sortable: true,
-                key: 'created_at',
-                label: 'Created At',
-                sortable: true,
+
                 render: (value) => <DateColumn date={value} />,
             },
             {
@@ -238,7 +237,7 @@ const CategoryComponent = () => {
                     <div className="flex justify-center">
                         <Dropdown
                             offset={[0, 5]}
-                            placement="bottom"
+                            placement="bottom-end"
                             btnClassName="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                             button={
                                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -395,8 +394,14 @@ const CategoryComponent = () => {
                             {modalType === 'view' ? (
                                 <div className="space-y-4">
                                     {selectedCategory?.image_url && (
-                                        <div className="h-48 w-full overflow-hidden rounded-lg bg-gray-100">
-                                            <img src={selectedCategory.image_url} alt={selectedCategory.name} className="h-full w-full object-cover" />
+                                        <div className="relative h-48 w-full overflow-hidden rounded-lg bg-gray-100">
+                                            <Image
+                                                src={selectedCategory.image_url}
+                                                alt={selectedCategory.name}
+                                                fill
+                                                className="object-cover"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
                                         </div>
                                     )}
                                     <div>
@@ -410,11 +415,11 @@ const CategoryComponent = () => {
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
                                             <label className="mb-1 block font-medium text-gray-700">Created</label>
-                                            <p className="text-gray-600">{formatDate(selectedCategory?.created_at)}</p>
+                                            <p className="text-gray-600">{selectedCategory?.created_at}</p>
                                         </div>
                                         <div>
                                             <label className="mb-1 block font-medium text-gray-700">Updated</label>
-                                            <p className="text-gray-600">{formatDate(selectedCategory?.updated_at)}</p>
+                                            <p className="text-gray-600">{selectedCategory?.updated_at}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -426,7 +431,7 @@ const CategoryComponent = () => {
                                         <div className="rounded-lg border-2 border-dashed border-gray-300 p-4">
                                             {imagePreview ? (
                                                 <div className="relative mx-auto h-24 w-24">
-                                                    <img src={imagePreview} alt="Preview" className="h-full w-full rounded-lg object-cover" />
+                                                    <Image src={imagePreview} alt="Preview" fill className="rounded-lg object-cover" />
                                                     <button
                                                         type="button"
                                                         onClick={() => {

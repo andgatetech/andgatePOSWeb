@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 // Enhanced Subscription Progress Component with Advanced Expiry Logic and 15-day marker
 const SubscriptionProgress = () => {
     const subscriptionUser = useSelector((state: RootState) => state.auth.user?.subscription_user);
+    const router = useRouter();
     const { formatCurrency } = useCurrency();
     const [timeLeft, setTimeLeft] = useState<string>('');
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -131,7 +132,7 @@ const SubscriptionProgress = () => {
                 <div className="text-center">
                     <p className="mb-4 text-red-700">Your account has been temporarily suspended. Please contact our support team for assistance.</p>
                     <div className="flex justify-center gap-2">
-                        <button onClick={() => (window.location.href = '/contact')} className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700">
+                        <button onClick={() => router.push('/contact')} className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700">
                             Contact Support
                         </button>
                     </div>

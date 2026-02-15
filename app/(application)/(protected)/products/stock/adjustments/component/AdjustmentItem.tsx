@@ -201,8 +201,8 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                 <input
                                     type="number"
                                     min="0"
-                                    value={adjustmentQuantity}
-                                    onChange={(e) => onAdjustmentChange(item.id, 'adjustmentQuantity', Math.max(0, parseInt(e.target.value) || 0))}
+                                    value={adjustmentQuantity === 0 ? '' : adjustmentQuantity}
+                                    onChange={(e) => onAdjustmentChange(item.id, 'adjustmentQuantity', e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value)))}
                                     className="h-10 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-2 text-center text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 />
                                 <button

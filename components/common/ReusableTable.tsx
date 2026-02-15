@@ -190,7 +190,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                                     </div>
                                 </th>
                             ))}
-                            {actions && actions.length > 0 && <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>}
+                            {actions && actions.length > 0 && <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -207,7 +207,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                                         </td>
                                     ))}
                                     {actions && actions.length > 0 && (
-                                        <td className="px-4 py-4">
+                                        <td className="px-4 py-4 text-center">
                                             <ActionsDropdown
                                                 actions={actions}
                                                 row={row}

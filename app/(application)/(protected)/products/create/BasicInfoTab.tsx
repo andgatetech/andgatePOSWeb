@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 
 interface BasicInfoTabProps {
@@ -179,9 +180,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                                         >
                                                             {cat.image_url ? (
-                                                                <img
+                                                                <Image
                                                                     src={cat.image_url}
                                                                     alt={cat.name}
+                                                                    width={32}
+                                                                    height={32}
                                                                     className="h-8 w-8 flex-shrink-0 rounded object-cover"
                                                                     onError={(e) => {
                                                                         (e.target as HTMLImageElement).style.display = 'none';
@@ -325,9 +328,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                             className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                                         >
                                                             {brand.image_url ? (
-                                                                <img
+                                                                <Image
                                                                     src={brand.image_url}
                                                                     alt={brand.name}
+                                                                    width={32}
+                                                                    height={32}
                                                                     className="h-8 w-8 flex-shrink-0 rounded object-cover"
                                                                     onError={(e) => {
                                                                         (e.target as HTMLImageElement).style.display = 'none';

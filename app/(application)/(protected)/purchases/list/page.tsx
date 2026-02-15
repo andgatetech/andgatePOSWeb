@@ -1,76 +1,178 @@
 'use client';
+import PaymentReceipt from '@/app/(application)/(protected)/purchases/list/components/PaymentReceipt';
 import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
 
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useConvertDraftToPurchaseOrderMutation, useDeletePurchaseDraftMutation, useGetPurchaseDraftsQuery, useGetPurchaseOrdersQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { FileText, Package } from 'lucide-react';
+import type { RootState } from '@/store';
+import {
+    useClearFullDueMutation,
+    useConvertDraftToPurchaseOrderMutation,
+    useDeletePurchaseDraftMutation,
+    useGetPurchaseDraftsQuery,
+    useGetPurchaseOrdersQuery,
+    useMakePartialPaymentMutation,
+} from '@/store/features/PurchaseOrder/PurchaseOrderApi';
+import { useDeletePurchaseDueMutation } from '@/store/features/purchaseDue/purchaseDue';
+import { CheckCircle, FileText, Loader, Package, ShoppingCart, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import DraftsTable from './components/DraftsTable';
-import PurchaseOrdersTable from './components/PurchaseOrdersTable';
+import PurchaseCompletedTable from './components/PurchaseCompletedTable';
+import PurchaseNewTable from './components/PurchaseNewTable';
+import PurchaseProgressTable from './components/PurchaseProgressTable';
+
+type TabType = 'drafts' | 'new' | 'progress' | 'completed';
 
 const PurchaseOrderListPage = () => {
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
-    const [activeTab, setActiveTab] = useState<'drafts' | 'orders'>('drafts');
+    const [activeTab, setActiveTab] = useState<TabType>('drafts');
+
+    // View items modal
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [modalTitle, setModalTitle] = useState('');
+
+    // Transaction tracking modal
     const [transactionModalOpen, setTransactionModalOpen] = useState(false);
     const [selectedTransactionOrder, setSelectedTransactionOrder] = useState<any>(null);
-    const [draftFilters, setDraftFilters] = useState<Record<string, any>>({});
-    const [orderFilters, setOrderFilters] = useState<Record<string, any>>({});
 
-    // Pagination and sorting for drafts
+    // Payment modal state (from dues page)
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentModalType, setPaymentModalType] = useState<'partial' | 'full'>('partial');
+    const [selectedDue, setSelectedDue] = useState<any>(null);
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [paymentNotes, setPaymentNotes] = useState('');
+
+    // Payment receipt state
+    const [showReceipt, setShowReceipt] = useState(false);
+    const [receiptTransaction, setReceiptTransaction] = useState<any>(null);
+    const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
+
+    // Get payment methods from Redux
+    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
+    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
+
+    // ─── Filters per tab ───
+    const [draftFilters, setDraftFilters] = useState<Record<string, any>>({});
+    const [newFilters, setNewFilters] = useState<Record<string, any>>({});
+    const [progressFilters, setProgressFilters] = useState<Record<string, any>>({});
+    const [completedFilters, setCompletedFilters] = useState<Record<string, any>>({});
+
+    // ─── Pagination per tab ───
     const [draftPage, setDraftPage] = useState(1);
     const [draftPerPage, setDraftPerPage] = useState(15);
     const [draftSortField, setDraftSortField] = useState('created_at');
     const [draftSortDirection, setDraftSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    // Pagination and sorting for orders
-    const [orderPage, setOrderPage] = useState(1);
-    const [orderPerPage, setOrderPerPage] = useState(15);
-    const [orderSortField, setOrderSortField] = useState('created_at');
-    const [orderSortDirection, setOrderSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [newPage, setNewPage] = useState(1);
+    const [newPerPage, setNewPerPage] = useState(15);
+    const [newSortField, setNewSortField] = useState('created_at');
+    const [newSortDirection, setNewSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    // Fetch drafts and orders with filters
-    const { data: draftsResponse, isLoading: draftsLoading } = useGetPurchaseDraftsQuery({
-        ...draftFilters,
-        store_id: currentStoreId,
-        page: draftPage,
-        per_page: draftPerPage,
-        sort_field: draftSortField,
-        sort_direction: draftSortDirection,
-    });
+    const [progressPage, setProgressPage] = useState(1);
+    const [progressPerPage, setProgressPerPage] = useState(15);
+    const [progressSortField, setProgressSortField] = useState('created_at');
+    const [progressSortDirection, setProgressSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    const { data: ordersResponse, isLoading: ordersLoading } = useGetPurchaseOrdersQuery({
-        exclude_completed: 'false',
-        ...orderFilters,
-        store_id: currentStoreId,
-        page: orderPage,
-        per_page: orderPerPage,
-        sort_field: orderSortField,
-        sort_direction: orderSortDirection,
-    });
+    const [completedPage, setCompletedPage] = useState(1);
+    const [completedPerPage, setCompletedPerPage] = useState(15);
+    const [completedSortField, setCompletedSortField] = useState('created_at');
+    const [completedSortDirection, setCompletedSortDirection] = useState<'asc' | 'desc'>('desc');
 
+    // ─── Helper to clean filters ───
+    const cleanFilters = (filters: Record<string, any>) => {
+        // Remove storeId/store_id as we handle it explicitly with currentStoreId
+        const { storeId, store_id, ...rest } = filters;
+        return rest;
+    };
+
+    // ─── RTK Queries — lazy via `skip` ───
+    const { data: draftsResponse, isLoading: draftsLoading } = useGetPurchaseDraftsQuery(
+        {
+            ...cleanFilters(draftFilters),
+            store_id: currentStoreId,
+            page: draftPage,
+            per_page: draftPerPage,
+            sort_field: draftSortField,
+            sort_direction: draftSortDirection,
+        },
+        { skip: activeTab !== 'drafts' }
+    );
+
+    const { data: newOrdersResponse, isLoading: newOrdersLoading } = useGetPurchaseOrdersQuery(
+        {
+            po_filter: 'new',
+            ...cleanFilters(newFilters),
+            store_id: currentStoreId,
+            page: newPage,
+            per_page: newPerPage,
+            sort_field: newSortField,
+            sort_direction: newSortDirection,
+        },
+        { skip: activeTab !== 'new' }
+    );
+
+    const { data: progressOrdersResponse, isLoading: progressOrdersLoading } = useGetPurchaseOrdersQuery(
+        {
+            po_filter: 'progress',
+            ...cleanFilters(progressFilters),
+            store_id: currentStoreId,
+            page: progressPage,
+            per_page: progressPerPage,
+            sort_field: progressSortField,
+            sort_direction: progressSortDirection,
+        },
+        { skip: activeTab !== 'progress' }
+    );
+
+    const { data: completedOrdersResponse, isLoading: completedOrdersLoading } = useGetPurchaseOrdersQuery(
+        {
+            po_filter: 'completed',
+            ...cleanFilters(completedFilters),
+            store_id: currentStoreId,
+            page: completedPage,
+            per_page: completedPerPage,
+            sort_field: completedSortField,
+            sort_direction: completedSortDirection,
+        },
+        { skip: activeTab !== 'completed' }
+    );
+
+    // ─── Mutations ───
     const [convertToPO, { isLoading: isConverting }] = useConvertDraftToPurchaseOrderMutation();
     const [deleteDraft] = useDeletePurchaseDraftMutation();
+    const [makePartialPayment, { isLoading: isPaymentLoading }] = useMakePartialPaymentMutation();
+    const [clearFullDue, { isLoading: isClearingDue }] = useClearFullDueMutation();
+    const [deletePurchaseDue] = useDeletePurchaseDueMutation();
 
-    // Extract data from API responses
+    // ─── Extract data ───
     const drafts = draftsResponse?.data?.items || [];
     const draftsPagination = draftsResponse?.data?.pagination;
 
-    const orders = ordersResponse?.data?.items || [];
-    const ordersPagination = ordersResponse?.data?.pagination;
+    const newOrders = newOrdersResponse?.data?.items || [];
+    const newOrdersPagination = newOrdersResponse?.data?.pagination;
+    const newStats = newOrdersResponse?.data?.stats || null;
 
+    const progressOrders = progressOrdersResponse?.data?.items || [];
+    const progressOrdersPagination = progressOrdersResponse?.data?.pagination;
+    const progressStats = progressOrdersResponse?.data?.stats || null;
+
+    const completedOrders = completedOrdersResponse?.data?.items || [];
+    const completedOrdersPagination = completedOrdersResponse?.data?.pagination;
+    const completedStats = completedOrdersResponse?.data?.stats || null;
+
+    // ─── Shared handlers ───
     const handleViewItems = (item: any) => {
         const title = item.draft_reference ? `Draft: ${item.draft_reference}` : `Purchase Order: ${item.invoice_number}`;
-        console.log('Opening items modal with data:', item.items);
         setSelectedItems(item.items || []);
         setModalTitle(title);
         setViewModalOpen(true);
@@ -336,6 +438,7 @@ const PurchaseOrderListPage = () => {
         setTransactionModalOpen(true);
     };
 
+    // ─── Draft handlers ───
     const handleConvertToPurchaseOrder = async (draft: any) => {
         const isConfirmed = await showConfirmDialog(
             'Convert to Purchase Order?',
@@ -352,21 +455,29 @@ const PurchaseOrderListPage = () => {
                 notes: 'Converted from draft',
             }).unwrap();
 
-            // API returns: {success: true, message: string, data: {invoice_number, grand_total, ...}}
-            const purchaseOrder = response.data || response;
-            const invoiceNumber = purchaseOrder.invoice_number || 'N/A';
-            const grandTotal = Number(purchaseOrder.grand_total || purchaseOrder.total || 0).toFixed(2);
+            // The response structure might be { success: true, data: { purchase_order: { ... } } } or flattened
+            const responseData = response.data || response;
+            const purchaseOrder = responseData.purchase_order || responseData;
+
+            // Validate response - if invoice_number is missing, it's likely a backend error (e.g. PHP exception rendered as HTML)
+            // or we failed to extract the purchase order correctly
+            if (!purchaseOrder || !purchaseOrder.invoice_number) {
+                console.error('Invalid purchase order response:', response);
+                throw new Error('Failed to create purchase order. Please try again.');
+            }
+
+            const invoiceNumber = purchaseOrder.invoice_number;
 
             showSuccessDialog(
                 'Purchase Order Created!',
                 `<p>Invoice: <strong>${invoiceNumber}</strong></p><p>Total: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>`,
                 'View Purchase Orders'
             ).then(() => {
-                setActiveTab('orders');
+                setActiveTab('new');
             });
         } catch (error: any) {
             console.error('Error converting draft:', error);
-            const errorMsg = error?.data?.error || error?.data?.message || 'Failed to convert draft';
+            const errorMsg = error?.data?.error || error?.data?.message || error?.message || 'Failed to convert draft';
             showErrorDialog('Backend Error', errorMsg);
         }
     };
@@ -384,7 +495,181 @@ const PurchaseOrderListPage = () => {
         }
     };
 
-    // Sorting handlers
+    // ─── Payment modal handlers (from dues) ───
+    const openPaymentModal = (type: 'partial' | 'full', due: any) => {
+        setPaymentModalType(type);
+        setSelectedDue(due);
+        setShowPaymentModal(true);
+        setPaymentAmount('');
+        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || 'cash');
+        setPaymentNotes('');
+    };
+
+    const closePaymentModal = () => {
+        setShowPaymentModal(false);
+        setSelectedDue(null);
+        setPaymentAmount('');
+        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || 'cash');
+        setPaymentNotes('');
+    };
+
+    const handlePartialPayment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const amount = parseFloat(paymentAmount);
+        if (amount <= 0) {
+            Swal.fire('Error', 'Payment amount must be greater than 0', 'error');
+            return;
+        }
+        if (amount > selectedDue.amount_due) {
+            Swal.fire('Error', 'Payment amount cannot exceed due amount', 'error');
+            return;
+        }
+
+        try {
+            const response = await makePartialPayment({
+                id: selectedDue.id,
+                store_id: currentStoreId,
+                amount,
+                payment_method: paymentMethod,
+                notes: paymentNotes,
+            }).unwrap();
+
+            const updatedPurchaseOrder = {
+                ...selectedDue,
+                amount_due: selectedDue.amount_due - amount,
+                payment_status: selectedDue.amount_due - amount <= 0 ? 'paid' : 'partial',
+            };
+
+            const transaction = {
+                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                amount: amount,
+                payment_method: paymentMethod,
+                paid_at: new Date().toISOString(),
+                notes: paymentNotes,
+            };
+
+            closePaymentModal();
+
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updatedPurchaseOrder);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Partial payment made successfully',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            }, 100);
+        } catch (err: any) {
+            const errorMessage = err?.data?.message || 'Payment failed';
+            Swal.fire('Error', errorMessage, 'error');
+        }
+    };
+
+    const handleFullPayment = async () => {
+        if (!selectedDue) return;
+
+        try {
+            const response = await clearFullDue({
+                id: selectedDue.id,
+                store_id: currentStoreId,
+                payment_method: paymentMethod,
+                notes: paymentNotes || 'Full payment - due cleared',
+            }).unwrap();
+
+            const updatedPurchaseOrder = {
+                ...selectedDue,
+                amount_due: 0,
+                payment_status: 'paid',
+            };
+
+            const transaction = {
+                id: response?.data?.transaction?.id || response?.transaction?.id || Date.now(),
+                amount: selectedDue.amount_due,
+                payment_method: paymentMethod,
+                paid_at: new Date().toISOString(),
+                notes: paymentNotes || 'Full payment - due cleared',
+            };
+
+            closePaymentModal();
+
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updatedPurchaseOrder);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Full due cleared successfully',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            }, 100);
+        } catch (err: any) {
+            const errorMessage = err?.data?.message || 'Failed to clear due';
+            Swal.fire('Error', errorMessage, 'error');
+        }
+    };
+
+    const handleDeleteOrder = async (due: any) => {
+        if (due.payment_status !== 'pending' || due.status !== 'ordered') {
+            Swal.fire({
+                title: 'Delete Not Possible',
+                html: `
+                    <p class="mb-3">This purchase order cannot be deleted.</p>
+                    <div class="text-left bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-700 mb-2"><strong>Delete is only allowed when:</strong></p>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>Payment Status: <strong class="text-red-600">Pending</strong></li>
+                            <li>Order Status: <strong class="text-blue-600">Ordered</strong></li>
+                        </ul>
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <p class="text-sm text-gray-700"><strong>Current Status:</strong></p>
+                            <p class="text-sm text-gray-600">Payment: <strong class="text-${due.payment_status === 'pending' ? 'green' : 'red'}-600">${due.payment_status || 'N/A'}</strong></p>
+                            <p class="text-sm text-gray-600">Order: <strong class="text-${due.status === 'ordered' ? 'green' : 'red'}-600">${due.status || 'N/A'}</strong></p>
+                        </div>
+                    </div>
+                `,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc2626',
+            });
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'Delete Purchase Order?',
+            html: `<p>Are you sure you want to delete <strong>${due.invoice_number}</strong>?</p><p class="text-sm text-gray-500 mt-2">This action cannot be undone.</p>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await deletePurchaseDue(due.id).unwrap();
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Purchase order has been deleted successfully',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        } catch (err: any) {
+            const errorMessage = err?.data?.message || 'Failed to delete purchase order';
+            Swal.fire('Error', errorMessage, 'error');
+        }
+    };
+
+    // ─── Sorting handlers ───
     const handleDraftSort = (field: string) => {
         if (draftSortField === field) {
             setDraftSortDirection(draftSortDirection === 'asc' ? 'desc' : 'asc');
@@ -394,14 +679,70 @@ const PurchaseOrderListPage = () => {
         }
     };
 
-    const handleOrderSort = (field: string) => {
-        if (orderSortField === field) {
-            setOrderSortDirection(orderSortDirection === 'asc' ? 'desc' : 'asc');
+    const handleNewSort = (field: string) => {
+        if (newSortField === field) {
+            setNewSortDirection(newSortDirection === 'asc' ? 'desc' : 'asc');
         } else {
-            setOrderSortField(field);
-            setOrderSortDirection('asc');
+            setNewSortField(field);
+            setNewSortDirection('asc');
         }
     };
+
+    const handleProgressSort = (field: string) => {
+        if (progressSortField === field) {
+            setProgressSortDirection(progressSortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setProgressSortField(field);
+            setProgressSortDirection('asc');
+        }
+    };
+
+    const handleCompletedSort = (field: string) => {
+        if (completedSortField === field) {
+            setCompletedSortDirection(completedSortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setCompletedSortField(field);
+            setCompletedSortDirection('asc');
+        }
+    };
+
+    // ─── Filter components per tab ───
+    const renderFilter = () => {
+        switch (activeTab) {
+            case 'drafts':
+                return <UniversalFilter onFilterChange={setDraftFilters} />;
+            case 'new':
+                return <UniversalFilter onFilterChange={setNewFilters} />;
+            case 'progress':
+                return <UniversalFilter onFilterChange={setProgressFilters} />;
+            case 'completed':
+                return <UniversalFilter onFilterChange={setCompletedFilters} />;
+        }
+    };
+
+    // ─── Tab config ───
+    const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
+        {
+            key: 'drafts',
+            label: 'Drafts',
+            icon: <FileText className="mr-2 inline h-5 w-5" />,
+        },
+        {
+            key: 'new',
+            label: 'Purchase New',
+            icon: <ShoppingCart className="mr-2 inline h-5 w-5" />,
+        },
+        {
+            key: 'progress',
+            label: 'Purchase Progress',
+            icon: <Loader className="mr-2 inline h-5 w-5" />,
+        },
+        {
+            key: 'completed',
+            label: 'Completed',
+            icon: <CheckCircle className="mr-2 inline h-5 w-5" />,
+        },
+    ];
 
     return (
         <div className="space-y-6">
@@ -434,25 +775,21 @@ const PurchaseOrderListPage = () => {
 
             <div className="panel">
                 {/* Tabs */}
-                <div className="mb-5 flex gap-2 border-b">
-                    <button
-                        className={`px-4 py-2 font-semibold ${activeTab === 'drafts' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                        onClick={() => setActiveTab('drafts')}
-                    >
-                        <FileText className="mr-2 inline h-5 w-5" />
-                        Drafts ({drafts.length})
-                    </button>
-                    <button
-                        className={`px-4 py-2 font-semibold ${activeTab === 'orders' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                        onClick={() => setActiveTab('orders')}
-                    >
-                        <Package className="mr-2 inline h-5 w-5" />
-                        Purchase Orders ({orders.length})
-                    </button>
+                <div className="mb-5 flex flex-wrap gap-2 border-b">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.key}
+                            className={`px-4 py-2 font-semibold transition-colors ${activeTab === tab.key ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setActiveTab(tab.key)}
+                        >
+                            {tab.icon}
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Filters */}
-                <div className="mb-5">{activeTab === 'drafts' ? <UniversalFilter onFilterChange={setDraftFilters} /> : <UniversalFilter onFilterChange={setOrderFilters} />}</div>
+                <div className="mb-5">{renderFilter()}</div>
 
                 {/* Drafts Tab */}
                 {activeTab === 'drafts' && (
@@ -478,23 +815,78 @@ const PurchaseOrderListPage = () => {
                     />
                 )}
 
-                {/* Orders Tab */}
-                {activeTab === 'orders' && (
-                    <PurchaseOrdersTable
-                        orders={orders}
-                        isLoading={ordersLoading}
+                {/* Purchase New Tab */}
+                {activeTab === 'new' && (
+                    <PurchaseNewTable
+                        orders={newOrders}
+                        isLoading={newOrdersLoading}
                         pagination={{
-                            currentPage: ordersPagination?.current_page || 1,
-                            totalPages: ordersPagination?.last_page || 1,
-                            itemsPerPage: ordersPagination?.per_page || 15,
-                            totalItems: ordersPagination?.total || 0,
-                            onPageChange: setOrderPage,
-                            onItemsPerPageChange: setOrderPerPage,
+                            currentPage: newOrdersPagination?.current_page || 1,
+                            totalPages: newOrdersPagination?.last_page || 1,
+                            itemsPerPage: newOrdersPagination?.per_page || 15,
+                            totalItems: newOrdersPagination?.total || 0,
+                            onPageChange: setNewPage,
+                            onItemsPerPageChange: setNewPerPage,
                         }}
                         sorting={{
-                            field: orderSortField,
-                            direction: orderSortDirection,
-                            onSort: handleOrderSort,
+                            field: newSortField,
+                            direction: newSortDirection,
+                            onSort: handleNewSort,
+                        }}
+                        onViewItems={handleViewItems}
+                        onPrint={handlePrint}
+                        onReceiveItems={handleReceiveItems}
+                        onViewTransactions={handleViewTransactions}
+                        onPartialPayment={(order) => openPaymentModal('partial', order)}
+                        onClearFullDue={(order) => openPaymentModal('full', order)}
+                        onDelete={handleDeleteOrder}
+                    />
+                )}
+
+                {/* Purchase Progress Tab */}
+                {activeTab === 'progress' && (
+                    <PurchaseProgressTable
+                        orders={progressOrders}
+                        isLoading={progressOrdersLoading}
+                        pagination={{
+                            currentPage: progressOrdersPagination?.current_page || 1,
+                            totalPages: progressOrdersPagination?.last_page || 1,
+                            itemsPerPage: progressOrdersPagination?.per_page || 15,
+                            totalItems: progressOrdersPagination?.total || 0,
+                            onPageChange: setProgressPage,
+                            onItemsPerPageChange: setProgressPerPage,
+                        }}
+                        sorting={{
+                            field: progressSortField,
+                            direction: progressSortDirection,
+                            onSort: handleProgressSort,
+                        }}
+                        onViewItems={handleViewItems}
+                        onPrint={handlePrint}
+                        onReceiveItems={handleReceiveItems}
+                        onViewTransactions={handleViewTransactions}
+                        onPartialPayment={(order) => openPaymentModal('partial', order)}
+                        onClearFullDue={(order) => openPaymentModal('full', order)}
+                    />
+                )}
+
+                {/* Completed Tab */}
+                {activeTab === 'completed' && (
+                    <PurchaseCompletedTable
+                        orders={completedOrders}
+                        isLoading={completedOrdersLoading}
+                        pagination={{
+                            currentPage: completedOrdersPagination?.current_page || 1,
+                            totalPages: completedOrdersPagination?.last_page || 1,
+                            itemsPerPage: completedOrdersPagination?.per_page || 15,
+                            totalItems: completedOrdersPagination?.total || 0,
+                            onPageChange: setCompletedPage,
+                            onItemsPerPageChange: setCompletedPerPage,
+                        }}
+                        sorting={{
+                            field: completedSortField,
+                            direction: completedSortDirection,
+                            onSort: handleCompletedSort,
                         }}
                         onViewItems={handleViewItems}
                         onPrint={handlePrint}
@@ -537,17 +929,6 @@ const PurchaseOrderListPage = () => {
                                         </thead>
                                         <tbody className="bg-white">
                                             {selectedItems.map((item: any, index: number) => {
-                                                // API Response fields:
-                                                // - product_name: "iPhone 15 Pro"
-                                                // - variant_name: "Red - M" (if variant)
-                                                // - variant_data: {"Color": "Red", "Size": "M"} (if variant)
-                                                // - is_new_product: true/false
-                                                // - is_variant: true/false
-                                                // - quantity_ordered: 1
-                                                // - purchase_price: 125000
-                                                // - subtotal: 125000
-                                                // - total: 125000
-
                                                 const productName = item.product_name || item.product || 'N/A';
                                                 const variantName = item.variant_name || null;
                                                 const isVariant = item.is_variant || false;
@@ -597,7 +978,6 @@ const PurchaseOrderListPage = () => {
                                                         selectedItems.reduce((sum, item) => {
                                                             const unitPrice = parseFloat(item.purchase_price) || 0;
                                                             const quantity = parseFloat(item.quantity_ordered) || 0;
-                                                            // Drafts use 'estimated_subtotal', Orders use 'subtotal' or 'total'
                                                             const subtotal = parseFloat(item.estimated_subtotal) || parseFloat(item.subtotal) || parseFloat(item.total) || quantity * unitPrice;
                                                             return sum + subtotal;
                                                         }, 0)
@@ -617,6 +997,171 @@ const PurchaseOrderListPage = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Payment Modal */}
+            {showPaymentModal && selectedDue && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
+                    <div className="relative max-h-[90vh] w-full max-w-md overflow-auto rounded-lg bg-white shadow-2xl">
+                        {/* Modal Header */}
+                        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
+                            <h2 className="text-xl font-bold text-gray-800">{paymentModalType === 'partial' ? 'Make Partial Payment' : 'Clear Full Due'}</h2>
+                            <button onClick={closePaymentModal} className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-800">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-6">
+                            {paymentModalType === 'partial' ? (
+                                <form onSubmit={handlePartialPayment} className="space-y-4">
+                                    <div className="rounded-lg bg-blue-50 p-4">
+                                        <div className="flex justify-between">
+                                            <span className="text-sm font-medium text-gray-700">Total Due:</span>
+                                            <span className="font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
+                                        </div>
+                                        <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            Payment Amount <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0.01"
+                                            max={selectedDue.amount_due}
+                                            value={paymentAmount}
+                                            onChange={(e) => setPaymentAmount(e.target.value)}
+                                            className="form-input w-full"
+                                            placeholder="Enter payment amount"
+                                            required
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(selectedDue.amount_due)}</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            Payment Method <span className="text-red-500">*</span>
+                                        </label>
+                                        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full" required>
+                                            {activePaymentMethods.length > 0 ? (
+                                                activePaymentMethods.map((method) => (
+                                                    <option key={method.id} value={method.payment_method_name}>
+                                                        {method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                <option value="cash">Cash</option>
+                                            )}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                                        <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder="Add payment notes" />
+                                    </div>
+
+                                    <div className="flex gap-3 pt-4">
+                                        <button
+                                            type="button"
+                                            onClick={closePaymentModal}
+                                            className="flex-1 rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
+                                            disabled={isPaymentLoading}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="flex-1 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50"
+                                            disabled={isPaymentLoading}
+                                        >
+                                            {isPaymentLoading ? 'Processing...' : 'Make Payment'}
+                                        </button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        handleFullPayment();
+                                    }}
+                                    className="space-y-4"
+                                >
+                                    <div className="rounded-lg bg-blue-50 p-4">
+                                        <div className="flex justify-between">
+                                            <span className="text-sm font-medium text-gray-700">Total Due:</span>
+                                            <span className="font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
+                                        </div>
+                                        <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            Payment Amount <span className="text-red-500">*</span>
+                                        </label>
+                                        <input type="number" step="0.01" value={selectedDue.amount_due} className="form-input w-full bg-gray-100" readOnly disabled />
+                                        <p className="mt-1 text-xs text-green-600">Full amount will be cleared</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            Payment Method <span className="text-red-500">*</span>
+                                        </label>
+                                        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full" required>
+                                            {activePaymentMethods.length > 0 ? (
+                                                activePaymentMethods.map((method) => (
+                                                    <option key={method.id} value={method.payment_method_name}>
+                                                        {method.payment_method_name.charAt(0).toUpperCase() + method.payment_method_name.slice(1)}
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                <option value="cash">Cash</option>
+                                            )}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                                        <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder="Add payment notes" />
+                                    </div>
+
+                                    <div className="flex gap-3 pt-4">
+                                        <button
+                                            type="button"
+                                            onClick={closePaymentModal}
+                                            className="flex-1 rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
+                                            disabled={isClearingDue}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                                            disabled={isClearingDue}
+                                        >
+                                            {isClearingDue ? 'Processing...' : 'Clear Full Due'}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Payment Receipt Modal */}
+            {showReceipt && receiptTransaction && receiptPurchaseOrder && (
+                <PaymentReceipt
+                    purchaseOrder={receiptPurchaseOrder}
+                    transaction={receiptTransaction}
+                    onClose={() => {
+                        setShowReceipt(false);
+                        setReceiptTransaction(null);
+                        setReceiptPurchaseOrder(null);
+                    }}
+                />
             )}
 
             {/* Transaction Tracking Modal */}

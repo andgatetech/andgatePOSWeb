@@ -92,9 +92,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
 
     const handleSubmit = async () => {
         // Validate all items
-        const invalidItems = items.filter(
-            (item) => item.quantity_received > item.quantity_ordered || item.purchase_price <= 0 || (item.selling_price || 0) <= 0
-        );
+        const invalidItems = items.filter((item) => item.quantity_received > item.quantity_ordered || item.purchase_price <= 0 || (item.selling_price || 0) <= 0);
 
         if (invalidItems.length > 0) {
             Swal.fire('Validation Error', 'Please check all quantities and prices are valid', 'error');
@@ -189,11 +187,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="rounded-lg p-2 text-white transition-colors hover:bg-white/20"
-                            disabled={isLoading}
-                        >
+                        <button onClick={onClose} className="rounded-lg p-2 text-white transition-colors hover:bg-white/20" disabled={isLoading}>
                             <X className="h-6 w-6" />
                         </button>
                     </div>
@@ -207,10 +201,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                             </span>
                         </div>
                         <div className="h-2 overflow-hidden rounded-full bg-white/20">
-                            <div
-                                className="h-full rounded-full bg-green-400 transition-all duration-500"
-                                style={{ width: `${receivedPercentage}%` }}
-                            />
+                            <div className="h-full rounded-full bg-green-400 transition-all duration-500" style={{ width: `${receivedPercentage}%` }} />
                         </div>
                     </div>
                 </div>
@@ -273,9 +264,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                         <td className="px-4 py-3">
                                             <div>
                                                 <p className="font-medium text-gray-900">{item.product_name}</p>
-                                                {item.is_variant && item.variant_name && (
-                                                    <p className="text-xs font-medium text-blue-600">Variant: {item.variant_name}</p>
-                                                )}
+                                                {item.is_variant && item.variant_name && <p className="text-xs font-medium text-blue-600">Variant: {item.variant_name}</p>}
                                                 {item.is_new_product && (
                                                     <span className="mt-1 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
                                                         <Plus className="mr-1 h-3 w-3" />
@@ -286,14 +275,10 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-center">
-                                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800">
-                                                {item.quantity_ordered}
-                                            </span>
+                                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800">{item.quantity_ordered}</span>
                                         </td>
                                         <td className="px-4 py-3 text-center">
-                                            <span className="text-sm font-medium text-gray-600">
-                                                {item.quantity_received - currentReceiving}
-                                            </span>
+                                            <span className="text-sm font-medium text-gray-600">{item.quantity_received - currentReceiving}</span>
                                         </td>
                                         <td className="px-4 py-3">
                                             <input
@@ -301,8 +286,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                                 min="0"
                                                 max={item.quantity_ordered}
                                                 step="0.01"
-                                                value={currentReceiving}
-                                                onChange={(e) => handleItemChange(index, 'quantity_received', parseFloat(e.target.value) || 0)}
+                                                value={currentReceiving === 0 ? '' : currentReceiving}
+                                                onChange={(e) => handleItemChange(index, 'quantity_received', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                                 className={`form-input w-24 text-center ${
                                                     currentReceiving > item.quantity_ordered
                                                         ? 'border-red-500 bg-red-50'
@@ -318,8 +303,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                                 type="number"
                                                 min="0"
                                                 step="0.01"
-                                                value={item.purchase_price}
-                                                onChange={(e) => handleItemChange(index, 'purchase_price', parseFloat(e.target.value) || 0)}
+                                                value={item.purchase_price === 0 ? '' : item.purchase_price}
+                                                onChange={(e) => handleItemChange(index, 'purchase_price', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                                 className="form-input w-28 text-right"
                                                 disabled={isLoading}
                                             />
@@ -329,8 +314,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                                 type="number"
                                                 min="0"
                                                 step="0.01"
-                                                value={item.selling_price}
-                                                onChange={(e) => handleItemChange(index, 'selling_price', parseFloat(e.target.value) || 0)}
+                                                value={item.selling_price === 0 ? '' : item.selling_price}
+                                                onChange={(e) => handleItemChange(index, 'selling_price', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                                 className="form-input w-28 text-right"
                                                 disabled={isLoading}
                                             />
@@ -340,28 +325,18 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                                 type="number"
                                                 min="0"
                                                 step="1"
-                                                value={item.low_stock_quantity}
-                                                onChange={(e) => handleItemChange(index, 'low_stock_quantity', parseFloat(e.target.value) || 0)}
+                                                value={item.low_stock_quantity === 0 ? '' : item.low_stock_quantity}
+                                                onChange={(e) => handleItemChange(index, 'low_stock_quantity', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                                 className="form-input w-20 text-center"
                                                 disabled={isLoading}
                                             />
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex justify-center gap-1">
-                                                <button
-                                                    onClick={() => handleReceiveItem(index)}
-                                                    className="rounded p-1.5 text-green-600 hover:bg-green-100"
-                                                    title="Receive all"
-                                                    disabled={isLoading}
-                                                >
+                                                <button onClick={() => handleReceiveItem(index)} className="rounded p-1.5 text-green-600 hover:bg-green-100" title="Receive all" disabled={isLoading}>
                                                     <Check className="h-4 w-4" />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleClearItem(index)}
-                                                    className="rounded p-1.5 text-red-600 hover:bg-red-100"
-                                                    title="Clear"
-                                                    disabled={isLoading}
-                                                >
+                                                <button onClick={() => handleClearItem(index)} className="rounded p-1.5 text-red-600 hover:bg-red-100" title="Clear" disabled={isLoading}>
                                                     <X className="h-4 w-4" />
                                                 </button>
                                             </div>
@@ -383,11 +358,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                             </p>
                         </div>
                         <div className="flex gap-3">
-                            <button
-                                onClick={onClose}
-                                className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                disabled={isLoading}
-                            >
+                            <button onClick={onClose} className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50" disabled={isLoading}>
                                 Cancel
                             </button>
                             <button

@@ -26,7 +26,7 @@ const storage = typeof window !== 'undefined' ? createWebStorage('local') : crea
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn', 'purchaseOrder', 'stockAdjustment', 'label'], // slices to persist
+    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn',], // slices to persist
     blacklist: [baseApi.reducerPath], // do not persist API cache
 };
 

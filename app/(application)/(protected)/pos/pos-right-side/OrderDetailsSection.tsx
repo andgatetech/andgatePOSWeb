@@ -1,7 +1,7 @@
 import IconShoppingCart from '@/components/icon/icon-shopping-cart';
 import IconX from '@/components/icon/icon-x';
 import { useCurrency } from '@/hooks/useCurrency';
-import { Eye, Hash, Shield } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye, Hash, Shield } from 'lucide-react';
 import { useState } from 'react';
 import ItemPreviewModal from './ItemPreviewModal';
 import type { PosFormData } from './types';
@@ -250,18 +250,10 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                         <span className="text-xs text-gray-500">of {item.originalQuantity}</span>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex items-center justify-center gap-1">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
-                                                            className="flex h-7 w-7 items-center justify-center rounded-l border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
-                                                            disabled={item.quantity <= 0}
-                                                        >
-                                                            −
-                                                        </button>
+                                                    <div className="relative flex w-[80px] items-center">
                                                         <input
                                                             type="number"
-                                                            className={`form-input h-7 w-16 border-y border-gray-300 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                                                            className={`form-input h-9 w-full border-gray-300 pr-6 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
                                                                 item.quantity === 0 ? 'border-yellow-400' : ''
                                                             }`}
                                                             min={0}
@@ -270,14 +262,24 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                             onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                             onBlur={() => onQuantityBlur(item.id)}
                                                         />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
-                                                            className="flex h-7 w-7 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
-                                                            disabled={item.quantity >= (item.PlaceholderQuantity || 9999)}
-                                                        >
-                                                            +
-                                                        </button>
+                                                        <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
+                                                                className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                disabled={item.quantity >= (item.PlaceholderQuantity || 9999)}
+                                                            >
+                                                                <ChevronUp className="h-3 w-3" />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
+                                                                className="flex h-1/2 w-6 items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                disabled={item.quantity <= 0}
+                                                            >
+                                                                <ChevronDown className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 )}
                                                 {/* Only show warning for non-return items */}
@@ -301,16 +303,31 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 >
                                                     {item.isWholesale ? 'Wholesale' : 'Retail'}
                                                 </button>
-                                                <div className="relative">
-                                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">{symbol}</span>
+                                                <div className="relative flex w-[80px] items-center">
                                                     <input
                                                         type="number"
-                                                        step="0.01"
-                                                        className="form-input w-24 rounded-md border-gray-300 text-right focus:border-indigo-500 focus:ring-indigo-500"
-                                                        value={item.rate}
+                                                        step="1"
+                                                        className="form-input h-9 w-full border-gray-300 pr-6 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                        value={item.rate === 0 ? '' : item.rate}
                                                         onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
                                                         onBlur={() => onUnitPriceBlur(item.id)}
                                                     />
+                                                    <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onUnitPriceChange(item.id, (item.rate + 1).toString())}
+                                                            className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                                                        >
+                                                            <ChevronUp className="h-3 w-3" />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => onUnitPriceChange(item.id, Math.max(0, item.rate - 1).toString())}
+                                                            className="flex h-1/2 w-6 items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                                                        >
+                                                            <ChevronDown className="h-3 w-3" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
@@ -469,31 +486,35 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 <span className="ml-1 text-gray-500">/{item.originalQuantity}</span>
                                             </div>
                                         ) : (
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
-                                                    className="flex h-6 w-6 items-center justify-center rounded-l border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
-                                                    disabled={item.quantity <= 0}
-                                                >
-                                                    −
-                                                </button>
+                                            <div className="relative flex w-[80px] items-center">
                                                 <input
                                                     type="number"
-                                                    className="form-input h-6 w-14 border-y border-gray-300 px-2 py-0 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                    placeholder="Quantity"
+                                                    className="form-input h-9 w-full border-gray-300 pr-6 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                    placeholder="Qty"
                                                     value={item.quantity === 0 ? '' : item.quantity}
                                                     onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                     onBlur={() => onQuantityBlur(item.id)}
                                                     min="0"
+                                                    max={item.PlaceholderQuantity || 9999}
                                                 />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
-                                                    className="flex h-6 w-6 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                                >
-                                                    +
-                                                </button>
+                                                <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
+                                                        className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        disabled={item.quantity >= (item.PlaceholderQuantity || 9999)}
+                                                    >
+                                                        <ChevronUp className="h-3 w-3" />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())}
+                                                        className="flex h-1/2 w-6 items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        disabled={item.quantity <= 0}
+                                                    >
+                                                        <ChevronDown className="h-3 w-3" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -511,18 +532,37 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
                                                 }`}
                                             >
-                                                {item.isWholesale ? 'W' : 'R'}
+                                                {item.isWholesale ? 'Wholesale' : 'Retail'}
                                             </button>
                                         </div>
-                                        <input
-                                            type="number"
-                                            className="form-input w-full rounded border border-gray-300 px-2 py-1 text-center text-xs"
-                                            placeholder="Rate"
-                                            value={item.rate}
-                                            onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
-                                            onBlur={() => onUnitPriceBlur(item.id)}
-                                            min="0"
-                                        />
+                                        <div className="relative flex w-full items-center">
+                                            <input
+                                                type="number"
+                                                step="1"
+                                                className="form-input h-9 w-full border-gray-300 pr-6 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                placeholder="Rate"
+                                                value={item.rate === 0 ? '' : item.rate}
+                                                onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
+                                                onBlur={() => onUnitPriceBlur(item.id)}
+                                                min="0"
+                                            />
+                                            <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onUnitPriceChange(item.id, (item.rate + 1).toString())}
+                                                    className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                                                >
+                                                    <ChevronUp className="h-3 w-3" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onUnitPriceChange(item.id, Math.max(0, item.rate - 1).toString())}
+                                                    className="flex h-1/2 w-6 items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                                                >
+                                                    <ChevronDown className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">Tax:</span>

@@ -2,7 +2,7 @@
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { showConfirmDialog } from '@/lib/toast';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
 import { useCreatePurchaseDraftMutation, useCreatePurchaseOrderMutation, useUpdatePurchaseDraftMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
@@ -19,6 +19,7 @@ import {
 } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Eye, FileText, Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
@@ -47,6 +48,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     // Local state
     const [supplierSearch, setSupplierSearch] = useState('');
+    const router = useRouter();
     const [showSupplierResults, setShowSupplierResults] = useState(false);
     const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
     const [newProductName, setNewProductName] = useState('');
@@ -101,21 +103,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             return () => window.removeEventListener('resize', checkMobileView);
         }
     }, [propIsMobileView]);
-
-    const showMessage = (msg = '', type: 'success' | 'error' = 'success') => {
-        const toast = Swal.mixin({
-            toast: true,
-            position: 'top',
-            showConfirmButton: false,
-            timer: 3000,
-            customClass: { container: 'toast' },
-        });
-        toast.fire({
-            icon: type,
-            title: msg,
-            padding: '10px 20px',
-        });
-    };
 
     // Supplier selection
     const handleSupplierSelect = (supplier: any) => {
@@ -309,7 +296,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 cancelButtonText: 'Create Another',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '/purchases/dues';
+                    router.push('/purchases/list');
                 } else if (!isEditMode && currentStoreId) {
                     dispatch(resetPurchaseOrderRedux(currentStoreId));
                     clearSupplierSelection();
@@ -428,7 +415,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 cancelButtonText: 'Create Another',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '/purchases/dues';
+                    router.push('/purchases/list');
                 } else if (currentStoreId) {
                     dispatch(resetPurchaseOrderRedux(currentStoreId));
                     clearSupplierSelection();
@@ -606,7 +593,14 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     </div>
                                     <div>
                                         <label className="mb-1 block text-sm font-medium">Ordered Quantity *</label>
-                                        <input type="number" min="1" placeholder="Qty" className="form-input" value={newProductQty} onChange={(e) => setNewProductQty(Number(e.target.value))} />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Qty"
+                                            className="form-input"
+                                            value={newProductQty === 0 ? '' : newProductQty}
+                                            onChange={(e) => setNewProductQty(e.target.value === '' ? 0 : Number(e.target.value))}
+                                        />
                                     </div>
                                 </div>
                                 <div>
@@ -709,7 +703,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                             type="number"
                                                             className="form-input w-20 text-center"
                                                             min="1"
-                                                            value={item.quantity}
+                                                            value={item.quantity === 0 ? '' : item.quantity}
                                                             onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                                                         />
                                                     </td>
@@ -718,8 +712,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                             type="number"
                                                             className="form-input w-28 text-right"
                                                             min="0"
-                                                            step="0.01"
-                                                            value={item.purchasePrice}
+                                                            step="any"
+                                                            value={item.purchasePrice === 0 ? '' : item.purchasePrice}
                                                             onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
                                                         />
                                                     </td>
@@ -772,7 +766,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label className="mb-1 block text-xs font-medium text-gray-600">Quantity</label>
-                                                <input type="number" className="form-input w-full" min="1" value={item.quantity} onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
+                                                <input
+                                                    type="number"
+                                                    className="form-input w-full"
+                                                    min="1"
+                                                    value={item.quantity === 0 ? '' : item.quantity}
+                                                    onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                />
                                             </div>
                                             <div>
                                                 <label className="mb-1 block text-xs font-medium text-gray-600">Purchase Price</label>
@@ -780,8 +780,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                     type="number"
                                                     className="form-input w-full"
                                                     min="0"
-                                                    step="0.01"
-                                                    value={item.purchasePrice}
+                                                    step="any"
+                                                    value={item.purchasePrice === 0 ? '' : item.purchasePrice}
                                                     onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)}
                                                 />
                                             </div>

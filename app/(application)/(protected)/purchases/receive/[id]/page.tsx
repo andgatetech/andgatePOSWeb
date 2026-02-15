@@ -1,11 +1,12 @@
 'use client';
+import Loading from '@/components/layouts/loading';
 import { useCurrency } from '@/hooks/useCurrency';
 import type { RootState } from '@/store';
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Calculator, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
@@ -53,8 +54,8 @@ const ReceiveItemsPage = () => {
                 quantities[item.id] = Math.max(0, remaining);
                 // Convert purchase_price to number (backend might send string)
                 prices[item.id] = parseFloat(item.purchase_price) || 0;
-                // Initialize selling price from current stock selling price or item selling price
-                selling[item.id] = parseFloat(item.selling_price || item.current_stock_selling_price) || (parseFloat(item.purchase_price) || 0) * 1.3;
+                // Initialize selling price from current stock selling price
+                selling[item.id] = parseFloat(item.current_stock_selling_price) || 0;
                 // Tax rate
                 taxes[item.id] = parseFloat(item.tax_rate) || 0;
                 // Low stock quantity
@@ -157,6 +158,36 @@ const ReceiveItemsPage = () => {
         );
     };
 
+    // WAC (Weighted Average Cost) calculation
+    // Formula: ((Current Stock × Current Purchase Price) + (Receiving Qty × New Purchase Price)) / (Current Stock + Receiving Qty)
+    const calculateWAC = useCallback(
+        (item: any) => {
+            const currentStock = parseFloat(item.current_stock_quantity) || 0;
+            const currentPurchasePrice = parseFloat(item.current_stock_purchase_price) || 0;
+            const receivingQty = receivedQuantities[item.id] || 0;
+            const newPurchasePrice = purchasePrices[item.id] || 0;
+
+            if (receivingQty <= 0) return null;
+
+            const totalStock = currentStock + receivingQty;
+            if (totalStock <= 0) return null;
+
+            const wac = (currentStock * currentPurchasePrice + receivingQty * newPurchasePrice) / totalStock;
+            return wac;
+        },
+        [receivedQuantities, purchasePrices]
+    );
+
+    // Memoize WAC values for all items
+    const wacValues = useMemo(() => {
+        if (!purchaseOrder?.items) return {};
+        const values: Record<number, number | null> = {};
+        purchaseOrder.items.forEach((item: any) => {
+            values[item.id] = calculateWAC(item);
+        });
+        return values;
+    }, [purchaseOrder?.items, calculateWAC]);
+
     const handleReceiveItems = async () => {
         if (!purchaseOrder || !purchaseOrder.items) {
             Swal.fire('Error', 'Purchase order data not loaded', 'error');
@@ -191,6 +222,7 @@ const ReceiveItemsPage = () => {
         }
 
         // Prepare receive data - send ALL items with cumulative quantity_received
+        // Note: Backend calculates WAC automatically, we only send purchase_price and selling_price
         const receiveData = {
             status: 'received',
             items: purchaseOrder.items.map((item: any) => {
@@ -244,11 +276,7 @@ const ReceiveItemsPage = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-            </div>
-        );
+        return <Loading />;
     }
 
     if (!purchaseOrder) {
@@ -327,6 +355,7 @@ const ReceiveItemsPage = () => {
                                 <th>Already Received</th>
                                 <th>Receive Now</th>
                                 <th>Purchase Price</th>
+                                <th>Avg. Cost</th>
                                 <th>Selling Price</th>
                                 <th>Total</th>
                                 <th>Action</th>
@@ -338,6 +367,12 @@ const ReceiveItemsPage = () => {
                                 const isNewProduct = item.product_id === null;
                                 const hasVariant = item.is_variant && item.variant_data;
                                 const isExcluded = excludedItems.has(item.id);
+                                const itemWac = wacValues[item.id];
+                                const currentPurchasePrice = parseFloat(item.current_stock_purchase_price) || 0;
+                                const newPurchasePrice = purchasePrices[item.id] || 0;
+                                const priceChanged = !isNewProduct && newPurchasePrice !== currentPurchasePrice;
+                                const currentSellingPrice = sellingPrices[item.id] || 0;
+                                const isBelowWac = itemWac !== null && currentSellingPrice > 0 && currentSellingPrice < itemWac;
 
                                 return (
                                     <tr key={item.id} className={isExcluded ? 'bg-gray-50 opacity-50' : ''}>
@@ -345,6 +380,7 @@ const ReceiveItemsPage = () => {
                                             <div>
                                                 <p className="font-semibold">{item.product_name || item.product_name_at_purchase || 'Unknown Product'}</p>
                                                 <p className="text-xs text-gray-400">Unit: {item.unit || 'piece'}</p>
+                                                {!isNewProduct && <p className="text-xs text-gray-400">Current Stock: {parseFloat(item.current_stock_quantity) || 0}</p>}
                                             </div>
                                         </td>
                                         <td>
@@ -381,7 +417,7 @@ const ReceiveItemsPage = () => {
                                                 className="form-input w-24"
                                                 min="0"
                                                 step="1"
-                                                value={receivedQuantities[item.id] || 0}
+                                                value={receivedQuantities[item.id] === 0 ? '' : receivedQuantities[item.id] ?? ''}
                                                 onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                                             />
                                         </td>
@@ -392,7 +428,7 @@ const ReceiveItemsPage = () => {
                                                     className="form-input w-32"
                                                     min="0"
                                                     step="0.01"
-                                                    value={purchasePrices[item.id] || 0}
+                                                    value={purchasePrices[item.id] === 0 ? '' : purchasePrices[item.id] ?? ''}
                                                     onChange={(e) => handlePriceChange(item.id, e.target.value)}
                                                     placeholder={item.current_stock_purchase_price || 'Purchase price'}
                                                 />
@@ -401,19 +437,49 @@ const ReceiveItemsPage = () => {
                                                 )}
                                             </div>
                                         </td>
+                                        {/* Avg. Cost Column */}
+                                        <td>
+                                            {itemWac !== null ? (
+                                                <div className="min-w-[100px]">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Calculator className="h-3.5 w-3.5 text-indigo-500" />
+                                                        <span className="text-sm font-bold text-indigo-700">{formatCurrency(itemWac)}</span>
+                                                    </div>
+                                                    {priceChanged && (
+                                                        <span
+                                                            className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                                                newPurchasePrice > currentPurchasePrice ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                                                            }`}
+                                                        >
+                                                            {newPurchasePrice > currentPurchasePrice ? '↑ Cost Up' : '↓ Cost Down'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-400">—</span>
+                                            )}
+                                        </td>
                                         <td>
                                             <div className="relative">
                                                 <input
                                                     type="number"
-                                                    className="form-input w-32"
+                                                    className={`form-input w-32 ${isBelowWac ? 'border-red-400 bg-red-50' : ''}`}
                                                     min="0"
                                                     step="0.01"
-                                                    value={sellingPrices[item.id] || 0}
+                                                    value={sellingPrices[item.id] === 0 ? '' : sellingPrices[item.id] ?? ''}
                                                     onChange={(e) => handleSellingPriceChange(item.id, e.target.value)}
                                                     placeholder={item.current_stock_selling_price || 'Selling price'}
                                                 />
                                                 {!isNewProduct && item.current_stock_selling_price && (
                                                     <span className="mt-0.5 block text-xs text-green-600">Current: {formatCurrency(item.current_stock_selling_price)}</span>
+                                                )}
+                                                {itemWac !== null && currentSellingPrice > 0 && (
+                                                    <div className={`mt-1 rounded px-1.5 py-0.5 ${isBelowWac ? 'bg-red-50' : 'bg-green-50'}`}>
+                                                        <span className={`text-[11px] font-semibold ${isBelowWac ? 'text-red-600' : 'text-green-600'}`}>
+                                                            {isBelowWac ? '⚠ Loss: ' : 'Profit: '}
+                                                            {formatCurrency(Math.abs(currentSellingPrice - itemWac))} ({Math.abs(((currentSellingPrice - itemWac) / itemWac) * 100).toFixed(1)}%)
+                                                        </span>
+                                                    </div>
                                                 )}
                                             </div>
                                         </td>
@@ -468,8 +534,8 @@ const ReceiveItemsPage = () => {
                                 step="0.01"
                                 min="0"
                                 max={grandTotal}
-                                value={paymentAmount}
-                                onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
+                                value={paymentAmount === 0 ? '' : paymentAmount}
+                                onChange={(e) => setPaymentAmount(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                 placeholder="Enter payment amount"
                             />
                             <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(grandTotal)}</p>
@@ -548,6 +614,7 @@ const ReceiveItemsPage = () => {
                     </p>
                     <ul className="mt-2 space-y-1 text-sm text-blue-700">
                         <li>✓ Update stock quantities for existing products</li>
+                        <li>✓ Calculate Weighted Average Cost (WAC) automatically</li>
                         <li>✓ Automatically create new products in your inventory</li>
                         <li>✓ Record payment information</li>
                         <li>✓ Update purchase order status</li>

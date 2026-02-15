@@ -7,7 +7,7 @@ import ReusableTable from '@/components/common/ReusableTable';
 import AdjustmentReportFilter from '@/components/filters/reports/AdjustmentReportFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
-import { ArrowDown, ArrowDownUp, ArrowUp, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
+import { ArrowDown, ArrowDownUp, ArrowUp, DollarSign, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const AdjustmentReportPage = () => {
@@ -80,17 +80,28 @@ const AdjustmentReportPage = () => {
         }
     }, [apiParams, currentStoreId, sortField, sortDirection, adjustments, getStockAdjustmentReportForExport]);
 
+    const formatPrice = useCallback((val: any) => {
+        if (val === null || val === undefined) return '—';
+        return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }, []);
+
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'reference_no', label: 'Reference', width: 12 },
-            { key: 'product_name', label: 'Product', width: 20 },
-            { key: 'store_name', label: 'Store', width: 15 },
-            { key: 'adjustment_quantity', label: 'Qty', width: 10, format: (v, r) => `${r.direction === 'increase' ? '+' : ''}${v}` },
-            { key: 'reason', label: 'Reason', width: 20 },
-            { key: 'adjusted_by_name', label: 'Adjusted By', width: 15 },
-            { key: 'adjusted_at', label: 'Date', width: 15, format: (v) => v || '' },
+            { key: 'product_name', label: 'Product', width: 18 },
+            { key: 'sku', label: 'SKU', width: 14 },
+            { key: 'store_name', label: 'Store', width: 12 },
+            { key: 'adjustment_quantity', label: 'Qty', width: 8, format: (v, r) => `${r.direction === 'increase' ? '+' : '-'}${v}` },
+            { key: 'previous_purchase_price', label: 'Prev. Purchase Price', width: 10, format: (v) => formatPrice(v) },
+            { key: 'adjusted_purchase_price', label: 'Adj. Purchase Price', width: 10, format: (v) => formatPrice(v) },
+            { key: 'previous_selling_price', label: 'Prev. Selling Price', width: 10, format: (v) => formatPrice(v) },
+            { key: 'adjusted_selling_price', label: 'Adj. Selling Price', width: 10, format: (v) => formatPrice(v) },
+            { key: 'reason', label: 'Reason', width: 14 },
+            { key: 'notes', label: 'Notes', width: 16, format: (v) => v || '' },
+            { key: 'adjusted_by_name', label: 'Adjusted By', width: 12 },
+            { key: 'adjusted_at', label: 'Date', width: 14, format: (v) => v || '' },
         ],
-        []
+        [formatPrice]
     );
 
     const filterSummary = useMemo(() => {
@@ -151,6 +162,44 @@ const AdjustmentReportPage = () => {
         [summary]
     );
 
+    const renderPriceChange = useCallback(
+        (prev: any, adj: any, label: string) => {
+            const prevVal = prev !== null && prev !== undefined ? Number(prev) : null;
+            const adjVal = adj !== null && adj !== undefined ? Number(adj) : null;
+
+            if (prevVal === null && adjVal === null) {
+                return <span className="text-xs text-gray-400">—</span>;
+            }
+
+            const changed = prevVal !== adjVal;
+            const increased = adjVal !== null && prevVal !== null && adjVal > prevVal;
+            const decreased = adjVal !== null && prevVal !== null && adjVal < prevVal;
+
+            return (
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3 text-gray-400" />
+                        <span className="text-[10px] font-medium text-gray-500">{label}</span>
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-1">
+                        <span className={`text-xs ${changed ? 'text-gray-400 line-through' : 'font-semibold text-gray-700'}`}>{prevVal !== null ? formatPrice(prevVal) : '—'}</span>
+                        {changed && (
+                            <>
+                                <span className="text-gray-300">→</span>
+                                <span className={`text-xs font-semibold ${increased ? 'text-emerald-600' : decreased ? 'text-rose-600' : 'text-gray-700'}`}>
+                                    {adjVal !== null ? formatPrice(adjVal) : '—'}
+                                </span>
+                                {increased && <ArrowUp className="h-3 w-3 text-emerald-500" />}
+                                {decreased && <ArrowDown className="h-3 w-3 text-rose-500" />}
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        },
+        [formatPrice]
+    );
+
     const columns = useMemo(
         () => [
             {
@@ -202,6 +251,16 @@ const AdjustmentReportPage = () => {
                 },
             },
             {
+                key: 'previous_purchase_price',
+                label: 'Purchase Price',
+                render: (_v: any, r: any) => renderPriceChange(r.previous_purchase_price, r.adjusted_purchase_price, 'Purchase'),
+            },
+            {
+                key: 'previous_selling_price',
+                label: 'Selling Price',
+                render: (_v: any, r: any) => renderPriceChange(r.previous_selling_price, r.adjusted_selling_price, 'Selling'),
+            },
+            {
                 key: 'reason',
                 label: 'Reason',
                 render: (v: any, r: any) => (
@@ -231,7 +290,7 @@ const AdjustmentReportPage = () => {
                 render: (v) => <DateColumn date={v} />,
             },
         ],
-        []
+        [renderPriceChange]
     );
 
     return (

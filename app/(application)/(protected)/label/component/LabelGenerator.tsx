@@ -465,8 +465,8 @@ const LabelGenerator = () => {
                                                 type="number"
                                                 min="10"
                                                 max="200"
-                                                value={labelSize.width}
-                                                onChange={(e) => setLabelSize({ ...labelSize, width: parseInt(e.target.value) || 10 })}
+                                                value={labelSize.width === 0 ? '' : labelSize.width}
+                                                onChange={(e) => setLabelSize({ ...labelSize, width: e.target.value === '' ? 0 : parseInt(e.target.value) })}
                                                 className="w-full rounded border px-2 py-1.5 text-sm"
                                             />
                                         </div>
@@ -476,8 +476,8 @@ const LabelGenerator = () => {
                                                 type="number"
                                                 min="10"
                                                 max="150"
-                                                value={labelSize.height}
-                                                onChange={(e) => setLabelSize({ ...labelSize, height: parseInt(e.target.value) || 10 })}
+                                                value={labelSize.height === 0 ? '' : labelSize.height}
+                                                onChange={(e) => setLabelSize({ ...labelSize, height: e.target.value === '' ? 0 : parseInt(e.target.value) })}
                                                 className="w-full rounded border px-2 py-1.5 text-sm"
                                             />
                                         </div>
@@ -499,8 +499,8 @@ const LabelGenerator = () => {
                                                 <label className="text-xs">Page W (mm)</label>
                                                 <input
                                                     type="number"
-                                                    value={customPaperDims.width}
-                                                    onChange={(e) => setCustomPaperDims({ ...customPaperDims, width: parseInt(e.target.value) || 0 })}
+                                                    value={customPaperDims.width === 0 ? '' : customPaperDims.width}
+                                                    onChange={(e) => setCustomPaperDims({ ...customPaperDims, width: e.target.value === '' ? 0 : parseInt(e.target.value) })}
                                                     className="w-full rounded border px-2 py-1 text-sm"
                                                 />
                                             </div>
@@ -508,8 +508,8 @@ const LabelGenerator = () => {
                                                 <label className="text-xs">Page H (mm)</label>
                                                 <input
                                                     type="number"
-                                                    value={customPaperDims.height}
-                                                    onChange={(e) => setCustomPaperDims({ ...customPaperDims, height: parseInt(e.target.value) || 0 })}
+                                                    value={customPaperDims.height === 0 ? '' : customPaperDims.height}
+                                                    onChange={(e) => setCustomPaperDims({ ...customPaperDims, height: e.target.value === '' ? 0 : parseInt(e.target.value) })}
                                                     className="w-full rounded border px-2 py-1 text-sm"
                                                 />
                                             </div>
@@ -580,8 +580,8 @@ const LabelGenerator = () => {
                                         type="number"
                                         min="1"
                                         max="100"
-                                        value={globalQuantity}
-                                        onChange={(e) => setGlobalQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 100))}
+                                        value={globalQuantity === 0 ? '' : globalQuantity}
+                                        onChange={(e) => setGlobalQuantity(e.target.value === '' ? 0 : Math.min(Math.max(parseInt(e.target.value), 1), 100))}
                                         className="w-20 rounded-lg border-2 border-gray-200 px-3 py-1.5 text-sm font-bold"
                                     />
                                 </div>
