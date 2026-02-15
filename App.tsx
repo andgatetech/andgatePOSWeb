@@ -1,5 +1,5 @@
 'use client';
-import Loading from '@/components/layouts/loading';
+import Loading from '@/app/loading';
 import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { toggleAnimation, toggleLayout, toggleMenu, toggleNavbar, toggleRTL, toggleSemidark, toggleTheme } from '@/store/themeConfigSlice';

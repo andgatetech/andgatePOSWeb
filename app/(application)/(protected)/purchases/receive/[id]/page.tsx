@@ -1,5 +1,5 @@
 'use client';
-import Loading from '@/components/layouts/loading';
+import Loading from '@/app/loading';
 import { useCurrency } from '@/hooks/useCurrency';
 import type { RootState } from '@/store';
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
