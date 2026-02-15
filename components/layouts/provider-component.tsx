@@ -1,7 +1,8 @@
 'use client';
 
 import App from '@/App';
-import Loading from '@/components/layouts/loading';
+import Loading from '@/app/loading';
+
 import { persistor, store } from '@/store';
 import { ReactNode, Suspense } from 'react';
 import { Provider } from 'react-redux';

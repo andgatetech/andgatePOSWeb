@@ -195,6 +195,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         `}
                     </Script>
                     <noscript>
+                        
                         <img
                             height="1"
                             width="1"
