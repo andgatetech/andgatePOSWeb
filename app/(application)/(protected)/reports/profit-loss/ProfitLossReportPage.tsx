@@ -1,140 +1,347 @@
 'use client';
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
-import ReusableTable from '@/components/common/ReusableTable';
-import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
-
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
-import { ArrowDown, ArrowUp, Banknote, Calendar, MinusCircle, PieChart, TrendingUp } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowUp,
+    Banknote,
+    CalendarDays,
+    ChevronDown,
+    CircleDollarSign,
+    Minus,
+    Package,
+    Percent,
+    Receipt,
+    ShoppingCart,
+    TrendingUp,
+    Wallet,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import CountUp from 'react-countup';
 
-const ProfitLossReportPage = () => {
-    const { formatCurrency } = useCurrency();
-    const { currentStoreId, currentStore, userStores } = useCurrentStore();
-    const [apiParams, setApiParams] = useState<Record<string, any>>({});
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-    const [getProfitLossReport, { data: reportData, isLoading }] = useGetProfitLossReportMutation();
-    const [getProfitLossReportForExport] = useGetProfitLossReportMutation();
+type PeriodType = 'today' | 'weekly' | 'monthly' | 'yearly' | 'custom';
 
-    const lastQueryParams = useRef<string>('');
+const periodOptions: { value: PeriodType; label: string }[] = [
+    { value: 'today', label: 'Today' },
+    { value: 'weekly', label: 'This Week' },
+    { value: 'monthly', label: 'This Month' },
+    { value: 'yearly', label: 'This Year' },
+    { value: 'custom', label: 'Custom Range' },
+];
 
-    const queryParams = useMemo(() => {
-        const params: Record<string, any> = { ...apiParams };
-        if (!params.store_id && !params.store_ids && currentStoreId) params.store_id = currentStoreId;
-        return params;
-    }, [apiParams, currentStoreId]);
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-    // Reset lastQueryParams when store changes to force API recall
+const AnimatedCurrency = ({ value, symbol }: { value: number; symbol: string }) => (
+    <span>
+        {symbol}
+        <CountUp end={value} duration={1.5} decimals={2} separator="," />
+    </span>
+);
+
+// ─── Period Filter Dropdown ──────────────────────────────────────────────────
+
+const PeriodFilter = ({
+    period,
+    onPeriodChange,
+    customStart,
+    customEnd,
+    onStartChange,
+    onEndChange,
+    onApply,
+    label,
+}: {
+    period: PeriodType;
+    onPeriodChange: (p: PeriodType) => void;
+    customStart: string;
+    customEnd: string;
+    onStartChange: (d: string) => void;
+    onEndChange: (d: string) => void;
+    onApply: () => void;
+    label: string;
+}) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
-        lastQueryParams.current = '';
-    }, [currentStoreId]);
-
-    useEffect(() => {
-        const queryString = JSON.stringify(queryParams);
-        if (lastQueryParams.current === queryString) return;
-        if (currentStoreId || apiParams.store_id || apiParams.store_ids) {
-            lastQueryParams.current = queryString;
-            getProfitLossReport(queryParams);
-        }
-    }, [queryParams, currentStoreId, apiParams, getProfitLossReport]);
-
-    const data = useMemo(() => reportData?.data || {}, [reportData]);
-    const revenue = useMemo(() => data.revenue || {}, [data]);
-    const cogs = useMemo(() => data.cost_of_goods_sold || {}, [data]);
-    const grossProfit = useMemo(() => data.gross_profit || {}, [data]);
-    const expenses = useMemo(() => data.operating_expenses || {}, [data]);
-    const netProfit = useMemo(() => data.net_profit || {}, [data]);
-    const monthlyTrend = useMemo(() => data.monthly_trend || [], [data]);
-    const period = useMemo(() => data.period || {}, [data]);
-
-    const handleFilterChange = useCallback((n: Record<string, any>) => {
-        setApiParams(n);
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
-        const exportParams: Record<string, any> = { ...apiParams, export: true };
-        if (!exportParams.store_id && !exportParams.store_ids && currentStoreId) exportParams.store_id = currentStoreId;
-        try {
-            const result = await getProfitLossReportForExport(exportParams).unwrap();
-            return result?.data?.monthly_trend || [];
-        } catch (e) {
-            console.error('Export failed:', e);
-            return monthlyTrend;
-        }
-    }, [apiParams, currentStoreId, monthlyTrend, getProfitLossReportForExport]);
-
-    const exportColumns: ExportColumn[] = useMemo(
-        () => [
-            { key: 'month_name', label: 'Period', width: 20 },
-            { key: 'sales', label: 'Sales', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'cogs', label: 'COGS', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'gross_profit', label: 'Gross Profit', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'expenses', label: 'Expenses', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'net_profit', label: 'Net Profit', width: 15, format: (v) => formatCurrency(v) },
-        ],
-        [formatCurrency]
+    return (
+        <div ref={ref} className="relative">
+            <button
+                onClick={() => setOpen(!open)}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50"
+            >
+                <CalendarDays className="h-4 w-4 text-gray-400" />
+                <span>{label}</span>
+                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && (
+                <div className="absolute right-0 z-50 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-2 shadow-xl">
+                    <div className="space-y-0.5">
+                        {periodOptions.map((opt) => (
+                            <button
+                                key={opt.value}
+                                onClick={() => {
+                                    onPeriodChange(opt.value);
+                                    if (opt.value !== 'custom') setOpen(false);
+                                }}
+                                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                                    period === opt.value ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                                }`}
+                            >
+                                <CalendarDays className="h-4 w-4" />
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                    {period === 'custom' && (
+                        <div className="mt-2 space-y-2 border-t border-gray-100 px-1 pt-3">
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">Start</label>
+                                <input type="date" value={customStart} onChange={(e) => onStartChange(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">End</label>
+                                <input type="date" value={customEnd} onChange={(e) => onEndChange(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                            </div>
+                            <button
+                                onClick={() => { onApply(); setOpen(false); }}
+                                disabled={!customStart || !customEnd}
+                                className="mt-1 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Apply Range
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
     );
+};
+
+// ─── Quick Summary Card ──────────────────────────────────────────────────────
+
+const SummaryCard = ({
+    icon: Icon,
+    iconBg,
+    iconColor,
+    label,
+    sublabel,
+    value,
+    symbol,
+    valueColor,
+}: {
+    icon: React.ElementType;
+    iconBg: string;
+    iconColor: string;
+    label: string;
+    sublabel: string;
+    value: number;
+    symbol: string;
+    valueColor: string;
+}) => (
+    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+        <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
+                <Icon className={`h-5 w-5 ${iconColor}`} />
+            </div>
+            <div className="min-w-0 flex-1">
+                <p className="text-xs text-gray-400">{sublabel}</p>
+                <p className={`text-xl font-bold ${valueColor}`}>
+                    <AnimatedCurrency value={value} symbol={symbol} />
+                </p>
+                <p className="truncate text-[11px] text-gray-400">{label}</p>
+            </div>
+        </div>
+    </div>
+);
+
+// ─── Calculation Step ────────────────────────────────────────────────────────
+
+const CalcStep = ({
+    step,
+    icon: Icon,
+    iconBg,
+    iconColor,
+    title,
+    subtitle,
+    value,
+    symbol,
+    valueColor,
+    operation,
+}: {
+    step: number;
+    icon: React.ElementType;
+    iconBg: string;
+    iconColor: string;
+    title: string;
+    subtitle: string;
+    value: number;
+    symbol: string;
+    valueColor: string;
+    operation?: '-' | '=';
+}) => (
+    <>
+        {operation && (
+            <div className="flex justify-center py-1">
+                <div
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                        operation === '-' ? 'bg-red-100 text-red-500' : 'bg-emerald-100 text-emerald-600'
+                    }`}
+                >
+                    {operation === '-' ? <Minus className="h-3 w-3" /> : '='}
+                </div>
+            </div>
+        )}
+        <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
+                <Icon className={`h-4 w-4 ${iconColor}`} />
+            </div>
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] font-bold text-gray-500">{step}</span>
+                    <span className="text-sm font-semibold text-gray-700">{title}</span>
+                </div>
+                <p className="mt-0.5 text-[11px] text-gray-400">{subtitle}</p>
+            </div>
+            <p className={`flex-shrink-0 text-lg font-bold ${valueColor}`}>
+                <AnimatedCurrency value={value} symbol={symbol} />
+            </p>
+        </div>
+    </>
+);
+
+// ─── Main Component ──────────────────────────────────────────────────────────
+
+const ProfitLossReportPage = () => {
+    const { formatCurrency, symbol } = useCurrency();
+    const { currentStoreId, currentStore, userStores } = useCurrentStore();
+
+    const [period, setPeriod] = useState<PeriodType>('monthly');
+    const [customStart, setCustomStart] = useState('');
+    const [customEnd, setCustomEnd] = useState('');
+    const [appliedStart, setAppliedStart] = useState('');
+    const [appliedEnd, setAppliedEnd] = useState('');
+
+    const [getProfitLossReport, { data: reportData, isLoading, isError }] = useGetProfitLossReportMutation();
+    const [getProfitLossReportForExport] = useGetProfitLossReportMutation();
+
+    const lastQueryRef = useRef<string>('');
+
+    // Build POST body params
+    const bodyParams = useMemo(() => {
+        const params: Record<string, any> = {};
+        if (currentStoreId) params.store_id = currentStoreId;
+        if (period === 'custom' && appliedStart && appliedEnd) {
+            params.period = 'custom';
+            params.start_date = appliedStart;
+            params.end_date = appliedEnd;
+        } else if (period !== 'custom') {
+            params.period = period;
+        }
+        return params;
+    }, [currentStoreId, period, appliedStart, appliedEnd]);
+
+    // Reset on store change
+    useEffect(() => {
+        lastQueryRef.current = '';
+    }, [currentStoreId]);
+
+    // Trigger mutation when params change
+    useEffect(() => {
+        const key = JSON.stringify(bodyParams);
+        if (lastQueryRef.current === key) return;
+        if (currentStoreId) {
+            lastQueryRef.current = key;
+            getProfitLossReport(bodyParams);
+        }
+    }, [bodyParams, currentStoreId, getProfitLossReport]);
+
+    const handleApplyCustom = () => {
+        setAppliedStart(customStart);
+        setAppliedEnd(customEnd);
+    };
+
+    const getPeriodLabel = () => {
+        if (period === 'custom' && appliedStart && appliedEnd) return `${appliedStart} — ${appliedEnd}`;
+        return periodOptions.find((o) => o.value === period)?.label || 'This Month';
+    };
+
+    // Data
+    const data = useMemo(() => reportData?.data || {}, [reportData]);
+    const income = useMemo(() => data.income || {}, [data]);
+    const cost = useMemo(() => data.cost || {}, [data]);
+    const productProfit = useMemo(() => data.product_profit || {}, [data]);
+    const expenses = useMemo(() => data.expenses || {}, [data]);
+    const businessProfit = useMemo(() => data.business_profit || {}, [data]);
+    const summary = useMemo(() => data.summary || {}, [data]);
+    const periodInfo = useMemo(() => data.period || {}, [data]);
+
+    const isProfit = Number(businessProfit.amount) >= 0;
+
+    // Export helpers
+    const exportColumns: ExportColumn[] = useMemo(() => [
+        { key: 'item', label: 'Item', width: 30 },
+        { key: 'amount', label: 'Amount', width: 20 },
+    ], []);
 
     const filterSummary = useMemo(() => {
-        const selectedStore = apiParams.store_ids
-            ? 'All Stores'
-            : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
-        let dateType = 'none';
-        if (apiParams.date_range_type) dateType = apiParams.date_range_type;
-        else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
-        return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+        const storeName = currentStore?.store_name || 'All Stores';
+        // Map our period values to what ReportExportToolbar expects
+        const typeMap: Record<string, string> = { today: 'today', weekly: 'this_week', monthly: 'this_month', yearly: 'this_year', custom: 'custom' };
+        const mappedType = typeMap[period] || 'none';
+        // Only pass dates for custom range to avoid parseSafeDate errors
+        const startDate = period === 'custom' && periodInfo.start_date ? periodInfo.start_date : undefined;
+        const endDate = period === 'custom' && periodInfo.end_date ? periodInfo.end_date : undefined;
+        return { dateRange: { startDate, endDate, type: mappedType }, storeName, customFilters: [] };
+    }, [currentStore, periodInfo, period]);
 
-    const exportSummary = useMemo(
-        () => [
-            { label: 'Total Sales', value: formatCurrency(revenue.total_sales) },
-            { label: 'Net Profit', value: formatCurrency(netProfit.amount) },
-            { label: 'Profit Margin', value: `${netProfit.margin_percentage || 0}%` },
-        ],
-        [revenue, netProfit, formatCurrency]
-    );
+    const exportSummary = useMemo(() => [
+        { label: 'You Earned', value: formatCurrency(summary.you_earned) },
+        { label: 'You Keep', value: formatCurrency(summary.you_keep) },
+        { label: 'Business Margin', value: `${businessProfit.margin || 0}%` },
+    ], [summary, businessProfit, formatCurrency]);
 
-    const trendColumns = useMemo(
-        () => [
-            {
-                key: 'month_name',
-                label: 'Period',
-                render: (v: any) => (
-                    <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="font-medium text-gray-900">{v}</span>
-                    </div>
-                ),
-            },
-            { key: 'sales', label: 'Sales', render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
-            { key: 'cogs', label: 'COGS', render: (v: any) => <span className="font-semibold text-orange-600">{formatCurrency(v)}</span> },
-            { key: 'gross_profit', label: 'Gross Profit', render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span> },
-            { key: 'expenses', label: 'Expenses', render: (v: any) => <span className="font-semibold text-red-600">{formatCurrency(v)}</span> },
-            {
-                key: 'net_profit',
-                label: 'Net Profit',
-                render: (v: any) => {
-                    const p = Number(v) >= 0;
-                    return <span className={`font-bold ${p ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(v)}</span>;
-                },
-            },
-        ],
-        [formatCurrency]
-    );
+    const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
+        const exportParams: Record<string, any> = { ...bodyParams, export: true };
+        try {
+            const result = await getProfitLossReportForExport(exportParams).unwrap();
+            const d = result?.data || {};
+            return [
+                { item: 'Total Sales', amount: formatCurrency(d.income?.total_sales) },
+                { item: 'Sales Returns', amount: formatCurrency(d.income?.sales_returns) },
+                { item: 'Net Sales (You Earned)', amount: formatCurrency(d.income?.net_sales) },
+                { item: 'Cost of Products', amount: formatCurrency(d.cost?.cost_of_goods_sold) },
+                { item: 'Product Profit', amount: formatCurrency(d.product_profit?.amount) },
+                { item: 'Product Margin', amount: `${d.product_profit?.margin || 0}%` },
+                { item: 'Expenses', amount: formatCurrency(d.expenses?.total) },
+                { item: 'Business Profit (You Keep)', amount: formatCurrency(d.business_profit?.amount) },
+            ];
+        } catch (e) {
+            console.error('Export failed:', e);
+            return [];
+        }
+    }, [bodyParams, formatCurrency, getProfitLossReportForExport]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Profit & Loss Report"
-                    reportDescription="View your business financial performance"
+                    reportTitle="Profit & Loss"
+                    reportDescription="Understand how your business is performing"
                     reportIcon={<TrendingUp className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-emerald-600 to-emerald-700"
-                    data={monthlyTrend}
+                    data={[]}
                     columns={exportColumns}
                     summary={exportSummary}
                     filterSummary={filterSummary}
@@ -142,200 +349,257 @@ const ProfitLossReportPage = () => {
                     fetchAllData={fetchAllDataForExport}
                 />
 
-                <div className="mb-6 mt-6">
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search..." />
+                {/* Filter Row */}
+                <div className="mb-6 mt-6 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        {periodInfo.start_date && (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm">
+                                <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
+                                {periodInfo.start_date} → {periodInfo.end_date}
+                            </span>
+                        )}
+                    </div>
+                    <PeriodFilter
+                        period={period}
+                        onPeriodChange={setPeriod}
+                        customStart={customStart}
+                        customEnd={customEnd}
+                        onStartChange={setCustomStart}
+                        onEndChange={setCustomEnd}
+                        onApply={handleApplyCustom}
+                        label={getPeriodLabel()}
+                    />
                 </div>
 
                 {isLoading ? (
                     <div className="flex h-64 items-center justify-center">
                         <div className="text-center">
                             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
-                            <p className="mt-4 text-sm text-gray-600">Loading report...</p>
+                            <p className="mt-4 text-sm text-gray-600">Calculating your profit...</p>
                         </div>
                     </div>
+                ) : isError ? (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+                        <p className="text-sm text-red-600">Failed to load report. Please try again.</p>
+                    </div>
                 ) : (
-                    <div className="space-y-6">
-                        {period.start_date && (
-                            <div className="rounded-lg bg-gray-50 px-4 py-3">
-                                <p className="text-sm text-gray-600">
-                                    <span className="font-medium">Report Period:</span> {period.start_date || ''} to {period.end_date || ''} ({Math.round(period.days)} days)
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Revenue Section */}
-                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                            <div className="border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="rounded-full bg-green-100 p-2">
-                                        <Banknote className="h-5 w-5 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">Revenue</h3>
-                                        <p className="text-sm text-gray-500">Total income from sales</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="grid gap-4 md:grid-cols-5">
-                                    <div className="rounded-lg bg-gray-50 p-4">
-                                        <p className="text-sm text-gray-500">Total Sales</p>
-                                        <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenue.total_sales)}</p>
-                                        <p className="mt-1 text-xs text-gray-500">{revenue.total_orders || 0} orders</p>
-                                    </div>
-                                    <div className="rounded-lg bg-gray-50 p-4">
-                                        <p className="text-sm text-gray-500">Discounts</p>
-                                        <p className="text-2xl font-bold text-red-600">-{formatCurrency(revenue.total_discount)}</p>
-                                    </div>
-                                    <div className="rounded-lg bg-orange-50 p-4">
-                                        <p className="text-sm text-orange-600">Sales Returns</p>
-                                        <p className="text-2xl font-bold text-orange-600">-{formatCurrency(revenue.sales_returns || 0)}</p>
-                                        <p className="mt-1 text-xs text-orange-500">
-                                            {revenue.return_count || 0} returns | {Number(revenue.return_rate || 0).toFixed(2)}%
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg bg-blue-50 p-4">
-                                        <p className="text-sm text-blue-600">Exchange Amount</p>
-                                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(revenue.exchange_amount || 0)}</p>
-                                    </div>
-                                    <div className="rounded-lg bg-gray-50 p-4">
-                                        <p className="text-sm text-gray-500">Tax Collected</p>
-                                        <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenue.total_tax_collected)}</p>
-                                    </div>
-                                </div>
-                                <div className="mt-4 rounded-lg bg-green-100 p-4">
-                                    <p className="text-sm text-green-700">Net Sales</p>
-                                    <p className="text-2xl font-bold text-green-700">{formatCurrency(revenue.net_sales)}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* COGS Section */}
-                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                            <div className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-amber-50 px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="rounded-full bg-orange-100 p-2">
-                                        <MinusCircle className="h-5 w-5 text-orange-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">Cost of Goods Sold</h3>
-                                        <p className="text-sm text-gray-500">Direct costs of products sold</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="rounded-lg bg-orange-50 p-4">
-                                        <p className="text-sm text-orange-700">Total COGS</p>
-                                        <p className="text-2xl font-bold text-orange-700">{formatCurrency(cogs.cogs)}</p>
-                                    </div>
-                                    <div className="rounded-lg bg-gray-50 p-4">
-                                        <p className="text-sm text-gray-500">COGS as % of Sales</p>
-                                        <p className="text-2xl font-bold text-gray-900">{cogs.cogs_percentage || 0}%</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Gross Profit */}
-                        <div className="overflow-hidden rounded-xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm">
-                            <div className="px-6 py-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="rounded-full bg-blue-100 p-2">
-                                            <PieChart className="h-5 w-5 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-gray-900">Gross Profit</h3>
-                                            <p className="text-sm text-gray-500">Net Sales - COGS</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-3xl font-bold text-blue-700">{formatCurrency(grossProfit.amount)}</p>
-                                        <p className="text-sm text-blue-600">Margin: {grossProfit.margin_percentage || 0}%</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Expenses */}
-                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                            <div className="border-b border-gray-200 bg-gradient-to-r from-red-50 to-rose-50 px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="rounded-full bg-red-100 p-2">
-                                        <ArrowDown className="h-5 w-5 text-red-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">Operating Expenses</h3>
-                                        <p className="text-sm text-gray-500">Business overhead costs</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="space-y-3">
-                                    <div className="rounded-lg bg-red-50 p-4">
-                                        <p className="text-sm text-red-700">Total Expenses</p>
-                                        <p className="text-2xl font-bold text-red-700">{formatCurrency(expenses.total)}</p>
-                                    </div>
-                                    {expenses.by_category && expenses.by_category.length > 0 && (
-                                        <div className="space-y-2">
-                                            <p className="text-sm font-medium text-gray-700">By Category:</p>
-                                            {expenses.by_category.map((cat: any, idx: number) => (
-                                                <div key={idx} className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-2">
-                                                    <span className="text-sm text-gray-600">{cat.expense_ledger_type}</span>
-                                                    <span className="font-semibold text-gray-900">{formatCurrency(cat.total)}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Net Profit */}
+                    <div className="space-y-5">
+                        {/* ━━━ HERO: Bottom Line ━━━ */}
                         <div
-                            className={`overflow-hidden rounded-xl border-2 shadow-lg ${
-                                Number(netProfit.amount) >= 0 ? 'border-emerald-300 bg-gradient-to-r from-emerald-50 to-green-50' : 'border-red-300 bg-gradient-to-r from-red-50 to-rose-50'
+                            className={`overflow-hidden rounded-2xl border-2 shadow-lg ${
+                                isProfit ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-green-50' : 'border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50'
                             }`}
                         >
-                            <div className="px-6 py-8">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`rounded-full p-3 ${Number(netProfit.amount) >= 0 ? 'bg-emerald-100' : 'bg-red-100'}`}>
-                                            {Number(netProfit.amount) >= 0 ? <ArrowUp className="h-6 w-6 text-emerald-600" /> : <ArrowDown className="h-6 w-6 text-red-600" />}
+                            <div className="p-6 sm:p-8">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`rounded-2xl p-3 ${isProfit ? 'bg-emerald-100' : 'bg-red-100'}`}>
+                                            {isProfit ? <ArrowUp className="h-7 w-7 text-emerald-600" /> : <ArrowDown className="h-7 w-7 text-red-600" />}
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-gray-900">Net {Number(netProfit.amount) >= 0 ? 'Profit' : 'Loss'}</h3>
-                                            <p className="text-sm text-gray-500">Gross Profit - Operating Expenses</p>
+                                            <p className="text-sm font-medium text-gray-500">After all costs, you {isProfit ? 'earned' : 'lost'}</p>
+                                            <p className={`text-3xl font-extrabold sm:text-4xl ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>
+                                                <AnimatedCurrency value={Math.abs(businessProfit.amount || 0)} symbol={symbol} />
+                                            </p>
+                                            <p className={`mt-1 text-sm ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                Business Margin: <span className="font-bold">{businessProfit.margin || 0}%</span>
+                                            </p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className={`text-4xl font-bold ${Number(netProfit.amount) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{formatCurrency(Math.abs(netProfit.amount || 0))}</p>
-                                        <p className={`text-sm ${Number(netProfit.amount) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>Margin: {netProfit.margin_percentage || 0}%</p>
+                                    <div className="flex gap-4 sm:gap-6">
+                                        <div className={`rounded-xl px-4 py-3 ${isProfit ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                                            <p className="text-[11px] font-medium text-gray-400">Product Margin</p>
+                                            <p className={`text-2xl font-bold ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>{productProfit.margin || 0}%</p>
+                                        </div>
+                                        <div className="rounded-xl bg-gray-50 px-4 py-3">
+                                            <p className="text-[11px] font-medium text-gray-400">Total Orders</p>
+                                            <p className="text-2xl font-bold text-gray-800">{income.total_orders || 0}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Monthly Trend Table */}
-                        {monthlyTrend.length > 0 && (
-                            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                                <div className="border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="rounded-full bg-purple-100 p-2">
-                                            <TrendingUp className="h-5 w-5 text-purple-600" />
-                                        </div>
+                        {/* ━━━ Quick Summary Cards ━━━ */}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <SummaryCard
+                                icon={CircleDollarSign}
+                                iconBg="bg-emerald-50"
+                                iconColor="text-emerald-600"
+                                label="Total money received from customers"
+                                sublabel="You Earned"
+                                value={summary.you_earned || 0}
+                                symbol={symbol}
+                                valueColor="text-emerald-700"
+                            />
+                            <SummaryCard
+                                icon={Package}
+                                iconBg="bg-orange-50"
+                                iconColor="text-orange-600"
+                                label="What you paid for products sold"
+                                sublabel="Products Cost"
+                                value={summary.products_cost || 0}
+                                symbol={symbol}
+                                valueColor="text-orange-700"
+                            />
+                            <SummaryCard
+                                icon={Receipt}
+                                iconBg="bg-red-50"
+                                iconColor="text-red-500"
+                                label="Rent, bills, salaries & other costs"
+                                sublabel="Your Expenses"
+                                value={summary.your_expenses || 0}
+                                symbol={symbol}
+                                valueColor="text-red-600"
+                            />
+                            <SummaryCard
+                                icon={isProfit ? TrendingUp : ArrowDown}
+                                iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'}
+                                iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'}
+                                label="Your real profit after all costs"
+                                sublabel="You Keep"
+                                value={summary.you_keep || 0}
+                                symbol={symbol}
+                                valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'}
+                            />
+                        </div>
+
+                        {/* ━━━ How Profit Is Calculated ━━━ */}
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50/50 p-5 sm:p-6">
+                            <div className="mb-4 flex items-center gap-2">
+                                <Percent className="h-5 w-5 text-gray-400" />
+                                <h3 className="text-sm font-semibold text-gray-700">How your profit is calculated</h3>
+                            </div>
+
+                            <div className="mx-auto max-w-xl space-y-0">
+                                <CalcStep step={1} icon={ShoppingCart} iconBg="bg-emerald-50" iconColor="text-emerald-600" title="Total Sales" subtitle="All your sales" value={income.total_sales || 0} symbol={symbol} valueColor="text-emerald-700" />
+                                <CalcStep step={2} icon={ArrowDown} iconBg="bg-orange-50" iconColor="text-orange-500" title="Returns & Discounts" subtitle="Returned items + discounts given" value={(income.sales_returns || 0) + (income.total_discount || 0)} symbol={symbol} valueColor="text-orange-600" operation="-" />
+                                <CalcStep step={3} icon={Banknote} iconBg="bg-blue-50" iconColor="text-blue-600" title="Net Sales" subtitle="What you actually earned" value={income.net_sales || 0} symbol={symbol} valueColor="text-blue-700" operation="=" />
+                                <CalcStep step={4} icon={Package} iconBg="bg-orange-50" iconColor="text-orange-600" title="Product Cost" subtitle={`Purchase price of ${cost.total_items_sold || 0} items sold`} value={cost.cost_of_goods_sold || 0} symbol={symbol} valueColor="text-orange-700" operation="-" />
+                                <CalcStep step={5} icon={TrendingUp} iconBg="bg-violet-50" iconColor="text-violet-600" title="Product Profit" subtitle={`${productProfit.margin || 0}% margin`} value={productProfit.amount || 0} symbol={symbol} valueColor="text-violet-700" operation="=" />
+                                <CalcStep step={6} icon={Receipt} iconBg="bg-red-50" iconColor="text-red-500" title="Expenses" subtitle="Rent, utilities, salaries, etc." value={expenses.total || 0} symbol={symbol} valueColor="text-red-600" operation="-" />
+                                <CalcStep step={7} icon={isProfit ? TrendingUp : ArrowDown} iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'} iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'} title="Business Profit" subtitle="This is what you keep" value={businessProfit.amount || 0} symbol={symbol} valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'} operation="=" />
+                            </div>
+                        </div>
+
+                        {/* ━━━ Detailed Breakdown ━━━ */}
+                        <div className="grid gap-4 lg:grid-cols-2">
+                            {/* Income Details */}
+                            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                                <div className="border-b border-gray-100 px-5 py-4">
+                                    <div className="flex items-center gap-2">
+                                        <CircleDollarSign className="h-5 w-5 text-emerald-600" />
+                                        <h3 className="text-sm font-semibold text-gray-800">Income Details</h3>
+                                    </div>
+                                </div>
+                                <div className="divide-y divide-gray-50 p-5">
+                                    <div className="flex items-center justify-between py-2.5">
+                                        <span className="text-sm text-gray-600">Total Sales</span>
+                                        <span className="font-semibold text-gray-900">{formatCurrency(income.total_sales)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2.5">
+                                        <span className="text-sm text-gray-600">Total Orders</span>
+                                        <span className="font-semibold text-gray-900">{income.total_orders || 0}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2.5">
+                                        <span className="text-sm text-gray-600">Sales Returns</span>
+                                        <span className="font-semibold text-orange-600">−{formatCurrency(income.sales_returns)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2.5">
+                                        <span className="text-sm text-gray-600">Discounts Given</span>
+                                        <span className="font-semibold text-orange-600">−{formatCurrency(income.total_discount)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2.5">
+                                        <span className="text-sm text-gray-600">Tax Collected</span>
+                                        <span className="font-semibold text-gray-900">{formatCurrency(income.total_tax)}</span>
+                                    </div>
+                                    <div className="mt-2 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-3">
+                                        <span className="text-sm font-semibold text-emerald-700">Net Sales (You Earned)</span>
+                                        <span className="text-lg font-bold text-emerald-700">{formatCurrency(income.net_sales)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Cost & Expenses */}
+                            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                                <div className="border-b border-gray-100 px-5 py-4">
+                                    <div className="flex items-center gap-2">
+                                        <Wallet className="h-5 w-5 text-orange-600" />
+                                        <h3 className="text-sm font-semibold text-gray-800">Costs & Expenses</h3>
+                                    </div>
+                                </div>
+                                <div className="divide-y divide-gray-50 p-5">
+                                    <div className="flex items-center justify-between py-2.5">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-gray-900">Monthly Trend</h3>
-                                            <p className="text-sm text-gray-500">Month-by-month performance breakdown</p>
+                                            <span className="text-sm text-gray-600">Product Cost</span>
+                                            <p className="text-[11px] text-gray-400">Purchase price of {cost.total_items_sold || 0} items</p>
+                                        </div>
+                                        <span className="font-semibold text-orange-700">{formatCurrency(cost.cost_of_goods_sold)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between rounded-lg bg-violet-50 px-3 py-2.5">
+                                        <div>
+                                            <span className="text-sm font-semibold text-violet-700">Product Profit</span>
+                                            <p className="text-[11px] text-violet-500">Sales − Product Cost</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-lg font-bold text-violet-700">{formatCurrency(productProfit.amount)}</span>
+                                            <p className="text-[11px] text-violet-500">{productProfit.margin || 0}% margin</p>
+                                        </div>
+                                    </div>
+                                    <div className="pt-2.5">
+                                        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-gray-400">Expenses</p>
+                                        {expenses.breakdown && expenses.breakdown.length > 0 ? (
+                                            <div className="space-y-1.5">
+                                                {expenses.breakdown.map((cat: any, idx: number) => (
+                                                    <div key={idx} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                                                        <span className="text-sm text-gray-600">{cat.category}</span>
+                                                        <span className="font-semibold text-red-600">{formatCurrency(cat.amount)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="rounded-lg bg-gray-50 px-3 py-2 text-center text-xs text-gray-400">No expenses recorded</div>
+                                        )}
+                                        <div className="mt-2 flex items-center justify-between rounded-lg bg-red-50 px-3 py-3">
+                                            <span className="text-sm font-semibold text-red-600">Total Expenses</span>
+                                            <span className="text-lg font-bold text-red-600">{formatCurrency(expenses.total)}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="p-6">
-                                    <ReusableTable data={monthlyTrend} columns={trendColumns} isLoading={false} emptyState={{ title: 'No trend data available' }} />
+                            </div>
+                        </div>
+
+                        {/* ━━━ Final Banner ━━━ */}
+                        <div
+                            className={`overflow-hidden rounded-2xl border-2 ${
+                                isProfit ? 'border-emerald-200 bg-gradient-to-r from-emerald-600 to-green-600' : 'border-red-200 bg-gradient-to-r from-red-600 to-rose-600'
+                            } p-6 text-white shadow-lg`}
+                        >
+                            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="rounded-xl bg-white/20 p-3">
+                                        {isProfit ? <TrendingUp className="h-6 w-6" /> : <ArrowDown className="h-6 w-6" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-white/80">Bottom Line — You {isProfit ? 'Earned' : 'Lost'}</p>
+                                        <p className="text-3xl font-extrabold">
+                                            <AnimatedCurrency value={Math.abs(businessProfit.amount || 0)} symbol={symbol} />
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-6 text-center">
+                                    <div>
+                                        <p className="text-xs text-white/70">Product Margin</p>
+                                        <p className="text-xl font-bold">{productProfit.margin || 0}%</p>
+                                    </div>
+                                    <div className="h-10 w-px bg-white/20"></div>
+                                    <div>
+                                        <p className="text-xs text-white/70">Business Margin</p>
+                                        <p className="text-xl font-bold">{businessProfit.margin || 0}%</p>
+                                    </div>
                                 </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 )}
             </div>

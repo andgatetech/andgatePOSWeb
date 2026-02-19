@@ -243,8 +243,12 @@ const Orders = () => {
                                     customer: selectedOrder.customer || {},
                                     items: (selectedOrder.items || []).map((item: any) => ({
                                         id: item.id,
-                                        title: item.product_name || item.product?.name || item.name || item.title || 'Unknown Product',
-                                        variantName: item.variant_name || item.variant?.name || item.variantName,
+                                        title: item.snapshot?.product_name ?? item.product?.name ?? item.product_name ?? 'Unknown Product',
+                                        variantName: item.snapshot?.variant_data
+                                            ? Object.entries(item.snapshot.variant_data)
+                                                  .map(([k, v]) => `${k}: ${v}`)
+                                                  .join(', ')
+                                            : item.variant_name || item.variant?.name || item.variantName,
                                         quantity: item.quantity,
                                         unit: item.unit || 'Pcs',
                                         price: item.unit_price || item.price,

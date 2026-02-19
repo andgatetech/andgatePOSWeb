@@ -7,7 +7,7 @@ import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSalesItemsReportMutation } from '@/store/features/reports/reportApi';
-import { BarChart3, Boxes, FileText, Layers, Package, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
+import { BarChart3, FileText, Layers, Package, ShoppingCart, Tag, TrendingDown, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesItemsReportPage = () => {
@@ -85,12 +85,15 @@ const SalesItemsReportPage = () => {
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'sku', label: 'SKU', width: 12 },
+            { key: 'sku', label: 'SKU', width: 18 },
+            { key: 'variant', label: 'Variant', width: 15, format: (v) => (v && typeof v === 'object' ? Object.values(v).join(' / ') : v || '') },
             { key: 'category', label: 'Category', width: 15 },
             { key: 'brand', label: 'Brand', width: 12 },
             { key: 'sold_qty', label: 'Sold Qty', width: 10 },
             { key: 'sold_amount', label: 'Sold Amount', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'instock_qty', label: 'Stock', width: 10 },
+            { key: 'cost_of_goods', label: 'Cost of Goods', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'unit_profit', label: 'Unit Profit', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'total_profit', label: 'Total Profit', width: 15, format: (v) => formatCurrency(v) },
         ],
         [formatCurrency]
     );
@@ -112,6 +115,7 @@ const SalesItemsReportPage = () => {
             { label: 'Unique Items', value: summary.total_items || 0 },
             { label: 'Total Qty Sold', value: summary.total_sold_qty || 0 },
             { label: 'Total Sold Amount', value: formatCurrency(summary.total_sold_amount) },
+            { label: 'Total Profit', value: formatCurrency(summary.total_profit) },
         ],
         [summary, formatCurrency]
     );
@@ -143,8 +147,8 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Avg Sold Amount / Item',
-                value: formatCurrency(summary.total_sold_amount / (summary.total_sold_qty || 1)),
+                label: 'Total Profit',
+                value: formatCurrency(summary.total_profit),
                 icon: <BarChart3 className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -160,7 +164,15 @@ const SalesItemsReportPage = () => {
                 key: 'product_name',
                 label: 'Product',
                 sortable: true,
-                render: (v: any) => <span className="font-bold text-gray-900">{v}</span>,
+                render: (v: any, row: any) => {
+                    const variantStr = row.variant && typeof row.variant === 'object' ? Object.values(row.variant).join(' / ') : row.variant || null;
+                    return (
+                        <div className="flex flex-col">
+                            <span className="font-bold text-gray-900">{v}</span>
+                            {variantStr && <span className="text-xs text-indigo-600">{variantStr}</span>}
+                        </div>
+                    );
+                },
             },
             {
                 key: 'sku',
@@ -189,29 +201,49 @@ const SalesItemsReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'sold_qty', label: 'Sold Qty', sortable: true, render: (v: any) => <span className="font-bold text-gray-900">{Number(v).toLocaleString()}</span> },
-            { key: 'sold_amount', label: 'Sold Amount', sortable: true, render: (v: any) => <span className="font-bold text-emerald-600">{formatCurrency(v)}</span> },
             {
-                key: 'instock_qty',
-                label: 'Stock',
+                key: 'sold_qty',
+                label: 'Sold Qty',
+                sortable: true,
+                render: (v: any) => <span className="font-bold text-gray-900">{Number(v).toLocaleString()}</span>,
+            },
+            {
+                key: 'sold_amount',
+                label: 'Sold Amount',
+                sortable: true,
+                render: (v: any) => <span className="font-bold text-emerald-600">{formatCurrency(v)}</span>,
+            },
+            {
+                key: 'cost_of_goods',
+                label: 'Cost of Goods',
+                sortable: true,
+                render: (v: any) => <span className="font-medium text-gray-600">{formatCurrency(v)}</span>,
+            },
+            {
+                key: 'unit_profit',
+                label: 'Unit Profit',
+                sortable: true,
                 render: (v: any) => {
-                    const s = Number(v);
-                    let c = 'bg-blue-100 text-blue-800';
-                    let l = 'In Stock';
-                    if (s === 0) {
-                        c = 'bg-red-100 text-red-800';
-                        l = 'Out';
-                    } else if (s < 10) {
-                        c = 'bg-amber-100 text-amber-800';
-                        l = 'Low';
-                    }
+                    const profit = Number(v);
                     return (
-                        <div className="flex flex-col gap-1">
-                            <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${c}`}>{l}</span>
-                            <span className="flex items-center justify-center gap-1 text-[11px] font-medium text-gray-500">
-                                <Boxes className="h-3 w-3" /> {s}
-                            </span>
+                        <div className="flex items-center gap-1">
+                            {profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> : <TrendingDown className="h-3.5 w-3.5 text-red-500" />}
+                            <span className={`font-medium ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(profit)}</span>
                         </div>
+                    );
+                },
+            },
+            {
+                key: 'total_profit',
+                label: 'Total Profit',
+                sortable: true,
+                render: (v: any) => {
+                    const profit = Number(v);
+                    return (
+                        <span className={`font-bold ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                            {profit >= 0 ? '+' : ''}
+                            {formatCurrency(profit)}
+                        </span>
                     );
                 },
             },

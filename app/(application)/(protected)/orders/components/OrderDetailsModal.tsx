@@ -175,16 +175,19 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     {/* Product Header */}
                                                     <div className="mb-3 flex items-start justify-between">
                                                         <div className="flex-1">
-                                                            <h4 className="text-lg font-semibold text-gray-900">{item.product?.name ?? item.product_name ?? 'N/A'}</h4>
+                                                            <h4 className="text-lg font-semibold text-gray-900">{item.snapshot?.product_name ?? item.product?.name ?? 'N/A'}</h4>
                                                             <div className="mt-1 flex flex-wrap gap-2 text-xs">
-                                                                {(item.product?.sku ?? item.sku) && (
-                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">SKU: {item.product?.sku ?? item.sku}</span>
+                                                                {(item.snapshot?.sku ?? item.product?.sku) && (
+                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">SKU: {item.snapshot?.sku ?? item.product?.sku}</span>
                                                                 )}
                                                                 {item.product?.category && <span className="rounded bg-blue-100 px-2 py-1 text-blue-700">{item.product.category}</span>}
                                                                 {item.product?.brand && <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">{item.product.brand}</span>}
-                                                                {item.stock?.variant_name && (
-                                                                    <span className="rounded bg-indigo-100 px-2 py-1 text-indigo-700">Variant: {item.stock.variant_name}</span>
-                                                                )}
+                                                                {item.snapshot?.variant_data &&
+                                                                    Object.entries(item.snapshot.variant_data).map(([key, val]) => (
+                                                                        <span key={key} className="rounded bg-indigo-100 px-2 py-1 text-indigo-700">
+                                                                            {key}: {String(val)}
+                                                                        </span>
+                                                                    ))}
                                                             </div>
                                                         </div>
                                                         {/* Return Status Badge */}
@@ -241,12 +244,12 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                     </span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-gray-500">Purchase Price:</span>
-                                                                    <span className="ml-1 font-semibold text-gray-700">{formatCurrency(item.stock.purchase_price ?? 0)}</span>
+                                                                    <span className="text-gray-500">Cost at Sale:</span>
+                                                                    <span className="ml-1 font-semibold text-gray-700">{formatCurrency(item.snapshot?.purchase_price ?? 0)}</span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-gray-500">Wholesale:</span>
-                                                                    <span className="ml-1 font-semibold text-gray-700">{formatCurrency(item.stock.wholesale_price ?? 0)}</span>
+                                                                    <span className="text-gray-500">Barcode:</span>
+                                                                    <span className="ml-1 font-semibold text-gray-700">{item.snapshot?.barcode ?? '-'}</span>
                                                                 </div>
                                                                 {item.stock.is_low_stock && (
                                                                     <div>

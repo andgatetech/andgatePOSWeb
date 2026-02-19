@@ -10,6 +10,13 @@ const DashboardApi = baseApi.injectEndpoints({
                 // Add store_id filter
                 if (params?.store_id) queryParams.append('store_id', params.store_id);
 
+                // Add period filter (today, weekly, monthly, yearly, custom)
+                if (params?.period) queryParams.append('period', params.period);
+
+                // Add custom date range
+                if (params?.start_date) queryParams.append('start_date', params.start_date);
+                if (params?.end_date) queryParams.append('end_date', params.end_date);
+
                 const queryString = queryParams.toString();
 
                 return {
