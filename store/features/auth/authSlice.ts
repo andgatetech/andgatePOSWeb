@@ -36,7 +36,8 @@ export interface Store {
     store_contact?: string;
     store_location?: string;
     store_email?: string;
-    is_active?: boolean;
+    is_active?: boolean | number;
+    store_disabled?: boolean | number;
     currency?: Currency;
     payment_methods?: PaymentMethod[];
     payment_statuses?: PaymentStatus[];

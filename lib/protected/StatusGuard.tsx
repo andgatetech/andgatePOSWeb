@@ -3,6 +3,8 @@ import { RootState } from '@/store';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import StoreDisabledScreen from './StoreDisabledScreen';
+import StoreInactiveScreen from './StoreInactiveScreen';
 import SubscriptionPendingScreen from './SubscriptionPendingScreen';
 import UserBlockedScreen from './UserBlockedScreen';
 import UserPendingScreen from './UserPendingScreen';
@@ -14,6 +16,7 @@ interface StatusGuardProps {
 export default function StatusGuard({ children }: StatusGuardProps) {
     const router = useRouter();
     const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
@@ -27,24 +30,11 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         setIsChecking(false);
     }, [isAuthenticated, user, router]);
 
-    // Show loading while checking
-    // if (isChecking) {
-    //     return (
-    //         <div className="flex min-h-[calc(100vh-200px)] items-center justify-center">
-    //             <div className="text-center">
-    //                 <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-    //                 <p className="text-gray-600">Checking account status...</p>
-    //             </div>
-    //         </div>
-    //     );
-    // }
-
     // If not authenticated, don't render anything (will redirect)
     if (!isAuthenticated || !user) {
         return null;
     }
 
-    
     // Check user status first (highest priority)
     const userStatus = user.status?.toLowerCase();
 
@@ -87,6 +77,29 @@ export default function StatusGuard({ children }: StatusGuardProps) {
             return (
                 <div className="min-h-[calc(100vh-200px)]">
                     <SubscriptionPendingScreen status="expired" subscriptionName={subscriptionName} expireDate={expireDate} />
+                </div>
+            );
+        }
+    }
+
+    // Check current store status (is_active and store_disabled)
+    if (currentStore) {
+        // Check if store is inactive (is_active = 0 or false)
+        const storeIsActive = currentStore.is_active;
+        if (storeIsActive === 0 || storeIsActive === false) {
+            return (
+                <div className="min-h-[calc(100vh-200px)]">
+                    <StoreInactiveScreen storeName={currentStore.store_name} />
+                </div>
+            );
+        }
+
+        // Check if store is disabled (store_disabled = 1 or true)
+        const storeDisabled = currentStore.store_disabled;
+        if (storeDisabled === 1 || storeDisabled === true) {
+            return (
+                <div className="min-h-[calc(100vh-200px)]">
+                    <StoreDisabledScreen storeName={currentStore.store_name} />
                 </div>
             );
         }

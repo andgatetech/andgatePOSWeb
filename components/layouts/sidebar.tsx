@@ -13,7 +13,7 @@ import { RootState } from '@/store';
 import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 
-import { Crown, Store } from 'lucide-react';
+import { AlertTriangle, Ban, Crown, Store } from 'lucide-react';
 import Image from 'next/image';
 import IconCaretDown from '../icon/icon-caret-down';
 import IconCaretsDown from '../icon/icon-carets-down';
@@ -32,6 +32,7 @@ const Sidebar = () => {
     const router = useRouter();
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
+    const [storeWarning, setStoreWarning] = useState<string | null>(null);
 
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const semidark = useSelector((state: RootState) => state.themeConfig.semidark);
@@ -46,7 +47,22 @@ const Sidebar = () => {
         setCurrentMenu((oldValue) => (oldValue === value ? '' : value));
     };
 
+    // Helper to check if a store is inactive or disabled
+    const isStoreInactive = (store: any) => store.is_active === 0 || store.is_active === false;
+    const isStoreDisabled = (store: any) => store.store_disabled === 1 || store.store_disabled === true;
+
     const handleStoreChange = (store: any) => {
+        // Clear previous warning
+        setStoreWarning(null);
+
+        // Check store status and show warning, but still allow the switch
+        // (StatusGuard will display the full-screen message)
+        if (isStoreInactive(store)) {
+            setStoreWarning(`"${store.store_name}" is currently inactive. Please contact your administrator.`);
+        } else if (isStoreDisabled(store)) {
+            setStoreWarning(`"${store.store_name}" has been disabled. Please contact your administrator.`);
+        }
+
         dispatch(setCurrentStore(store));
         setIsStoreDropdownOpen(false);
 
@@ -116,17 +132,50 @@ const Sidebar = () => {
                         </button>
                     </div>
 
+                    {/* Store Warning Alert */}
+                    {storeWarning && (
+                        <div className="mx-4 mt-3 flex items-start gap-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 dark:border-orange-700 dark:bg-orange-900/30">
+                            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-400" />
+                            <div className="flex-1">
+                                <p className="text-xs font-medium text-orange-800 dark:text-orange-300">{storeWarning}</p>
+                            </div>
+                            <button onClick={() => setStoreWarning(null)} className="text-orange-600 hover:text-orange-800 dark:text-orange-400">
+                                <span className="text-xs font-bold">✕</span>
+                            </button>
+                        </div>
+                    )}
+
                     {/* Store Selector Dropdown */}
                     {userStores.length > 0 && (
                         <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
                             <div className="relative">
                                 <button
                                     onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
-                                    className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+                                    className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-sm ${
+                                        currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore))
+                                            ? 'border-red-300 bg-red-50 hover:bg-red-100 dark:border-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50'
+                                            : 'border-gray-200 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600'
+                                    }`}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <Store className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                                        <span className="font-medium text-gray-700 dark:text-gray-200">{currentStore ? currentStore.store_name : 'Select Store'}</span>
+                                        <Store
+                                            className={`h-4 w-4 ${
+                                                currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore)) ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'
+                                            }`}
+                                        />
+                                        <span
+                                            className={`font-medium ${
+                                                currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore)) ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-200'
+                                            }`}
+                                        >
+                                            {currentStore ? currentStore.store_name : 'Select Store'}
+                                        </span>
+                                        {currentStore && isStoreInactive(currentStore) && (
+                                            <span className="rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-800/50 dark:text-orange-300">Inactive</span>
+                                        )}
+                                        {currentStore && isStoreDisabled(currentStore) && (
+                                            <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-800/50 dark:text-red-300">Disabled</span>
+                                        )}
                                     </div>
                                     <IconCaretDown className={`h-4 w-4 text-gray-500 transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
@@ -142,11 +191,21 @@ const Sidebar = () => {
                                                     onClick={() => handleStoreChange(store)}
                                                     className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
                                                         currentStore?.id === store.id ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-gray-700 dark:text-gray-200'
-                                                    }`}
+                                                    } ${isStoreInactive(store) || isStoreDisabled(store) ? 'opacity-70' : ''}`}
                                                 >
-                                                    <Store className="h-4 w-4" />
+                                                    <Store className={`h-4 w-4 ${isStoreInactive(store) ? 'text-orange-500' : isStoreDisabled(store) ? 'text-red-500' : ''}`} />
                                                     <span className="truncate font-medium">{store.store_name}</span>
-                                                    {currentStore?.id === store.id && <span className="ml-auto text-xs text-primary">✓</span>}
+                                                    {isStoreInactive(store) && (
+                                                        <span className="ml-auto flex items-center gap-1 rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-800/50 dark:text-orange-300">
+                                                            <AlertTriangle className="h-3 w-3" /> Inactive
+                                                        </span>
+                                                    )}
+                                                    {isStoreDisabled(store) && (
+                                                        <span className="ml-auto flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-800/50 dark:text-red-300">
+                                                            <Ban className="h-3 w-3" /> Disabled
+                                                        </span>
+                                                    )}
+                                                    {currentStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && <span className="ml-auto text-xs text-primary">✓</span>}
                                                 </button>
                                             ))}
                                         </div>
