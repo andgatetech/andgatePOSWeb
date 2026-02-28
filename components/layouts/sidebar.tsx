@@ -107,7 +107,7 @@ const Sidebar = () => {
         const userPermissions = user?.permissions || [];
         const userRole = user?.role;
 
-        return buildMenuFromPermissions(userPermissions, userRole);
+        return buildMenuFromPermissions(userPermissions);
     }, [user]);
 
     return (
@@ -292,19 +292,26 @@ const Sidebar = () => {
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-1.5">
                                         <Crown className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
-                                        <p className="truncate text-sm font-bold text-gray-800 dark:text-gray-200">{user.subscription_user.subscription?.name || 'Basic'}</p>
+                                        <p className="truncate text-sm font-bold text-gray-800 dark:text-gray-200">{user.subscription_user.plan_name_en}</p>
                                     </div>
 
-                                    {user.subscription_user.expire_date && (
-                                        <p className="mt-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                                            <span className={`capitalize text-${user.subscription_user.status === 'active' ? 'green' : 'orange'}-600 mr-1`}>{user.subscription_user.status}</span>•{' '}
-                                            {Math.ceil((new Date(user.subscription_user.expire_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days left
-                                        </p>
-                                    )}
+                                    {user.subscription_user.expire_date &&
+                                        (() => {
+                                            const exp = new Date(user.subscription_user.expire_date);
+                                            const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                                            return (
+                                                <p className="mt-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                                                    <span className={`mr-1 capitalize ${user.subscription_user.status === 'active' ? 'text-green-600' : 'text-orange-500'}`}>
+                                                        {user.subscription_user.status}
+                                                    </span>
+                                                    • {daysLeft > 0 ? `${daysLeft}d left` : 'Expired'}
+                                                </p>
+                                            );
+                                        })()}
                                 </div>
 
                                 <Link
-                                    href="/pricing"
+                                    href="/subscription"
                                     className="flex-shrink-0 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                 >
                                     Upgrade

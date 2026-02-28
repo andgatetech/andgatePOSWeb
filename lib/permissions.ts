@@ -53,10 +53,6 @@ export const findMatchingRouteKey = (route: string): string | null => {
 };
 
 const hasRoutePermissionFromContext = (context: PermissionContext, route: string): boolean => {
-    if (isStoreAdmin(context.role)) {
-        return true;
-    }
-
     const permissions = context.permissions ?? [];
     if (permissions.length === 0) {
         return false;
@@ -72,10 +68,6 @@ const hasRoutePermissionFromContext = (context: PermissionContext, route: string
 };
 
 const hasAnyPermissionFromContext = (context: PermissionContext, permissions: string[]): boolean => {
-    if (isStoreAdmin(context.role)) {
-        return true;
-    }
-
     const userPermissions = context.permissions ?? [];
     if (userPermissions.length === 0) {
         return false;
@@ -85,10 +77,6 @@ const hasAnyPermissionFromContext = (context: PermissionContext, permissions: st
 };
 
 const hasAllPermissionsFromContext = (context: PermissionContext, permissions: string[]): boolean => {
-    if (isStoreAdmin(context.role)) {
-        return true;
-    }
-
     const userPermissions = context.permissions ?? [];
     if (userPermissions.length === 0) {
         return false;
@@ -97,116 +85,106 @@ const hasAllPermissionsFromContext = (context: PermissionContext, permissions: s
     return permissions.every((permission) => userPermissions.includes(permission));
 };
 
-// Route to permissions mapping (from your backend)
 export const ROUTE_PERMISSIONS: Record<string, string[]> = {
-    // Dashboard
-    '/dashboard': ['view-dashboard'],
+    // ── Dashboard (no restriction — all authenticated users) ───
+    '/dashboard': [],
 
-    // Store
+    // ── Store ──────────────────────────────────────────────────
     '/store': ['stores.view'],
     '/store/setting': ['stores.edit'],
+    '/store/payment-methods': ['payment-methods.manage'],
     '/staff': ['users.view'],
-    '/create-adjustment': ['stock-adjustments.create'],
 
-    // Category
-    '/category': ['categories.view'],
+    // ── Categories ─────────────────────────────────────────────
+    '/category': ['categories.index'],
 
-    // Brand
-    '/brand': ['brands.view'],
+    // ── Brands ─────────────────────────────────────────────────
+    '/brand': ['brands.index'],
 
-    // Products
+    // ── Products ───────────────────────────────────────────────
+    '/products': ['products.index'],
     '/products/create': ['products.create'],
-    '/products': ['products.index', 'products.view'],
-    '/products/edit': ['products.create'],
+    '/products/edit': ['products.edit'],
     '/products/stock/adjustments': ['stock.adjustments'],
-    '/products/qr-code': ['products.view'],
-    '/label': ['products.view'],
+    '/create-adjustment': ['stock.adjustments'],
+    '/products/qr-code': ['qrcode.generate'],
+    '/label': ['barcode.generate'],
 
-    // Product Attributes
+    // ── Product Attributes ─────────────────────────────────────
     '/product-attributes': ['products.index'],
     '/product-attributes/create': ['products.create'],
 
-    // Warranty Types
+    // ── Warranty Types ─────────────────────────────────────────
     '/warranty-types': ['products.index'],
     '/warranty-types/create': ['products.create'],
 
-    // Product Serials
+    // ── Product Serials ────────────────────────────────────────
     '/product-serials': ['products.index'],
     '/product-serials/create': ['products.create'],
 
-    // POS
-    '/pos': ['pos.access'],
+    // ── POS (no restriction — all authenticated users) ─────────
+    '/pos': [],
 
-    // Orders
-    '/orders': ['orders.view'],
+    // ── Orders ─────────────────────────────────────────────────
+    '/orders': ['orders.index'],
 
-    // Purchase Orders
+    // ── Order Returns ───────────────────────────────────────────
+    '/order-returns': ['orders.return'],
+
+    // ── Purchase Drafts & Orders ────────────────────────────────
     '/purchases/create': ['purchase-orders.create'],
-    '/purchases/list': ['purchase-orders.view'],
+    '/purchases/list': ['purchase-orders.index'],
 
-    // Suppliers
+    // ── Suppliers ──────────────────────────────────────────────
     '/suppliers/create': ['suppliers.create'],
-    '/suppliers/list': ['suppliers.view'],
-    '/suppliers/edit': ['suppliers.view'],
+    '/suppliers/list': ['suppliers.index'],
+    '/suppliers/edit': ['suppliers.edit'],
 
-    // Account
-    '/account/ledger-list': ['ledgers.view'],
-    '/account/journal-list': ['journals.view'],
+    // ── Accounting ─────────────────────────────────────────────
+    '/account/ledger-list': ['ledgers.index'],
+    '/account/journal-list': ['journals.index'],
 
-    // Expenses
-    '/expenses/expense-list': ['expenses.view'],
+    // ── Expenses ───────────────────────────────────────────────
+    '/expenses/expense-list': ['expenses.index'],
 
-    // Customers
-    '/customers': ['customers.view'],
-    '/customers/list': ['customers.view'],
+    // ── Customers ──────────────────────────────────────────────
+    '/customers': ['customers.index'],
+    '/customers/list': ['customers.index'],
     '/customers/create': ['customers.create'],
-    '/customers/edit': ['customers.create'],
+    '/customers/edit': ['customers.edit'],
 
-    // Reports - Sales & Revenue
+    // ── Reports: Sales & Revenue ────────────────────────────────
     '/reports/sales': ['reports.sales'],
     '/reports/order-returns': ['reports.sales'],
     '/reports/transaction': ['reports.transaction'],
     '/reports/invoice': ['reports.sales'],
     '/reports/sales-items': ['reports.sales'],
+    '/reports/customer': ['reports.sales'],
+    '/reports/customer-due': ['reports.sales'],
 
-    // Reports - Customer
-    '/reports/customer': ['reports.customer', 'reports.sales'],
-    '/reports/customer-due': ['reports.customer', 'reports.sales'],
-
-    // Reports - Purchase & Supplier
-    '/reports/purchase': ['reports.purchase', 'reports.purchases'],
-    '/reports/purchase-items': ['reports.purchase', 'reports.purchases'],
+    // ── Reports: Purchase & Supplier ────────────────────────────
+    '/reports/purchase': ['reports.purchase'],
+    '/reports/purchase-items': ['reports.purchase'],
     '/reports/purchase-transaction': ['reports.purchase-transaction'],
-    '/reports/supplier': ['reports.supplier', 'reports.purchases'],
-    '/reports/supplier-due': ['reports.supplier', 'reports.purchases'],
+    '/reports/supplier': ['reports.purchase'],
+    '/reports/supplier-due': ['reports.purchase'],
 
-    // Reports - Inventory
-    '/reports/stock': ['reports.stock'],
-    '/reports/low-stock': ['reports.stock'],
+    // ── Reports: Inventory & Stock ──────────────────────────────
+    '/reports/stock': ['stock.reports'],
+    '/reports/low-stock': ['reports.low-stock'],
     '/reports/idle-product': ['reports.inventory'],
-    '/reports/adjustment': ['reports.stock', 'stock.reports'],
+    '/reports/adjustment': ['stock.reports'],
+    '/products/stock/stock-adjustment-list': ['stock.reports'],
     '/reports/product': ['reports.inventory'],
 
-    // Reports - Financial
-    '/reports/profit-loss': ['reports.profit_loss', 'reports.financial'],
+    // ── Reports: Financial ──────────────────────────────────────
+    '/reports/profit-loss': ['reports.profit-loss'],
     '/reports/expense': ['reports.expense'],
     '/reports/tax': ['reports.tax'],
 
-    // Legacy/Old Report Routes (keeping for backward compatibility)
-    '/reports/activity': ['reports.activity-logs'],
-    '/reports/income': ['reports.income'],
-    '/reports/expenses': ['reports.expenses'],
-    '/reports/purchase-order': ['reports.purchase-order'],
-    '/reports/pos-transaction': ['reports.pos-transaction'],
-    '/reports/stock/current': ['reports.stock-current'],
-    '/reports/stock/low': ['reports.low-stock'],
-    '/reports/stock/transactions': ['reports.stock-transactions'],
-    '/products/stock/stock-adjustment-list': ['reports.stock-adjustments'],
-    '/reports/stock/adjustments': ['reports.stock-adjustments'],
-
-    // Feedback
-    '/feedbacks/create-feedback': ['feedback.create'],
-    '/feedbacks': ['feedback.view'],
+    // ── Feedbacks (no restriction — no backend middleware) ──────
+    '/feedbacks': [],
+    '/feedbacks/create-feedback': [],
 };
 
 /**
@@ -241,10 +219,6 @@ export const hasAllPermissions = (user: User | null, permissions: string[]): boo
  */
 export const filterMenuByPermissions = (menuItems: any[], user: User | null): any[] => {
     const context = toContext(user);
-
-    if (isStoreAdmin(context.role)) {
-        return menuItems; // Admin sees everything
-    }
 
     return menuItems.filter((item) => {
         // If item has direct href, check permission

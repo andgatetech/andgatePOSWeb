@@ -29,10 +29,18 @@ export interface PaymentStatus {
     is_active: boolean | number;
 }
 
+export interface ReturnReason {
+    id: number;
+    name: string;
+    description?: string | null;
+    return_to_stock: number;
+    is_active: number;
+}
+
 export interface Store {
     id: number;
     store_name: string;
-    logo_path?: string;
+    logo_path?: string | null;
     store_contact?: string;
     store_location?: string;
     store_email?: string;
@@ -41,51 +49,42 @@ export interface Store {
     currency?: Currency;
     payment_methods?: PaymentMethod[];
     payment_statuses?: PaymentStatus[];
+    return_reasons?: ReturnReason[];
 }
 
 export interface SubscriptionItem {
-    id: number;
-    subscription_id: number;
-    title: string;
+    title_en: string;
+    title_bn: string | null;
     value: string | null;
-    status: number;
-}
-
-export interface Subscription {
-    id: number;
-    name: string;
-    monthly_price: string;
-    yearly_price: string;
-    discount: string;
-    status: number;
-    items: SubscriptionItem[];
+    used: number;
+    remaining: number | null;
 }
 
 export interface SubscriptionUser {
     id: number;
-    user_id: number;
-    subscription_id: number;
-    store_id: number;
+    plan_id: number;
+    plan_name_en: string;
+    plan_name_bn: string | null;
+    plan_price: string;
     billing_cycle: string; // 'trial', 'monthly', 'yearly'
+    status: string; // 'active', 'pending', 'expired', 'blocked', 'hold'
     start_date: string;
     expire_date: string;
-    status: string; // 'active', 'pending', 'expired', 'blocked', 'hold'
-    subscription: Subscription;
+    items: SubscriptionItem[];
 }
 
 export interface User {
     id: number;
     name: string;
     email: string;
-    role: string;
-    status: string;
     phone?: string | null;
     address?: string | null;
-    created_at?: string;
-    updated_at?: string;
+    role: string;
+    status: string;
+    member_since?: string;
     stores: Store[];
     subscription_user: SubscriptionUser;
-    permissions?: string[]; // Add permissions array
+    permissions?: string[];
 }
 
 interface AuthState {

@@ -1,23 +1,32 @@
 'use client';
 import { RootState } from '@/store';
-import { AlertTriangle, ArrowRight, Clock, Crown, Package, ShieldAlert, Sparkles, Zap } from 'lucide-react';
-import Link from 'next/link';
+import { AlertTriangle, Clock, Crown, Package, ShieldAlert, Sparkles, Zap } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import UpgradePlans from './UpgradePlans';
 
 interface SubscriptionErrorProps {
-    errorType: 'no_active_subscription' | 'feature_unavailable' | 'limit_reached' | 'subscription_required' | 'expired';
+    errorType: 'no_active_subscription' | 'feature_unavailable' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'subscription_expired' | 'quota_exhausted';
     message: string;
     details?: {
         limit?: number;
         current?: number;
+        used?: number;
+        feature?: string;
         required_features?: string[];
         [key: string]: any;
     };
 }
 
-const errorConfigs = {
+const errorConfigs: Record<string, any> = {
     no_active_subscription: {
+        icon: ShieldAlert,
+        title: 'No Active Subscription',
+        subtitle: 'Subscribe to unlock powerful features',
+        iconColor: 'text-red-600',
+        bgColor: 'bg-red-50',
+    },
+    no_subscription: {
         icon: ShieldAlert,
         title: 'No Active Subscription',
         subtitle: 'Subscribe to unlock powerful features',
@@ -38,6 +47,13 @@ const errorConfigs = {
         iconColor: 'text-amber-600',
         bgColor: 'bg-amber-50',
     },
+    quota_exhausted: {
+        icon: AlertTriangle,
+        title: 'Limit Reached',
+        subtitle: 'Upgrade to continue growing your business',
+        iconColor: 'text-amber-600',
+        bgColor: 'bg-amber-50',
+    },
     subscription_required: {
         icon: Crown,
         title: 'Premium Feature',
@@ -52,19 +68,49 @@ const errorConfigs = {
         iconColor: 'text-red-600',
         bgColor: 'bg-red-50',
     },
+    subscription_expired: {
+        icon: Clock,
+        title: 'Subscription Expired',
+        subtitle: 'Renew your subscription to continue',
+        iconColor: 'text-red-600',
+        bgColor: 'bg-red-50',
+    },
 };
 
 const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, message, details }) => {
     const config = errorConfigs[errorType] || errorConfigs.subscription_required;
-    const IconComponent = config.icon;
+    const IconComponent = config.icon || Zap;
+
+    const pathname = usePathname();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (pathname && pathname !== '/subscription' && !pathname.includes('/subscription')) {
+            const params = new URLSearchParams();
+            if (errorType) params.set('error_type', errorType);
+            if (message) params.set('message', message);
+            if (details) params.set('details', JSON.stringify(details));
+            router.push(`/subscription?${params.toString()}`);
+        }
+    }, [pathname, errorType, message, details, router]);
 
     // Get current subscription from Redux
     const user = useSelector((state: RootState) => state.auth.user);
-    const currentPlan = user?.subscription_user?.subscription?.name || 'Basic';
+
+    if (pathname && pathname !== '/subscription' && !pathname.includes('/subscription')) {
+        return (
+            <div className="flex w-full items-center justify-center py-6">
+                <div className="flex items-center gap-3">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600"></div>
+                    <span className="text-sm font-medium text-gray-500">Redirecting to subscription plans...</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className=" py-8 sm:px-6 lg:px-8">
+        <div className="w-full">
+            <div className="w-full pb-8">
                 {/* Error Alert Section - Matching StoreComponent Style */}
                 <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
                     <div className="flex items-start gap-4">
@@ -79,28 +125,68 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                             {/* Display additional details */}
                             {details && (
                                 <div className="mt-6 space-y-3">
-                                    {details.limit !== undefined && details.current !== undefined && (
-                                        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                                                    <Package className="h-5 w-5 text-blue-600" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="mb-2 flex items-baseline gap-2">
-                                                        <span className="text-sm font-medium text-gray-700">Current Usage:</span>
-                                                        <span className="text-2xl font-bold text-gray-900">{details.current}</span>
-                                                        <span className="text-sm text-gray-600">/ {details.limit}</span>
+                                    {details.limit !== undefined &&
+                                        (details.current !== undefined || details.used !== undefined) &&
+                                        (() => {
+                                            const currentVal = details.used !== undefined ? details.used : details.current;
+                                            const percentage = Math.min(((currentVal as number) / (details.limit || 1)) * 100, 100);
+                                            const isLimitReached = percentage >= 100;
+                                            const colorTheme = isLimitReached
+                                                ? {
+                                                      bg: 'bg-red-50',
+                                                      border: 'border-red-200',
+                                                      iconBg: 'bg-red-100',
+                                                      icon: 'text-red-600',
+                                                      text: 'text-red-900',
+                                                      barBg: 'bg-red-200',
+                                                      barFill: 'bg-red-500',
+                                                  }
+                                                : {
+                                                      bg: 'bg-blue-50',
+                                                      border: 'border-blue-200',
+                                                      iconBg: 'bg-blue-100',
+                                                      icon: 'text-blue-600',
+                                                      text: 'text-blue-900',
+                                                      barBg: 'bg-blue-200',
+                                                      barFill: 'bg-blue-500',
+                                                  };
+
+                                            return (
+                                                <div className={`relative mt-4 overflow-hidden rounded-2xl border ${colorTheme.border} ${colorTheme.bg} p-5 shadow-sm sm:p-6`}>
+                                                    {/* Background Glow */}
+                                                    <div className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${colorTheme.barFill} opacity-10 blur-2xl`}></div>
+
+                                                    <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+                                                        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${colorTheme.iconBg}`}>
+                                                            <Package className={`h-7 w-7 ${colorTheme.icon}`} />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="mb-2 flex items-end justify-between">
+                                                                <span className="text-sm font-bold uppercase tracking-wider text-gray-600">Current Usage</span>
+                                                                <div className="flex items-baseline gap-1.5">
+                                                                    <span className={`text-4xl font-black ${colorTheme.text}`}>{currentVal}</span>
+                                                                    <span className="text-sm font-medium text-gray-500">/ {details.limit} allowed</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className={`h-3 overflow-hidden rounded-full ${colorTheme.barBg}`}>
+                                                                <div
+                                                                    className={`h-full rounded-full ${colorTheme.barFill} transition-all duration-1000 ease-out`}
+                                                                    style={{ width: `${percentage}%` }}
+                                                                ></div>
+                                                            </div>
+
+                                                            {isLimitReached && (
+                                                                <p className={`mb-0 mt-3 flex items-center gap-1.5 text-xs font-bold ${colorTheme.icon}`}>
+                                                                    <AlertTriangle className="h-4 w-4" />
+                                                                    Maximum capacity reached for your current plan.
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="h-2 overflow-hidden rounded-full bg-blue-100">
-                                                        <div
-                                                            className="h-full rounded-full bg-blue-600 transition-all duration-300"
-                                                            style={{ width: `${Math.min((details.current / details.limit) * 100, 100)}%` }}
-                                                        ></div>
-                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                            );
+                                        })()}
                                     {details.required_features && details.required_features.length > 0 && (
                                         <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
                                             <div className="flex items-start gap-3">
@@ -116,30 +202,9 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                                     )}
                                 </div>
                             )}
-
-                            {/* CTA Buttons */}
-                            <div className="mt-6 flex flex-wrap gap-3">
-                                <Link
-                                    href="/subscription"
-                                    className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    <Crown className="mr-2 h-5 w-5" />
-                                    Upgrade Now
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                </Link>
-                                <Link
-                                    href="/contact"
-                                    className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    Contact Sales
-                                </Link>
-                            </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Pricing Plans Section */}
-                <UpgradePlans showHeader={true} currentPlan={currentPlan} />
             </div>
         </div>
     );

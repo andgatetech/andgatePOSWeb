@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 
 interface SubscriptionErrorData {
-    errorType: 'no_active_subscription' | 'feature_unavailable' | 'limit_reached' | 'subscription_required' | 'expired' | null;
+    errorType: 'no_active_subscription' | 'feature_unavailable' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'quota_exhausted' | 'subscription_expired' | null;
     message: string;
     details?: {
         limit?: number;
         current?: number;
+        used?: number;
+        feature?: string;
         required_features?: string[];
         [key: string]: any;
     };
@@ -21,6 +23,11 @@ interface ApiError {
             [key: string]: any;
         };
         message?: string;
+        error_type?: string;
+        feature?: string;
+        used?: number;
+        limit?: number;
+        required_permission?: string;
     };
     status?: number;
 }
@@ -44,7 +51,24 @@ export const useSubscriptionError = (error?: ApiError) => {
             return;
         }
 
-        // Check if it's a subscription-related error (403 status)
+        // Check if it's a new middleware subscription-related error (403 status and error_type)
+        if (error.status === 403 && error.data?.error_type) {
+            const data = error.data;
+            if (['no_subscription', 'subscription_expired', 'quota_exhausted'].includes(data.error_type || '')) {
+                setSubscriptionError({
+                    errorType: data.error_type as any,
+                    message: data.message || 'Subscription error.',
+                    details: {
+                        feature: data.feature,
+                        used: data.used,
+                        limit: data.limit,
+                    },
+                });
+                return;
+            }
+        }
+
+        // Check if it's a legacy subscription-related error (403 status via validation exception)
         if (error.status === 403 && error.data?.errors) {
             const errors = error.data.errors;
 

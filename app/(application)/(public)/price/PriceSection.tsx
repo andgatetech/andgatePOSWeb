@@ -1,291 +1,199 @@
-
 'use client';
 
 import { getTranslation } from '@/i18n';
-import {  Check,  Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery } from '@/store/features/plans/plansApi';
+import { Check, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
-
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
 }
 
 const colorClasses = {
-    slate: {
-        ring: 'ring-slate-200',
-        text: 'text-slate-600',
-        button: 'bg-slate-50 text-slate-700 hover:bg-slate-100 ring-1 ring-inset ring-slate-300',
-        icon: 'text-slate-400',
-        badge: 'bg-slate-100 text-slate-700',
-    },
-    green: {
-        ring: 'ring-green-600',
-        text: 'text-green-600',
-        button: 'bg-green-600 text-white hover:bg-green-700',
-        icon: 'text-green-500',
-        badge: 'bg-green-100 text-green-700',
-    },
-    blue: {
-        ring: 'ring-blue-600',
-        text: 'text-blue-600',
-        button: 'bg-blue-600 text-white hover:bg-blue-700',
-        icon: 'text-blue-500',
-        badge: 'bg-blue-100 text-blue-700',
-    },
-    purple: {
-        ring: 'ring-purple-600',
-        text: 'text-purple-600',
-        button: 'bg-purple-600 text-white hover:bg-purple-700',
-        icon: 'text-purple-500',
-        badge: 'bg-purple-100 text-purple-700',
-    },
-    orange: {
-        ring: 'ring-orange-600',
-        text: 'text-orange-600',
-        button: 'bg-orange-600 text-white hover:bg-orange-700',
-        icon: 'text-orange-500',
-        badge: 'bg-orange-100 text-orange-700',
-    },
+    slate: { ring: 'ring-slate-200', button: 'bg-slate-50 text-slate-700 hover:bg-slate-100 ring-1 ring-inset ring-slate-300', icon: 'text-slate-400' },
+    green: { ring: 'ring-green-600', button: 'bg-green-600 text-white hover:bg-green-700', icon: 'text-green-500' },
+    blue: { ring: 'ring-blue-600', button: 'bg-blue-600 text-white hover:bg-blue-700', icon: 'text-blue-500' },
+    purple: { ring: 'ring-purple-600', button: 'bg-purple-600 text-white hover:bg-purple-700', icon: 'text-purple-500' },
+    orange: { ring: 'ring-orange-600', button: 'bg-orange-600 text-white hover:bg-orange-700', icon: 'text-orange-500' },
 };
 
-export default function PricingPage() {
-    const { t } = getTranslation();
-    const [frequency, setFrequency] = useState({ value: 'monthly', label: '', priceSuffix: '' , setupFee: ''});
-    
+const PLAN_ICONS = [Rocket, Star, TrendingUp, Zap, Shield];
 
-    // Get frequencies from translation
+interface PriceSectionProps {
+    id?: string;
+}
+
+export default function PriceSection({ id }: PriceSectionProps) {
+    const { t } = getTranslation();
+    const { data, isLoading, isError } = useGetPlansQuery();
+    const plans = filterActivePlans(data?.data ?? []);
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+
     const frequencies = [
-        {
-            value: 'monthly',
-            label: t('pricing_page.frequency.monthly'),
-            priceSuffix: t('pricing_page.frequency.per_month'),
-            setupFee: 'setupFee',
-        },
-        {
-            value: 'annually',
-            label: t('pricing_page.frequency.annually'),
-            priceSuffix: t('pricing_page.frequency.per_year'),
-            discount: t('pricing_page.frequency.save'),
-            setupFee: 'setupFee',
-        },
+        { value: 'monthly' as const, label: t('pricing_page.frequency.monthly') || 'Monthly', priceSuffix: t('pricing_page.frequency.per_month') || '/month' },
+        { value: 'annually' as const, label: t('pricing_page.frequency.annually') || 'Annually', priceSuffix: t('pricing_page.frequency.per_year') || '/year' },
     ];
 
-    // Set initial frequency with translation
-    if (!frequency.label) {
-        setFrequency(frequencies[0]);
-    }
-
-    // Tier configuration (prices remain in component)
-    // const tierKeys = ['free', 'starter', 'sme', 'professional', 'enterprise'];
-    const tierKeys = ['starter', 'sme', 'professional', 'enterprise'];
-    const tierPrices: Record<string, any> = {
-        // free: { monthly: '৳0', annually: '৳0', originalAnnually: '৳3600' },
-        starter: { monthly: '৳ 499', annually: '৳ 5988', originalAnnually: '৳ 5390', setupFee: '৳ 2000' },
-        sme: { monthly: '৳ 999', annually: '৳ 11988', originalAnnually: '৳ 9591', setupFee: '৳ 5000' },
-        professional: { monthly: '৳ 1999', annually: '৳ 23988', originalAnnually: '৳ 19191', setupFee: '৳ 20000' },
-        enterprise: { monthly: '৳ 4999', annually: '৳ 59988', originalAnnually: '৳ 47991', setupFee: '৳ 50000' },
-    };
-
-    const tierIcons: Record<string, any> = {
-        // free: Building2,
-        starter: Rocket,
-        sme: Star,
-        professional: TrendingUp,
-        enterprise: Zap,
-    };
-
-    const tierColors: Record<string, keyof typeof colorClasses> = {
-        // free: 'slate',
-        starter: 'green',
-        sme: 'blue',
-        professional: 'purple',
-        enterprise: 'orange',
-    };
-
-    // Build tiers from translations
-    const tiers = tierKeys.map((key) => {
-        const features = [];
-        let i = 0;
-        while (i < 20) {
-            const feature = t(`pricing_page.tiers.${key}.features.${i}`);
-            if (feature.startsWith('pricing_page.tiers')) break;
-            features.push(feature);
-            i++;
-        }
-
-        return {
-            id: `tier-${key}`,
-            key: key,
-            name: t(`pricing_page.tiers.${key}.name`),
-            description: t(`pricing_page.tiers.${key}.description`),
-            badge: t(`pricing_page.tiers.${key}.badge`),
-            cta: t(`pricing_page.tiers.${key}.cta`),
-            features,
-            price: tierPrices[key],
-            icon: tierIcons[key],
-            color: tierColors[key],
-            mostPopular: key === 'sme',
-            href: key === 'free' ? '/register' : '/contact',
-        };
-    });
-
-    // Get FAQ from translations
-    const faqs = [];
-    let faqIndex = 0;
-    while (faqIndex < 10) {
-        const question = t(`pricing_page.faq.questions.${faqIndex}.q`);
-        if (question.startsWith('pricing_page.faq')) break;
-        faqs.push({
-            question,
-            answer: t(`pricing_page.faq.questions.${faqIndex}.a`),
-        });
-        faqIndex++;
-    }
-
-    const handleGetStarted = (href: string) => {
-        window.location.href = href;
-    };
+    const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
 
     return (
-            <div className="min-h-screen bg-white">
-                {/* Hero Section */}
-                <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pb-20 pt-16">
-                    <div className="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
-                    <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="text-center">
-                            <div className="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
-                                <Shield className="mr-2 h-4 w-4" />
-                                {t('pricing_page.hero.badge_text')}
+        <div id={id} className="min-h-screen bg-white">
+            {/* Hero */}
+            <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pb-20 pt-16">
+                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <div className="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
+                            <Shield className="mr-2 h-4 w-4" />
+                            {t('pricing_page.hero.badge_text') || 'Flexible Pricing Plans'}
+                        </div>
+                        <h1 className="mb-6 text-4xl font-black leading-tight text-gray-900 sm:text-5xl md:text-6xl">{t('pricing_page.hero.title') || 'Simple, Transparent Pricing'}</h1>
+                        <p className="mx-auto mb-8 max-w-3xl text-lg leading-relaxed text-gray-600 sm:text-xl">{t('pricing_page.hero.subtitle') || 'Choose the plan that fits your business.'}</p>
+                        <div className="flex flex-col items-center justify-center space-y-3 text-sm text-gray-600 sm:flex-row sm:space-x-6 sm:space-y-0">
+                            <div className="flex items-center">
+                                <Check className="mr-2 h-4 w-4 text-green-500" />
+                                {t('pricing_page.hero.benefits.no_setup') || 'No Setup Fee'}
                             </div>
-                            <h1 className="mb-6 text-4xl font-black leading-tight text-gray-900 sm:text-5xl md:text-6xl">{t('pricing_page.hero.title')}</h1>
-                            <p className="mx-auto mb-8 max-w-3xl text-lg leading-relaxed text-gray-600 sm:text-xl">{t('pricing_page.hero.subtitle')}</p>
-                            <div className="flex flex-col items-center justify-center space-y-3 text-sm text-gray-600 sm:flex-row sm:space-x-6 sm:space-y-0">
-                                <div className="flex items-center">
-                                    <Check className="mr-2 h-4 w-4 text-green-500" />
-                                    {t('pricing_page.hero.benefits.no_setup')}
-                                </div>
-                                <div className="flex items-center">
-                                    <Check className="mr-2 h-4 w-4 text-blue-500" />
-                                    {t('pricing_page.hero.benefits.cancel_anytime')}
-                                </div>
-                                <div className="flex items-center">
-                                    <Check className="mr-2 h-4 w-4 text-purple-500" />
-                                    {t('pricing_page.hero.benefits.support')}
-                                </div>
+                            <div className="flex items-center">
+                                <Check className="mr-2 h-4 w-4 text-blue-500" />
+                                {t('pricing_page.hero.benefits.cancel_anytime') || 'Cancel Anytime'}
+                            </div>
+                            <div className="flex items-center">
+                                <Check className="mr-2 h-4 w-4 text-purple-500" />
+                                {t('pricing_page.hero.benefits.support') || '24/7 Support'}
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                {/* Pricing Section */}
-                <section className="bg-gradient-to-b from-slate-50 to-white py-16 sm:py-24">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        {/* Frequency Toggle */}
-                        <div className="mb-12 flex justify-center">
-                            <div className="relative rounded-xl bg-gray-100 p-1">
-                                {frequencies.map((option) => (
-                                    <button
-                                        key={option.value}
-                                        onClick={() => setFrequency(option)}
-                                        className={classNames(
-                                            'relative rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 sm:px-6',
-                                            frequency.value === option.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                                        )}
-                                    >
-                                        {option.label}
-                                        {option.discount && (
-                                            <span className="absolute -right-2 -top-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{option.discount}</span>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
+            {/* Pricing Section */}
+            <section className="bg-gradient-to-b from-slate-50 to-white py-16 sm:py-24">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    {/* Billing Toggle */}
+                    <div className="mb-12 flex justify-center">
+                        <div className="relative flex rounded-full bg-slate-100 p-1.5 shadow-inner">
+                            <div
+                                className={classNames(
+                                    'absolute bottom-1.5 top-1.5 w-[calc(50%-0.375rem)] rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out',
+                                    billingCycle === 'monthly' ? 'translate-x-0' : 'translate-x-full'
+                                )}
+                            ></div>
+                            {frequencies.map((option) => (
+                                <button
+                                    key={option.value}
+                                    onClick={() => setBillingCycle(option.value)}
+                                    className={classNames(
+                                        'relative z-10 flex w-36 items-center justify-center rounded-full px-6 py-2.5 text-sm font-bold transition-colors duration-200',
+                                        billingCycle === option.value ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'
+                                    )}
+                                >
+                                    {option.label}
+                                    {option.value === 'annually' && topSavings > 0 && (
+                                        <span
+                                            className={classNames(
+                                                'absolute -right-6 -top-3 rounded-full px-2.5 py-0.5 text-xs font-bold shadow-sm transition-all duration-300',
+                                                billingCycle === 'annually' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-700'
+                                            )}
+                                        >
+                                            Save {topSavings}%
+                                        </span>
+                                    )}
+                                </button>
+                            ))}
                         </div>
+                    </div>
 
-                        {/* Pricing Cards */}
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8">
-                            {tiers.map((tier) => {
-                                const IconComponent = tier.icon;
-                                const colors = colorClasses[tier.color];
+                    {/* Plan cards */}
+                    {isLoading && (
+                        <div className="flex items-center justify-center py-16">
+                            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                            <span className="ml-3 text-gray-600">Loading plans...</span>
+                        </div>
+                    )}
+                    {isError && !isLoading && <div className="py-10 text-center text-red-600">Failed to load pricing plans. Please try again later.</div>}
+                    {!isLoading && !isError && plans.length > 0 && (
+                        <div
+                            className={classNames(
+                                'grid grid-cols-1 gap-6 xl:gap-8',
+                                plans.length <= 2 ? 'mx-auto max-w-3xl sm:grid-cols-2' : plans.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'
+                            )}
+                        >
+                            {plans.map((plan, index) => {
+                                const colorKey = getPlanColor(index);
+                                const colors = colorClasses[colorKey];
+                                const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
+                                const isMostPopular = index === 1;
+                                const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
+                                const suffix = billingCycle === 'monthly' ? '/month' : '/year';
+                                const { originalPrice, finalPrice, hasDiscount, discountPct } = applyDiscount(rawPrice, plan.discount);
+                                const hasSetupFee = parseFloat(plan.setup_fee) > 0;
+                                const planSavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
 
                                 return (
                                     <div
-                                        key={tier.id}
+                                        key={plan.id}
                                         className={classNames(
                                             'relative flex flex-col rounded-2xl border-2 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl',
-                                            tier.mostPopular ? `${colors.ring} shadow-lg` : 'border-gray-200 hover:border-gray-300'
+                                            isMostPopular ? `${colors.ring} shadow-lg` : 'border-gray-200 hover:border-gray-300'
                                         )}
                                     >
-                                        {tier.mostPopular && (
+                                        {isMostPopular && (
                                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                                                <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">{tier.badge}</div>
+                                                <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">Most Popular</div>
                                             </div>
                                         )}
 
                                         <div className="flex flex-1 flex-col p-6 sm:p-8">
-                                            {/* Icon and Title */}
                                             <div className="mb-4 flex items-center gap-3">
                                                 <div className={classNames('rounded-lg bg-gray-50 p-2', colors.icon)}>
                                                     <IconComponent className="h-6 w-6" />
                                                 </div>
-                                                <h3 className="text-xl font-semibold text-gray-900">{tier.name}</h3>
+                                                <h3 className="text-xl font-semibold text-gray-900">{plan.name_en}</h3>
                                             </div>
 
-                                            {/* Description */}
-                                            <p className="mb-6 text-sm text-gray-600">{tier.description}</p>
-
-                                            {/* Price */}
                                             <div className="mb-6">
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className="text-3xl font-bold text-gray-900 sm:text-4xl">{tier.price[frequency.value]}</span>
-                                                    <span className="text-sm font-medium text-gray-500">{frequency.priceSuffix}</span>
+                                                {hasDiscount && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% OFF</span>}
+                                                <div className="flex flex-wrap items-baseline gap-2">
+                                                    {hasDiscount && <span className="text-lg text-gray-400 line-through">{originalPrice}</span>}
+                                                    <span className="text-3xl font-bold text-gray-900 sm:text-4xl">{finalPrice}</span>
+                                                    <span className="text-sm font-medium text-gray-500">{suffix}</span>
                                                 </div>
-                                                {frequency.value === 'annually' && tier.price.originalAnnually && (
-                                                    <p className="mt-1 text-sm text-gray-500">
-                                                        <span className="line-through">{tier.price.originalAnnually}</span>
-                                                        <span className="ml-2 font-medium text-green-600">
-                                                            {t('pricing_page.save_percent')}{' '}
-                                                            {Math.round(
-                                                                ((parseInt(tier.price.originalAnnually.slice(1)) - parseInt(tier.price.annually.slice(1))) /
-                                                                    parseInt(tier.price.originalAnnually.slice(1))) *
-                                                                100
-                                                            )}
-                                                            %
-                                                        </span>
+                                                {billingCycle === 'annually' && planSavings > 0 && <p className="mt-1 text-sm font-medium text-green-600">Save {planSavings}% vs monthly</p>}
+                                                {hasSetupFee && (
+                                                    <p className="mt-2 text-sm font-medium text-gray-700">
+                                                        Setup Fee: <span className="font-semibold text-gray-900">{formatPrice(plan.setup_fee)}</span>
                                                     </p>
                                                 )}
-                                                {/* Setup Cost Section */}
-                                                <p className="mt-2 text-sm font-medium text-gray-700">
-                                                    Setup Fee: <span className="font-semibold text-gray-900">{tier.price[frequency.setupFee]}</span>
-                                                </p>
                                             </div>
 
-                                            {/* CTA Button */}
                                             <button
-                                                onClick={() => handleGetStarted(tier.href)}
+                                                onClick={() => (window.location.href = '/register')}
                                                 className={classNames('mb-6 w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}
                                             >
-                                                {tier.cta}
+                                                Get Started
                                             </button>
 
-                                            {/* Features */}
-                                            <div className="flex-1">
-                                                <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">{t('pricing_page.features_included')}</p>
-                                                <ul className="space-y-3">
-                                                    {tier.features.map((feature, index) => (
-                                                        <li key={index} className="flex items-start gap-3">
-                                                            <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                                                            <span className="text-sm text-gray-600">{feature}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
+                                            {plan.items.length > 0 && (
+                                                <div className="flex-1">
+                                                    <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">What&apos;s Included</p>
+                                                    <ul className="space-y-3">
+                                                        {plan.items.map((item) => (
+                                                            <li key={item.id} className="flex items-start gap-3">
+                                                                <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
+                                                                <span className="text-sm text-gray-600">{item.title_en}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
-                    </div>
-                </section>
-            </div>
+                    )}
+                </div>
+            </section>
+        </div>
     );
 }

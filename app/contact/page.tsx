@@ -1,4 +1,3 @@
-
 'use client';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';

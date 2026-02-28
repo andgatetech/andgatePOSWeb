@@ -24,53 +24,53 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Store',
         icon: React.createElement(ShoppingBag),
-        requiredPermissions: ['stores.view', 'stores.index'],
+        requiredPermissions: ['stores.view'],
         subMenu: [
             {
                 label: 'Store',
                 href: '/store',
-                requiredPermissions: ['stores.view', 'stores.index'],
+                requiredPermissions: ['stores.view'],
             },
             {
                 label: 'Settings',
                 href: '/store/setting',
-                requiredPermissions: ['settings.store'],
+                requiredPermissions: ['stores.edit'],
             },
             {
                 label: 'Employees Management',
                 href: '/employees',
-                requiredPermissions: ['users.view', 'users.index'],
+                requiredPermissions: ['users.view'],
             },
         ],
     },
     {
         label: 'Category',
         icon: React.createElement(Layers),
-        requiredPermissions: ['categories.view', 'categories.index'],
+        requiredPermissions: ['categories.index'],
         subMenu: [
             {
                 label: 'Category List',
                 href: '/category',
-                requiredPermissions: ['categories.view', 'categories.index'],
+                requiredPermissions: ['categories.index'],
             },
         ],
     },
     {
         label: 'Brand',
         icon: React.createElement(Tag),
-        requiredPermissions: ['brands.view', 'brands.index'],
+        requiredPermissions: ['brands.index'],
         subMenu: [
             {
                 label: 'Brand List',
                 href: '/brand',
-                requiredPermissions: ['brands.view', 'brands.index'],
+                requiredPermissions: ['brands.index'],
             },
         ],
     },
     {
         label: 'Product',
         icon: React.createElement(Package),
-        requiredPermissions: ['products.view', 'products.index'],
+        requiredPermissions: ['products.index'],
         subMenu: [
             {
                 label: 'Add Product',
@@ -80,7 +80,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Product List',
                 href: '/products',
-                requiredPermissions: ['products.view', 'products.index'],
+                requiredPermissions: ['products.index'],
             },
             {
                 label: 'Stock Adjustment',
@@ -90,19 +90,19 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Bulk Upload',
                 href: '/products/bulk',
-                requiredPermissions: ['products.view'],
+                requiredPermissions: ['products.bulk-upload'],
             },
             {
                 label: 'Print Label',
                 href: '/label',
-                requiredPermissions: ['products.view'],
+                requiredPermissions: ['barcode.generate'],
             },
         ],
     },
     {
         label: 'POS',
         icon: React.createElement(ShoppingCart),
-        requiredPermissions: ['sales.view', 'sales.create'],
+        requiredPermissions: ['sales.create'],
         subMenu: [
             {
                 label: 'Terminal',
@@ -114,43 +114,41 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Orders',
         icon: React.createElement(FileText),
-        requiredPermissions: ['orders.view', 'orders.index'],
+        requiredPermissions: ['orders.index'],
         subMenu: [
             {
                 label: 'Order List',
                 href: '/orders',
-                requiredPermissions: ['orders.view', 'orders.index'],
+                requiredPermissions: ['orders.index'],
             },
             {
                 label: 'Order Returns List',
                 href: '/orders/return/list',
-                requiredPermissions: ['orders.view', 'orders.index'],
+                requiredPermissions: ['orders.index'],
             },
         ],
     },
     {
         label: 'Purchases Order',
         icon: React.createElement(ShoppingCart),
-        requiredPermissions: ['purchase-orders.view', 'purchase-orders.index', 'purchases.view', 'purchases.index'],
+        requiredPermissions: ['purchase-orders.index'],
         subMenu: [
             {
                 label: 'Add Purchase',
                 href: '/purchases/create',
-                requiredPermissions: ['purchase-orders.create', 'purchases.create'],
+                requiredPermissions: ['purchase-orders.create'],
             },
             {
                 label: 'Purchase List',
                 href: '/purchases/list',
-                requiredPermissions: ['purchase-orders.view', 'purchase-orders.index', 'purchases.view', 'purchases.index'],
+                requiredPermissions: ['purchase-orders.index'],
             },
-
-          
         ],
     },
     {
         label: 'Supplier',
         icon: React.createElement(Truck),
-        requiredPermissions: ['suppliers.view', 'suppliers.index'],
+        requiredPermissions: ['suppliers.index'],
         subMenu: [
             {
                 label: 'Add Supplier',
@@ -160,43 +158,43 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Supplier List',
                 href: '/suppliers/list',
-                requiredPermissions: ['suppliers.view', 'suppliers.index'],
+                requiredPermissions: ['suppliers.index'],
             },
         ],
     },
     {
         label: 'Account',
         icon: React.createElement(Wallet),
-        requiredPermissions: ['ledgers.view', 'ledgers.index', 'journals.view', 'journals.index'],
+        requiredPermissions: ['ledgers.index', 'journals.index'],
         subMenu: [
             {
                 label: 'Ledger List',
                 href: '/account/ledger-list',
-                requiredPermissions: ['ledgers.view', 'ledgers.index'],
+                requiredPermissions: ['ledgers.index'],
             },
             {
                 label: 'Journal List',
                 href: '/account/journal-list',
-                requiredPermissions: ['journals.view', 'journals.index'],
+                requiredPermissions: ['journals.index'],
             },
         ],
     },
     {
         label: 'Expenses',
         icon: React.createElement(Receipt),
-        requiredPermissions: ['expenses.view', 'expenses.index'],
+        requiredPermissions: ['expenses.index'],
         subMenu: [
             {
                 label: 'Expense List',
                 href: '/expenses/expense-list',
-                requiredPermissions: ['expenses.view', 'expenses.index'],
+                requiredPermissions: ['expenses.index'],
             },
         ],
     },
     {
         label: 'Customer',
         icon: React.createElement(Users),
-        requiredPermissions: ['customers.view', 'customers.index'],
+        requiredPermissions: ['customers.index'],
         subMenu: [
             {
                 label: 'Add Customer',
@@ -206,7 +204,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Customer List',
                 href: '/customers/list',
-                requiredPermissions: ['customers.view', 'customers.index'],
+                requiredPermissions: ['customers.index'],
             },
         ],
     },
@@ -215,18 +213,14 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         icon: React.createElement(BarChart),
         requiredPermissions: [
             'reports.sales',
-            'reports.purchases',
-            'reports.inventory',
-            'reports.financial',
             'reports.expense',
-            'reports.stock',
             'reports.tax',
             'reports.transaction',
-            'reports.customer',
-            'reports.supplier',
-            'reports.profit_loss',
             'reports.purchase',
             'reports.purchase-transaction',
+            'reports.inventory',
+            'reports.low-stock',
+            'stock.reports',
         ],
         subMenu: [
             // Sales & Revenue Reports
@@ -244,39 +238,39 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             // Customer Reports
             {
                 label: 'Customer Reports',
-                requiredPermissions: ['reports.customer', 'reports.sales'],
-                subMenu: [{ label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.customer', 'reports.sales'] }],
+                requiredPermissions: ['reports.sales'],
+                subMenu: [{ label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.sales'] }],
             },
             // Purchase & Supplier Reports
             {
                 label: 'Purchase & Supplier',
-                requiredPermissions: ['reports.purchase', 'reports.purchases', 'reports.supplier'],
+                requiredPermissions: ['reports.purchase'],
                 subMenu: [
-                    { label: 'Purchase Report', href: '/reports/purchase', requiredPermissions: ['reports.purchase', 'reports.purchases'] },
-                    { label: 'Purchase Items', href: '/reports/purchase-items', requiredPermissions: ['reports.purchase', 'reports.purchases'] },
+                    { label: 'Purchase Report', href: '/reports/purchase', requiredPermissions: ['reports.purchase'] },
+                    { label: 'Purchase Items', href: '/reports/purchase-items', requiredPermissions: ['reports.purchase'] },
                     { label: 'Purchase Transactions', href: '/reports/purchase-transaction', requiredPermissions: ['reports.purchase-transaction'] },
-                    { label: 'Supplier Report', href: '/reports/supplier', requiredPermissions: ['reports.supplier', 'reports.purchases'] },
-                    { label: 'Supplier Dues', href: '/reports/supplier-due', requiredPermissions: ['reports.supplier', 'reports.purchases'] },
+                    { label: 'Supplier Report', href: '/reports/supplier', requiredPermissions: ['reports.purchase'] },
+                    { label: 'Supplier Dues', href: '/reports/supplier-due', requiredPermissions: ['reports.purchase'] },
                 ],
             },
             // Inventory Reports
             {
                 label: 'Inventory Reports',
-                requiredPermissions: ['reports.stock', 'reports.inventory'],
+                requiredPermissions: ['stock.reports', 'reports.inventory', 'reports.low-stock'],
                 subMenu: [
-                    { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['reports.stock'] },
-                    { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.stock'] },
+                    { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'] },
+                    { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'] },
                     { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'] },
-                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['reports.stock', 'stock.reports'] },
+                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.reports'] },
                     { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'] },
                 ],
             },
             // Financial Reports
             {
                 label: 'Financial Reports',
-                requiredPermissions: ['reports.financial', 'reports.profit_loss', 'reports.expense', 'reports.tax'],
+                requiredPermissions: ['reports.profit-loss', 'reports.expense', 'reports.tax'],
                 subMenu: [
-                    { label: 'Profit & Loss', href: '/reports/profit-loss', requiredPermissions: ['reports.profit_loss', 'reports.financial'] },
+                    { label: 'Profit & Loss', href: '/reports/profit-loss', requiredPermissions: ['reports.profit-loss'] },
                     { label: 'Expense Report', href: '/reports/expense', requiredPermissions: ['reports.expense'] },
                     { label: 'Tax Report', href: '/reports/tax', requiredPermissions: ['reports.tax'] },
                 ],
@@ -291,12 +285,10 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Give Feedback',
                 href: '/feedbacks/create-feedback',
-                requiredPermissions: ['view-dashboard'],
             },
             {
                 label: 'View Feedback',
                 href: '/feedbacks',
-                requiredPermissions: ['view-dashboard'],
             },
         ],
     },
@@ -350,12 +342,7 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined): 
  * @param role - User role (store_admin has full access)
  * @returns Filtered menu items array
  */
-export function buildMenuFromPermissions(userPermissions: string[] | undefined, role?: string): MenuItem[] {
-    // Store admin sees everything
-    if (role === 'store_admin') {
-        return ALL_MENU_ITEMS;
-    }
-
-    // Filter menu items based on permissions
+export function buildMenuFromPermissions(userPermissions: string[] | undefined): MenuItem[] {
+    // Always filter by actual permissions — the backend controls what each user can access
     return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions)).filter((item): item is MenuItem => item !== null);
 }
