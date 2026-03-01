@@ -140,7 +140,7 @@ export default function PriceSection({ id }: PriceSectionProps) {
                                     >
                                         {isMostPopular && (
                                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                                                <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">Most Popular</div>
+                                                <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">{t('pricing_page.most_popular')}</div>
                                             </div>
                                         )}
 
@@ -159,24 +159,27 @@ export default function PriceSection({ id }: PriceSectionProps) {
                                                     <span className="text-3xl font-bold text-gray-900 sm:text-4xl">{finalPrice}</span>
                                                     <span className="text-sm font-medium text-gray-500">{suffix}</span>
                                                 </div>
-                                                {billingCycle === 'annually' && planSavings > 0 && <p className="mt-1 text-sm font-medium text-green-600">Save {planSavings}% vs monthly</p>}
-                                                {hasSetupFee && (
-                                                    <p className="mt-2 text-sm font-medium text-gray-700">
-                                                        Setup Fee: <span className="font-semibold text-gray-900">{formatPrice(plan.setup_fee)}</span>
+                                                {billingCycle === 'annually' && planSavings > 0 && (
+                                                    <p className="mt-1 text-sm font-medium text-green-600">
+                                                        {t('pricing_page.save_percent')} {planSavings}%
                                                     </p>
                                                 )}
+                                                <p className="mt-2 text-sm font-medium text-gray-700">
+                                                    {t('pricing_page.setup_fee')}:{' '}
+                                                    <span className="font-semibold text-gray-900">{hasSetupFee ? formatPrice(plan.setup_fee) : t('pricing_page.setup_fee_free')}</span>
+                                                </p>
                                             </div>
 
                                             <button
                                                 onClick={() => (window.location.href = '/register')}
                                                 className={classNames('mb-6 w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}
                                             >
-                                                Get Started
+                                                {t('pricing_page.get_started')}
                                             </button>
 
                                             {plan.items.length > 0 && (
                                                 <div className="flex-1">
-                                                    <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">What&apos;s Included</p>
+                                                    <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">{t('pricing_page.features_included')}</p>
                                                     <ul className="space-y-3">
                                                         {plan.items.map((item) => (
                                                             <li key={item.id} className="flex items-start gap-3">

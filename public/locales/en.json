@@ -482,7 +482,11 @@
             "contact_sales": "Contact Sales",
             "guarantee": "✓ 14-day money-back guarantee ✓ Small setup fees ✓ Cancel anytime"
         },
-        "save_percent": "Save"
+        "save_percent": "Save",
+        "get_started": "Get Started",
+        "setup_fee": "Setup Fee",
+        "setup_fee_free": "Free",
+        "most_popular": "Most Popular"
     },
 
     "testimonials": {
