@@ -24,7 +24,8 @@ interface PriceSectionProps {
 }
 
 export default function PriceSection({ id }: PriceSectionProps) {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const lang = i18n.language as 'en' | 'bn';
     const { data, isLoading, isError } = useGetPlansQuery();
     const plans = filterActivePlans(data?.data ?? []);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
@@ -148,7 +149,7 @@ export default function PriceSection({ id }: PriceSectionProps) {
                                                 <div className={classNames('rounded-lg bg-gray-50 p-2', colors.icon)}>
                                                     <IconComponent className="h-6 w-6" />
                                                 </div>
-                                                <h3 className="text-xl font-semibold text-gray-900">{plan.name_en}</h3>
+                                                <h3 className="text-xl font-semibold text-gray-900">{lang === 'bn' ? plan.name_bn : plan.name_en}</h3>
                                             </div>
 
                                             <div className="mb-6">
@@ -180,7 +181,7 @@ export default function PriceSection({ id }: PriceSectionProps) {
                                                         {plan.items.map((item) => (
                                                             <li key={item.id} className="flex items-start gap-3">
                                                                 <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                                                                <span className="text-sm text-gray-600">{item.title_en}</span>
+                                                                <span className="text-sm text-gray-600">{lang === 'bn' ? item.title_bn : item.title_en}</span>
                                                             </li>
                                                         ))}
                                                     </ul>

@@ -41,7 +41,8 @@ const colorClasses = {
 const PLAN_ICONS = [Rocket, Star, TrendingUp, Zap, Shield];
 
 export default function PricingPage() {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const lang = i18n.language as 'en' | 'bn';
     const { data, isLoading, isError } = useGetPlansQuery();
     const plans = filterActivePlans(data?.data ?? []);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
@@ -62,8 +63,16 @@ export default function PricingPage() {
         faqIndex++;
     }
 
-    // Build comparison table feature list from all plan items
-    const allFeatureTitles = Array.from(new Set(plans.flatMap((p) => p.items.map((i) => i.title_en))));
+    // Build comparison table feature list from all plan items (use English keys for matching, display based on language)
+    const allFeatureItems = plans
+        .flatMap((p) => p.items)
+        .reduce((acc, item) => {
+            if (!acc.find((i) => i.title_en === item.title_en)) {
+                acc.push(item);
+            }
+            return acc;
+        }, [] as (typeof plans)[0]['items']);
+    const allFeatureTitles = allFeatureItems.map((i) => i.title_en);
 
     const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
 
@@ -184,7 +193,7 @@ export default function PricingPage() {
                                                     <div className={classNames('rounded-lg bg-gray-50 p-2', colors.icon)}>
                                                         <IconComponent className="h-6 w-6" />
                                                     </div>
-                                                    <h3 className="text-xl font-semibold text-gray-900">{plan.name_en}</h3>
+                                                    <h3 className="text-xl font-semibold text-gray-900">{lang === 'bn' ? plan.name_bn : plan.name_en}</h3>
                                                 </div>
 
                                                 <div className="mb-6">
@@ -218,7 +227,7 @@ export default function PricingPage() {
                                                             {plan.items.map((item) => (
                                                                 <li key={item.id} className="flex items-start gap-3">
                                                                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                                                                    <span className="text-sm text-gray-600">{item.title_en}</span>
+                                                                    <span className="text-sm text-gray-600">{lang === 'bn' ? item.title_bn : item.title_en}</span>
                                                                 </li>
                                                             ))}
                                                         </ul>
@@ -248,7 +257,7 @@ export default function PricingPage() {
                                             <th className="px-4 py-4 text-left text-sm font-semibold text-gray-900 sm:px-6">Features</th>
                                             {plans.map((plan) => (
                                                 <th key={plan.id} className="px-3 py-4 text-center text-sm font-semibold text-gray-900 sm:px-6">
-                                                    {plan.name_en}
+                                                    {lang === 'bn' ? plan.name_bn : plan.name_en}
                                                 </th>
                                             ))}
                                         </tr>
@@ -256,27 +265,31 @@ export default function PricingPage() {
                                     <tbody className="divide-y divide-gray-200 bg-white">
                                         {allFeatureTitles
                                             .filter((featureTitle) => plans.some((plan) => plan.items.find((i) => i.title_en === featureTitle)?.value))
-                                            .map((featureTitle, rowIndex) => (
-                                                <tr key={featureTitle} className={rowIndex % 2 === 1 ? 'bg-gray-50' : ''}>
-                                                    <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">{featureTitle}</td>
-                                                    {plans.map((plan) => {
-                                                        const item = plan.items.find((i) => i.title_en === featureTitle);
-                                                        return (
-                                                            <td key={plan.id} className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">
-                                                                {item ? (
-                                                                    item.value ? (
-                                                                        <span className="font-medium">{item.value === 'unlimited' ? '∞' : item.value}</span>
+                                            .map((featureTitle, rowIndex) => {
+                                                const featureItem = allFeatureItems.find((i) => i.title_en === featureTitle);
+                                                const displayTitle = lang === 'bn' && featureItem ? featureItem.title_bn : featureTitle;
+                                                return (
+                                                    <tr key={featureTitle} className={rowIndex % 2 === 1 ? 'bg-gray-50' : ''}>
+                                                        <td className="px-4 py-4 text-sm text-gray-600 sm:px-6">{displayTitle}</td>
+                                                        {plans.map((plan) => {
+                                                            const item = plan.items.find((i) => i.title_en === featureTitle);
+                                                            return (
+                                                                <td key={plan.id} className="px-3 py-4 text-center text-sm text-gray-900 sm:px-6">
+                                                                    {item ? (
+                                                                        item.value ? (
+                                                                            <span className="font-medium">{item.value === 'unlimited' ? '∞' : item.value}</span>
+                                                                        ) : (
+                                                                            <Check className="mx-auto h-5 w-5 text-green-500" />
+                                                                        )
                                                                     ) : (
-                                                                        <Check className="mx-auto h-5 w-5 text-green-500" />
-                                                                    )
-                                                                ) : (
-                                                                    <span className="text-gray-400">—</span>
-                                                                )}
-                                                            </td>
-                                                        );
-                                                    })}
-                                                </tr>
-                                            ))}
+                                                                        <span className="text-gray-400">—</span>
+                                                                    )}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                );
+                                            })}
                                     </tbody>
                                 </table>
                             </div>
