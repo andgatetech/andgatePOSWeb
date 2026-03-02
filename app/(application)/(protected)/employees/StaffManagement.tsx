@@ -1,14 +1,17 @@
 'use client';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import PermissionSelector from '@/components/employees/PermissionSelector';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { showMessage } from '@/lib/toast';
-import { useGetAllPermissionsQuery, useGetUserPermissionsQuery, useUpdateUserPermissionMutation } from '@/store/features/auth/authApi';
+import { RootState } from '@/store';
+import { useGetUserPermissionsQuery, useUpdateUserPermissionMutation } from '@/store/features/auth/authApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
 import { CheckCircle, Loader2, Mail, Pencil, Plus, Shield, ShieldCheck, Trash2, User, Users, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 interface StaffMember {
     id: number;
@@ -27,6 +30,7 @@ interface Permission {
 const StaffManagement = () => {
     const router = useRouter();
     const { currentStoreId, userStores } = useCurrentStore();
+    const adminUser = useSelector((state: RootState) => state.auth?.user);
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [permissionModalOpen, setPermissionModalOpen] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
@@ -91,8 +95,21 @@ const StaffManagement = () => {
         userStores.map((s) => ({ id: s.id, name: s.store_name }))
     );
 
-    const { data: permissionsResponse, isLoading: permissionsLoading } = useGetAllPermissionsQuery({});
-    const allPermissions = useMemo<Permission[]>(() => permissionsResponse?.data?.permissions || [], [permissionsResponse]);
+    const {
+        data: userPermissionsResponse,
+        isFetching: userPermissionsLoading,
+        refetch: refetchUserPermissions,
+    } = useGetUserPermissionsQuery(selectedStaff?.id ?? 0, {
+        skip: !selectedStaff?.id,
+    });
+
+    // Fetch all available permissions using the admin's own account
+    const { data: allPermissionsResponse, isFetching: allPermissionsLoading } = useGetUserPermissionsQuery(adminUser?.id ?? 0, {
+        skip: !adminUser?.id,
+    });
+
+    const allPermissions = useMemo<Permission[]>(() => allPermissionsResponse?.data?.permissions || [], [allPermissionsResponse]);
+    const permissionsLoading = userPermissionsLoading || allPermissionsLoading;
     const groupedPermissions = useMemo(() => {
         const groups: Record<string, Permission[]> = {};
 
@@ -107,14 +124,6 @@ const StaffManagement = () => {
 
         return groups;
     }, [allPermissions]);
-
-    const {
-        data: userPermissionsResponse,
-        isFetching: userPermissionsLoading,
-        refetch: refetchUserPermissions,
-    } = useGetUserPermissionsQuery(selectedStaff?.id ?? 0, {
-        skip: !selectedStaff?.id,
-    });
 
     const permissionFetchLoading = permissionsLoading || (permissionModalOpen && userPermissionsLoading);
     const [updateUserPermission, { isLoading: isUpdatingPermission }] = useUpdateUserPermissionMutation();
@@ -195,16 +204,16 @@ const StaffManagement = () => {
         setSelectAllPermissions(false);
     };
 
-    const handleCategoryToggle = (category: string) => {
-        const categoryPermissions = groupedPermissions[category]?.map((permission) => permission.name) || [];
-        if (categoryPermissions.length === 0) return;
+    const handleCategoryToggle = (category: string, permissions: Permission[]) => {
+        const categoryPermissionNames = permissions.map((p) => p.name);
+        if (categoryPermissionNames.length === 0) return;
 
-        const allSelected = categoryPermissions.every((name) => selectedPermissions.includes(name));
+        const allSelected = categoryPermissionNames.every((name) => selectedPermissions.includes(name));
         setSelectedPermissions((prev) => {
             if (allSelected) {
-                return prev.filter((name) => !categoryPermissions.includes(name));
+                return prev.filter((name) => !categoryPermissionNames.includes(name));
             }
-            return Array.from(new Set([...prev, ...categoryPermissions]));
+            return Array.from(new Set([...prev, ...categoryPermissionNames]));
         });
         setSelectAllPermissions(false);
     };
@@ -493,77 +502,17 @@ const StaffManagement = () => {
                                 <XCircle className="h-5 w-5" />
                             </button>
                         </div>
-                        <div className="max-h-[50vh] overflow-y-auto px-4 py-4 sm:max-h-[60vh] sm:px-6 sm:py-6">
-                            {permissionFetchLoading ? (
-                                <div className="flex items-center justify-center py-8 sm:py-12">
-                                    <Loader2 className="h-6 w-6 animate-spin text-blue-600 sm:h-8 sm:w-8" />
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="mb-4 flex flex-col gap-3 rounded-xl bg-blue-50 p-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-4">
-                                        <div className="flex items-center gap-2 sm:gap-3">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 sm:h-10 sm:w-10 sm:rounded-xl">
-                                                <Shield className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-semibold text-blue-900 sm:text-sm">Permission Groups</p>
-                                                <p className="text-[10px] text-blue-700 sm:text-xs">Toggle entire modules or drill down to individual operations.</p>
-                                            </div>
-                                        </div>
-                                        <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-blue-900 sm:text-sm">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectAllPermissions}
-                                                onChange={handleSelectAllToggle}
-                                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                            />
-                                            Select All
-                                        </label>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                                        {Object.entries(groupedPermissions).map(([category, permissions]) => {
-                                            const categoryNames = permissions.map((permission) => permission.name);
-                                            const allSelected = categoryNames.every((name) => selectAllPermissions || selectedPermissions.includes(name));
-                                            const someSelected = categoryNames.some((name) => selectedPermissions.includes(name)) && !allSelected;
-
-                                            return (
-                                                <div key={category} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                                                    <div className="mb-3 flex items-center justify-between">
-                                                        <h4 className="text-sm font-semibold uppercase text-gray-700">{category}</h4>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleCategoryToggle(category)}
-                                                            className={`text-xs font-medium ${allSelected ? 'text-red-600 hover:text-red-700' : 'text-blue-600 hover:text-blue-700'}`}
-                                                        >
-                                                            {allSelected ? 'Deselect All' : someSelected ? 'Select All' : 'Select All'}
-                                                        </button>
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        {permissions.map((permission) => {
-                                                            const isChecked = selectAllPermissions || selectedPermissions.includes(permission.name);
-                                                            const [, action] = permission.name.split('.');
-                                                            return (
-                                                                <label key={permission.id} className="flex items-center gap-2 text-sm text-gray-700">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={isChecked}
-                                                                        onChange={() => handlePermissionToggle(permission.name)}
-                                                                        disabled={selectAllPermissions}
-                                                                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                                                                    />
-                                                                    <span className="flex-1 capitalize">{action?.replace(/[_-]/g, ' ') || permission.name}</span>
-                                                                    {isChecked && <CheckCircle className="h-4 w-4 text-emerald-500" />}
-                                                                </label>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </>
-                            )}
+                        <div className="max-h-[80vh] overflow-y-auto px-4 py-4 sm:max-h-[75vh] sm:px-6 sm:py-6">
+                            <PermissionSelector
+                                allPermissions={allPermissions}
+                                isChecked={(p) => selectedPermissions.includes(p.name)}
+                                onToggle={(p) => handlePermissionToggle(p.name)}
+                                onCategoryToggle={handleCategoryToggle}
+                                onSelectAll={handleSelectAllToggle}
+                                selectAll={selectAllPermissions}
+                                selectedCount={selectedPermissions.length}
+                                loading={permissionFetchLoading}
+                            />
                         </div>
                         <div className="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4">
                             <p className="text-center text-xs text-gray-500 sm:text-left sm:text-sm">

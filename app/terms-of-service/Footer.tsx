@@ -14,7 +14,7 @@
 //                                 <span className="ml-3 text-2xl font-bold">AndgatePOS</span>
 //                             </div>
 //                             <p className="mb-6 max-w-md leading-relaxed text-gray-400">
-//                                 Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with AndGatePOS.
+//                                 Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with andgatePOS.
 //                             </p>
 //                             <div className="flex space-x-4">
 //                                 <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-800 transition-colors hover:bg-blue-600">
@@ -69,7 +69,7 @@
 //                     </div>
 
 //                     <div className="flex flex-col items-center justify-between border-t border-gray-800 pt-8 md:flex-row">
-//                         <p className="text-sm text-gray-400">© 2024 AndGate Technologies. All rights reserved. Empowering businesses worldwide.</p>
+//                         <p className="text-sm text-gray-400">© 2024 andgate Technologies. All rights reserved. Empowering businesses worldwide.</p>
 //                         <div className="mt-4 flex space-x-6 md:mt-0">
 //                             <a href="/privacy-policy" className="text-sm text-gray-400 transition-colors hover:text-white">
 //                                 Privacy Policy

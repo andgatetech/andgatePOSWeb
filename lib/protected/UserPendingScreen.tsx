@@ -1,12 +1,28 @@
 'use client';
+import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
-import { AlertCircle, Clock, Mail, Phone, Shield } from 'lucide-react';
-import Link from 'next/link';
+import { AlertCircle, Clock, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 
 export default function UserPendingScreen() {
     const router = useRouter();
     const [logout] = useLogoutMutation();
+    const user = useSelector((state: RootState) => state.auth?.user);
+
+    const whatsappMessage = [
+        'Hello andgate Support,',
+        '',
+        'My account is PENDING APPROVAL and I am waiting for activation.',
+        '',
+        `User ID   : ${user?.id ?? 'N/A'}`,
+        `Name      : ${user?.name ?? 'N/A'}`,
+        `Email     : ${user?.email ?? 'N/A'}`,
+        `Issue     : Account Pending Verification`,
+        '',
+        'Please approve or update my account status.',
+    ].join('\n');
 
     const handleLogout = async () => {
         router.push('/login');
@@ -69,31 +85,12 @@ export default function UserPendingScreen() {
                                 </ul>
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex flex-wrap gap-2">
-                                <a
-                                    href="mailto:support@andgatetech.net"
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-md lg:px-4 lg:text-sm"
-                                >
-                                    <Mail className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    support@andgatetech.net
-                                </a>
-                                <a
-                                    href="tel:+8801819646514"
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-md lg:px-4 lg:text-sm"
-                                >
-                                    <Phone className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    +880 1819-646514
-                                </a>
-                                <Link
-                                    href="/contact"
-                                    className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-700 lg:px-4 lg:text-sm"
-                                >
-                                    Contact Support
-                                </Link>
+                            {/* Contact */}
+                            <ContactSupportCard accentColor="blue" whatsappMessage={whatsappMessage} />
+                            <div className="mt-3">
                                 <button
                                     onClick={handleLogout}
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition-all hover:bg-gray-50 lg:px-4 lg:text-sm"
+                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
                                 >
                                     Logout
                                 </button>

@@ -1,8 +1,11 @@
 'use client';
 import UpgradePlans from '@/components/common/UpgradePlans';
+import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
-import { AlertCircle, Clock, Crown, Mail, Phone } from 'lucide-react';
+import { AlertCircle, Clock, Crown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 
 interface SubscriptionPendingScreenProps {
     status: string; // 'pending', 'expired', 'blocked', 'hold'
@@ -13,6 +16,24 @@ interface SubscriptionPendingScreenProps {
 export default function SubscriptionPendingScreen({ status, subscriptionName = 'Basic', expireDate }: SubscriptionPendingScreenProps) {
     const router = useRouter();
     const [logout] = useLogoutMutation();
+    const user = useSelector((state: RootState) => state.auth?.user);
+
+    const whatsappMessage = [
+        'Hello andgate Support,',
+        '',
+        `My subscription is ${status.toUpperCase()} and I cannot access the system.`,
+        '',
+        `User ID   : ${user?.id ?? 'N/A'}`,
+        `Name      : ${user?.name ?? 'N/A'}`,
+        `Email     : ${user?.email ?? 'N/A'}`,
+        `Plan      : ${subscriptionName}`,
+        `Issue     : Subscription ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        expireDate ? `Expired On: ${new Date(expireDate).toLocaleDateString()}` : '',
+        '',
+        'Please help me renew or activate my subscription.',
+    ]
+        .filter(Boolean)
+        .join('\n');
 
     const handleLogout = async () => {
         router.push('/login');
@@ -117,24 +138,11 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
                             </div>
 
                             {/* Contact Section */}
-                            <div className="flex flex-wrap gap-2">
-                                <a
-                                    href="mailto:support@andgate.com"
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-md"
-                                >
-                                    <Mail className="mr-2 h-3 w-3" />
-                                    Email
-                                </a>
-                                <a
-                                    href="tel:+8801610108851"
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-md"
-                                >
-                                    <Phone className="mr-2 h-3 w-3" />
-                                    Call
-                                </a>
+                            <ContactSupportCard accentColor="yellow" whatsappMessage={whatsappMessage} />
+                            <div className="mt-3">
                                 <button
                                     onClick={handleLogout}
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:bg-gray-50"
+                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
                                 >
                                     Logout
                                 </button>

@@ -731,7 +731,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
     // Generate receipt HTML for thermal printer
     const generateReceiptHTML = () => {
-        const storeName = currentStore?.store_name || 'AndGatePOS';
+        const storeName = currentStore?.store_name || 'andgatePOS';
         const storeLocation = currentStore?.store_location || 'Store Address';
         const storeContact = currentStore?.store_contact || 'Contact';
 

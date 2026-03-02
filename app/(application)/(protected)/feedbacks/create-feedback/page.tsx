@@ -232,7 +232,7 @@ const FeedbackPage = () => {
                                     <Heart className="mr-2 h-5 w-5 text-red-500" />
                                     <span className="text-sm font-semibold text-gray-700">Our Promise</span>
                                 </div>
-                                <p className="text-sm text-gray-600">Every piece of feedback helps us improve AndGatePOS. Your voice matters in shaping the future of our platform.</p>
+                                <p className="text-sm text-gray-600">Every piece of feedback helps us improve andgatePOS. Your voice matters in shaping the future of our platform.</p>
                             </div>
 
                             <div className="space-y-3">
@@ -268,7 +268,7 @@ const FeedbackPage = () => {
                     <div className="mb-12 text-center">
                         <div className="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
                             <Zap className="mr-2 h-4 w-4" />
-                            Help Us Improve AndGatePOS
+                            Help Us Improve andgatePOS
                         </div>
 
                         <h1 className="mb-6 text-5xl font-black leading-tight text-gray-900 md:text-6xl">
@@ -539,7 +539,7 @@ const FeedbackPage = () => {
                                     <div>
                                         <h4 className="mb-2 font-semibold text-gray-900">We Value Your Input</h4>
                                         <p className="text-sm leading-relaxed text-gray-600">
-                                            Your feedback helps us improve AndGatePOS for all Bangladeshi businesses. We review every submission and may follow up with you for clarification or
+                                            Your feedback helps us improve andgatePOS for all Bangladeshi businesses. We review every submission and may follow up with you for clarification or
                                             updates. Thank you for helping us build better software! 🚀
                                         </p>
                                     </div>

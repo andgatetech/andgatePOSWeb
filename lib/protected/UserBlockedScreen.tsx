@@ -1,12 +1,28 @@
 'use client';
+import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
-import { AlertTriangle, Mail, Phone, ShieldAlert } from 'lucide-react';
-import Link from 'next/link';
+import { AlertTriangle, ShieldAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 
 export default function UserBlockedScreen() {
     const router = useRouter();
     const [logout] = useLogoutMutation();
+    const user = useSelector((state: RootState) => state.auth?.user);
+
+    const whatsappMessage = [
+        'Hello andgate Support,',
+        '',
+        'My account has been BLOCKED and I cannot access the system.',
+        '',
+        `User ID   : ${user?.id ?? 'N/A'}`,
+        `Name      : ${user?.name ?? 'N/A'}`,
+        `Email     : ${user?.email ?? 'N/A'}`,
+        `Issue     : Account Blocked`,
+        '',
+        'Please help me resolve this as soon as possible.',
+    ].join('\n');
 
     const handleLogout = async () => {
         router.push('/login');
@@ -69,31 +85,12 @@ export default function UserBlockedScreen() {
                                 </ul>
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex flex-wrap gap-2">
-                                <a
-                                    href="mailto:support@andgatetech.net"
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 hover:shadow-md lg:px-4 lg:text-sm"
-                                >
-                                    <Mail className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    support@andgatetech.net
-                                </a>
-                                <a
-                                    href="tel:+8801819646514"
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 hover:shadow-md lg:px-4 lg:text-sm"
-                                >
-                                    <Phone className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    +880 1819-646514
-                                </a>
-                                <Link
-                                    href="/contact"
-                                    className="inline-flex items-center rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-gray-800 lg:px-4 lg:text-sm"
-                                >
-                                    Contact Support Team
-                                </Link>
+                            {/* Contact */}
+                            <ContactSupportCard accentColor="red" whatsappMessage={whatsappMessage} />
+                            <div className="mt-3">
                                 <button
                                     onClick={handleLogout}
-                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition-all hover:bg-gray-50 lg:px-4 lg:text-sm"
+                                    className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
                                 >
                                     Logout
                                 </button>

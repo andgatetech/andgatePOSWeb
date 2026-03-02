@@ -1,12 +1,30 @@
 'use client';
-import { AlertTriangle, Ban, Mail, Phone } from 'lucide-react';
-import Link from 'next/link';
+import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { RootState } from '@/store';
+import { AlertTriangle, Ban } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 interface StoreDisabledScreenProps {
     storeName?: string;
 }
 
 export default function StoreDisabledScreen({ storeName }: StoreDisabledScreenProps) {
+    const user = useSelector((state: RootState) => state.auth?.user);
+
+    const whatsappMessage = [
+        'Hello andgate Support,',
+        '',
+        'My store has been DISABLED and I cannot access it.',
+        '',
+        `User ID   : ${user?.id ?? 'N/A'}`,
+        `Name      : ${user?.name ?? 'N/A'}`,
+        `Email     : ${user?.email ?? 'N/A'}`,
+        `Store     : ${storeName ?? 'N/A'}`,
+        `Issue     : Store Disabled`,
+        '',
+        'Please help re-enable my store.',
+    ].join('\n');
+
     return (
         <div className="p-4 py-6">
             <div className="mx-auto w-full max-w-5xl">
@@ -55,29 +73,8 @@ export default function StoreDisabledScreen({ storeName }: StoreDisabledScreenPr
                                 </ul>
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex flex-wrap gap-2">
-                                <a
-                                    href="mailto:support@andgatetech.net"
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 hover:shadow-md lg:px-4 lg:text-sm"
-                                >
-                                    <Mail className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    support@andgatetech.net
-                                </a>
-                                <a
-                                    href="tel:+8801819646514"
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-red-700 hover:shadow-md lg:px-4 lg:text-sm"
-                                >
-                                    <Phone className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />
-                                    +880 1819-646514
-                                </a>
-                                <Link
-                                    href="/contact"
-                                    className="inline-flex items-center rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-gray-800 lg:px-4 lg:text-sm"
-                                >
-                                    Contact Support Team
-                                </Link>
-                            </div>
+                            {/* Contact */}
+                            <ContactSupportCard accentColor="red" whatsappMessage={whatsappMessage} />
                         </div>
                     </div>
                 </div>

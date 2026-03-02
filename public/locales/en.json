@@ -276,7 +276,7 @@
     "footer": {
         "brand": {
             "name": "AndgatePOS",
-            "description": "Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with AndGatePOS."
+            "description": "Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with andgatePOS."
         },
         "social": {
             "facebook": "f",
@@ -300,7 +300,7 @@
                 ]
             }
         },
-        "footerNote": "© 2024 AndGate Technologies. All rights reserved. Empowering businesses worldwide.",
+        "footerNote": "© 2024 andgate Technologies. All rights reserved. Empowering businesses worldwide.",
         "policies": [
             { "label": "Privacy Policy", "href": "/privacy-policy" },
             { "label": "Terms of Service", "href": "/terms-of-service" },
@@ -493,21 +493,21 @@
     "testimonials": {
         "header": {
             "title": "Loved by Business Owners in Bangladesh",
-            "subtitle": "See how entrepreneurs across Bangladesh are growing with AndGatePOS."
+            "subtitle": "See how entrepreneurs across Bangladesh are growing with andgatePOS."
         },
         "testimonials": [
             {
                 "name": "Md. Rakib Hossain",
                 "business": "Dhaka Mart",
                 "image": "https://img.icons8.com/color/96/shop.png",
-                "review": "AndGatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
+                "review": "andgatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
                 "rating": 5
             },
             {
                 "name": "Shamima Akter",
                 "business": "Chattogram Fashion House",
                 "image": "https://img.icons8.com/color/96/clothes.png",
-                "review": "Before AndGatePOS, I was struggling with manual calculations. Now everything is digital and customers are happier.",
+                "review": "Before andgatePOS, I was struggling with manual calculations. Now everything is digital and customers are happier.",
                 "rating": 5
             },
             {
@@ -521,7 +521,7 @@
                 "name": "Farhana Rahman",
                 "business": "Rajshahi Grocery",
                 "image": "https://img.icons8.com/color/96/grocery-store.png",
-                "review": "AndGatePOS is easy to use for everyone in my shop. Sales increased after using the system because checkout is much faster.",
+                "review": "andgatePOS is easy to use for everyone in my shop. Sales increased after using the system because checkout is much faster.",
                 "rating": 5
             }
         ]

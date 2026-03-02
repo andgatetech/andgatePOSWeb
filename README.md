@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/images/cover.PNG" alt="AndGate POS Banner" width="100%" />
+  <img src="public/images/cover.PNG" alt="andgate POS Banner" width="100%" />
 </p>
 <h1 align="center">🏪 AndgatePOS</h1>
 
@@ -17,7 +17,6 @@
 </p>
 
 ---
-
 
 ## 🚀 Features
 

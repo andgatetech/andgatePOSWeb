@@ -1,10 +1,11 @@
 'use client';
 
+import PermissionSelector from '@/components/employees/PermissionSelector';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
-import { useGetAllPermissionsQuery } from '@/store/features/auth/authApi';
+import { useGetUserPermissionsQuery } from '@/store/features/auth/authApi';
 import { useStaffRegisterMutation } from '@/store/features/store/storeApi';
-import { ArrowLeft, CheckCircle2, Eye, EyeOff, Shield, Store, Users } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Shield, Store, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -40,7 +41,7 @@ const EmployeeCreateForm = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth?.user);
     const [staffRegister, { isLoading: isSubmitting }] = useStaffRegisterMutation();
-    const { data: permissionsResponse, isLoading: permissionsLoading } = useGetAllPermissionsQuery({});
+    const { data: permissionsResponse, isLoading: permissionsLoading } = useGetUserPermissionsQuery(user?.id ?? 0, { skip: !user?.id });
 
     // Extract permissions array from response
     const allPermissions = useMemo(() => {
@@ -63,20 +64,8 @@ const EmployeeCreateForm = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
 
-    // Group permissions by category (e.g., "products", "sales", etc.)
-    const groupedPermissions = useMemo(() => {
-        const groups: Record<string, Permission[]> = {};
-
-        allPermissions.forEach((permission: Permission) => {
-            const [category] = permission.name.split('.');
-            if (!groups[category]) {
-                groups[category] = [];
-            }
-            groups[category].push(permission);
-        });
-
-        return groups;
-    }, [allPermissions]);
+    // Group permissions by category (no longer needed by this component — handled inside PermissionSelector)
+    // Kept as reference; the selector does its own grouping.
 
     // Validate form
     const validateForm = () => {
@@ -122,12 +111,11 @@ const EmployeeCreateForm = () => {
                 ...formData,
                 store_id: currentStoreId,
                 role: formData.role_in_store,
-                subscription_user_id: user?.id,
-                // Send 'all' as string if selectAll is true, otherwise send permissions array
-                permissions: selectAll ? 'all' : formData.permissions,
+               
+                permissions: formData.permissions,
             };
 
-            console.log('Sending staff data:', staffData);
+           
 
             await staffRegister(staffData).unwrap();
 
@@ -204,9 +192,8 @@ const EmployeeCreateForm = () => {
     };
 
     // Handle category toggle (select/deselect all permissions in a category)
-    const handleCategoryToggle = (category: string) => {
-        const categoryPermissions = groupedPermissions[category];
-        const categoryPermissionIds = categoryPermissions.map((p) => p.id);
+    const handleCategoryToggle = (category: string, permissions: Permission[]) => {
+        const categoryPermissionIds = permissions.map((p) => p.id);
         const allSelected = categoryPermissionIds.every((id) => formData.permissions.includes(id));
 
         if (allSelected) {
@@ -426,87 +413,23 @@ const EmployeeCreateForm = () => {
 
                             {/* Permissions Section */}
                             <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
-                                <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
-                                    <div className="flex items-center space-x-2 sm:space-x-3">
-                                        <Shield className="h-5 w-5 text-blue-600 sm:h-6 sm:w-6" />
-                                        <div>
-                                            <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">Permissions</h2>
-                                            <p className="text-xs text-gray-500 sm:text-sm">Select the permissions for this employee</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Select All Checkbox */}
-                                    <div className="flex w-full items-center justify-center space-x-2 rounded-lg bg-blue-50 px-3 py-2 sm:w-auto sm:justify-start sm:px-4">
-                                        <input
-                                            type="checkbox"
-                                            id="selectAll"
-                                            checked={selectAll}
-                                            onChange={handleSelectAllToggle}
-                                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                        />
-                                        <label htmlFor="selectAll" className="cursor-pointer text-xs font-medium text-blue-900 sm:text-sm">
-                                            Select All Permissions
-                                        </label>
+                                <div className="mb-4 flex items-center gap-3">
+                                    <Shield className="h-5 w-5 text-blue-600" />
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-gray-900">Permissions</h2>
+                                        <p className="text-xs text-gray-500">Choose what this employee is allowed to do in the system</p>
                                     </div>
                                 </div>
 
-                                {/* Permissions Grid */}
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-                                    {Object.entries(groupedPermissions).map(([category, permissions]) => {
-                                        const categoryPermissionIds = permissions.map((p) => p.id);
-                                        const allSelected = categoryPermissionIds.every((id) => formData.permissions.includes(id) || selectAll);
-                                        const someSelected = categoryPermissionIds.some((id) => formData.permissions.includes(id)) && !allSelected;
-
-                                        return (
-                                            <div key={category} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                                                {/* Category Header */}
-                                                <div className="mb-3 flex items-center justify-between border-b border-gray-200 pb-3">
-                                                    <h3 className="text-sm font-semibold uppercase text-gray-700">{category}</h3>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleCategoryToggle(category)}
-                                                        className={`text-xs font-medium transition-colors ${allSelected ? 'text-red-600 hover:text-red-700' : 'text-blue-600 hover:text-blue-700'}`}
-                                                    >
-                                                        {allSelected ? 'Deselect All' : someSelected ? 'Select All' : 'Select All'}
-                                                    </button>
-                                                </div>
-
-                                                {/* Permissions List */}
-                                                <div className="space-y-2">
-                                                    {permissions.map((permission) => {
-                                                        const isChecked = formData.permissions.includes(permission.id) || selectAll;
-                                                        const [, action] = permission.name.split('.');
-
-                                                        return (
-                                                            <div key={permission.id} className="flex items-center space-x-2">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    id={`permission-${permission.id}`}
-                                                                    checked={isChecked}
-                                                                    onChange={() => handlePermissionToggle(permission.id)}
-                                                                    disabled={selectAll}
-                                                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                                                                />
-                                                                <label htmlFor={`permission-${permission.id}`} className="flex-1 cursor-pointer text-sm text-gray-700">
-                                                                    {action || permission.name}
-                                                                </label>
-                                                                {isChecked && <CheckCircle2 className="h-4 w-4 text-green-600" />}
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Selected Count */}
-                                <div className="mt-4 rounded-lg bg-blue-50 p-3 sm:p-4">
-                                    <p className="text-xs text-blue-900 sm:text-sm">
-                                        <span className="font-semibold">{selectAll ? 'All' : formData.permissions.length}</span> permission{formData.permissions.length !== 1 ? 's' : ''} selected
-                                        {selectAll && ` (${allPermissions.length} total)`}
-                                    </p>
-                                </div>
+                                <PermissionSelector
+                                    allPermissions={allPermissions}
+                                    isChecked={(p) => formData.permissions.includes(p.id) || selectAll}
+                                    onToggle={(p) => handlePermissionToggle(p.id)}
+                                    onCategoryToggle={handleCategoryToggle}
+                                    onSelectAll={handleSelectAllToggle}
+                                    selectAll={selectAll}
+                                    selectedCount={formData.permissions.length}
+                                />
                             </div>
                         </div>
 
