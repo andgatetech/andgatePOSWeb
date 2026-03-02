@@ -198,6 +198,116 @@ export default function PriceSection({ id }: PriceSectionProps) {
                     )}
                 </div>
             </section>
+
+            {/* Compare Features Section */}
+            {!isLoading && !isError && plans.length > 0 && (
+                <section className="bg-white py-16 sm:py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mb-12 text-center">
+                            <h2 className="mb-4 text-3xl font-black text-gray-900 sm:text-4xl">{t('pricing_page.comparison.title') || 'Compare All Features'}</h2>
+                            <p className="mx-auto mb-2 max-w-2xl text-xl font-semibold text-gray-900">{t('pricing_page.comparison.subtitle') || 'Find the right plan for your business'}</p>
+                            <p className="mx-auto max-w-2xl text-lg text-gray-600">{t('pricing_page.comparison.subtitle_detail') || "See what's included in each plan"}</p>
+                        </div>
+
+                        {/* Comparison Table */}
+                        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+                            <table className="w-full">
+                                <thead className="bg-gradient-to-r from-slate-50 to-blue-50">
+                                    <tr>
+                                        <th className="sticky left-0 z-10 bg-gradient-to-r from-slate-50 to-blue-50 px-6 py-4 text-left text-sm font-bold text-gray-900">
+                                            {t('pricing_page.comparison.features') || 'Features'}
+                                        </th>
+                                        {plans.map((plan, index) => {
+                                            const isMostPopular = index === 1;
+                                            return (
+                                                <th key={plan.id} className="px-6 py-4 text-center">
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="text-lg font-bold text-gray-900">{lang === 'bn' ? plan.name_bn : plan.name_en}</span>
+                                                        {isMostPopular && (
+                                                            <span className="mt-1 inline-block rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-600">
+                                                                {t('pricing_page.most_popular') || 'Most Popular'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </th>
+                                            );
+                                        })}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {/* Price Row */}
+                                    <tr className="bg-white hover:bg-gray-50">
+                                        <td className="sticky left-0 z-10 bg-white px-6 py-4 font-medium text-gray-900">
+                                            {t('pricing_page.frequency.monthly') || 'Monthly'} {t('pricing_page.comparison.price') || 'Price'}
+                                        </td>
+                                        {plans.map((plan) => {
+                                            const { finalPrice } = applyDiscount(plan.monthly_price, plan.discount);
+                                            return (
+                                                <td key={plan.id} className="px-6 py-4 text-center">
+                                                    <span className="text-lg font-bold text-gray-900">{finalPrice}</span>
+                                                    <span className="text-sm text-gray-500">/mo</span>
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+
+                                    {/* Setup Fee Row */}
+                                    <tr className="bg-gray-50 hover:bg-gray-100">
+                                        <td className="sticky left-0 z-10 bg-gray-50 px-6 py-4 font-medium text-gray-900">{t('pricing_page.setup_fee') || 'Setup Fee'}</td>
+                                        {plans.map((plan) => {
+                                            const hasSetupFee = parseFloat(plan.setup_fee) > 0;
+                                            return (
+                                                <td key={plan.id} className="px-6 py-4 text-center">
+                                                    {hasSetupFee ? (
+                                                        <span className="text-sm text-gray-700">{formatPrice(plan.setup_fee)}</span>
+                                                    ) : (
+                                                        <span className="text-sm font-semibold text-green-600">{t('pricing_page.setup_fee_free') || 'Free'}</span>
+                                                    )}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+
+                                    {/* Feature Rows */}
+                                    {plans[0]?.items.map((_, itemIndex) => {
+                                        return (
+                                            <tr key={itemIndex} className={itemIndex % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100'}>
+                                                <td
+                                                    className="sticky left-0 z-10 px-6 py-4 font-medium text-gray-900"
+                                                    style={{ backgroundColor: itemIndex % 2 === 0 ? 'white' : 'rgb(249, 250, 251)' }}
+                                                >
+                                                    {lang === 'bn' ? plans[0].items[itemIndex]?.title_bn : plans[0].items[itemIndex]?.title_en}
+                                                </td>
+                                                {plans.map((plan) => {
+                                                    const item = plan.items[itemIndex];
+                                                    return (
+                                                        <td key={plan.id} className="px-6 py-4 text-center">
+                                                            {item ? <Check className="mx-auto h-5 w-5 text-green-500" /> : <span className="text-gray-400">—</span>}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* CTA Below Table */}
+                        <div className="mt-12 text-center">
+                            <button
+                                onClick={() => (window.location.href = '/register')}
+                                className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700 hover:shadow-xl"
+                            >
+                                {t('pricing_page.get_started') || 'Get Started'}
+                                <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            )}
         </div>
     );
 }

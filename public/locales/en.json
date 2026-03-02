@@ -428,7 +428,8 @@
         "features_included": "What's included:",
         "comparison": {
             "title": "Compare All Features",
-            "subtitle": "See what's included in each plan",
+            "subtitle": "Find the right plan for your business",
+            "subtitle_detail": "See what's included in each plan",
             "features": "Features",
             "stores": "Number of Stores",
             "products": "Product Limit",

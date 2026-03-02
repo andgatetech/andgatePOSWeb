@@ -252,14 +252,14 @@ export default function PricingPage() {
                     <section className="bg-white py-16">
                         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div className="mb-12 text-center">
-                                <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">Compare Features</h2>
-                                <p className="text-base text-gray-600 sm:text-lg">Find the right plan for your business.</p>
+                                <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">{t('pricing_page.comparison.title') || 'Compare Features'}</h2>
+                                <p className="text-base text-gray-600 sm:text-lg">{t('pricing_page.comparison.subtitle') || 'Find the right plan for your business.'}</p>
                             </div>
                             <div className="overflow-x-auto rounded-xl border border-gray-200">
                                 <table className="w-full min-w-[640px]">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-900 sm:px-6">Features</th>
+                                            <th className="px-4 py-4 text-left text-sm font-semibold text-gray-900 sm:px-6">{t('pricing_page.comparison.features') || 'Features'}</th>
                                             {plans.map((plan) => (
                                                 <th key={plan.id} className="px-3 py-4 text-center text-sm font-semibold text-gray-900 sm:px-6">
                                                     {lang === 'bn' ? plan.name_bn : plan.name_en}
@@ -315,7 +315,7 @@ export default function PricingPage() {
                                     <div key={index} className="rounded-xl border border-gray-200 bg-white">
                                         <button onClick={() => setOpenFaq(openFaq === index ? null : index)} className="flex w-full items-center justify-between px-4 py-4 text-left sm:px-6">
                                             <span className="font-semibold text-gray-900">{faq.question}</span>
-                                            <HelpCircle className={classNames('h-5 w-5 flex-shrink-0 text-gray-400 transition-transform', openFaq === index && 'rotate-180')} />
+                                            <HelpCircle className={`h-5 w-5 flex-shrink-0 text-gray-400 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
                                         </button>
                                         {openFaq === index && (
                                             <div className="border-t border-gray-100 px-4 py-4 sm:px-6">
