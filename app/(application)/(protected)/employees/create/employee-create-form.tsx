@@ -1,6 +1,6 @@
 'use client';
 
-import PermissionSelector from '@/components/employees/PermissionSelector';
+import PermissionSelector from '@/app/(application)/(protected)/employees/employees/PermissionSelector';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useGetUserPermissionsQuery } from '@/store/features/auth/authApi';
@@ -111,11 +111,9 @@ const EmployeeCreateForm = () => {
                 ...formData,
                 store_id: currentStoreId,
                 role: formData.role_in_store,
-               
+
                 permissions: formData.permissions,
             };
-
-           
 
             await staffRegister(staffData).unwrap();
 

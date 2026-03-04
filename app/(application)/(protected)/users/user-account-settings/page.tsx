@@ -1,4 +1,4 @@
-import ComponentsUsersAccountSettingsTabs from '@/components/users/account-settings/components-users-account-settings-tabs';
+import ComponentsUsersAccountSettingsTabs from '@/app/(application)/(protected)/users/account-settings/components-users-account-settings-tabs';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import React from 'react';

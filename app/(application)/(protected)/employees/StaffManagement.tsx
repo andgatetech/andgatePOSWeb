@@ -1,6 +1,6 @@
 'use client';
+import PermissionSelector from '@/app/(application)/(protected)/employees/employees/PermissionSelector';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
-import PermissionSelector from '@/components/employees/PermissionSelector';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';

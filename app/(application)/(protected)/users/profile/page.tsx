@@ -1,7 +1,7 @@
 'use client';
 
 import IconClock from '@/components/icon/icon-clock';
-import ComponentsUsersProfilePaymentHistory from '@/components/users/profile/components-users-profile-payment-history';
+import ComponentsUsersProfilePaymentHistory from '@/app/(application)/(protected)/users/profile/components-users-profile-payment-history';
 import { useCurrency } from '@/hooks/useCurrency';
 import { RootState } from '@/store';
 import { AlertTriangle, Calendar, ChevronDown, ChevronUp, Edit3, Mail, MapPin, Phone, RefreshCw, User } from 'lucide-react';

@@ -3,15 +3,15 @@
 import { getTranslation } from '@/i18n';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { login } from '@/store/features/auth/authSlice';
-import IconMail from '@/components/icon/icon-mail';
 import IconLockDots from '@/components/icon/icon-lock-dots';
-
+import IconMail from '@/components/icon/icon-mail';
+import { login } from '@/store/features/auth/authSlice';
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
@@ -51,18 +51,14 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
         e.preventDefault();
         try {
             const result = await loginApi(credentials).unwrap();
-            
 
             const { user, token, permissions } = result.data;
-
-          
 
             const maxAge = 60 * 60 * 24;
             const encodedPermissions = (() => {
                 try {
                     return btoa(JSON.stringify(permissions ?? []));
                 } catch (err) {
-                   
                     return btoa('[]');
                 }
             })();
@@ -131,6 +127,12 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 </div>
+            </div>
+
+            <div className="flex items-center justify-end">
+                <Link href="/forgot-password" className="text-sm text-primary underline transition hover:text-black dark:hover:text-white">
+                    Forgot Password?
+                </Link>
             </div>
 
             <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]" disabled={isLoading}>

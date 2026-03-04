@@ -1,5 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
-import { login, logout, setUser } from './authSlice';
+import { login, logout } from './authSlice';
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -75,13 +75,7 @@ export const authApi = baseApi.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
-        getUserInfo: builder.query({
-            query: () => ({
-                url: '/user',
-                method: 'GET',
-            }),
-            providesTags: ['User'],
-        }),
+       
 
         getAllPermissions: builder.query({
             query: () => ({
@@ -106,19 +100,42 @@ export const authApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Permissions'],
         }),
+        forgotPassword: builder.mutation({
+            query: (data: { email: string }) => ({
+                url: '/forgot-password',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        resetPassword: builder.mutation({
+            query: (data: { token: string; email: string; password: string; password_confirmation: string }) => ({
+                url: '/reset-password',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        changePassword: builder.mutation({
+            query: (data: { current_password: string; new_password: string; new_password_confirmation: string }) => ({
+                url: '/user/change-password',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
     overrideExisting: true,
 });
 
-export const { 
-    useLoginMutation, 
-    useRegisterMutation, 
-    useLogoutMutation, 
-    useGetAllLeadsQuery, 
-    useCreateLeadMutation, 
-    useUpdateUserMutation, 
-    useGetUserInfoQuery,
+export const {
+    useLoginMutation,
+    useRegisterMutation,
+    useLogoutMutation,
+    useGetAllLeadsQuery,
+    useCreateLeadMutation,
+    useUpdateUserMutation,
     useGetAllPermissionsQuery,
-    useUpdateUserPermissionMutation, 
-    useGetUserPermissionsQuery
+    useUpdateUserPermissionMutation,
+    useGetUserPermissionsQuery,
+    useForgotPasswordMutation,
+    useResetPasswordMutation,
+    useChangePasswordMutation,
 } = authApi;
