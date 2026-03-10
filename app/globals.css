@@ -82,3 +82,27 @@
         transform: translateX(100%);
     }
 }
+/* ─── Leaflet popup overrides ────────────────────────────────────────────── */
+/* Remove default white padding / triangle so our custom StorePopup card shows */
+.leaflet-popup-content-wrapper {
+    padding: 0 !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18) !important;
+    border: none !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    width: auto !important;
+    min-width: 220px;
+}
+
+.leaflet-popup-tip-container {
+    display: none !important; /* hide the default triangle arrow */
+}
+
+/* Keep attribution readable */
+.leaflet-control-attribution {
+    font-size: 10px !important;
+}

@@ -26,6 +26,7 @@ import {
 import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
+import BangladeshMap from '@/components/map/BangladeshMap';
 import { getTranslation } from '@/i18n';
 import OverViewSection from './(application)/(public)/pos-overview/OverViewSection';
 import PriceSection from './(application)/(public)/price/PriceSection';
@@ -288,6 +289,34 @@ export default function HomePageClient() {
 
             {/* Testimonials Section */}
             <TestimonialsSection></TestimonialsSection>
+
+            {/* ── Bangladesh Store Coverage Map ─────────────────────────── */}
+            <section id="store-map" className="bg-gradient-to-b from-white to-slate-50 py-20">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    {/* Section header */}
+                    <div className="mb-12 text-center">
+                        <span className="mb-4 inline-block rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-700">🇧🇩 Nationwide Coverage</span>
+                        <h2 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
+                            Our Stores <span className="text-blue-600">Across Bangladesh</span>
+                        </h2>
+                        <p className="mx-auto max-w-2xl text-lg text-gray-500">
+                            From Dhaka to Cox's Bazar, our POS system powers businesses in all 8 divisions. Click any pin to see local store details.
+                        </p>
+                    </div>
+
+                    {/* Map */}
+                    <BangladeshMap />
+
+                    {/* Quick division pills */}
+                    <div className="mt-8 flex flex-wrap justify-center gap-2">
+                        {['Dhaka', 'Chittagong', 'Rajshahi', 'Khulna', 'Barishal', 'Sylhet', 'Rangpur', 'Mymensingh'].map((div) => (
+                            <span key={div} className="rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+                                {div}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
             {/* CTA Section */}
             <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 py-24">
