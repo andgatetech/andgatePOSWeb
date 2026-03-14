@@ -1,3 +1,4 @@
+import CriticalBanner from '@/app/(application)/(protected)/notifications/components/CriticalBanner';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
 import MainContainer from '@/components/layouts/main-container';
@@ -26,6 +27,10 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                         {/* BEGIN TOP NAVBAR */}
                         <Header />
                         {/* END TOP NAVBAR */}
+
+                        {/* BEGIN CRITICAL NOTIFICATIONS BANNER */}
+                        <CriticalBanner />
+                        {/* END CRITICAL NOTIFICATIONS BANNER */}
 
                         {/* BEGIN CONTENT AREA */}
                         <div className="px-3 py-4 sm:px-4 lg:px-6">{children}</div>

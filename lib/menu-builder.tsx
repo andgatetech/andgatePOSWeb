@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, Bell, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -276,6 +276,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 ],
             },
         ],
+    },
+    {
+        label: 'Notifications',
+        icon: React.createElement(Bell),
+        href: '/notifications',
+        // No permission required — all authenticated users can see notifications
     },
     {
         label: 'Feedback',

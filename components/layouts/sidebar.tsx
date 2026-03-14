@@ -12,6 +12,7 @@ import { buildMenuFromPermissions } from '@/lib/menu-builder';
 import { RootState } from '@/store';
 import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
+import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 
 import { AlertTriangle, Ban, Crown, Store } from 'lucide-react';
 import Image from 'next/image';
@@ -42,6 +43,12 @@ const Sidebar = () => {
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const currentStoreId = useSelector((state: RootState) => state.auth.currentStoreId);
     const userStores = user?.stores || [];
+
+    // Notification unread count (shares cache with header dropdown — no extra API call)
+    const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+        pollingInterval: 1800000, // 30 minutes
+    });
+    const unreadCount = unreadData?.count || 0;
 
     const toggleMenu = (value: string) => {
         setCurrentMenu((oldValue) => (oldValue === value ? '' : value));
@@ -273,11 +280,19 @@ const Sidebar = () => {
                                         </>
                                     ) : (
                                         // Direct link (like Dashboard)
-                                        <Link href={route.href!} className="nav-link group flex w-full items-center py-2 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                        <Link href={route.href!} className="nav-link group flex w-full items-center justify-between py-2 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
                                             <div className="flex items-center">
                                                 {route.icon}
                                                 <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
                                             </div>
+                                            {route.label === 'Notifications' && unreadCount > 0 && (
+                                                <span className="relative flex items-center">
+                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger/40"></span>
+                                                    <span className="relative inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
+                                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                                    </span>
+                                                </span>
+                                            )}
                                         </Link>
                                     )}
                                 </li>
