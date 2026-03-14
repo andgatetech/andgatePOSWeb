@@ -12,18 +12,8 @@ import { BANGLADESH_DIVISIONS, STORE_LOCATIONS, TIER_CONFIG, TOTAL_CITIES, TOTAL
 import MapLegend from './MapLegend';
 import StorePopup from './StorePopup';
 
-// ─── Fix Leaflet default icon path issue in Next.js / webpack ─────────────────
-// (Only needed if you use L.marker with default icon — we use CircleMarker here,
-//  but keeping it harmless.)
-if (typeof window !== 'undefined') {
-    // @ts-ignore
-    delete L.Icon.Default.prototype._getIconUrl;
-    L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    });
-}
+// ─── Removed Leaflet default icon path fix that can crash SSR/Next.js builds ───
+// We use custom DivIcon and CircleMarkers so we do not need the default icon.
 
 // ─── Bangladesh bounding box ──────────────────────────────────────────────────
 // SW corner ≈ 20.74°N 88.01°E   NE corner ≈ 26.63°N 92.68°E

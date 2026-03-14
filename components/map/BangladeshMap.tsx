@@ -24,7 +24,7 @@ function MapSkeleton() {
 
 const BangladeshMapInner = dynamic(() => import('./BangladeshMapInner'), {
     ssr: false, // ← Critical: Leaflet needs browser DOM
-    loading: MapSkeleton,
+    loading: () => <MapSkeleton />,
 });
 
 export default function BangladeshMap() {
