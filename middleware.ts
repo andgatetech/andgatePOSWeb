@@ -45,8 +45,12 @@ export function middleware(request: NextRequest) {
     }
 
     // 2️⃣ Redirect guests trying to access private routes
-    if (!token) {
+    if (!token && normalizedPath !== '/login') {
         return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    if (normalizedPath === '/login') {
+        return response;
     }
 
     // 3️⃣ Enforce permission-based access
@@ -62,6 +66,7 @@ export function middleware(request: NextRequest) {
 // ✅ Only apply middleware to protected areas
 export const config = {
     matcher: [
+        '/login',
         '/dashboard/:path*',
         '/profile/:path*',
         '/store/:path*',
