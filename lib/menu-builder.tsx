@@ -19,7 +19,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: 'Dashboard',
         icon: React.createElement(Home),
         href: '/dashboard',
-        requiredPermissions: ['view-dashboard'],
+       
     },
     {
         label: 'Store',
@@ -286,7 +286,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Feedback',
         icon: React.createElement(MessagesSquare),
-        requiredPermissions: ['view-dashboard'], // Available to all authenticated users
+        
         subMenu: [
             {
                 label: 'Give Feedback',

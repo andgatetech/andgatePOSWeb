@@ -183,7 +183,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/tax': ['reports.tax'],
 
     // ── Notifications ──────────────────────────────────────────
-    '/notifications': ['view-dashboard'],
+    '/notifications': [],
 
     // ── Feedbacks (no restriction — no backend middleware) ──────
     '/feedbacks': [],

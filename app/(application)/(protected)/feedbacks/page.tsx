@@ -6,6 +6,19 @@ import { useDeleteFeedbackMutation, useGetAllFeedbacksQuery } from '@/store/feat
 import { Bug, Calendar, CheckCircle, ChevronDown, ChevronRight, Clock, Download, Eye, Filter, Lightbulb, MessageSquare, RefreshCw, Search, Star, ThumbsUp, Trash2, User, X } from 'lucide-react';
 import { useState } from 'react';
 
+const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return dateString.split(' ')[0] || '';
+    }
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+};
+
 const FeedbackManagementPage = () => {
     const [filters, setFilters] = useState({
         search: '',
