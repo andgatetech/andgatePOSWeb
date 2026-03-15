@@ -7,6 +7,7 @@ import NotificationItem from '@/app/(application)/(protected)/notifications/comp
 import { useGetUnreadCountQuery, useMarkAllReadMutation } from '@/store/features/notification/notificationApi';
 import { CheckCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -24,6 +25,8 @@ const NotificationDropdown = () => {
     const unreadCount = unreadData?.count || 0;
     const recentNotifications = unreadData?.recent || [];
 
+    const router = useRouter();
+
     const handleMarkAllRead = async (e: React.MouseEvent) => {
         e.stopPropagation();
         try {
@@ -33,8 +36,13 @@ const NotificationDropdown = () => {
         }
     };
 
-    const handleItemClick = () => {
+    const closeDropdown = () => {
         dropdownRef.current?.close();
+    };
+
+    const handleNotificationClick = () => {
+        closeDropdown();
+        router.push('/notifications');
     };
 
     return (
@@ -103,7 +111,7 @@ const NotificationDropdown = () => {
                         <>
                             {recentNotifications.map((notification) => (
                                 <li key={notification.id} className="dark:text-white-light/90" onClick={(e) => e.stopPropagation()}>
-                                    <NotificationItem notification={notification} variant="dropdown" onClickItem={handleItemClick} />
+                                    <NotificationItem notification={notification} variant="dropdown" onClickItem={handleNotificationClick} />
                                 </li>
                             ))}
                             {/* Footer */}
@@ -112,6 +120,7 @@ const NotificationDropdown = () => {
                                     <Link
                                         href="/notifications"
                                         className="btn btn-primary btn-small block w-full rounded-lg py-2 text-center text-sm font-medium"
+                                        onClick={closeDropdown}
                                     >
                                         View All Notifications
                                     </Link>
@@ -119,14 +128,27 @@ const NotificationDropdown = () => {
                             </li>
                         </>
                     ) : (
-                        <li onClick={(e) => e.stopPropagation()}>
-                            <div className="!grid min-h-[200px] place-content-center p-4 text-center">
-                                <div className="mx-auto mb-4 rounded-full ring-4 ring-primary/30">
-                                    <IconInfoCircle fill={true} className="h-10 w-10 text-primary" />
+                        <>
+                            <li onClick={(e) => e.stopPropagation()}>
+                                <div className="!grid min-h-[200px] place-content-center p-4 text-center">
+                                    <div className="mx-auto mb-4 rounded-full ring-4 ring-primary/30">
+                                        <IconInfoCircle fill={true} className="h-10 w-10 text-primary" />
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No new notifications</p>
                                 </div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No new notifications</p>
-                            </div>
-                        </li>
+                            </li>
+                            <li>
+                                <div className="p-3">
+                                    <Link
+                                        href="/notifications"
+                                        className="btn btn-primary btn-small block w-full rounded-lg py-2 text-center text-sm font-medium"
+                                        onClick={closeDropdown}
+                                    >
+                                        View All Notifications
+                                    </Link>
+                                </div>
+                            </li>
+                        </>
                     )}
                 </ul>
             </Dropdown>

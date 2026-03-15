@@ -1,7 +1,7 @@
 'use client';
 
-import { useMarkAsReadMutation, useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
-import { AlertTriangle, CircleAlert, Megaphone, X } from 'lucide-react';
+import { useGetUnreadCountQuery, useMarkAsReadMutation } from '@/store/features/notification/notificationApi';
+import { AlertTriangle, CircleAlert, Megaphone, Sparkles, X } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 
 const CriticalBanner = () => {
@@ -14,8 +14,9 @@ const CriticalBanner = () => {
 
     const criticalNotifications = unreadData?.critical || [];
     const infoNotifications = unreadData?.info || [];
-    
-    // Combine both arrays to render them all
+    // If you plan to show warnings or successes in the banner, you could add them here too
+
+    // Combine arrays to render them all
     const allBanners = [...criticalNotifications, ...infoNotifications];
 
     const handleDismiss = async (id: number) => {
@@ -29,47 +30,56 @@ const CriticalBanner = () => {
     if (allBanners.length === 0) return null;
 
     return (
-        <div className="space-y-0">
+        <div className="flex flex-col gap-2 mb-4">
             {allBanners.map((notification) => {
-                const isCritical = notification.severity === 'critical';
-                const isInfo = notification.severity === 'info';
+                const sev = notification.severity;
 
-                let bgColor = 'bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200';
-                let hoverBg = 'hover:bg-amber-200/50 dark:hover:bg-amber-800/50';
-                
-                if (isCritical) {
-                    bgColor = 'bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-200';
-                    hoverBg = 'hover:bg-red-200/50 dark:hover:bg-red-800/50';
-                } else if (isInfo) {
-                    bgColor = 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
-                    hoverBg = 'hover:bg-blue-200/50 dark:hover:bg-blue-800/50';
+                let config = {
+                    bgColor: 'bg-[#E9D5FF] text-[#3B0764] dark:bg-[#5B21B6] dark:text-[#E9D5FF]',
+                    Icon: Megaphone,
+                    iconColor: 'text-[#3B0764] dark:text-[#E9D5FF]',
+                    label: 'Notice',
+                };
+
+                if (sev === 'critical') {
+                    config = {
+                        bgColor: 'bg-[#CC071E] text-white',
+                        Icon: CircleAlert,
+                        iconColor: 'text-white',
+                        label: 'Critical',
+                    };
+                } else if (sev === 'warning') {
+                    config = {
+                        bgColor: 'bg-[#FEF3C7] text-black dark:bg-[#B45309] dark:text-amber-100',
+                        Icon: AlertTriangle,
+                        iconColor: 'text-[#D97706] dark:text-amber-200',
+                        label: 'Warning',
+                    };
+                } else if (sev === 'success') {
+                    config = {
+                        bgColor: 'bg-[#CCFBF1] text-[#1F2937] dark:bg-[#115E59] dark:text-[#CCFBF1]',
+                        Icon: Sparkles,
+                        iconColor: 'text-[#FBBF24] dark:text-[#FDE047]',
+                        label: 'New Feature',
+                    };
                 }
 
                 return (
-                    <div
-                        key={notification.id}
-                        className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium ${bgColor}`}
-                    >
-                        {isCritical ? (
-                            <CircleAlert className="h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
-                        ) : isInfo ? (
-                            <Megaphone className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
-                        ) : (
-                            <AlertTriangle className="h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
-                        )}
+                    <div key={notification.id} className={`flex items-center gap-3 px-6 py-2.5 text-sm ${config.bgColor}`}>
+                        <config.Icon className={`h-5 w-5 flex-shrink-0 ${config.iconColor}`} />
 
                         <div className="flex min-w-0 flex-1 items-center overflow-hidden">
-                            <span className="whitespace-nowrap font-bold ltr:mr-2 rtl:ml-2">{notification.title}:</span>
+                            <span className="whitespace-nowrap font-extrabold ltr:mr-2 rtl:ml-2">{config.label}:</span>
                             <div className="flex-1 overflow-hidden">
                                 <Marquee speed={60} pauseOnHover={true} gradient={false} className="w-full">
-                                    <span className="opacity-90 leading-tight block">{notification.message}</span>
+                                    <span className="block font-semibold leading-tight opacity-95">{notification.message}</span>
                                 </Marquee>
                             </div>
                         </div>
 
                         <button
                             type="button"
-                            className={`flex-shrink-0 rounded p-1 transition-colors ${hoverBg}`}
+                            className="flex-shrink-0 rounded p-1 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
                             onClick={() => handleDismiss(notification.id)}
                             title="Dismiss"
                         >
