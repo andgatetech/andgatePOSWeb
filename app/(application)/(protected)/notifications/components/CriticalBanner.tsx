@@ -13,11 +13,11 @@ const CriticalBanner = () => {
     const [markAsRead] = useMarkAsReadMutation();
 
     const criticalNotifications = unreadData?.critical || [];
-    const infoNotifications = unreadData?.info || [];
-    // If you plan to show warnings or successes in the banner, you could add them here too
+    const warningNotifications = unreadData?.warning || [];
+    const successNotifications = unreadData?.success || [];
 
     // Combine arrays to render them all
-    const allBanners = [...criticalNotifications, ...infoNotifications];
+    const allBanners = [...criticalNotifications, ...warningNotifications, ...successNotifications];
 
     const handleDismiss = async (id: number) => {
         try {
