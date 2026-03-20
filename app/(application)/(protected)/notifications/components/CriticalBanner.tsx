@@ -30,7 +30,7 @@ const CriticalBanner = () => {
     if (allBanners.length === 0) return null;
 
     return (
-        <div className="flex flex-col gap-2 mb-4">
+        <div className="mb-4 flex flex-col gap-2">
             {allBanners.map((notification) => {
                 const sev = notification.severity;
 
