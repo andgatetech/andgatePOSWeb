@@ -357,7 +357,7 @@ const CreateSupplierPage = () => {
                                 <li>• Ensure email address is valid and unique in the system</li>
                                 <li>• Provide complete address information for better communication</li>
                                 <li>• Phone number should include country code for international suppliers</li>
-                                <li>• Set status to 'Active' to enable immediate operations</li>
+                                <li>• Set status to &apos;Active&apos; to enable immediate operations</li>
                                 <li>• Keep supplier information updated for smooth business operations</li>
                             </ul>
                         </div>

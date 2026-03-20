@@ -144,7 +144,7 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
 
                             {serials.length === 0 ? (
                                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-                                    <p className="text-sm text-gray-500">Click "Add Serial" to start updating serial statuses</p>
+                                    <p className="text-sm text-gray-500">Click &quot;Add Serial&quot; to start updating serial statuses</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">

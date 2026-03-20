@@ -300,7 +300,7 @@ export default function HomePageClient() {
                             Our Stores <span className="text-blue-600">Across Bangladesh</span>
                         </h2>
                         <p className="mx-auto max-w-2xl text-lg text-gray-500">
-                            From Dhaka to Cox's Bazar, our POS system powers businesses in all 8 divisions. Click any pin to see local store details.
+                            From Dhaka to Cox&apos;s Bazar, our POS system powers businesses in all 8 divisions. Click any pin to see local store details.
                         </p>
                     </div>
 

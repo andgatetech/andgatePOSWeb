@@ -291,7 +291,7 @@ const FeedbackPage = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-white">Feedback Form</h2>
-                                    <p className="text-blue-100">Tell us what's on your mind</p>
+                                    <p className="text-blue-100">Tell us what&apos;s on your mind</p>
                                 </div>
                             </div>
                         </div>
