@@ -47,6 +47,7 @@ jobs:
 
 
                       # Pull the latest code from your repository
+                      git stash
                       git pull origin master
 
                       # Install dependencies and build
