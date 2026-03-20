@@ -1,3 +1,5 @@
+'use client';
+
 import Navbar from './components/navbar';
 import PromoHero from './components/promo-hero';
 import PromoPricing from './components/promo-pricing';
