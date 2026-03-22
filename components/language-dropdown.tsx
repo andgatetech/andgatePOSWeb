@@ -2,7 +2,7 @@
 import Dropdown from '@/components/dropdown';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import { getTranslation } from '@/i18n';
-import { IRootState } from '@/store';
+import { RootState } from '@/store';
 import { toggleRTL } from '@/store/themeConfigSlice';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -17,8 +17,8 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
     const router = useRouter();
     const { i18n } = getTranslation();
 
-    const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
-    const themeConfig = useSelector((state: IRootState) => state.themeConfig);
+    const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
+    const themeConfig = useSelector((state: RootState) => state.themeConfig);
 
     const setLocale = (flag: string) => {
         if (flag.toLowerCase() === 'ae') {

@@ -139,14 +139,14 @@ export default function PrivacyPolicyPage() {
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div>
                                             <ul className="space-y-2 text-gray-700">
-                                                {(t('privacy_policy.data_security.measures') as string[]).slice(0, 4).map((item, index) => (
+                                                {(t('privacy_policy.data_security.measures', { returnObjects: true }) as string[]).slice(0, 4).map((item, index) => (
                                                     <li key={index}>• {item}</li>
                                                 ))}
                                             </ul>
                                         </div>
                                         <div>
                                             <ul className="space-y-2 text-gray-700">
-                                                {(t('privacy_policy.data_security.measures') as string[]).slice(4).map((item, index) => (
+                                                {(t('privacy_policy.data_security.measures', { returnObjects: true }) as string[]).slice(4).map((item, index) => (
                                                     <li key={index}>• {item}</li>
                                                 ))}
                                             </ul>
@@ -162,7 +162,7 @@ export default function PrivacyPolicyPage() {
                                         <div>
                                             <h3 className="mb-3 font-semibold text-gray-900">{t('privacy_policy.your_rights.access_control.title')}</h3>
                                             <ul className="list-inside list-disc space-y-1 text-sm text-gray-700">
-                                                {(t('privacy_policy.your_rights.access_control.items') as string[]).map((item, index) => (
+                                                {(t('privacy_policy.your_rights.access_control.items', { returnObjects: true }) as string[]).map((item, index) => (
                                                     <li key={index}>{item}</li>
                                                 ))}
                                             </ul>
@@ -170,7 +170,7 @@ export default function PrivacyPolicyPage() {
                                         <div>
                                             <h3 className="mb-3 font-semibold text-gray-900">{t('privacy_policy.your_rights.data_portability.title')}</h3>
                                             <ul className="list-inside list-disc space-y-1 text-sm text-gray-700">
-                                                {(t('privacy_policy.your_rights.data_portability.items') as string[]).map((item, index) => (
+                                                {(t('privacy_policy.your_rights.data_portability.items', { returnObjects: true }) as string[]).map((item, index) => (
                                                     <li key={index}>{item}</li>
                                                 ))}
                                             </ul>
@@ -184,7 +184,7 @@ export default function PrivacyPolicyPage() {
                                 <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
                                     <p className="mb-4 text-gray-700">{t('privacy_policy.data_retention.description')}</p>
                                     <ul className="list-inside list-disc space-y-2 text-gray-700">
-                                        {(t('privacy_policy.data_retention.items') as any[]).map((item, index) => (
+                                        {(t('privacy_policy.data_retention.items', { returnObjects: true }) as any[]).map((item, index) => (
                                             <li key={index}>
                                                 <strong>{item.label}</strong> {item.text}
                                             </li>

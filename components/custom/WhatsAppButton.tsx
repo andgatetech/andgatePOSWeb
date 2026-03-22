@@ -44,7 +44,7 @@ export default function WhatsAppButton() {
         }
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
@@ -112,7 +112,7 @@ export default function WhatsAppButton() {
                                 onKeyPress={handleKeyPress}
                                 placeholder="Type your message..."
                                 className="flex-1 resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-500"
-                                rows="1"
+                                rows={1}
                                 style={{ minHeight: '38px' }}
                             />
                             <button

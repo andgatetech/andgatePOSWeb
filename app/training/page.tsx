@@ -1,4 +1,3 @@
-
 'use client';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
@@ -290,7 +289,7 @@ export default function TrainingPage() {
                                                 <div className="relative overflow-hidden">
                                                     {playingVideo === video.youtubeId ? (
                                                         <>
-                                                            <ReactPlayer url={`https://www.youtube.com/watch?v=${video.youtubeId}`} playing controls width="100%" height="225px" />
+                                                            <ReactPlayer url={`https://www.youtube.com/watch?v=${video.youtubeId}`} playing={true} controls={true} width="100%" height="225px" />
                                                             <button className="absolute right-2 top-2 rounded-full bg-black bg-opacity-60 p-2 text-white" onClick={() => setPlayingVideo(null)}>
                                                                 <X className="h-5 w-5" />
                                                             </button>

@@ -11,7 +11,7 @@ export const dashboardMetadata: Metadata = {
         title: 'Business Dashboard - Real-time Analytics & Performance Monitoring',
         description:
             'Monitor your business performance with real-time analytics, sales reports, inventory tracking, and comprehensive business insights. Make data-driven decisions with AndgatePOS dashboard.',
-        keywords: 'business dashboard, sales analytics, performance monitoring, real-time reports, business insights, pos analytics, sales tracking',
+        keywords: ['business dashboard', 'sales analytics', 'performance monitoring', 'real-time reports', 'business insights', 'pos analytics', 'sales tracking'],
         path: '/application/dashboard',
     }),
     other: {

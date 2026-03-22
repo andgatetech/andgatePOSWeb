@@ -1,13 +1,13 @@
 'use client';
+import NotificationDropdown from '@/app/(application)/(protected)/notifications/components/NotificationDropdown';
 import CalculatorButton from '@/components/custom/CalculatorButton';
 import Dropdown from '@/components/dropdown';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMenu from '@/components/icon/icon-menu';
 import IconUser from '@/components/icon/icon-user';
-import NotificationDropdown from '@/app/(application)/(protected)/notifications/components/NotificationDropdown';
 
 import { getTranslation } from '@/i18n';
-import { IRootState, persistor } from '@/store';
+import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
@@ -106,7 +106,7 @@ const Header = () => {
         }
     }, [pathname]);
 
-    const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
+    const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
 
     return (
         <header>

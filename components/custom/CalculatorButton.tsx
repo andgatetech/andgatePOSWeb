@@ -1,16 +1,16 @@
 import { Calculator, X } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function CalculatorButton() {
     const [isOpen, setIsOpen] = useState(false);
     const [display, setDisplay] = useState('0');
     const [fullHistory, setFullHistory] = useState('');
     const [currentValue, setCurrentValue] = useState('0');
-    const [operator, setOperator] = useState(null);
-    const [previousValue, setPreviousValue] = useState(null);
+    const [operator, setOperator] = useState<string | null>(null);
+    const [previousValue, setPreviousValue] = useState<number | null>(null);
     const [waitingForOperand, setWaitingForOperand] = useState(false);
 
-    const historyRef = useRef(null);
+    const historyRef = useRef<HTMLDivElement>(null);
 
     // Scroll to end whenever fullHistory changes
     useEffect(() => {
@@ -19,11 +19,11 @@ export default function CalculatorButton() {
         }
     }, [fullHistory]);
 
-    const appendHistory = (value) => {
-        setFullHistory(prev => prev + value);
+    const appendHistory = (value: string) => {
+        setFullHistory((prev) => prev + value);
     };
 
-    const handleNumber = (num) => {
+    const handleNumber = (num: string | number) => {
         if (waitingForOperand) {
             setDisplay(String(num));
             setCurrentValue(String(num));
@@ -33,7 +33,7 @@ export default function CalculatorButton() {
             setDisplay(newValue);
             setCurrentValue(newValue);
         }
-        appendHistory(num);
+        appendHistory(String(num));
     };
 
     const handleDecimal = () => {
@@ -49,18 +49,24 @@ export default function CalculatorButton() {
         }
     };
 
-    const calculate = (first, second, op) => {
+    const calculate = (first: number, second: number, op: string) => {
         switch (op) {
-            case '+': return first + second;
-            case '-': return first - second;
-            case '×': return first * second;
-            case '÷': return second !== 0 ? first / second : 0;
-            case '%': return first % second;
-            default: return second;
+            case '+':
+                return first + second;
+            case '-':
+                return first - second;
+            case '×':
+                return first * second;
+            case '÷':
+                return second !== 0 ? first / second : 0;
+            case '%':
+                return first % second;
+            default:
+                return second;
         }
     };
 
-    const handleOperator = (nextOperator) => {
+    const handleOperator = (nextOperator: string) => {
         const inputValue = parseFloat(currentValue);
 
         if (previousValue === null) {
@@ -104,7 +110,7 @@ export default function CalculatorButton() {
             const newValue = display.length > 1 ? display.slice(0, -1) : '0';
             setDisplay(newValue);
             setCurrentValue(newValue);
-            setFullHistory(prev => prev.slice(0, -1));
+            setFullHistory((prev) => prev.slice(0, -1));
         }
     };
 
@@ -126,10 +132,10 @@ export default function CalculatorButton() {
         setWaitingForOperand(true);
     };
 
-    const btn = (label, onClick, baseColor, hoverColor) => (
+    const btn = (label: string, onClick: () => void, baseColor: string, hoverColor: string) => (
         <button
             onClick={onClick}
-            className="rounded-xl py-4 text-xl font-semibold shadow-md active:scale-95 text-white transition-colors"
+            className="rounded-xl py-4 text-xl font-semibold text-white shadow-md transition-colors active:scale-95"
             style={{ backgroundColor: baseColor }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = baseColor)}
@@ -140,71 +146,60 @@ export default function CalculatorButton() {
 
     return (
         <>
-            <button
-                onClick={() => setIsOpen(true)}
-                className="ml-1 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white shadow-md hover:bg-primary/90"
-            >
+            <button onClick={() => setIsOpen(true)} className="ml-1 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white shadow-md hover:bg-primary/90">
                 <Calculator className="h-4 w-4" />
                 <span className="hidden sm:inline">Calculator</span>
             </button>
 
             {isOpen && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
-                    <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto rounded-2xl bg-gray-200 p-5 shadow-2xl">
-
-
+                    <div className="relative mx-auto w-full max-w-xs rounded-2xl bg-gray-200 p-5 shadow-2xl sm:max-w-sm md:max-w-md">
                         {/* Close Button */}
-                        <div className="flex justify-end mb-3">
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500 text-white hover:bg-red-600"
-                            >
+                        <div className="mb-3 flex justify-end">
+                            <button onClick={() => setIsOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500 text-white hover:bg-red-600">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
                         {/* Double Display with scrollable history */}
                         <div className="mb-4 rounded-lg bg-white px-4 py-4 shadow-sm">
-                            <div
-                                ref={historyRef}
-                                className="text-right text-gray-500 text-sm min-h-[24px] overflow-x-auto whitespace-nowrap"
-                            >
+                            <div ref={historyRef} className="min-h-[24px] overflow-x-auto whitespace-nowrap text-right text-sm text-gray-500">
                                 {fullHistory}
                             </div>
-                            <div className="text-right text-4xl font-bold text-gray-900 min-h-[40px]">{display}</div>
+                            <div className="min-h-[40px] text-right text-4xl font-bold text-gray-900">{display}</div>
                         </div>
 
                         {/* Buttons Grid */}
                         <div className="grid grid-cols-4 gap-3">
-                            {btn("(", () => {}, "#4b5563", "#374151")}
-                            {btn(")", () => {}, "#4b5563", "#374151")}
-                            {btn("√", handleSquareRoot, "#4b5563", "#374151")}
-                            {btn("x²", handleSquare, "#4b5563", "#374151")}
+                            {btn('(', () => {}, '#4b5563', '#374151')}
+                            {btn(')', () => {}, '#4b5563', '#374151')}
+                            {btn('√', handleSquareRoot, '#4b5563', '#374151')}
+                            {btn('x²', handleSquare, '#4b5563', '#374151')}
 
-                            {btn("C", handleClear, "#ef4444", "#dc2626")}
-                            {btn("⌫", handleBackspace, "#f97316", "#ea580c")}
-                            {btn("Ans", handleEquals, "#1e293b", "#0f172a")}
-                            {btn("÷", () => handleOperator('÷'), "#3b82f6", "#2563eb")}
+                            {btn('C', handleClear, '#ef4444', '#dc2626')}
+                            {btn('⌫', handleBackspace, '#f97316', '#ea580c')}
+                            {btn('Ans', handleEquals, '#1e293b', '#0f172a')}
+                            {btn('÷', () => handleOperator('÷'), '#3b82f6', '#2563eb')}
 
-                            {btn("7", () => handleNumber(7), "#1e293b", "#111827")}
-                            {btn("8", () => handleNumber(8), "#1e293b", "#111827")}
-                            {btn("9", () => handleNumber(9), "#1e293b", "#111827")}
-                            {btn("×", () => handleOperator('×'), "#3b82f6", "#2563eb")}
+                            {btn('7', () => handleNumber(7), '#1e293b', '#111827')}
+                            {btn('8', () => handleNumber(8), '#1e293b', '#111827')}
+                            {btn('9', () => handleNumber(9), '#1e293b', '#111827')}
+                            {btn('×', () => handleOperator('×'), '#3b82f6', '#2563eb')}
 
-                            {btn("4", () => handleNumber(4), "#1e293b", "#111827")}
-                            {btn("5", () => handleNumber(5), "#1e293b", "#111827")}
-                            {btn("6", () => handleNumber(6), "#1e293b", "#111827")}
-                            {btn("-", () => handleOperator('-'), "#3b82f6", "#2563eb")}
+                            {btn('4', () => handleNumber(4), '#1e293b', '#111827')}
+                            {btn('5', () => handleNumber(5), '#1e293b', '#111827')}
+                            {btn('6', () => handleNumber(6), '#1e293b', '#111827')}
+                            {btn('-', () => handleOperator('-'), '#3b82f6', '#2563eb')}
 
-                            {btn("1", () => handleNumber(1), "#1e293b", "#111827")}
-                            {btn("2", () => handleNumber(2), "#1e293b", "#111827")}
-                            {btn("3", () => handleNumber(3), "#1e293b", "#111827")}
-                            {btn("+", () => handleOperator('+'), "#3b82f6", "#2563eb")}
+                            {btn('1', () => handleNumber(1), '#1e293b', '#111827')}
+                            {btn('2', () => handleNumber(2), '#1e293b', '#111827')}
+                            {btn('3', () => handleNumber(3), '#1e293b', '#111827')}
+                            {btn('+', () => handleOperator('+'), '#3b82f6', '#2563eb')}
 
-                            {btn("%", () => handleOperator('%'), "#3b82f6", "#2563eb")}
-                            {btn("0", () => handleNumber(0), "#1e293b", "#111827")}
-                            {btn(".", handleDecimal, "#4b5563", "#374151")}
-                            {btn("=", handleEquals, "#22c55e", "#16a34a")}
+                            {btn('%', () => handleOperator('%'), '#3b82f6', '#2563eb')}
+                            {btn('0', () => handleNumber(0), '#1e293b', '#111827')}
+                            {btn('.', handleDecimal, '#4b5563', '#374151')}
+                            {btn('=', handleEquals, '#22c55e', '#16a34a')}
                         </div>
                     </div>
                 </div>

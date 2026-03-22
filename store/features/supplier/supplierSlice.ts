@@ -18,8 +18,8 @@ export interface Supplier {
 
 const initialState: AuthState = {
     user: null,
-    // token: null,
-    // isAuthenticated: false,
+    token: null,
+    isAuthenticated: false,
 };
 
 const supplierSlice = createSlice({
