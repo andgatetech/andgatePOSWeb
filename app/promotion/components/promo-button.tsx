@@ -7,7 +7,8 @@ interface PromoButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 export default function PromoButton({ href, children = 'শুরু করুন', className = '', ...props }: PromoButtonProps) {
-    const baseClasses = 'rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90 active:scale-95';
+    const isCustomColors = className.includes('bg-') || className.includes('text-');
+    const baseClasses = `rounded-lg px-6 py-2.5 text-sm font-semibold shadow-md transition-all hover:opacity-90 active:scale-95 ${isCustomColors ? '' : 'bg-primary text-white'}`;
     const combinedClasses = `${baseClasses} ${className}`.trim();
 
     if (href) {
