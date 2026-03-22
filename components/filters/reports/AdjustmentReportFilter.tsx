@@ -16,7 +16,7 @@ const AdjustmentReportFilter: React.FC<AdjustmentReportFilterProps> = ({ onFilte
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
     // Stabilize the callback to prevent unnecessary re-renders
-    const stableOnFilterChange = React.useCallback(onFilterChange, []);
+    const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
 
     const handleReset = React.useCallback(() => {
         setSelectedDirection('all');

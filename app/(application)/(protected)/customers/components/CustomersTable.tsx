@@ -117,7 +117,7 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        []
+        [formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(

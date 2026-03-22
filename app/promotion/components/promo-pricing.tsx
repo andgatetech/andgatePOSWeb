@@ -1,5 +1,4 @@
 'use client';
-import { getTranslation } from '@/i18n';
 import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery } from '@/store/features/plans/plansApi';
 import { Check, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
@@ -40,15 +39,14 @@ const colorClasses: Record<string, { ring: string; button: string; icon: string 
 const PLAN_ICONS = [Rocket, Star, TrendingUp, Zap, Shield];
 
 export default function PromoPricing() {
-    const { t, i18n } = getTranslation();
-    const lang = i18n.language as 'en' | 'bn';
+    const lang = 'bn'; // Always show Bengali (bn) in promo page
     const { data, isLoading, isError } = useGetPlansQuery();
     const plans = filterActivePlans(data?.data ?? []);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
     const frequencies = [
-        { value: 'monthly' as const, label: t('pricing_page.frequency.monthly') || 'Monthly', priceSuffix: t('pricing_page.frequency.per_month') || '/month' },
-        { value: 'annually' as const, label: t('pricing_page.frequency.annually') || 'Annually', priceSuffix: t('pricing_page.frequency.per_year') || '/year' },
+        { value: 'monthly' as const, label: 'মাসিক', priceSuffix: '/মাস' },
+        { value: 'annually' as const, label: 'বার্ষিক', priceSuffix: '/বছর' },
     ];
 
     const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
@@ -57,8 +55,10 @@ export default function PromoPricing() {
         <section className="bg-gradient-to-b from-slate-50 to-white py-16 sm:py-24">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="mb-12 text-center">
-                    <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">{t('pricing_page.hero.title') || 'Simple, Transparent Pricing'}</h2>
-                    <p className="text-base text-gray-600 sm:text-lg">{t('pricing_page.hero.subtitle') || 'Choose the plan that best fits your business needs.'}</p>
+                    <h2 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">সহজ, স্বচ্ছ প্রাইসিং প্ল্যান</h2>
+                    <p className="text-base text-gray-600 sm:text-lg">
+                        আপনার ব্যবসার জন্য সঠিক প্ল্যান বেছে নিন। ফ্রিতে শুরু করুন এবং ব্যাবসা বড় হওয়ার সাথে আপগ্রেড করুন। সব প্ল্যানেই ১৪ দিনের মানি-ব্যাক গ্যারান্টি থাকছে!
+                    </p>
                 </div>
 
                 {/* Frequency Toggle */}
@@ -87,7 +87,7 @@ export default function PromoPricing() {
                                             billingCycle === 'annually' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-700'
                                         )}
                                     >
-                                        Save {topSavings}%
+                                        সাশ্রয় {topSavings}%
                                     </span>
                                 )}
                             </button>
@@ -98,11 +98,11 @@ export default function PromoPricing() {
                 {isLoading && (
                     <div className="flex items-center justify-center py-20">
                         <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-                        <span className="ml-3 text-lg text-gray-600">Loading plans...</span>
+                        <span className="ml-3 text-lg text-gray-600">প্ল্যান লোড হচ্ছে...</span>
                     </div>
                 )}
 
-                {isError && !isLoading && <div className="py-10 text-center text-red-600">Failed to load pricing plans. Please try again later.</div>}
+                {isError && !isLoading && <div className="py-10 text-center text-red-600">প্রাইসিং প্ল্যান লোড করা যাচ্ছে না। অনুগ্রহ করে আবার চেষ্টা করুন।</div>}
 
                 {!isLoading && !isError && (
                     <div
@@ -117,7 +117,7 @@ export default function PromoPricing() {
                             const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
                             const isMostPopular = index === 1;
                             const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
-                            const suffix = billingCycle === 'monthly' ? t('pricing_page.frequency.per_month') || '/month' : t('pricing_page.frequency.per_year') || '/year';
+                            const suffix = billingCycle === 'monthly' ? '/মাস' : '/বছর';
                             const planSavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
                             const hasSetupFee = parseFloat(plan.setup_fee) > 0;
                             const { originalPrice, finalPrice, hasDiscount, discountPct } = applyDiscount(rawPrice, plan.discount);
@@ -132,7 +132,7 @@ export default function PromoPricing() {
                                 >
                                     {isMostPopular && (
                                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                                            <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">{t('pricing_page.most_popular')}</div>
+                                            <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">জনপ্রিয়</div>
                                         </div>
                                     )}
 
@@ -146,21 +146,16 @@ export default function PromoPricing() {
 
                                         <div className="mb-6">
                                             {/* Discount badge */}
-                                            {hasDiscount && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% OFF</span>}
+                                            {hasDiscount && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% ছাড়</span>}
                                             {/* Price row: original crossed-out + final */}
                                             <div className="flex flex-wrap items-baseline gap-2">
                                                 {hasDiscount && <span className="text-lg text-gray-400 line-through">{originalPrice}</span>}
                                                 <span className="text-3xl font-bold text-gray-900 sm:text-4xl">{finalPrice}</span>
                                                 <span className="text-sm font-medium text-gray-500">{suffix}</span>
                                             </div>
-                                            {billingCycle === 'annually' && planSavings > 0 && (
-                                                <p className="mt-1 text-sm font-medium text-green-600">
-                                                    {t('pricing_page.save_percent')} {planSavings}%
-                                                </p>
-                                            )}
+                                            {billingCycle === 'annually' && planSavings > 0 && <p className="mt-1 text-sm font-medium text-green-600">সাশ্রয় {planSavings}%</p>}
                                             <p className="mt-2 text-sm font-medium text-gray-700">
-                                                {t('pricing_page.setup_fee')}:{' '}
-                                                <span className="font-semibold text-gray-900">{hasSetupFee ? formatPrice(plan.setup_fee) : t('pricing_page.setup_fee_free')}</span>
+                                                সেটআপ ফি: <span className="font-semibold text-gray-900">{hasSetupFee ? formatPrice(plan.setup_fee) : 'ফ্রি'}</span>
                                             </p>
                                         </div>
 
@@ -173,12 +168,12 @@ export default function PromoPricing() {
                                                 }
                                             }}
                                         >
-                                            {t('pricing_page.get_started') || 'Get Started'}
+                                            শুরু করুন
                                         </PromoButton>
 
                                         {plan.items.length > 0 && (
                                             <div className="flex-1">
-                                                <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">{t('pricing_page.features_included') || "What's Included"}</p>
+                                                <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">যা যা থাকছে</p>
                                                 <ul className="space-y-3">
                                                     {plan.items.map((item) => (
                                                         <li key={item.id} className="flex items-start gap-3">

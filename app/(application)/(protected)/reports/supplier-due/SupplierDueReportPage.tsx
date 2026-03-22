@@ -43,7 +43,7 @@ const SupplierDueReportPage = () => {
             lastQueryParams.current = queryString;
             getSupplierDueReport(queryParams);
         }
-    }, [queryParams]);
+    }, [queryParams, currentStoreId, apiParams.store_id, apiParams.store_ids, getSupplierDueReport]);
 
     const orders = useMemo(() => reportData?.data?.orders || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
@@ -92,7 +92,7 @@ const SupplierDueReportPage = () => {
             { key: 'status', label: 'Status', width: 10 },
             { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
         ],
-        []
+        [formatCurrency]
     );
 
     const filterSummary = useMemo(() => {

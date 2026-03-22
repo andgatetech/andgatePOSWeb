@@ -18,7 +18,7 @@ const IdleProductReportFilter: React.FC<IdleProductReportFilterProps> = ({ onFil
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
     // Stabilize the callback to prevent unnecessary re-renders
-    const stableOnFilterChange = React.useCallback(onFilterChange, []);
+    const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
 
     const handleReset = React.useCallback(() => {
         setIdleDays('30');

@@ -15,7 +15,7 @@ const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterCha
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
     const [isOnlyDue, setIsOnlyDue] = React.useState(false);
 
-    const stableOnFilterChange = React.useCallback(onFilterChange, []);
+    const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
 
     React.useEffect(() => {
         const additionalParams: Record<string, any> = {};

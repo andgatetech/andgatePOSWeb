@@ -59,7 +59,7 @@ const ProductEditForm = () => {
     }, [brandsResponse]);
     const [updateProduct, { isLoading: updateLoading, error: updateProductError }] = useUpdateProductMutation();
     const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams, { refetchOnMountOrArgChange: true });
-    const units = unitsResponse?.data || [];
+    const units = React.useMemo(() => unitsResponse?.data || [], [unitsResponse]);
     const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: true });
     const attributes = attributesResponse?.data || [];
 
@@ -238,7 +238,7 @@ const ProductEditForm = () => {
                 setProductWarranties(product.warranties);
             }
         }
-    }, [product]);
+    }, [product, units]);
 
     // Clean up variant_data when attributes are removed
     useEffect(() => {

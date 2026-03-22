@@ -17,7 +17,7 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
     const { userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
-    const stableOnFilterChange = React.useCallback(onFilterChange, []);
+    const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
 
     const handleReset = React.useCallback(() => {
         setSelectedReturnType('all');

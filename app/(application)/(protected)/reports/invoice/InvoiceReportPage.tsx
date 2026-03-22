@@ -245,7 +245,7 @@ const InvoiceReportPage = () => {
                 },
             },
         ],
-        []
+        [formatCurrency]
     );
 
     return (
