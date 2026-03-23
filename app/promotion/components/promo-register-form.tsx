@@ -5,7 +5,7 @@ import { CheckCircle2 } from 'lucide-react';
 
 export default function PromoRegisterForm() {
     return (
-        <section id="register-section" className="w-full bg-gradient-to-br from-primary/5 via-white to-primary/10 py-16 dark:from-[#0e1726] dark:via-[#0e1726] dark:to-primary/10">
+        <section className="w-full bg-gradient-to-br from-primary/5 via-white to-primary/10 py-16 dark:from-[#0e1726] dark:via-[#0e1726] dark:to-primary/10">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
                     {/* Left Column: Promotion Setup / Sales Pitch */}
@@ -48,7 +48,7 @@ export default function PromoRegisterForm() {
                     </div>
 
                     {/* Right Column: Registration Form Card */}
-                    <div className="relative mx-auto w-full max-w-lg">
+                    <div id="register-section" className="relative mx-auto w-full max-w-lg scroll-mt-24">
                         {/* Beautiful background shadow glow */}
                         <div className="absolute -inset-1 rounded-[2rem] bg-gradient-to-r from-primary to-blue-400 opacity-30 blur-2xl"></div>
 
