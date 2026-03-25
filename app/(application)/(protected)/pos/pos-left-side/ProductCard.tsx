@@ -28,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
             // Use the url property from the image object
             const imgPath = img.url || img.path || '';
             const cleanPath = imgPath.startsWith('/') ? imgPath.substring(1) : imgPath;
-            const imgSrc = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${cleanPath}`;
+            const imgSrc = `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${cleanPath}`;
             return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
         }
 

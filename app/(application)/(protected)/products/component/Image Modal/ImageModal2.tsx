@@ -119,7 +119,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                             <SwiperSlide key={index} className="flex h-full items-center justify-center">
                                                                 <div className="relative h-full w-full">
                                                                     <Image
-                                                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${cleanPath}`}
+                                                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/storage/${cleanPath}`}
                                                                         alt={product.product_name}
                                                                         fill
                                                                         className="object-contain p-4"

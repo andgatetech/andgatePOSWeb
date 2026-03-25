@@ -58,10 +58,10 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
             }
             // Add storage prefix if needed
             if (url.startsWith('/storage')) {
-                return `${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`;
+                return `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${url}`;
             }
             // Add /storage prefix if not present
-            return `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${url.startsWith('/') ? url : '/' + url}`;
+            return `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/storage${url.startsWith('/') ? url : '/' + url}`;
         }
 
         return '';

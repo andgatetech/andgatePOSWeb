@@ -483,7 +483,7 @@ export default function SectionsFive() {
                                 <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                     {product.product_image ? (
                                         <Image
-                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${product.product_image}`}
+                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage${product.product_image}`}
                                             alt={product.product_name}
                                             fill
                                             className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"

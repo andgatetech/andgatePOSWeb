@@ -1052,7 +1052,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                         src={
                                             currentStore.logo_path.startsWith('http')
                                                 ? currentStore.logo_path
-                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}${currentStore.logo_path.startsWith('/') ? '' : '/storage/'}${currentStore.logo_path}`
+                                                : `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${currentStore.logo_path.startsWith('/') ? '' : '/storage/'}${currentStore.logo_path}`
                                         }
                                         alt="Company Logo"
                                         width={96}

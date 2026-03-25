@@ -12,9 +12,9 @@ const CriticalBanner = () => {
 
     const [markAsRead] = useMarkAsReadMutation();
 
-    const criticalNotifications = unreadData?.critical || [];
-    const warningNotifications = unreadData?.warning || [];
-    const successNotifications = unreadData?.success || [];
+    const criticalNotifications = Array.isArray(unreadData?.critical) ? unreadData.critical : [];
+    const warningNotifications = Array.isArray(unreadData?.warning) ? unreadData.warning : [];
+    const successNotifications = Array.isArray(unreadData?.success) ? unreadData.success : [];
 
     // Combine arrays to render them all
     const allBanners = [...criticalNotifications, ...warningNotifications, ...successNotifications];

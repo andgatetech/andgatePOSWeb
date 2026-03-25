@@ -122,7 +122,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                         <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
                                                             <div className="relative h-40 w-full">
                                                                 <Image
-                                                                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${
+                                                                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${
                                                                         stock.images[0].url.startsWith('/') ? stock.images[0].url.substring(1) : stock.images[0].url
                                                                     }`}
                                                                     alt={stock.variant_name}
