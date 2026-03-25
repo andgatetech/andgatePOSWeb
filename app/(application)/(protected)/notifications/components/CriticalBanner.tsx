@@ -72,7 +72,7 @@ const CriticalBanner = () => {
                             <span className="whitespace-nowrap font-extrabold ltr:mr-2 rtl:ml-2">{config.label}:</span>
                             <div className="flex-1 overflow-hidden">
                                 <Marquee speed={60} pauseOnHover={true} gradient={false} className="w-full">
-                                    <span className="block font-semibold leading-tight opacity-95">{notification.message}</span>
+                                    <span className="block font-semibold leading-tight opacity-95">{notification.message.replace(/<[^>]*>?/gm, '')}</span>
                                 </Marquee>
                             </div>
                         </div>

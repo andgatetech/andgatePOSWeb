@@ -2,7 +2,7 @@
 
 import { useArchiveNotificationMutation, useMarkAsReadMutation } from '@/store/features/notification/notificationApi';
 import type { Notification } from '@/store/features/notification/notificationTypes';
-import { AlertTriangle, Archive, Bell, CheckCircle, CircleAlert, Info, Mail, MailOpen, X, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, CircleAlert, Info, Trash2, X } from 'lucide-react';
 
 interface NotificationItemProps {
     notification: Notification;
@@ -79,12 +79,9 @@ const NotificationItem = ({ notification, variant = 'list', onClickItem }: Notif
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <p className={`truncate text-sm ${!notification.is_read ? 'font-semibold text-gray-900 dark:text-white' : 'font-medium text-gray-700 dark:text-gray-300'}`}>
-                            {notification.title}
-                        </p>
+                        <p className={`truncate text-sm ${!notification.is_read ? 'font-bold text-gray-900 dark:text-white' : 'font-normal text-gray-700 dark:text-gray-300'}`}>{notification.title}</p>
                         {!notification.is_read && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></span>}
                     </div>
-                    <p className="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{notification.message}</p>
                     <p className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">{notification.created_at_human}</p>
                 </div>
                 <button
@@ -103,45 +100,34 @@ const NotificationItem = ({ notification, variant = 'list', onClickItem }: Notif
     // List variant (full page)
     return (
         <div
-            className={`rounded-xl border shadow-sm p-4 transition-colors ${config.borderColor} ${
-                !notification.is_read 
-                ? 'bg-white ring-1 ring-opacity-10 dark:bg-[#121c2c] ring-indigo-500' 
-                : 'bg-white dark:bg-[#121c2c]'
+            className={`cursor-pointer rounded-xl border p-4 shadow-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${config.borderColor} ${
+                !notification.is_read ? 'bg-white ring-1 ring-indigo-500 ring-opacity-10 dark:bg-[#121c2c]' : 'bg-white dark:bg-[#121c2c]'
             }`}
+            onClick={onClickItem}
         >
             <div className="flex items-start justify-between gap-4">
                 {/* Left: Icon + Content */}
-                <div className="flex flex-1 min-w-0 items-start gap-3">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
                     {/* Icon Background */}
                     <div className={`mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
                         <SeverityIcon className={`h-5 w-5 ${config.iconColor}`} />
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                        <div className="mb-1 flex flex-wrap items-center gap-2">
-                            <h4 className={`text-sm ${!notification.is_read ? 'font-semibold text-gray-900 dark:text-white' : 'font-medium text-gray-700 dark:text-gray-300'}`}>
-                                {notification.title}
-                            </h4>
+                    <div className="min-w-0 flex-1">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <h4 className={`text-sm ${!notification.is_read ? 'font-bold text-black dark:text-white' : 'font-normal text-gray-700 dark:text-gray-300'}`}>{notification.title}</h4>
 
                             {/* Unread dot indicator (next to title) */}
-                            {!notification.is_read && (
-                                <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-500 mt-0.5"></span>
-                            )}
+                            {!notification.is_read && <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-500"></span>}
 
                             {/* Severity Badge */}
-                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${config.badgeColor}`}>
-                                {notification.severity}
-                            </span>
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${config.badgeColor}`}>{notification.severity}</span>
 
                             {/* Type Label */}
                             <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
                                 {notification.type_label}
                             </span>
                         </div>
-
-                        <p className="mb-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                            {notification.message}
-                        </p>
 
                         <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
                             <span>{notification.created_at_human}</span>
@@ -156,7 +142,7 @@ const NotificationItem = ({ notification, variant = 'list', onClickItem }: Notif
                             type="button"
                             onClick={(e) => void handleMarkRead(e)}
                             disabled={isMarking}
-                            className="rounded-lg border border-indigo-200 px-3 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50 dark:border-indigo-500/30 dark:text-indigo-400 dark:hover:bg-indigo-500/10 disabled:opacity-50"
+                            className="rounded-lg border border-indigo-200 px-3 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-500/30 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
                         >
                             Read
                         </button>
@@ -166,7 +152,7 @@ const NotificationItem = ({ notification, variant = 'list', onClickItem }: Notif
                         onClick={(e) => void handleArchive(e)}
                         disabled={isArchiving}
                         title="Archive"
-                        className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 disabled:opacity-50"
+                        className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>

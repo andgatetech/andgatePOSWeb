@@ -3,12 +3,14 @@
 import NotificationItem from '@/app/(application)/(protected)/notifications/components/NotificationItem';
 import { useGetNotificationsQuery, useMarkAllReadMutation } from '@/store/features/notification/notificationApi';
 import type { GetNotificationsParams } from '@/store/features/notification/notificationTypes';
-import { Bell, CheckCheck, ChevronLeft, ChevronRight, Filter, Loader2 } from 'lucide-react';
+import { Bell, CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type FilterTab = 'all' | 'unread' | 'read';
 
 const NotificationList = () => {
+    const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
     const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
 
@@ -115,7 +117,7 @@ const NotificationList = () => {
                     {[1, 2, 3, 4, 5].map((i) => (
                         <div key={i} className="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-[#121c2c]">
                             <div className="flex items-start justify-between gap-4">
-                                <div className="flex flex-1 min-w-0 items-start gap-3">
+                                <div className="flex min-w-0 flex-1 items-start gap-3">
                                     <div className="mt-0.5 h-9 w-9 shrink-0 rounded-full bg-gray-200 dark:bg-gray-700"></div>
                                     <div className="flex-1 space-y-3 py-1">
                                         <div className="h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-700"></div>
@@ -134,7 +136,7 @@ const NotificationList = () => {
             ) : notifications.length > 0 ? (
                 <div className={`space-y-2 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
                     {notifications.map((notification) => (
-                        <NotificationItem key={notification.id} notification={notification} variant="list" />
+                        <NotificationItem key={notification.id} notification={notification} variant="list" onClickItem={() => router.push(`/notifications/${notification.id}`)} />
                     ))}
                 </div>
             ) : (
