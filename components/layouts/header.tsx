@@ -10,7 +10,7 @@ import { getTranslation } from '@/i18n';
 import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
-import { toggleSidebar } from '@/store/themeConfigSlice';
+import { resetToggleSidebar, toggleSidebar } from '@/store/themeConfigSlice';
 import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,30 +27,46 @@ const Header = () => {
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const handleLogout = async () => {
-        // Navigate to login first
-        router.push('/login');
-
-        // Then do cleanup
         try {
-            await logout(null);
+            await logout(null).unwrap();
         } catch (err) {
             console.error('Logout API failed:', err);
         }
 
-        // Clear Redux state
         dispatch(logoutAction());
+        dispatch(resetToggleSidebar());
 
-        // Purge all persisted Redux state
+        persistor.pause();
         await persistor.purge();
+        await persistor.flush();
         console.log('🧹 Cleared all persisted Redux state');
 
         localStorage.clear();
         sessionStorage.clear();
 
+        const clearCookie = (name: string) => {
+            const hostname = window.location.hostname;
+            const expire = 'expires=Thu, 01 Jan 1970 00:00:00 UTC';
+
+            document.cookie = `${name}=; ${expire}; path=/; Max-Age=0; SameSite=Lax`;
+            document.cookie = `${name}=; ${expire}; path=/; domain=${hostname}; Max-Age=0; SameSite=Lax`;
+
+            if (hostname.includes('.')) {
+                const rootDomain = hostname.split('.').slice(-2).join('.');
+                document.cookie = `${name}=; ${expire}; path=/; domain=.${rootDomain}; Max-Age=0; SameSite=Lax`;
+            }
+        };
+
+        ['token', 'role', 'permissions'].forEach(clearCookie);
+
         document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();
-            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            clearCookie(name);
         });
+
+        router.replace('/');
+        router.refresh();
+        window.location.replace('/');
     };
 
     // Fullscreen toggle function
