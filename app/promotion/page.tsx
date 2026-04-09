@@ -6,10 +6,13 @@ import PromoPricing from './components/promo-pricing';
 import PromoProblemSolution from './components/promo-problem-solution';
 import PromoRegisterForm from './components/promo-register-form';
 import PromoTestimonials from './components/promo-testimonials';
+import PromotionTracker from './components/promotion-tracker';
 
 export default function PromotionPage() {
     return (
         <div className="flex min-h-screen flex-col bg-white">
+            {/* Fires ViewContent pixel + GTM promotion_page_view on load */}
+            <PromotionTracker />
             <Navbar />
 
             {/* Main content area */}

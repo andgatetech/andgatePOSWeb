@@ -1,4 +1,5 @@
 'use client';
+import { trackEvent } from '@/lib/analytics';
 import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery } from '@/store/features/plans/plansApi';
 import { Check, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
@@ -162,6 +163,17 @@ export default function PromoPricing() {
                                         <PromoButton
                                             className={classNames('mb-6 w-full text-center', isMostPopular ? '' : 'bg-transparent text-primary ring-1 ring-inset ring-primary hover:bg-primary/5')}
                                             onClick={() => {
+                                                // Track button click BEFORE scrolling
+                                                trackEvent(
+                                                    'pricing_plan_click',
+                                                    'InitiateCheckout',
+                                                    {
+                                                        plan_name: lang === 'bn' ? plan.name_bn : plan.name_en,
+                                                        billing_cycle: billingCycle,
+                                                        price: finalPrice,
+                                                        is_popular: isMostPopular,
+                                                    }
+                                                );
                                                 const el = document.getElementById('register-section');
                                                 if (el) {
                                                     el.scrollIntoView({ behavior: 'smooth' });

@@ -1,3 +1,6 @@
+'use client';
+
+import { trackEvent } from '@/lib/analytics';
 import { PlayCircle } from 'lucide-react';
 import PromoButton from './promo-button';
 
@@ -48,13 +51,28 @@ export default function PromoHero() {
                         </p>
 
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-                            <PromoButton href="#register-section" className="px-8 py-4 text-lg">
+                            <PromoButton
+                                href="#register-section"
+                                className="px-8 py-4 text-lg"
+                                onClick={() =>
+                                    trackEvent('hero_cta_click', 'Lead', {
+                                        button_label: 'এখনই যুক্ত হোন',
+                                        section: 'hero',
+                                    })
+                                }
+                            >
                                 এখনই যুক্ত হোন
                             </PromoButton>
 
                             <a
                                 href="#video-demo"
                                 className="group flex items-center justify-center gap-2 rounded-lg bg-gray-50 px-8 py-4 text-lg font-semibold text-gray-700 transition-all hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                onClick={() =>
+                                    trackEvent('hero_demo_click', 'ViewContent', {
+                                        button_label: 'ডেমো দেখুন',
+                                        section: 'hero',
+                                    })
+                                }
                             >
                                 <PlayCircle className="h-6 w-6 text-primary transition-transform group-hover:scale-110" />
                                 ডেমো দেখুন
