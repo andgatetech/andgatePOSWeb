@@ -25,6 +25,21 @@ import TaxTab from '../../create/TaxTab';
 import VariantsTab, { ProductStock } from '../../create/VariantsTab';
 import WarrantyTab from '../../create/WarrantyTab';
 
+type ProductSerialState = {
+    id?: number;
+    serial_number: string;
+    notes: string;
+    stock_index?: number;
+};
+
+type ProductWarrantyState = {
+    id?: number;
+    warranty_type_id: number;
+    duration_months?: number;
+    duration_days?: number;
+    stock_index?: number;
+};
+
 const ProductEditForm = () => {
     const params = useParams();
     const productId = params.id as string;
@@ -77,10 +92,11 @@ const ProductEditForm = () => {
     const [productStocks, setProductStocks] = useState<ProductStock[]>([]);
 
     // Product Serials State
-    const [productSerials, setProductSerials] = useState<Array<{ serial_number: string; notes: string; stock_index?: number }>>([]);
+    const [productSerials, setProductSerials] = useState<ProductSerialState[]>([]);
 
     // Product Warranties State
-    const [productWarranties, setProductWarranties] = useState<Array<{ warranty_type_id: number; duration_months?: number; duration_days?: number }>>([]);
+    const [productWarranties, setProductWarranties] = useState<ProductWarrantyState[]>([]);
+    const [originalSnapshot, setOriginalSnapshot] = useState<any>(null);
 
     const [formData, setFormData] = useState({
         category_id: '',
@@ -166,6 +182,7 @@ const ProductEditForm = () => {
             }
 
             // Set attributes - Handle new format (object) and old format (array)
+            let normalizedAttributes: ProductAttribute[] = [];
             if (product.attributes) {
                 console.log('🔵 Product attributes:', product.attributes);
                 console.log('🔵 Is array?', Array.isArray(product.attributes));
@@ -174,25 +191,29 @@ const ProductEditForm = () => {
                 if (Array.isArray(product.attributes) && product.attributes.length > 0) {
                     // Old format: [{attribute_id: 1, attribute_name: "Color", value: ""}]
                     console.log('✅ Using old format (array)');
-                    setProductAttributes(product.attributes);
+                    normalizedAttributes = product.attributes;
+                    setProductAttributes(normalizedAttributes);
                 } else if (typeof product.attributes === 'object' && Object.keys(product.attributes).length > 0) {
                     // New format: {Color: ["Red", "Blue"], Size: ["M", "L"]}
                     // Convert to format expected by AttributesTab: treat as custom attributes
                     const formattedAttributes = Object.keys(product.attributes).map((attributeName) => ({
+                        id: undefined,
                         attribute_id: 0, // Use 0 to indicate custom attribute
                         attribute_name: attributeName,
                         value: '', // Not used
                     }));
                     console.log('✅ Using new format (object), formatted:', formattedAttributes);
-                    setProductAttributes(formattedAttributes as any);
+                    normalizedAttributes = formattedAttributes as any;
+                    setProductAttributes(normalizedAttributes);
                 }
             } else {
                 console.log('❌ No attributes found in product');
             }
 
             // Set stocks/variants - Transform images to data_url format for ImageUploading component
+            let transformedStocks: ProductStock[] = [];
             if (product.stocks && product.stocks.length > 0) {
-                const transformedStocks = product.stocks.map((stock: any) => {
+                transformedStocks = product.stocks.map((stock: any) => {
                     // Transform stock images to ImageUploading format
                     const transformedImages =
                         stock.images?.map((img: any) => ({
@@ -229,14 +250,65 @@ const ProductEditForm = () => {
             }
 
             // Set serials
+            let normalizedSerials: ProductSerialState[] = [];
             if (product.serials && product.serials.length > 0) {
-                setProductSerials(product.serials);
+                normalizedSerials = product.serials.map((serial: any) => ({
+                    ...serial,
+                    stock_index:
+                        typeof serial.stock_index === 'number'
+                            ? serial.stock_index
+                            : Math.max(
+                                  transformedStocks.findIndex((stock: any) => stock.id === serial.product_stock_id),
+                                  0
+                              ),
+                }));
+                setProductSerials(normalizedSerials);
             }
 
             // Set warranties
+            let normalizedWarranties: ProductWarrantyState[] = [];
             if (product.warranties && product.warranties.length > 0) {
-                setProductWarranties(product.warranties);
+                normalizedWarranties = product.warranties.map((warranty: any) => ({
+                    ...warranty,
+                    stock_index:
+                        typeof warranty.stock_index === 'number'
+                            ? warranty.stock_index
+                            : Math.max(
+                                  transformedStocks.findIndex((stock: any) => stock.id === warranty.product_stock_id),
+                                  0
+                              ),
+                }));
+                setProductWarranties(normalizedWarranties);
             }
+
+            setOriginalSnapshot({
+                formData: {
+                    category_id: product.category_id?.toString() || '',
+                    brand_id: product.brand_id?.toString() || '',
+                    product_name: product.product_name || '',
+                    description: product.description || '',
+                    price: firstStock?.price?.toString() || '',
+                    wholesale_price: firstStock?.wholesale_price?.toString() || '',
+                    available: (firstStock?.available === 'no' ? 'no' : 'yes') as 'yes' | 'no',
+                    quantity: firstStock?.quantity?.toString() || '',
+                    low_stock_quantity: firstStock?.low_stock_quantity?.toString() || '',
+                    purchase_price: firstStock?.purchase_price?.toString() || '',
+                    sku: firstStock?.sku || '',
+                    skuOption: firstStock?.sku ? 'manual' : 'auto',
+                    barcode: firstStock?.barcode || '',
+                    units: matchUnit(firstStock?.unit),
+                    tax_rate: firstStock?.tax_rate?.toString() || '',
+                    tax_included: !!firstStock?.tax_included,
+                    has_attributes: product.has_attributes || product.has_attribute || false,
+                    has_warranty: product.has_warranty || false,
+                    has_serial: product.has_serial || false,
+                },
+                attributes: normalizedAttributes,
+                stocks: transformedStocks,
+                serials: normalizedSerials,
+                warranties: normalizedWarranties,
+                imageIds: !product.has_attributes && firstStock?.images ? firstStock.images.map((img: any) => Number(img.id)).filter(Boolean) : [],
+            });
         }
     }, [product, units]);
 
@@ -363,6 +435,84 @@ const ProductEditForm = () => {
         return true;
     };
 
+    const normalizeValue = (value: any) => (value === undefined || value === null ? '' : String(value).trim());
+
+    const normalizeAttributeForCompare = (attr: ProductAttribute) => ({
+        id: attr.id ?? null,
+        attribute_id: attr.attribute_id || 0,
+        attribute_name: normalizeValue(attr.attribute_name),
+        value: normalizeValue(attr.value),
+    });
+
+    const normalizeStockForCompare = (stock: ProductStock) => {
+        const existingImageIds = (stock.images || [])
+            .map((img: any) => (img?.id ? Number(img.id) : null))
+            .filter((id: number | null): id is number => Number.isFinite(id as number))
+            .sort((a, b) => a - b);
+
+        const hasNewFiles = (stock.images || []).some((img: any) => !!img?.file);
+
+        return {
+            id: stock.id ?? null,
+            sku: normalizeValue(stock.sku),
+            barcode: normalizeValue(stock.barcode),
+            price: normalizeValue(stock.price),
+            purchase_price: normalizeValue(stock.purchase_price),
+            wholesale_price: normalizeValue(stock.wholesale_price),
+            quantity: normalizeValue(stock.quantity),
+            low_stock_quantity: normalizeValue(stock.low_stock_quantity),
+            tax_rate: normalizeValue(stock.tax_rate),
+            tax_included: !!stock.tax_included,
+            available: stock.available || 'yes',
+            batch_no: normalizeValue(stock.batch_no),
+            purchase_date: normalizeValue(stock.purchase_date),
+            unit: normalizeValue(stock.unit),
+            variant_data: Object.fromEntries(
+                Object.entries(stock.variant_data || {})
+                    .map(([key, value]) => [key, normalizeValue(value)])
+                    .sort(([a], [b]) => a.localeCompare(b))
+            ),
+            existingImageIds,
+            hasNewFiles,
+        };
+    };
+
+    const normalizeSerialForCompare = (serial: ProductSerialState) => ({
+        id: serial.id ?? null,
+        serial_number: normalizeValue(serial.serial_number),
+        notes: normalizeValue(serial.notes),
+        stock_index: serial.stock_index ?? 0,
+    });
+
+    const normalizeWarrantyForCompare = (warranty: ProductWarrantyState) => ({
+        id: warranty.id ?? null,
+        warranty_type_id: Number(warranty.warranty_type_id || 0),
+        duration_months: warranty.duration_months ?? null,
+        duration_days: warranty.duration_days ?? null,
+        stock_index: warranty.stock_index ?? 0,
+    });
+
+    const arraysEqual = (left: any[], right: any[]) => JSON.stringify(left) === JSON.stringify(right);
+
+    const simpleStockFromForm = (): ProductStock => ({
+        id: originalSnapshot?.stocks?.[0]?.id,
+        sku: formData.skuOption === 'manual' ? formData.sku.trim() : '',
+        barcode: formData.barcode,
+        price: formData.price,
+        purchase_price: formData.purchase_price,
+        wholesale_price: formData.wholesale_price || '0',
+        quantity: formData.quantity,
+        low_stock_quantity: formData.low_stock_quantity || '0',
+        tax_rate: formData.tax_rate || '0',
+        tax_included: formData.tax_included,
+        available: formData.available,
+        batch_no: '',
+        purchase_date: '',
+        unit: formData.units || 'pcs',
+        variant_data: {},
+        images: images || [],
+    });
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
@@ -397,211 +547,252 @@ const ProductEditForm = () => {
 
         try {
             const fd = new FormData();
+            fd.append('store_id', String(currentStore.id));
 
-            // Add store_id from current store (required by backend)
-            if (currentStore?.id) {
-                fd.append('store_id', String(currentStore.id));
-            }
+            const original = originalSnapshot || {
+                formData: {},
+                attributes: [],
+                stocks: [],
+                serials: [],
+                warranties: [],
+                imageIds: [],
+            };
 
-            if (formData.category_id) {
-                fd.append('category_id', formData.category_id);
-            }
-            if (formData.brand_id) {
-                fd.append('brand_id', formData.brand_id);
-            }
-            fd.append('product_name', formData.product_name.trim());
-            fd.append('description', formData.description.trim());
+            const appendIfChanged = (key: string, current: any, previous: any) => {
+                const normalizedCurrent = current === undefined || current === null ? '' : String(current);
+                const normalizedPrevious = previous === undefined || previous === null ? '' : String(previous);
+                if (normalizedCurrent !== normalizedPrevious) {
+                    fd.append(key, normalizedCurrent);
+                }
+            };
 
-            // Add SKU if manual - ONLY for simple products (not variants)
-            // For variant products, SKU is at stock level
-            if (formData.skuOption === 'manual' && formData.sku.trim() && productStocks.length === 0) {
-                fd.append('sku', formData.sku.trim());
-            }
+            appendIfChanged('category_id', formData.category_id, original.formData.category_id);
+            appendIfChanged('brand_id', formData.brand_id, original.formData.brand_id);
+            appendIfChanged('product_name', formData.product_name.trim(), original.formData.product_name);
+            appendIfChanged('description', formData.description.trim(), original.formData.description);
+            appendIfChanged('has_serial', formData.has_serial ? '1' : '0', original.formData.has_serial ? '1' : '0');
+            appendIfChanged('has_warranty', formData.has_warranty ? '1' : '0', original.formData.has_warranty ? '1' : '0');
+            appendIfChanged('has_attributes', formData.has_attributes ? '1' : '0', original.formData.has_attributes ? '1' : '0');
+            appendIfChanged('available', formData.available, original.formData.available);
 
-            // Add unit field as pos_units array (backend expects pos_units array)
-            if (formData.units) {
+            if (normalizeValue(formData.units) !== normalizeValue(original.formData.units)) {
                 fd.append('pos_units[0][name]', formData.units);
                 fd.append('pos_units[0][is_active]', '1');
             }
 
-            // Add flags
-            fd.append('has_serial', formData.has_serial ? '1' : '0');
-            fd.append('has_warranty', formData.has_warranty ? '1' : '0');
-            fd.append('has_attributes', formData.has_attributes ? '1' : '0');
-            fd.append('available', formData.available);
+            const normalizedCurrentAttributes = productAttributes.map(normalizeAttributeForCompare);
+            const normalizedOriginalAttributes = (original.attributes || []).map(normalizeAttributeForCompare);
+            const attributesChanged = !arraysEqual(normalizedCurrentAttributes, normalizedOriginalAttributes);
 
-            // Determine stocks array
-            let stocks = [];
-
-            if (formData.has_attributes && productStocks.length > 0) {
-                stocks = productStocks;
-            } else {
-                const singleStock = {
-                    price: formData.price,
-                    purchase_price: formData.purchase_price,
-                    wholesale_price: formData.wholesale_price || '0',
-                    quantity: formData.quantity,
-                    low_stock_quantity: formData.low_stock_quantity || '0',
-                    tax_rate: formData.tax_rate || '0',
-                    tax_included: formData.tax_included,
-                    available: formData.available,
-                    unit: formData.units || 'pcs',
-                    batch_no: '',
-                    purchase_date: '',
-                    variant_data: {},
-                    images: [],
-                };
-                stocks = [singleStock];
-            }
-
-            // Add attributes array - ONLY for non-variant products
-            // For products with variants, attributes are in stocks[].variant_data
-            if (formData.has_attributes && productAttributes.length > 0 && productStocks.length === 0) {
+            if (attributesChanged || formData.has_attributes !== original.formData.has_attributes) {
+                fd.append('replace_attributes', 'true');
                 productAttributes.forEach((attr, index) => {
+                    if (attr.id) {
+                        fd.append(`attributes[${index}][id]`, String(attr.id));
+                    }
                     if (attr.attribute_id && attr.attribute_id > 0) {
                         fd.append(`attributes[${index}][attribute_id]`, String(attr.attribute_id));
                     }
                     if (attr.attribute_name) {
                         fd.append(`attributes[${index}][attribute_name]`, attr.attribute_name);
                     }
-                    // Value can be empty for attribute definitions
-                    fd.append(`attributes[${index}][value]`, attr.value ? attr.value.trim() : '');
+                    fd.append(`attributes[${index}][value]`, normalizeValue(attr.value));
                 });
             }
-            // Note: If productStocks exists (variants), attributes are in stocks[].variant_data
 
-            // Add stocks/variants array
-            stocks.forEach((stock, index) => {
-                // Include stock ID for existing stocks (for update)
+            const currentStocks: ProductStock[] = formData.has_attributes && productStocks.length > 0 ? productStocks : [simpleStockFromForm()];
+            const originalStocksById = new Map<number, ProductStock>(
+                (original.stocks || [])
+                    .filter((stock: ProductStock) => !!stock.id)
+                    .map((stock: ProductStock) => [Number(stock.id), stock])
+            );
+            const currentStockIds = new Set(currentStocks.map((stock) => Number(stock.id)).filter(Boolean));
+            const deletedStockIds = (original.stocks || [])
+                .map((stock: ProductStock) => Number(stock.id))
+                .filter(Boolean)
+                .filter((id: number) => !currentStockIds.has(id));
+
+            deletedStockIds.forEach((id: number, index: number) => fd.append(`deleted_stock_ids[${index}]`, String(id)));
+
+            const stocksToSave = currentStocks.filter((stock) => {
+                if (!stock.id) {
+                    return true;
+                }
+                const originalStock = originalStocksById.get(Number(stock.id));
+                if (!originalStock) {
+                    return true;
+                }
+                return JSON.stringify(normalizeStockForCompare(stock)) !== JSON.stringify(normalizeStockForCompare(originalStock));
+            });
+
+            stocksToSave.forEach((stock, index) => {
+                const originalStock = stock.id ? originalStocksById.get(Number(stock.id)) : undefined;
+
                 if (stock.id) {
                     fd.append(`stocks[${index}][id]`, String(stock.id));
                 }
-
-                // Add SKU and barcode at stock level (each variant can have its own)
-                if (stock.sku) {
-                    fd.append(`stocks[${index}][sku]`, stock.sku);
+                if (!stock.id || normalizeValue(stock.sku) !== normalizeValue(originalStock?.sku)) {
+                    if (normalizeValue(stock.sku)) {
+                        fd.append(`stocks[${index}][sku]`, normalizeValue(stock.sku));
+                    }
                 }
-                if (stock.barcode) {
-                    fd.append(`stocks[${index}][barcode]`, stock.barcode);
+                if (normalizeValue(stock.barcode)) {
+                    fd.append(`stocks[${index}][barcode]`, normalizeValue(stock.barcode));
                 }
-
-                fd.append(`stocks[${index}][price]`, String(stock.price));
-                fd.append(`stocks[${index}][purchase_price]`, String(stock.purchase_price));
-                fd.append(`stocks[${index}][wholesale_price]`, stock.wholesale_price || '0');
-                fd.append(`stocks[${index}][quantity]`, String(stock.quantity));
-                fd.append(`stocks[${index}][low_stock_quantity]`, stock.low_stock_quantity || '0');
-                fd.append(`stocks[${index}][tax_rate]`, stock.tax_rate || '0');
+                fd.append(`stocks[${index}][price]`, normalizeValue(stock.price));
+                fd.append(`stocks[${index}][purchase_price]`, normalizeValue(stock.purchase_price));
+                fd.append(`stocks[${index}][wholesale_price]`, normalizeValue(stock.wholesale_price || '0'));
+                fd.append(`stocks[${index}][quantity]`, normalizeValue(stock.quantity));
+                fd.append(`stocks[${index}][low_stock_quantity]`, normalizeValue(stock.low_stock_quantity || '0'));
+                fd.append(`stocks[${index}][tax_rate]`, normalizeValue(stock.tax_rate || '0'));
                 fd.append(`stocks[${index}][tax_included]`, stock.tax_included ? '1' : '0');
                 fd.append(`stocks[${index}][available]`, stock.available);
-                fd.append(`stocks[${index}][unit]`, stock.unit || formData.units || 'pcs');
+                fd.append(`stocks[${index}][unit]`, normalizeValue(stock.unit || formData.units || 'pcs'));
 
-                if (stock.batch_no) {
-                    fd.append(`stocks[${index}][batch_no]`, stock.batch_no);
+                if (normalizeValue(stock.batch_no)) {
+                    fd.append(`stocks[${index}][batch_no]`, normalizeValue(stock.batch_no));
                 }
-                if (stock.purchase_date) {
-                    fd.append(`stocks[${index}][purchase_date]`, stock.purchase_date);
-                }
-
-                // Add variant_data as array
-                if (stock.variant_data && Object.keys(stock.variant_data).length > 0) {
-                    Object.entries(stock.variant_data).forEach(([key, value]) => {
-                        fd.append(`stocks[${index}][variant_data][${key}]`, value);
-                    });
+                if (normalizeValue(stock.purchase_date)) {
+                    fd.append(`stocks[${index}][purchase_date]`, normalizeValue(stock.purchase_date));
                 }
 
-                // Add variant-specific images
-                if (stock.images && stock.images.length > 0) {
-                    stock.images.forEach((img, imgIndex) => {
-                        if (img.file) {
-                            const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+                Object.entries(stock.variant_data || {}).forEach(([key, value]) => {
+                    if (normalizeValue(value)) {
+                        fd.append(`stocks[${index}][variant_data][${key}]`, normalizeValue(value));
+                    }
+                });
 
-                            if (!validMimes.includes(img.file.type)) {
-                                showErrorDialog('Invalid Image', `Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`);
-                                throw new Error('Invalid image type');
-                            }
+                (stock.images || []).forEach((img: any, imgIndex: number) => {
+                    if (!img?.file) {
+                        return;
+                    }
+                    const validMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
-                            if (img.file.size > 2 * 1024 * 1024) {
-                                showErrorDialog('File Too Large', `Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
-                                throw new Error('Image too large');
-                            }
+                    if (!validMimes.includes(img.file.type)) {
+                        showErrorDialog('Invalid Image', `Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG, PNG, and WebP images are allowed!`);
+                        throw new Error('Invalid image type');
+                    }
+                    if (img.file.size > 2 * 1024 * 1024) {
+                        showErrorDialog('File Too Large', `Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
+                        throw new Error('Image too large');
+                    }
 
-                            fd.append(`stocks[${index}][images][]`, img.file as File);
-                        }
-                    });
-                }
+                    fd.append(`stocks[${index}][images][]`, img.file as File);
+                });
             });
 
-            // Add general product images
-            // Separate existing images (with ID) from new images (with file)
             const existingImageIds: number[] = [];
             const newImageFiles: File[] = [];
-
-            if (images && images.length > 0) {
+            if (!formData.has_attributes && images && images.length > 0) {
                 for (let i = 0; i < images.length; i++) {
                     const img = images[i];
-
-                    // If image has an ID, it's an existing image - preserve it
                     if (img.id) {
-                        existingImageIds.push(img.id);
-                    }
-                    // If image has a file, it's a new upload
-                    else if (img.file) {
+                        existingImageIds.push(Number(img.id));
+                    } else if (img.file) {
                         const validMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-
                         if (!validMimes.includes(img.file.type)) {
                             showErrorDialog('Invalid Image', `Image ${i + 1}: Only JPG, PNG, and WebP images are allowed!`);
                             return;
                         }
-
                         if (img.file.size > 2 * 1024 * 1024) {
                             showErrorDialog('File Too Large', `Image ${i + 1}: File size must be less than 2MB!`);
                             return;
                         }
-
                         newImageFiles.push(img.file as File);
                     }
                 }
             }
 
-            // Send existing image IDs to preserve them
-            if (existingImageIds.length > 0) {
-                existingImageIds.forEach((imageId, index) => {
-                    fd.append(`existing_images[${index}]`, String(imageId));
-                });
+            const imageIdsChanged = !arraysEqual(
+                [...existingImageIds].sort((a, b) => a - b),
+                [...(original.imageIds || [])].sort((a: number, b: number) => a - b)
+            );
+
+            if (imageIdsChanged || newImageFiles.length > 0) {
+                existingImageIds.forEach((imageId, index) => fd.append(`existing_images[${index}]`, String(imageId)));
+                newImageFiles.forEach((file) => fd.append('images[]', file));
             }
 
-            // Send new image files
-            if (newImageFiles.length > 0) {
-                newImageFiles.forEach((file) => {
-                    fd.append('images[]', file);
-                });
-            }
+            const normalizedOriginalSerials = (original.serials || []).map(normalizeSerialForCompare);
+            const originalSerialsById = new Map<number, ProductSerialState>(
+                (original.serials || [])
+                    .filter((serial: ProductSerialState) => !!serial.id)
+                    .map((serial: ProductSerialState) => [Number(serial.id), serial])
+            );
 
-            // Add serial numbers if has_serial is checked and serials are provided
-            if (formData.has_serial && productSerials.length > 0) {
-                const serialsToSave = productSerials
-                    .filter((serial) => serial.serial_number && serial.serial_number.trim() !== '')
-                    .map((serial) => ({
-                        serial_number: serial.serial_number.trim(),
-                        notes: (serial.notes || '').trim(),
-                        stock_index: serial.stock_index !== undefined ? serial.stock_index : 0,
-                    }));
+            if (!formData.has_serial) {
+                normalizedOriginalSerials
+                    .map((serial: any) => serial.id)
+                    .filter(Boolean)
+                    .forEach((id: number, index: number) => fd.append(`deleted_serial_ids[${index}]`, String(id)));
+            } else {
+                const currentSerials = productSerials.filter((serial) => normalizeValue(serial.serial_number));
+                const currentSerialIds = new Set(currentSerials.map((serial) => Number(serial.id)).filter(Boolean));
+                normalizedOriginalSerials
+                    .map((serial: any) => serial.id)
+                    .filter(Boolean)
+                    .filter((id: number) => !currentSerialIds.has(id))
+                    .forEach((id: number, index: number) => fd.append(`deleted_serial_ids[${index}]`, String(id)));
 
-                if (serialsToSave.length > 0) {
-                    serialsToSave.forEach((serial, index) => {
-                        fd.append(`serials[${index}][serial_number]`, serial.serial_number);
-                        fd.append(`serials[${index}][notes]`, serial.notes);
-                        fd.append(`serials[${index}][stock_index]`, String(serial.stock_index));
+                currentSerials
+                    .filter((serial) => {
+                        if (!serial.id) {
+                            return true;
+                        }
+                        const originalSerial = originalSerialsById.get(Number(serial.id));
+                        if (!originalSerial) {
+                            return true;
+                        }
+                        return JSON.stringify(normalizeSerialForCompare(serial)) !== JSON.stringify(normalizeSerialForCompare(originalSerial));
+                    })
+                    .forEach((serial, index) => {
+                        if (serial.id) {
+                            fd.append(`serials[${index}][id]`, String(serial.id));
+                        }
+                        fd.append(`serials[${index}][serial_number]`, normalizeValue(serial.serial_number));
+                        fd.append(`serials[${index}][notes]`, normalizeValue(serial.notes));
+                        if (!serial.id) {
+                            fd.append(`serials[${index}][stock_index]`, String(serial.stock_index ?? 0));
+                        }
                     });
-                }
             }
 
-            // Add warranties if has_warranty is checked and warranties are provided
-            if (formData.has_warranty && productWarranties.length > 0) {
-                const warrantiesToSave = productWarranties.filter((warranty) => warranty.warranty_type_id > 0);
+            const normalizedOriginalWarranties = (original.warranties || []).map(normalizeWarrantyForCompare);
+            const originalWarrantiesById = new Map<number, ProductWarrantyState>(
+                (original.warranties || [])
+                    .filter((warranty: ProductWarrantyState) => !!warranty.id)
+                    .map((warranty: ProductWarrantyState) => [Number(warranty.id), warranty])
+            );
 
-                if (warrantiesToSave.length > 0) {
-                    warrantiesToSave.forEach((warranty, index) => {
+            if (!formData.has_warranty) {
+                normalizedOriginalWarranties
+                    .map((warranty: any) => warranty.id)
+                    .filter(Boolean)
+                    .forEach((id: number, index: number) => fd.append(`deleted_warranty_ids[${index}]`, String(id)));
+            } else {
+                const currentWarranties = productWarranties.filter((warranty) => Number(warranty.warranty_type_id) > 0 || Number(warranty.duration_days || 0) > 0);
+                const currentWarrantyIds = new Set(currentWarranties.map((warranty) => Number(warranty.id)).filter(Boolean));
+                normalizedOriginalWarranties
+                    .map((warranty: any) => warranty.id)
+                    .filter(Boolean)
+                    .filter((id: number) => !currentWarrantyIds.has(id))
+                    .forEach((id: number, index: number) => fd.append(`deleted_warranty_ids[${index}]`, String(id)));
+
+                currentWarranties
+                    .filter((warranty) => {
+                        if (!warranty.id) {
+                            return true;
+                        }
+                        const originalWarranty = originalWarrantiesById.get(Number(warranty.id));
+                        if (!originalWarranty) {
+                            return true;
+                        }
+                        return JSON.stringify(normalizeWarrantyForCompare(warranty)) !== JSON.stringify(normalizeWarrantyForCompare(originalWarranty));
+                    })
+                    .forEach((warranty, index) => {
+                        if (warranty.id) {
+                            fd.append(`warranties[${index}][id]`, String(warranty.id));
+                        }
                         fd.append(`warranties[${index}][warranty_type_id]`, String(warranty.warranty_type_id));
                         if (warranty.duration_months !== undefined && warranty.duration_months > 0) {
                             fd.append(`warranties[${index}][duration_months]`, String(warranty.duration_months));
@@ -609,8 +800,15 @@ const ProductEditForm = () => {
                         if (warranty.duration_days !== undefined && warranty.duration_days > 0) {
                             fd.append(`warranties[${index}][duration_days]`, String(warranty.duration_days));
                         }
+                        if (!warranty.id && warranty.stock_index !== undefined) {
+                            fd.append(`warranties[${index}][stock_index]`, String(warranty.stock_index));
+                        }
                     });
-                }
+            }
+
+            if (Array.from(fd.keys()).length === 1) {
+                showSuccessDialog('No Changes', 'Nothing to update');
+                return;
             }
 
             const result = await updateProduct({ id: productId, formData: fd }).unwrap();

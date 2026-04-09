@@ -46,11 +46,9 @@ const ProductApi = baseApi.injectEndpoints({
 
         updateProduct: builder.mutation({
             query: ({ id, formData }) => {
-                // Add Laravel method spoofing for PUT request with FormData
-                formData.append('_method', 'PUT');
                 return {
                     url: `/products/${id}`,
-                    method: 'POST',
+                    method: 'PATCH',
                     body: formData,
                 };
             },

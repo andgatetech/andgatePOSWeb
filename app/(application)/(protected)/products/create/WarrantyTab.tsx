@@ -18,8 +18,8 @@ interface WarrantyTabProps {
         product_name: string;
         quantity: string;
     };
-    productWarranties: Array<{ warranty_type_id: number; duration_months?: number; duration_days?: number }>;
-    setProductWarranties: React.Dispatch<React.SetStateAction<Array<{ warranty_type_id: number; duration_months?: number; duration_days?: number }>>>;
+    productWarranties: Array<{ id?: number; warranty_type_id: number; duration_months?: number; duration_days?: number; stock_index?: number }>;
+    setProductWarranties: React.Dispatch<React.SetStateAction<Array<{ id?: number; warranty_type_id: number; duration_months?: number; duration_days?: number; stock_index?: number }>>>;
     productStocks: any[]; // Variants from VariantsTab
     productAttributes: any[]; // Attributes from AttributesTab
     onPrevious: () => void;
@@ -67,7 +67,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
     const entryCount = sameWarrantyForAll ? 1 : hasVariants ? variantCount : simpleUnitCount;
 
     useEffect(() => {
-        const defaultWarranty = { warranty_type_id: 0, duration_months: undefined, duration_days: undefined };
+        const defaultWarranty = { id: undefined, warranty_type_id: 0, duration_months: undefined, duration_days: undefined, stock_index: undefined };
 
         setProductWarranties((prev) => {
             if (sameWarrantyForAll) {
@@ -103,6 +103,8 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
         if (value !== '') {
             const updated = [...productWarranties];
             updated[index] = {
+                id: updated[index]?.id,
+                stock_index: updated[index]?.stock_index,
                 warranty_type_id: 0,
                 duration_months: undefined,
                 duration_days: undefined,
@@ -115,6 +117,8 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
     const handleSelectWarranty = (index: number, warranty: any) => {
         const updated = [...productWarranties];
         updated[index] = {
+            id: updated[index]?.id,
+            stock_index: updated[index]?.stock_index,
             warranty_type_id: warranty.id,
             duration_months: warranty.duration_months || undefined,
             duration_days: warranty.duration_days || undefined,
@@ -141,6 +145,8 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
         // Just save the duration locally, NO database creation
         const updated = [...productWarranties];
         updated[index] = {
+            id: updated[index]?.id,
+            stock_index: updated[index]?.stock_index,
             warranty_type_id: 0, // 0 means custom warranty (not from DB)
             duration_months: undefined,
             duration_days: days, // Only store the days
@@ -175,6 +181,8 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
         const selectedType = warrantyTypes.find((wt: any) => wt.id === warrantyTypeId);
         const updated = [...productWarranties];
         updated[index] = {
+            id: updated[index]?.id,
+            stock_index: updated[index]?.stock_index,
             warranty_type_id: warrantyTypeId,
             duration_months: selectedType?.duration_months || undefined,
             duration_days: selectedType?.duration_days || undefined,

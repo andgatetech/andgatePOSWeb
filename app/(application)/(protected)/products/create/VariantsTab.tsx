@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 
 export interface ProductAttribute {
+    id?: number;
     attribute_id: number;
     value: string;
     attribute_name?: string;
@@ -130,6 +131,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
         const duplicatedVariant: ProductStock = {
             ...variantToDuplicate,
+            id: undefined,
             variant_data: { ...variantToDuplicate.variant_data },
             images: variantToDuplicate.images ? variantToDuplicate.images.map((image) => ({ ...image })) : [],
         };

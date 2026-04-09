@@ -6,6 +6,7 @@ import { Check, Plus, Tag, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 export interface ProductAttribute {
+    id?: number;
     attribute_id: number;
     value: string;
     attribute_name?: string;
