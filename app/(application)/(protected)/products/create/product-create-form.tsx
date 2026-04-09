@@ -613,6 +613,7 @@ const ProductCreateForm = () => {
                             <BasicInfoTab
                                 formData={formData}
                                 handleChange={handleChange}
+                                setFormData={setFormData}
                                 showCategoryDropdown={showCategoryDropdown}
                                 setShowCategoryDropdown={setShowCategoryDropdown}
                                 categorySearchTerm={categorySearchTerm}

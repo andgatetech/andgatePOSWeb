@@ -40,6 +40,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
         selectedVariantIndex !== null && product.stocks && product.stocks[selectedVariantIndex]
             ? product.stocks[selectedVariantIndex].images || []
             : product.stocks?.flatMap((stock: any) => stock.images || []) || [];
+    const hasRichDescription = /<[^>]+>/.test(product.description || '');
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -152,7 +153,11 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {/* Header */}
                                         <div>
                                             <h2 className="mb-2 text-2xl font-bold text-gray-900">{product.product_name}</h2>
-                                            <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
+                                            {hasRichDescription ? (
+                                                <div className="quill-content text-sm leading-relaxed text-gray-600" dangerouslySetInnerHTML={{ __html: product.description }} />
+                                            ) : (
+                                                <p className="whitespace-pre-line text-sm leading-relaxed text-gray-600">{product.description}</p>
+                                            )}
                                         </div>
 
                                         {/* Pricing Section */}

@@ -1,7 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import React from 'react';
+import 'react-quill/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 interface BasicInfoTabProps {
     formData: {
@@ -64,6 +68,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     isCreating = false,
     isEditMode = false,
 }) => {
+    const descriptionTextLength = formData.description.replace(/<[^>]*>?/gm, '').trim().length;
+
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
@@ -90,17 +96,36 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
                         Description
                     </label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder="Enter product description"
-                        rows={4}
-                        maxLength={1000}
-                        className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
-                    />
-                    <p className="mt-1 text-sm text-gray-500">{formData.description.length}/1000 characters</p>
+                    <div className="rounded-lg bg-white">
+                        <ReactQuill
+                            theme="snow"
+                            value={formData.description}
+                            onChange={(value) => {
+                                if (setFormData) {
+                                    setFormData((prev: any) => ({ ...prev, description: value }));
+                                    return;
+                                }
+
+                                handleChange({
+                                    target: { name: 'description', value },
+                                } as any);
+                            }}
+                            placeholder="Enter product description"
+                            className="product-description-editor"
+                            modules={{
+                                toolbar: [
+                                    [{ header: [1, 2, 3, false] }],
+                                    ['bold', 'italic', 'underline', 'strike'],
+                                    [{ list: 'ordered' }, { list: 'bullet' }],
+                                    [{ align: [] }],
+                                    ['link'],
+                                    ['clean'],
+                                ],
+                            }}
+                            formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'align', 'link']}
+                        />
+                    </div>
+                    <p className="mt-1 text-sm text-gray-500">{descriptionTextLength}/1000 characters</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
