@@ -1,375 +1,17 @@
-// 'use client';
-// import { ArrowRight, BarChart3, Calculator, Check, CreditCard, FileText, Package, Scan, ShoppingCart, Smartphone, Store, Truck, Users, ZoomIn } from 'lucide-react';
-// import Image from 'next/image';
-// import Link from 'next/link';
-// import React, { useState } from 'react';
-// import { Mousewheel, Navigation, Pagination } from 'swiper';
-// import 'swiper/css';
-// import 'swiper/css/navigation';
-// import 'swiper/css/pagination';
-// import { Swiper, SwiperSlide } from 'swiper/react';
-
-// // Shimmer effect for placeholder
-// const shimmer = (w: number, h: number) => `
-//   <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" >
-//     <defs>
-//       <linearGradient id="g">
-//         <stop stop-color="#f3f4f6" offset="20%" />
-//         <stop stop-color="#e5e7eb" offset="50%" />
-//         <stop stop-color="#f3f4f6" offset="70%" />
-//       </linearGradient>
-//     </defs>
-//     <rect width="${w}" height="${h}" fill="#f3f4f6" />
-//     <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
-//     <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1.5s" repeatCount="indefinite"  />
-//   </svg>
-// `;
-
-// const toBase64 = (str: string) => (typeof window === 'undefined' ? Buffer.from(str).toString('base64') : window.btoa(str));
-
-// const sectionsData = [
-//     {
-//         title: 'Real-Time Business Insights',
-//         subtitle: 'Dashboard',
-//         icon: <BarChart3 className="h-8 w-8 text-white" />,
-//         features: ['Real-time analytics dashboard', 'Sales performance tracking', 'Revenue & profit insights', 'Key business metrics at a glance'],
-//         images: [
-//             { src: '/assets/LandingImage/sales-reporrt.png', alt: 'Sales Report Dashboard', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/stock-report.png', alt: 'Stock Report Analytics', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/tax-report.png', alt: 'Tax Report', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-blue-600 text-white',
-//         ctaText: 'View Dashboard',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Complete Store Management',
-//         subtitle: 'Store',
-//         icon: <Store className="h-8 w-8 text-white" />,
-//         features: ['Multi-store management system', 'Store settings & configuration', 'Employee management & permissions', 'Stock adjustments & inventory control'],
-//         images: [
-//             { src: '/assets/LandingImage/employees.png', alt: 'Employee Management', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/employees-create.png', alt: 'Add Employee', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-purple-600 text-white',
-//         ctaText: 'Manage Stores',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Organize Your Products',
-//         subtitle: 'Category & Brand',
-//         icon: <Package className="h-8 w-8 text-white" />,
-//         features: ['Category management system', 'Brand organization & tracking', 'Hierarchical product structure', 'Easy product categorization'],
-//         images: [
-//             { src: '/assets/LandingImage/category.png', alt: 'Category Management', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/brand.png', alt: 'Brand Management', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-emerald-600 text-white',
-//         ctaText: 'Organize Products',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Advanced Product Management',
-//         subtitle: 'Products',
-//         icon: <Package className="h-8 w-8 text-white" />,
-//         features: ['Add & manage products easily', 'Stock adjustment & tracking', 'Generate product QR codes', 'Print barcode labels'],
-//         images: [
-//             { src: '/assets/LandingImage/all-products.png', alt: 'Product Management', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/products-create.png', alt: 'Create Product', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/label.png', alt: 'Product Labels', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/lable-print.png', alt: 'Print Labels', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-teal-600 text-white',
-//         ctaText: 'Manage Products',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Fast & Efficient Point of Sale',
-//         subtitle: 'POS',
-//         icon: <ShoppingCart className="h-8 w-8 text-white" />,
-//         features: ['Lightning-fast POS interface', 'Barcode scanning support', 'Multiple payment methods', 'Quick checkout process'],
-//         images: [{ src: '/assets/LandingImage/pos.png', alt: 'POS Interface', width: 1920, height: 1080 }],
-//         colorClass: 'bg-blue-500 text-white',
-//         ctaText: 'Try POS',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Mobile & Tablet Responsive Design',
-//         subtitle: 'Responsive',
-//         icon: <Smartphone className="h-8 w-8 text-white" />,
-//         features: ['Fully responsive on all devices', 'Mobile-optimized interface', 'Tablet-friendly layouts', 'Works seamlessly on any screen size'],
-//         images: [
-//             { src: '/assets/LandingImage/mobileResponside.png', alt: 'Mobile Responsive', width: 1080, height: 1920 },
-//             { src: '/assets/LandingImage/Tablet Responsive.png', alt: 'Tablet Responsive', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white',
-//         ctaText: 'Try on Mobile',
-//         ctaLink: '/register',
-//         highlight: true,
-//     },
-//     {
-//         title: 'No Barcode Scanner Needed - Use Your Mobile!',
-//         subtitle: 'Mobile Scanning',
-//         icon: <Scan className="h-8 w-8 text-white" />,
-//         features: ['Scan barcodes with your phone camera', 'No expensive scanner hardware needed', 'Automatic barcode recognition', 'Works on any smartphone or tablet'],
-//         images: [{ src: '/assets/LandingImage/automatic barcode scan.png', alt: 'Automatic Barcode Scanning', width: 1920, height: 1080 }],
-//         colorClass: 'bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white',
-//         ctaText: 'Try Mobile Scanning',
-//         ctaLink: '/register',
-//         highlight: true,
-//     },
-//     {
-//         title: 'Streamlined Order Management',
-//         subtitle: 'Orders',
-//         icon: <FileText className="h-8 w-8 text-white" />,
-//         features: ['View all orders in one place', 'Order status tracking', 'Invoice generation', 'Order history & analytics'],
-//         images: [{ src: '/assets/LandingImage/orders.png', alt: 'Order Management', width: 1920, height: 1080 }],
-//         colorClass: 'bg-indigo-600 text-white',
-//         ctaText: 'Manage Orders',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Purchase Order System',
-//         subtitle: 'Purchases',
-//         icon: <ShoppingCart className="h-8 w-8 text-white" />,
-//         features: ['Create purchase orders easily', 'Track all purchases', 'Supplier management', 'Purchase history & reports'],
-//         images: [
-//             { src: '/assets/LandingImage/purchase-create.png', alt: 'Create Purchase', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/purchase-rcv.png', alt: 'Receive Purchase', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-cyan-600 text-white',
-//         ctaText: 'Manage Purchases',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Supplier Management',
-//         subtitle: 'Suppliers',
-//         icon: <Truck className="h-8 w-8 text-white" />,
-//         features: ['Add & manage suppliers', 'Supplier contact information', 'Track supplier history', 'Supplier performance metrics'],
-//         images: [
-//             { src: '/assets/LandingImage/all-suppiler.png', alt: 'All Suppliers', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/create-supplier.png', alt: 'Create Supplier', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-amber-600 text-white',
-//         ctaText: 'Manage Suppliers',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Financial Accounting',
-//         subtitle: 'Accounts',
-//         icon: <CreditCard className="h-8 w-8 text-white" />,
-//         features: ['Ledger management system', 'Journal entry tracking', 'Financial reports', 'Account reconciliation'],
-//         images: [
-//             { src: '/assets/LandingImage/ledger.png', alt: 'Ledger Management', width: 1920, height: 1080 },
-//             { src: '/assets/LandingImage/journal.png', alt: 'Journal Entries', width: 1920, height: 1080 },
-//         ],
-//         colorClass: 'bg-green-600 text-white',
-//         ctaText: 'Manage Accounts',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Expense Tracking',
-//         subtitle: 'Expenses',
-//         icon: <Calculator className="h-8 w-8 text-white" />,
-//         features: ['Track all business expenses', 'Expense categorization', 'Receipt management', 'Expense reports & analytics'],
-//         images: [{ src: '/assets/LandingImage/expense.png', alt: 'Expense Tracking', width: 1920, height: 1080 }],
-//         colorClass: 'bg-red-600 text-white',
-//         ctaText: 'Track Expenses',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-//     {
-//         title: 'Customer Relationship Management',
-//         subtitle: 'Customers',
-//         icon: <Users className="h-8 w-8 text-white" />,
-//         features: ['Complete customer database', 'Customer purchase history', 'Loyalty program support', 'Customer analytics & insights'],
-//         images: [{ src: '/assets/LandingImage/customer.png', alt: 'Customer Management', width: 1920, height: 1080 }],
-//         colorClass: 'bg-orange-600 text-white',
-//         ctaText: 'Manage Customers',
-//         ctaLink: '/register',
-//         highlight: false,
-//     },
-// ];
-
-// // Image Modal Component for Zoom
-// const ImageModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) => {
-//     // Close on scroll
-//     React.useEffect(() => {
-//         const handleScroll = () => onClose();
-//         window.addEventListener('scroll', handleScroll);
-//         return () => window.removeEventListener('scroll', handleScroll);
-//     }, [onClose]);
-
-//     return (
-//         <div className="animate-in fade-in fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm duration-200" onClick={onClose}>
-//             <div className="animate-in zoom-in-95 relative flex max-h-[80vh] w-full max-w-[900px] items-center justify-center duration-200" onClick={(e) => e.stopPropagation()}>
-//                 <button className="absolute -right-3 -top-3 z-10 rounded-full bg-gray-800 p-2 text-white shadow-lg transition-all hover:scale-110 hover:bg-gray-700" onClick={onClose}>
-//                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-//                     </svg>
-//                 </button>
-//                 <Image src={src} alt={alt} width={1920} height={1080} className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl" quality={90} />
-//             </div>
-//         </div>
-//     );
-// };
-
-// const SectionBlock = ({
-//     title,
-//     subtitle,
-//     icon,
-//     features,
-//     images,
-//     colorClass,
-//     ctaText,
-//     ctaLink,
-//     reverse = false,
-//     highlight = false,
-// }: {
-//     title: string;
-//     subtitle: string;
-//     icon: React.ReactNode;
-//     features: string[];
-//     images: { src: string; alt: string; width: number; height: number }[];
-//     colorClass: string;
-//     ctaText: string;
-//     ctaLink: string;
-//     reverse?: boolean;
-//     highlight?: boolean;
-// }) => {
-//     const [zoomedImage, setZoomedImage] = useState<{ src: string; alt: string } | null>(null);
-
-//     return (
-//         <>
-//             <div className={`mb-24 ${highlight ? 'relative' : ''}`}>
-//                 {highlight && <div className="absolute -inset-4 animate-pulse rounded-3xl bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-red-600/20 blur-2xl"></div>}
-//                 <div className={`relative overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ${highlight ? 'ring-4 ring-purple-500/50 ring-offset-4' : 'ring-gray-900/5'}`}>
-//                     <div className={`grid grid-cols-1 lg:grid-cols-2 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
-//                         {/* Image / Swiper */}
-//                         <div className="relative overflow-hidden border-gray-100">
-//                             <Swiper
-//                                 modules={[Mousewheel, Pagination, Navigation]}
-//                                 mousewheel
-//                                 pagination={{ clickable: true }}
-//                                 navigation
-//                                 spaceBetween={10}
-//                                 slidesPerView={1}
-//                                 breakpoints={{
-//                                     640: { slidesPerView: 1 },
-//                                     768: { slidesPerView: 1 },
-//                                     1024: { slidesPerView: 1 },
-//                                 }}
-//                                 className="h-[400px] lg:h-[500px]"
-//                             >
-//                                 {images.map((image, index) => (
-//                                     <SwiperSlide key={index}>
-//                                         <div
-//                                             className="group relative flex h-[400px] w-full cursor-zoom-in items-center justify-center bg-gray-50 lg:h-[500px]"
-//                                             onClick={() => setZoomedImage({ src: image.src, alt: image.alt })}
-//                                         >
-//                                             <Image
-//                                                 className="max-h-full max-w-full rounded-t-3xl object-contain transition-transform duration-300 group-hover:scale-105 lg:rounded-none"
-//                                                 src={image.src}
-//                                                 alt={image.alt}
-//                                                 width={image.width}
-//                                                 height={image.height}
-//                                                 placeholder="blur"
-//                                                 blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(image.width, image.height))}`}
-//                                             />
-//                                             <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/30">
-//                                                 <ZoomIn className="h-12 w-12 text-white opacity-0 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100" />
-//                                             </div>
-//                                         </div>
-//                                     </SwiperSlide>
-//                                 ))}
-//                             </Swiper>
-//                         </div>
-
-//                         {/* Content */}
-//                         <div className="flex flex-col justify-center border-gray-100 p-6 sm:p-10 lg:p-16">
-//                             <div className="mb-6 flex items-center gap-4">
-//                                 <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${colorClass} shadow-lg`}>{icon}</div>
-//                                 <div>
-//                                     <span className="text-sm font-semibold uppercase tracking-wider text-gray-400">{subtitle}</span>
-//                                     <h3 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{title}</h3>
-//                                 </div>
-//                             </div>
-//                             <div className="mb-6 space-y-3">
-//                                 {features.map((feature, idx) => (
-//                                     <div key={idx} className="flex items-center gap-3">
-//                                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 sm:h-10 sm:w-10">
-//                                             <Check className="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
-//                                         </div>
-//                                         <span className="text-sm text-gray-700 sm:text-base">{feature}</span>
-//                                     </div>
-//                                 ))}
-//                             </div>
-//                             <Link
-//                                 href={ctaLink}
-//                                 className={`inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold transition-all duration-200 sm:px-8 sm:py-4
-//               ${colorClass}
-//               text-white shadow-lg
-//               hover:scale-105 hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-blue-300`}
-//                             >
-//                                 {ctaText} <ArrowRight className="h-4 w-4" />
-//                             </Link>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-
-//             {/* Image Modal */}
-//             {zoomedImage && <ImageModal src={zoomedImage.src} alt={zoomedImage.alt} onClose={() => setZoomedImage(null)} />}
-//         </>
-//     );
-// };
-
-// export default function OverViewSection({ id }: { id: string }) {
-//     return (
-//         <section id={id} className="bg-gradient-to-b from-gray-50 via-white to-gray-50 py-16 sm:py-24">
-//             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-//                 <div className="mb-16 text-center">
-//                     <h2 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-//                         System <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">Overview</span>
-//                     </h2>
-//                     <p className="mx-auto max-w-3xl text-base text-gray-600 sm:text-lg md:text-xl">Discover the powerful features that make our POS system the perfect solution for your business.</p>
-//                 </div>
-
-//                 {sectionsData.map((section, idx) => (
-//                     <SectionBlock
-//                         key={idx}
-//                         {...section}
-//                         reverse={idx % 2 !== 0} // Odd sections reversed (image right, content left)
-//                     />
-//                 ))}
-//             </div>
-//         </section>
-//     );
-// }
 'use client';
 import { getTranslation } from '@/i18n';
 import { ArrowRight, BarChart3, Calculator, Check, CreditCard, FileText, Package, Scan, ShoppingCart, Smartphone, Store, Truck, Users, ZoomIn } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react';
-import { Mousewheel, Navigation, Pagination } from 'swiper';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Navigation, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-// Shimmer effect for placeholder
 const shimmer = (w: number, h: number) => `
-  <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" >
+  <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="g">
         <stop stop-color="#f3f4f6" offset="20%" />
@@ -379,137 +21,122 @@ const shimmer = (w: number, h: number) => `
     </defs>
     <rect width="${w}" height="${h}" fill="#f3f4f6" />
     <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
-    <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1.5s" repeatCount="indefinite"  />
+    <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1.5s" repeatCount="indefinite" />
   </svg>
 `;
 
-const toBase64 = (str: string) => (typeof window === 'undefined' ? Buffer.from(str).toString('base64') : window.btoa(str));
+const toBase64 = (str: string) =>
+    typeof window === 'undefined' ? Buffer.from(str).toString('base64') : window.btoa(str);
 
-// Config for non-translated parts (icons, images, colors, etc.)
 const sectionsConfig = [
     {
-        icon: <BarChart3 className="h-8 w-8 text-white" />,
+        icon: <BarChart3 className="h-5 w-5 text-white" />,
+        iconBg: 'bg-blue-600',
         images: [
             { src: '/assets/LandingImage/sales-reporrt.png', alt: 'Sales Report Dashboard', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/stock-report.png', alt: 'Stock Report Analytics', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/tax-report.png', alt: 'Tax Report', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-blue-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Store className="h-8 w-8 text-white" />,
+        icon: <Store className="h-5 w-5 text-white" />,
+        iconBg: 'bg-purple-600',
         images: [
             { src: '/assets/LandingImage/employees.png', alt: 'Employee Management', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/employees-create.png', alt: 'Add Employee', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-purple-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Package className="h-8 w-8 text-white" />,
+        icon: <Package className="h-5 w-5 text-white" />,
+        iconBg: 'bg-emerald-600',
         images: [
             { src: '/assets/LandingImage/category.png', alt: 'Category Management', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/brand.png', alt: 'Brand Management', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-emerald-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Package className="h-8 w-8 text-white" />,
+        icon: <Package className="h-5 w-5 text-white" />,
+        iconBg: 'bg-teal-600',
         images: [
             { src: '/assets/LandingImage/all-products.png', alt: 'Product Management', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/products-create.png', alt: 'Create Product', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/label.png', alt: 'Product Labels', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/lable-print.png', alt: 'Print Labels', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-teal-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <ShoppingCart className="h-8 w-8 text-white" />,
+        icon: <ShoppingCart className="h-5 w-5 text-white" />,
+        iconBg: 'bg-violet-600',
         images: [{ src: '/assets/LandingImage/pos.png', alt: 'POS Interface', width: 1920, height: 1080 }],
-        colorClass: 'bg-blue-500 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Smartphone className="h-8 w-8 text-white" />,
+        icon: <Smartphone className="h-5 w-5 text-white" />,
+        iconBg: 'bg-pink-600',
         images: [
             { src: '/assets/LandingImage/mobileResponside.png', alt: 'Mobile Responsive', width: 1080, height: 1920 },
             { src: '/assets/LandingImage/Tablet Responsive.png', alt: 'Tablet Responsive', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white',
         ctaLink: '/register',
-        highlight: true,
     },
     {
-        icon: <Scan className="h-8 w-8 text-white" />,
+        icon: <Scan className="h-5 w-5 text-white" />,
+        iconBg: 'bg-purple-700',
         images: [{ src: '/assets/LandingImage/automatic barcode scan.png', alt: 'Automatic Barcode Scanning', width: 1920, height: 1080 }],
-        colorClass: 'bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white',
         ctaLink: '/register',
-        highlight: true,
     },
     {
-        icon: <FileText className="h-8 w-8 text-white" />,
+        icon: <FileText className="h-5 w-5 text-white" />,
+        iconBg: 'bg-indigo-600',
         images: [{ src: '/assets/LandingImage/orders.png', alt: 'Order Management', width: 1920, height: 1080 }],
-        colorClass: 'bg-indigo-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <ShoppingCart className="h-8 w-8 text-white" />,
+        icon: <ShoppingCart className="h-5 w-5 text-white" />,
+        iconBg: 'bg-cyan-600',
         images: [
             { src: '/assets/LandingImage/purchase-create.png', alt: 'Create Purchase', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/purchase-rcv.png', alt: 'Receive Purchase', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-cyan-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Truck className="h-8 w-8 text-white" />,
+        icon: <Truck className="h-5 w-5 text-white" />,
+        iconBg: 'bg-amber-600',
         images: [
             { src: '/assets/LandingImage/all-suppiler.png', alt: 'All Suppliers', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/create-supplier.png', alt: 'Create Supplier', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-amber-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <CreditCard className="h-8 w-8 text-white" />,
+        icon: <CreditCard className="h-5 w-5 text-white" />,
+        iconBg: 'bg-green-600',
         images: [
             { src: '/assets/LandingImage/ledger.png', alt: 'Ledger Management', width: 1920, height: 1080 },
             { src: '/assets/LandingImage/journal.png', alt: 'Journal Entries', width: 1920, height: 1080 },
         ],
-        colorClass: 'bg-green-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Calculator className="h-8 w-8 text-white" />,
+        icon: <Calculator className="h-5 w-5 text-white" />,
+        iconBg: 'bg-rose-600',
         images: [{ src: '/assets/LandingImage/expense.png', alt: 'Expense Tracking', width: 1920, height: 1080 }],
-        colorClass: 'bg-red-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
     {
-        icon: <Users className="h-8 w-8 text-white" />,
+        icon: <Users className="h-5 w-5 text-white" />,
+        iconBg: 'bg-orange-600',
         images: [{ src: '/assets/LandingImage/customer.png', alt: 'Customer Management', width: 1920, height: 1080 }],
-        colorClass: 'bg-orange-600 text-white',
         ctaLink: '/register',
-        highlight: false,
     },
 ];
 
-// Image Modal Component for Zoom
 const ImageModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) => {
-    // Close on scroll
     React.useEffect(() => {
         const handleScroll = () => onClose();
         window.addEventListener('scroll', handleScroll);
@@ -517,126 +144,32 @@ const ImageModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: 
     }, [onClose]);
 
     return (
-        <div className="animate-in fade-in fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm duration-200" onClick={onClose}>
-            <div className="animate-in zoom-in-95 relative flex max-h-[80vh] w-full max-w-[900px] items-center justify-center duration-200" onClick={(e) => e.stopPropagation()}>
-                <button className="absolute -right-3 -top-3 z-10 rounded-full bg-gray-800 p-2 text-white shadow-lg transition-all hover:scale-110 hover:bg-gray-700" onClick={onClose}>
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            <div
+                className="relative flex max-h-[85vh] w-full max-w-[960px] items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button
+                    className="absolute -right-3 -top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white shadow-lg transition-all hover:scale-110 hover:bg-gray-700"
+                    onClick={onClose}
+                >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                <Image src={src} alt={alt} width={1920} height={1080} className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl" quality={90} />
+                <Image
+                    src={src}
+                    alt={alt}
+                    width={1920}
+                    height={1080}
+                    className="max-h-[85vh] w-auto rounded-2xl object-contain shadow-2xl"
+                    quality={90}
+                />
             </div>
         </div>
-    );
-};
-
-const SectionBlock = ({
-    title,
-    subtitle,
-    icon,
-    features,
-    images,
-    colorClass,
-    ctaText,
-    ctaLink,
-    reverse = false,
-    highlight = false,
-}: {
-    title: string;
-    subtitle: string;
-    icon: React.ReactNode;
-    features: string[];
-    images: { src: string; alt: string; width: number; height: number }[];
-    colorClass: string;
-    ctaText: string;
-    ctaLink: string;
-    reverse?: boolean;
-    highlight?: boolean;
-}) => {
-    const [zoomedImage, setZoomedImage] = useState<{ src: string; alt: string } | null>(null);
-
-    return (
-        <>
-            <div className={`mb-24 ${highlight ? 'relative' : ''}`}>
-                {highlight && <div className="absolute -inset-4 animate-pulse rounded-3xl bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-red-600/20 blur-2xl"></div>}
-                <div className={`relative overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ${highlight ? 'ring-4 ring-purple-500/50 ring-offset-4' : 'ring-gray-900/5'}`}>
-                    <div className={`grid grid-cols-1 lg:grid-cols-2 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
-                        {/* Image / Swiper */}
-                        <div className="relative overflow-hidden border-gray-100">
-                            <Swiper
-                                modules={[Mousewheel, Pagination, Navigation]}
-                                mousewheel
-                                pagination={{ clickable: true }}
-                                navigation
-                                spaceBetween={10}
-                                slidesPerView={1}
-                                breakpoints={{
-                                    640: { slidesPerView: 1 },
-                                    768: { slidesPerView: 1 },
-                                    1024: { slidesPerView: 1 },
-                                }}
-                                className="h-[400px] lg:h-[500px]"
-                            >
-                                {images.map((image, index) => (
-                                    <SwiperSlide key={index}>
-                                        <div
-                                            className="group relative flex h-[400px] w-full cursor-zoom-in items-center justify-center bg-gray-50 lg:h-[500px]"
-                                            onClick={() => setZoomedImage({ src: image.src, alt: image.alt })}
-                                        >
-                                            <Image
-                                                className="max-h-full max-w-full rounded-t-3xl object-contain transition-transform duration-300 group-hover:scale-105 lg:rounded-none"
-                                                src={image.src}
-                                                alt={image.alt}
-                                                width={image.width}
-                                                height={image.height}
-                                                placeholder="blur"
-                                                blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(image.width, image.height))}`}
-                                            />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/30">
-                                                <ZoomIn className="h-12 w-12 text-white opacity-0 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100" />
-                                            </div>
-                                        </div>
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex flex-col justify-center border-gray-100 p-6 sm:p-10 lg:p-16">
-                            <div className="mb-6 flex items-center gap-4">
-                                <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${colorClass} shadow-lg`}>{icon}</div>
-                                <div>
-                                    <span className="text-sm font-semibold uppercase tracking-wider text-gray-400">{subtitle}</span>
-                                    <h3 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{title}</h3>
-                                </div>
-                            </div>
-                            <div className="mb-6 space-y-3">
-                                {features.map((feature, idx) => (
-                                    <div key={idx} className="flex items-center gap-3">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 sm:h-10 sm:w-10">
-                                            <Check className="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
-                                        </div>
-                                        <span className="text-sm text-gray-700 sm:text-base">{feature}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <Link
-                                href={ctaLink}
-                                className={`inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold transition-all duration-200 sm:px-8 sm:py-4
-              ${colorClass} 
-              text-white shadow-lg 
-              hover:scale-105 hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-blue-300`}
-                            >
-                                {ctaText} <ArrowRight className="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Image Modal */}
-            {zoomedImage && <ImageModal src={zoomedImage.src} alt={zoomedImage.alt} onClose={() => setZoomedImage(null)} />}
-        </>
     );
 };
 
@@ -644,29 +177,229 @@ export default function OverViewSection({ id }: { id: string }) {
     const { t, data } = getTranslation();
     const translatedSections = data.overview?.sections || [];
 
-    const sectionsData = translatedSections.map((trans, idx) => ({
+    const sectionsData = translatedSections.map((trans: any, idx: number) => ({
         ...trans,
         ...sectionsConfig[idx],
     }));
 
+    const [activeTab, setActiveTab] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
+    const [zoomedImage, setZoomedImage] = useState<{ src: string; alt: string } | null>(null);
+
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const countRef = useRef(sectionsData.length);
+    const tabScrollRef = useRef<HTMLDivElement>(null);
+    const tabButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    useEffect(() => { countRef.current = sectionsData.length; }, [sectionsData.length]);
+
+    const startTimer = useCallback(() => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            setActiveTab((prev) => (prev + 1) % countRef.current);
+        }, 5000);
+    }, []);
+
+    useEffect(() => {
+        if (!isPaused) startTimer();
+        else if (intervalRef.current) clearInterval(intervalRef.current);
+        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    }, [isPaused, startTimer]);
+
+    const handleTabClick = (idx: number) => {
+        setActiveTab(idx);
+        startTimer();
+    };
+
+    // Scroll active mobile tab into center view whenever activeTab changes
+    useEffect(() => {
+        const btn = tabButtonRefs.current[activeTab];
+        const container = tabScrollRef.current;
+        if (!btn || !container) return;
+        const btnLeft = btn.offsetLeft;
+        const btnWidth = btn.offsetWidth;
+        const containerWidth = container.offsetWidth;
+        container.scrollTo({ left: btnLeft - containerWidth / 2 + btnWidth / 2, behavior: 'smooth' });
+    }, [activeTab]);
+
+    const active = sectionsData[activeTab] as any;
+    if (!active) return null;
+
     return (
-        <section id={id} className="bg-gradient-to-b from-gray-50 via-white to-gray-50 py-16 sm:py-24">
+        <section id={id} className="bg-gray-50 py-24">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-16 text-center">
-                    <h2 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-                        <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">{t('overview.sectionTitle')}</span>
+                {/* Header */}
+                <div className="mb-12">
+                    <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">
+                        {t('overview.sectionTitle')}
                     </h2>
-                    <p className="mx-auto max-w-3xl text-base text-gray-600 sm:text-lg md:text-xl">{t('overview.sectionSubtitle')}</p>
+                    <p className="max-w-2xl text-base text-gray-500">{t('overview.sectionSubtitle')}</p>
                 </div>
 
-                {sectionsData.map((section, idx) => (
-                    <SectionBlock
-                        key={idx}
-                        {...section}
-                        reverse={idx % 2 !== 0} // Odd sections reversed (image right, content left)
-                    />
-                ))}
+                {/* Tab panel */}
+                <div
+                    className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                >
+
+                    {/* Mobile: horizontal scroll tabs */}
+                    <div className="border-b border-gray-100 lg:hidden">
+                        {/* Counter */}
+                        <div className="flex items-center justify-between px-4 pb-1 pt-2.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                                {active.title}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#046ca9]">
+                                {activeTab + 1} / {sectionsData.length}
+                            </span>
+                        </div>
+                        <div
+                            ref={tabScrollRef}
+                            className="flex gap-2 overflow-x-auto px-3 pb-3"
+                            style={{ scrollbarWidth: 'none' }}
+                        >
+                            {sectionsData.map((section: any, idx: number) => (
+                                <button
+                                    key={idx}
+                                    ref={(el) => { tabButtonRefs.current[idx] = el; }}
+                                    onClick={() => handleTabClick(idx)}
+                                    className={`flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                                        activeTab === idx
+                                            ? 'bg-[#046ca9] text-white shadow-md shadow-[#046ca9]/25'
+                                            : 'bg-gray-100 text-gray-500'
+                                    }`}
+                                >
+                                    <span className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full ${
+                                        activeTab === idx ? 'bg-white/20' : 'bg-white/60'
+                                    }`}>
+                                        <span className="[&>svg]:h-2.5 [&>svg]:w-2.5">{section.icon}</span>
+                                    </span>
+                                    {section.title}
+                                </button>
+                            ))}
+                        </div>
+                        {/* Thin progress track */}
+                        <div className="relative h-0.5 w-full bg-gray-100">
+                            <div
+                                className="absolute left-0 top-0 h-full bg-[#046ca9] transition-all duration-300"
+                                style={{ width: `${((activeTab + 1) / sectionsData.length) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="lg:grid lg:grid-cols-[272px_1fr]">
+                        {/* Desktop: sidebar nav */}
+                        <div className="hidden border-r border-gray-100 lg:block">
+                            <nav className="py-1.5">
+                                {sectionsData.map((section: any, idx: number) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleTabClick(idx)}
+                                        className={`relative flex w-full items-start gap-2.5 border-l-[3px] px-3 py-2 text-left transition-colors ${
+                                            activeTab === idx
+                                                ? 'border-[#046ca9] bg-[#046ca9]/5 font-semibold text-[#046ca9]'
+                                                : 'border-transparent font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <span className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
+                                            activeTab === idx ? section.iconBg : 'bg-gray-100 [&>svg]:text-gray-400'
+                                        }`}>
+                                            <span className="[&>svg]:h-3.5 [&>svg]:w-3.5">{section.icon}</span>
+                                        </span>
+                                        <span className="line-clamp-2 text-xs leading-snug">{section.title}</span>
+                                        {/* Auto-advance progress bar */}
+                                        {activeTab === idx && !isPaused && (
+                                            <span
+                                                key={activeTab}
+                                                className="absolute bottom-0 left-0 h-[2px] bg-[#046ca9]/40"
+                                                style={{ animation: 'tab-progress 5s linear forwards' }}
+                                            />
+                                        )}
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+
+                        {/* Content panel — key forces remount on tab switch (resets Swiper to slide 1) */}
+                        <div key={activeTab} className="grid grid-cols-1 md:grid-cols-[3fr_2fr]">
+                            {/* Screenshots */}
+                            <div className="relative overflow-hidden bg-slate-50">
+                                <Swiper
+                                    modules={[Pagination, Navigation]}
+                                    pagination={{ clickable: true }}
+                                    navigation
+                                    spaceBetween={0}
+                                    slidesPerView={1}
+                                    className="h-[300px] md:h-[540px]"
+                                >
+                                    {active.images.map((image: any, index: number) => (
+                                        <SwiperSlide key={index}>
+                                            <div
+                                                className="group relative flex h-[300px] w-full cursor-zoom-in items-center justify-center bg-slate-50 md:h-[540px]"
+                                                onClick={() => setZoomedImage({ src: image.src, alt: image.alt })}
+                                            >
+                                                <Image
+                                                    className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+                                                    src={image.src}
+                                                    alt={image.alt}
+                                                    width={image.width}
+                                                    height={image.height}
+                                                    placeholder="blur"
+                                                    blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(image.width, image.height))}`}
+                                                />
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/20">
+                                                    <ZoomIn className="h-8 w-8 text-white opacity-0 drop-shadow-lg transition-all duration-300 group-hover:opacity-100" />
+                                                </div>
+                                            </div>
+                                        </SwiperSlide>
+                                    ))}
+                                </Swiper>
+                            </div>
+
+                            {/* Features */}
+                            <div className="flex flex-col justify-center p-6 lg:p-8">
+                                <span className="mb-2 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
+                                    {active.subtitle}
+                                </span>
+                                <div className="mb-5 flex items-center gap-3">
+                                    <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl shadow-sm ${active.iconBg}`}>
+                                        {active.icon}
+                                    </div>
+                                    <h3 className="text-xl font-black text-gray-900 sm:text-2xl">{active.title}</h3>
+                                </div>
+                                <ul className="mb-7 space-y-2.5">
+                                    {(active.features || []).map((feature: string, idx: number) => (
+                                        <li key={idx} className="flex items-start gap-2.5">
+                                            <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                                                <Check className="h-3 w-3 text-emerald-600" />
+                                            </span>
+                                            <span className="text-sm leading-relaxed text-gray-600">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Link
+                                    href={active.ctaLink}
+                                    className="inline-flex w-fit items-center gap-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#034d79] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:from-[#034d79] hover:to-[#02395b]"
+                                >
+                                    {active.ctaText}
+                                    <ArrowRight className="h-4 w-4" />
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {zoomedImage && (
+                <ImageModal src={zoomedImage.src} alt={zoomedImage.alt} onClose={() => setZoomedImage(null)} />
+            )}
+
+            <style>{`
+                @keyframes tab-progress {
+                    from { width: 0%; }
+                    to { width: 100%; }
+                }
+            `}</style>
         </section>
     );
 }

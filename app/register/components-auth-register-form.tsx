@@ -190,7 +190,7 @@ const ComponentsAuthRegisterForm = () => {
                 </div>
             </div>
 
-            <button type="submit" disabled={isLoading} className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+            <button type="submit" disabled={isLoading} className="mt-6 w-full rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] py-3 text-sm font-semibold uppercase text-white shadow-[0_10px_20px_-10px_rgba(4,108,169,0.44)] transition-all hover:from-[#034d79] hover:to-[#02395b] disabled:opacity-50">
                 {isLoading ? t('register-page.form.signing_up') : t('register-page.form.sign_up_button')}
             </button>
         </form>

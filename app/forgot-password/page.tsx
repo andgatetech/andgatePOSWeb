@@ -1,16 +1,15 @@
 'use client';
 
-import IconMail from '@/components/icon/icon-mail';
-import MainLayout from '@/components/layouts/MainLayout';
 import { useForgotPasswordMutation } from '@/store/features/auth/authApi';
+import { ArrowLeft, Lock, Mail, Shield, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
+import AndGate from '/public/images/andgatePOS.jpeg';
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
-
     const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
     const handleSubmit = async (e: FormEvent) => {
@@ -18,103 +17,163 @@ const ForgotPasswordPage = () => {
         try {
             await forgotPassword({ email }).unwrap();
         } catch (_) {
-            // Intentionally swallowed — never reveal if email exists
+            // Never reveal if email exists
         } finally {
-            // Always show generic success for security
             setShowSuccess(true);
         }
     };
 
     return (
-        <MainLayout>
-            <div>
-                <div className="absolute inset-0">
-                    <Image src="/assets/images/auth/bg-gradient.png" width={1920} height={1080} alt="image" objectFit="cover" />
+        <div className="flex min-h-screen">
+            {/* Left panel */}
+            <div className="relative hidden flex-col justify-between overflow-hidden bg-[#0a0f1e] p-12 lg:flex lg:w-5/12 xl:w-2/5">
+                <div className="absolute -left-32 -top-32 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
+                <div className="absolute -bottom-32 -right-16 h-72 w-72 rounded-full bg-violet-600/20 blur-3xl" />
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.04]"
+                    style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+                />
+
+                <div className="relative">
+                    <Link href="/">
+                        <Image src={AndGate} alt="AndgatePOS" width={160} height={32} className="brightness-0 invert" />
+                    </Link>
                 </div>
-                <div className="relative flex min-h-screen items-center justify-center bg-[url(/assets/images/auth/map.png)] bg-cover bg-center bg-no-repeat px-6 py-10 dark:bg-[#060818] sm:px-16">
-                    <Image src="/assets/images/auth/coming-soon-object1.png" width={893} height={893} alt="image" className="absolute left-0 top-1/2 h-full max-h-[893px] -translate-y-1/2" />
-                    <Image src="/assets/images/auth/coming-soon-object2.png" width={160} height={160} alt="image" className="absolute left-24 top-0 h-40 md:left-[30%]" />
-                    <Image src="/assets/images/auth/coming-soon-object3.png" width={300} height={300} alt="image" className="absolute right-0 top-0 h-[300px]" />
-                    <Image src="/assets/images/auth/polygon-object.svg" width={100} height={100} alt="image" className="absolute bottom-0 end-[28%]" />
-                    <div className="relative flex w-full max-w-[1502px] flex-col justify-between overflow-hidden rounded-md bg-white/60 backdrop-blur-lg dark:bg-black/50 lg:min-h-[758px] lg:flex-row lg:gap-10 xl:gap-0">
-                        <div className="relative hidden w-full items-center justify-center bg-[linear-gradient(225deg,rgba(239,18,98,1)_0%,rgba(67,97,238,1)_100%)] p-5 lg:inline-flex lg:max-w-[835px] xl:-ms-28 ltr:xl:skew-x-[14deg] rtl:xl:skew-x-[-14deg]">
-                            <div className="absolute inset-y-0 w-8 from-primary/10 via-transparent to-transparent xl:w-16 ltr:-right-10 ltr:bg-gradient-to-r ltr:xl:-right-20 rtl:-left-10 rtl:bg-gradient-to-l rtl:xl:-left-20"></div>
-                            <div className="ltr:xl:-skew-x-[14deg] rtl:xl:skew-x-[14deg]">
-                                <div className="mt-24 hidden w-full max-w-[430px] lg:block">
-                                    <Image src="/assets/images/auth/login.svg" alt="Cover Image" className="w-full" width={430} height={430} />
+
+                <div className="relative">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-300">
+                        <Zap className="h-3 w-3" />
+                        Bank-grade security
+                    </div>
+                    <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">
+                        Reset your<br />
+                        <span className="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">password securely.</span>
+                    </h2>
+                    <p className="mb-8 text-sm leading-relaxed text-slate-400">
+                        We take security seriously. Reset links expire in 60 minutes and can only be used once.
+                    </p>
+                    <div className="space-y-4">
+                        {[
+                            { icon: <Shield className="h-4 w-4" />, title: 'Encrypted link', desc: 'Secure one-time reset token' },
+                            { icon: <Mail className="h-4 w-4" />, title: 'Email verification', desc: 'Sent only to your registered email' },
+                            { icon: <Lock className="h-4 w-4" />, title: '60-minute expiry', desc: 'Links expire for your protection' },
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 text-blue-400">
+                                    {item.icon}
+                                </span>
+                                <div>
+                                    <p className="text-xs font-bold text-white">{item.title}</p>
+                                    <p className="text-xs text-slate-500">{item.desc}</p>
                                 </div>
                             </div>
-                        </div>
-                        <div className="relative flex w-full flex-col items-center justify-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:max-w-[667px]">
-                            <div className="w-full max-w-[440px] lg:mt-16">
-                                <div className="mb-10">
-                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Forgot Password?</h1>
-                                    <p className="text-base font-bold leading-normal text-white-dark">
-                                        {showSuccess ? 'Check your email for reset instructions' : 'Enter your email to receive password reset instructions'}
-                                    </p>
-                                </div>
-
-                                {showSuccess ? (
-                                    <div className="mb-6 rounded-lg border border-green-500 bg-green-50/50 p-6 dark:border-green-600 dark:bg-green-900/20">
-                                        <div className="mb-4 flex justify-center">
-                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white">
-                                                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <h3 className="mb-2 text-center text-lg font-bold text-green-700 dark:text-green-300">Email Sent!</h3>
-                                        <p className="text-center text-sm text-green-700 dark:text-green-300">
-                                            If an account exists with this email, you will receive password reset instructions shortly. Please check your inbox and spam folder.
-                                        </p>
-                                        <div className="mt-6 text-center">
-                                            <Link href="/login" className="text-sm text-primary underline transition hover:text-black dark:hover:text-white">
-                                                Back to Login
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <form className="space-y-5 dark:text-white" onSubmit={handleSubmit}>
-                                        <div>
-                                            <label htmlFor="Email">Email Address</label>
-                                            <div className="relative text-white-dark">
-                                                <input
-                                                    id="Email"
-                                                    value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
-                                                    type="email"
-                                                    placeholder="Enter your email"
-                                                    className="form-input ps-10 placeholder:text-white-dark"
-                                                    required
-                                                    autoComplete="email"
-                                                />
-                                                <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                                    <IconMail fill={true} />
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]" disabled={isLoading}>
-                                            {isLoading ? 'Sending...' : 'Send Reset Link'}
-                                        </button>
-                                    </form>
-                                )}
-
-                                {!showSuccess && (
-                                    <div className="mt-6 text-center dark:text-white">
-                                        Remember your password?&nbsp;
-                                        <Link href="/login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                            Back to Login
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
-                            <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()}. All Rights Reserved.</p>
-                        </div>
+                        ))}
                     </div>
                 </div>
+
+                <div className="relative text-xs text-slate-500">
+                    © {new Date().getFullYear()}{' '}
+                    <a href="https://andgatetech.net" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-slate-400">
+                        Andgate Technologies
+                    </a>. All rights reserved.
+                </div>
             </div>
-        </MainLayout>
+
+            {/* Right panel */}
+            <div className="flex flex-1 flex-col justify-center bg-slate-50 px-6 py-12 sm:px-10 lg:px-16">
+                <div className="mb-8 flex justify-center lg:hidden">
+                    <Link href="/">
+                        <Image src={AndGate} alt="AndgatePOS" width={140} height={28} />
+                    </Link>
+                </div>
+
+                <div className="mx-auto w-full max-w-sm">
+                    {!showSuccess ? (
+                        <>
+                            <div className="mb-8">
+                                <h1 className="text-2xl font-black text-gray-900">Forgot your password?</h1>
+                                <p className="mt-1.5 text-sm text-gray-500">
+                                    Enter your email and we&apos;ll send you a reset link.
+                                </p>
+                            </div>
+
+                            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                                <form onSubmit={handleSubmit} className="space-y-5">
+                                    <div>
+                                        <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700">
+                                            Email address
+                                        </label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                id="email"
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="you@example.com"
+                                                required
+                                                autoComplete="email"
+                                                className="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:opacity-90 disabled:opacity-60"
+                                    >
+                                        {isLoading ? 'Sending reset link…' : 'Send reset link'}
+                                    </button>
+                                </form>
+                            </div>
+
+                            <p className="mt-6 text-center text-sm text-gray-500">
+                                Remember your password?{' '}
+                                <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-700">
+                                    Back to login
+                                </Link>
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <div className="mb-8">
+                                <h1 className="text-2xl font-black text-gray-900">Check your inbox</h1>
+                                <p className="mt-1.5 text-sm text-gray-500">
+                                    We sent password reset instructions to your email.
+                                </p>
+                            </div>
+
+                            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm text-center">
+                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                                    <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <h3 className="mb-2 text-lg font-bold text-gray-900">Email sent!</h3>
+                                <p className="text-sm text-gray-500">
+                                    If an account exists with that email, you will receive reset instructions shortly. Check your spam folder too.
+                                </p>
+                                <Link
+                                    href="/login"
+                                    className="mt-6 inline-flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Back to login
+                                </Link>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                <p className="mt-auto pt-12 text-center text-xs text-gray-400">
+                    © {new Date().getFullYear()}{' '}
+                    <a href="https://andgatetech.net" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-500">
+                        Andgate Technologies
+                    </a>. All rights reserved.
+                </p>
+            </div>
+        </div>
     );
 };
 

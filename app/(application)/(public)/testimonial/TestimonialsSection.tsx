@@ -1,63 +1,132 @@
 'use client';
 
-import Marquee from 'react-fast-marquee';
+import { getTranslation } from '@/i18n';
+import { Quote, Star } from 'lucide-react';
 
-const testimonials = [
-    {
-        name: "জনাব মো: রোকন মন্ডল",
-        store: "মন্ডল এন্টারপ্রাইজ, ঢাকা",
-        text: "আগে খাতার হিসাব মেলাতে মেলাতে রাত ১২টা বেজে যেত। এখন শুধু মোবাইল বের করলেই দেখতে পাই সারাদিন কত বেচাকেনা হলো। আমার অনেক বড় একটা টেনশন কমে গেছে।"
-    },
-    {
-        name: "সাদিয়া ইসলাম",
-        store: "নিউ ফ্যাশন হাউজ, সিলেট",
-        text: "বড় দোকানে স্টক মেলানো সবচেয়ে কঠিন কাজ ছিল। এই POS নেয়ার পর থেকে স্টক আর হিসাব নিয়ে আমাকে কোনো চিন্তাই করতে হয় না। এত সহজ হবে আমি ভাবতেই পারিনি।"
-    },
-    {
-        name: "আরিফ হোসেন",
-        store: "আরিফ মেটালিক্স ও হার্ডওয়্যার, কুমিল্লা",
-        text: "দোকানে কম্পিউটার বসানোর জায়গা বা টাকা কোনোটাই ছিল না। এখন আমার নিজের স্মার্টফোন দিয়েই সব হিসাব রাখি, বারকোড স্ক্যান করি। সবকিছু পানির মতো সহজ মনে হয়।"
-    },
-    {
-        name: "আব্দুল করিম",
-        store: "ভাই ভাই সুপার শপ, খুলনা",
-        text: "আমার দুইটা দোকান, আমি এক জায়গায় থেকে অন্য দোকানের হিসাব দেখতে পারি। কর্মচারীরা কত টাকা জমা দিলো, হিসাব একদম নিখুঁত।"
-    }
-];
+export default function TestimonialsSection() {
+    const { t, data } = getTranslation();
 
-export default function Testimonials() {
+    const testimonials: {
+        name: string;
+        business: string;
+        image: string;
+        rating: number;
+        review: string;
+    }[] = data.testimonials?.testimonials || [];
+
+    const header = data.testimonials?.header || {};
+
+    const avatarColors = [
+        'from-[#046ca9] to-[#034d79]',
+        'from-[#035887] to-[#046ca9]',
+        'from-emerald-500 to-green-600',
+        'from-[#e79237] to-[#c47920]',
+        'from-rose-500 to-pink-600',
+        'from-teal-500 to-cyan-600',
+    ];
+
+    if (!testimonials.length) return null;
+
     return (
-        <section className="bg-gray-50 px-4 py-16 md:px-8">
-            <div className="mx-auto mb-12 max-w-6xl text-center">
-                <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-                    যাঁরা আমাদের উপর <span className="text-blue-600">আস্থা রেখেছেন</span>
-                </h2>
-                <p className="mt-4 text-gray-600">
-                    সারা দেশের হাজারো ব্যবসায়ী প্রতিদিন এই সফটওয়্যারটি ব্যবহার করে তাদের ব্যবসার হিসাব রাখছেন নিশ্চিন্তে।
-                </p>
-            </div>
+        <section className="relative overflow-hidden bg-slate-50 py-24">
+            {/* Subtle background pattern */}
+            <div
+                className="pointer-events-none absolute inset-0 opacity-[0.03]"
+                style={{ backgroundImage: 'radial-gradient(circle, #046ca9 1px, transparent 1px)', backgroundSize: '36px 36px' }}
+            />
 
-            <div className="py-8">
-                <Marquee pauseOnHover={true} speed={40} gradient={false} className="py-4">
-                    {testimonials.map((testimonial, idx) => (
-                        <div key={idx} className="w-[320px] md:w-[400px] h-full min-h-[260px] p-8 rounded-2xl bg-white border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex-shrink-0 whitespace-normal mx-4 flex flex-col justify-between">
-                            <div>
-                                <div className="flex items-center gap-1 mb-4">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <svg key={star} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
+            <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {/* Section Header */}
+                <div className="mb-16 text-center">
+                    <span className="mb-4 inline-block rounded-full bg-[#046ca9]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
+                        {t('testimonials.header.badge') || 'Testimonials'}
+                    </span>
+                    <h2 className="mb-4 text-3xl font-black text-gray-900 sm:text-4xl">
+                        {header.title || t('testimonials.header.title') || 'Loved by Businesses'}
+                    </h2>
+                    <p className="mx-auto max-w-2xl text-base text-gray-500">
+                        {header.subtitle || t('testimonials.header.subtitle') || 'See what our customers say about AndgatePOS.'}
+                    </p>
+                </div>
+
+                {/* Testimonial Cards Grid */}
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {testimonials.map((testimonial, index) => {
+                        const initials = testimonial.name
+                            ? testimonial.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+                            : '?';
+                        const colorGradient = avatarColors[index % avatarColors.length];
+
+                        return (
+                            <div
+                                key={index}
+                                className="group relative flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#046ca9]/15 hover:shadow-xl hover:shadow-[#046ca9]/5"
+                            >
+                                {/* Quote icon decoration */}
+                                <div className="absolute right-7 top-7 opacity-5 transition-opacity duration-300 group-hover:opacity-10">
+                                    <Quote className="h-16 w-16 fill-[#046ca9] text-[#046ca9]" />
+                                </div>
+
+                                {/* Stars */}
+                                <div className="mb-5 flex gap-0.5">
+                                    {Array.from({ length: testimonial.rating || 5 }).map((_, i) => (
+                                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                                     ))}
                                 </div>
-                                <p className="text-gray-700 italic mb-6 leading-relaxed">&quot;{testimonial.text}&quot;</p>
+
+                                {/* Review text */}
+                                <blockquote className="mb-6 flex-1 text-sm leading-relaxed text-gray-600">
+                                    &ldquo;{testimonial.review}&rdquo;
+                                </blockquote>
+
+                                {/* Author */}
+                                <div className="flex items-center gap-3">
+                                    {testimonial.image ? (
+                                        <img
+                                            src={testimonial.image}
+                                            alt={testimonial.business}
+                                            className="h-11 w-11 rounded-xl bg-gray-100 object-contain p-1.5 ring-1 ring-gray-100"
+                                        />
+                                    ) : (
+                                        <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${colorGradient} text-xs font-bold text-white shadow-md`}>
+                                            {initials}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">{testimonial.name}</p>
+                                        <p className="text-xs font-medium text-[#046ca9]">{testimonial.business}</p>
+                                    </div>
+                                </div>
+
+                                {/* Bottom accent bar on hover */}
+                                <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-2xl bg-gradient-to-r from-[#046ca9] to-[#034d79] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                             </div>
-                            <div className="pt-4 border-t border-gray-100 mt-auto">
-                                <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
-                                <p className="text-sm font-medium text-blue-600 mt-1">{testimonial.store}</p>
-                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Trust bar */}
+                <div className="mt-16 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-8">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex -space-x-2">
+                            {['from-[#046ca9] to-[#034d79]', 'from-[#035887] to-[#046ca9]', 'from-emerald-500 to-green-600'].map((c, i) => (
+                                <div key={i} className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${c} ring-2 ring-white text-[10px] font-bold text-white`}>
+                                    {String.fromCharCode(65 + i)}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </Marquee>
+                        <span>Join <span className="font-semibold text-gray-900">100+</span> businesses</span>
+                    </div>
+                    <div className="hidden h-4 w-px bg-gray-200 sm:block" />
+                    <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                        <div className="flex gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            ))}
+                        </div>
+                        <span><span className="font-semibold text-gray-900">4.9/5</span> average rating</span>
+                    </div>
+                </div>
             </div>
         </section>
     );

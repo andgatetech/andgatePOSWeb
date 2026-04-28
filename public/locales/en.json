@@ -1,1174 +1,1387 @@
 {
-    "dashboard": "Dashboard",
-    "sales": "Sales",
-    "analytics": "Analytics",
-    "apps": "Apps",
-    "components": "Components",
-    "elements": "Elements",
-    "font_icons": "Font Icons",
-    "widgets": "Widgets",
-    "tables": "Tables",
-    "datatables": "Data Tables",
-    "forms": "Forms",
-    "users": "Users",
-    "pages": "Pages",
-    "authentication": "Authentication",
-    "drag_and_drop": "Drag and Drop",
-    "maps": "Maps",
-    "charts": "Charts",
-    "starter_kit": "Starter Kit",
-    "documentation": "Documentation",
-    "ui_kit": "UI Kit",
-    "more": "More",
-    "finance": "Finance",
-    "crypto": "Crypto",
-    "chat": "Chat",
-    "mailbox": "Mailbox",
-    "todo_list": "Todo List",
-    "notes": "Notes",
-    "scrumboard": "Scrumboard",
-    "contacts": "Contacts",
-    "invoice": "Invoice",
-    "list": "List",
-    "preview": "Preview",
-    "add": "Add",
-    "edit": "Edit",
-    "calendar": "Calendar",
-    "tabs": "Tabs",
-    "accordions": "Accordions",
-    "modals": "Modals",
-    "cards": "Cards",
-    "carousel": "Carousel",
-    "countdown": "Countdown",
-    "counter": "Counter",
-    "sweet_alerts": "Sweet Alerts",
-    "timeline": "Timeline",
-    "notifications": "Notifications",
-    "media_object": "Media Object",
-    "list_group": "List Group",
-    "pricing_tables": "Pricing Tables",
-    "lightbox": "Lightbox",
-    "alerts": "Alerts",
-    "avatar": "Avatar",
-    "badges": "Badges",
-    "breadcrumbs": "Breadcrumbs",
-    "buttons": "Buttons",
-    "button_groups": "Button Groups",
-    "color_library": "Color Library",
-    "dropdown": "Dropdown",
-    "infobox": "Infobox",
-    "jumbotron": "Jumbotron",
-    "loader": "Loader",
-    "pagination": "Pagination",
-    "popovers": "Popovers",
-    "progress_bar": "Progress Bar",
-    "search": "Search",
-    "tooltips": "Tooltips",
-    "treeview": "Treeview",
-    "typography": "Typography",
-    "basic": "Basic",
-    "order_sorting": "Order Sorting",
-    "multi_column": "Multi Column",
-    "multiple_tables": "Multiple Tables",
-    "alt_pagination": "Alt. Pagination",
-    "range_search": "Range Search",
-    "export": "Export",
-    "input_group": "Input Group",
-    "layouts": "Layouts",
-    "validation": "Validation",
-    "input_mask": "Input Mask",
-    "select2": "Select2",
-    "touchspin": "Touchspin",
-    "checkbox_and_radio": "Checkbox & Radio",
-    "switches": "Switches",
-    "wizards": "Wizards",
-    "file_upload": "File Upload",
-    "quill_editor": "Quill Editor",
-    "markdown_editor": "Markdown Editor",
-    "date_and_range_picker": "Date & Range Picker",
-    "clipboard": "Clipboard",
-    "user_and_pages": "User And Pages",
-    "profile": "Profile",
-    "account_settings": "Account Settings",
-    "knowledge_base": "Knowledge Base",
-    "contact_form": "Contact Form",
-    "faq": "Faq",
-    "coming_soon": "Coming Soon",
-    "error": "Error",
-    "maintenence": "Maintenence",
-    "login_boxed": "Login Boxed",
-    "register_boxed": "Register Boxed",
-    "unlock_boxed": "Unlock Boxed",
-    "recover_id_boxed": "Recover Id Boxed",
-    "login_cover": "Login Cover",
-    "register_cover": "Register Cover",
-    "unlock_cover": "Unlock Cover",
-    "recover_id_cover": "Recover Id Cover",
-    "supports": "Supports",
-    "login": "Login",
-    "lockscreen": "Lockscreen",
-    "password_recovery": "Password Recovery",
-    "register": "Register",
-    "404": "404",
-    "500": "500",
-    "503": "503",
-    "user_interface": "User Interface",
-    "tables_and_forms": "Tables And Forms",
-    "columns_filter": "Columns Filter",
-    "column_chooser": "Column Chooser",
-    "advanced": "Advanced",
-    "checkbox": "Checkbox",
-    "skin": "Skin",
-    "sticky_header": "Sticky Header",
-    "clone_header": "Clone Header",
-    "coming_soon_boxed": "Coming Soon Boxed",
-    "coming_soon_cover": "Coming Soon Cover",
-    "contact_us_boxed": "Contact Us Boxed",
-    "contact_us_cover": "Contact Us Cover",
-    "upcoming_feature": "Coming Soon: AI-Powered Sales Analytics",
-    "hero_title": "Easy POS for Your Shop",
-    "hero_subtitle": "Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock & Customers Easily",
-    "hero_description": "From small shops to growing businesses, our cloud-based POS helps you track sales, control inventory, and grow profits — anytime, anywhere.",
-    "get_started": "Get Started Free",
-    "no_payment": "No prepayment required",
-    "free_package": "Free package available",
-    "cancel_anytime": "Cancel anytime",
-
-    "stats_businesses": "Active Businesses",
-    "stats_order": "Orders Processed",
-    "stats_uptime": "Uptime Guarantee",
-    "stats_support": "Customer Support",
-
-    "features_heading": "Manage Sales, Stock, and Growth Effortlessly",
-    "features_description": "From billing to reporting, our POS takes care of the hard work so you can focus on running your business.",
-
-    "feature_dashboard": "Smart Dashboard",
-    "feature_dashboard_desc": "Get a clear overview of sales, stock, and business performance on one screen.",
-
-    "feature_checkout": "Easy Checkout",
-    "feature_checkout_desc": "Process sales quickly — cash, bKash, or card, all in one place.",
-
-    "feature_reporting": "Simple Reporting",
-    "feature_reporting_desc": "View daily sales, revenue trends, and stock status in a clear dashboard.",
-
-    "feature_supplier": "Supplier Management",
-    "feature_supplier_desc": "Easily track suppliers, purchase orders, and stock transfers.",
-
-    "feature_product": "Product & Category Management",
-    "feature_product_desc": "Organize products into categories, manage variants, and keep inventory updated.",
-
-    "feature_order": "Order Management",
-    "feature_order_desc": "Track orders, sales, and invoices easily.",
-
-    "feature_expense": "Expense Management",
-    "feature_expense_desc": "Record and track daily expenses like rent, bills, and other costs.",
-
-    "feature_accounts": "Accounts & Payments",
-    "feature_accounts_desc": "Track income, payments, and balances to keep finances organized.",
-
-    "feature_customer": "Customer Management",
-    "feature_customer_desc": "Store customer information, contacts, and purchase history for better service.",
-
-    "feature_inventory": "Inventory Management",
-    "feature_inventory_desc": "Monitor stock, damaged products, or transfers easily.",
-
-    "feature_multistore": "Multi-Store Management",
-    "feature_multistore_desc": "Manage multiple shops from one dashboard — track sales, stock, and expenses.",
-
-    "feature_barcode": "Barcode Generation & Printing",
-    "feature_barcode_desc": "Generate and print barcodes for your products easily.",
-
-    "quick_start_title": "Quick Start Guide",
-    "quick_start_desc": "Get started in just 4 steps. Perfect for new users.",
-
-    "quick_step_1": "Create Account",
-    "quick_step_1_desc": "Sign up and verify your business information.",
-
-    "quick_step_2": "Configure Settings",
-    "quick_step_2_desc": "Set payment methods, tax rates, and business preferences.",
-
-    "quick_step_3": "Add Products",
-    "quick_step_3_desc": "Import inventory or add products manually.",
-
-    "quick_step_4": "Start Selling",
-    "quick_step_4_desc": "Complete your first transaction and explore features.",
-
-    "watch_video": "Watch Quick Start Video",
-
-    "cta_title": "Ready to Transform Your Business?",
-    "cta_desc": "Join over 300 businesses using AndgatePOS for success. Start free today and see the difference in 24 hours.",
-    "cta_start": "Start Journey Now",
-    "cta_signin": "Sign In",
-    "cta_benefits": "✓ Small setup fees ✓ Cancel anytime ✓ 24/7 support included",
-
-    "contact": {
-        "page_title": "Get Started with AndgatePOS",
-        "page_subtitle": "Ready to transform your business? Fill out the form below and our team will contact you to set up your personalized POS solution.",
-        "form": {
-            "name": "Full Name *",
-            "email": "Email Address *",
-            "phone": "Phone Number *",
-            "business_name": "Business Name *",
-            "business_location": "Business Location *",
-            "store_size": "Number of Stores *",
-            "package": "Interest Package *",
-            "store_options": {
-                "1": "1 Store",
-                "2": "2 Stores",
-                "5": "5 Stores",
-                "10+": "10+ Stores"
-            },
-            "package_options": {
-                "starter": "Starter Package - ৳2,500/month",
-                "professional": "Professional Package - ৳5,000/month",
-                "premium": "Premium Package - ৳8,000/month",
-                "enterprise": "Enterprise Package - Custom Pricing"
-            },
-            "submit_button": "Send Message",
-            "submitting": "Sending...",
-            "privacy_policy": "Privacy Policy",
-            "terms_of_service": "Terms of Service"
+  "dashboard": "Dashboard",
+  "sales": "Sales",
+  "analytics": "Analytics",
+  "apps": "Apps",
+  "components": "Components",
+  "elements": "Elements",
+  "font_icons": "Font Icons",
+  "widgets": "Widgets",
+  "tables": "Tables",
+  "datatables": "Data Tables",
+  "forms": "Forms",
+  "users": "Users",
+  "pages": "Pages",
+  "authentication": "Authentication",
+  "drag_and_drop": "Drag and Drop",
+  "maps": "Maps",
+  "charts": "Charts",
+  "starter_kit": "Starter Kit",
+  "documentation": "Documentation",
+  "ui_kit": "UI Kit",
+  "more": "More",
+  "finance": "Finance",
+  "crypto": "Crypto",
+  "chat": "Chat",
+  "mailbox": "Mailbox",
+  "todo_list": "Todo List",
+  "notes": "Notes",
+  "scrumboard": "Scrumboard",
+  "contacts": "Contacts",
+  "invoice": "Invoice",
+  "list": "List",
+  "preview": "Preview",
+  "add": "Add",
+  "edit": "Edit",
+  "calendar": "Calendar",
+  "tabs": "Tabs",
+  "accordions": "Accordions",
+  "modals": "Modals",
+  "cards": "Cards",
+  "carousel": "Carousel",
+  "countdown": "Countdown",
+  "counter": "Counter",
+  "sweet_alerts": "Sweet Alerts",
+  "timeline": "Timeline",
+  "notifications": "Notifications",
+  "media_object": "Media Object",
+  "list_group": "List Group",
+  "pricing_tables": "Pricing Tables",
+  "lightbox": "Lightbox",
+  "alerts": "Alerts",
+  "avatar": "Avatar",
+  "badges": "Badges",
+  "breadcrumbs": "Breadcrumbs",
+  "buttons": "Buttons",
+  "button_groups": "Button Groups",
+  "color_library": "Color Library",
+  "dropdown": "Dropdown",
+  "infobox": "Infobox",
+  "jumbotron": "Jumbotron",
+  "loader": "Loader",
+  "pagination": "Pagination",
+  "popovers": "Popovers",
+  "progress_bar": "Progress Bar",
+  "search": "Search",
+  "tooltips": "Tooltips",
+  "treeview": "Treeview",
+  "typography": "Typography",
+  "basic": "Basic",
+  "order_sorting": "Order Sorting",
+  "multi_column": "Multi Column",
+  "multiple_tables": "Multiple Tables",
+  "alt_pagination": "Alt. Pagination",
+  "range_search": "Range Search",
+  "export": "Export",
+  "input_group": "Input Group",
+  "layouts": "Layouts",
+  "validation": "Validation",
+  "input_mask": "Input Mask",
+  "select2": "Select2",
+  "touchspin": "Touchspin",
+  "checkbox_and_radio": "Checkbox & Radio",
+  "switches": "Switches",
+  "wizards": "Wizards",
+  "file_upload": "File Upload",
+  "quill_editor": "Quill Editor",
+  "markdown_editor": "Markdown Editor",
+  "date_and_range_picker": "Date & Range Picker",
+  "clipboard": "Clipboard",
+  "user_and_pages": "User And Pages",
+  "profile": "Profile",
+  "account_settings": "Account Settings",
+  "knowledge_base": "Knowledge Base",
+  "contact_form": "Contact Form",
+  "faq": "Faq",
+  "coming_soon": "Coming Soon",
+  "error": "Error",
+  "maintenence": "Maintenence",
+  "login_boxed": "Login Boxed",
+  "register_boxed": "Register Boxed",
+  "unlock_boxed": "Unlock Boxed",
+  "recover_id_boxed": "Recover Id Boxed",
+  "login_cover": "Login Cover",
+  "register_cover": "Register Cover",
+  "unlock_cover": "Unlock Cover",
+  "recover_id_cover": "Recover Id Cover",
+  "supports": "Supports",
+  "login": "Login",
+  "lockscreen": "Lockscreen",
+  "password_recovery": "Password Recovery",
+  "register": "Register",
+  "404": "404",
+  "500": "500",
+  "503": "503",
+  "user_interface": "User Interface",
+  "tables_and_forms": "Tables And Forms",
+  "columns_filter": "Columns Filter",
+  "column_chooser": "Column Chooser",
+  "advanced": "Advanced",
+  "checkbox": "Checkbox",
+  "skin": "Skin",
+  "sticky_header": "Sticky Header",
+  "clone_header": "Clone Header",
+  "coming_soon_boxed": "Coming Soon Boxed",
+  "coming_soon_cover": "Coming Soon Cover",
+  "contact_us_boxed": "Contact Us Boxed",
+  "contact_us_cover": "Contact Us Cover",
+  "upcoming_feature": "Coming Soon: AI-Powered Sales Analytics",
+  "hero_title": "Easy POS for Your Shop",
+  "hero_subtitle": "Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock & Customers Easily",
+  "hero_description": "From small shops to growing businesses, our cloud-based POS helps you track sales, control inventory, and grow profits — anytime, anywhere.",
+  "get_started": "Get Started Free",
+  "no_payment": "No prepayment required",
+  "free_package": "Free package available",
+  "cancel_anytime": "Cancel anytime",
+  "stats_businesses": "Active Businesses",
+  "stats_order": "Orders Processed",
+  "stats_uptime": "Uptime Guarantee",
+  "stats_support": "Customer Support",
+  "features_heading": "Manage Sales, Stock, and Growth Effortlessly",
+  "features_description": "From billing to reporting, our POS takes care of the hard work so you can focus on running your business.",
+  "feature_dashboard": "Smart Dashboard",
+  "feature_dashboard_desc": "Get a clear overview of sales, stock, and business performance on one screen.",
+  "feature_checkout": "Easy Checkout",
+  "feature_checkout_desc": "Process sales quickly — cash, bKash, or card, all in one place.",
+  "feature_reporting": "Simple Reporting",
+  "feature_reporting_desc": "View daily sales, revenue trends, and stock status in a clear dashboard.",
+  "feature_supplier": "Supplier Management",
+  "feature_supplier_desc": "Easily track suppliers, purchase orders, and stock transfers.",
+  "feature_product": "Product & Category Management",
+  "feature_product_desc": "Organize products into categories, manage variants, and keep inventory updated.",
+  "feature_order": "Order Management",
+  "feature_order_desc": "Track orders, sales, and invoices easily.",
+  "feature_expense": "Expense Management",
+  "feature_expense_desc": "Record and track daily expenses like rent, bills, and other costs.",
+  "feature_accounts": "Accounts & Payments",
+  "feature_accounts_desc": "Track income, payments, and balances to keep finances organized.",
+  "feature_customer": "Customer Management",
+  "feature_customer_desc": "Store customer information, contacts, and purchase history for better service.",
+  "feature_inventory": "Inventory Management",
+  "feature_inventory_desc": "Monitor stock, damaged products, or transfers easily.",
+  "feature_multistore": "Multi-Store Management",
+  "feature_multistore_desc": "Manage multiple shops from one dashboard — track sales, stock, and expenses.",
+  "feature_barcode": "Barcode Generation & Printing",
+  "feature_barcode_desc": "Generate and print barcodes for your products easily.",
+  "quick_start_title": "Quick Start Guide",
+  "quick_start_desc": "Get started in just 4 steps. Perfect for new users.",
+  "quick_step_1": "Create Account",
+  "quick_step_1_desc": "Sign up and verify your business information.",
+  "quick_step_2": "Configure Settings",
+  "quick_step_2_desc": "Set payment methods, tax rates, and business preferences.",
+  "quick_step_3": "Add Products",
+  "quick_step_3_desc": "Import inventory or add products manually.",
+  "quick_step_4": "Start Selling",
+  "quick_step_4_desc": "Complete your first transaction and explore features.",
+  "watch_video": "Watch Quick Start Video",
+  "cta_title": "Ready to Transform Your Business?",
+  "cta_desc": "Join over 300 businesses using AndgatePOS for success. Start free today and see the difference in 24 hours.",
+  "cta_start": "Start Journey Now",
+  "cta_signin": "Sign In",
+  "cta_benefits": "✓ Small setup fees ✓ Cancel anytime ✓ 24/7 support included",
+  "contact": {
+    "page_title": "Get Started with AndgatePOS",
+    "page_subtitle": "Ready to transform your business? Fill out the form below and our team will contact you to set up your personalized POS solution.",
+    "form": {
+      "name": "Full Name *",
+      "email": "Email Address *",
+      "phone": "Phone Number *",
+      "business_name": "Business Name *",
+      "business_location": "Business Location *",
+      "store_size": "Number of Stores *",
+      "package": "Interest Package *",
+      "store_options": {
+        "1": "1 Store",
+        "2": "2 Stores",
+        "5": "5 Stores",
+        "10+": "10+ Stores"
+      },
+      "package_options": {
+        "starter": "Starter Package - ৳2,500/month",
+        "professional": "Professional Package - ৳5,000/month",
+        "premium": "Premium Package - ৳8,000/month",
+        "enterprise": "Enterprise Package - Custom Pricing"
+      },
+      "submit_button": "Send Message",
+      "submitting": "Sending...",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service"
+    },
+    "contact_info": {
+      "title": "Get in Touch",
+      "visit": {
+        "title": "Visit Us",
+        "address": "House: 34, Road: 3, Block: B, Aftabnagar, Badda, Dhaka, Bangladesh"
+      },
+      "call": {
+        "title": "Call Us",
+        "phone": "+880 1577303608"
+      },
+      "email": {
+        "title": "Email Us",
+        "email": "support@andgatetech.net"
+      }
+    },
+    "next_steps": {
+      "title": "What Happens Next?",
+      "steps": [
+        {
+          "step": "1",
+          "title": "We Review Your Request",
+          "description": "Our team reviews your requirements within 2 hours"
         },
-        "contact_info": {
-            "title": "Get in Touch",
-            "visit": {
-                "title": "Visit Us",
-                "address": "House: 34, Road: 3, Block: B, Aftabnagar, Badda, Dhaka, Bangladesh"
-            },
-            "call": {
-                "title": "Call Us",
-                "phone": "+880 1577303608"
-            },
-            "email": {
-                "title": "Email Us",
-                "email": "support@andgatetech.net"
-            }
+        {
+          "step": "2",
+          "title": "Schedule a Demo",
+          "description": "We schedule a personalized demo at your convenience"
         },
-        "next_steps": {
-            "title": "What Happens Next?",
-            "steps": [
-                {
-                    "step": "1",
-                    "title": "We Review Your Request",
-                    "description": "Our team reviews your requirements within 2 hours"
-                },
-                {
-                    "step": "2",
-                    "title": "Schedule a Demo",
-                    "description": "We schedule a personalized demo at your convenience"
-                },
-                {
-                    "step": "3",
-                    "title": "Start Your Trial",
-                    "description": "Begin your 30-day free trial with full support"
-                }
-            ]
-        },
-        "success_modal": {
-            "title": "Thank You!",
-            "description": "Your request has been submitted successfully. Our team will contact you within 2 hours to discuss your POS solution.",
-            "back_home": "Back to Home",
-            "sign_in": "Sign In to Dashboard",
-            "continue": "Continue browsing"
+        {
+          "step": "3",
+          "title": "Start Your Trial",
+          "description": "Begin your 30-day free trial with full support"
         }
+      ]
     },
-
-    "footer": {
-        "brand": {
-            "name": "AndgatePOS",
-            "description": "Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with andgatePOS."
-        },
-        "social": {
-            "facebook": "f",
-            "twitter": "t",
-            "linkedin": "in"
-        },
-        "links": {
-            "product": {
-                "title": "Product",
-                "items": [
-                    { "label": "Features", "href": "#features" },
-                    { "label": "Pricing", "href": "#pricing" }
-                ]
-            },
-            "support": {
-                "title": "Support",
-                "items": [
-                    { "label": "Help Center", "href": "/contact" },
-                    { "label": "Contact Us", "href": "/contact" },
-                    { "label": "Training", "href": "/training" }
-                ]
-            }
-        },
-        "footerNote": "© 2024 andgate Technologies. All rights reserved. Empowering businesses worldwide.",
-        "policies": [
-            { "label": "Privacy Policy", "href": "/privacy-policy" },
-            { "label": "Terms of Service", "href": "/terms-of-service" },
-            { "label": "Cookie Policy", "href": "/cookie-policy" }
-        ]
-    },
-
-    "layout": {
-        "nav": {
-            "home": "Home",
-            "features": "Features",
-            "overview": "Overview",
-            "pricing": "Pricing",
-            "training": "Training",
-            "contact": "Contact",
-            "login": "Login",
-            "get_started": "Get Started"
-        }
-    },
-
-    "overview": {
-        "sectionTitle": "System Overview",
-        "sectionSubtitle": "Discover the powerful features that make our POS system the perfect solution for your business.",
-        "sections": [
-            {
-                "title": "Real-Time Business Insights",
-                "subtitle": "Dashboard",
-                "features": ["Real-time analytics dashboard", "Sales performance tracking", "Revenue & profit analysis", "Key business metrics at a glance"],
-                "ctaText": "View Dashboard"
-            },
-            {
-                "title": "Complete Store Management",
-                "subtitle": "Store",
-                "features": ["Multi-store management system", "Store settings & configuration", "Employee management & permissions", "Stock adjustment & inventory control"],
-                "ctaText": "Manage Store"
-            },
-            {
-                "title": "Organize Your Products",
-                "subtitle": "Categories & Brands",
-                "features": ["Category management system", "Brand organization & tracking", "Hierarchical product structure", "Easy product categorization"],
-                "ctaText": "Organize Products"
-            },
-            {
-                "title": "Advanced Product Management",
-                "subtitle": "Products",
-                "features": ["Easy product addition & management", "Stock adjustment & tracking", "Product QR code generation", "Barcode label printing"],
-                "ctaText": "Manage Products"
-            },
-            {
-                "title": "Fast & Efficient POS",
-                "subtitle": "POS",
-                "features": ["Quick POS interface", "Barcode scanning support", "Multiple payment methods", "Fast checkout process"],
-                "ctaText": "Try POS"
-            },
-            {
-                "title": "Mobile & Tablet Responsive Design",
-                "subtitle": "Responsive",
-                "features": ["Fully responsive on all devices", "Mobile-optimized interface", "Tablet-friendly layout", "Works seamlessly on any screen"],
-                "ctaText": "Try on Mobile"
-            },
-            {
-                "title": "No Barcode Scanner Needed - Use Mobile!",
-                "subtitle": "Mobile Scanning",
-                "features": ["Scan barcodes with phone camera", "No expensive scanner hardware needed", "Automatic barcode recognition", "Works on any smartphone or tablet"],
-                "ctaText": "Try Mobile Scanning"
-            },
-            {
-                "title": "Streamlined Order Management",
-                "subtitle": "Orders",
-                "features": ["View all orders in one place", "Order status tracking", "Invoice generation", "Order history & analytics"],
-                "ctaText": "Manage Orders"
-            },
-            {
-                "title": "Purchase Order System",
-                "subtitle": "Purchases",
-                "features": ["Create purchase orders easily", "Track all purchases", "Supplier management", "Purchase history & reports"],
-                "ctaText": "Manage Purchases"
-            },
-            {
-                "title": "Supplier Management",
-                "subtitle": "Suppliers",
-                "features": ["Add & manage suppliers", "Supplier contact information", "Supplier history tracking", "Supplier performance metrics"],
-                "ctaText": "Manage Suppliers"
-            },
-            {
-                "title": "Financial Accounting",
-                "subtitle": "Accounts",
-                "features": ["Ledger management system", "Journal entry tracking", "Financial reports", "Account reconciliation"],
-                "ctaText": "Manage Accounts"
-            },
-            {
-                "title": "Expense Tracking",
-                "subtitle": "Expenses",
-                "features": ["Track all business expenses", "Expense categorization", "Receipt management", "Expense reports & analysis"],
-                "ctaText": "Track Expenses"
-            },
-            {
-                "title": "Customer Relationship Management",
-                "subtitle": "Customers",
-                "features": ["Complete customer database", "Customer purchase history", "Loyalty program support", "Customer analytics & insights"],
-                "ctaText": "Manage Customers"
-            }
-        ]
-    },
-
-    "pricing_page": {
-        "hero": {
-            "badge_text": "Transparent Pricing • No Hidden Costs",
-            "title": "Simple, Transparent Pricing Plans",
-            "subtitle": "Choose the perfect plan for your business. Start free and upgrade as you grow. All plans include a 14-day money-back guarantee.",
-            "benefits": {
-                "no_setup": "Small setup fees",
-                "cancel_anytime": "Cancel anytime",
-                "support": "24/7 support"
-            }
-        },
-        "frequency": {
-            "monthly": "Monthly",
-            "annually": "Annually",
-            "save": "Save 20%",
-            "per_month": "/month",
-            "per_year": "/year"
-        },
-
-        "features_included": "What's included:",
-        "comparison": {
-            "title": "Compare All Features",
-            "subtitle": "Find the right plan for your business",
-            "subtitle_detail": "See what's included in each plan",
-            "features": "Features",
-            "stores": "Number of Stores",
-            "products": "Product Limit",
-            "priority_support": "Priority Support",
-            "api_access": "API Access",
-            "unlimited": "Unlimited",
-            "up_to": "Up to"
-        },
-        "faq": {
-            "title": "Frequently Asked Questions",
-            "subtitle": "Everything you need to know about our pricing",
-            "questions": [
-                {
-                    "q": "Can I change plans anytime?",
-                    "a": "Yes! You can upgrade or downgrade your plan anytime. Changes will be reflected in your next billing cycle."
-                },
-                {
-                    "q": "What payment methods do you accept?",
-                    "a": "We accept bKash, Nagad, credit/debit cards, and bank transfers for monthly or annual subscriptions."
-                },
-                {
-                    "q": "Are there any setup fees?",
-                    "a": "Small setup fees! All plans include free onboarding and setup assistance."
-                },
-                {
-                    "q": "Can I cancel my subscription?",
-                    "a": "Yes, you can cancel anytime. No questions asked, no hidden fees."
-                },
-                {
-                    "q": "Do you offer refunds?",
-                    "a": "We offer a 14-day money-back guarantee on all paid plans if you're not satisfied."
-                },
-                {
-                    "q": "Is my data secure?",
-                    "a": "Absolutely! We use bank-level encryption and regular backups to keep your data safe and secure."
-                }
-            ]
-        },
-        "trust": {
-            "secure_title": "Secure & Reliable",
-            "secure_subtitle": "Bank-level security with 99.9% uptime guarantee",
-            "support_title": "24/7 Support",
-            "support_subtitle": "Round-the-clock assistance whenever you need help",
-            "trusted_title": "Trusted by 100+",
-            "trusted_subtitle": "Join hundreds of businesses across Bangladesh"
-        },
-        "cta": {
-            "title": "Ready to Get Started?",
-            "subtitle": "Start your free trial today. No credit card required. Upgrade anytime.",
-            "start_trial": "Start Free Trial",
-            "contact_sales": "Contact Sales",
-            "guarantee": "✓ 14-day money-back guarantee ✓ Small setup fees ✓ Cancel anytime"
-        },
-        "save_percent": "Save",
-        "get_started": "Get Started",
-        "setup_fee": "Setup Fee",
-        "setup_fee_free": "Free",
-        "most_popular": "Most Popular"
-    },
-
-    "testimonials": {
-        "header": {
-            "title": "Loved by Business Owners in Bangladesh",
-            "subtitle": "See how entrepreneurs across Bangladesh are growing with andgatePOS."
-        },
-        "testimonials": [
-            {
-                "name": "Md. Rakib Hossain",
-                "business": "Dhaka Mart",
-                "image": "https://img.icons8.com/color/96/shop.png",
-                "review": "andgatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
-                "rating": 5
-            },
-            {
-                "name": "Shamima Akter",
-                "business": "Chattogram Fashion House",
-                "image": "https://img.icons8.com/color/96/clothes.png",
-                "review": "Before andgatePOS, I was struggling with manual calculations. Now everything is digital and customers are happier.",
-                "rating": 5
-            },
-            {
-                "name": "Jahidul Islam",
-                "business": "Sylhet Electronics",
-                "image": "https://img.icons8.com/color/96/electronics.png",
-                "review": "The reporting dashboard is very helpful. I can track profit and expenses daily without hiring an accountant.",
-                "rating": 5
-            },
-            {
-                "name": "Farhana Rahman",
-                "business": "Rajshahi Grocery",
-                "image": "https://img.icons8.com/color/96/grocery-store.png",
-                "review": "andgatePOS is easy to use for everyone in my shop. Sales increased after using the system because checkout is much faster.",
-                "rating": 5
-            }
-        ]
-    },
-
-    "training": {
-        "page_title": "How Our POS Works",
-        "page_subtitle": "Our POS system operates seamlessly across all devices. From quick product selection to instant checkout, real-time inventory tracking, and multiple payment options — everything is designed to make your business run smoother and faster.",
-
-        "category_getting_started": "Getting Started",
-        "category_getting_started_desc": "Essential basics to set up and start using your POS system",
-
-        "category_pos_operations": "POS Operations",
-        "category_pos_operations_desc": "Master daily sales operations and transactions",
-
-        "category_inventory": "Inventory Management",
-        "category_inventory_desc": "Efficiently manage products, stock levels, and suppliers",
-
-        "category_customers": "Customer Management",
-        "category_customers_desc": "Build customer relationships and loyalty programs",
-
-        "category_reports": "Reports & Analytics",
-        "category_reports_desc": "Generate business insights with powerful reporting tools",
-
-        "category_multi_store": "Multi-Store Operations",
-        "category_multi_store_desc": "Manage multiple branches from one central system",
-
-        "video_complete_setup": "Complete Setup Guide",
-        "video_complete_setup_desc": "Step-by-step setup from account creation to first sale",
-        "video_dashboard_overview": "Dashboard Overview",
-        "video_dashboard_overview_desc": "Navigate the dashboard and understand key metrics",
-        "video_user_roles": "User Management & Roles",
-        "video_user_roles_desc": "Add staff, assign roles, and manage permissions",
-
-        "video_processing_sales": "Processing Sales",
-        "video_processing_sales_desc": "Handle customer transactions efficiently",
-        "video_payment_methods": "Payment Methods",
-        "video_payment_methods_desc": "Accept cash, card, and digital payments",
-        "video_refunds": "Refunds & Returns",
-        "video_refunds_desc": "Process refunds and handle return transactions",
-        "video_discounts": "Discounts & Promotions",
-        "video_discounts_desc": "Apply discounts and manage promotional codes",
-
-        "video_add_products": "Adding Products",
-        "video_add_products_desc": "Add new products with variants, pricing, and images",
-        "video_stock_management": "Stock Management",
-        "video_stock_management_desc": "Track inventory levels and set reorder alerts",
-        "video_bulk_import": "Bulk Import/Export",
-        "video_bulk_import_desc": "Import products in bulk using CSV files",
-        "video_categories": "Categories & Variants",
-        "video_categories_desc": "Organize products by category and manage variants",
-
-        "video_customer_profiles": "Customer Profiles",
-        "video_customer_profiles_desc": "Create and manage customer information",
-        "video_loyalty": "Loyalty Programs",
-        "video_loyalty_desc": "Set up and manage customer loyalty rewards",
-        "video_customer_analytics": "Customer Analytics",
-        "video_customer_analytics_desc": "Analyze customer behavior and purchase patterns",
-
-        "video_sales_reports": "Sales Reports",
-        "video_sales_reports_desc": "Generate and understand daily, weekly, and monthly sales reports",
-        "video_inventory_reports": "Inventory Reports",
-        "video_inventory_reports_desc": "Track stock movements and inventory valuation",
-        "video_financial_reports": "Financial Reports",
-        "video_financial_reports_desc": "Understand profit margins, tax reports, and financial insights",
-        "video_custom_reports": "Custom Reports",
-        "video_custom_reports_desc": "Create custom reports for specific business needs",
-
-        "video_store_setup": "Store Setup",
-        "video_store_setup_desc": "Add and configure multiple store locations",
-        "video_inventory_sync": "Inventory Sync",
-        "video_inventory_sync_desc": "Synchronize inventory across multiple stores",
-        "video_store_performance": "Store Performance",
-        "video_store_performance_desc": "Compare and analyze performance across locations",
-
-        "resources_title": "Additional Learning Resources",
-        "resources_subtitle": "Expand your knowledge with our comprehensive learning materials and support resources.",
-        "resource_manual": "User Manual (PDF)",
-        "resource_manual_desc": "Complete written guide covering all features and functionalities",
-        "resource_manual_action": "Download PDF",
-
-        "resource_best_practices": "Best Practices Guide",
-        "resource_best_practices_desc": "Expert tips and industry best practices for maximizing efficiency",
-        "resource_best_practices_action": "Read Guide",
-
-        "resource_support": "24/7 Support",
-        "resource_support_desc": "Get help from our expert support team whenever you need it",
-        "resource_support_action": "Get Support",
-        "difficulty": {
-            "beginner": "Beginner",
-            "intermediate": "Intermediate",
-            "advanced": "Advanced"
-        },
-        "tutorials_available": "tutorials available"
-    },
-    "register-page": {
-        "title": "Store Sign Up",
-        "subtitle": "Fill up the form to get free access",
-        "or": "or",
-        "already_have_account": "Already have an account ?",
-        "sign_in": "SIGN IN",
-        "register_tab": "Register",
-        "supplier_tab": "Supplier Register",
-        "form": {
-            "name_label": "Name",
-            "name_placeholder": "Enter Name",
-            "email_label": "Email",
-            "email_placeholder": "Enter Email",
-            "phone_label": "Phone",
-            "phone_placeholder": "Enter Phone Number",
-            "store_name_label": "Store Name",
-            "store_name_placeholder": "Enter Store Name",
-            "password_label": "Password",
-            "password_placeholder": "Enter Password",
-            "repeat_password_label": "Repeat Password",
-            "repeat_password_placeholder": "Repeat Password",
-            "sign_up_button": "Sign Up",
-            "signing_up": "Signing up..."
-        }
-    },
-    "login-page": {
-        "title": "Sign in",
-        "subtitle": "Enter your email and password to login",
-        "login_tab": "Login",
-        "supplier_tab": "Supplier Login",
-        "or": "or",
-        "demo_credentials": {
-            "title": "Demo Credential (Click to auto-fill)",
-            "store_admin": "Demo Store Admin Credentials",
-            "email_password": "Email: user@demo.com | Password: user123",
-            "hint": "💡 Click credential above to automatically fill the login form"
-        },
-        "dont_have_account": "Don't have an account ?",
-        "sign_up": "SIGN UP",
-        "copyright": "© {year}.Andgate All Rights Reserved.",
-        "form": {
-            "email_label": "Email",
-            "email_placeholder": "Enter Email",
-            "password_label": "Password",
-            "password_placeholder": "Enter Password",
-            "sign_in_button": "Sign in",
-            "signing_in": "Signing in...",
-            "show_password": "Show password",
-            "hide_password": "Hide password"
-        }
-    },
-    "cookie-policy": {
-        "badge": "Transparent Cookie Usage",
-        "title": "Cookie Policy",
-        "description": "This Cookie Policy explains how Andgate Technologies uses cookies and similar technologies to enhance your experience on our website and platform.",
-        "last_updated": "Last updated: September 17, 2025",
-
-        "overview": {
-            "title": "Cookie Usage Overview",
-            "essential": {
-                "title": "Essential Cookies",
-                "description": "Required for basic website functionality and security."
-            },
-            "analytics": {
-                "title": "Analytics Cookies",
-                "description": "Help us understand how users interact with our platform."
-            },
-            "functional": {
-                "title": "Functional Cookies",
-                "description": "Remember your preferences and personalize experience."
-            },
-            "control": {
-                "title": "Your Control",
-                "description": "Manage cookie preferences through your browser settings."
-            }
-        },
-
-        "what_are_cookies": {
-            "title": "What Are Cookies?",
-            "description": "Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our platform.",
-            "first_party": {
-                "title": "First-Party Cookies",
-                "description": "Set directly by AndgatePOS to enhance functionality and user experience."
-            },
-            "third_party": {
-                "title": "Third-Party Cookies",
-                "description": "Set by our trusted partners for analytics, security, and service improvements."
-            }
-        },
-
-        "types": {
-            "title": "Types of Cookies We Use",
-            "essential": {
-                "title": "Essential Cookies (Always Active)",
-                "description": "These cookies are necessary for the website to function and cannot be switched off. They are usually only set in response to actions made by you.",
-                "table": {
-                    "cookie_name": "Cookie Name",
-                    "purpose": "Purpose",
-                    "duration": "Duration",
-                    "session_id": {
-                        "name": "session_id",
-                        "purpose": "Maintains user session",
-                        "duration": "Session"
-                    },
-                    "csrf_token": {
-                        "name": "csrf_token",
-                        "purpose": "Security protection",
-                        "duration": "Session"
-                    },
-                    "auth_token": {
-                        "name": "auth_token",
-                        "purpose": "User authentication",
-                        "duration": "30 days"
-                    }
-                }
-            },
-            "functional": {
-                "title": "Functional Cookies",
-                "description": "These cookies enable enhanced functionality and personalization. They may be set by us or third parties.",
-                "table": {
-                    "user_preferences": {
-                        "name": "user_preferences",
-                        "purpose": "Remember dashboard layout",
-                        "duration": "1 year"
-                    },
-                    "theme_settings": {
-                        "name": "theme_settings",
-                        "purpose": "Remember theme preferences",
-                        "duration": "1 year"
-                    },
-                    "language_pref": {
-                        "name": "language_pref",
-                        "purpose": "Remember language selection",
-                        "duration": "1 year"
-                    }
-                }
-            },
-            "analytics": {
-                "title": "Analytics Cookies",
-                "description": "These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.",
-                "table": {
-                    "service": "Service",
-                    "google_analytics": {
-                        "name": "Google Analytics",
-                        "purpose": "Website usage analytics",
-                        "duration": "2 years"
-                    },
-                    "hotjar": {
-                        "name": "Hotjar",
-                        "purpose": "User behavior analysis",
-                        "duration": "1 year"
-                    },
-                    "internal": {
-                        "name": "Internal Analytics",
-                        "purpose": "Performance monitoring",
-                        "duration": "90 days"
-                    }
-                }
-            }
-        },
-
-        "managing": {
-            "title": "Managing Your Cookie Preferences",
-            "consent": {
-                "title": "Cookie Consent Management",
-                "description": "When you first visit our website, you'll see a cookie consent banner. You can:",
-                "options": [
-                    "Accept all cookies for the full website experience",
-                    "Customize your preferences by cookie category",
-                    "Reject optional cookies (essential cookies will still be used)",
-                    "Change your preferences anytime through the cookie settings"
-                ]
-            },
-            "browser": {
-                "title": "Browser Settings",
-                "description": "You can control cookies through your browser settings:",
-                "options": ["Block all cookies", "Block third-party cookies only", "Delete existing cookies", "Set up automatic cookie deletion"]
-            },
-            "opt_out": {
-                "title": "Opt-Out Links",
-                "description": "Direct opt-out for analytics services:",
-                "options": ["Google Analytics Opt-out", "Hotjar Opt-out", "Marketing cookies opt-out", "All optional cookies opt-out"]
-            }
-        },
-
-        "impact": {
-            "title": "Impact of Disabling Cookies",
-            "description": "While we respect your choice to disable cookies, please note that some functionality may be affected:",
-            "without_essential": {
-                "title": "Without Essential Cookies",
-                "items": ["Cannot maintain login sessions", "Security features may not work", "Shopping cart functionality disabled", "Account settings cannot be saved"]
-            },
-            "without_optional": {
-                "title": "Without Optional Cookies",
-                "items": ["Preferences reset each visit", "Limited personalization", "Cannot improve user experience", "Less relevant content"]
-            }
-        },
-
-        "third_party": {
-            "title": "Third-Party Cookies",
-            "description": "We work with trusted third-party services that may set their own cookies. These partners help us provide better service:",
-            "analytics_partners": {
-                "title": "Analytics Partners",
-                "description": "Help us understand usage patterns and improve our service."
-            },
-            "security_services": {
-                "title": "Security Services",
-                "description": "Protect against fraud and malicious activities."
-            },
-            "support_tools": {
-                "title": "Support Tools",
-                "description": "Enable customer support features and live chat."
-            }
-        },
-
-        "updates": {
-            "title": "Updates to Cookie Policy",
-            "description": "We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons.",
-            "notification": {
-                "title": "How We Notify You",
-                "methods": [
-                    "Website banner notification for significant changes",
-                    "Email notification to registered users",
-                    "Updated \"Last Modified\" date on this page",
-                    "In-app notifications for active users"
-                ]
-            }
-        },
-
-        "contact": {
-            "title": "Questions About Cookies?",
-            "description": "Contact our privacy team for questions about cookies or to request changes to your cookie preferences.",
-            "email": "support@andgatetech.net",
-            "button_primary": "support@andgatetech.net",
-            "button_secondary": "Contact Support",
-            "compliance": "✓ GDPR Compliant ✓ CCPA Compliant ✓ Regular Privacy Audits"
-        }
-    },
-    "privacy_policy": {
-        "hero": {
-            "badge": "Your Privacy Matters",
-            "title": "Privacy Policy",
-            "description": "At Andgate Technologies, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data.",
-            "last_updated": "Last updated: September 17, 2025"
-        },
-        "commitments": {
-            "title": "Our Privacy Commitments",
-            "secure_storage": {
-                "title": "Secure Data Storage",
-                "description": "Your data is encrypted and stored securely with bank-level protection."
-            },
-            "transparent": {
-                "title": "Transparent Practices",
-                "description": "We clearly explain what data we collect and how we use it."
-            },
-            "your_control": {
-                "title": "Your Control",
-                "description": "You can access, modify, or delete your personal data at any time."
-            },
-            "minimal_data": {
-                "title": "Minimal Data Collection",
-                "description": "We only collect data necessary to provide our services."
-            }
-        },
-        "information_collect": {
-            "title": "Information We Collect",
-            "personal_info": {
-                "title": "Personal Information",
-                "items": [
-                    "Name, email address, and contact information",
-                    "Business information (company name, address, tax ID)",
-                    "Payment information (processed securely by our payment partners)",
-                    "Account preferences and settings"
-                ]
-            },
-            "usage_info": {
-                "title": "Usage Information",
-                "items": ["Transaction data and sales analytics", "System usage patterns and feature interactions", "Device information and IP addresses", "Log files and error reports"]
-            },
-            "customer_data": {
-                "title": "Customer Data",
-                "items": ["Customer information you input into the system", "Purchase history and preferences", "Loyalty program data"]
-            }
-        },
-        "how_we_use": {
-            "title": "How We Use Your Information",
-            "service_delivery": {
-                "title": "Service Delivery",
-                "items": ["Process transactions and payments", "Provide customer support", "Maintain and improve our services", "Generate analytics and reports"]
-            },
-            "communication": {
-                "title": "Communication",
-                "items": ["Send service updates and notifications", "Provide technical support", "Share important account information", "Marketing communications (with consent)"]
-            }
-        },
-        "data_security": {
-            "title": "Data Security",
-            "subtitle": "Our Security Measures",
-            "measures": [
-                "256-bit SSL encryption for all data transmission",
-                "PCI DSS compliance for payment processing",
-                "Regular security audits and penetration testing",
-                "Multi-factor authentication",
-                "Secure cloud infrastructure with redundancy",
-                "Employee security training and background checks",
-                "24/7 security monitoring",
-                "Regular data backups"
-            ]
-        },
-        "your_rights": {
-            "title": "Your Rights and Choices",
-            "access_control": {
-                "title": "Access and Control",
-                "items": ["View and download your personal data", "Update or correct your information", "Delete your account and data", "Opt-out of marketing communications"]
-            },
-            "data_portability": {
-                "title": "Data Portability",
-                "items": ["Export your data in standard formats", "Transfer data to other services", "Restrict certain data processing", "File complaints with supervisory authorities"]
-            }
-        },
-        "data_retention": {
-            "title": "Data Retention",
-            "description": "We retain your personal information only for as long as necessary to provide our services and comply with legal obligations:",
-            "items": [
-                {
-                    "label": "Account Information:",
-                    "text": "Retained while your account is active and for 7 years after closure for legal compliance"
-                },
-                {
-                    "label": "Transaction Records:",
-                    "text": "Retained for 7 years as required by financial regulations"
-                },
-                {
-                    "label": "Usage Data:",
-                    "text": "Aggregated and anonymized data may be retained indefinitely for analytics"
-                },
-                {
-                    "label": "Marketing Data:",
-                    "text": "Deleted immediately upon opt-out request"
-                }
-            ]
-        },
-        "third_party": {
-            "title": "Third-Party Services",
-            "description": "We work with trusted third-party service providers to deliver our services:",
-            "payment": {
-                "title": "Payment Processors",
-                "description": "Secure payment processing partners"
-            },
-            "cloud": {
-                "title": "Cloud Storage",
-                "description": "Secure data hosting providers"
-            },
-            "communication": {
-                "title": "Communication",
-                "description": "Email and messaging services"
-            }
-        },
-        "contact": {
-            "title": "Questions About Privacy?",
-            "description": "We're here to help. Contact our privacy team for any questions or concerns about your data.",
-            "email": "support@andgatetech.net",
-            "contact_us": "Contact Us"
-        }
-    },
-    "terms-service": {
-        "meta": {
-            "title": "Terms of Service",
-            "lastUpdated": "Last updated: September 17, 2025"
-        },
-        "hero": {
-            "badge": "Legal Terms & Conditions",
-            "title": "Terms of Service",
-            "description": "These Terms of Service govern your use of AndgatePOS services. By using our platform, you agree to these terms and conditions."
-        },
-        "summary": {
-            "title": "Key Terms Summary",
-            "items": {
-                "serviceAgreement": {
-                    "title": "Service Agreement",
-                    "description": "Your rights and responsibilities when using AndgatePOS."
-                },
-                "paymentTerms": {
-                    "title": "Payment Terms",
-                    "description": "Billing, subscriptions, and payment processing details."
-                },
-                "dataProtection": {
-                    "title": "Data Protection",
-                    "description": "How we handle and protect your business data."
-                },
-                "userResponsibilities": {
-                    "title": "User Responsibilities",
-                    "description": "Acceptable use policies and account obligations."
-                }
-            }
-        },
-        "sections": {
-            "acceptance": {
-                "title": "1. Acceptance of Terms",
-                "paragraph1": "By accessing or using AndgatePOS (\"Service\"), you agree to be bound by these Terms of Service (\"Terms\"). If you disagree with any part of these terms, you may not access the Service.",
-                "paragraph2": "These Terms apply to all visitors, users, and others who access or use the Service, including businesses, merchants, and individual users (\"Users\" or \"you\").",
-                "notice": {
-                    "title": "Important Notice",
-                    "text": "By using our Service, you represent that you are at least 18 years old and have the legal capacity to enter into these Terms."
-                }
-            },
-            "description": {
-                "title": "2. Service Description",
-                "intro": "AndgatePOS provides cloud-based point-of-sale software and related services including:",
-                "coreFeatures": {
-                    "title": "Core Features",
-                    "items": [
-                        "Transaction processing and payment acceptance",
-                        "Inventory management and tracking",
-                        "Sales reporting and analytics",
-                        "Customer relationship management",
-                        "Multi-location support"
-                    ]
-                },
-                "additionalServices": {
-                    "title": "Additional Services",
-                    "items": ["24/7 customer support", "Regular software updates", "Data backup and security", "Integration with third-party services", "Training and onboarding"]
-                }
-            },
-            "registration": {
-                "title": "3. Account Registration",
-                "requirements": {
-                    "title": "Account Requirements",
-                    "intro": "To access certain features of the Service, you must register for an account. You agree to:",
-                    "items": [
-                        "Provide accurate, current, and complete information during registration",
-                        "Maintain and promptly update your account information",
-                        "Maintain the security of your password and account",
-                        "Accept responsibility for all activities under your account",
-                        "Notify us immediately of any unauthorized access or security breach"
-                    ]
-                },
-                "suspension": {
-                    "title": "Account Suspension",
-                    "text": "We reserve the right to suspend or terminate accounts that violate these Terms, engage in fraudulent activities, or pose a risk to other users or our Service."
-                }
-            },
-            "payment": {
-                "title": "4. Payment Terms",
-                "subtitle": "Billing and Subscriptions",
-                "subscriptionPlans": {
-                    "title": "Subscription Plans",
-                    "items": ["Monthly and annual billing cycles available", "Prices subject to change with 30 days notice", "Auto-renewal unless cancelled", "Pro-rated billing for plan changes"]
-                },
-                "transactionFees": {
-                    "title": "Transaction Fees",
-                    "items": ["Processing fees apply to card transactions", "Rates vary by payment method and volume", "No hidden fees or setup costs", "Transparent fee structure provided"]
-                },
-                "refundPolicy": {
-                    "title": "Refund Policy",
-                    "text": "Subscription fees are non-refundable except as required by law. Transaction processing fees are non-refundable. You may cancel your subscription at any time."
-                }
-            },
-            "acceptableUse": {
-                "title": "5. Acceptable Use Policy",
-                "permitted": {
-                    "title": "Permitted Uses",
-                    "intro": "You may use our Service for lawful business purposes including:",
-                    "items": [
-                        "Processing legitimate sales transactions",
-                        "Managing inventory and customer data",
-                        "Generating business reports and analytics",
-                        "Integrating with compatible third-party services"
-                    ]
-                },
-                "prohibited": {
-                    "title": "Prohibited Activities",
-                    "items": [
-                        "Processing fraudulent or unauthorized transactions",
-                        "Violating applicable laws or regulations",
-                        "Attempting to hack, disrupt, or damage our systems",
-                        "Sharing account credentials with unauthorized parties",
-                        "Using the Service for illegal activities",
-                        "Reverse engineering or copying our software"
-                    ]
-                }
-            },
-            "dataPrivacy": {
-                "title": "6. Data and Privacy",
-                "yourData": {
-                    "title": "Your Data",
-                    "intro": "You retain ownership of all data you input into our Service. We serve as a data processor and will handle your data according to our Privacy Policy and applicable data protection laws.",
-                    "items": [
-                        "You are responsible for the accuracy and legality of your data",
-                        "We will not access your data except as necessary to provide the Service",
-                        "You can export your data at any time",
-                        "Data deletion requests will be processed promptly"
-                    ]
-                },
-                "security": {
-                    "title": "Data Security Commitment",
-                    "text": "We implement industry-standard security measures to protect your data, including encryption, access controls, and regular security audits. See our Privacy Policy for detailed information."
-                }
-            },
-            "availability": {
-                "title": "7. Service Availability",
-                "uptime": {
-                    "title": "Uptime Commitment",
-                    "items": ["99.9% uptime service level agreement", "24/7 system monitoring and support", "Scheduled maintenance with advance notice", "Redundant systems and data backups"]
-                },
-                "updates": {
-                    "title": "Service Updates",
-                    "items": ["Regular feature updates and improvements", "Security patches applied automatically", "Advance notice for major changes", "Optional beta testing programs"]
-                }
-            },
-            "termination": {
-                "title": "8. Termination",
-                "byYou": {
-                    "title": "Termination by You",
-                    "intro": "You may terminate your account at any time by cancelling your subscription through your account settings or by contacting our support team.",
-                    "items": [
-                        "Cancellation takes effect at the end of your current billing period",
-                        "You can export your data before termination",
-                        "No refunds for unused subscription time",
-                        "Account reactivation available within 30 days"
-                    ]
-                },
-                "byUs": {
-                    "title": "Termination by Us",
-                    "text": "We may suspend or terminate your account for violations of these Terms, non-payment, or other legitimate business reasons with appropriate notice."
-                }
-            },
-            "liability": {
-                "title": "9. Limitation of Liability",
-                "paragraph1": "TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ANDGATE TECHNOLOGIES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.",
-                "paragraph2": "OUR TOTAL LIABILITY TO YOU FOR ANY DAMAGES ARISING FROM OR RELATED TO THESE TERMS OR YOUR USE OF THE SERVICE SHALL NOT EXCEED THE AMOUNT PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.",
-                "serviceLevel": {
-                    "title": "Service Level Remedies",
-                    "text": "For service level failures, our liability is limited to service credits as outlined in our SLA, which constitutes your sole and exclusive remedy for such failures."
-                }
-            },
-            "changes": {
-                "title": "10. Changes to Terms",
-                "paragraph1": "We reserve the right to modify these Terms at any time. We will notify you of material changes by email or through our Service at least 30 days before the changes take effect.",
-                "paragraph2": "Your continued use of the Service after the changes take effect constitutes acceptance of the new Terms. If you do not agree to the new Terms, you must stop using the Service.",
-                "notification": {
-                    "title": "Notification Methods",
-                    "items": ["Email notifications to registered account email", "In-app notifications and announcements", "Updates posted on our website"]
-                }
-            }
-        },
-        "contact": {
-            "title": "Questions About Our Terms?",
-            "description": "Our legal team is available to clarify any questions about these Terms of Service.",
-            "email": "support@andgatetech.net",
-            "contactButton": "Contact Legal Team",
-            "availability": "Available Monday-Friday, 9:00 AM - 6:00 PM"
-        }
+    "success_modal": {
+      "title": "Thank You!",
+      "description": "Your request has been submitted successfully. Our team will contact you within 2 hours to discuss your POS solution.",
+      "back_home": "Back to Home",
+      "sign_in": "Sign In to Dashboard",
+      "continue": "Continue browsing"
     }
+  },
+  "footer": {
+    "brand": {
+      "name": "AndgatePOS",
+      "description": "Empowering businesses worldwide with cutting-edge point of sale technology. Transform your operations and accelerate growth with andgatePOS."
+    },
+    "social": {
+      "facebook": "f",
+      "twitter": "t",
+      "linkedin": "in"
+    },
+    "links": {
+      "product": {
+        "title": "Product",
+        "items": [
+          {
+            "label": "Features",
+            "href": "#features"
+          },
+          {
+            "label": "Pricing",
+            "href": "#pricing"
+          }
+        ]
+      },
+      "support": {
+        "title": "Support",
+        "items": [
+          {
+            "label": "Help Center",
+            "href": "/contact"
+          },
+          {
+            "label": "Contact Us",
+            "href": "/contact"
+          },
+          {
+            "label": "Training",
+            "href": "/training"
+          }
+        ]
+      }
+    },
+    "footerNote": "All rights reserved.",
+    "policies": [
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy-policy"
+      },
+      {
+        "label": "Terms of Service",
+        "href": "/terms-of-service"
+      },
+      {
+        "label": "Cookie Policy",
+        "href": "/cookie-policy"
+      }
+    ],
+    "cta": {
+      "badge": "Get Started Today",
+      "heading": "Transform your business with AndgatePOS",
+      "button": "Start Free Now"
+    },
+    "nav": {
+      "product": "Product",
+      "company": "Company",
+      "contact": "Contact",
+      "features": "Features",
+      "pricing": "Pricing",
+      "overview": "Overview",
+      "training": "Training",
+      "contact_us": "Contact Us",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service",
+      "cookie_policy": "Cookie Policy"
+    }
+  },
+  "layout": {
+    "nav": {
+      "home": "Home",
+      "features": "Features",
+      "overview": "Overview",
+      "pricing": "Pricing",
+      "training": "Training",
+      "contact": "Contact",
+      "login": "Login",
+      "get_started": "Get Started"
+    }
+  },
+  "overview": {
+    "sectionTitle": "System Overview",
+    "sectionSubtitle": "Discover the powerful features that make our POS system the perfect solution for your business.",
+    "sections": [
+      {
+        "title": "Real-Time Business Insights",
+        "subtitle": "Dashboard",
+        "features": [
+          "Real-time analytics dashboard",
+          "Sales performance tracking",
+          "Revenue & profit analysis",
+          "Key business metrics at a glance"
+        ],
+        "ctaText": "View Dashboard"
+      },
+      {
+        "title": "Complete Store Management",
+        "subtitle": "Store",
+        "features": [
+          "Multi-store management system",
+          "Store settings & configuration",
+          "Employee management & permissions",
+          "Stock adjustment & inventory control"
+        ],
+        "ctaText": "Manage Store"
+      },
+      {
+        "title": "Organize Your Products",
+        "subtitle": "Categories & Brands",
+        "features": [
+          "Category management system",
+          "Brand organization & tracking",
+          "Hierarchical product structure",
+          "Easy product categorization"
+        ],
+        "ctaText": "Organize Products"
+      },
+      {
+        "title": "Advanced Product Management",
+        "subtitle": "Products",
+        "features": [
+          "Easy product addition & management",
+          "Stock adjustment & tracking",
+          "Product QR code generation",
+          "Barcode label printing"
+        ],
+        "ctaText": "Manage Products"
+      },
+      {
+        "title": "Fast & Efficient POS",
+        "subtitle": "POS",
+        "features": [
+          "Quick POS interface",
+          "Barcode scanning support",
+          "Multiple payment methods",
+          "Fast checkout process"
+        ],
+        "ctaText": "Try POS"
+      },
+      {
+        "title": "Mobile & Tablet Responsive Design",
+        "subtitle": "Responsive",
+        "features": [
+          "Fully responsive on all devices",
+          "Mobile-optimized interface",
+          "Tablet-friendly layout",
+          "Works seamlessly on any screen"
+        ],
+        "ctaText": "Try on Mobile"
+      },
+      {
+        "title": "No Barcode Scanner Needed - Use Mobile!",
+        "subtitle": "Mobile Scanning",
+        "features": [
+          "Scan barcodes with phone camera",
+          "No expensive scanner hardware needed",
+          "Automatic barcode recognition",
+          "Works on any smartphone or tablet"
+        ],
+        "ctaText": "Try Mobile Scanning"
+      },
+      {
+        "title": "Streamlined Order Management",
+        "subtitle": "Orders",
+        "features": [
+          "View all orders in one place",
+          "Order status tracking",
+          "Invoice generation",
+          "Order history & analytics"
+        ],
+        "ctaText": "Manage Orders"
+      },
+      {
+        "title": "Purchase Order System",
+        "subtitle": "Purchases",
+        "features": [
+          "Create purchase orders easily",
+          "Track all purchases",
+          "Supplier management",
+          "Purchase history & reports"
+        ],
+        "ctaText": "Manage Purchases"
+      },
+      {
+        "title": "Supplier Management",
+        "subtitle": "Suppliers",
+        "features": [
+          "Add & manage suppliers",
+          "Supplier contact information",
+          "Supplier history tracking",
+          "Supplier performance metrics"
+        ],
+        "ctaText": "Manage Suppliers"
+      },
+      {
+        "title": "Financial Accounting",
+        "subtitle": "Accounts",
+        "features": [
+          "Ledger management system",
+          "Journal entry tracking",
+          "Financial reports",
+          "Account reconciliation"
+        ],
+        "ctaText": "Manage Accounts"
+      },
+      {
+        "title": "Expense Tracking",
+        "subtitle": "Expenses",
+        "features": [
+          "Track all business expenses",
+          "Expense categorization",
+          "Receipt management",
+          "Expense reports & analysis"
+        ],
+        "ctaText": "Track Expenses"
+      },
+      {
+        "title": "Customer Relationship Management",
+        "subtitle": "Customers",
+        "features": [
+          "Complete customer database",
+          "Customer purchase history",
+          "Loyalty program support",
+          "Customer analytics & insights"
+        ],
+        "ctaText": "Manage Customers"
+      }
+    ]
+  },
+  "pricing_page": {
+    "hero": {
+      "badge_text": "Transparent Pricing • No Hidden Costs",
+      "title": "Simple, Transparent Pricing Plans",
+      "subtitle": "Choose the perfect plan for your business. Start free and upgrade as you grow. All plans include a 14-day money-back guarantee.",
+      "benefits": {
+        "no_setup": "Small setup fees",
+        "cancel_anytime": "Cancel anytime",
+        "support": "24/7 support"
+      }
+    },
+    "frequency": {
+      "monthly": "Monthly",
+      "annually": "Annually",
+      "save": "Save 20%",
+      "per_month": "/month",
+      "per_year": "/year"
+    },
+    "features_included": "What's included:",
+    "comparison": {
+      "title": "Compare All Features",
+      "subtitle": "Find the right plan for your business",
+      "subtitle_detail": "See what's included in each plan",
+      "features": "Features",
+      "stores": "Number of Stores",
+      "products": "Product Limit",
+      "priority_support": "Priority Support",
+      "api_access": "API Access",
+      "unlimited": "Unlimited",
+      "up_to": "Up to"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about our pricing",
+      "questions": [
+        {
+          "q": "Can I change plans anytime?",
+          "a": "Yes! You can upgrade or downgrade your plan anytime. Changes will be reflected in your next billing cycle."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept bKash, Nagad, credit/debit cards, and bank transfers for monthly or annual subscriptions."
+        },
+        {
+          "q": "Are there any setup fees?",
+          "a": "Small setup fees! All plans include free onboarding and setup assistance."
+        },
+        {
+          "q": "Can I cancel my subscription?",
+          "a": "Yes, you can cancel anytime. No questions asked, no hidden fees."
+        },
+        {
+          "q": "Do you offer refunds?",
+          "a": "We offer a 14-day money-back guarantee on all paid plans if you're not satisfied."
+        },
+        {
+          "q": "Is my data secure?",
+          "a": "Absolutely! We use bank-level encryption and regular backups to keep your data safe and secure."
+        }
+      ]
+    },
+    "trust": {
+      "secure_title": "Secure & Reliable",
+      "secure_subtitle": "Bank-level security with 99.9% uptime guarantee",
+      "support_title": "24/7 Support",
+      "support_subtitle": "Round-the-clock assistance whenever you need help",
+      "trusted_title": "Trusted by 100+",
+      "trusted_subtitle": "Join hundreds of businesses across Bangladesh"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Start your free trial today. No credit card required. Upgrade anytime.",
+      "start_trial": "Start Free Trial",
+      "contact_sales": "Contact Sales",
+      "guarantee": "✓ 14-day money-back guarantee ✓ Small setup fees ✓ Cancel anytime"
+    },
+    "save_percent": "Save",
+    "get_started": "Get Started",
+    "setup_fee": "Setup Fee",
+    "setup_fee_free": "Free",
+    "most_popular": "Most Popular"
+  },
+  "testimonials": {
+    "header": {
+      "title": "Loved by Business Owners in Bangladesh",
+      "subtitle": "See how entrepreneurs across Bangladesh are growing with andgatePOS."
+    },
+    "testimonials": [
+      {
+        "name": "Md. Rakib Hossain",
+        "business": "Dhaka Mart",
+        "image": "https://img.icons8.com/color/96/shop.png",
+        "review": "andgatePOS made our shop management so simple. Stock, sales, and accounts all in one place. Our efficiency improved a lot.",
+        "rating": 5
+      },
+      {
+        "name": "Shamima Akter",
+        "business": "Chattogram Fashion House",
+        "image": "https://img.icons8.com/color/96/clothes.png",
+        "review": "Before andgatePOS, I was struggling with manual calculations. Now everything is digital and customers are happier.",
+        "rating": 5
+      },
+      {
+        "name": "Jahidul Islam",
+        "business": "Sylhet Electronics",
+        "image": "https://img.icons8.com/color/96/electronics.png",
+        "review": "The reporting dashboard is very helpful. I can track profit and expenses daily without hiring an accountant.",
+        "rating": 5
+      },
+      {
+        "name": "Farhana Rahman",
+        "business": "Rajshahi Grocery",
+        "image": "https://img.icons8.com/color/96/grocery-store.png",
+        "review": "andgatePOS is easy to use for everyone in my shop. Sales increased after using the system because checkout is much faster.",
+        "rating": 5
+      }
+    ]
+  },
+  "training": {
+    "page_title": "How Our POS Works",
+    "page_subtitle": "Our POS system operates seamlessly across all devices. From quick product selection to instant checkout, real-time inventory tracking, and multiple payment options — everything is designed to make your business run smoother and faster.",
+    "category_getting_started": "Getting Started",
+    "category_getting_started_desc": "Essential basics to set up and start using your POS system",
+    "category_pos_operations": "POS Operations",
+    "category_pos_operations_desc": "Master daily sales operations and transactions",
+    "category_inventory": "Inventory Management",
+    "category_inventory_desc": "Efficiently manage products, stock levels, and suppliers",
+    "category_customers": "Customer Management",
+    "category_customers_desc": "Build customer relationships and loyalty programs",
+    "category_reports": "Reports & Analytics",
+    "category_reports_desc": "Generate business insights with powerful reporting tools",
+    "category_multi_store": "Multi-Store Operations",
+    "category_multi_store_desc": "Manage multiple branches from one central system",
+    "video_complete_setup": "Complete Setup Guide",
+    "video_complete_setup_desc": "Step-by-step setup from account creation to first sale",
+    "video_dashboard_overview": "Dashboard Overview",
+    "video_dashboard_overview_desc": "Navigate the dashboard and understand key metrics",
+    "video_user_roles": "User Management & Roles",
+    "video_user_roles_desc": "Add staff, assign roles, and manage permissions",
+    "video_processing_sales": "Processing Sales",
+    "video_processing_sales_desc": "Handle customer transactions efficiently",
+    "video_payment_methods": "Payment Methods",
+    "video_payment_methods_desc": "Accept cash, card, and digital payments",
+    "video_refunds": "Refunds & Returns",
+    "video_refunds_desc": "Process refunds and handle return transactions",
+    "video_discounts": "Discounts & Promotions",
+    "video_discounts_desc": "Apply discounts and manage promotional codes",
+    "video_add_products": "Adding Products",
+    "video_add_products_desc": "Add new products with variants, pricing, and images",
+    "video_stock_management": "Stock Management",
+    "video_stock_management_desc": "Track inventory levels and set reorder alerts",
+    "video_bulk_import": "Bulk Import/Export",
+    "video_bulk_import_desc": "Import products in bulk using CSV files",
+    "video_categories": "Categories & Variants",
+    "video_categories_desc": "Organize products by category and manage variants",
+    "video_customer_profiles": "Customer Profiles",
+    "video_customer_profiles_desc": "Create and manage customer information",
+    "video_loyalty": "Loyalty Programs",
+    "video_loyalty_desc": "Set up and manage customer loyalty rewards",
+    "video_customer_analytics": "Customer Analytics",
+    "video_customer_analytics_desc": "Analyze customer behavior and purchase patterns",
+    "video_sales_reports": "Sales Reports",
+    "video_sales_reports_desc": "Generate and understand daily, weekly, and monthly sales reports",
+    "video_inventory_reports": "Inventory Reports",
+    "video_inventory_reports_desc": "Track stock movements and inventory valuation",
+    "video_financial_reports": "Financial Reports",
+    "video_financial_reports_desc": "Understand profit margins, tax reports, and financial insights",
+    "video_custom_reports": "Custom Reports",
+    "video_custom_reports_desc": "Create custom reports for specific business needs",
+    "video_store_setup": "Store Setup",
+    "video_store_setup_desc": "Add and configure multiple store locations",
+    "video_inventory_sync": "Inventory Sync",
+    "video_inventory_sync_desc": "Synchronize inventory across multiple stores",
+    "video_store_performance": "Store Performance",
+    "video_store_performance_desc": "Compare and analyze performance across locations",
+    "resources_title": "Additional Learning Resources",
+    "resources_subtitle": "Expand your knowledge with our comprehensive learning materials and support resources.",
+    "resource_manual": "User Manual (PDF)",
+    "resource_manual_desc": "Complete written guide covering all features and functionalities",
+    "resource_manual_action": "Download PDF",
+    "resource_best_practices": "Best Practices Guide",
+    "resource_best_practices_desc": "Expert tips and industry best practices for maximizing efficiency",
+    "resource_best_practices_action": "Read Guide",
+    "resource_support": "24/7 Support",
+    "resource_support_desc": "Get help from our expert support team whenever you need it",
+    "resource_support_action": "Get Support",
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "tutorials_available": "tutorials available"
+  },
+  "register-page": {
+    "title": "Store Sign Up",
+    "subtitle": "Fill up the form to get free access",
+    "or": "or",
+    "already_have_account": "Already have an account ?",
+    "sign_in": "SIGN IN",
+    "register_tab": "Register",
+    "supplier_tab": "Supplier Register",
+    "form": {
+      "name_label": "Name",
+      "name_placeholder": "Enter Name",
+      "email_label": "Email",
+      "email_placeholder": "Enter Email",
+      "phone_label": "Phone",
+      "phone_placeholder": "Enter Phone Number",
+      "store_name_label": "Store Name",
+      "store_name_placeholder": "Enter Store Name",
+      "password_label": "Password",
+      "password_placeholder": "Enter Password",
+      "repeat_password_label": "Repeat Password",
+      "repeat_password_placeholder": "Repeat Password",
+      "sign_up_button": "Sign Up",
+      "signing_up": "Signing up..."
+    }
+  },
+  "login-page": {
+    "title": "Sign in",
+    "subtitle": "Enter your email and password to login",
+    "login_tab": "Login",
+    "supplier_tab": "Supplier Login",
+    "or": "or",
+    "demo_credentials": {
+      "title": "Demo Credential (Click to auto-fill)",
+      "store_admin": "Demo Store Admin Credentials",
+      "email_password": "Email: user@demo.com | Password: user123",
+      "hint": "💡 Click credential above to automatically fill the login form"
+    },
+    "dont_have_account": "Don't have an account ?",
+    "sign_up": "SIGN UP",
+    "copyright": "© {year}.Andgate All Rights Reserved.",
+    "form": {
+      "email_label": "Email",
+      "email_placeholder": "Enter Email",
+      "password_label": "Password",
+      "password_placeholder": "Enter Password",
+      "sign_in_button": "Sign in",
+      "signing_in": "Signing in...",
+      "show_password": "Show password",
+      "hide_password": "Hide password"
+    }
+  },
+  "cookie-policy": {
+    "badge": "Transparent Cookie Usage",
+    "title": "Cookie Policy",
+    "description": "This Cookie Policy explains how Andgate Technologies uses cookies and similar technologies to enhance your experience on our website and platform.",
+    "last_updated": "Last updated: September 17, 2025",
+    "overview": {
+      "title": "Cookie Usage Overview",
+      "essential": {
+        "title": "Essential Cookies",
+        "description": "Required for basic website functionality and security."
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "Help us understand how users interact with our platform."
+      },
+      "functional": {
+        "title": "Functional Cookies",
+        "description": "Remember your preferences and personalize experience."
+      },
+      "control": {
+        "title": "Your Control",
+        "description": "Manage cookie preferences through your browser settings."
+      }
+    },
+    "what_are_cookies": {
+      "title": "What Are Cookies?",
+      "description": "Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our platform.",
+      "first_party": {
+        "title": "First-Party Cookies",
+        "description": "Set directly by AndgatePOS to enhance functionality and user experience."
+      },
+      "third_party": {
+        "title": "Third-Party Cookies",
+        "description": "Set by our trusted partners for analytics, security, and service improvements."
+      }
+    },
+    "types": {
+      "title": "Types of Cookies We Use",
+      "essential": {
+        "title": "Essential Cookies (Always Active)",
+        "description": "These cookies are necessary for the website to function and cannot be switched off. They are usually only set in response to actions made by you.",
+        "table": {
+          "cookie_name": "Cookie Name",
+          "purpose": "Purpose",
+          "duration": "Duration",
+          "session_id": {
+            "name": "session_id",
+            "purpose": "Maintains user session",
+            "duration": "Session"
+          },
+          "csrf_token": {
+            "name": "csrf_token",
+            "purpose": "Security protection",
+            "duration": "Session"
+          },
+          "auth_token": {
+            "name": "auth_token",
+            "purpose": "User authentication",
+            "duration": "30 days"
+          }
+        }
+      },
+      "functional": {
+        "title": "Functional Cookies",
+        "description": "These cookies enable enhanced functionality and personalization. They may be set by us or third parties.",
+        "table": {
+          "user_preferences": {
+            "name": "user_preferences",
+            "purpose": "Remember dashboard layout",
+            "duration": "1 year"
+          },
+          "theme_settings": {
+            "name": "theme_settings",
+            "purpose": "Remember theme preferences",
+            "duration": "1 year"
+          },
+          "language_pref": {
+            "name": "language_pref",
+            "purpose": "Remember language selection",
+            "duration": "1 year"
+          }
+        }
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.",
+        "table": {
+          "service": "Service",
+          "google_analytics": {
+            "name": "Google Analytics",
+            "purpose": "Website usage analytics",
+            "duration": "2 years"
+          },
+          "hotjar": {
+            "name": "Hotjar",
+            "purpose": "User behavior analysis",
+            "duration": "1 year"
+          },
+          "internal": {
+            "name": "Internal Analytics",
+            "purpose": "Performance monitoring",
+            "duration": "90 days"
+          }
+        }
+      }
+    },
+    "managing": {
+      "title": "Managing Your Cookie Preferences",
+      "consent": {
+        "title": "Cookie Consent Management",
+        "description": "When you first visit our website, you'll see a cookie consent banner. You can:",
+        "options": [
+          "Accept all cookies for the full website experience",
+          "Customize your preferences by cookie category",
+          "Reject optional cookies (essential cookies will still be used)",
+          "Change your preferences anytime through the cookie settings"
+        ]
+      },
+      "browser": {
+        "title": "Browser Settings",
+        "description": "You can control cookies through your browser settings:",
+        "options": [
+          "Block all cookies",
+          "Block third-party cookies only",
+          "Delete existing cookies",
+          "Set up automatic cookie deletion"
+        ]
+      },
+      "opt_out": {
+        "title": "Opt-Out Links",
+        "description": "Direct opt-out for analytics services:",
+        "options": [
+          "Google Analytics Opt-out",
+          "Hotjar Opt-out",
+          "Marketing cookies opt-out",
+          "All optional cookies opt-out"
+        ]
+      }
+    },
+    "impact": {
+      "title": "Impact of Disabling Cookies",
+      "description": "While we respect your choice to disable cookies, please note that some functionality may be affected:",
+      "without_essential": {
+        "title": "Without Essential Cookies",
+        "items": [
+          "Cannot maintain login sessions",
+          "Security features may not work",
+          "Shopping cart functionality disabled",
+          "Account settings cannot be saved"
+        ]
+      },
+      "without_optional": {
+        "title": "Without Optional Cookies",
+        "items": [
+          "Preferences reset each visit",
+          "Limited personalization",
+          "Cannot improve user experience",
+          "Less relevant content"
+        ]
+      }
+    },
+    "third_party": {
+      "title": "Third-Party Cookies",
+      "description": "We work with trusted third-party services that may set their own cookies. These partners help us provide better service:",
+      "analytics_partners": {
+        "title": "Analytics Partners",
+        "description": "Help us understand usage patterns and improve our service."
+      },
+      "security_services": {
+        "title": "Security Services",
+        "description": "Protect against fraud and malicious activities."
+      },
+      "support_tools": {
+        "title": "Support Tools",
+        "description": "Enable customer support features and live chat."
+      }
+    },
+    "updates": {
+      "title": "Updates to Cookie Policy",
+      "description": "We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons.",
+      "notification": {
+        "title": "How We Notify You",
+        "methods": [
+          "Website banner notification for significant changes",
+          "Email notification to registered users",
+          "Updated \"Last Modified\" date on this page",
+          "In-app notifications for active users"
+        ]
+      }
+    },
+    "contact": {
+      "title": "Questions About Cookies?",
+      "description": "Contact our privacy team for questions about cookies or to request changes to your cookie preferences.",
+      "email": "support@andgatetech.net",
+      "button_primary": "support@andgatetech.net",
+      "button_secondary": "Contact Support",
+      "compliance": "✓ GDPR Compliant ✓ CCPA Compliant ✓ Regular Privacy Audits"
+    }
+  },
+  "privacy_policy": {
+    "hero": {
+      "badge": "Your Privacy Matters",
+      "title": "Privacy Policy",
+      "description": "At Andgate Technologies, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data.",
+      "last_updated": "Last updated: September 17, 2025"
+    },
+    "commitments": {
+      "title": "Our Privacy Commitments",
+      "secure_storage": {
+        "title": "Secure Data Storage",
+        "description": "Your data is encrypted and stored securely with bank-level protection."
+      },
+      "transparent": {
+        "title": "Transparent Practices",
+        "description": "We clearly explain what data we collect and how we use it."
+      },
+      "your_control": {
+        "title": "Your Control",
+        "description": "You can access, modify, or delete your personal data at any time."
+      },
+      "minimal_data": {
+        "title": "Minimal Data Collection",
+        "description": "We only collect data necessary to provide our services."
+      }
+    },
+    "information_collect": {
+      "title": "Information We Collect",
+      "personal_info": {
+        "title": "Personal Information",
+        "items": [
+          "Name, email address, and contact information",
+          "Business information (company name, address, tax ID)",
+          "Payment information (processed securely by our payment partners)",
+          "Account preferences and settings"
+        ]
+      },
+      "usage_info": {
+        "title": "Usage Information",
+        "items": [
+          "Transaction data and sales analytics",
+          "System usage patterns and feature interactions",
+          "Device information and IP addresses",
+          "Log files and error reports"
+        ]
+      },
+      "customer_data": {
+        "title": "Customer Data",
+        "items": [
+          "Customer information you input into the system",
+          "Purchase history and preferences",
+          "Loyalty program data"
+        ]
+      }
+    },
+    "how_we_use": {
+      "title": "How We Use Your Information",
+      "service_delivery": {
+        "title": "Service Delivery",
+        "items": [
+          "Process transactions and payments",
+          "Provide customer support",
+          "Maintain and improve our services",
+          "Generate analytics and reports"
+        ]
+      },
+      "communication": {
+        "title": "Communication",
+        "items": [
+          "Send service updates and notifications",
+          "Provide technical support",
+          "Share important account information",
+          "Marketing communications (with consent)"
+        ]
+      }
+    },
+    "data_security": {
+      "title": "Data Security",
+      "subtitle": "Our Security Measures",
+      "measures": [
+        "256-bit SSL encryption for all data transmission",
+        "PCI DSS compliance for payment processing",
+        "Regular security audits and penetration testing",
+        "Multi-factor authentication",
+        "Secure cloud infrastructure with redundancy",
+        "Employee security training and background checks",
+        "24/7 security monitoring",
+        "Regular data backups"
+      ]
+    },
+    "your_rights": {
+      "title": "Your Rights and Choices",
+      "access_control": {
+        "title": "Access and Control",
+        "items": [
+          "View and download your personal data",
+          "Update or correct your information",
+          "Delete your account and data",
+          "Opt-out of marketing communications"
+        ]
+      },
+      "data_portability": {
+        "title": "Data Portability",
+        "items": [
+          "Export your data in standard formats",
+          "Transfer data to other services",
+          "Restrict certain data processing",
+          "File complaints with supervisory authorities"
+        ]
+      }
+    },
+    "data_retention": {
+      "title": "Data Retention",
+      "description": "We retain your personal information only for as long as necessary to provide our services and comply with legal obligations:",
+      "items": [
+        {
+          "label": "Account Information:",
+          "text": "Retained while your account is active and for 7 years after closure for legal compliance"
+        },
+        {
+          "label": "Transaction Records:",
+          "text": "Retained for 7 years as required by financial regulations"
+        },
+        {
+          "label": "Usage Data:",
+          "text": "Aggregated and anonymized data may be retained indefinitely for analytics"
+        },
+        {
+          "label": "Marketing Data:",
+          "text": "Deleted immediately upon opt-out request"
+        }
+      ]
+    },
+    "third_party": {
+      "title": "Third-Party Services",
+      "description": "We work with trusted third-party service providers to deliver our services:",
+      "payment": {
+        "title": "Payment Processors",
+        "description": "Secure payment processing partners"
+      },
+      "cloud": {
+        "title": "Cloud Storage",
+        "description": "Secure data hosting providers"
+      },
+      "communication": {
+        "title": "Communication",
+        "description": "Email and messaging services"
+      }
+    },
+    "contact": {
+      "title": "Questions About Privacy?",
+      "description": "We're here to help. Contact our privacy team for any questions or concerns about your data.",
+      "email": "support@andgatetech.net",
+      "contact_us": "Contact Us"
+    }
+  },
+  "terms-service": {
+    "meta": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: September 17, 2025"
+    },
+    "hero": {
+      "badge": "Legal Terms & Conditions",
+      "title": "Terms of Service",
+      "description": "These Terms of Service govern your use of AndgatePOS services. By using our platform, you agree to these terms and conditions."
+    },
+    "summary": {
+      "title": "Key Terms Summary",
+      "items": {
+        "serviceAgreement": {
+          "title": "Service Agreement",
+          "description": "Your rights and responsibilities when using AndgatePOS."
+        },
+        "paymentTerms": {
+          "title": "Payment Terms",
+          "description": "Billing, subscriptions, and payment processing details."
+        },
+        "dataProtection": {
+          "title": "Data Protection",
+          "description": "How we handle and protect your business data."
+        },
+        "userResponsibilities": {
+          "title": "User Responsibilities",
+          "description": "Acceptable use policies and account obligations."
+        }
+      }
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "paragraph1": "By accessing or using AndgatePOS (\"Service\"), you agree to be bound by these Terms of Service (\"Terms\"). If you disagree with any part of these terms, you may not access the Service.",
+        "paragraph2": "These Terms apply to all visitors, users, and others who access or use the Service, including businesses, merchants, and individual users (\"Users\" or \"you\").",
+        "notice": {
+          "title": "Important Notice",
+          "text": "By using our Service, you represent that you are at least 18 years old and have the legal capacity to enter into these Terms."
+        }
+      },
+      "description": {
+        "title": "2. Service Description",
+        "intro": "AndgatePOS provides cloud-based point-of-sale software and related services including:",
+        "coreFeatures": {
+          "title": "Core Features",
+          "items": [
+            "Transaction processing and payment acceptance",
+            "Inventory management and tracking",
+            "Sales reporting and analytics",
+            "Customer relationship management",
+            "Multi-location support"
+          ]
+        },
+        "additionalServices": {
+          "title": "Additional Services",
+          "items": [
+            "24/7 customer support",
+            "Regular software updates",
+            "Data backup and security",
+            "Integration with third-party services",
+            "Training and onboarding"
+          ]
+        }
+      },
+      "registration": {
+        "title": "3. Account Registration",
+        "requirements": {
+          "title": "Account Requirements",
+          "intro": "To access certain features of the Service, you must register for an account. You agree to:",
+          "items": [
+            "Provide accurate, current, and complete information during registration",
+            "Maintain and promptly update your account information",
+            "Maintain the security of your password and account",
+            "Accept responsibility for all activities under your account",
+            "Notify us immediately of any unauthorized access or security breach"
+          ]
+        },
+        "suspension": {
+          "title": "Account Suspension",
+          "text": "We reserve the right to suspend or terminate accounts that violate these Terms, engage in fraudulent activities, or pose a risk to other users or our Service."
+        }
+      },
+      "payment": {
+        "title": "4. Payment Terms",
+        "subtitle": "Billing and Subscriptions",
+        "subscriptionPlans": {
+          "title": "Subscription Plans",
+          "items": [
+            "Monthly and annual billing cycles available",
+            "Prices subject to change with 30 days notice",
+            "Auto-renewal unless cancelled",
+            "Pro-rated billing for plan changes"
+          ]
+        },
+        "transactionFees": {
+          "title": "Transaction Fees",
+          "items": [
+            "Processing fees apply to card transactions",
+            "Rates vary by payment method and volume",
+            "No hidden fees or setup costs",
+            "Transparent fee structure provided"
+          ]
+        },
+        "refundPolicy": {
+          "title": "Refund Policy",
+          "text": "Subscription fees are non-refundable except as required by law. Transaction processing fees are non-refundable. You may cancel your subscription at any time."
+        }
+      },
+      "acceptableUse": {
+        "title": "5. Acceptable Use Policy",
+        "permitted": {
+          "title": "Permitted Uses",
+          "intro": "You may use our Service for lawful business purposes including:",
+          "items": [
+            "Processing legitimate sales transactions",
+            "Managing inventory and customer data",
+            "Generating business reports and analytics",
+            "Integrating with compatible third-party services"
+          ]
+        },
+        "prohibited": {
+          "title": "Prohibited Activities",
+          "items": [
+            "Processing fraudulent or unauthorized transactions",
+            "Violating applicable laws or regulations",
+            "Attempting to hack, disrupt, or damage our systems",
+            "Sharing account credentials with unauthorized parties",
+            "Using the Service for illegal activities",
+            "Reverse engineering or copying our software"
+          ]
+        }
+      },
+      "dataPrivacy": {
+        "title": "6. Data and Privacy",
+        "yourData": {
+          "title": "Your Data",
+          "intro": "You retain ownership of all data you input into our Service. We serve as a data processor and will handle your data according to our Privacy Policy and applicable data protection laws.",
+          "items": [
+            "You are responsible for the accuracy and legality of your data",
+            "We will not access your data except as necessary to provide the Service",
+            "You can export your data at any time",
+            "Data deletion requests will be processed promptly"
+          ]
+        },
+        "security": {
+          "title": "Data Security Commitment",
+          "text": "We implement industry-standard security measures to protect your data, including encryption, access controls, and regular security audits. See our Privacy Policy for detailed information."
+        }
+      },
+      "availability": {
+        "title": "7. Service Availability",
+        "uptime": {
+          "title": "Uptime Commitment",
+          "items": [
+            "99.9% uptime service level agreement",
+            "24/7 system monitoring and support",
+            "Scheduled maintenance with advance notice",
+            "Redundant systems and data backups"
+          ]
+        },
+        "updates": {
+          "title": "Service Updates",
+          "items": [
+            "Regular feature updates and improvements",
+            "Security patches applied automatically",
+            "Advance notice for major changes",
+            "Optional beta testing programs"
+          ]
+        }
+      },
+      "termination": {
+        "title": "8. Termination",
+        "byYou": {
+          "title": "Termination by You",
+          "intro": "You may terminate your account at any time by cancelling your subscription through your account settings or by contacting our support team.",
+          "items": [
+            "Cancellation takes effect at the end of your current billing period",
+            "You can export your data before termination",
+            "No refunds for unused subscription time",
+            "Account reactivation available within 30 days"
+          ]
+        },
+        "byUs": {
+          "title": "Termination by Us",
+          "text": "We may suspend or terminate your account for violations of these Terms, non-payment, or other legitimate business reasons with appropriate notice."
+        }
+      },
+      "liability": {
+        "title": "9. Limitation of Liability",
+        "paragraph1": "TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ANDGATE TECHNOLOGIES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.",
+        "paragraph2": "OUR TOTAL LIABILITY TO YOU FOR ANY DAMAGES ARISING FROM OR RELATED TO THESE TERMS OR YOUR USE OF THE SERVICE SHALL NOT EXCEED THE AMOUNT PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.",
+        "serviceLevel": {
+          "title": "Service Level Remedies",
+          "text": "For service level failures, our liability is limited to service credits as outlined in our SLA, which constitutes your sole and exclusive remedy for such failures."
+        }
+      },
+      "changes": {
+        "title": "10. Changes to Terms",
+        "paragraph1": "We reserve the right to modify these Terms at any time. We will notify you of material changes by email or through our Service at least 30 days before the changes take effect.",
+        "paragraph2": "Your continued use of the Service after the changes take effect constitutes acceptance of the new Terms. If you do not agree to the new Terms, you must stop using the Service.",
+        "notification": {
+          "title": "Notification Methods",
+          "items": [
+            "Email notifications to registered account email",
+            "In-app notifications and announcements",
+            "Updates posted on our website"
+          ]
+        }
+      }
+    },
+    "contact": {
+      "title": "Questions About Our Terms?",
+      "description": "Our legal team is available to clarify any questions about these Terms of Service.",
+      "email": "support@andgatetech.net",
+      "contactButton": "Contact Legal Team",
+      "availability": "Available Monday-Friday, 9:00 AM - 6:00 PM"
+    }
+  },
+  "hero_floating_sales_label": "Today's Sales",
+  "hero_floating_orders_label": "Orders Today",
+  "hero_floating_orders_count": "142 Orders",
+  "hero_live_demo": "Live Product Demo",
+  "hero_video_caption": "Auto-playing product walkthrough",
+  "hero_video_full": "Watch full demo",
+  "watch_demo": "Watch Demo",
+  "all_features_heading": "Everything in One Place",
+  "all_features_desc": "All the tools to manage sales, inventory, reports, customers, and more — no extra software needed.",
+  "core_pos_label": "Point of Sale",
+  "core_pos_title": "Fast & Smart Checkout",
+  "core_pos_desc": "Process sales in seconds with barcode scanning, multiple payment methods, discount management, and instant receipt printing.",
+  "core_pos_h1": "Barcode & QR scanning",
+  "core_pos_h2": "Split payments",
+  "core_pos_h3": "Custom discounts",
+  "core_pos_h4": "Offline support",
+  "core_inventory_label": "Inventory",
+  "core_inventory_title": "Never Run Out of Stock",
+  "core_inventory_desc": "Real-time stock tracking across all your stores, automated low-stock alerts, purchase orders, and supplier management.",
+  "core_inventory_h1": "Real-time tracking",
+  "core_inventory_h2": "Multi-store sync",
+  "core_inventory_h3": "Auto reorder alerts",
+  "core_inventory_h4": "Supplier portal",
+  "core_analytics_label": "Analytics",
+  "core_analytics_title": "Data-Driven Decisions",
+  "core_analytics_desc": "Comprehensive sales reports, profit/loss analysis, inventory valuation, and customer insights — all in one dashboard.",
+  "core_analytics_h1": "Sales analytics",
+  "core_analytics_h2": "Profit reports",
+  "core_analytics_h3": "Stock valuation",
+  "core_analytics_h4": "Customer insights",
+  "core_learn_more": "Learn more",
+  "business_types_badge": "Industry Solutions",
+  "business_types_heading": "A POS For Every Business",
+  "business_types_subtitle": "Whether you run a fashion boutique, grocery store, or electronics shop — AndgatePOS adapts to your needs.",
+  "business_type_fashion_title": "Fashion & Clothing",
+  "business_type_fashion_desc": "Manage garments, sizes, colors and seasonal stock with ease.",
+  "business_type_grocery_title": "Grocery & Superstore",
+  "business_type_grocery_desc": "Rapid scanning, expiry tracking, and fast checkout.",
+  "business_type_electronics_title": "Electronics & Tech",
+  "business_type_electronics_desc": "Warranty tracking, serial numbers, and supplier management.",
+  "business_type_beauty_title": "Beauty & Cosmetics",
+  "business_type_beauty_desc": "Batch tracking, loyalty points, and customer profiles.",
+  "business_type_pharmacy_title": "Pharmacy & Health",
+  "business_type_pharmacy_desc": "Expiry dates, dosage tracking, and prescription records.",
+  "business_types_cta": "Start for your business type",
+  "map_heading": "Serving Businesses Across Bangladesh 🇧🇩",
+  "map_subtitle": "From Dhaka to Cox's Bazar — our POS powers businesses in all 8 divisions.",
+  "map_divisions": [
+    "Dhaka",
+    "Chittagong",
+    "Rajshahi",
+    "Khulna",
+    "Barishal",
+    "Sylhet",
+    "Rangpur",
+    "Mymensingh"
+  ],
+  "login_panel_badge": "Trusted by 100+ businesses",
+  "login_panel_headline": "Manage your business smarter, faster.",
+  "login_panel_sub": "Sales, stock, suppliers, reports — all in one place with AndgatePOS.",
+  "login_benefit_1": "Real-time sales analytics",
+  "login_benefit_2": "Multi-store management",
+  "login_benefit_3": "Fast POS checkout",
+  "login_benefit_4": "Mobile & barcode scanning",
+  "login_panel_quote": "Since switching to AndgatePOS, managing all my stores from one place has saved me hours every day.",
+  "login_panel_quote_name": "Rokon Mondol",
+  "login_panel_quote_biz": "Mondol Enterprise, Dhaka",
+  "register_panel_badge": "100+ businesses already started",
+  "register_panel_headline": "Start your free POS journey today.",
+  "register_panel_sub": "Set up your store in minutes. No technical knowledge needed — just sign up and start selling.",
+  "register_perk_1_title": "Free forever plan",
+  "register_perk_1_desc": "Start with no credit card required",
+  "register_perk_2_title": "Unlimited products",
+  "register_perk_2_desc": "Add as many products as you need",
+  "register_perk_3_title": "Full reports access",
+  "register_perk_3_desc": "Sales, inventory & financial reports",
+  "register_perk_4_title": "Secure & reliable",
+  "register_perk_4_desc": "99.9% uptime, bank-grade security",
+  "register_social_proof": "businesses already using AndgatePOS"
 }

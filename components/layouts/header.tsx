@@ -147,7 +147,7 @@ const Header = () => {
                     <div className="flex items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2">
                         <Link
                             href="/pos"
-                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg sm:gap-2 sm:px-4"
+                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#034d79] hover:to-[#02395b] hover:shadow-lg sm:gap-2 sm:px-4"
                         >
                             <ShoppingCart className="h-3 w-3 sm:h-5 sm:w-5" />
                             <span className="hidden sm:inline">POS</span>
