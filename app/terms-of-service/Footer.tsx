@@ -78,13 +78,15 @@ const Footer = () => {
                     {/* Brand Column */}
                     <div className="lg:col-span-1">
                         <Link href="/" className="mb-5 inline-block">
-                            <Image
-                                src={AndGate}
-                                alt="AndgatePOS"
-                                width={160}
-                                height={32}
-                                className="block brightness-0 invert"
-                            />
+                            <div className="overflow-hidden rounded-xl bg-white px-4 py-2 shadow-sm">
+                                <Image
+                                    src={AndGate}
+                                    alt="AndgatePOS"
+                                    width={150}
+                                    height={30}
+                                    className="block h-8 w-auto object-contain"
+                                />
+                            </div>
                         </Link>
                         <p className="mb-6 text-sm leading-relaxed text-slate-400">
                             {t('footer.brand.description') || 'Empowering businesses across Bangladesh with cutting-edge point-of-sale technology. Streamline operations, grow revenue, stay in control.'}

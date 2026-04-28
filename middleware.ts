@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 
-// 🔹 Decode permissions cookie safely
 const decodePermissionsCookie = (value?: string): string[] => {
     if (!value) return [];
     try {
@@ -12,61 +11,94 @@ const decodePermissionsCookie = (value?: string): string[] => {
     }
 };
 
+// Public pages that do not require authentication
+const PUBLIC_PATHS = [
+    '/', '/login', '/register', '/forgot-password',
+    '/pricing', '/training', '/contact',
+    '/privacy-policy', '/terms-of-service', '/cookie-policy',
+];
+const isPublicPath = (path: string) =>
+    PUBLIC_PATHS.some(p => path === p || (p !== '/' && path.startsWith(p + '/')));
+
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // 🚫 Skip static files and API routes
     if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {
         return NextResponse.next();
     }
 
-    // 🌍 Detect language (BD → Bangla, otherwise English)
-    const country = request.geo?.country || 'US';
-    const lang = country === 'BD' ? 'bn' : 'en';
+    // ── Language detection ──────────────────────────────────────────────────
+    // Priority: existing cookie > geo detection > default 'bn'
+    // Never override the user's saved preference.
     const currentLang = request.cookies.get('i18nextLng')?.value;
-    const response = NextResponse.next();
+    let resolvedLang: string;
+    if (currentLang) {
+        resolvedLang = currentLang;
+    } else {
+        // request.geo is only populated on Vercel; undefined locally → default 'bn'
+        const country = request.geo?.country;
+        resolvedLang = country === 'BD' ? 'bn' : country ? 'en' : 'bn';
+    }
 
-    if (!currentLang || currentLang !== lang) {
-        response.cookies.set('i18nextLng', lang, {
+    // Forward resolved language as a request header so Next.js server-side
+    // rendering and client hydration both use the same value.
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-lang', resolvedLang);
+
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+
+    // Persist in cookie only on first visit
+    if (!currentLang) {
+        response.cookies.set('i18nextLng', resolvedLang, {
             path: '/',
-            maxAge: 60 * 60 * 24 * 365, // 1 year
+            maxAge: 60 * 60 * 24 * 365,
         });
     }
 
-    // 🔑 Extract user info from cookies
+    // ── Auth enforcement ────────────────────────────────────────────────────
     const token = request.cookies.get('token')?.value;
-    const role = request.cookies.get('role')?.value || null;
-    const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
     const normalizedPath = normalizeRoutePath(pathname);
 
-    // 1️⃣ Redirect logged-in users away from login
+    // Logged-in users don't need the login page
     if (token && normalizedPath === '/login') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // 2️⃣ Redirect guests trying to access private routes
-    if (!token && normalizedPath !== '/login') {
+    // Unauthenticated users can only access public paths
+    if (!token && !isPublicPath(normalizedPath)) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    if (normalizedPath === '/login') {
+    // Allow all public paths
+    if (isPublicPath(normalizedPath)) {
         return response;
     }
 
-    // 3️⃣ Enforce permission-based access
+    // Permission check for protected routes
+    const role = request.cookies.get('role')?.value || null;
+    const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
     const matchedRoute = findMatchingRouteKey(normalizedPath);
     if (!matchedRoute || !canAccessRoute(role, permissions, matchedRoute)) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // ✅ Allow access
     return response;
 }
 
-// ✅ Only apply middleware to protected areas
 export const config = {
     matcher: [
+        // Public pages — included so language detection runs on every page
+        '/',
         '/login',
+        '/register',
+        '/forgot-password',
+        '/pricing',
+        '/training',
+        '/contact',
+        '/privacy-policy',
+        '/terms-of-service',
+        '/cookie-policy',
+        // Protected areas
         '/dashboard/:path*',
         '/profile/:path*',
         '/store/:path*',

@@ -12,6 +12,13 @@ interface LanguageDropdownProps {
     className?: string;
 }
 
+// Maps language code → flag SVG filename (language code ≠ country code)
+const LANG_FLAG: Record<string, string> = {
+    bn: 'BD', // Bengali → Bangladesh flag
+    en: 'EN', // English → custom EN flag
+};
+const flagFor = (code: string) => LANG_FLAG[code] ?? code.toUpperCase();
+
 const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
     const dispatch = useDispatch();
     const router = useRouter();
@@ -38,7 +45,7 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                     btnClassName="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700 transition-all hover:border-blue-600 hover:text-blue-600"
                     button={
                         <>
-                            <Image src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt={i18n.language} width={20} height={20} className="rounded-full object-cover" />
+                            <Image src={`/assets/images/flags/${flagFor(i18n.language)}.svg`} alt={i18n.language} width={20} height={20} className="rounded-full object-cover" />
                             <span className="text-sm font-medium uppercase">{i18n.language}</span>
                             <IconCaretDown />
                         </>
@@ -57,7 +64,7 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                                         setLocale(item.code);
                                     }}
                                 >
-                                    <Image src={`/assets/images/flags/${item.code.toUpperCase()}.svg`} alt={item.name} width={20} height={20} className="rounded-full object-cover" />
+                                    <Image src={`/assets/images/flags/${flagFor(item.code)}.svg`} alt={item.name} width={20} height={20} className="rounded-full object-cover" />
                                     <span className="text-sm">{item.name}</span>
                                 </button>
                             </li>

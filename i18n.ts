@@ -12,10 +12,13 @@ const langObj: Record<string, any> = {
 // Get current language (server or client)
 const getLang = (): string => {
     if (typeof window === 'undefined') {
-        // Server-side
-        const { cookies } = require('next/headers');
+        // Server-side: cookie takes priority, then the x-lang header injected by
+        // middleware (ensures SSR and client hydration use the same language).
+        const { cookies, headers } = require('next/headers');
         const langCookie = cookies().get('i18nextLng');
-        return langCookie?.value || 'bn';
+        if (langCookie?.value) return langCookie.value;
+        const headerLang = headers().get('x-lang');
+        return headerLang || 'bn';
     } else {
         // Client-side
         const cookies = new UniversalCookie();
