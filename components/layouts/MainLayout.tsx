@@ -31,7 +31,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <Image src={AndGate} alt="AndgatePOS" width={150} height={30} />
+                            <Image src={AndGate} alt="AndgatePOS" width={150} height={30} priority />
                         </Link>
 
                         {/* Desktop Nav */}

@@ -1,3 +1,4 @@
+import 'react-perfect-scrollbar/dist/css/styles.css';
 import CriticalBanner from '@/app/(application)/(protected)/notifications/components/CriticalBanner';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';

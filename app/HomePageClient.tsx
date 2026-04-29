@@ -34,15 +34,32 @@ import {
     Zap,
 } from 'lucide-react';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
-import BangladeshMap from '@/components/map/BangladeshMap';
 import { getTranslation } from '@/i18n';
-import OverViewSection from './(application)/(public)/pos-overview/OverViewSection';
-import PriceSection from './(application)/(public)/price/PriceSection';
-import TestimonialsSection from './(application)/(public)/testimonial/TestimonialsSection';
 import Footer from './terms-of-service/Footer';
+
+// Heavy sections loaded lazily — keeps initial JS bundle small
+const OverViewSection = dynamic(
+    () => import('./(application)/(public)/pos-overview/OverViewSection'),
+    { ssr: false, loading: () => <div className="h-[700px] animate-pulse rounded-2xl bg-gray-100" /> }
+);
+
+const TestimonialsSection = dynamic(
+    () => import('./(application)/(public)/testimonial/TestimonialsSection')
+);
+
+const PriceSection = dynamic(
+    () => import('./(application)/(public)/price/PriceSection'),
+    { loading: () => <div className="h-[500px] animate-pulse bg-gray-50" /> }
+);
+
+const BangladeshMap = dynamic(
+    () => import('@/components/map/BangladeshMap'),
+    { ssr: false, loading: () => <div className="h-[560px] animate-pulse rounded-2xl bg-blue-50" /> }
+);
 
 export default function HomePageClient() {
     const { t, data } = getTranslation();
@@ -128,11 +145,16 @@ export default function HomePageClient() {
     ];
 
     const businessTypes = [
-        { emoji: '👗', title: t('business_type_fashion_title'), desc: t('business_type_fashion_desc') },
-        { emoji: '🛒', title: t('business_type_grocery_title'), desc: t('business_type_grocery_desc') },
+        { emoji: '👗', title: t('business_type_fashion_title'),    desc: t('business_type_fashion_desc') },
+        { emoji: '🛒', title: t('business_type_grocery_title'),    desc: t('business_type_grocery_desc') },
         { emoji: '💻', title: t('business_type_electronics_title'), desc: t('business_type_electronics_desc') },
-        { emoji: '💄', title: t('business_type_beauty_title'), desc: t('business_type_beauty_desc') },
-        { emoji: '💊', title: t('business_type_pharmacy_title'), desc: t('business_type_pharmacy_desc') },
+        { emoji: '💄', title: t('business_type_beauty_title'),     desc: t('business_type_beauty_desc') },
+        { emoji: '💊', title: t('business_type_pharmacy_title'),   desc: t('business_type_pharmacy_desc') },
+        { emoji: '📱', title: t('business_type_mobile_title'),     desc: t('business_type_mobile_desc') },
+        { emoji: '👟', title: t('business_type_footwear_title'),   desc: t('business_type_footwear_desc') },
+        { emoji: '🔨', title: t('business_type_hardware_title'),   desc: t('business_type_hardware_desc') },
+        { emoji: '📚', title: t('business_type_stationery_title'), desc: t('business_type_stationery_desc') },
+        { emoji: '🎂', title: t('business_type_bakery_title'),     desc: t('business_type_bakery_desc') },
     ];
 
     return (
@@ -301,15 +323,15 @@ export default function HomePageClient() {
                         </p>
                     </div>
 
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+                    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                         {businessTypes.map((bt, i) => (
                             <div
                                 key={i}
-                                className="group cursor-default rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-white/20"
+                                className="group cursor-default rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm transition-all duration-200 hover:scale-[1.04] hover:bg-white/20 hover:shadow-lg"
                             >
-                                <div className="mb-4 text-4xl">{bt.emoji}</div>
-                                <h3 className="mb-2 font-bold text-white">{bt.title}</h3>
-                                <p className="text-sm leading-relaxed text-white/60">{bt.desc}</p>
+                                <div className="mb-3 text-3xl">{bt.emoji}</div>
+                                <h3 className="mb-1.5 font-bold text-white">{bt.title}</h3>
+                                <p className="text-xs leading-relaxed text-white/60">{bt.desc}</p>
                             </div>
                         ))}
                     </div>

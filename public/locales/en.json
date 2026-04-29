@@ -503,7 +503,7 @@
       "title": "Simple, Transparent Pricing Plans",
       "subtitle": "Start free — no credit card needed. Pick a plan that fits your shop. If you're not happy, we'll refund you within 14 days.",
       "benefits": {
-        "no_setup": "Small setup fees",
+        "no_setup": "No setup fee",
         "cancel_anytime": "Cancel anytime",
         "support": "24/7 support"
       }
@@ -542,7 +542,7 @@
         },
         {
           "q": "Are there any setup fees?",
-          "a": "Small setup fees! All plans include free onboarding and setup assistance."
+          "a": "No setup fees — ever. All plans include free onboarding and setup assistance."
         },
         {
           "q": "Can I cancel my subscription?",
@@ -571,13 +571,34 @@
       "subtitle": "Start your free trial today. No credit card required. Upgrade anytime.",
       "start_trial": "Start Free Trial",
       "contact_sales": "Contact Sales",
-      "guarantee": "✓ 14-day money-back guarantee ✓ Small setup fees ✓ Cancel anytime"
+      "guarantee": "✓ 14-day money-back guarantee  ✓ No setup fee  ✓ Cancel anytime"
     },
     "save_percent": "Save",
     "get_started": "Get Started",
     "setup_fee": "Setup Fee",
     "setup_fee_free": "Free",
-    "most_popular": "Most Popular"
+    "most_popular": "Most Popular",
+    "plan_descriptions": [
+      "Try everything free — no credit card needed",
+      "Perfect for one shop just getting started",
+      "For growing shops with more products & sales",
+      "Ideal for businesses managing multiple branches",
+      "Full scale for chains, franchises & large teams"
+    ],
+    "recommended_for": [
+      "New entrepreneurs & testing",
+      "Solo shop owners",
+      "Growing retail businesses",
+      "Multi-branch owners",
+      "Chains & franchises"
+    ],
+    "guarantee_short": "14-day money-back guarantee",
+    "table_heading": "Which Plan Is Right for Your Shop?",
+    "table_subheading": "Every plan includes all 15 modules. The difference is scale — stores, products, and support level.",
+    "trust_no_setup": "No setup fee",
+    "trust_cancel": "Cancel anytime",
+    "trust_refund": "14-day refund",
+    "recommended_label": "Best for:"
   },
   "testimonials": {
     "header": {
@@ -1348,8 +1369,8 @@
   "core_analytics_h4": "Tax & financial reports",
   "core_learn_more": "Learn more",
   "business_types_badge": "Industry Solutions",
-  "business_types_heading": "A POS For Every Business",
-  "business_types_subtitle": "Whether you run a fashion boutique, grocery store, or electronics shop — AndgatePOS adapts to your needs.",
+  "business_types_heading": "Works for Any Type of Shop",
+  "business_types_subtitle": "From a single pharmacy to a multi-branch electronics chain — AndgatePOS fits 10+ business types across Bangladesh.",
   "business_type_fashion_title": "Fashion & Clothing",
   "business_type_fashion_desc": "Manage garments, sizes, colors and seasonal stock with ease.",
   "business_type_grocery_title": "Grocery & Superstore",
@@ -1422,5 +1443,15 @@
   "ecommerce_mockup_cat1": "Fashion",
   "ecommerce_mockup_cat2": "Footwear",
   "ecommerce_mockup_cat3": "Bags",
-  "ecommerce_mockup_cat4": "Accessories"
+  "ecommerce_mockup_cat4": "Accessories",
+  "business_type_mobile_title": "Mobile & Accessories",
+  "business_type_mobile_desc": "IMEI/serial tracking for handsets, accessories inventory, purchase orders from distributors, and barcode labels.",
+  "business_type_footwear_title": "Footwear & Shoes",
+  "business_type_footwear_desc": "Manage size and colour variants, brand-wise stock levels, purchase orders, and barcode label printing.",
+  "business_type_hardware_title": "Hardware & Building",
+  "business_type_hardware_desc": "Large product catalogue, bulk purchase orders, supplier dues tracking, and low-stock alerts.",
+  "business_type_stationery_title": "Stationery & Books",
+  "business_type_stationery_desc": "Barcode scanning, bulk Excel product import, seasonal stock management, and supplier orders.",
+  "business_type_bakery_title": "Bakery & Food Shop",
+  "business_type_bakery_desc": "Fast POS checkout, receipt printing, daily expense tracking, and real-time inventory for food items."
 }

@@ -1,24 +1,25 @@
 import ProviderComponent from '@/components/layouts/provider-component';
-import { getAppUrl } from '@/lib/seo-config';
+import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
 import Script from 'next/script';
-import 'react-perfect-scrollbar/dist/css/styles.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/tailwind.css';
 import './globals.css';
 
+const BASE_URL = 'https://andgatepos.com';
+
 export const metadata: Metadata = {
     metadataBase: new URL(getAppUrl()),
     title: {
-        template: '%s | AndgatePOS System',
-        default: 'AndgatePOS - Complete Point of Sale System for Modern Businesses',
+        template: '%s | AndgatePOS',
+        default: 'AndgatePOS — #1 POS Software in Bangladesh | বাংলাদেশের সেরা POS সফটওয়্যার',
     },
     description:
-        'AndgatePOS is a comprehensive point of sale system designed for modern businesses. Manage inventory, process transactions, track sales, and grow your business with our powerful POS solution.',
-    keywords: ['POS system', 'point of sale', 'retail software', 'inventory management', 'business management', 'sales tracking', 'AndgatePOS', 'restaurant POS', 'retail POS', 'cloud POS'],
-    authors: [{ name: 'Andgate Technologies' }],
+        'AndgatePOS is Bangladesh\'s leading POS software for retail shops, grocery stores, pharmacies, and fashion stores. Manage inventory, billing, purchase orders, 20+ reports, and get a free Hawkeri online store. Start free today!',
+    keywords: BD_KEYWORDS,
+    authors: [{ name: 'Andgate Technologies', url: BASE_URL }],
     creator: 'Andgate Technologies',
     publisher: 'Andgate Technologies',
     robots: {
@@ -34,34 +35,40 @@ export const metadata: Metadata = {
     },
     openGraph: {
         type: 'website',
-        locale: 'en_US',
-        url: 'https://andgatepos.com',
-        siteName: 'AndgatePOS System',
-        title: 'AndgatePOS - Complete Point of Sale System for Modern Businesses',
-        description: 'Transform your business with AndgatePOS - a powerful, user-friendly point of sale system designed to streamline operations and boost productivity.',
+        locale: 'en_BD',
+        alternateLocale: ['bn_BD'],
+        url: BASE_URL,
+        siteName: 'AndgatePOS',
+        title: 'AndgatePOS — #1 POS Software in Bangladesh',
+        description:
+            'Complete POS solution for Bangladesh businesses. Inventory management, billing, purchase orders, 20+ reports, and a free online store powered by Hawkeri. Used by 100+ shop owners across Bangladesh.',
         images: [
             {
                 url: '/images/og-image.jpg',
                 width: 1200,
                 height: 630,
-                alt: 'AndgatePOS - Point of Sale System',
+                alt: 'AndgatePOS — POS Software Bangladesh',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'AndgatePOS - Complete Point of Sale System',
-        description: 'Transform your business with AndgatePOS - a powerful, user-friendly point of sale system designed to streamline operations and boost productivity.',
-        images: ['/images/twitter-image.jpg'],
+        title: 'AndgatePOS — #1 POS Software in Bangladesh',
+        description:
+            'Complete POS solution for Bangladesh businesses. Inventory, billing, reports, and a free online store. Start free today!',
+        images: ['/images/og-image.jpg'],
         creator: '@andgatetech',
     },
     verification: {
         google: 'your-google-site-verification-code',
-        yandex: 'your-yandex-verification-code',
-        yahoo: 'your-yahoo-site-verification-code',
     },
     alternates: {
-        canonical: 'https://andgatepos.com',
+        canonical: BASE_URL,
+        languages: {
+            'en-BD': BASE_URL,
+            'bn-BD': `${BASE_URL}/?lang=bn`,
+            'x-default': BASE_URL,
+        },
     },
     category: 'technology',
 };
@@ -74,33 +81,96 @@ const nunito = Nunito({
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const jsonLd = {
+    const softwareJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
         name: 'AndgatePOS',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'Point of Sale System',
         operatingSystem: 'Web Browser',
-        description: 'A comprehensive point of sale system designed for modern businesses to manage inventory, process transactions, and track sales.',
-        url: 'https://andgatepos.com',
+        description:
+            'AndgatePOS is Bangladesh\'s leading cloud POS software for retail shops, grocery stores, pharmacies, and fashion stores. Features inventory management, billing, purchase orders, 20+ business reports, staff management, and a free integrated online store powered by Hawkeri.',
+        url: BASE_URL,
+        inLanguage: ['en', 'bn'],
         author: {
             '@type': 'Organization',
             name: 'Andgate Technologies',
+            url: BASE_URL,
+            address: {
+                '@type': 'PostalAddress',
+                addressCountry: 'BD',
+                addressLocality: 'Dhaka',
+            },
         },
         offers: {
             '@type': 'Offer',
-            category: 'SaaS',
-            businessFunction: 'Sell',
+            price: '0',
+            priceCurrency: 'BDT',
+            description: 'Free plan available. Paid plans starting from BDT 0/month.',
         },
-        featureList: ['Inventory Management', 'Sales Tracking', 'Customer Management', 'Report Generation', 'Multi-store Support', 'Real-time Analytics'],
+        featureList: [
+            'POS Terminal with barcode & camera scanning',
+            'Inventory & stock management',
+            'Purchase order lifecycle management',
+            'Customer loyalty & CRM',
+            'Supplier management & dues tracking',
+            'Double-entry accounting & bookkeeping',
+            'Expense tracking',
+            '20+ business reports (sales, P&L, tax, stock, supplier dues)',
+            'Multi-store management',
+            'Staff roles & permissions',
+            'Barcode label printing',
+            'Free integrated online store (Hawkeri)',
+            'Real-time notifications',
+        ],
+        aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '4.9',
+            ratingCount: '100',
+            bestRating: '5',
+        },
+    };
+
+    const organizationJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Andgate Technologies',
+        url: BASE_URL,
+        logo: `${BASE_URL}/favicon-32x32.png`,
+        description: 'Andgate Technologies builds POS and ecommerce software for businesses in Bangladesh.',
+        address: {
+            '@type': 'PostalAddress',
+            addressCountry: 'BD',
+            addressLocality: 'Dhaka',
+            addressRegion: 'Dhaka Division',
+        },
+        contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer support',
+            availableLanguage: ['English', 'Bengali'],
+        },
+        sameAs: ['https://facebook.com/andgatetech'],
+        areaServed: {
+            '@type': 'Country',
+            name: 'Bangladesh',
+        },
     };
 
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="theme-color" content="#1f2937" />
+                <meta name="theme-color" content="#046ca9" />
+                {/* Geo targeting — Bangladesh */}
+                <meta name="geo.region" content="BD" />
+                <meta name="geo.placename" content="Dhaka, Bangladesh" />
+                <meta name="geo.position" content="23.8103;90.4125" />
+                <meta name="ICBM" content="23.8103, 90.4125" />
+                <meta name="language" content="English, Bengali" />
+                <meta name="target" content="all" />
+                <meta name="audience" content="all" />
                 <link rel="icon" href="/favicon.ico" />
                 <link rel="apple-touch-icon" sizes="180x180" href="/favicon-32x32.png" />
                 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
