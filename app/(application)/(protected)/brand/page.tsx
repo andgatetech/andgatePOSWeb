@@ -162,7 +162,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 sm:text-base"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:text-base"
                                     placeholder="Enter brand name"
                                     required
                                 />
@@ -175,7 +175,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={3}
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 sm:text-base"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:text-base"
                                     placeholder="Enter brand description"
                                 />
                             </div>
@@ -255,14 +255,13 @@ const BrandManagement = () => {
         return params;
     }, [apiParams, currentPage, itemsPerPage, sortField, sortDirection, currentStoreId]);
 
-    const { data: brandsResponse, error, isLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: brandsResponse, error, isLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: 30 });
     const [createBrand] = useCreateBrandMutation();
     const [updateBrand] = useUpdateBrandMutation();
     const [deleteBrand] = useDeleteBrandMutation();
 
     // Reset filter when current store changes from sidebar
     useEffect(() => {
-        console.log('Brands - Current store changed, resetting filters');
         setApiParams({});
         setCurrentPage(1);
     }, [currentStoreId]);

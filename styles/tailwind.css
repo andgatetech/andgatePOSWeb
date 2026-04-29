@@ -51,7 +51,7 @@
     }
 
     body {
-        @apply bg-[#fafafa] font-nunito;
+        @apply bg-[#f0f5fb] font-nunito;
     }
 
     body.dark {
@@ -60,7 +60,7 @@
 
     /* Panel */
     .panel {
-        @apply relative rounded-md bg-white p-5 shadow dark:bg-black;
+        @apply relative rounded-xl bg-white p-5 border border-[#e8eef4] shadow-sm dark:bg-black;
     }
     /* Navbar */
     .navbar-sticky header,
@@ -87,16 +87,16 @@
 
     .sidebar .nav-item > button,
     .sidebar .nav-item > a {
-        @apply mb-1 flex w-full items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-[#506690] hover:bg-[#000]/[0.08] hover:text-black dark:hover:bg-[#181f32] dark:hover:text-white-dark;
+        @apply mb-1 flex w-full items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-white/70 hover:bg-white/[0.07] hover:text-white;
     }
     .sidebar .nav-item > button.active,
     .sidebar .nav-item > a.active {
-        @apply bg-[#000]/[0.08] text-black dark:bg-[#181f32] dark:text-white-dark;
+        @apply bg-primary/[0.15] text-white;
     }
 
     .sidebar .nav-item > button.active > div > span,
     .sidebar .nav-item > a.active > div > span {
-        @apply dark:!text-white-dark;
+        @apply !text-white;
     }
 
     .sidebar ul.sub-menu li button,
@@ -111,7 +111,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
 
     .sidebar .nav-item a div:first-child svg,
     .sidebar .nav-item button div:first-child svg {
-        @apply h-5 w-5 text-black/50 dark:text-white/50;
+        @apply h-5 w-5 text-white/55;
     }
 
     .main-container .main-content {

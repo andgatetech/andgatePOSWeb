@@ -39,7 +39,7 @@ const CategoryPanel: React.FC<CategoryPanelProps> = ({ isOpen, categories, isLoa
                         <input
                             type="text"
                             placeholder="Search categories..."
-                            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-4 focus:border-transparent focus:ring-2 focus:ring-primary"
                             value={searchTerm}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />

@@ -279,7 +279,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.name}
                                             onChange={handleInputChange}
                                             className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                                formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                                                formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
                                             placeholder="Enter employee full name"
                                         />
@@ -297,7 +297,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                                formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                                                formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
                                             placeholder="Enter email address"
                                         />
@@ -316,7 +316,7 @@ const EmployeeCreateForm = () => {
                                                 value={formData.password}
                                                 onChange={handleInputChange}
                                                 className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
-                                                    formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                                                    formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                                 }`}
                                                 placeholder="Enter password (min. 6 characters)"
                                             />
@@ -345,7 +345,7 @@ const EmployeeCreateForm = () => {
                                                 className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
                                                     formErrors.password_confirmation
                                                         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                                                        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                                                        : 'border-gray-300 focus:border-primary focus:ring-primary'
                                                 }`}
                                                 placeholder="Re-enter password"
                                             />
@@ -371,7 +371,7 @@ const EmployeeCreateForm = () => {
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleInputChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                             placeholder="Enter phone number"
                                         />
                                     </div>
@@ -384,7 +384,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.address}
                                             onChange={handleInputChange}
                                             rows={3}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                             placeholder="Enter address"
                                         />
                                     </div>
@@ -398,7 +398,7 @@ const EmployeeCreateForm = () => {
                                             name="role_in_store"
                                             value={formData.role_in_store}
                                             onChange={handleInputChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         >
                                             <option value="staff">Staff</option>
                                             <option value="cashier">Cashier</option>
@@ -445,7 +445,7 @@ const EmployeeCreateForm = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isSubmitting ? (
                                         <>

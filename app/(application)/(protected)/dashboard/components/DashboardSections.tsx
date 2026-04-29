@@ -179,7 +179,7 @@ export default function DashboardSections() {
                     <select
                         value={topSellingFilter}
                         onChange={(e) => setTopSellingFilter(e.target.value)}
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="today">Today</option>
                         <option value="last_week">Weekly</option>
@@ -196,7 +196,7 @@ export default function DashboardSections() {
                                 type="date"
                                 value={customStartDate}
                                 onChange={(e) => setCustomStartDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="flex-1">
@@ -205,14 +205,14 @@ export default function DashboardSections() {
                                 type="date"
                                 value={customEndDate}
                                 onChange={(e) => setCustomEndDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>
                 )}
 
                 {/* View All Button */}
-                <Link href="/reports/product" className="mb-3 block w-full text-center text-sm font-medium text-orange-600 transition-all duration-200 hover:scale-105 hover:text-orange-700">
+                <Link href="/reports/product" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
                     View All
                 </Link>
 
@@ -245,7 +245,7 @@ export default function DashboardSections() {
                                     )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-orange-600 dark:text-white">{product.product_name}</p>
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">
                                         <CurrencyDisplay amount={product.total_revenue} /> • {product.total_sales} Sales
                                     </p>
@@ -286,7 +286,7 @@ export default function DashboardSections() {
                     <select
                         value={lowStockThreshold}
                         onChange={(e) => setLowStockThreshold(Number(e.target.value))}
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value={5}>Under 5</option>
                         <option value={10}>Under 10</option>
@@ -297,7 +297,7 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <Link href="/reports/stock" className="mb-3 block w-full text-center text-sm font-medium text-red-600 transition-all duration-200 hover:scale-105 hover:text-red-700">
+                <Link href="/reports/stock" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
                     View All
                 </Link>
 
@@ -330,7 +330,7 @@ export default function DashboardSections() {
                                     )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-red-600 dark:text-white">{product.product_name}</p>
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">SKU: {product.sku}</p>
                                 </div>
                                 <div className="transform transition-transform group-hover:scale-105">
@@ -363,7 +363,7 @@ export default function DashboardSections() {
                 </div>
 
                 {/* View All Button */}
-                <Link href="/reports/sales" className="mb-3 block w-full text-center text-sm font-medium text-blue-600 transition-all duration-200 hover:scale-105 hover:text-blue-700">
+                <Link href="/reports/sales" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
                     View All
                 </Link>
 
@@ -396,9 +396,9 @@ export default function DashboardSections() {
                                     )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white">{sale.primary_product.name}</p>
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{sale.primary_product.name}</p>
                                     <p className="text-xs text-gray-600 transition-colors group-hover:text-gray-900 dark:text-white">
-                                        <span className="font-medium text-gray-900 group-hover:text-blue-600 dark:text-white">{sale.customer_name}</span> •{' '}
+                                        <span className="font-medium text-gray-900 group-hover:text-primary dark:text-white">{sale.customer_name}</span> •{' '}
                                         <CurrencyDisplay amount={sale.total_amount} />
                                     </p>
                                     <p className="text-xs text-gray-500">{sale.order_date_formatted}</p>

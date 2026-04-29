@@ -457,7 +457,7 @@ const FeedbackPage = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => window.open(fileObj.preview, '_blank')}
-                                                                className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white hover:bg-blue-600"
+                                                                className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white hover:bg-primary"
                                                             >
                                                                 <Eye className="h-2.5 w-2.5" />
                                                             </button>

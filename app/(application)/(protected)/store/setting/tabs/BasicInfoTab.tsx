@@ -31,7 +31,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                             name="store_name"
                             value={formData.store_name}
                             onChange={handleInputChange}
-                            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-blue-200"
                             placeholder="Enter store name"
                             required
                         />

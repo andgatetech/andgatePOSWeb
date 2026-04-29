@@ -212,7 +212,7 @@ const CreateCustomerPage = () => {
                                             value={formData.name}
                                             onChange={handleChange}
                                             placeholder="Enter customer name"
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.name ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -231,7 +231,7 @@ const CreateCustomerPage = () => {
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="customer@example.com"
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.email ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -250,7 +250,7 @@ const CreateCustomerPage = () => {
                                             value={formData.phone}
                                             onChange={handleChange}
                                             placeholder="+1234567890"
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.phone ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -273,7 +273,7 @@ const CreateCustomerPage = () => {
                                             name="membership"
                                             value={formData.membership}
                                             onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         >
                                             <option value="normal">Normal</option>
                                             <option value="silver">Silver</option>
@@ -295,7 +295,7 @@ const CreateCustomerPage = () => {
                                             value={formData.points}
                                             onChange={handleChange}
                                             placeholder="0"
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -312,7 +312,7 @@ const CreateCustomerPage = () => {
                                             value={formData.balance}
                                             onChange={handleChange}
                                             placeholder="0.00"
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         />
                                         <p className="mt-1 text-xs text-gray-500">Negative for due amount</p>
                                     </div>
@@ -336,7 +336,7 @@ const CreateCustomerPage = () => {
                                             placeholder="Add notes, preferences, or special information about this customer"
                                             rows={3}
                                             maxLength={500}
-                                            className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         />
                                         <p className="mt-1 text-sm text-gray-500">{formData.details.length}/500 characters</p>
                                     </div>
@@ -351,7 +351,7 @@ const CreateCustomerPage = () => {
                                                 type="checkbox"
                                                 checked={formData.is_active}
                                                 onChange={handleChange}
-                                                className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                                                className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-primary"
                                             />
                                             <label htmlFor="is_active" className="text-sm text-gray-700">
                                                 Active Account

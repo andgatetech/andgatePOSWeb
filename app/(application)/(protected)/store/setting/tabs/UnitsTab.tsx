@@ -77,7 +77,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                         placeholder="Enter unit name (e.g., Piece, Box, Kg)"
                         className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
-                    <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+                    <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90">
                         <Plus className="mr-1 h-4 w-4" />
                         Add
                     </button>
@@ -138,7 +138,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                     <button
                                                         type="button"
                                                         onClick={() => unit.id && saveEditingUnit(unit.id)}
-                                                        className="rounded bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
+                                                        className="rounded bg-success p-1.5 text-white hover:bg-success/90"
                                                         title="Save"
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -220,7 +220,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-emerald-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

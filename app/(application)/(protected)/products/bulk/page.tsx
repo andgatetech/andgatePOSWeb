@@ -162,19 +162,19 @@ const BulkUploadPage = () => {
 
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">1</div>
+                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">1</div>
                         <h4 className="mb-1 font-semibold text-gray-900">Download Template</h4>
                         <p className="text-sm text-gray-600">Download the Excel template with the correct format and required columns.</p>
                     </div>
 
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">2</div>
+                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">2</div>
                         <h4 className="mb-1 font-semibold text-gray-900">Fill Product Data</h4>
                         <p className="text-sm text-gray-600">Add your product information following the template structure and guidelines.</p>
                     </div>
 
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">3</div>
+                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">3</div>
                         <h4 className="mb-1 font-semibold text-gray-900">Upload File</h4>
                         <p className="text-sm text-gray-600">Upload your completed file and review the results for any errors.</p>
                     </div>
@@ -260,7 +260,7 @@ const BulkUploadPage = () => {
                                     <span className="font-medium text-blue-600">Processing</span>
                                 </div>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                                    <div className="h-full animate-pulse bg-blue-600" style={{ width: '100%' }}></div>
+                                    <div className="h-full animate-pulse bg-primary" style={{ width: '100%' }}></div>
                                 </div>
                             </div>
                         )}
@@ -289,7 +289,7 @@ const BulkUploadPage = () => {
                                     <p className="text-sm font-medium text-blue-700">Total Processed</p>
                                     <p className="mt-2 text-3xl font-bold text-blue-900">{uploadResult.success_count + uploadResult.failed_count}</p>
                                 </div>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
                                     <FileSpreadsheet className="h-6 w-6 text-white" />
                                 </div>
                             </div>

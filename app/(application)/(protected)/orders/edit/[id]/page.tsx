@@ -118,7 +118,7 @@ const OrderEditPage = () => {
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-red-600">Failed to load order</h1>
                     <p className="mt-2 text-gray-600">Please try again later</p>
-                    <Link href="/orders" className="mt-4 inline-block rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
+                    <Link href="/orders" className="mt-4 inline-block rounded-lg bg-primary px-6 py-2 text-white hover:bg-primary/90">
                         ← Back to Orders
                     </Link>
                 </div>

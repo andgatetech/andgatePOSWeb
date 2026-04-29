@@ -70,11 +70,10 @@ const StaffManagement = () => {
         }
     }
 
-    const { data: staffResponse, isLoading, refetch: refetchStaffMembers } = useGetStaffMemberQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: staffResponse, isLoading, refetch: refetchStaffMembers } = useGetStaffMemberQuery(queryParams, { refetchOnMountOrArgChange: 30 });
     const staffMembers = useMemo(() => (staffResponse?.data || []) as StaffMember[], [staffResponse?.data]);
 
     useEffect(() => {
-        console.log('Staff - Current store changed, resetting filters');
         setApiParams({});
     }, [currentStoreId]);
 
@@ -130,7 +129,6 @@ const StaffManagement = () => {
 
     // Reset filters when store changes
     useEffect(() => {
-        console.log('Staff - Current store changed, resetting filters');
         setApiParams({});
     }, [currentStoreId]);
 
@@ -406,7 +404,7 @@ const StaffManagement = () => {
                         <div className="flex w-full items-center space-x-3 sm:w-auto sm:space-x-4">
                             <button
                                 onClick={() => router.push('/employees/create')}
-                                className="group relative inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-xs font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:rounded-xl sm:px-6 sm:py-3 sm:text-sm"
+                                className="group relative inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-xs font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:rounded-xl sm:px-6 sm:py-3 sm:text-sm"
                             >
                                 <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
                                 Add Employee
@@ -530,7 +528,7 @@ const StaffManagement = () => {
                                     type="button"
                                     onClick={handleSavePermissions}
                                     disabled={isUpdatingPermission || permissionFetchLoading}
-                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:text-sm"
+                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:text-sm"
                                 >
                                     {isUpdatingPermission ? (
                                         <>

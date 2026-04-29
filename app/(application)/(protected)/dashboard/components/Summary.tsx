@@ -132,7 +132,7 @@ const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, 
                 </div>
             </div>
             <div className="mt-3 border-t border-gray-100 pt-2.5">
-                <Link href={route} className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-700">
+                <Link href={route} className="text-xs font-medium text-primary transition-colors hover:text-primary/80">
                     View All →
                 </Link>
             </div>
@@ -191,7 +191,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                                     }
                                 }}
                                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                                    selectedPeriod === option.value ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                                    selectedPeriod === option.value ? 'bg-primary/[0.08] font-medium text-primary' : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                             >
                                 <CalendarDays className="h-4 w-4" />
@@ -209,7 +209,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                                         type="date"
                                         value={customStartDate}
                                         onChange={(e) => onStartDateChange(e.target.value)}
-                                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                     />
                                 </div>
                                 <div>
@@ -218,7 +218,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                                         type="date"
                                         value={customEndDate}
                                         onChange={(e) => onEndDateChange(e.target.value)}
-                                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                     />
                                 </div>
                                 <button
@@ -227,7 +227,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                                         setIsOpen(false);
                                     }}
                                     disabled={!customStartDate || !customEndDate}
-                                    className="mt-1 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="mt-1 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     Apply Range
                                 </button>
@@ -327,14 +327,14 @@ export default function Summary() {
             title: 'Total Sales',
             numericValue: cards.total_sales?.value ?? 0,
             icon: FileText,
-            bgGradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+            bgGradient: 'bg-gradient-to-br from-[#046ca9] to-[#034d79]',
             route: '/reports/sales',
         },
         {
             title: 'Profit Margin',
             numericValue: cards.profit_margin?.value ?? 0,
             icon: Percent,
-            bgGradient: 'bg-gradient-to-br from-violet-500 to-violet-600',
+            bgGradient: 'bg-gradient-to-br from-[#059669] to-[#047857]',
             route: '/reports/profit-loss',
             isCurrency: false,
             isPercentage: true,
@@ -343,7 +343,7 @@ export default function Summary() {
             title: 'Sales Receivable',
             numericValue: cards.sales_receivable?.value ?? 0,
             icon: CreditCard,
-            bgGradient: 'bg-gradient-to-br from-sky-500 to-sky-600',
+            bgGradient: 'bg-gradient-to-br from-[#d97706] to-[#b45309]',
             route: '/reports/sales',
             showMinus: true,
         },
@@ -351,7 +351,7 @@ export default function Summary() {
             title: 'Total Purchase',
             numericValue: cards.total_purchase?.value ?? 0,
             icon: ShoppingCart,
-            bgGradient: 'bg-gradient-to-br from-blue-500 to-blue-600',
+            bgGradient: 'bg-gradient-to-br from-[#6366f1] to-[#4f46e5]',
             route: '/reports/purchases',
         },
     ];
@@ -361,21 +361,21 @@ export default function Summary() {
             title: 'Total Sales Return',
             numericValue: cards.total_sales_return?.value ?? 0,
             icon: RefreshCw,
-            bgGradient: 'bg-gradient-to-br from-rose-500 to-rose-600',
+            bgGradient: 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c]',
             route: '/reports/order-returns',
         },
         {
             title: 'Business Profit',
             numericValue: cards.business_profit?.value ?? 0,
             icon: Wallet,
-            bgGradient: 'bg-gradient-to-br from-amber-500 to-amber-600',
+            bgGradient: 'bg-gradient-to-br from-[#059669] to-[#047857]',
             route: '/reports/profit-loss',
         },
         {
             title: 'Total Expenses',
             numericValue: cards.total_expenses?.value ?? 0,
             icon: Banknote,
-            bgGradient: 'bg-gradient-to-br from-orange-500 to-orange-600',
+            bgGradient: 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c]',
             route: '/reports/expenses',
             showMinus: true,
         },
@@ -383,7 +383,7 @@ export default function Summary() {
             title: 'Product Profit',
             numericValue: cards.product_profit?.value ?? 0,
             icon: TrendingUp,
-            bgGradient: 'bg-gradient-to-br from-teal-500 to-teal-600',
+            bgGradient: 'bg-gradient-to-br from-[#0284c7] to-[#0369a1]',
             route: '/reports/profit-loss',
         },
     ];
@@ -395,24 +395,24 @@ export default function Summary() {
             title: 'Total Discount',
             numericValue: cards.total_discount?.value ?? 0,
             icon: BadgePercent,
-            iconBg: 'bg-pink-50',
-            iconColor: 'text-pink-600',
+            iconBg: 'bg-warning/[0.1]',
+            iconColor: 'text-warning',
             route: '/reports/sales',
         },
         {
             title: 'Total Tax',
             numericValue: cards.total_tax?.value ?? 0,
             icon: Receipt,
-            iconBg: 'bg-indigo-50',
-            iconColor: 'text-indigo-600',
+            iconBg: 'bg-primary/[0.1]',
+            iconColor: 'text-primary',
             route: '/reports/sales',
         },
         {
             title: 'Total Orders',
             numericValue: cards.total_orders?.value ?? 0,
             icon: Layers,
-            iconBg: 'bg-cyan-50',
-            iconColor: 'text-cyan-600',
+            iconBg: 'bg-primary/[0.1]',
+            iconColor: 'text-primary',
             route: '/orders',
             isCurrency: false,
         },
@@ -420,8 +420,8 @@ export default function Summary() {
             title: 'Total Items Sold',
             numericValue: cards.total_items_sold?.value ?? 0,
             icon: Package,
-            iconBg: 'bg-lime-50',
-            iconColor: 'text-lime-600',
+            iconBg: 'bg-success/[0.1]',
+            iconColor: 'text-success',
             route: '/reports/sales',
             isCurrency: false,
         },

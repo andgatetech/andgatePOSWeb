@@ -276,12 +276,12 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         value={warrantyDescription}
                         onChange={(e) => setWarrantyDescription(e.target.value)}
                         placeholder="Description (optional)"
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <button
                         type="button"
                         onClick={handleCreateWarranty}
-                        className="inline-flex items-center justify-center rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                        className="inline-flex items-center justify-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90"
                     >
                         <Plus className="mr-1 h-4 w-4" />
                         Add Warranty
@@ -390,7 +390,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                     <button
                                                         type="button"
                                                         onClick={() => handleUpdateWarranty(warranty.id)}
-                                                        className="rounded bg-emerald-600 p-1.5 text-white hover:bg-emerald-700"
+                                                        className="rounded bg-success p-1.5 text-white hover:bg-success/90"
                                                         title="Save"
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -462,7 +462,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-emerald-600 text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

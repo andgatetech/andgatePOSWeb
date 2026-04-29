@@ -248,12 +248,6 @@ const ReceiveItemsPage = () => {
             payment_notes: paymentNotes,
         };
 
-        // 📋 Log the data being sent to backend
-        console.log('=== RECEIVE PURCHASE ORDER DATA ===');
-        console.log('Purchase Order ID:', purchaseOrderId);
-        console.log('Data being sent to backend:', JSON.stringify(receiveData, null, 2));
-        console.log('===================================');
-
         try {
             const response = await updatePO({
                 id: purchaseOrderId,

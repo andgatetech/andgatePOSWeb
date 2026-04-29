@@ -1,8 +1,9 @@
 'use client';
-import { RootState } from '@/store';
+import { RootState, persistor } from '@/store';
+import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StoreDisabledScreen from './StoreDisabledScreen';
 import StoreInactiveScreen from './StoreInactiveScreen';
 import SubscriptionPendingScreen from './SubscriptionPendingScreen';
@@ -13,11 +14,35 @@ interface StatusGuardProps {
     children: React.ReactNode;
 }
 
+const hasTokenCookie = () => /(?:^|;\s*)token=/.test(document.cookie);
+
 export default function StatusGuard({ children }: StatusGuardProps) {
     const router = useRouter();
+    const dispatch = useDispatch();
     const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const [isChecking, setIsChecking] = useState(true);
+
+    // Force logout if the token cookie has expired while the tab was open
+    useEffect(() => {
+        const forceLogoutIfExpired = () => {
+            if (isAuthenticated && !hasTokenCookie()) {
+                dispatch(logoutAction());
+                persistor.purge();
+                router.replace('/login');
+            }
+        };
+
+        forceLogoutIfExpired();
+
+        const interval = setInterval(forceLogoutIfExpired, 5 * 60 * 1000);
+        document.addEventListener('visibilitychange', forceLogoutIfExpired);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', forceLogoutIfExpired);
+        };
+    }, [isAuthenticated, dispatch, router]);
 
     useEffect(() => {
         // If not authenticated, redirect to login

@@ -8,23 +8,15 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTranslation } from '@/i18n';
-import { buildMenuFromPermissions } from '@/lib/menu-builder';
+import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
 import { RootState } from '@/store';
 import { setCurrentStore } from '@/store/features/auth/authSlice';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 
-import { AlertTriangle, Ban, Crown, Store } from 'lucide-react';
+import { AlertTriangle, Ban, ChevronDown, Crown } from 'lucide-react';
 import Image from 'next/image';
-import IconCaretDown from '../icon/icon-caret-down';
 import IconCaretsDown from '../icon/icon-carets-down';
-
-// Helper: read cookie
-function getCookieValue(name: string): string | null {
-    if (typeof document === 'undefined') return null;
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-}
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -34,309 +26,354 @@ const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
     const [storeWarning, setStoreWarning] = useState<string | null>(null);
+    const [isSwitchingStore, setIsSwitchingStore] = useState(false);
 
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
-    const semidark = useSelector((state: RootState) => state.themeConfig.semidark);
-
-    // Get user, permissions, and stores from Redux
     const user = useSelector((state: RootState) => state.auth.user);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
-    const currentStoreId = useSelector((state: RootState) => state.auth.currentStoreId);
     const userStores = user?.stores || [];
 
-    // Notification unread count (shares cache with header dropdown — no extra API call)
     const { data: unreadData } = useGetUnreadCountQuery(undefined, {
-        pollingInterval: 1800000, // 30 minutes
+        pollingInterval: 300000, // 5 minutes
     });
     const unreadCount = unreadData?.count || 0;
 
-    const toggleMenu = (value: string) => {
-        setCurrentMenu((oldValue) => (oldValue === value ? '' : value));
-    };
-
-    // Helper to check if a store is inactive or disabled
     const isStoreInactive = (store: any) => store.is_active === 0 || store.is_active === false;
     const isStoreDisabled = (store: any) => store.store_disabled === 1 || store.store_disabled === true;
 
-    const handleStoreChange = (store: any) => {
-        // Clear previous warning
-        setStoreWarning(null);
-
-        // Check store status and show warning, but still allow the switch
-        // (StatusGuard will display the full-screen message)
-        if (isStoreInactive(store)) {
-            setStoreWarning(`"${store.store_name}" is currently inactive. Please contact your administrator.`);
-        } else if (isStoreDisabled(store)) {
-            setStoreWarning(`"${store.store_name}" has been disabled. Please contact your administrator.`);
-        }
-
-        dispatch(setCurrentStore(store));
-        setIsStoreDropdownOpen(false);
-
-        // Check if user is on an order return page (detail or with query params) and redirect to list
-        const returnDetailMatch = pathname?.match(/^\/orders\/return\/(\d+)$/);
-        const returnWithQueryMatch = pathname === '/orders/return';
-
-        if (returnDetailMatch || returnWithQueryMatch) {
-            router.push('/orders/return/list');
-        }
-
-        // Check if user is on a product edit page and redirect to products list
-        const productEditMatch = pathname?.match(/^\/products\/edit\/(\d+)$/);
-        if (productEditMatch) {
-            router.push('/products');
-        }
-
-        // Check if user is on a purchase receive page and redirect to purchases list
-        const purchaseReceiveMatch = pathname?.match(/^\/purchases\/receive\/(\d+)$/);
-        if (purchaseReceiveMatch) {
-            router.push('/purchases/receive');
-        }
+    // ── Active route detection (pathname-based, no DOM manipulation) ──────
+    const isActiveRoute = (href: string) => {
+        if (href === '/dashboard') return pathname === '/dashboard';
+        return pathname === href || pathname.startsWith(href + '/');
     };
 
-    // Highlight active route
+    const isParentActive = (route: MenuItem): boolean => {
+        if (!route.subMenu) return false;
+        return route.subMenu.some((sub) => {
+            if (sub.href) return isActiveRoute(sub.href);
+            if (sub.subMenu) return sub.subMenu.some((n) => !!n.href && isActiveRoute(n.href));
+            return false;
+        });
+    };
+
+    const menuRoutes = useMemo(() => buildMenuFromPermissions(user?.permissions || []), [user]);
+
+    // Auto-open parent that contains the active route on navigation
     useEffect(() => {
-        setActiveRoute();
-        if (window.innerWidth < 1024 && themeConfig.sidebar) {
-            dispatch(toggleSidebar());
-        }
+        const activeParent = menuRoutes.find((r) => r.subMenu && isParentActive(r));
+        if (activeParent) setCurrentMenu(activeParent.label);
+        setIsSwitchingStore(false);
+        if (window.innerWidth < 1024 && themeConfig.sidebar) dispatch(toggleSidebar());
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pathname]);
+    }, [pathname, menuRoutes]);
 
-    const setActiveRoute = () => {
-        document.querySelectorAll('.sidebar ul a.active').forEach((el) => el.classList.remove('active'));
-        const selector = document.querySelector(`.sidebar ul a[href="${window.location.pathname}"]`);
-        selector?.classList.add('active');
+    // Fallback: clear switching state after 1.5s when no navigation occurs
+    useEffect(() => {
+        if (!isSwitchingStore) return;
+        const timer = setTimeout(() => setIsSwitchingStore(false), 1500);
+        return () => clearTimeout(timer);
+    }, [isSwitchingStore]);
+
+    const toggleMenu = (label: string) => setCurrentMenu((prev) => (prev === label ? '' : label));
+
+    const handleStoreChange = (store: any) => {
+        if (currentStore?.id === store.id) { setIsStoreDropdownOpen(false); return; }
+        setStoreWarning(null);
+        setIsSwitchingStore(true);
+        setIsStoreDropdownOpen(false);
+        if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" is currently inactive.`);
+        else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" has been disabled.`);
+        dispatch(setCurrentStore(store));
+        if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
+        if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');
+        if (pathname?.match(/^\/purchases\/receive\/(\d+)$/)) router.push('/purchases/receive');
     };
 
-    // 🚀 Build menu dynamically based on user permissions
-    const menuRoutes = useMemo(() => {
-        const userPermissions = user?.permissions || [];
-        const userRole = user?.role;
-
-        return buildMenuFromPermissions(userPermissions);
-    }, [user]);
+    const storeInitial = currentStore?.store_name?.[0]?.toUpperCase() || 'S';
 
     return (
-        <div className={semidark ? 'dark' : ''}>
-            <nav
-                className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${semidark ? 'text-white-dark' : ''}`}
-            >
-                <div className="flex h-full flex-col bg-white dark:bg-black">
-                    {/* Logo */}
-                    <div className="flex items-center justify-between px-4 py-3">
-                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center space-x-2">
-                            <Image src="/images/andgatePOS.jpeg" alt="AndGate POS logo" width={0} height={0} sizes="100vw" className="h-10 w-auto object-contain" priority />
-                            {/* You can add site name text here if needed */}
-                        </Link>
+        <nav className="sidebar fixed bottom-0 top-0 z-50 flex h-full min-h-screen w-[260px] flex-col bg-[#1a2d50] border-r border-white/[0.07] transition-all duration-300">
 
-                        <button
-                            type="button"
-                            className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180"
-                            onClick={() => dispatch(toggleSidebar())}
-                        >
-                            <IconCaretsDown className="m-auto rotate-90" />
-                        </button>
+            {/* ── Logo ─────────────────────────────────────────────────── */}
+            <div className="flex h-[60px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
+                <Link href="/dashboard" className="flex items-center gap-2.5">
+                    <div className="overflow-hidden rounded-lg">
+                        <Image src="/images/andgatePOS.jpeg" alt="AndGate POS" width={110} height={28} className="h-7 w-auto object-contain" priority />
                     </div>
+                </Link>
+                <button
+                    type="button"
+                    onClick={() => dispatch(toggleSidebar())}
+                    aria-label="Collapse sidebar"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-white/50 transition-colors hover:bg-white/10 hover:text-white/85"
+                >
+                    <IconCaretsDown className="rotate-90 scale-90" />
+                </button>
+            </div>
 
-                    {/* Store Warning Alert */}
+            {/* ── Store Selector ───────────────────────────────────────── */}
+            {userStores.length > 0 && (
+                <div className="flex-shrink-0 border-b border-white/[0.06] px-3 pb-3 pt-2.5">
+                    <button
+                        onClick={() => userStores.length > 1 && !isSwitchingStore && setIsStoreDropdownOpen(!isStoreDropdownOpen)}
+                        disabled={isSwitchingStore}
+                        className={`group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 transition-colors ${
+                            userStores.length > 1 && !isSwitchingStore ? 'cursor-pointer hover:bg-white/[0.05]' : 'cursor-default'
+                        } ${isSwitchingStore ? 'opacity-60' : ''}`}
+                    >
+                        {/* Store avatar */}
+                        <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white shadow-lg ${
+                            currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore))
+                                ? 'bg-red-500/70' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+                        }`}>
+                            {isSwitchingStore ? (
+                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                            ) : storeInitial}
+                        </div>
+
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="truncate text-[13px] font-semibold leading-tight text-white/90">
+                                {isSwitchingStore ? 'Switching...' : currentStore?.store_name || 'Select Store'}
+                            </p>
+                            <p className="text-[10px] leading-tight text-white/55">
+                                {currentStore && isStoreInactive(currentStore) ? 'Inactive store' :
+                                 currentStore && isStoreDisabled(currentStore) ? 'Store disabled' : 'Current store'}
+                            </p>
+                        </div>
+
+                        {userStores.length > 1 && (
+                            <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 text-white/45 transition-transform duration-200 ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
+                        )}
+                    </button>
+
+                    {/* Store warning */}
                     {storeWarning && (
-                        <div className="mx-4 mt-3 flex items-start gap-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 dark:border-orange-700 dark:bg-orange-900/30">
-                            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-400" />
-                            <div className="flex-1">
-                                <p className="text-xs font-medium text-orange-800 dark:text-orange-300">{storeWarning}</p>
-                            </div>
-                            <button onClick={() => setStoreWarning(null)} className="text-orange-600 hover:text-orange-800 dark:text-orange-400">
-                                <span className="text-xs font-bold">✕</span>
+                        <div className="mt-2 flex items-start gap-2 rounded-lg border border-orange-500/20 bg-orange-500/[0.08] px-3 py-2">
+                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-orange-400" />
+                            <p className="flex-1 text-[11px] leading-relaxed text-orange-300">{storeWarning}</p>
+                            <button onClick={() => setStoreWarning(null)} className="text-orange-400/50 transition-colors hover:text-orange-400">
+                                <span className="text-xs leading-none">✕</span>
                             </button>
                         </div>
                     )}
 
-                    {/* Store Selector Dropdown */}
-                    {userStores.length > 0 && (
-                        <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
-                            <div className="relative">
-                                <button
-                                    onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
-                                    className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-sm ${
-                                        currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore))
-                                            ? 'border-red-300 bg-red-50 hover:bg-red-100 dark:border-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50'
-                                            : 'border-gray-200 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Store
-                                            className={`h-4 w-4 ${
-                                                currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore)) ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'
-                                            }`}
-                                        />
-                                        <span
-                                            className={`font-medium ${
-                                                currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore)) ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-200'
+                    {/* Store list dropdown */}
+                    <AnimateHeight duration={200} height={isStoreDropdownOpen ? 'auto' : 0}>
+                        <div className="mt-2 overflow-hidden rounded-xl border border-white/[0.09] bg-[#111e3a]">
+                            <p className="px-3 py-2 text-[9px] font-semibold uppercase tracking-widest text-white/45">Switch Store</p>
+                            <div className="pb-1.5">
+                                {userStores.map((store) => (
+                                    <button
+                                        key={store.id}
+                                        onClick={() => handleStoreChange(store)}
+                                        className={`flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-white/[0.05] ${
+                                            currentStore?.id === store.id ? 'text-primary' : 'text-white/75'
+                                        }`}
+                                    >
+                                        <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-[9px] font-bold text-white ${
+                                            isStoreInactive(store) ? 'bg-orange-500/60' :
+                                            isStoreDisabled(store) ? 'bg-red-500/60' :
+                                            currentStore?.id === store.id ? 'bg-primary' : 'bg-white/20'
+                                        }`}>
+                                            {store.store_name[0]?.toUpperCase()}
+                                        </div>
+                                        <span className="flex-1 truncate text-[12px] font-medium">{store.store_name}</span>
+                                        {currentStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && (
+                                            <span className="text-xs text-primary">✓</span>
+                                        )}
+                                        {isStoreInactive(store) && (
+                                            <span className="flex items-center gap-1 rounded bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-orange-400">
+                                                <AlertTriangle className="h-2.5 w-2.5" /> Inactive
+                                            </span>
+                                        )}
+                                        {isStoreDisabled(store) && (
+                                            <span className="flex items-center gap-1 rounded bg-red-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-red-400">
+                                                <Ban className="h-2.5 w-2.5" /> Disabled
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </AnimateHeight>
+                </div>
+            )}
+
+            {/* ── Navigation Menu ──────────────────────────────────────── */}
+            <PerfectScrollbar className="flex-1">
+                <div className="px-2.5 py-3">
+                    {menuRoutes.map((route) => {
+                        const parentActive = route.subMenu ? isParentActive(route) : false;
+                        const isOpen = currentMenu === route.label;
+                        const directActive = !route.subMenu && !!route.href && isActiveRoute(route.href);
+
+                        return (
+                            <div key={route.label} className="mb-0.5">
+                                {route.subMenu ? (
+                                    <>
+                                        {/* Parent with submenu */}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleMenu(route.label)}
+                                            className={`group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
+                                                parentActive
+                                                    ? 'bg-primary/[0.15] text-white'
+                                                    : 'text-white/70 hover:bg-white/[0.07] hover:text-white'
                                             }`}
                                         >
-                                            {currentStore ? currentStore.store_name : 'Select Store'}
-                                        </span>
-                                        {currentStore && isStoreInactive(currentStore) && (
-                                            <span className="rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-800/50 dark:text-orange-300">Inactive</span>
-                                        )}
-                                        {currentStore && isStoreDisabled(currentStore) && (
-                                            <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-800/50 dark:text-red-300">Disabled</span>
-                                        )}
-                                    </div>
-                                    <IconCaretDown className={`h-4 w-4 text-gray-500 transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />
-                                </button>
-
-                                {/* Dropdown Menu */}
-                                <AnimateHeight duration={200} height={isStoreDropdownOpen ? 'auto' : 0}>
-                                    <div className="mt-2 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800">
-                                        <div className="border-b border-gray-100 px-3 py-2 text-xs font-semibold uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">Select Store</div>
-                                        <div className="py-1">
-                                            {userStores.map((store) => (
-                                                <button
-                                                    key={store.id}
-                                                    onClick={() => handleStoreChange(store)}
-                                                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                                                        currentStore?.id === store.id ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-gray-700 dark:text-gray-200'
-                                                    } ${isStoreInactive(store) || isStoreDisabled(store) ? 'opacity-70' : ''}`}
-                                                >
-                                                    <Store className={`h-4 w-4 ${isStoreInactive(store) ? 'text-orange-500' : isStoreDisabled(store) ? 'text-red-500' : ''}`} />
-                                                    <span className="truncate font-medium">{store.store_name}</span>
-                                                    {isStoreInactive(store) && (
-                                                        <span className="ml-auto flex items-center gap-1 rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold text-orange-700 dark:bg-orange-800/50 dark:text-orange-300">
-                                                            <AlertTriangle className="h-3 w-3" /> Inactive
-                                                        </span>
-                                                    )}
-                                                    {isStoreDisabled(store) && (
-                                                        <span className="ml-auto flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-800/50 dark:text-red-300">
-                                                            <Ban className="h-3 w-3" /> Disabled
-                                                        </span>
-                                                    )}
-                                                    {currentStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && <span className="ml-auto text-xs text-primary">✓</span>}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </AnimateHeight>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Sidebar Menu */}
-                    <PerfectScrollbar className="flex-1 overflow-y-auto">
-                        <ul className="relative space-y-0.5 p-4 pb-4 font-semibold">
-                            {menuRoutes.map((route) => (
-                                <li key={route.label} className="menu nav-item">
-                                    {route.subMenu ? (
-                                        // Route with submenu
-                                        <>
-                                            <button
-                                                type="button"
-                                                className={`${currentMenu === route.label ? 'active' : ''} nav-link group flex w-full items-center justify-between`}
-                                                onClick={() => toggleMenu(route.label)}
-                                            >
-                                                <div className="flex items-center">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`flex-shrink-0 transition-colors [&>svg]:h-4 [&>svg]:w-4 ${
+                                                    parentActive ? 'text-primary' : 'text-white/55 group-hover:text-white/85'
+                                                }`}>
                                                     {route.icon}
-                                                    <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
-                                                </div>
-                                                <IconCaretDown className={`${currentMenu === route.label ? 'rotate-180' : ''}`} />
-                                            </button>
-
-                                            <AnimateHeight duration={300} height={currentMenu === route.label ? 'auto' : 0}>
-                                                <ul className="sub-menu text-gray-500">
-                                                    {route.subMenu.map((sub) => (
-                                                        <li key={sub.label} className="py-1">
-                                                            {sub.href ? (
-                                                                <Link href={sub.href} className="flex items-center">
-                                                                    {sub.icon && sub.icon}
-                                                                    <span className="ltr:pl-2 rtl:pr-2">{t(sub.label)}</span>
-                                                                </Link>
-                                                            ) : sub.subMenu ? (
-                                                                // Handle nested submenu (like Stock Reports)
-                                                                <div>
-                                                                    <span className="block px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">{t(sub.label)}</span>
-                                                                    <ul className="ml-4 space-y-1">
-                                                                        {sub.subMenu.map((nested) => (
-                                                                            <li key={nested.label}>
-                                                                                {nested.href && (
-                                                                                    <Link
-                                                                                        href={nested.href}
-                                                                                        className="block px-3 py-1 text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary"
-                                                                                    >
-                                                                                        {t(nested.label)}
-                                                                                    </Link>
-                                                                                )}
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </div>
-                                                            ) : (
-                                                                <span className="px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">{t(sub.label)}</span>
-                                                            )}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </AnimateHeight>
-                                        </>
-                                    ) : (
-                                        // Direct link (like Dashboard)
-                                        <Link href={route.href!} className="nav-link group flex w-full items-center justify-between py-2 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
-                                            <div className="flex items-center">
-                                                {route.icon}
-                                                <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{t(route.label)}</span>
-                                            </div>
-                                            {route.label === 'Notifications' && unreadCount > 0 && (
-                                                <span className="relative flex items-center">
-                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger/40"></span>
-                                                    <span className="relative inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
-                                                        {unreadCount > 99 ? '99+' : unreadCount}
-                                                    </span>
                                                 </span>
-                                            )}
-                                        </Link>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    </PerfectScrollbar>
+                                                <span>{t(route.label)}</span>
+                                            </div>
+                                            <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${
+                                                isOpen ? 'rotate-180' : ''
+                                            } ${parentActive ? 'text-primary/70' : 'text-white/40'}`} />
+                                        </button>
 
-                    {/* Subscription Status Card - Simple Version */}
-                    {user?.subscription_user && (
-                        <div className="border-t border-gray-200 p-4 dark:border-gray-700">
-                            <div className="flex items-center justify-between gap-3">
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                        <Crown className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
-                                        <p className="truncate text-sm font-bold text-gray-800 dark:text-gray-200">{user.subscription_user.plan_name_en}</p>
-                                    </div>
+                                        {/* Submenu */}
+                                        <AnimateHeight duration={220} height={isOpen ? 'auto' : 0}>
+                                            <div className="ml-[13px] mt-1 border-l border-white/[0.1] pl-3.5 pb-1">
+                                                {route.subMenu.map((sub) => {
+                                                    if (sub.href) {
+                                                        const active = isActiveRoute(sub.href);
+                                                        return (
+                                                            <Link
+                                                                key={sub.label}
+                                                                href={sub.href}
+                                                                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12.5px] transition-all duration-150 ${
+                                                                    active
+                                                                        ? 'bg-primary/[0.13] font-semibold text-primary'
+                                                                        : 'text-white/65 hover:bg-white/[0.07] hover:text-white'
+                                                                }`}
+                                                            >
+                                                                {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-primary" />}
+                                                                {t(sub.label)}
+                                                            </Link>
+                                                        );
+                                                    }
 
-                                    {user.subscription_user.expire_date &&
-                                        (() => {
-                                            const exp = new Date(user.subscription_user.expire_date);
-                                            const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                                            return (
-                                                <p className="mt-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                                                    <span className={`mr-1 capitalize ${user.subscription_user.status === 'active' ? 'text-green-600' : 'text-orange-500'}`}>
-                                                        {user.subscription_user.status}
-                                                    </span>
-                                                    • {daysLeft > 0 ? `${daysLeft}d left` : 'Expired'}
-                                                </p>
-                                            );
-                                        })()}
-                                </div>
+                                                    // Nested group (Reports sections)
+                                                    if (sub.subMenu) {
+                                                        return (
+                                                            <div key={sub.label} className="mt-4 first:mt-1">
+                                                                <div className="mb-1.5 flex items-center gap-2 px-2">
+                                                                    <p className="text-[9px] font-semibold uppercase tracking-widest text-white/55">
+                                                                        {t(sub.label)}
+                                                                    </p>
+                                                                    <div className="h-px flex-1 bg-white/10" />
+                                                                </div>
+                                                                {sub.subMenu.map((nested) => {
+                                                                    if (!nested.href) return null;
+                                                                    const active = isActiveRoute(nested.href);
+                                                                    return (
+                                                                        <Link
+                                                                            key={nested.label}
+                                                                            href={nested.href}
+                                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] transition-all duration-150 ${
+                                                                                active
+                                                                                    ? 'bg-primary/[0.13] font-semibold text-primary'
+                                                                                    : 'text-white/65 hover:bg-white/[0.07] hover:text-white'
+                                                                            }`}
+                                                                        >
+                                                                            {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-primary" />}
+                                                                            {t(nested.label)}
+                                                                        </Link>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        );
+                                                    }
 
-                                <Link
-                                    href="/subscription"
-                                    className="flex-shrink-0 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                                >
-                                    Upgrade
-                                </Link>
+                                                    return null;
+                                                })}
+                                            </div>
+                                        </AnimateHeight>
+                                    </>
+                                ) : (
+                                    /* Direct link */
+                                    <Link
+                                        href={route.href!}
+                                        className={`group flex items-center justify-between rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
+                                            directActive
+                                                ? 'bg-primary/[0.15] text-white'
+                                                : 'text-white/70 hover:bg-white/[0.07] hover:text-white'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className={`flex-shrink-0 transition-colors [&>svg]:h-4 [&>svg]:w-4 ${
+                                                directActive ? 'text-primary' : 'text-white/55 group-hover:text-white/85'
+                                            }`}>
+                                                {route.icon}
+                                            </span>
+                                            <span>{t(route.label)}</span>
+                                        </div>
+
+                                        {/* Notification badge */}
+                                        {route.label === 'Notifications' && unreadCount > 0 && (
+                                            <span className="relative flex items-center">
+                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400/40" />
+                                                <span className="relative flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                                </span>
+                                            </span>
+                                        )}
+                                    </Link>
+                                )}
                             </div>
-                        </div>
-                    )}
+                        );
+                    })}
                 </div>
-            </nav>
-        </div>
+            </PerfectScrollbar>
+
+            {/* ── Subscription Footer ───────────────────────────────────── */}
+            {user?.subscription_user && (() => {
+                const exp = new Date(user.subscription_user.expire_date);
+                const daysLeft = Math.ceil((exp.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                const isExpired = daysLeft <= 0;
+                const isExpiring = daysLeft <= 7 && !isExpired;
+
+                return (
+                    <div className="flex-shrink-0 border-t border-white/[0.06] p-3">
+                        <div className={`flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 ${
+                            isExpired ? 'bg-red-500/[0.08]' : isExpiring ? 'bg-orange-500/[0.08]' : 'bg-white/[0.04]'
+                        }`}>
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                    <Crown className={`h-3 w-3 flex-shrink-0 ${
+                                        isExpired ? 'text-red-400' : isExpiring ? 'text-orange-400' : 'text-yellow-400'
+                                    }`} />
+                                    <p className="truncate text-[12px] font-semibold text-white/75">
+                                        {user.subscription_user.plan_name_en}
+                                    </p>
+                                </div>
+                                <p className={`mt-0.5 text-[10px] ${
+                                    isExpired ? 'text-red-400' : isExpiring ? 'text-orange-400' : 'text-white/50'
+                                }`}>
+                                    {isExpired ? 'Subscription expired' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining`}
+                                </p>
+                            </div>
+                            <Link
+                                href="/subscription"
+                                className={`flex-shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
+                                    isExpired ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
+                                    isExpiring ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30' :
+                                    'bg-white/[0.08] text-white/65 hover:bg-white/[0.14] hover:text-white/90'
+                                }`}
+                            >
+                                Upgrade
+                            </Link>
+                        </div>
+                    </div>
+                );
+            })()}
+        </nav>
     );
 };
 

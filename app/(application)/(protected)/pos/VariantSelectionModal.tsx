@@ -86,7 +86,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                     </div>
                                     <button
                                         onClick={onClose}
-                                        className="ml-4 rounded-full bg-white p-2 text-gray-400 shadow-sm transition-all hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="ml-4 rounded-full bg-white p-2 text-gray-400 shadow-sm transition-all hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary"
                                     >
                                         <X className="h-5 w-5" />
                                     </button>
@@ -183,7 +183,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
 
                                                     {/* Selected Indicator */}
                                                     {isSelected && (
-                                                        <div className="absolute right-3 top-3 rounded-full bg-blue-600 p-1.5 shadow-lg">
+                                                        <div className="absolute right-3 top-3 rounded-full bg-primary p-1.5 shadow-lg">
                                                             <Check className="h-4 w-4 text-white" strokeWidth={3} />
                                                         </div>
                                                     )}
@@ -204,7 +204,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                     <button
                                         onClick={handleAddToCart}
                                         disabled={selectedVariantIndex === null || isAdding}
-                                        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 disabled:opacity-50"
+                                        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 disabled:opacity-50"
                                     >
                                         {isAdding ? (
                                             <>

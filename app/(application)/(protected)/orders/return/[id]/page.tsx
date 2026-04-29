@@ -44,7 +44,7 @@ const OrderReturnDetailsPage = () => {
                 <div className="text-center">
                     <h2 className="mb-2 text-2xl font-bold text-gray-900">Error Loading Return</h2>
                     <p className="mb-6 text-gray-600">Unable to load the return details. Please try again.</p>
-                    <Link href="/orders/return/list" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    <Link href="/orders/return/list" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
                         Back to Returns
                     </Link>

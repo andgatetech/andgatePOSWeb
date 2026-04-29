@@ -235,7 +235,7 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                         <span className="font-semibold">{title}</span>
                         <span className="h-2 w-2 animate-pulse rounded-full bg-white"></span>
                     </div>
-                    <button onClick={onClose} className="rounded-full p-1.5 text-white hover:bg-blue-600">
+                    <button onClick={onClose} className="rounded-full p-1.5 text-white hover:bg-primary">
                         <X className="h-5 w-5" />
                     </button>
                 </div>

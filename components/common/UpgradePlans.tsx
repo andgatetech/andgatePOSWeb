@@ -21,7 +21,7 @@ const colorClasses = {
     },
     blue: {
         ring: 'ring-blue-600',
-        button: 'bg-blue-600 text-white hover:bg-blue-700',
+        button: 'bg-primary text-white hover:bg-primary/90',
         icon: 'text-blue-500',
     },
     purple: {
@@ -143,7 +143,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                             >
                                 {isMostPopular && !isCurrentPlan && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                                        <div className="rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white shadow-lg">Most Popular</div>
+                                        <div className="rounded-full bg-primary px-4 py-1 text-sm font-medium text-white shadow-lg">Most Popular</div>
                                     </div>
                                 )}
                                 {isCurrentPlan && (

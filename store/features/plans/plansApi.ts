@@ -1,4 +1,3 @@
-import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { baseApi } from '@/store/api/baseApi';
 
 export interface PlanItem {
@@ -53,12 +52,14 @@ export function filterActivePlans(plans: Plan[]): Plan[] {
     return plans;
 }
 
-/** Format a price string as Bengali Taka, with digit conversion for Bangla locale */
+/** Format a price string as Bengali Taka, always using English digits */
 export function formatPrice(price: string | number): string {
     const num = typeof price === 'string' ? parseFloat(price) : price;
-    if (isNaN(num)) return `৳ ${convertNumberByLanguage('0')}`;
-    const formatted = num.toLocaleString('en-BD', { maximumFractionDigits: 0 });
-    return `৳ ${convertNumberByLanguage(formatted)}`;
+    if (isNaN(num)) return `৳ 0`;
+    const formatted = Math.round(num)
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return `৳ ${formatted}`;
 }
 
 /**

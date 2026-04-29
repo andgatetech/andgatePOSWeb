@@ -213,7 +213,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     };
 
     return (
-        <div className={`rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4 ${className}`}>
+        <div className={`rounded-xl border border-[#e8eef4] bg-white p-3 shadow-sm sm:p-4 ${className}`}>
             {/* Search Row - full width on mobile */}
             {showSearch && (
                 <div className="w-full">
@@ -226,7 +226,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                 value={localSearch}
                                 onChange={(e) => setLocalSearch(e.target.value)}
                                 onKeyDown={handleSearchKeyDown}
-                                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
                             />
                             {localSearch && (
                                 <button onClick={handleClearSearch} className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -236,7 +236,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                         </div>
                         <button
                             onClick={handleSearchClick}
-                            className="flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-white transition-colors hover:bg-blue-700"
+                            className="flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-white transition-colors hover:bg-primary/90"
                             title="Search"
                         >
                             <Search className="h-5 w-5" />
@@ -252,7 +252,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     <div className="relative">
                         <button
                             onClick={() => setShowStoreDropdown(!showStoreDropdown)}
-                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:px-4 sm:py-2.5"
+                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 hover:bg-gray-50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:px-4 sm:py-2.5"
                         >
                             <Store className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
                             <span className="max-w-[120px] truncate text-xs sm:max-w-none sm:text-sm">
@@ -263,14 +263,14 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
 
                         {showStoreDropdown && (
                             <>
-                                <div className="fixed inset-0 z-10" onClick={() => setShowStoreDropdown(false)} />
-                                <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg sm:left-auto sm:right-0 sm:w-64">
+                                <div className="fixed inset-0 z-[55]" onClick={() => setShowStoreDropdown(false)} />
+                                <div className="absolute left-0 top-full z-[60] mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg sm:left-auto sm:right-0 sm:w-64">
                                     <button
                                         onClick={() => {
                                             setSelectedStore('all');
                                             setShowStoreDropdown(false);
                                         }}
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedStore === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}`}
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedStore === 'all' ? 'bg-primary/[0.08] text-primary' : 'text-gray-900'}`}
                                     >
                                         All Stores
                                     </button>
@@ -281,7 +281,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                                 setSelectedStore(store.id);
                                                 setShowStoreDropdown(false);
                                             }}
-                                            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedStore === store.id ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}`}
+                                            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedStore === store.id ? 'bg-primary/[0.08] text-primary' : 'text-gray-900'}`}
                                         >
                                             {store.store_name}
                                         </button>
@@ -297,7 +297,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     <div className="relative">
                         <button
                             onClick={() => setShowDateDropdown(!showDateDropdown)}
-                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:px-4 sm:py-2.5"
+                            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 hover:bg-gray-50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:px-4 sm:py-2.5"
                         >
                             <Calendar className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
                             <span className="max-w-[100px] truncate text-xs sm:max-w-none sm:text-sm">{DATE_FILTER_OPTIONS.find((option) => option.value === dateFilterType)?.label}</span>
@@ -306,8 +306,8 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
 
                         {showDateDropdown && (
                             <>
-                                <div className="fixed inset-0 z-10" onClick={() => setShowDateDropdown(false)} />
-                                <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg sm:left-auto sm:right-0 sm:w-64">
+                                <div className="fixed inset-0 z-[55]" onClick={() => setShowDateDropdown(false)} />
+                                <div className="absolute left-0 top-full z-[60] mt-1 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg sm:left-auto sm:right-0 sm:w-64">
                                     {DATE_FILTER_OPTIONS.map((option) => (
                                         <button
                                             key={option.value}
@@ -317,7 +317,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                                     setShowDateDropdown(false);
                                                 }
                                             }}
-                                            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${dateFilterType === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}`}
+                                            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${dateFilterType === option.value ? 'bg-primary/[0.08] text-primary' : 'text-gray-900'}`}
                                         >
                                             {option.label}
                                         </button>
@@ -332,7 +332,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                                     type="date"
                                                     value={customStartDate}
                                                     onChange={(e) => setCustomStartDate(e.target.value)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                                 />
                                             </div>
                                             <div>
@@ -341,12 +341,12 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                                     type="date"
                                                     value={customEndDate}
                                                     onChange={(e) => setCustomEndDate(e.target.value)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                                 />
                                             </div>
                                             <button
                                                 onClick={() => setShowDateDropdown(false)}
-                                                className="w-full rounded bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                                                className="w-full rounded bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
                                             >
                                                 Apply
                                             </button>
@@ -365,7 +365,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                 {hasActiveFilters() && (
                     <button
                         onClick={resetFilters}
-                        className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-600 hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:gap-2 sm:px-4 sm:py-2.5"
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-600 hover:bg-gray-50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:gap-2 sm:px-4 sm:py-2.5"
                         title="Reset Filters"
                     >
                         <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -383,7 +383,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
             {hasActiveFilters() && (
                 <div className="mt-3 flex flex-wrap gap-2">
                     {search && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/[0.1] px-2.5 py-0.5 text-xs font-medium text-primary">
                             Search: &quot;{search}&quot;
                             <button
                                 onClick={() => {
@@ -391,7 +391,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                     setLocalSearch('');
                                 }}
                             >
-                                <X className="h-3 w-3 hover:text-blue-600" />
+                                <X className="h-3 w-3 hover:text-primary" />
                             </button>
                         </span>
                     )}

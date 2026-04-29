@@ -19,7 +19,7 @@ const ComponentsDashboardSales = () => {
         <div className=" sm:space-y-6 ">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Welcome back, {user?.name || 'User'}! 👋</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Welcome back, {user?.name || 'User'}</h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 sm:text-base">Here&apos;s what&apos;s happening with your {currentStore?.store_name || 'store'} today</p>
             </div>
             {/* Current Store Info */}

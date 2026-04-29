@@ -203,7 +203,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                     min="0"
                                     value={adjustmentQuantity === 0 ? '' : adjustmentQuantity}
                                     onChange={(e) => onAdjustmentChange(item.id, 'adjustmentQuantity', e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value)))}
-                                    className="h-10 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-2 text-center text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                    className="h-10 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-2 text-center text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
                                 />
                                 <button
                                     type="button"
@@ -232,7 +232,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                     <select
                                         value={reason}
                                         onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
-                                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
                                     >
                                         <option value="">Select reason</option>
                                         {adjustmentReasons
@@ -256,7 +256,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                 value={notes}
                                 onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
                                 placeholder="Optional..."
-                                className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>

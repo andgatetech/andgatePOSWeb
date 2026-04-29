@@ -5,7 +5,7 @@ import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
-import { applyDiscount, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
 import { Building, Check, CheckCircle2, Crown, Loader2, Mail, MapPin, Phone, Rocket, Send, Shield, Star, TrendingUp, User, Zap } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -50,12 +50,30 @@ function classNames(...classes: (string | boolean | undefined)[]) {
 }
 
 // ── Plan card ─────────────────────────────────────────────────────────────────
-function PlanCard({ plan, index, isSelected, isCurrentPlan, onSelect }: { plan: Plan; index: number; isSelected: boolean; isCurrentPlan: boolean; onSelect: (plan: Plan) => void }) {
+function PlanCard({
+    plan,
+    index,
+    isSelected,
+    isCurrentPlan,
+    billingCycle,
+    onSelect,
+}: {
+    plan: Plan;
+    index: number;
+    isSelected: boolean;
+    isCurrentPlan: boolean;
+    billingCycle: 'monthly' | 'annually';
+    onSelect: (plan: Plan) => void;
+}) {
     const colorKey = getPlanColor(index);
     const colors = colorClasses[colorKey];
     const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
     const isMostPopular = index === 1;
-    const { finalPrice, originalPrice, hasDiscount, discountPct } = applyDiscount(plan.monthly_price, plan.discount);
+    const isAnnually = billingCycle === 'annually';
+
+    const activePrice = isAnnually ? plan.yearly_price : plan.monthly_price;
+    const { finalPrice, originalPrice, hasDiscount, discountPct } = applyDiscount(activePrice, plan.discount);
+    const yearlySavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
 
     return (
         <div
@@ -75,7 +93,7 @@ function PlanCard({ plan, index, isSelected, isCurrentPlan, onSelect }: { plan: 
             )}
             {isMostPopular && !isCurrentPlan && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <div className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white shadow">Most Popular</div>
+                    <div className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white shadow">Most Popular</div>
                 </div>
             )}
             {isSelected && !isCurrentPlan && (
@@ -99,11 +117,19 @@ function PlanCard({ plan, index, isSelected, isCurrentPlan, onSelect }: { plan: 
                 </div>
 
                 {/* Price */}
-                <div className="mb-4 flex items-baseline gap-1.5">
+                <div className="mb-1 flex items-baseline gap-1.5">
                     {hasDiscount && <span className="text-sm text-gray-400 line-through">{originalPrice}</span>}
                     <span className="text-2xl font-black text-gray-900">{finalPrice}</span>
-                    <span className="text-xs text-gray-500">/mo</span>
+                    <span className="text-xs text-gray-500">/{isAnnually ? 'yr' : 'mo'}</span>
                 </div>
+                {isAnnually && yearlySavings > 0 && (
+                    <div className="mb-3">
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                            Save {yearlySavings}% vs monthly
+                        </span>
+                    </div>
+                )}
+                {!isAnnually && <div className="mb-3" />}
 
                 {/* Top features (max 4) */}
                 {plan.items.length > 0 && (
@@ -287,6 +313,7 @@ export default function SubscriptionPage() {
                                         index={index}
                                         isSelected={selectedPlan?.id === plan.id}
                                         isCurrentPlan={currentPlanName?.toLowerCase() === plan.name_en.toLowerCase()}
+                                        billingCycle={billingCycle}
                                         onSelect={handleSelectPlan}
                                     />
                                 ))}

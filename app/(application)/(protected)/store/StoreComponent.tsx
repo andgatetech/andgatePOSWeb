@@ -25,7 +25,7 @@ const StoreComponent = () => {
         error,
         refetch,
     } = useGetStoreQuery(currentStoreId ? { store_id: currentStoreId } : undefined, {
-        refetchOnMountOrArgChange: true,
+        refetchOnMountOrArgChange: 30,
         skip: !currentStoreId,
     });
 
@@ -142,7 +142,7 @@ const StoreComponent = () => {
                     <div className="flex items-center justify-start sm:justify-end">
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
+                            className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                         >
                             <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
                             <span className="whitespace-nowrap">Create New Store</span>

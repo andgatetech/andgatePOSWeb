@@ -202,15 +202,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     // Save draft (create or update based on edit mode)
     const handleSaveDraft = async () => {
-        console.log('🔵 Save Draft button clicked!');
-        console.log('Validation check:', {
-            currentStoreId,
-            purchaseType,
-            supplierId,
-            itemsCount: purchaseItems.length,
-            items: purchaseItems,
-        });
-
         // Validation
         if (!currentStoreId) {
             showMessage('Please select a store', 'error');
@@ -268,8 +259,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             }),
         };
 
-        console.log('Saving draft with data:', draftData);
-
         try {
             let response;
 
@@ -280,8 +269,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 // Create new draft
                 response = await createDraft(draftData).unwrap();
             }
-
-            console.log('✅ Draft saved successfully! Response:', response);
 
             Swal.fire({
                 icon: 'success',
@@ -328,15 +315,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     // Create Purchase Order directly (without draft)
     const handleCreatePurchaseOrder = async () => {
-        console.log('🟢 Create Purchase Order button clicked!');
-        console.log('Validation check:', {
-            currentStoreId,
-            userId,
-            purchaseType,
-            supplierId,
-            itemsCount: purchaseItems.length,
-            items: purchaseItems,
-        });
 
         // Validation
         if (!currentStoreId) {
@@ -821,10 +799,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3 sm:flex-row">
                     <button
-                        onClick={(e) => {
-                            console.log('Save Draft button click event', e);
-                            handleSaveDraft();
-                        }}
+                        onClick={handleSaveDraft}
                         className="btn btn-outline-primary flex-1"
                         disabled={isSavingDraft || isUpdatingDraft || isCreatingPurchase || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
                         title={purchaseItems.length === 0 ? 'Add items first' : purchaseType === 'supplier' && !supplierId ? 'Select supplier first' : 'Save draft'}
@@ -842,10 +817,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         Preview
                     </button>
                     <button
-                        onClick={(e) => {
-                            console.log('Create Purchase Order button click event', e);
-                            handleCreatePurchaseOrder();
-                        }}
+                        onClick={handleCreatePurchaseOrder}
                         className="btn btn-primary flex-1"
                         disabled={isSavingDraft || isUpdatingDraft || isCreatingPurchase || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
                         title={purchaseItems.length === 0 ? 'Add items first' : purchaseType === 'supplier' && !supplierId ? 'Select supplier first' : 'Create purchase order'}

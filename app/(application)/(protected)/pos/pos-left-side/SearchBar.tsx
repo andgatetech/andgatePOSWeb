@@ -59,7 +59,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, barcodeEnabled, showC
                 {/* Search Button */}
                 <button
                     onClick={handleSearchClick}
-                    className="flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 sm:px-6 sm:py-3"
+                    className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 sm:px-6 sm:py-3"
                     title="Search"
                 >
                     <Search className="h-4 w-4 sm:h-5 sm:w-5" />

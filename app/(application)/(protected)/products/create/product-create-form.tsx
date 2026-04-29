@@ -40,14 +40,14 @@ const ProductCreateForm = () => {
     // Send store_id for the currently selected store only
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
 
-    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const categories = React.useMemo(() => {
         if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
             return categoriesResponse.data.items;
         }
         return categoriesResponse?.data || [];
     }, [categoriesResponse]);
-    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const brands = React.useMemo(() => {
         if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
             return brandsResponse.data.items;
@@ -55,9 +55,9 @@ const ProductCreateForm = () => {
         return brandsResponse?.data || [];
     }, [brandsResponse]);
     const [createProduct, { isLoading: createLoading, error: createProductError }] = useCreateProductMutation();
-    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const units = unitsResponse?.data || [];
-    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const attributes = attributesResponse?.data || [];
 
     // Check for subscription errors
@@ -587,7 +587,7 @@ const ProductCreateForm = () => {
                     <div className="rounded-lg bg-white p-4 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                                     <Store className="h-5 w-5 text-white" />
                                 </div>
                                 <div>

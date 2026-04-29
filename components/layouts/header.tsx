@@ -39,7 +39,6 @@ const Header = () => {
         persistor.pause();
         await persistor.purge();
         await persistor.flush();
-        console.log('🧹 Cleared all persisted Redux state');
 
         localStorage.clear();
         sessionStorage.clear();
@@ -72,9 +71,7 @@ const Header = () => {
     // Fullscreen toggle function
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch((err) => {
-                console.error(`Error attempting to enable fullscreen: ${err.message}`);
-            });
+            document.documentElement.requestFullscreen().catch(() => {});
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen();
@@ -126,9 +123,9 @@ const Header = () => {
 
     return (
         <header>
-            <div className="shadow-sm">
-                <div className="relative flex w-full items-center bg-white px-3 py-2.5 dark:bg-black sm:px-5">
-                    {/* Logo Section */}
+            <div className="border-b border-white/[0.07] bg-[#1a2d50]">
+                <div className="relative flex w-full items-center bg-[#1a2d50] px-3 py-2.5 sm:px-5">
+                    {/* Logo Section — mobile only (sidebar hides on desktop) */}
                     <div className="horizontal-logo mr-2 flex items-center justify-between lg:hidden">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
                             <Image src="/images/andgatePOS.jpeg" alt="logo icon" width={120} height={32} className="h-6 w-auto object-contain sm:h-8 sm:w-auto md:h-10" />
@@ -136,20 +133,20 @@ const Header = () => {
 
                         <button
                             type="button"
-                            className="collapse-icon ml-2 flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden"
+                            className="collapse-icon ml-2 flex flex-none rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white lg:hidden"
                             onClick={() => dispatch(toggleSidebar())}
                         >
                             <IconMenu className="h-5 w-5" />
                         </button>
                     </div>
 
-                    {/* Left Action Buttons - POS and Calculator */}
+                    {/* Left Action Buttons — POS (primary) and Calculator (secondary) */}
                     <div className="flex items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2">
                         <Link
                             href="/pos"
-                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#034d79] hover:to-[#02395b] hover:shadow-lg sm:gap-2 sm:px-4"
+                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#0580c5] hover:to-[#046ca9] hover:shadow-lg sm:gap-2 sm:px-4"
                         >
-                            <ShoppingCart className="h-3 w-3 sm:h-5 sm:w-5" />
+                            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span className="hidden sm:inline">POS</span>
                         </Link>
 
@@ -157,18 +154,18 @@ const Header = () => {
                     </div>
 
                     {/* Right Side Actions */}
-                    <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 sm:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
+                    <div className="flex items-center space-x-1 sm:flex-1 sm:space-x-1.5 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
                         <div className="sm:ltr:mr-auto sm:rtl:ml-auto"></div>
 
-                        {/* Fullscreen Toggle Button */}
+                        {/* Fullscreen Toggle */}
                         <div className="shrink-0">
                             <button
                                 type="button"
-                                className="flex items-center rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary"
+                                className="flex items-center rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white"
                                 onClick={toggleFullscreen}
                                 title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
                             >
-                                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                                {isFullscreen ? <Minimize className="h-[18px] w-[18px]" /> : <Maximize className="h-[18px] w-[18px]" />}
                             </button>
                         </div>
 
@@ -177,23 +174,22 @@ const Header = () => {
 
                         {/* User Profile Dropdown */}
                         <div className="dropdown flex shrink-0">
-                            <Dropdown offset={[0, 8]} placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`} btnClassName="relative group block" button={<IconUser className="h-7 w-7" />}>
-                                <ul className="w-[230px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
+                            <Dropdown
+                                offset={[0, 8]}
+                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
+                                btnClassName="relative group flex items-center rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white"
+                                button={<IconUser className="h-[18px] w-[18px]" />}
+                            >
+                                <ul className="w-[220px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
                                     <li>
                                         <Link href="/users/profile" className="dark:hover:text-white">
-                                            <IconUser className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
+                                            <IconUser className="h-4 w-4 shrink-0 ltr:mr-2 rtl:ml-2" />
                                             Profile
                                         </Link>
                                     </li>
-                                    {/* <li>
-                                        <Link href="/mailbox" className="dark:hover:text-white">
-                                            <IconMail className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
-                                            Inbox
-                                        </Link>
-                                    </li> */}
                                     <li className="border-t border-white-light dark:border-white-light/10">
                                         <button onClick={handleLogout} className="flex w-full items-center !py-3 text-danger">
-                                            <IconLogout className="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
+                                            <IconLogout className="h-4 w-4 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
                                             Sign Out
                                         </button>
                                     </li>

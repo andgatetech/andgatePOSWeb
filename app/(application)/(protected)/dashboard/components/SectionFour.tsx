@@ -71,9 +71,9 @@ const getStatusBadge = (status: string) => {
         paid: 'bg-emerald-100 text-emerald-700',
         partial: 'bg-amber-100 text-amber-700',
         pending: 'bg-yellow-100 text-yellow-700',
-        ordered: 'bg-orange-100 text-orange-700',
+        ordered: 'bg-warning/[0.1] text-warning',
         sent: 'bg-emerald-100 text-emerald-700',
-        received: 'bg-blue-100 text-blue-700',
+        received: 'bg-primary/[0.1] text-primary',
         preparing: 'bg-purple-100 text-purple-700',
     };
     return styles[status] || styles.pending;
@@ -156,7 +156,7 @@ export default function SectionFour() {
         if (!data.length)
             return (
                 <tr>
-                    <td colSpan={4} className="text-muted-foreground py-12 text-center">
+                    <td colSpan={4} className="text-gray-500 py-12 text-center">
                         No data available
                     </td>
                 </tr>
@@ -169,11 +169,11 @@ export default function SectionFour() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="border-border group cursor-pointer border-b transition-all duration-300 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="border-gray-200 group cursor-pointer border-b transition-all duration-300 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
                 <td className="whitespace-nowrap px-4 py-3.5">
-                    <div className="text-foreground text-sm font-medium">{item.date}</div>
-                    <div className="text-muted-foreground text-xs">{item.time || ''}</div>
+                    <div className="text-gray-900 text-sm font-medium">{item.date}</div>
+                    <div className="text-gray-500 text-xs">{item.time || ''}</div>
                 </td>
                 <td className="px-4 py-3.5">
                     <div className="flex items-center gap-3">
@@ -189,7 +189,7 @@ export default function SectionFour() {
                                 .slice(0, 2)}
                         </div>
                         <div>
-                            <p className="text-foreground text-sm font-medium transition-colors duration-300 group-hover:text-primary">{item.name}</p>
+                            <p className="text-gray-900 text-sm font-medium transition-colors duration-300 group-hover:text-primary">{item.name}</p>
                             <p className="text-xs text-primary">#{item.ref}</p>
                         </div>
                     </div>
@@ -204,7 +204,7 @@ export default function SectionFour() {
                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                     </span>
                 </td>
-                <td className="text-foreground px-4 py-3.5 text-right font-semibold">{formatCurrency(item.total)}</td>
+                <td className="text-gray-900 px-4 py-3.5 text-right font-semibold">{formatCurrency(item.total)}</td>
             </motion.tr>
         ));
     };
@@ -260,7 +260,7 @@ export default function SectionFour() {
                         <button
                             onClick={() => setPaymentTab('sales')}
                             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                paymentTab === 'sales' ? 'bg-emerald-500 text-white shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                paymentTab === 'sales' ? 'bg-success text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
                             }`}
                         >
                             <TrendingUp className="mr-1.5 inline h-4 w-4" />
@@ -269,7 +269,7 @@ export default function SectionFour() {
                         <button
                             onClick={() => setPaymentTab('refunds')}
                             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                paymentTab === 'refunds' ? 'bg-red-500 text-white shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                paymentTab === 'refunds' ? 'bg-danger text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
                             }`}
                         >
                             <FileText className="mr-1.5 inline h-4 w-4" />
@@ -278,7 +278,7 @@ export default function SectionFour() {
                         <button
                             onClick={() => setPaymentTab('purchases')}
                             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                paymentTab === 'purchases' ? 'bg-orange-500 text-white shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                paymentTab === 'purchases' ? 'bg-warning text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
                             }`}
                         >
                             <ShoppingCart className="mr-1.5 inline h-4 w-4" />
@@ -313,13 +313,13 @@ export default function SectionFour() {
                                                         {getMethodIcon(method.method)}
                                                     </div>
                                                     <div>
-                                                        <p className="text-foreground font-semibold capitalize transition-colors duration-300 group-hover:text-gray-900">{method.method}</p>
-                                                        <p className="text-muted-foreground text-xs">{method.count} transactions</p>
+                                                        <p className="text-gray-900 font-semibold capitalize transition-colors duration-300 group-hover:text-gray-900">{method.method}</p>
+                                                        <p className="text-gray-500 text-xs">{method.count} transactions</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-foreground font-bold">{formatCurrency(method.amount)}</p>
-                                                    <p className="text-muted-foreground text-xs">{percentage}%</p>
+                                                    <p className="text-gray-900 font-bold">{formatCurrency(method.amount)}</p>
+                                                    <p className="text-gray-500 text-xs">{percentage}%</p>
                                                 </div>
                                             </div>
                                             <div className="h-2 w-full overflow-hidden rounded-full bg-white/60">
@@ -343,14 +343,14 @@ export default function SectionFour() {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2 text-gray-600">
-                                    <div className="h-2 w-2 rounded-full bg-blue-900"></div>
+                                    <div className="h-2 w-2 rounded-full bg-primary"></div>
                                     Total {paymentTab === 'sales' ? 'Sales' : paymentTab === 'refunds' ? 'Refunds' : 'Purchases'}
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(totalAmount)}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2 text-gray-600">
-                                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                                    <div className="h-2 w-2 rounded-full bg-warning"></div>
                                     Total Transactions
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">{currentPaymentMethods.reduce((acc: number, m: any) => acc + m.count, 0)}</span>
@@ -380,7 +380,7 @@ export default function SectionFour() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-all ${
-                                    activeTab === tab.id ? 'border-primary text-primary' : 'text-muted-foreground hover:text-foreground border-transparent'
+                                    activeTab === tab.id ? 'border-primary text-primary' : 'text-gray-500 hover:text-gray-900 border-transparent'
                                 }`}
                             >
                                 {tab.icon}

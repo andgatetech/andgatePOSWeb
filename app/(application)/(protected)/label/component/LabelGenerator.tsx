@@ -637,7 +637,7 @@ const LabelGenerator = () => {
                                 </button>
                                 <button
                                     onClick={handlePrint}
-                                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-700"
+                                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
                                 >
                                     <Printer className="h-4 w-4" /> Print
                                 </button>

@@ -69,7 +69,7 @@ const ProductTable = () => {
     }, [apiParams, currentStoreId, userStores, currentPage, itemsPerPage, sortField, sortDirection]);
 
     // API calls - RTK Query will auto-refetch when queryParams change
-    const { data: pds, isLoading } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: pds, isLoading } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: 30 });
 
     const ensureArray = (value: unknown): any[] => {
         if (Array.isArray(value)) {
@@ -655,7 +655,7 @@ const ProductTable = () => {
                                             goToPage(1);
                                             setItemsPerPage(value);
                                         }}
-                                        className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                        className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-primary focus:ring-2 focus:ring-blue-200"
                                     >
                                         <option value={10}>10</option>
                                         <option value={20}>20</option>
@@ -708,7 +708,7 @@ const ProductTable = () => {
                             <p className="mb-6 text-gray-500">{Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first product.'}</p>
                             {Object.keys(apiParams).length === 0 && (
                                 <Link href="/protected/products/add">
-                                    <button className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
+                                    <button className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90">
                                         <Package className="mr-2 h-4 w-4" />
                                         Add Your First Product
                                     </button>

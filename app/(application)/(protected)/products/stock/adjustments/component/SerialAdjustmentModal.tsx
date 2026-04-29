@@ -113,14 +113,14 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                         <button
                             onClick={() => setMode('update-status')}
                             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                                mode === 'update-status' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                mode === 'update-status' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >
                             Update Serial Status
                         </button>
                         <button
                             onClick={() => setMode('bulk-add')}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${mode === 'bulk-add' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${mode === 'bulk-add' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                         >
                             Bulk Add Serials
                         </button>
@@ -134,7 +134,7 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <p className="text-sm text-gray-600">Update existing serial number statuses (sold, damaged, returned)</p>
-                                <button onClick={addSerialRow} className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700">
+                                <button onClick={addSerialRow} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm text-white hover:bg-primary/90">
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
@@ -272,7 +272,7 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                         <button onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
                             Cancel
                         </button>
-                        <button onClick={handleSave} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        <button onClick={handleSave} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
                             Save Serial Adjustments
                         </button>
                     </div>

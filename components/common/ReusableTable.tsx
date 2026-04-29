@@ -240,7 +240,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                                 <select
                                     value={pagination.itemsPerPage}
                                     onChange={(e) => pagination.onItemsPerPageChange(Number(e.target.value))}
-                                    className="rounded-lg border border-gray-300 px-3 py-1 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    className="rounded-lg border border-gray-300 px-3 py-1 text-sm transition-all focus:border-primary focus:ring-2 focus:ring-blue-200"
                                 >
                                     <option value={10}>10</option>
                                     <option value={20}>20</option>
@@ -278,7 +278,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                                             key={pageNum}
                                             onClick={() => pagination.onPageChange(pageNum)}
                                             className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                                pagination.currentPage === pageNum ? 'bg-blue-600 text-white shadow-md' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                pagination.currentPage === pageNum ? 'bg-primary text-white shadow-md' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                             }`}
                                         >
                                             {pageNum}

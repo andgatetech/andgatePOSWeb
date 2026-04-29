@@ -100,7 +100,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                 <p className="text-sm text-gray-500">Add a new store to your business</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
                             <X className="h-5 w-5" />
                         </button>
                     </div>
@@ -122,7 +122,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                     onChange={handleInputChange}
                                     placeholder="e.g., Downtown Coffee Branch 1"
                                     required
-                                    className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                    className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -142,7 +142,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                     placeholder="e.g., 456 Oak Avenue, Uptown Mall, City 67890"
                                     required
                                     rows={3}
-                                    className="block w-full resize-none rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                    className="block w-full resize-none rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -168,7 +168,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                     value={formData.store_phone}
                                     onChange={handleInputChange}
                                     placeholder="e.g., +1 (555) 123-4567"
-                                    className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                    className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -179,14 +179,14 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting || !formData.store_name.trim() || !formData.address.trim()}
-                                className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-sm hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-medium text-white shadow-sm hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isSubmitting ? (
                                     <>

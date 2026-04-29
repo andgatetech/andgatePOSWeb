@@ -503,7 +503,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                 <div className="relative w-full max-w-6xl">
                     {/* Action Buttons */}
                     <div className="mb-6 flex gap-3 print:hidden">
-                        <button onClick={handlePrint} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">
+                        <button onClick={handlePrint} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition hover:bg-primary/90">
                             <Printer size={18} />
                             Print
                         </button>

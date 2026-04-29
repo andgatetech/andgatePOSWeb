@@ -58,14 +58,14 @@ const ProductEditForm = () => {
     // Send store_id for the currently selected store only
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
 
-    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const categories = React.useMemo(() => {
         if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
             return categoriesResponse.data.items;
         }
         return categoriesResponse?.data || [];
     }, [categoriesResponse]);
-    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const brands = React.useMemo(() => {
         if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
             return brandsResponse.data.items;
@@ -73,9 +73,9 @@ const ProductEditForm = () => {
         return brandsResponse?.data || [];
     }, [brandsResponse]);
     const [updateProduct, { isLoading: updateLoading, error: updateProductError }] = useUpdateProductMutation();
-    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: unitsResponse, isLoading: unitsLoading } = useGetUnitsQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const units = React.useMemo(() => unitsResponse?.data || [], [unitsResponse]);
-    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const attributes = attributesResponse?.data || [];
 
     // Fetch the product data
@@ -857,7 +857,7 @@ const ProductEditForm = () => {
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
                     <h3 className="text-lg font-semibold text-red-600">Error loading product</h3>
-                    <button onClick={() => router.push('/products')} className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    <button onClick={() => router.push('/products')} className="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                         Back to Products
                     </button>
                 </div>

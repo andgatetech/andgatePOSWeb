@@ -281,7 +281,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                                                     checked={isSelected}
                                                                     onChange={() => {}}
                                                                     disabled={isDisabled}
-                                                                    className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                                    className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-primary"
                                                                 />
                                                                 <div>
                                                                     <p className="font-mono font-semibold text-gray-900">{serial.serial_number}</p>
@@ -305,7 +305,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                     <button
                                         onClick={handleConfirm}
                                         disabled={selectedSerialIds.length !== quantity}
-                                        className="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         Add to Cart ({selectedSerialIds.length}/{quantity})
                                     </button>

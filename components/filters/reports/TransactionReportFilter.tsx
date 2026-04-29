@@ -67,7 +67,7 @@ const TransactionReportFilter: React.FC<TransactionReportFilterProps> = ({ onFil
                 <select
                     value={selectedPaymentStatus}
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
                     <option value="all">All Status</option>
                     {activePaymentStatuses.length > 0 ? (
@@ -91,7 +91,7 @@ const TransactionReportFilter: React.FC<TransactionReportFilterProps> = ({ onFil
                 <select
                     value={selectedPaymentMethod}
                     onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
                     <option value="all">All Methods</option>
                     {activePaymentMethods.length > 0 ? (

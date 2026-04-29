@@ -201,7 +201,7 @@ const CreateSupplierPage = () => {
                                             value={formData.name}
                                             onChange={handleChange}
                                             placeholder="Enter supplier name"
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.name ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -220,7 +220,7 @@ const CreateSupplierPage = () => {
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="supplier@example.com"
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.email ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -239,7 +239,7 @@ const CreateSupplierPage = () => {
                                             value={formData.phone}
                                             onChange={handleChange}
                                             placeholder="+1234567890"
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.phone ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -265,7 +265,7 @@ const CreateSupplierPage = () => {
                                             placeholder="Enter complete address"
                                             rows={3}
                                             maxLength={500}
-                                            className={`w-full resize-none rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 ${
+                                            className={`w-full resize-none rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.address ? 'border-red-300' : 'border-gray-300'
                                             }`}
                                         />
@@ -283,7 +283,7 @@ const CreateSupplierPage = () => {
                                             name="status"
                                             value={formData.status}
                                             onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         >
                                             <option value="active">Active</option>
                                             <option value="inactive">Inactive</option>

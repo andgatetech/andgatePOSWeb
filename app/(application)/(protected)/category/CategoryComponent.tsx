@@ -39,7 +39,7 @@ const CategoryComponent = () => {
         return params;
     }, [apiParams, currentPage, itemsPerPage, sortField, sortDirection, currentStoreId]);
 
-    const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: 30 });
     const [createCategory] = useCreateCategoryMutation();
     const [updateCategory] = useUpdateCategoryMutation();
     const [deleteCategory] = useDeleteCategoryMutation();
@@ -322,7 +322,7 @@ const CategoryComponent = () => {
                         <div className="flex items-center justify-start sm:justify-end">
                             <button
                                 onClick={() => openModal('create')}
-                                className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
+                                className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                             >
                                 <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
                                 <span className="whitespace-nowrap">Add Category</span>
@@ -364,7 +364,7 @@ const CategoryComponent = () => {
                         title: 'No categories yet',
                         description: 'Get started by creating your first category',
                         action: (
-                            <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                            <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                                 <Plus className="h-4 w-4" />
                                 Add First Category
                             </button>
@@ -467,7 +467,7 @@ const CategoryComponent = () => {
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-primary"
                                             placeholder="Enter category name"
                                             required
                                         />
@@ -480,7 +480,7 @@ const CategoryComponent = () => {
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                             rows={3}
-                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-primary"
                                             placeholder="Enter category description"
                                         />
                                     </div>
@@ -493,7 +493,7 @@ const CategoryComponent = () => {
                                         <button
                                             type="submit"
                                             disabled={loading}
-                                            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                                            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
                                         >
                                             {loading ? (
                                                 <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>

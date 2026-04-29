@@ -260,8 +260,8 @@ export default function SectionsFive() {
         value: brand.total_sold,
     }));
 
-    const categoryColors = ['#1e3a8a', '#ea580c', '#eab308']; // Navy, Orange, Yellow
-    const brandColors = ['#1e3a8a', '#ea580c', '#eab308'];
+    const categoryColors = ['#046ca9', '#059669', '#d97706'];
+    const brandColors = ['#046ca9', '#059669', '#d97706'];
 
     return (
         <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -272,13 +272,13 @@ export default function SectionsFive() {
             >
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-                        <Tag className="h-5 w-5 text-orange-500" />
+                        <Tag className="h-5 w-5 text-warning" />
                         Top Categories
                     </h2>
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="today">Today</option>
                         <option value="last_week">Weekly</option>
@@ -296,7 +296,7 @@ export default function SectionsFive() {
                                 type="date"
                                 value={categoryStartDate}
                                 onChange={(e) => setCategoryStartDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="flex-1">
@@ -305,7 +305,7 @@ export default function SectionsFive() {
                                 type="date"
                                 value={categoryEndDate}
                                 onChange={(e) => setCategoryEndDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>
@@ -324,14 +324,14 @@ export default function SectionsFive() {
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
-                                <div className="h-2 w-2 rounded-full bg-blue-900"></div>
+                                <div className="h-2 w-2 rounded-full bg-primary"></div>
                                 Total Number Of Categories
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{top_categories.count}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
-                                <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                                <div className="h-2 w-2 rounded-full bg-warning"></div>
                                 Total Revenue
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0))}</span>
@@ -347,13 +347,13 @@ export default function SectionsFive() {
             >
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-                        <ShoppingBag className="h-5 w-5 text-blue-500" />
+                        <ShoppingBag className="h-5 w-5 text-primary" />
                         Top Brands
                     </h2>
                     <select
                         value={brandFilter}
                         onChange={(e) => setBrandFilter(e.target.value)}
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="today">Today</option>
                         <option value="last_week">Weekly</option>
@@ -371,7 +371,7 @@ export default function SectionsFive() {
                                 type="date"
                                 value={brandStartDate}
                                 onChange={(e) => setBrandStartDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="flex-1">
@@ -380,7 +380,7 @@ export default function SectionsFive() {
                                 type="date"
                                 value={brandEndDate}
                                 onChange={(e) => setBrandEndDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>
@@ -399,14 +399,14 @@ export default function SectionsFive() {
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
-                                <div className="h-2 w-2 rounded-full bg-blue-900"></div>
+                                <div className="h-2 w-2 rounded-full bg-primary"></div>
                                 Total Number Of Brands
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{top_brands.count}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
-                                <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                                <div className="h-2 w-2 rounded-full bg-warning"></div>
                                 Total Revenue
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0))}</span>
@@ -422,13 +422,13 @@ export default function SectionsFive() {
             >
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-                        <Package className="h-5 w-5 text-green-500" />
+                        <Package className="h-5 w-5 text-success" />
                         Top Purchased Products
                     </h2>
                     <select
                         value={purchaseFilter}
                         onChange={(e) => setPurchaseFilter(e.target.value)}
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         <option value="today">Today</option>
                         <option value="last_week">Weekly</option>
@@ -446,7 +446,7 @@ export default function SectionsFive() {
                                 type="date"
                                 value={purchaseStartDate}
                                 onChange={(e) => setPurchaseStartDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                         <div className="flex-1">
@@ -455,14 +455,14 @@ export default function SectionsFive() {
                                 type="date"
                                 value={purchaseEndDate}
                                 onChange={(e) => setPurchaseEndDate(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="w-full rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>
                 )}
 
                 {/* View All Button */}
-                <Link href="/reports/purchase" className="mb-3 block w-full text-center text-sm font-medium text-green-600 transition-all duration-200 hover:scale-105 hover:text-green-700">
+                <Link href="/reports/purchase" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
                     View All
                 </Link>
 
@@ -495,7 +495,7 @@ export default function SectionsFive() {
                                     )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-green-600 dark:text-white">{product.product_name}</p>
+                                    <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">
                                         {formatCurrency(product.total_cost)} • {product.total_purchased} Purchased
                                     </p>

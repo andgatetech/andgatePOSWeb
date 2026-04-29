@@ -18,9 +18,9 @@ module.exports = {
             colors: {
                 'slate-25': '#fafafa',
                 primary: {
-                    DEFAULT: '#4361ee',
-                    light: '#eaf1ff',
-                    'dark-light': 'rgba(67,97,238,.15)',
+                    DEFAULT: '#046ca9',
+                    light: '#e6f3fa',
+                    'dark-light': 'rgba(4,108,169,.15)',
                 },
                 secondary: {
                     DEFAULT: '#805dca',

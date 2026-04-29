@@ -29,7 +29,7 @@ interface AttributesTabProps {
 const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttributes, setProductAttributes, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
-    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const attributes = attributesResponse?.data || [];
 
     // Selected attributes: can be from DB (has id) or custom (has name only)
@@ -211,7 +211,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                     }, 200);
                                                 }}
                                                 placeholder="Select from dropdown or type custom attribute (e.g., Size, Color, Material)"
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-gray-500"
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-gray-500"
                                                 disabled={attr.name !== '' && (attr.isCustom || typeof attr.id === 'number')}
                                             />
 

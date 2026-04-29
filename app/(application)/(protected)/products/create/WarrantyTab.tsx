@@ -43,7 +43,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
 }) => {
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
-    const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams, { refetchOnMountOrArgChange: true });
+    const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams, { refetchOnMountOrArgChange: 300 });
     const warrantyTypes = warrantyTypesResponse?.data || [];
     const [createWarrantyType] = useCreateWarrantyTypeMutation();
 
@@ -299,7 +299,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                             setTimeout(() => setShowDropdowns({ ...showDropdowns, [0]: false }), 200);
                                         }}
                                         placeholder="Select from dropdown or type duration in days (e.g., 365, 730)"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-gray-500"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-gray-500"
                                         disabled={
                                             !!(productWarranties[0]?.warranty_type_id > 0 || (productWarranties[0]?.duration_days && productWarranties[0]?.duration_days > 0)) &&
                                             searchQueries[0] === undefined
@@ -412,7 +412,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                     setTimeout(() => setShowDropdowns({ ...showDropdowns, [index]: false }), 200);
                                                 }}
                                                 placeholder="Select from dropdown or type days (e.g., 365)"
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-gray-500"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-gray-500"
                                                 disabled={
                                                     !!(productWarranties[index]?.warranty_type_id > 0 || (productWarranties[index]?.duration_days && productWarranties[index]?.duration_days > 0)) &&
                                                     searchQueries[index] === undefined

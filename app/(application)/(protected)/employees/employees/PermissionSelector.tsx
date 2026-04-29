@@ -41,7 +41,7 @@ function ToggleSwitch({ checked, onChange, disabled }: { checked: boolean; onCha
             aria-checked={checked}
             disabled={disabled}
             onClick={onChange}
-            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 ${
                 checked ? 'bg-emerald-500' : 'bg-gray-200'
             }`}
         >
@@ -253,7 +253,7 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
             {/* Global Header Bar */}
             <div className="flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm">
                         <LayoutGrid className="h-4 w-4 text-white" />
                     </div>
                     <div>

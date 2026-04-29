@@ -81,7 +81,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                 <select
                     value={selectedPaymentStatus}
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto"
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
                     <option value="all">All Payment Status</option>
                     {activePaymentStatuses.length > 0 ? (
@@ -109,7 +109,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         placeholder="Min Amount"
                         value={minAmount}
                         onChange={(e) => setMinAmount(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">{symbol}</span>
                 </div>
@@ -120,7 +120,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         placeholder="Max Amount"
                         value={maxAmount}
                         onChange={(e) => setMaxAmount(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">{symbol}</span>
                 </div>

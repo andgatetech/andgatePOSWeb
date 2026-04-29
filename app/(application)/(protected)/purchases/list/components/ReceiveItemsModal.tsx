@@ -228,7 +228,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                 <div className="border-b border-gray-200 bg-white px-6 py-3">
                     <button
                         onClick={handleReceiveAll}
-                        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
                         disabled={isLoading}
                     >
                         <Check className="h-4 w-4" />

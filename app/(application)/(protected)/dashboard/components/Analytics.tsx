@@ -175,7 +175,7 @@ export default function Analytics() {
 
     const pieData = hasData ? rawPieData : [{ name: 'No Data', value: 1, percentage: 0 }];
 
-    const COLORS = hasData ? ['#fb923c', '#10b981'] : ['#f3f4f6']; // Orange/Green or Gray-100 placeholder
+    const COLORS = hasData ? ['#d97706', '#059669'] : ['#f3f4f6'];
 
     return (
         <div className="space-y-4 sm:space-y-6">
@@ -185,14 +185,14 @@ export default function Analytics() {
                 <div className="lg:col-span-2">
                     <div className="h-full rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <h2 className="text-lg font-bold text-gray-900 sm:text-xl">📊 Sales & Purchase</h2>
+                            <h2 className="text-lg font-bold text-gray-900 sm:text-xl">Sales & Purchase</h2>
                             <div className="flex gap-2">
                                 {periodButtons.map((period) => (
                                     <button
                                         key={period.value}
                                         onClick={() => setChartPeriod(period.value)}
                                         className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                                            chartPeriod === period.value ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            chartPeriod === period.value ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                     >
                                         {period.label}
@@ -203,13 +203,13 @@ export default function Analytics() {
 
                         <div className="mb-4 flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-gray-700"></div>
+                                <div className="h-3 w-3 rounded-full bg-[#046ca9]"></div>
                                 <span className="text-sm text-gray-600">
                                     Total Sales: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_sales?.formatted ?? '0'}</span>
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                                <div className="h-3 w-3 rounded-full bg-[#d97706]"></div>
                                 <span className="text-sm text-gray-600">
                                     Total Purchase: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_purchase?.formatted ?? '0'}</span>
                                 </span>
@@ -232,8 +232,8 @@ export default function Analytics() {
                                 />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ fontSize: '14px' }} />
-                                <Bar dataKey="Total Sales" fill="#374151" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
-                                <Bar dataKey="Total Purchase" fill="#fb923c" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
+                                <Bar dataKey="Total Sales" fill="#046ca9" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
+                                <Bar dataKey="Total Purchase" fill="#d97706" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -245,22 +245,22 @@ export default function Analytics() {
                         <div className="mb-4">
                             <h2 className="mb-3 text-sm font-bold text-gray-900 sm:text-base">Overall Information</h2>
                             <div className="grid grid-cols-3 gap-2">
-                                <InfoCard title="Suppliers" count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-blue-600" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
+                                <InfoCard title="Suppliers" count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-primary" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
                                 <InfoCard
                                     title="Customers"
                                     count={overall_information?.pos_customers?.count ?? 0}
                                     icon={UserCheck}
-                                    iconColor="text-orange-600"
-                                    iconBg="bg-orange-100"
-                                    cardBg="bg-orange-50/50"
+                                    iconColor="text-warning"
+                                    iconBg="bg-warning/[0.1]"
+                                    cardBg="bg-warning/[0.05]"
                                 />
                                 <InfoCard
                                     title="Orders"
                                     count={overall_information?.pos_orders?.count ?? 0}
                                     icon={ShoppingCart}
-                                    iconColor="text-emerald-600"
-                                    iconBg="bg-emerald-100"
-                                    cardBg="bg-emerald-50/50"
+                                    iconColor="text-success"
+                                    iconBg="bg-success/[0.1]"
+                                    cardBg="bg-success/[0.05]"
                                 />
                             </div>
                         </div>
@@ -274,7 +274,7 @@ export default function Analytics() {
                                 <select
                                     value={customerPeriod}
                                     onChange={(e) => setCustomerPeriod(e.target.value)}
-                                    className="rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                                 >
                                     {customerPeriodOptions.map((option) => (
                                         <option key={option.value} value={option.value}>
@@ -316,7 +316,7 @@ export default function Analytics() {
                                     <div className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 text-center transition-colors hover:bg-gray-100">
                                         <div className="flex items-center justify-between">
                                             <div className="text-left">
-                                                <p className="text-[10px] font-medium text-orange-500">First Time</p>
+                                                <p className="text-[10px] font-medium text-[#d97706]">First Time</p>
                                                 <p className="text-lg font-bold text-gray-900">
                                                     <CountUp end={customers_overview.first_time.count} duration={2} separator="," decimals={1} decimal="." />K
                                                 </p>
@@ -331,7 +331,7 @@ export default function Analytics() {
                                     <div className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 text-center transition-colors hover:bg-gray-100">
                                         <div className="flex items-center justify-between">
                                             <div className="text-left">
-                                                <p className="text-[10px] font-medium text-teal-500">Return</p>
+                                                <p className="text-[10px] font-medium text-[#059669]">Return</p>
                                                 <p className="text-lg font-bold text-gray-900">
                                                     <CountUp end={customers_overview.return.count} duration={2} separator="," decimals={1} decimal="." />K
                                                 </p>

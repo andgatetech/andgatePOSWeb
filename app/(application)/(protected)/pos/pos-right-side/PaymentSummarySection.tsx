@@ -241,7 +241,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             step="0.01"
                             min="0"
                             max={totalPayable}
-                            className="form-input w-full border-blue-300 pl-4 pr-4 text-lg font-semibold focus:border-blue-500 focus:ring-blue-500"
+                            className="form-input w-full border-blue-300 pl-4 pr-4 text-lg font-semibold focus:border-primary focus:ring-primary"
                             placeholder="Enter amount"
                             value={formData.partialPaymentAmount || ''}
                             onChange={onInputChange}
@@ -378,7 +378,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     {/* Action Card */}
                     {returnNetAmount < 0 ? (
                         /* Refund */
-                        <div className="rounded-lg bg-emerald-600 p-4 shadow-md">
+                        <div className="rounded-lg bg-success p-4 shadow-md">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
@@ -400,7 +400,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         </div>
                     ) : returnNetAmount > 0 ? (
                         /* Customer Pays */
-                        <div className="rounded-lg bg-blue-600 p-4 shadow-md">
+                        <div className="rounded-lg bg-primary p-4 shadow-md">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">

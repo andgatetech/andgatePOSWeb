@@ -110,7 +110,7 @@ const OrderReturnPage = () => {
                     </div>
                     <h1 className="mb-2 text-2xl font-bold text-gray-900">Order Not Available</h1>
                     <p className="mb-6 text-gray-600">{errorMessage}</p>
-                    <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700">
+                    <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
                         Back to Orders
                     </Link>
@@ -141,7 +141,7 @@ const OrderReturnPage = () => {
                     <h1 className="mb-2 text-2xl font-bold text-gray-900">No Items Available for Return</h1>
                     <p className="mb-2 text-gray-600">This order has been fully returned.</p>
                     <p className="mb-6 text-sm text-gray-500">Invoice: {order.invoice}</p>
-                    <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700">
+                    <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
                         Back to Orders
                     </Link>
