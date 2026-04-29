@@ -200,7 +200,7 @@ const ResetPasswordForm = () => {
                                     </Link>
                                 </div>
                             </div>
-                            <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()}. All Rights Reserved.</p>
+                            <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()} Andgate Technologies. All rights reserved.</p>
                         </div>
                     </div>
                 </div>
