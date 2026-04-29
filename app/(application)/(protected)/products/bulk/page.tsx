@@ -3,6 +3,7 @@
 import IconDownload from '@/components/icon/icon-download';
 import IconX from '@/components/icon/icon-x';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDownloadBulkUploadTemplateMutation, useProductBulkUploadMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle2, FileSpreadsheet, Upload, XCircle } from 'lucide-react';
@@ -20,6 +21,7 @@ interface UploadResult {
 }
 
 const BulkUploadPage = () => {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
@@ -31,10 +33,10 @@ const BulkUploadPage = () => {
     const handleDownloadTemplate = async () => {
         try {
             await downloadTemplate().unwrap();
-            showSuccessDialog('Success', 'Template downloaded successfully');
+            showSuccessDialog(t('msg_success'), t('product_bulk_import'));
         } catch (error: any) {
             console.error('Download error:', error);
-            showErrorDialog('Error', error?.data?.message || error?.message || 'Failed to download template');
+            showErrorDialog(t('msg_error'), error?.data?.message || error?.message || t('msg_error_occurred'));
         }
     };
 
@@ -44,13 +46,13 @@ const BulkUploadPage = () => {
             // Validate file type
             const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
             if (!validTypes.includes(file.type)) {
-                showErrorDialog('Invalid File', 'Please upload an Excel (.xlsx, .xls) or CSV file');
+                showErrorDialog(t('msg_error'), t('msg_warning'));
                 return;
             }
 
             // Validate file size (max 10MB)
             if (file.size > 10 * 1024 * 1024) {
-                showErrorDialog('File Too Large', 'File size should not exceed 10MB');
+                showErrorDialog(t('msg_error'), t('msg_warning'));
                 return;
             }
 
@@ -78,12 +80,12 @@ const BulkUploadPage = () => {
         if (file) {
             const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
             if (!validTypes.includes(file.type)) {
-                showErrorDialog('Invalid File', 'Please upload an Excel (.xlsx, .xls) or CSV file');
+                showErrorDialog(t('msg_error'), t('msg_warning'));
                 return;
             }
 
             if (file.size > 10 * 1024 * 1024) {
-                showErrorDialog('File Too Large', 'File size should not exceed 10MB');
+                showErrorDialog(t('msg_error'), t('msg_warning'));
                 return;
             }
 
@@ -94,12 +96,12 @@ const BulkUploadPage = () => {
 
     const handleUpload = async () => {
         if (!selectedFile) {
-            showErrorDialog('No File', 'Please select a file to upload');
+            showErrorDialog(t('msg_error'), t('msg_warning'));
             return;
         }
 
         if (!currentStoreId) {
-            showErrorDialog('No Store', 'Please select a store first');
+            showErrorDialog(t('msg_error'), t('lbl_select_store'));
             return;
         }
 
@@ -116,15 +118,15 @@ const BulkUploadPage = () => {
                 setUploadResult(result.data);
 
                 if (result.data.failed_count === 0) {
-                    showSuccessDialog('Success', `All ${result.data.success_count} products uploaded successfully!`);
+                    showSuccessDialog(t('msg_success'), t('product_created'));
                 } else {
-                    showSuccessDialog('Upload Complete', `${result.data.success_count} products uploaded successfully. ${result.data.failed_count} failed - see details below.`);
+                    showSuccessDialog(t('msg_success'), t('product_created'));
                 }
             } else {
-                throw new Error(result.message || 'Upload failed');
+                throw new Error(result.message || t('msg_error_occurred'));
             }
         } catch (error: any) {
-            showErrorDialog('Upload Failed', error?.data?.message || error?.message || 'Failed to upload file');
+            showErrorDialog(t('msg_error'), error?.data?.message || error?.message || t('msg_error_occurred'));
         }
     };
 
@@ -143,8 +145,8 @@ const BulkUploadPage = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Bulk Product Upload</h1>
-                    <p className="mt-1 text-sm text-gray-600">Upload multiple products at once using Excel or CSV files</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('product_bulk_import')}</h1>
+                    <p className="mt-1 text-sm text-gray-600">{t('product_page_desc')}</p>
                 </div>
             </div>
 
@@ -183,7 +185,7 @@ const BulkUploadPage = () => {
                 <div className="mt-6">
                     <button type="button" onClick={handleDownloadTemplate} disabled={downloadingTemplate} className="btn btn-primary gap-2">
                         <IconDownload className="h-5 w-5" />
-                        {downloadingTemplate ? 'Downloading...' : 'Download Template'}
+                        {downloadingTemplate ? t('btn_loading') : t('btn_download')}
                     </button>
                 </div>
             </div>
@@ -237,7 +239,7 @@ const BulkUploadPage = () => {
                                             <button type="button" onClick={handleUpload} disabled={uploading} className="btn btn-primary btn-sm gap-2">
                                                 <button type="button" onClick={handleUpload} disabled={uploading} className="btn btn-primary btn-sm gap-2">
                                                     <Upload className="h-4 w-4" />
-                                                    {uploading ? 'Uploading...' : 'Upload Now'}
+                                                    {uploading ? t('btn_loading') : t('btn_upload')}
                                                 </button>
                                                 <IconX className="h-4 w-4" />
                                                 Remove

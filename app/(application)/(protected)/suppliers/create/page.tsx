@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { Store, User } from 'lucide-react';
@@ -16,6 +17,7 @@ interface SupplierFormData {
 }
 
 const CreateSupplierPage = () => {
+    const { t } = getTranslation();
     const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
@@ -119,13 +121,13 @@ const CreateSupplierPage = () => {
                 status: 'active',
             });
             setErrors({});
-            showSuccessDialog('Success!', 'Supplier created successfully');
+            showSuccessDialog(t('msg_success'), t('supplier_created'));
 
             router.push('/suppliers/list');
         } catch (error: any) {
             console.error('Create supplier failed', error);
-            const errorMessage = error?.data?.message || 'Something went wrong while creating the supplier';
-            showErrorDialog('Error!', errorMessage, 'Try Again');
+            const errorMessage = error?.data?.message || t('msg_error_occurred');
+            showErrorDialog(t('msg_error'), errorMessage, t('btn_confirm'));
         }
     };
 
@@ -143,7 +145,7 @@ const CreateSupplierPage = () => {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            Loading...
+                            {t('supplier_loading')}
                         </div>
                     </div>
                 </div>
@@ -162,8 +164,8 @@ const CreateSupplierPage = () => {
                                 <User className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Create New Supplier</h1>
-                                <p className="text-sm text-gray-500">{currentStore ? `Add a new supplier to ${currentStore.store_name}` : 'Add a new supplier to your network'}</p>
+                                <h1 className="text-2xl font-bold text-gray-900">{t('supplier_create_title')}</h1>
+                                <p className="text-sm text-gray-500">{currentStore ? `${t('supplier_add')} ${currentStore.store_name}` : t('supplier_add')}</p>
                             </div>
                         </div>
                     </div>
@@ -187,12 +189,12 @@ const CreateSupplierPage = () => {
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             {/* Basic Information Section */}
                             <div>
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_name')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Supplier Name */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Supplier Name <span className="text-red-500">*</span>
+                                            {t('lbl_supplier')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="name"
@@ -200,7 +202,7 @@ const CreateSupplierPage = () => {
                                             type="text"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            placeholder="Enter supplier name"
+                                            placeholder={t('lbl_name')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.name ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -211,7 +213,7 @@ const CreateSupplierPage = () => {
                                     {/* Email */}
                                     <div>
                                         <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Email Address <span className="text-red-500">*</span>
+                                            {t('lbl_email')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="email"
@@ -219,7 +221,7 @@ const CreateSupplierPage = () => {
                                             type="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            placeholder="supplier@example.com"
+                                            placeholder={t('lbl_email')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.email ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -230,7 +232,7 @@ const CreateSupplierPage = () => {
                                     {/* Phone */}
                                     <div>
                                         <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Phone Number <span className="text-red-500">*</span>
+                                            {t('lbl_phone')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="phone"
@@ -238,7 +240,7 @@ const CreateSupplierPage = () => {
                                             type="tel"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            placeholder="+1234567890"
+                                            placeholder={t('lbl_phone')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
                                                 errors.phone ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -250,19 +252,19 @@ const CreateSupplierPage = () => {
 
                             {/* Contact & Status Section */}
                             <div className="border-t border-gray-200 pt-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Contact & Status</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_address')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Address */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Address <span className="text-red-500">*</span>
+                                            {t('lbl_address')} <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
                                             id="address"
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
-                                            placeholder="Enter complete address"
+                                            placeholder={t('lbl_address')}
                                             rows={3}
                                             maxLength={500}
                                             className={`w-full resize-none rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
@@ -276,7 +278,7 @@ const CreateSupplierPage = () => {
                                     {/* Status */}
                                     <div>
                                         <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Status
+                                            {t('lbl_status')}
                                         </label>
                                         <select
                                             id="status"
@@ -285,14 +287,14 @@ const CreateSupplierPage = () => {
                                             onChange={handleChange}
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         >
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
+                                            <option value="active">{t('status_active')}</option>
+                                            <option value="inactive">{t('status_inactive')}</option>
                                         </select>
                                     </div>
 
                                     {/* Store Info (Read-only) */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Store</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_store')}</label>
                                         <input
                                             type="text"
                                             value={currentStore?.store_name || 'Current Store'}
@@ -311,7 +313,7 @@ const CreateSupplierPage = () => {
                                         onClick={() => router.push('/protected/suppliers')}
                                         className="w-full rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:w-auto"
                                     >
-                                        Cancel
+                                        {t('btn_cancel')}
                                     </button>
                                     <button
                                         type="submit"
@@ -328,14 +330,14 @@ const CreateSupplierPage = () => {
                                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                     ></path>
                                                 </svg>
-                                                Creating...
+                                                {t('btn_creating')}
                                             </>
                                         ) : (
                                             <>
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                                 </svg>
-                                                Create Supplier
+                                                {t('supplier_create_title')}
                                             </>
                                         )}
                                     </button>

@@ -5,6 +5,7 @@ import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/R
 import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import DateColumn from '@/components/common/DateColumn';
 import { useGetPurchaseReportMutation } from '@/store/features/reports/reportApi';
@@ -12,6 +13,7 @@ import { Banknote, Calculator, CreditCard, FileText, PieChart, ShoppingCart, Tre
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -103,17 +105,17 @@ const PurchaseReportPage = () => {
     // Export columns configuration
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'invoice_number', label: 'Invoice', width: 15 },
-            { key: 'order_reference', label: 'Reference', width: 15 },
-            { key: 'supplier_name', label: 'Supplier', width: 20, format: (value, row) => value || row?.supplier || 'N/A' },
-            { key: 'status', label: 'Status', width: 12 },
-            { key: 'payment_status', label: 'Payment', width: 12 },
-            { key: 'grand_total', label: 'Total', width: 15, format: (value) => formatCurrency(value) },
-            { key: 'amount_paid', label: 'Paid', width: 15, format: (value) => formatCurrency(value) },
-            { key: 'amount_due', label: 'Due', width: 15, format: (value) => formatCurrency(value) },
-            { key: 'created_at', label: 'Date', width: 12, format: (value) => value || '' },
+            { key: 'invoice_number', label: t('lbl_invoice'), width: 15 },
+            { key: 'order_reference', label: t('lbl_reference'), width: 15 },
+            { key: 'supplier_name', label: t('lbl_supplier'), width: 20, format: (value, row) => value || row?.supplier || 'N/A' },
+            { key: 'status', label: t('lbl_status'), width: 12 },
+            { key: 'payment_status', label: t('lbl_payment_method'), width: 12 },
+            { key: 'grand_total', label: t('lbl_total'), width: 15, format: (value) => formatCurrency(value) },
+            { key: 'amount_paid', label: t('status_paid'), width: 15, format: (value) => formatCurrency(value) },
+            { key: 'amount_due', label: t('lbl_due'), width: 15, format: (value) => formatCurrency(value) },
+            { key: 'created_at', label: t('lbl_date'), width: 12, format: (value) => value || '' },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     // Filter summary for export
@@ -125,10 +127,10 @@ const PurchaseReportPage = () => {
             : currentStore?.store_name || 'All Stores';
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.status && apiParams.status !== 'all') {
-            customFilters.push({ label: 'Status', value: apiParams.status.charAt(0).toUpperCase() + apiParams.status.slice(1) });
+            customFilters.push({ label: t('lbl_status'), value: apiParams.status.charAt(0).toUpperCase() + apiParams.status.slice(1) });
         }
         if (apiParams.payment_status && apiParams.payment_status !== 'all') {
-            customFilters.push({ label: 'Payment', value: apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1) });
+            customFilters.push({ label: t('lbl_payment_method'), value: apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1) });
         }
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
@@ -139,18 +141,18 @@ const PurchaseReportPage = () => {
     // Export summary
     const exportSummary = useMemo(
         () => [
-            { label: 'Total Orders', value: summary.total_purchase_orders || 0 },
-            { label: 'Total Value', value: formatCurrency(summary.total_purchase_value) },
-            { label: 'Paid Amount', value: formatCurrency(summary.total_amount_paid) },
-            { label: 'Due Amount', value: formatCurrency(summary.total_amount_due) },
+            { label: t('report_total_sales'), value: summary.total_purchase_orders || 0 },
+            { label: t('lbl_total_value'), value: formatCurrency(summary.total_purchase_value) },
+            { label: t('lbl_amount_paid'), value: formatCurrency(summary.total_amount_paid) },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_amount_due) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Total Orders',
+                label: t('report_total_sales'),
                 value: summary.total_purchase_orders || 0,
                 icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -158,7 +160,7 @@ const PurchaseReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Value',
+                label: t('lbl_total_value'),
                 value: formatCurrency(summary.total_purchase_value),
                 icon: <Banknote className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -166,7 +168,7 @@ const PurchaseReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Paid Amount',
+                label: t('lbl_amount_paid'),
                 value: formatCurrency(summary.total_amount_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -174,7 +176,7 @@ const PurchaseReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Due Amount',
+                label: t('lbl_due'),
                 value: formatCurrency(summary.total_amount_due),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -182,7 +184,7 @@ const PurchaseReportPage = () => {
                 textColor: 'text-red-600',
             },
             {
-                label: 'Avg Order Value',
+                label: t('lbl_avg_order'),
                 value: formatCurrency(summary.average_order_value),
                 icon: <Calculator className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -190,16 +192,16 @@ const PurchaseReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
-            { key: 'invoice_number', label: 'Invoice', sortable: true, render: (value: any) => <span className="font-semibold text-gray-900">{value}</span> },
-            { key: 'order_reference', label: 'Reference', render: (value: any) => <span className="font-mono text-sm text-gray-600">{value || '-'}</span> },
+            { key: 'invoice_number', label: t('lbl_invoice'), sortable: true, render: (value: any) => <span className="font-semibold text-gray-900">{value}</span> },
+            { key: 'order_reference', label: t('lbl_reference'), render: (value: any) => <span className="font-mono text-sm text-gray-600">{value || '-'}</span> },
             {
                 key: 'supplier_name',
-                label: 'Supplier',
+                label: t('lbl_supplier'),
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-700">{value || row.supplier || 'N/A'}</span>
@@ -208,7 +210,7 @@ const PurchaseReportPage = () => {
             },
             {
                 key: 'status',
-                label: 'Status',
+                label: t('lbl_status'),
                 render: (value: any) => {
                     const config: Record<string, { bg: string; text: string }> = {
                         received: { bg: 'bg-green-100', text: 'text-green-800' },
@@ -222,7 +224,7 @@ const PurchaseReportPage = () => {
             },
             {
                 key: 'payment_status',
-                label: 'Payment',
+                label: t('lbl_payment_method'),
                 render: (value: any) => {
                     const config: Record<string, { bg: string; text: string }> = {
                         paid: { bg: 'bg-green-100', text: 'text-green-800' },
@@ -233,10 +235,10 @@ const PurchaseReportPage = () => {
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
                 },
             },
-            { key: 'grand_total', label: 'Total', sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
+            { key: 'grand_total', label: t('lbl_total'), sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
             {
                 key: 'amount_paid',
-                label: 'Paid/Due',
+                label: t('lbl_paid_due'),
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
                         <span className="text-xs font-medium text-green-600">P: {formatCurrency(value)}</span>
@@ -246,17 +248,17 @@ const PurchaseReportPage = () => {
             },
             {
                 key: 'items_count',
-                label: 'Items',
+                label: t('order_items'),
                 render: (value: any) => <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-600">{value}</span>,
             },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

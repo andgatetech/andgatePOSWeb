@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 
 interface GlobalSettingsProps {
@@ -15,6 +16,7 @@ interface GlobalSettingsProps {
  * Global settings that apply to all items without individual settings
  */
 const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChange }: GlobalSettingsProps) => {
+    const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
     const { data: storeData } = useGetStoreQuery(currentStore?.id ? { store_id: currentStore.id } : undefined, {
         skip: !currentStore?.id,
@@ -50,8 +52,8 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
                                 onChange={(e) => onReasonChange(e.target.value)}
                                 className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
                             >
-                                <option value="">Select reason</option>
-                                <option value="default">Default Reason for All</option>
+                                <option value="">{t('placeholder_select_reason')}</option>
+                                <option value="default">{t('lbl_default_reason')}</option>
                                 {adjustmentReasons
                                     .filter((r: any) => r.is_active === 1 || r.is_active === true)
                                     .map((r: any) => (

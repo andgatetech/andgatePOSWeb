@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateStockAdjustmentMutation, useUpdateSerialStatusMutation } from '@/store/features/Product/productApi';
@@ -26,6 +27,7 @@ import GlobalSettings from './GlobalSettings';
  * (e.g., "Red-Large" vs "Blue-Small") have separate stock levels.
  */
 const StockAdjustment = () => {
+    const { t } = getTranslation();
     const dispatch = useDispatch();
     const { currentStore, currentStoreId } = useCurrentStore();
     // Use per-store items
@@ -227,7 +229,7 @@ const StockAdjustment = () => {
                 await createStockAdjustment(adjustmentData).unwrap();
             }
 
-            showSuccessDialog('Success!', 'Stock adjustments saved successfully');
+            showSuccessDialog(t('msg_success'), t('msg_saved_success'));
 
             // Clear all after successful save
             if (currentStoreId) {
@@ -237,7 +239,7 @@ const StockAdjustment = () => {
             setGlobalReason('');
             setGlobalNotes('');
         } catch (error: any) {
-            showErrorDialog('Error', error?.data?.message || error?.message || 'Failed to save stock adjustments');
+            showErrorDialog(t('msg_error'), error?.data?.message || error?.message || 'Failed to save stock adjustments');
         }
     };
 

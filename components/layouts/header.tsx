@@ -2,11 +2,11 @@
 import NotificationDropdown from '@/app/(application)/(protected)/notifications/components/NotificationDropdown';
 import CalculatorButton from '@/components/custom/CalculatorButton';
 import Dropdown from '@/components/dropdown';
+import LanguageDropdown from '@/components/language-dropdown';
 import IconLogout from '@/components/icon/icon-logout';
 import IconMenu from '@/components/icon/icon-menu';
 import IconUser from '@/components/icon/icon-user';
 
-import { getTranslation } from '@/i18n';
 import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
@@ -22,7 +22,6 @@ const Header = () => {
     const pathname = usePathname();
     const dispatch = useDispatch();
     const router = useRouter();
-    const { t, i18n } = getTranslation();
     const [logout] = useLogoutMutation();
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -168,6 +167,9 @@ const Header = () => {
                                 {isFullscreen ? <Minimize className="h-[18px] w-[18px]" /> : <Maximize className="h-[18px] w-[18px]" />}
                             </button>
                         </div>
+
+                        {/* Language Switcher */}
+                        <LanguageDropdown variant="dark" />
 
                         {/* Notifications Dropdown */}
                         <NotificationDropdown />

@@ -11,6 +11,7 @@
 import { CATEGORY_ORDER, getActionLabel, getCategoryColors, getCategoryLabel, getSidebarMenus } from '@/lib/permissionConfig';
 import { CheckCircle2, ChevronDown, ChevronUp, LayoutGrid, Menu, Shield } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 export interface Permission {
     id: number;
@@ -205,7 +206,8 @@ function CategoryCard({
 export default function PermissionSelector({ allPermissions, isChecked, onToggle, onCategoryToggle, onSelectAll, selectAll, selectedCount, loading }: PermissionSelectorProps) {
     // Group and sort permissions by category
     const groupedPermissions = useMemo(() => {
-        const groups: Record<string, Permission[]> = {};
+        const { t } = getTranslation();
+    const groups: Record<string, Permission[]> = {};
 
         allPermissions.forEach((permission) => {
             const category = permission.name.split('.')[0] || 'general';

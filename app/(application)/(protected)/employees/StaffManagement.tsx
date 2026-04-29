@@ -3,6 +3,7 @@ import PermissionSelector from '@/app/(application)/(protected)/employees/employ
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showMessage } from '@/lib/toast';
 import { RootState } from '@/store';
@@ -28,6 +29,7 @@ interface Permission {
 }
 
 const StaffManagement = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, userStores } = useCurrentStore();
     const adminUser = useSelector((state: RootState) => state.auth?.user);
@@ -249,11 +251,11 @@ const StaffManagement = () => {
 
             await updateUserPermission({ userId: selectedStaff.id, permissionData: { permissions: payload } }).unwrap();
             refetchStaffMembers();
-            showMessage('Permissions updated successfully');
+            showMessage(t('msg_permissions_updated'));
             closePermissionsModal();
         } catch (error: any) {
             console.error('Permission update failed:', error);
-            showMessage(error?.data?.message || 'Failed to update permissions', 'error');
+            showMessage(error?.data?.message || t('msg_failed_update_permissions'), 'error');
         }
     };
 
@@ -278,7 +280,7 @@ const StaffManagement = () => {
     const columns: TableColumn[] = [
         {
             key: 'name',
-            label: 'Name',
+            label: t('lbl_name'),
             sortable: true,
             render: (_value, row) => (
                 <div className="flex items-center">
@@ -295,7 +297,7 @@ const StaffManagement = () => {
         },
         {
             key: 'email',
-            label: 'Email',
+            label: t('lbl_email'),
             sortable: true,
             render: (value) => (
                 <div className="flex items-center text-sm text-gray-600">
@@ -306,19 +308,19 @@ const StaffManagement = () => {
         },
         {
             key: 'role_in_store',
-            label: 'Role',
+            label: t('lbl_role'),
             sortable: true,
             render: (value) => <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadge(value)}`}>{value}</span>,
         },
         {
             key: 'phone',
-            label: 'Phone',
+            label: t('lbl_phone'),
             sortable: false,
             render: (value) => <span className="text-sm text-gray-500">{value || 'N/A'}</span>,
         },
         {
             key: 'address',
-            label: 'Address',
+            label: t('lbl_address'),
             sortable: false,
             render: (value) => (
                 <div className="max-w-xs truncate text-sm text-gray-500" title={value}>
@@ -331,25 +333,25 @@ const StaffManagement = () => {
     // Define table actions
     const actions: TableAction[] = [
         {
-            label: 'Edit Employee',
+            label: t('employee_action_edit'),
             icon: <Pencil className="h-4 w-4" />,
             className: 'text-blue-700',
             onClick: (row) => {
-                showMessage('Employee editing is coming soon.', 'info');
+                showMessage(t('msg_employee_edit_coming_soon'), 'info');
             },
         },
         {
-            label: 'Edit Permissions',
+            label: t('employee_permissions'),
             icon: <ShieldCheck className="h-4 w-4" />,
             className: 'text-emerald-700',
             onClick: (row) => openPermissionsModal(row),
         },
         {
-            label: 'Delete',
+            label: t('btn_delete'),
             icon: <Trash2 className="h-4 w-4" />,
             className: 'text-red-700',
             onClick: (row) => {
-                showMessage('Employee deletion is coming soon.', 'info');
+                showMessage(t('msg_employee_delete_coming_soon'), 'info');
             },
         },
     ];
@@ -383,7 +385,7 @@ const StaffManagement = () => {
     const stats = getStats();
 
     if (isLoading) {
-        return <Loader message="Loading staff members..." />;
+        return <Loader message={t('msg_loading_staff')} />;
     }
 
     return (
@@ -397,8 +399,8 @@ const StaffManagement = () => {
                                 <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Employees Management</h1>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">Manage your team members and their roles</p>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('employee_management_title')}</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{t('employee_management_subtitle')}</p>
                             </div>
                         </div>
                         <div className="flex w-full items-center space-x-3 sm:w-auto sm:space-x-4">
@@ -407,7 +409,7 @@ const StaffManagement = () => {
                                 className="group relative inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-xs font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:rounded-xl sm:px-6 sm:py-3 sm:text-sm"
                             >
                                 <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
-                                Add Employee
+                                {t('employee_add')}
                                 <div className="absolute inset-0 rounded-lg bg-white/20 opacity-0 transition-opacity group-hover:opacity-100 sm:rounded-xl" />
                             </button>
                         </div>
@@ -424,7 +426,7 @@ const StaffManagement = () => {
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Total Employees</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_stats_total')}</p>
                                 <p className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{stats.total}</p>
                             </div>
                             <Users className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
@@ -433,7 +435,7 @@ const StaffManagement = () => {
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Administrators</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_stats_admins')}</p>
                                 <p className="text-lg font-bold text-purple-600 sm:text-xl md:text-2xl">{stats.admins}</p>
                             </div>
                             <Shield className="h-6 w-6 text-purple-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
@@ -442,7 +444,7 @@ const StaffManagement = () => {
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Employees</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_page_title')}</p>
                                 <p className="text-lg font-bold text-green-600 sm:text-xl md:text-2xl">{stats.staff}</p>
                             </div>
                             <CheckCircle className="h-6 w-6 text-green-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
@@ -451,7 +453,7 @@ const StaffManagement = () => {
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
-                                <p className="text-xs font-medium text-gray-600 sm:text-sm">Managers</p>
+                                <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_stats_managers')}</p>
                                 <p className="text-lg font-bold text-blue-600 sm:text-xl md:text-2xl">{stats.managers}</p>
                             </div>
                             <XCircle className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
@@ -467,8 +469,8 @@ const StaffManagement = () => {
                     isLoading={isLoading}
                     emptyState={{
                         icon: <Users className="h-16 w-16" />,
-                        title: 'No staff members found',
-                        description: Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first staff member.',
+                        title: t('msg_no_staff_found'),
+                        description: Object.keys(apiParams).length > 0 ? t('msg_adjust_filters') : t('msg_add_first_staff'),
                     }}
                     pagination={{
                         currentPage,
@@ -493,8 +495,8 @@ const StaffManagement = () => {
                     <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-2xl">
                         <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4">
                             <div>
-                                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Edit Permissions{selectedStaff ? ` • ${selectedStaff.name}` : ''}</h3>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">Adjust access controls for this employee in real time.</p>
+                                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{t('employee_edit_permissions')}{selectedStaff ? ` • ${selectedStaff.name}` : ''}</h3>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{t('employee_permissions_subtitle')}</p>
                             </div>
                             <button type="button" onClick={closePermissionsModal} className="rounded-full p-1 text-gray-400 transition hover:text-gray-600">
                                 <XCircle className="h-5 w-5" />
@@ -514,7 +516,7 @@ const StaffManagement = () => {
                         </div>
                         <div className="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4">
                             <p className="text-center text-xs text-gray-500 sm:text-left sm:text-sm">
-                                {selectAllPermissions ? 'All permissions selected' : `${selectedPermissionsCount} permission${selectedPermissionsCount === 1 ? '' : 's'} selected`}
+                                {selectAllPermissions ? t('msg_all_permissions_selected') : `${selectedPermissionsCount} ${selectedPermissionsCount === 1 ? t('msg_permission_selected') : t('msg_permissions_selected')}`}
                             </p>
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <button
@@ -522,7 +524,7 @@ const StaffManagement = () => {
                                     onClick={closePermissionsModal}
                                     className="flex-1 rounded-lg border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50 sm:flex-none sm:text-sm"
                                 >
-                                    Cancel
+                                    {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="button"
@@ -533,10 +535,10 @@ const StaffManagement = () => {
                                     {isUpdatingPermission ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Saving...
+                                            {t('btn_saving')}
                                         </>
                                     ) : (
-                                        'Save Changes'
+                                        t('btn_save_changes')
                                     )}
                                 </button>
                             </div>

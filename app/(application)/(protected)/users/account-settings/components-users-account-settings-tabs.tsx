@@ -5,6 +5,7 @@ import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconPhone from '@/components/icon/icon-phone';
 import IconUser from '@/components/icon/icon-user';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
+import { getTranslation } from '@/i18n';
 import { useChangePasswordMutation, useUpdateUserMutation } from '@/store/features/auth/authApi';
 import { updateUserProfile } from '@/store/features/auth/authSlice';
 import { AppDispatch, RootState } from '@/store/index';
@@ -14,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const ComponentsUsersAccountSettingsTabs = () => {
+    const { t } = getTranslation();
     const [tabs, setTabs] = useState<string>('home');
     const [formData, setFormData] = useState({
         name: '',
@@ -84,10 +86,10 @@ const ComponentsUsersAccountSettingsTabs = () => {
                 );
 
                 // Show success notification
-                showSuccessDialog('Success!', result.message || 'Profile updated successfully!', 'OK');
+                showSuccessDialog(t('msg_success'), result.message || t('msg_updated_success'), 'OK');
             }
         } catch (error: any) {
-            showErrorDialog('Error!', error?.data?.message || 'Failed to update profile');
+            showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to update profile');
         }
     };
 
@@ -103,12 +105,12 @@ const ComponentsUsersAccountSettingsTabs = () => {
         e.preventDefault();
 
         if (passwordData.newPassword !== passwordData.newPasswordConfirmation) {
-            showMessage('New passwords do not match', 'error');
+            showMessage(t('msg_passwords_no_match'), 'error');
             return;
         }
 
         if (passwordData.newPassword.length < 8) {
-            showMessage('New password must be at least 8 characters long', 'error');
+            showMessage(t('msg_password_min_length'), 'error');
             return;
         }
 
@@ -119,10 +121,10 @@ const ComponentsUsersAccountSettingsTabs = () => {
                 new_password_confirmation: passwordData.newPasswordConfirmation,
             }).unwrap();
 
-            showMessage('Password changed successfully!', 'success');
+            showMessage(t('msg_password_changed'), 'success');
             setPasswordData({ currentPassword: '', newPassword: '', newPasswordConfirmation: '' });
         } catch (error: any) {
-            showErrorDialog('Error!', error?.data?.message || 'Failed to change password');
+            showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to change password');
         }
     };
 
@@ -133,7 +135,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
     return (
         <div className="pt-5">
             <div className="mb-5 flex items-center justify-between">
-                <h5 className="text-lg font-semibold dark:text-white-light">Settings</h5>
+                <h5 className="text-lg font-semibold dark:text-white-light">{t('store_settings_title')}</h5>
             </div>
             <div>
                 <ul className="mb-5 overflow-y-auto whitespace-nowrap border-b border-[#ebedf2] font-semibold dark:border-[#191e3a] sm:flex">
@@ -143,7 +145,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
                             className={`flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary ${tabs === 'home' ? '!border-primary text-primary' : ''}`}
                         >
                             <IconHome />
-                            Home
+                            {t('lbl_home')}
                         </button>
                     </li>
                     <li className="inline-block">
@@ -152,7 +154,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
                             className={`flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary ${tabs === 'security' ? '!border-primary text-primary' : ''}`}
                         >
                             <IconLockDots />
-                            Security
+                            {t('lbl_security')}
                         </button>
                     </li>
                     <li className="inline-block">
@@ -161,7 +163,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
                             className={`flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary ${tabs === 'payment-details' ? '!border-primary text-primary' : ''}`}
                         >
                             <IconDollarSignCircle />
-                            Payment Details
+                            {t('lbl_payment_details')}
                         </button>
                     </li>
 
@@ -171,7 +173,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
                             className={`flex gap-2 border-b border-transparent p-4 hover:border-primary hover:text-primary ${tabs === 'danger-zone' ? '!border-primary text-primary' : ''}`}
                         >
                             <IconPhone />
-                            Danger Zone
+                            {t('lbl_danger_zone')}
                         </button>
                     </li>
                 </ul>
@@ -179,7 +181,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
             {tabs === 'home' ? (
                 <div>
                     <form className="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-black" onSubmit={handleSubmit}>
-                        <h6 className="mb-5 text-lg font-bold">General Information</h6>
+                        <h6 className="mb-5 text-lg font-bold">{t('user_general_info')}</h6>
                         <div className="flex flex-col sm:flex-row">
                             <div className="mb-5 w-full sm:w-2/12 ltr:sm:mr-4 rtl:sm:ml-4">
                                 {(user as any)?.profile_image ? (
@@ -202,38 +204,38 @@ const ComponentsUsersAccountSettingsTabs = () => {
                             </div>
                             <div className="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2">
                                 <div>
-                                    <label htmlFor="name">Full Name</label>
-                                    <input id="name" name="name" type="text" placeholder="Enter your full name" className="form-input" value={formData.name} onChange={handleInputChange} />
+                                    <label htmlFor="name">{t('lbl_full_name')}</label>
+                                    <input id="name" name="name" type="text" placeholder={t('placeholder_full_name')} className="form-input" value={formData.name} onChange={handleInputChange} />
                                 </div>
 
                                 <div>
-                                    <label htmlFor="email">Email</label>
+                                    <label htmlFor="email">{t('lbl_email')}</label>
                                     <input
                                         id="email"
                                         name="email"
                                         type="email"
-                                        placeholder="Email address"
+                                        placeholder={t('placeholder_email')}
                                         className="form-input cursor-not-allowed bg-gray-100"
                                         value={formData.email}
                                         readOnly
                                         disabled
                                     />
-                                    <small className="mt-1 text-xs text-gray-500">Email cannot be changed</small>
+                                    <small className="mt-1 text-xs text-gray-500">{t('msg_email_readonly')}</small>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="phone">Phone</label>
-                                    <input id="phone" name="phone" type="text" placeholder="+1 (530) 555-12121" className="form-input" value={formData.phone} onChange={handleInputChange} />
+                                    <label htmlFor="phone">{t('lbl_phone')}</label>
+                                    <input id="phone" name="phone" type="text" placeholder={t('placeholder_phone')} className="form-input" value={formData.phone} onChange={handleInputChange} />
                                 </div>
 
                                 <div>
-                                    <label htmlFor="address">Address</label>
-                                    <input id="address" name="address" type="text" placeholder="Enter your address" className="form-input" value={formData.address} onChange={handleInputChange} />
+                                    <label htmlFor="address">{t('lbl_address')}</label>
+                                    <input id="address" name="address" type="text" placeholder={t('placeholder_address')} className="form-input" value={formData.address} onChange={handleInputChange} />
                                 </div>
 
                                 <div className="mt-3 sm:col-span-2">
                                     <button type="submit" className={`btn btn-primary ${isUpdating ? 'cursor-not-allowed opacity-50' : ''}`} disabled={isUpdating}>
-                                        {isUpdating ? 'Saving...' : 'Save Changes'}
+                                        {isUpdating ? t('btn_saving') : t('btn_save_changes')}
                                     </button>
                                 </div>
                             </div>
@@ -246,17 +248,17 @@ const ComponentsUsersAccountSettingsTabs = () => {
             {tabs === 'security' ? (
                 <div>
                     <form className="mb-5 rounded-md border border-[#ebedf2] bg-white p-4 dark:border-[#191e3a] dark:bg-black" onSubmit={handlePasswordSubmit}>
-                        <h6 className="mb-5 text-lg font-bold">Change Password</h6>
-                        <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">Ensure your account is using a strong password to stay secure.</p>
+                        <h6 className="mb-5 text-lg font-bold">{t('user_change_password')}</h6>
+                        <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">{t('user_password_tip')}</p>
                         <div className="grid grid-cols-1 gap-5">
                             <div>
-                                <label htmlFor="currentPassword">Current Password</label>
+                                <label htmlFor="currentPassword">{t('user_current_password')}</label>
                                 <div className="relative">
                                     <input
                                         id="currentPassword"
                                         name="currentPassword"
                                         type={showCurrentPassword ? 'text' : 'password'}
-                                        placeholder="Enter current password"
+                                        placeholder={t('placeholder_current_password')}
                                         className="form-input pe-10"
                                         value={passwordData.currentPassword}
                                         onChange={handlePasswordChange}
@@ -278,13 +280,13 @@ const ComponentsUsersAccountSettingsTabs = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="newPassword">New Password</label>
+                                <label htmlFor="newPassword">{t('user_new_password')}</label>
                                 <div className="relative">
                                     <input
                                         id="newPassword"
                                         name="newPassword"
                                         type={showNewPassword ? 'text' : 'password'}
-                                        placeholder="Enter new password"
+                                        placeholder={t('placeholder_new_password')}
                                         className="form-input pe-10"
                                         value={passwordData.newPassword}
                                         onChange={handlePasswordChange}
@@ -304,17 +306,17 @@ const ComponentsUsersAccountSettingsTabs = () => {
                                         {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
-                                <small className="mt-1 text-xs text-gray-500">Must be at least 8 characters</small>
+                                <small className="mt-1 text-xs text-gray-500">{t('user_password_min')}</small>
                             </div>
 
                             <div>
-                                <label htmlFor="newPasswordConfirmation">Confirm New Password</label>
+                                <label htmlFor="newPasswordConfirmation">{t('user_confirm_password')}</label>
                                 <div className="relative">
                                     <input
                                         id="newPasswordConfirmation"
                                         name="newPasswordConfirmation"
                                         type={showNewPasswordConfirmation ? 'text' : 'password'}
-                                        placeholder="Confirm new password"
+                                        placeholder={t('placeholder_confirm_password')}
                                         className="form-input pe-10"
                                         value={passwordData.newPasswordConfirmation}
                                         onChange={handlePasswordChange}
@@ -337,7 +339,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
 
                             <div className="mt-3">
                                 <button type="submit" className={`btn btn-primary ${isChangingPassword ? 'cursor-not-allowed opacity-50' : ''}`} disabled={isChangingPassword}>
-                                    {isChangingPassword ? 'Changing Password...' : 'Change Password'}
+                                    {isChangingPassword ? t('btn_loading') : t('user_change_password')}
                                 </button>
                             </div>
                         </div>
@@ -355,14 +357,14 @@ const ComponentsUsersAccountSettingsTabs = () => {
                                 </svg>
                             </div>
                             <div className="ml-3">
-                                <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">Password Security Tips</h3>
+                                <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">{t('user_security_tips')}</h3>
                                 <div className="mt-2 text-sm text-blue-700 dark:text-blue-400">
                                     <ul className="list-disc space-y-1 pl-5">
-                                        <li>Use at least 8 characters</li>
-                                        <li>Include uppercase and lowercase letters</li>
-                                        <li>Add numbers and special characters</li>
-                                        <li>Avoid common words or patterns</li>
-                                        <li>Don&apos;t reuse passwords from other accounts</li>
+                                        <li>{t('tip_password_8chars')}</li>
+                                        <li>{t('tip_password_case')}</li>
+                                        <li>{t('tip_password_chars')}</li>
+                                        <li>{t('tip_password_avoid')}</li>
+                                        <li>{t('tip_password_reuse')}</li>
                                     </ul>
                                 </div>
                             </div>
@@ -377,7 +379,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
                     {/* Coming Soon Overlay */}
                     <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/80 dark:bg-black/80">
                         <div className="text-center">
-                            <h3 className="mb-2 text-3xl font-bold text-gray-700 dark:text-gray-300">Coming Soon</h3>
+                            <h3 className="mb-2 text-3xl font-bold text-gray-700 dark:text-gray-300">{t('msg_coming_soon')}</h3>
                             <p className="text-gray-600 dark:text-gray-400">Payment Details section will be available soon</p>
                         </div>
                     </div>

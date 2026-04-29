@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import { useCreateJournalMutation } from '@/store/features/journals/journals';
 import { useGetLedgersQuery } from '@/store/features/ledger/ledger';
@@ -31,7 +32,8 @@ const CreateJournalModal: React.FC<CreateJournalModalProps> = ({ isOpen, onClose
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validateForm = () => {
-        const newErrors: Record<string, string> = {};
+        const { t } = getTranslation();
+    const newErrors: Record<string, string> = {};
 
         if (!formData.ledger_id) {
             newErrors.ledger_id = 'Please select a ledger';
@@ -58,7 +60,7 @@ const CreateJournalModal: React.FC<CreateJournalModalProps> = ({ isOpen, onClose
         if (!validateForm()) return;
 
         if (!currentStoreId) {
-            showErrorDialog('Error!', 'Please select a store first.');
+            showErrorDialog(t('msg_error'), 'Please select a store first.');
             return;
         }
 
@@ -78,7 +80,7 @@ const CreateJournalModal: React.FC<CreateJournalModalProps> = ({ isOpen, onClose
             onClose();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to create journal entry. Please try again.';
-            showErrorDialog('Error!', errorMessage);
+            showErrorDialog(t('msg_error'), errorMessage);
         }
     };
 
@@ -171,7 +173,7 @@ const CreateJournalModal: React.FC<CreateJournalModalProps> = ({ isOpen, onClose
                             id="journal-notes"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            placeholder="Add notes..."
+                            placeholder={t('placeholder_notes')}
                             rows={2}
                             className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         />

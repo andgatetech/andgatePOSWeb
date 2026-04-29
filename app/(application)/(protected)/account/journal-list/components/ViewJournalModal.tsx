@@ -2,6 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -13,6 +14,7 @@ interface ViewJournalModalProps {
 }
 
 const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, onClose, onEdit }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     useEffect(() => {

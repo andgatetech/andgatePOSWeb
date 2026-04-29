@@ -9,10 +9,12 @@ import { CheckCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
+import { getTranslation } from '@/i18n';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 
 const NotificationDropdown = () => {
+    const { t } = getTranslation();
     const dropdownRef = useRef<any>(null);
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
 
@@ -71,7 +73,7 @@ const NotificationDropdown = () => {
                     <li onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-4 py-3">
                             <div className="flex items-center gap-2">
-                                <h4 className="text-base font-semibold">Notifications</h4>
+                                <h4 className="text-base font-semibold">{t('lbl_notifications')}</h4>
                                 {unreadCount > 0 && (
                                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                                         {unreadCount > 99 ? '99+' : unreadCount}
@@ -134,7 +136,7 @@ const NotificationDropdown = () => {
                                     <div className="mx-auto mb-4 rounded-full ring-4 ring-primary/30">
                                         <IconInfoCircle fill={true} className="h-10 w-10 text-primary" />
                                     </div>
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No new notifications</p>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('msg_no_new_notifications')}</p>
                                 </div>
                             </li>
                             <li>

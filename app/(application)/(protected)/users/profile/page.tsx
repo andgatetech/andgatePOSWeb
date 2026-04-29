@@ -3,6 +3,7 @@
 import IconClock from '@/components/icon/icon-clock';
 import ComponentsUsersProfilePaymentHistory from '@/app/(application)/(protected)/users/profile/components-users-profile-payment-history';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { AlertTriangle, Calendar, ChevronDown, ChevronUp, Edit3, Mail, MapPin, Phone, RefreshCw, User } from 'lucide-react';
 import Link from 'next/link';
@@ -270,6 +271,7 @@ const AdminProfile = () => {
 
 // ── Subscription Feature Items (compact chip grid) ───────────────────────────
 const FeatureChips = ({ items }: { items: { title_en: string; title_bn: string | null; value: string | null }[] }) => {
+    const { t } = getTranslation();
     const [expanded, setExpanded] = useState(false);
     const INITIAL_SHOW = 12;
     const visible = expanded ? items : items.slice(0, INITIAL_SHOW);

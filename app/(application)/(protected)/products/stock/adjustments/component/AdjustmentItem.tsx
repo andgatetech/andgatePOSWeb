@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import SerialAdjustmentModal from './SerialAdjustmentModal';
@@ -28,6 +29,7 @@ interface AdjustmentItemProps {
  * Individual product item with adjustment controls
  */
 const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpdateQuantity }: AdjustmentItemProps) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStore } = useCurrentStore();
     const { data: storeData } = useGetStoreQuery(currentStore?.id ? { store_id: currentStore.id } : undefined, {
@@ -173,7 +175,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                     }`}
                                 >
                                     <ArrowUp className="h-4 w-4 flex-shrink-0" />
-                                    <span>Increase</span>
+                                    <span>{t('lbl_increase')}</span>
                                 </button>
                                 <button
                                     onClick={() => onAdjustmentChange(item.id, 'adjustmentType', 'decrease')}
@@ -182,7 +184,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                     }`}
                                 >
                                     <ArrowDown className="h-4 w-4 flex-shrink-0" />
-                                    <span>Decrease</span>
+                                    <span>{t('lbl_decrease')}</span>
                                 </button>
                             </div>
                         </div>
@@ -234,7 +236,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                         onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
                                         className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
                                     >
-                                        <option value="">Select reason</option>
+                                        <option value="">{t('placeholder_select_reason')}</option>
                                         {adjustmentReasons
                                             .filter((r: any) => r.is_active === 1 || r.is_active === true)
                                             .map((r: any) => (

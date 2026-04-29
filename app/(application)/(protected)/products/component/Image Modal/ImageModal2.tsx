@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Archive, Package, Tag, X } from 'lucide-react';
 import Image from 'next/image';

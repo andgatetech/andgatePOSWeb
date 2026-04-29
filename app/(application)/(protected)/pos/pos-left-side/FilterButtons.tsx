@@ -1,3 +1,4 @@
+import { getTranslation } from '@/i18n';
 import { Award, Tag, X } from 'lucide-react';
 import React from 'react';
 import type { Brand, Category } from './types';
@@ -11,6 +12,7 @@ interface FilterButtonsProps {
 }
 
 const FilterButtons: React.FC<FilterButtonsProps> = ({ selectedCategory, selectedBrand, onCategoryClick, onBrandClick, onClearFilters }) => {
+    const { t } = getTranslation();
     return (
         <>
             {/* Filter Buttons */}
@@ -20,7 +22,7 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({ selectedCategory, selecte
                     className="flex items-center space-x-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs transition-colors hover:bg-blue-100 sm:space-x-2 sm:px-4 sm:py-2 sm:text-sm"
                 >
                     <Tag className="h-3.5 w-3.5 text-blue-600 sm:h-4 sm:w-4" />
-                    <span className="font-medium text-blue-700">{selectedCategory ? selectedCategory.name || selectedCategory.category_name : 'Category'}</span>
+                    <span className="font-medium text-blue-700">{selectedCategory ? selectedCategory.name || selectedCategory.category_name : t('lbl_category')}</span>
                 </button>
 
                 <button
@@ -28,7 +30,7 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({ selectedCategory, selecte
                     className="flex items-center space-x-1.5 rounded-lg border border-green-300 bg-green-50 px-3 py-1.5 text-xs transition-colors hover:bg-green-100 sm:space-x-2 sm:px-4 sm:py-2 sm:text-sm"
                 >
                     <Award className="h-3.5 w-3.5 text-green-600 sm:h-4 sm:w-4" />
-                    <span className="font-medium text-green-700">{selectedBrand ? selectedBrand.name || selectedBrand.brand_name : 'Brand'}</span>
+                    <span className="font-medium text-green-700">{selectedBrand ? selectedBrand.name || selectedBrand.brand_name : t('lbl_brand')}</span>
                 </button>
 
                 {(selectedCategory || selectedBrand) && (
@@ -37,7 +39,7 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({ selectedCategory, selecte
                         className="flex items-center space-x-1.5 rounded-lg border border-red-300 bg-red-50 px-2.5 py-1.5 text-xs transition-colors hover:bg-red-100 sm:space-x-2 sm:px-3 sm:py-2 sm:text-sm"
                     >
                         <X className="h-3.5 w-3.5 text-red-600 sm:h-4 sm:w-4" />
-                        <span className="font-medium text-red-700">Clear</span>
+                        <span className="font-medium text-red-700">{t('btn_clear')}</span>
                     </button>
                 )}
             </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import React from 'react';
@@ -68,17 +69,18 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     isCreating = false,
     isEditMode = false,
 }) => {
+    const { t } = getTranslation();
     const descriptionTextLength = formData.description.replace(/<[^>]*>?/gm, '').trim().length;
 
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('product_create_title')}</h3>
 
             <div className="grid grid-cols-1 gap-6">
                 {/* Product Name */}
                 <div>
                     <label htmlFor="product_name" className="mb-2 block text-sm font-medium text-gray-700">
-                        Product Name <span className="text-red-500">*</span>
+                        {t('lbl_product')} <span className="text-red-500">*</span>
                     </label>
                     <input
                         id="product_name"
@@ -86,7 +88,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         type="text"
                         value={formData.product_name}
                         onChange={handleChange}
-                        placeholder="Enter product name"
+                        placeholder={t('lbl_product')}
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                 </div>
@@ -94,7 +96,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 {/* Description */}
                 <div>
                     <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
-                        Description
+                        {t('lbl_description')}
                     </label>
                     <div className="rounded-lg bg-white">
                         <ReactQuill
@@ -132,7 +134,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     {/* Category Selection */}
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                            Category <span className="text-red-500">*</span>
+                            {t('lbl_category')} <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                             <button
@@ -142,7 +144,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     formData.category_name ? 'border-blue-300 bg-blue-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
                                 }`}
                             >
-                                <span className="block truncate pr-8">{formData.category_name || 'Select a category'}</span>
+                                <span className="block truncate pr-8">{formData.category_name || t('lbl_select_category')}</span>
                                 <svg
                                     className={`absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-transform duration-200 ${
                                         showCategoryDropdown ? 'rotate-180 text-gray-600' : 'text-gray-400'
@@ -280,7 +282,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     {/* Brand Selection */}
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                            Brand <span className="text-xs text-gray-400">(Optional)</span>
+                            {t('lbl_brand')}
                         </label>
                         <div className="relative">
                             <button
@@ -290,7 +292,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     formData.brand_name ? 'border-blue-300 bg-blue-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
                                 }`}
                             >
-                                <span className="block truncate pr-8">{formData.brand_name || 'Select a brand'}</span>
+                                <span className="block truncate pr-8">{formData.brand_name || t('lbl_select_brand')}</span>
                                 <svg
                                     className={`absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-transform duration-200 ${
                                         showBrandDropdown ? 'rotate-180 text-gray-600' : 'text-gray-400'
@@ -533,7 +535,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     onClick={onNext}
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 sm:px-6 sm:py-3"
                 >
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

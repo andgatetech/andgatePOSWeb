@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { CheckCircle, Clock, Eye, Printer } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -28,13 +29,14 @@ interface PurchaseCompletedTableProps {
 }
 
 const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders, isLoading, pagination, sorting, onViewItems, onPrint, onViewTransactions }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'invoice_number',
-                label: 'Invoice',
+                label: t('lbl_invoice'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex flex-col">
@@ -44,7 +46,7 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
             },
             {
                 key: 'supplier',
-                label: 'Supplier',
+                label: t('lbl_supplier'),
                 render: (value) => (
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900">{value?.name || 'Walk-in Purchase'}</span>
@@ -54,12 +56,12 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
             },
             {
                 key: 'store_name',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'items',
-                label: 'Items',
+                label: t('order_items'),
                 render: (value) => {
                     const itemCount = value?.length || 0;
                     return (
@@ -73,66 +75,66 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
             },
             {
                 key: 'grand_total',
-                label: 'Total Amount',
+                label: t('lbl_total'),
                 sortable: true,
                 render: (value) => <span className="font-semibold text-gray-900">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'amount_paid',
-                label: 'Amount Paid',
+                label: t('lbl_paid'),
                 sortable: true,
                 render: (value) => <span className="font-semibold text-green-600">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'payment_status',
-                label: 'Payment Status',
+                label: t('order_payment_status'),
                 sortable: true,
                 render: () => <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Paid</span>,
             },
             {
                 key: 'status',
-                label: 'Order Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: () => <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Received</span>,
             },
             {
                 key: 'created_at',
-                label: 'Created Date',
+                label: t('lbl_created'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
-                label: 'Completed Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Items',
+                label: t('purchase_action_view'),
                 onClick: onViewItems,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'View Transactions',
+                label: t('purchase_action_receive'),
                 onClick: onViewTransactions,
                 className: 'text-indigo-600',
                 icon: <Clock className="h-4 w-4" />,
             },
             {
-                label: 'Print',
+                label: t('btn_print'),
                 onClick: onPrint,
                 className: 'text-gray-600',
                 icon: <Printer className="h-4 w-4" />,
             },
         ],
-        [onViewItems, onViewTransactions, onPrint]
+        [t, onViewItems, onViewTransactions, onPrint]
     );
 
     return (
@@ -145,8 +147,8 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
             sorting={sorting}
             emptyState={{
                 icon: <CheckCircle className="mx-auto h-16 w-16" />,
-                title: 'No Completed Purchase Orders',
-                description: 'No completed purchase orders yet. Orders appear here when fully received and paid.',
+                title: t('purchase_no_data'),
+                description: t('order_no_data_desc'),
             }}
         />
     );

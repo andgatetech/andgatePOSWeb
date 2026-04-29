@@ -6,12 +6,14 @@ import { AlertCircle, AlertTriangle, ArrowLeft, CheckCircle, Info, Send } from '
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { getTranslation } from '@/i18n';
 import 'react-quill/dist/quill.snow.css';
 
 // Load ReactQuill dynamically to prevent Next.js SSR document not defined errors
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function SendNotificationPage() {
+    const { t } = getTranslation();
     const router = useRouter();
     const [sendAnnouncement, { isLoading }] = useSendAnnouncementMutation();
 
@@ -88,7 +90,7 @@ export default function SendNotificationPage() {
                                 id="title"
                                 type="text"
                                 className="form-input w-full"
-                                placeholder="Announcement Title"
+                                placeholder={t('placeholder_announcement_title')}
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 required
@@ -166,7 +168,7 @@ export default function SendNotificationPage() {
                                 value={formData.message}
                                 onChange={(value) => setFormData({ ...formData, message: value })}
                                 className="h-48"
-                                placeholder="Enter announcement details..."
+                                placeholder={t('placeholder_announcement_desc')}
                             />
                         </div>
                     </div>

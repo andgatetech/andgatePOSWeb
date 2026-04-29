@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -28,13 +29,14 @@ interface JournalsTableProps {
 }
 
 const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'ledger',
-                label: 'Ledger',
+                label: t('account_ledger'),
                 render: (value, row) => (
                     <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100">
@@ -46,7 +48,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             },
             {
                 key: 'notes',
-                label: 'Notes',
+                label: t('lbl_notes'),
                 render: (value) => {
                     const notes = value || 'N/A';
                     const truncatedNotes = notes.length > 40 ? notes.substring(0, 40) + '...' : notes;
@@ -59,7 +61,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             },
             {
                 key: 'debit',
-                label: 'Debit',
+                label: t('lbl_debit'),
                 sortable: true,
                 render: (value) => {
                     const amount = parseFloat(value || '0');
@@ -68,7 +70,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             },
             {
                 key: 'credit',
-                label: 'Credit',
+                label: t('lbl_credit'),
                 sortable: true,
                 render: (value) => {
                     const amount = parseFloat(value || '0');
@@ -77,7 +79,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             },
             {
                 key: 'balance',
-                label: 'Balance',
+                label: t('lbl_balance'),
                 sortable: true,
                 render: (value) => {
                     const balance = parseFloat(value || '0');
@@ -90,7 +92,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             },
             {
                 key: 'user',
-                label: 'User',
+                label: t('user_title'),
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">{value?.name || row.user_name || 'N/A'}</span>
@@ -100,30 +102,30 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Details',
+                label: t('btn_view'),
                 onClick: onViewDetails,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'Edit Entry',
+                label: t('btn_edit'),
                 onClick: onEdit,
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
-                label: 'Delete Entry',
+                label: t('btn_delete'),
                 onClick: onDelete,
                 className: 'text-red-600',
                 icon: <Trash2 className="h-4 w-4" />,

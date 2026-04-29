@@ -5,12 +5,14 @@ import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/R
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetLowStockReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, AlertTriangle, Box, FileText, Package, Tag, TrendingDown } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LowStockReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -83,16 +85,16 @@ const LowStockReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'sku', label: 'SKU', width: 12 },
-            { key: 'category', label: 'Category', width: 15 },
-            { key: 'brand', label: 'Brand', width: 12 },
-            { key: 'quantity', label: 'Stock', width: 10 },
-            { key: 'stock_percentage', label: 'Stock %', width: 10, format: (v) => `${Number(v).toFixed(0)}%` },
-            { key: 'urgency', label: 'Urgency', width: 10 },
-            { key: 'restock_cost', label: 'Restock Cost', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'product_name', label: t('lbl_product'), width: 25 },
+            { key: 'sku', label: t('lbl_sku'), width: 12 },
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'brand', label: t('brand_title'), width: 12 },
+            { key: 'quantity', label: t('lbl_stock'), width: 10 },
+            { key: 'stock_percentage', label: t('lbl_stock_pct'), width: 10, format: (v) => `${Number(v).toFixed(0)}%` },
+            { key: 'urgency', label: t('lbl_urgency'), width: 10 },
+            { key: 'restock_cost', label: t('lbl_restock_cost'), width: 15, format: (v) => formatCurrency(v) },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -109,17 +111,17 @@ const LowStockReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Low Stock Items', value: summary.total_low_stock_items || 0 },
-            { label: 'Out of Stock Items', value: summary.out_of_stock_items || 0 },
-            { label: 'Total Items Tracked', value: summary.total_items_tracked || 0 },
+            { label: t('lbl_low_stock_items'), value: summary.total_low_stock_items || 0 },
+            { label: t('lbl_out_of_stock_items'), value: summary.out_of_stock_items || 0 },
+            { label: t('lbl_total_items'), value: summary.total_items_tracked || 0 },
         ],
-        [summary]
+        [t, summary]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Stock Alert Items',
+                label: t('lbl_stock_alert'),
                 value: summary.total_low_stock_items || 0,
                 icon: <AlertTriangle className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -127,7 +129,7 @@ const LowStockReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Stock Outs',
+                label: t('lbl_stock_outs'),
                 value: summary.out_of_stock_items || 0,
                 icon: <AlertCircle className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
@@ -135,7 +137,7 @@ const LowStockReportPage = () => {
                 textColor: 'text-rose-600',
             },
             {
-                label: 'Critical Threshold',
+                label: t('lbl_critical_threshold'),
                 value: summary.critical_stock_items || 0,
                 icon: <TrendingDown className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -143,7 +145,7 @@ const LowStockReportPage = () => {
                 textColor: 'text-amber-600',
             },
             {
-                label: 'Total Items',
+                label: t('order_items'),
                 value: summary.total_items_tracked || 0,
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -151,14 +153,14 @@ const LowStockReportPage = () => {
                 textColor: 'text-blue-600',
             },
         ],
-        [summary]
+        [t, summary]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'product_name',
-                label: 'Product Information',
+                label: t('product_title'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -180,11 +182,11 @@ const LowStockReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'category', label: 'Category', render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Uncategorized'}</span> },
-            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
+            { key: 'category', label: t('lbl_category'), render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Uncategorized'}</span> },
+            { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
             {
                 key: 'stock_percentage',
-                label: 'Stock Status',
+                label: t('lbl_stock_status'),
                 sortable: true,
                 render: (v: any, r: any) => {
                     const pct = Number(v);
@@ -204,7 +206,7 @@ const LowStockReportPage = () => {
             },
             {
                 key: 'urgency',
-                label: 'Urgency',
+                label: t('lbl_urgency'),
                 render: (v: any) => {
                     const u = v?.toLowerCase();
                     const c: any = {
@@ -223,7 +225,7 @@ const LowStockReportPage = () => {
             },
             {
                 key: 'restock_cost',
-                label: 'Estimated Cost',
+                label: t('lbl_estimated_cost'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col text-right">
@@ -233,7 +235,7 @@ const LowStockReportPage = () => {
                 ),
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

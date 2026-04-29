@@ -1,5 +1,6 @@
 'use client';
 import Loader from '@/lib/Loader';
+import { getTranslation } from '@/i18n';
 import { useGetPurchaseDraftByIdQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { setItemsRedux, setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { ArrowLeft, Box, Package } from 'lucide-react';
@@ -11,6 +12,7 @@ import PosLeftSide from '../../../pos/PosLeftSide';
 import PurchaseOrderRightSide from '../../create/PurchaseOrderRightSide';
 
 const EditPurchaseDraftPage = () => {
+    const { t } = getTranslation();
     const params = useParams();
     const router = useRouter();
     const dispatch = useDispatch();
@@ -104,7 +106,7 @@ const EditPurchaseDraftPage = () => {
                 mobileButtonConfig={{
                     showIcon: <Box className="h-6 w-6" />,
                     hideIcon: <Package className="h-6 w-6" />,
-                    label: 'Purchase',
+                    label: t('purchase_title'),
                 }}
                 reduxSlice="purchase"
             >

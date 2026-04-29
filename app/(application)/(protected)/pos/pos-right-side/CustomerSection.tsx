@@ -2,6 +2,7 @@ import IconSearch from '@/components/icon/icon-search';
 import IconUser from '@/components/icon/icon-user';
 import IconX from '@/components/icon/icon-x';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import type { Customer, PosFormData } from './types';
 
 interface CustomerSectionProps {
@@ -51,19 +52,20 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
     getBadgeClass,
     getMembershipDiscount,
 }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     return (
         <div className="mt-4 px-3 sm:mt-8 sm:px-4">
             <div className="flex flex-col justify-between lg:flex-row">
                 <div className="mb-4 w-full sm:mb-6 lg:w-full">
                     <div className="mb-3 mt-6 flex items-center justify-between sm:mb-4 sm:mt-[1.625rem]">
-                        <div className="text-base font-semibold text-gray-800 sm:text-lg ">Bill To :-</div>
+                        <div className="text-base font-semibold text-gray-800 sm:text-lg ">{t('pos_bill_to')}</div>
                         <button
                             type="button"
                             onClick={onSelectWalkInCustomer}
                             className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 sm:px-4 sm:py-2 sm:text-sm"
                         >
-                            Walk-in Customer
+                            {t('pos_walk_in_customer')}
                         </button>
                     </div>
 
@@ -75,8 +77,8 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                         <IconUser className="h-5 w-5 text-white" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-orange-900">Walk-in Customer</p>
-                                        <p className="text-sm text-orange-700">No customer details required</p>
+                                        <p className="font-medium text-orange-900">{t('pos_walk_in_customer')}</p>
+                                        <p className="text-sm text-orange-700">{t('pos_walk_in_no_details')}</p>
                                     </div>
                                 </div>
                                 <button onClick={onClearWalkInCustomer} className="text-orange-600 hover:text-orange-800">
@@ -88,7 +90,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
 
                     {formData.customerId !== 'walk-in' && (
                         <div className="mb-6">
-                            <label className="mb-2 block text-sm font-medium">Customer Search</label>
+                            <label className="mb-2 block text-sm font-medium">{t('pos_customer_search')}</label>
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <div className="relative flex-1 sm:w-[70%] sm:flex-none" ref={searchInputRef}>
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -117,7 +119,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                         <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
                                             {error ? (
                                                 <div className="px-4 py-3 text-center text-red-500">
-                                                    <div className="text-sm">Error loading customers</div>
+                                                    <div className="text-sm">{t('msg_error_loading_customers')}</div>
                                                 </div>
                                             ) : customers.length > 0 ? (
                                                 customers.map((customer) => (
@@ -141,7 +143,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                                                 <div className={`rounded-full px-2 py-1 text-xs font-medium ${getBadgeClass(customer.membership)}`}>
                                                                     {String(customer.membership || 'normal').toUpperCase()}
                                                                 </div>
-                                                                <div className="mt-1 text-xs text-gray-500">Points: {customer.points}</div>
+                                                                <div className="mt-1 text-xs text-gray-500">{t('lbl_points')}: {customer.points}</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -149,8 +151,8 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                             ) : !isSearching ? (
                                                 <div className="px-4 py-3 text-center text-gray-500">
                                                     <IconUser className="mx-auto mb-2 h-12 w-12 text-gray-300" />
-                                                    <div className="text-sm">No customers found</div>
-                                                    <div className="text-xs">Try searching with a different term</div>
+                                                    <div className="text-sm">{t('msg_no_customers_found')}</div>
+                                                    <div className="text-xs">{t('msg_try_different_search')}</div>
                                                 </div>
                                             ) : null}
                                         </div>
@@ -163,7 +165,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                         isManualCustomerEntry ? 'border-primary bg-primary text-white shadow-sm' : 'border-primary text-primary hover:bg-primary hover:text-white'
                                     }`}
                                 >
-                                    {isManualCustomerEntry ? 'Cancel New Customer' : 'Add New Customer'}
+                                    {isManualCustomerEntry ? t('pos_cancel_new_customer') : t('pos_add_new_customer')}
                                 </button>
                             </div>
                         </div>
@@ -172,23 +174,23 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                     {selectedCustomer && (
                         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
                             <div className="mb-2 flex items-center justify-between">
-                                <h4 className="text-sm font-medium text-blue-900">Selected Customer</h4>
+                                <h4 className="text-sm font-medium text-blue-900">{t('pos_selected_customer')}</h4>
                                 <div className={`rounded-full px-2 py-1 text-xs font-medium ${getBadgeClass(selectedCustomer.membership)}`}>
                                     {String(selectedCustomer.membership || 'normal').toUpperCase()} - {getMembershipDiscount(selectedCustomer.membership)}% OFF
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
                                 <div>
-                                    <span className="font-medium text-blue-700">Loyalty Points:</span>
+                                    <span className="font-medium text-blue-700">{t('lbl_loyalty_points')}:</span>
                                     <div className="font-semibold text-blue-900">{Number(selectedCustomer.points) || 0}</div>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-blue-700">Balance:</span>
+                                    <span className="font-medium text-blue-700">{t('lbl_balance')}:</span>
                                     <div className="font-semibold text-blue-900">{formatCurrency(Number(selectedCustomer.balance) || 0)}</div>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-blue-700">Status:</span>
-                                    <div className={`font-semibold ${selectedCustomer.is_active ? 'text-green-600' : 'text-red-600'}`}>{selectedCustomer.is_active ? 'Active' : 'Inactive'}</div>
+                                    <span className="font-medium text-blue-700">{t('lbl_status')}:</span>
+                                    <div className={`font-semibold ${selectedCustomer.is_active ? 'text-green-600' : 'text-red-600'}`}>{selectedCustomer.is_active ? t('status_active') : t('status_inactive')}</div>
                                 </div>
                             </div>
                         </div>

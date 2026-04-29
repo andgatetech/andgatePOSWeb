@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +12,7 @@ interface OrderReturnDetailsModalProps {
 }
 
 const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpen, onClose, orderReturn }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const [isVisible, setIsVisible] = useState(false);
 

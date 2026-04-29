@@ -2,6 +2,7 @@
 import SubscriptionError from '@/components/common/SubscriptionError';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { showMessage } from '@/lib/toast';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { useCreateStoreMutation } from '@/store/features/store/storeApi';
 import { Building2, MapPin, Store, X } from 'lucide-react';
@@ -14,6 +15,7 @@ interface CreateStoreModalProps {
 }
 
 const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) => {
+    const { t } = getTranslation();
     const user = useSelector((state: RootState) => state.auth.user);
     const [createStore, { error: createError }] = useCreateStoreMutation();
     const { hasSubscriptionError, subscriptionError } = useSubscriptionError(createError);

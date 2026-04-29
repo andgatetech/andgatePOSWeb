@@ -6,10 +6,12 @@ import type { GetNotificationsParams } from '@/store/features/notification/notif
 import { Bell, CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 type FilterTab = 'all' | 'unread' | 'read';
 
 const NotificationList = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
     const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
@@ -65,9 +67,9 @@ const NotificationList = () => {
     };
 
     const filterTabs: { key: FilterTab; label: string }[] = [
-        { key: 'all', label: 'All' },
-        { key: 'unread', label: 'Unread' },
-        { key: 'read', label: 'Read' },
+        { key: 'all', label: t('btn_select_all') },
+        { key: 'unread', label: t('notification_unread') },
+        { key: 'read', label: t('notification_read') },
     ];
 
     return (
@@ -144,9 +146,9 @@ const NotificationList = () => {
                     <div className="mb-4 rounded-full bg-gray-100 p-4 dark:bg-gray-700">
                         <Bell className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                     </div>
-                    <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300">No notifications</h3>
+                    <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300">{t('msg_no_notifications')}</h3>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {activeFilter === 'unread' ? "You're all caught up!" : activeFilter === 'read' ? 'No read notifications yet.' : 'No notifications to show.'}
+                        {activeFilter === 'unread' ? t('msg_all_caught_up') : activeFilter === 'read' ? t('msg_no_read_notifications') : t('msg_no_notifications_to_show')}
                     </p>
                 </div>
             )}

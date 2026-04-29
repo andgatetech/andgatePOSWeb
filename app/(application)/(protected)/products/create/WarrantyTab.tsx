@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCreateWarrantyTypeMutation, useGetWarrantyTypesQuery } from '@/store/features/warrenty/WarrantyTypeApi';
 import { Check, Shield } from 'lucide-react';
@@ -41,6 +42,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
     isCreating,
     isEditMode = false,
 }) => {
+    const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
     const { data: warrantyTypesResponse, isLoading: warrantyTypesLoading } = useGetWarrantyTypesQuery(queryParams, { refetchOnMountOrArgChange: 300 });
@@ -261,7 +263,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                     <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-8">
                         <div className="text-center">
                             <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-                            <p className="text-sm text-gray-600">Loading warranty types...</p>
+                            <p className="text-sm text-gray-600">{t('btn_loading')}</p>
                         </div>
                     </div>
                 ) : sameWarrantyForAll ? (
@@ -532,10 +534,10 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
                 <button type="button" onClick={onNext} className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white sm:px-6 sm:py-3">
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -556,14 +558,14 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
+                            <span>{isEditMode ? t('btn_updating') : t('btn_creating')}</span>
                         </>
                     ) : (
                         <>
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
+                            <span>{isEditMode ? t('product_edit_title') : t('product_create_title')}</span>
                         </>
                     )}
                 </button>

@@ -2,6 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleCustomerQuery, useUpdateCustomerMutation } from '@/store/features/customer/customer';
 import { Store, User } from 'lucide-react';
@@ -20,6 +21,7 @@ interface CustomerFormData {
 }
 
 const EditCustomerPage = () => {
+    const { t } = getTranslation();
     const { id } = useParams();
     const { symbol } = useCurrency();
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -134,12 +136,12 @@ const EditCustomerPage = () => {
 
             await updateCustomer({ customerId: id as string, customerData: submitData }).unwrap();
 
-            showSuccessDialog('Success!', 'Customer updated successfully');
+            showSuccessDialog(t('msg_success'), t('customer_updated'));
             router.push('/customers/list');
         } catch (error: any) {
             console.error('Update customer failed', error);
-            const errorMessage = error?.data?.message || 'Something went wrong while updating the customer';
-            showErrorDialog('Error!', errorMessage, 'Try Again');
+            const errorMessage = error?.data?.message || t('msg_error_occurred');
+            showErrorDialog(t('msg_error'), errorMessage, t('btn_submit'));
         }
     };
 
@@ -178,8 +180,8 @@ const EditCustomerPage = () => {
                                 <User className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Edit Customer</h1>
-                                <p className="text-sm text-gray-500">Update customer information for {customer?.name}</p>
+                                <h1 className="text-2xl font-bold text-gray-900">{t('customer_edit_title')}</h1>
+                                <p className="text-sm text-gray-500">{customer?.name}</p>
                             </div>
                         </div>
                     </div>
@@ -208,7 +210,7 @@ const EditCustomerPage = () => {
                                     {/* Customer Name */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Customer Name <span className="text-red-500">*</span>
+                                            {t('lbl_full_name')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="name"
@@ -216,7 +218,7 @@ const EditCustomerPage = () => {
                                             type="text"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            placeholder="Enter customer name"
+                                            placeholder={t('customer_name_placeholder')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500 ${
                                                 errors.name ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -227,7 +229,7 @@ const EditCustomerPage = () => {
                                     {/* Email */}
                                     <div>
                                         <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Email Address <span className="text-red-500">*</span>
+                                            {t('lbl_email')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="email"
@@ -246,7 +248,7 @@ const EditCustomerPage = () => {
                                     {/* Phone */}
                                     <div>
                                         <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Phone Number <span className="text-red-500">*</span>
+                                            {t('lbl_phone')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="phone"
@@ -271,7 +273,7 @@ const EditCustomerPage = () => {
                                     {/* Membership */}
                                     <div>
                                         <label htmlFor="membership" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Membership Tier
+                                            {t('lbl_loyalty_tier')}
                                         </label>
                                         <select
                                             id="membership"
@@ -280,17 +282,17 @@ const EditCustomerPage = () => {
                                             onChange={handleChange}
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         >
-                                            <option value="normal">Normal</option>
-                                            <option value="silver">Silver</option>
-                                            <option value="gold">Gold</option>
-                                            <option value="platinum">Platinum</option>
+                                            <option value="normal">{t('status_normal')}</option>
+                                            <option value="silver">{t('status_silver')}</option>
+                                            <option value="gold">{t('status_gold')}</option>
+                                            <option value="platinum">{t('status_platinum')}</option>
                                         </select>
                                     </div>
 
                                     {/* Points */}
                                     <div>
                                         <label htmlFor="points" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Loyalty Points
+                                            {t('lbl_loyalty_points')}
                                         </label>
                                         <input
                                             id="points"
@@ -307,7 +309,7 @@ const EditCustomerPage = () => {
                                     {/* Balance */}
                                     <div>
                                         <label htmlFor="balance" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Account Balance ({symbol})
+                                            {t('lbl_balance')} ({symbol})
                                         </label>
                                         <input
                                             id="balance"
@@ -331,14 +333,14 @@ const EditCustomerPage = () => {
                                     {/* Details */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="details" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Customer Details
+                                            {t('customer_details_label')}
                                         </label>
                                         <textarea
                                             id="details"
                                             name="details"
                                             value={formData.details}
                                             onChange={handleChange}
-                                            placeholder="Add notes, preferences, or special information about this customer"
+                                            placeholder={t('placeholder_customer_notes')}
                                             rows={3}
                                             maxLength={500}
                                             className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
@@ -367,7 +369,7 @@ const EditCustomerPage = () => {
 
                                     {/* Store Info (Read-only) */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Store</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_store')}</label>
                                         <input
                                             type="text"
                                             value={customer?.store_name || 'N/A'}
@@ -386,7 +388,7 @@ const EditCustomerPage = () => {
                                         onClick={() => router.push('/customers/list')}
                                         className="w-full rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:w-auto"
                                     >
-                                        Cancel
+                                        {t('btn_cancel')}
                                     </button>
                                     <button
                                         type="submit"
@@ -403,14 +405,14 @@ const EditCustomerPage = () => {
                                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                     ></path>
                                                 </svg>
-                                                Updating...
+                                                {t('btn_updating')}
                                             </>
                                         ) : (
                                             <>
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                                Update Customer
+                                                {t('customer_update_btn')}
                                             </>
                                         )}
                                     </button>

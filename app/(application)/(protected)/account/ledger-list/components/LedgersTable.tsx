@@ -4,6 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface LedgersTableProps {
     ledgers: any[];
@@ -27,11 +28,12 @@ interface LedgersTableProps {
 }
 
 const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+    const { t } = getTranslation();
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'title',
-                label: 'Ledger Name',
+                label: t('account_ledger'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex flex-col">
@@ -42,15 +44,15 @@ const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, paginat
             },
             {
                 key: 'ledger_type',
-                label: 'Type',
+                label: t('lbl_type'),
                 sortable: true,
                 render: (value) => {
                     const type = value?.toLowerCase() || 'unknown';
                     const typeConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        assets: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Assets' },
-                        expenses: { bg: 'bg-red-100', text: 'text-red-800', label: 'Expenses' },
-                        income: { bg: 'bg-green-100', text: 'text-green-800', label: 'Income' },
-                        liabilities: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Liabilities' },
+                        assets: { bg: 'bg-blue-100', text: 'text-blue-800', label: t('account_assets') },
+                        expenses: { bg: 'bg-red-100', text: 'text-red-800', label: t('expense_title') },
+                        income: { bg: 'bg-green-100', text: 'text-green-800', label: t('account_income') },
+                        liabilities: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('account_liabilities') },
                     };
                     const config = typeConfig[type] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -58,12 +60,12 @@ const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, paginat
             },
             {
                 key: 'store_name',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'journals_count',
-                label: 'Journals',
+                label: t('account_journals'),
                 sortable: true,
                 render: (value) => (
                     <div className="flex items-center gap-2">
@@ -76,13 +78,13 @@ const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, paginat
             },
             {
                 key: 'status',
-                label: 'Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value) => {
                     const status = value?.toLowerCase() || 'inactive';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-                        inactive: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Inactive' },
+                        active: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_active') },
+                        inactive: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('status_inactive') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -90,36 +92,36 @@ const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, paginat
             },
             {
                 key: 'created_at',
-                label: 'Created Date',
+                label: t('lbl_created'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
-                label: 'Updated Date',
+                label: t('lbl_updated'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        []
+        [t]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Details',
+                label: t('btn_view'),
                 onClick: onViewDetails,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'Edit Ledger',
+                label: t('btn_edit'),
                 onClick: onEdit,
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
-                label: 'Delete Ledger',
+                label: t('btn_delete'),
                 onClick: onDelete,
                 className: 'text-red-600',
                 icon: <Trash2 className="h-4 w-4" />,

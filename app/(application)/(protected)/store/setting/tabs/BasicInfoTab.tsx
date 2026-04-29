@@ -2,6 +2,7 @@
 
 import { Building2, MapPin, Phone, Tag } from 'lucide-react';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 interface BasicInfoTabProps {
     formData: {
@@ -14,6 +15,7 @@ interface BasicInfoTabProps {
 }
 
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange }) => {
+    const { t } = getTranslation();
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
@@ -65,7 +67,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                             value={formData.store_contact}
                             onChange={handleInputChange}
                             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
-                            placeholder="Enter phone number"
+                            placeholder={t('placeholder_phone')}
                         />
                     </div>
 

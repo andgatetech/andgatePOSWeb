@@ -2,6 +2,7 @@
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Eye, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
@@ -26,6 +27,7 @@ interface OrderReturnsTableProps {
 }
 
 const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoading, pagination, sorting, onViewDetails }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const router = useRouter();
 
@@ -40,7 +42,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
         () => [
             {
                 key: 'return_number',
-                label: 'Return #',
+                label: t('lbl_id'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex flex-col">
@@ -51,7 +53,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'customer',
-                label: 'Customer',
+                label: t('lbl_customer'),
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900">{row.is_walk_in ? 'Walk-in Customer' : value?.name || 'N/A'}</span>
@@ -61,7 +63,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'return_type',
-                label: 'Type',
+                label: t('lbl_type'),
                 render: (value) => {
                     const isReturn = value === 'return';
                     return (
@@ -73,7 +75,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'return_items',
-                label: 'Items',
+                label: t('order_items'),
                 render: (value, row) => {
                     const items = row.return_items || [];
                     if (items.length === 0) return <span className="text-sm text-gray-400">No items</span>;
@@ -90,7 +92,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'return_items_qty',
-                label: 'Qty',
+                label: t('lbl_quantity'),
                 render: (value, row) => {
                     const items = row.return_items || [];
                     const totalQty = items.reduce((sum: number, item: any) => sum + (item.quantity_returned || item.quantity || 0), 0);
@@ -99,13 +101,13 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'total_return_amount',
-                label: 'Return Amount',
+                label: t('lbl_amount'),
                 sortable: true,
                 render: (value) => <span className="font-semibold text-red-600">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'net_amount',
-                label: 'Net Amount',
+                label: t('lbl_total'),
                 sortable: true,
                 render: (value) => {
                     const netAmount = Number(value || 0);
@@ -134,19 +136,19 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'payment_method',
-                label: 'Payment Method',
+                label: t('lbl_payment_method'),
                 render: (value) => <span className="text-sm capitalize text-gray-700">{value || 'Cash'}</span>,
             },
             {
                 key: 'payment_status',
-                label: 'Status',
+                label: t('lbl_status'),
                 render: (value) => {
                     const status = value?.toLowerCase() || 'pending';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        refunded: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Refunded' },
-                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
-                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Pending' },
+                        refunded: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: t('status_refunded') },
+                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_completed') },
+                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
+                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -154,12 +156,12 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             },
             {
                 key: 'processed_by',
-                label: 'Processed By',
+                label: t('lbl_employee'),
                 render: (value, row) => <span className="text-sm text-gray-700">{value || row.user?.name || 'N/A'}</span>,
             },
             {
                 key: 'created_at',
-                label: 'Return Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => {
                     if (!value) return <span className="text-sm text-gray-500">-</span>;
@@ -175,19 +177,19 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 },
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Details',
+                label: t('order_action_view'),
                 onClick: handleViewDetails,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
         ],
-        [handleViewDetails]
+        [t, handleViewDetails]
     );
 
     return (
@@ -200,8 +202,8 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             sorting={sorting}
             emptyState={{
                 icon: <RotateCcw className="mx-auto h-16 w-16" />,
-                title: 'No Returns Found',
-                description: 'No order returns match your current filters. Try adjusting your search criteria.',
+                title: t('order_no_data'),
+                description: t('order_no_data_desc'),
             }}
         />
     );

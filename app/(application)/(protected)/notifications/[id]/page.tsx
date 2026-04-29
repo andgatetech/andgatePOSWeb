@@ -4,6 +4,7 @@ import { useGetNotificationsQuery, useMarkAsReadMutation } from '@/store/feature
 import { AlertTriangle, ArrowLeft, CheckCircle, CircleAlert, Clock, Info } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { getTranslation } from '@/i18n';
 
 const severityConfig = {
     info: { icon: Info, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
@@ -13,6 +14,7 @@ const severityConfig = {
 };
 
 export default function NotificationDetailPage() {
+    const { t } = getTranslation();
     const { id } = useParams();
     const router = useRouter();
     const notificationId = Number(id);

@@ -5,12 +5,14 @@ import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/R
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetTaxReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calculator, FileText, Percent, ShoppingCart } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TaxReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -94,21 +96,21 @@ const TaxReportPage = () => {
     const exportColumns: ExportColumn[] = useMemo(() => {
         if (viewMode === 'transactions') {
             return [
-                { key: 'invoice', label: 'Invoice', width: 15 },
-                { key: 'date', label: 'Date', width: 15 },
-                { key: 'store_name', label: 'Store', width: 15 },
-                { key: 'customer_name', label: 'Customer', width: 15 },
-                { key: 'total', label: 'Net Total', width: 10, format: (v) => formatCurrency(v) },
-                { key: 'tax', label: 'Tax', width: 10, format: (v) => formatCurrency(v) },
-                { key: 'grand_total', label: 'Total', width: 10, format: (v) => formatCurrency(v) },
+                { key: 'invoice', label: t('lbl_invoice'), width: 15 },
+                { key: 'date', label: t('lbl_date'), width: 15 },
+                { key: 'store_name', label: t('lbl_store'), width: 15 },
+                { key: 'customer_name', label: t('lbl_customer'), width: 15 },
+                { key: 'total', label: t('lbl_net_total'), width: 10, format: (v) => formatCurrency(v) },
+                { key: 'tax', label: t('lbl_tax'), width: 10, format: (v) => formatCurrency(v) },
+                { key: 'grand_total', label: t('lbl_total'), width: 10, format: (v) => formatCurrency(v) },
             ];
         }
         return [
-            { key: 'date', label: 'Period', width: 20 },
-            { key: 'total_tax', label: 'Tax Collected', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'order_count', label: 'Orders', width: 10 },
-            { key: 'total_sales', label: 'Total Sales', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'effective_rate', label: 'Eff. Rate', width: 10, format: (v, r) => `${Number(r.total_sales > 0 ? (r.total_tax / r.total_sales) * 100 : 0).toFixed(2)}%` },
+            { key: 'date', label: t('lbl_period'), width: 20 },
+            { key: 'total_tax', label: t('lbl_tax_collected'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'order_count', label: t('order_title'), width: 10 },
+            { key: 'total_sales', label: t('report_total_sales'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'effective_rate', label: t('lbl_effective_rate'), width: 10, format: (v, r) => `${Number(r.total_sales > 0 ? (r.total_tax / r.total_sales) * 100 : 0).toFixed(2)}%` },
         ];
     }, [formatCurrency, viewMode]);
 
@@ -126,17 +128,17 @@ const TaxReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Total Tax', value: formatCurrency(summary.total_tax_collected) },
-            { label: 'Total Sales', value: formatCurrency(summary.total_sales) },
-            { label: 'Eff. Rate', value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
+            { label: t('lbl_tax'), value: formatCurrency(summary.total_tax_collected) },
+            { label: t('report_total_sales'), value: formatCurrency(summary.total_sales) },
+            { label: t('lbl_effective_rate'), value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Total Tax',
+                label: t('lbl_tax'),
                 value: formatCurrency(Number(summary.total_tax_collected || 0)),
                 icon: <Calculator className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -144,7 +146,7 @@ const TaxReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Orders',
+                label: t('report_total_sales'),
                 value: summary.total_orders || 0,
                 icon: <ShoppingCart className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -152,7 +154,7 @@ const TaxReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Total Sales',
+                label: t('report_total_sales'),
                 value: formatCurrency(Number(summary.total_sales || 0)),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -160,7 +162,7 @@ const TaxReportPage = () => {
                 textColor: 'text-purple-600',
             },
             {
-                label: 'Effective Rate',
+                label: t('lbl_effective_rate'),
                 value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%`,
                 icon: <Percent className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -168,16 +170,16 @@ const TaxReportPage = () => {
                 textColor: 'text-orange-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(() => {
         if (viewMode === 'transactions') {
             return [
-                { key: 'invoice', label: 'Invoice', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{v}</span> },
+                { key: 'invoice', label: t('lbl_invoice'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{v}</span> },
                 {
                     key: 'date',
-                    label: 'Date',
+                    label: t('lbl_date'),
                     sortable: true,
                     render: (v: any, r: any) => (
                         <div className="flex flex-col">
@@ -186,35 +188,35 @@ const TaxReportPage = () => {
                         </div>
                     ),
                 },
-                { key: 'store_name', label: 'Store', render: (v: any) => <span className="text-gray-700">{v}</span> },
-                { key: 'customer_name', label: 'Customer', render: (v: any) => <span className="text-gray-700">{v}</span> },
-                { key: 'total', label: 'Net Total', render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
-                { key: 'tax', label: 'Tax', render: (v: any) => <span className="font-semibold text-red-600">{formatCurrency(v)}</span> },
-                { key: 'grand_total', label: 'Total', sortable: true, render: (v: any) => <span className="font-bold text-gray-900">{formatCurrency(v)}</span> },
+                { key: 'store_name', label: t('lbl_store'), render: (v: any) => <span className="text-gray-700">{v}</span> },
+                { key: 'customer_name', label: t('lbl_customer'), render: (v: any) => <span className="text-gray-700">{v}</span> },
+                { key: 'total', label: t('lbl_net_total'), render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
+                { key: 'tax', label: t('lbl_tax'), render: (v: any) => <span className="font-semibold text-red-600">{formatCurrency(v)}</span> },
+                { key: 'grand_total', label: t('lbl_total'), sortable: true, render: (v: any) => <span className="font-bold text-gray-900">{formatCurrency(v)}</span> },
             ];
         }
         return [
             {
                 key: 'date',
-                label: 'Period',
+                label: t('lbl_period'),
                 sortable: true,
                 render: (v: any, r: any) => <span className="font-semibold text-gray-900">{v || r.category_name || '-'}</span>,
             },
             {
                 key: 'total_tax',
-                label: 'Tax Collected',
+                label: t('lbl_tax_collected'),
                 sortable: true,
                 render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span>,
             },
             {
                 key: 'order_count',
-                label: 'Orders',
+                label: t('order_title'),
                 render: (v: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{v || 0}</span>,
             },
-            { key: 'total_sales', label: 'Sales', sortable: true, render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
+            { key: 'total_sales', label: t('report_sales_title'), sortable: true, render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
             {
                 key: 'effective_rate',
-                label: 'Rate',
+                label: t('lbl_rate'),
                 render: (v: any, r: any) => {
                     const rate = v !== undefined ? v : r.total_sales > 0 ? (r.total_tax / r.total_sales) * 100 : 0;
                     return <span className="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">{Number(rate || 0).toFixed(2)}%</span>;

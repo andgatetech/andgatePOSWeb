@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface PricingTabProps {
@@ -18,16 +19,17 @@ interface PricingTabProps {
 }
 
 const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+    const { t } = getTranslation();
     const { symbol, formatCurrency } = useCurrency();
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Pricing</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('lbl_price')}</h3>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* Purchase Price */}
                 <div>
                     <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
-                        Purchase Price <span className="text-red-500">*</span>
+                        {t('lbl_purchase_price')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
@@ -53,7 +55,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                 {/* Selling Price */}
                 <div>
                     <label htmlFor="price" className="mb-2 block text-sm font-medium text-gray-700">
-                        Selling Price <span className="text-red-500">*</span>
+                        {t('lbl_selling_price')} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
@@ -79,7 +81,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                 {/* Wholesale Price */}
                 <div>
                     <label htmlFor="wholesale_price" className="mb-2 block text-sm font-medium text-gray-700">
-                        Wholesale Price
+                        {t('lbl_price')}
                     </label>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
@@ -109,11 +111,11 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                 <div className="rounded-lg border border-gray-200 bg-gray-100 p-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-700">Profit Margin</p>
+                            <p className="text-sm font-medium text-gray-700">{t('lbl_profit')}</p>
                             <p className="text-2xl font-bold text-gray-600">{(((parseFloat(formData.price) - parseFloat(formData.purchase_price)) / parseFloat(formData.price)) * 100).toFixed(2)}%</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-sm font-medium text-gray-700">Profit per Unit</p>
+                            <p className="text-sm font-medium text-gray-700">{t('lbl_profit')}</p>
                             <p className="text-2xl font-bold text-gray-600">{formatCurrency(parseFloat(formData.price) - parseFloat(formData.purchase_price))}</p>
                         </div>
                     </div>
@@ -130,14 +132,14 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
                 <button
                     type="button"
                     onClick={onNext}
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 sm:px-6 sm:py-3"
                 >
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

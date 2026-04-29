@@ -3,6 +3,7 @@
 import { Camera, ImageIcon, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 interface BrandingTabProps {
     storeData: any;
@@ -13,6 +14,7 @@ interface BrandingTabProps {
 }
 
 const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPreview, handleLogoChange, clearLogo }) => {
+    const { t } = getTranslation();
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">

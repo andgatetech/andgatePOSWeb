@@ -2,6 +2,7 @@
 
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { getTranslation } from '@/i18n';
 import Dropdown from './Dropdown';
 
 interface AdjustmentReason {
@@ -40,6 +41,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
     handleToggleAdjustmentReasonActive,
     setMessage,
 }) => {
+    const { t } = getTranslation();
     const [editingReasonId, setEditingReasonId] = useState<number | null>(null);
     const [editingReasonName, setEditingReasonName] = useState('');
     const [editingReasonDescription, setEditingReasonDescription] = useState('');

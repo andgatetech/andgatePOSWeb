@@ -1,5 +1,6 @@
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { getTranslation } from '@/i18n';
 import Dropdown from './Dropdown';
 
 export interface PaymentMethodForm {
@@ -153,7 +154,8 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                 </tr>
                             ) : paginatedData && paginatedData.length > 0 ? (
                                 paginatedData.map((method: any) => {
-                                    const isEditing = editingPaymentMethodId === method.id;
+                                    const { t } = getTranslation();
+    const isEditing = editingPaymentMethodId === method.id;
                                     const activeValue = method.is_active === true || method.is_active === 1 || method.is_active === '1';
 
                                     return (

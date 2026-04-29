@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Edit, Eye, FileText, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -29,6 +30,7 @@ interface DraftsTableProps {
 }
 
 const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination, sorting, onViewItems, onConvertToPO, onDelete }) => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { formatCurrency } = useCurrency();
 
@@ -36,7 +38,7 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
         () => [
             {
                 key: 'draft_reference',
-                label: 'Draft Reference',
+                label: t('lbl_reference'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex flex-col">
@@ -46,7 +48,7 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
             },
             {
                 key: 'supplier',
-                label: 'Supplier',
+                label: t('lbl_supplier'),
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900">{row.purchase_type === 'walk_in' ? 'Walk-in Purchase' : value?.name || 'N/A'}</span>
@@ -55,12 +57,12 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
             },
             {
                 key: 'store',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value) => <span className="text-sm text-gray-700">{value?.name || 'N/A'}</span>,
             },
             {
                 key: 'summary',
-                label: 'Items',
+                label: t('order_items'),
                 render: (value) => {
                     const totalItems = value?.total_items || 0;
                     const existingProducts = value?.existing_products || 0;
@@ -77,20 +79,20 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
             },
             {
                 key: 'estimated_total',
-                label: 'Estimated Total',
+                label: t('lbl_total'),
                 sortable: true,
                 render: (value) => <span className="font-semibold text-gray-900">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'status',
-                label: 'Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value) => {
                     const status = value?.toLowerCase() || 'preparing';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        preparing: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Preparing' },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Pending' },
-                        draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Draft' },
+                        preparing: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_preparing') },
+                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
+                        draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('status_draft') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -98,48 +100,48 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
             },
             {
                 key: 'created_at',
-                label: 'Created Date',
+                label: t('lbl_created'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
-                label: 'Updated Date',
+                label: t('lbl_updated'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'Edit Draft',
+                label: t('purchase_action_edit'),
                 onClick: (draft) => router.push(`/purchases/edit/${draft.id}`),
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
-                label: 'View Items',
+                label: t('purchase_action_view'),
                 onClick: onViewItems,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'Convert to PO',
+                label: t('purchase_action_receive'),
                 onClick: onConvertToPO,
                 className: 'text-green-600',
                 icon: <FileText className="h-4 w-4" />,
             },
             {
-                label: 'Delete Draft',
+                label: t('purchase_action_delete'),
                 onClick: onDelete,
                 className: 'text-red-600',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],
-        [router, onViewItems, onConvertToPO, onDelete]
+        [t, router, onViewItems, onConvertToPO, onDelete]
     );
 
     return (
@@ -152,8 +154,8 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
             sorting={sorting}
             emptyState={{
                 icon: <FileText className="mx-auto h-16 w-16" />,
-                title: 'No Drafts Found',
-                description: 'No purchase drafts match your current filters. Try adjusting your search criteria.',
+                title: t('purchase_no_data'),
+                description: t('order_no_data_desc'),
             }}
         />
     );

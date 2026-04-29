@@ -2,6 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileText, Package, Receipt, ShoppingCart, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
 import PaymentReceipt from './PaymentReceipt';
@@ -13,6 +14,7 @@ interface TransactionTrackingModalProps {
 }
 
 const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isOpen, purchaseOrder, onClose }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
 

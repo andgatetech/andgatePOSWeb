@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Dialog, Transition } from '@headlessui/react';
 import { Check, Package, ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
@@ -15,6 +16,7 @@ interface VariantSelectionModalProps {
 }
 
 export default function VariantSelectionModal({ isOpen, onClose, product, onSelectVariant, mode = 'pos' }: VariantSelectionModalProps) {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
     const [useWholesale, setUseWholesale] = useState(false);
@@ -25,7 +27,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
 
     const handleAddToCart = async () => {
         if (selectedVariantIndex === null) {
-            alert('Please select a variant');
+            alert(t('msg_select_variant'));
             return;
         }
 
@@ -33,7 +35,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
 
         // Only validate stock quantity in POS mode
         if (mode === 'pos' && quantity > selectedVariant.quantity) {
-            alert(`Only ${selectedVariant.quantity} items available in stock`);
+            alert(`${t('msg_only')} ${selectedVariant.quantity} ${t('msg_items_available')}`);
             return;
         }
 
@@ -50,7 +52,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
             onClose();
         } catch (error) {
             console.error('Error adding to cart:', error);
-            alert('Failed to add item to cart');
+            alert(t('msg_failed_add_to_cart'));
         } finally {
             setIsAdding(false);
         }
@@ -159,10 +161,10 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     <div className="mb-3 flex items-center gap-2">
                                                         <Package className="h-4 w-4 text-gray-500" />
                                                         <span className={`text-sm font-medium ${stock.quantity <= stock.low_stock_quantity ? 'text-orange-600' : 'text-gray-700'}`}>
-                                                            Stock: {stock.quantity} {stock.unit}
+                                                            {t('lbl_stock')}: {stock.quantity} {stock.unit}
                                                         </span>
                                                         {stock.quantity <= stock.low_stock_quantity && (
-                                                            <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">Low</span>
+                                                            <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">{t('status_low_stock')}</span>
                                                         )}
                                                     </div>
 
@@ -177,7 +179,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                                                 />
                                                             </svg>
-                                                            {variantWarranty.duration_months ? `${variantWarranty.duration_months}mo` : `${variantWarranty.duration_days}d`} Warranty
+                                                            {variantWarranty.duration_months ? `${variantWarranty.duration_months}mo` : `${variantWarranty.duration_days}d`} {t('lbl_warranty')}
                                                         </div>
                                                     )}
 
@@ -199,7 +201,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                         onClick={onClose}
                                         className="rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
                                     >
-                                        Cancel
+                                        {t('btn_cancel')}
                                     </button>
                                     <button
                                         onClick={handleAddToCart}
@@ -209,12 +211,12 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                         {isAdding ? (
                                             <>
                                                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                                Adding...
+                                                {t('msg_adding')}
                                             </>
                                         ) : (
                                             <>
                                                 <ShoppingCart className="h-5 w-5" />
-                                                Add
+                                                {t('btn_add')}
                                             </>
                                         )}
                                     </button>

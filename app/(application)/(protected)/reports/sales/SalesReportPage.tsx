@@ -6,6 +6,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import SalesReportFilter from '@/components/filters/reports/SalesReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetSalesReportMutation } from '@/store/features/reports/reportApi';
@@ -13,6 +14,7 @@ import { Banknote, FileText, Hash, Percent, Receipt, ShoppingCart, TrendingDown,
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -124,7 +126,7 @@ const SalesReportPage = () => {
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Total Orders',
+                label: t('report_total_sales'),
                 value: Number(summary.total_orders || 0).toLocaleString(),
                 icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -132,7 +134,7 @@ const SalesReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Gross Sales',
+                label: t('lbl_gross_sales'),
                 value: formatCurrency(summary.total_sales),
                 icon: <Banknote className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -140,7 +142,7 @@ const SalesReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Collection',
+                label: t('lbl_collection'),
                 value: formatCurrency(summary.total_amount_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -148,7 +150,7 @@ const SalesReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Outstanding',
+                label: t('status_outstanding'),
                 value: formatCurrency(summary.total_due_amount),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -156,7 +158,7 @@ const SalesReportPage = () => {
                 textColor: 'text-red-600',
             },
             {
-                label: 'Discounts',
+                label: t('lbl_discount'),
                 value: formatCurrency(summary.total_discount),
                 icon: <Percent className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -164,7 +166,7 @@ const SalesReportPage = () => {
                 textColor: 'text-amber-600',
             },
             {
-                label: 'Avg Order',
+                label: t('lbl_avg_order'),
                 value: formatCurrency(summary.average_order_value),
                 icon: <Receipt className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -172,7 +174,7 @@ const SalesReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     // Table columns
@@ -180,7 +182,7 @@ const SalesReportPage = () => {
         () => [
             {
                 key: 'invoice',
-                label: 'Invoice',
+                label: t('lbl_invoice'),
                 sortable: true,
                 render: (value: any) => (
                     <div className="flex items-center gap-2">
@@ -191,7 +193,7 @@ const SalesReportPage = () => {
             },
             {
                 key: 'customer',
-                label: 'Customer',
+                label: t('lbl_customer'),
                 render: (_: any, row: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 font-medium text-gray-900">
@@ -204,43 +206,43 @@ const SalesReportPage = () => {
             },
             {
                 key: 'user_name',
-                label: 'Created By',
+                label: t('lbl_created_by'),
                 render: (value: any) => <span className="text-xs text-gray-600">{value || 'N/A'}</span>,
             },
             {
                 key: 'subtotal',
-                label: 'Subtotal',
+                label: t('lbl_subtotal'),
                 render: (value: any) => <span className="text-gray-900">{formatCurrency(value)}</span>,
             },
             {
                 key: 'tax',
-                label: 'Tax',
+                label: t('lbl_tax'),
                 render: (value: any) => <span className="text-gray-600">{formatCurrency(value)}</span>,
             },
             {
                 key: 'discount',
-                label: 'Discount',
+                label: t('lbl_discount'),
                 render: (value: any) => <span className="text-red-500">-{formatCurrency(value)}</span>,
             },
             {
                 key: 'grand_total',
-                label: 'Total',
+                label: t('lbl_total'),
                 sortable: true,
                 render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span>,
             },
             {
                 key: 'amount_paid',
-                label: 'Paid',
+                label: t('status_paid'),
                 render: (value: any) => <span className="font-semibold text-emerald-600">{formatCurrency(value)}</span>,
             },
             {
                 key: 'due_amount',
-                label: 'Due',
+                label: t('lbl_due'),
                 render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_status',
-                label: 'Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value: any) => {
                     const payStatus = value?.toLowerCase() || '';
@@ -257,70 +259,70 @@ const SalesReportPage = () => {
             },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     // Export columns configuration
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'invoice', label: 'Invoice', width: 15 },
+            { key: 'invoice', label: t('lbl_invoice'), width: 15 },
             {
                 key: 'customer',
-                label: 'Customer',
+                label: t('lbl_customer'),
                 width: 25,
                 format: (_, row) => (row?.is_walk_in ? 'Walk-in' : row?.customer?.name || 'N/A'),
             },
-            { key: 'user_name', label: 'Created By', width: 15 },
+            { key: 'user_name', label: t('lbl_created_by'), width: 15 },
             {
                 key: 'subtotal',
-                label: 'Subtotal',
+                label: t('lbl_subtotal'),
                 width: 15,
                 format: (value) => formatCurrency(value),
             },
             {
                 key: 'tax',
-                label: 'Tax',
+                label: t('lbl_tax'),
                 width: 10,
                 format: (value) => formatCurrency(value),
             },
             {
                 key: 'discount',
-                label: 'Discount',
+                label: t('lbl_discount'),
                 width: 10,
                 format: (value) => formatCurrency(value),
             },
             {
                 key: 'grand_total',
-                label: 'Total',
+                label: t('lbl_total'),
                 width: 15,
                 format: (value) => formatCurrency(value),
             },
             {
                 key: 'amount_paid',
-                label: 'Paid',
+                label: t('status_paid'),
                 width: 15,
                 format: (value) => formatCurrency(value),
             },
             {
                 key: 'due_amount',
-                label: 'Due',
+                label: t('lbl_due'),
                 width: 15,
                 format: (value) => formatCurrency(value),
             },
-            { key: 'payment_status', label: 'Status', width: 12 },
+            { key: 'payment_status', label: t('lbl_status'), width: 12 },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 width: 12,
                 format: (value) => value || '',
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     // Filter summary for export
@@ -335,12 +337,12 @@ const SalesReportPage = () => {
         if (apiParams.payment_status && apiParams.payment_status !== 'all') {
             // Capitalize first letter for display
             const statusDisplay = apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1);
-            customFilters.push({ label: 'Status', value: statusDisplay });
+            customFilters.push({ label: t('lbl_status'), value: statusDisplay });
         }
         if (apiParams.payment_method && apiParams.payment_method !== 'all') {
             // Capitalize first letter for display
             const methodDisplay = apiParams.payment_method.charAt(0).toUpperCase() + apiParams.payment_method.slice(1);
-            customFilters.push({ label: 'Method', value: methodDisplay });
+            customFilters.push({ label: t('lbl_payment_method'), value: methodDisplay });
         }
 
         // Determine date range type from apiParams
@@ -365,16 +367,16 @@ const SalesReportPage = () => {
     // Summary for export
     const exportSummary = useMemo(
         () => [
-            { label: 'Total Orders', value: summary.total_orders || 0 },
-            { label: 'Gross Sales', value: formatCurrency(summary.total_sales) },
-            { label: 'Collection', value: formatCurrency(summary.total_amount_paid) },
-            { label: 'Outstanding', value: formatCurrency(summary.total_due_amount) },
+            { label: t('report_total_sales'), value: summary.total_orders || 0 },
+            { label: t('lbl_gross_sales'), value: formatCurrency(summary.total_sales) },
+            { label: t('lbl_collection'), value: formatCurrency(summary.total_amount_paid) },
+            { label: t('status_outstanding'), value: formatCurrency(summary.total_due_amount) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     if (isLoading && !reportData?.data) {
-        return <Loader message="Loading report..." />;
+        return <Loader message={t('report_loading')} />;
     }
 
     return (

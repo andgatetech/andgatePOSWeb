@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
@@ -39,7 +40,8 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validateForm = () => {
-        const newErrors: Record<string, string> = {};
+        const { t } = getTranslation();
+    const newErrors: Record<string, string> = {};
 
         if (!formData.title.trim()) {
             newErrors.title = 'Title is required';
@@ -64,7 +66,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
         if (!validateForm()) return;
 
         if (!currentStoreId) {
-            showErrorDialog('Error!', 'Please select a store first.');
+            showErrorDialog(t('msg_error'), 'Please select a store first.');
             return;
         }
 
@@ -92,7 +94,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
             onClose();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to create expense. Please try again.';
-            showErrorDialog('Error!', errorMessage);
+            showErrorDialog(t('msg_error'), errorMessage);
         }
     };
 
@@ -238,7 +240,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                             id="expense-notes"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            placeholder="Add notes..."
+                            placeholder={t('placeholder_notes')}
                             rows={2}
                             className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         />

@@ -6,12 +6,14 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetAllOrderReturnsQuery } from '@/store/features/Order/Order';
 import { RotateCcw } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import OrderReturnDetailsModal from './components/OrderReturnDetailsModal';
 import OrderReturnStats from './components/OrderReturnStats';
 import OrderReturnsTable from './components/OrderReturnsTable';
 
 const OrderReturnList = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -123,7 +125,7 @@ const OrderReturnList = () => {
     const totalItems = paginationMeta?.total || 0;
 
     if (isLoading) {
-        return <Loader message="Loading order returns..." />;
+        return <Loader message={t('order_loading')} />;
     }
 
     return (
@@ -138,8 +140,8 @@ const OrderReturnList = () => {
                                     <RotateCcw className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Order Returns Management</h1>
-                                    <p className="text-sm text-gray-500">View and manage all order returns and exchanges</p>
+                                    <h1 className="text-2xl font-bold text-gray-900">{t('report_order_returns_title')}</h1>
+                                    <p className="text-sm text-gray-500">{t('order_page_desc')}</p>
                                 </div>
                             </div>
                         </div>

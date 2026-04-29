@@ -1,6 +1,7 @@
 'use client';
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
@@ -34,6 +35,7 @@ interface PurchaseOrderRightSideProps {
 }
 
 const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId, isEditMode = false, isMobileView: propIsMobileView, showMobileCart: propShowMobileCart }) => {
+    const { t } = getTranslation();
     const dispatch = useDispatch();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
@@ -274,9 +276,9 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 icon: 'success',
                 title: isEditMode ? 'Draft Updated!' : 'Draft Saved!',
                 html: `
-                    <p>Draft Reference: <strong>${response.data.draft_reference || response.data.draft_id}</strong></p>
-                    <p>Total Items: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
-                    <p>Estimated Total: <strong>${formatCurrency(grandTotal)}</strong></p>
+                    <p>${t('purchase_draft_ref')}: <strong>${response.data.draft_reference || response.data.draft_id}</strong></p>
+                    <p>${t('order_items')}: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
+                    <p>${t('lbl_estimated_total')}: <strong>${formatCurrency(grandTotal)}</strong></p>
                 `,
                 confirmButtonText: 'View Drafts',
                 showCancelButton: !isEditMode,
@@ -382,11 +384,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 icon: 'success',
                 title: 'Purchase Order Created!',
                 html: `
-                    <p>Invoice Number: <strong>${response.data.invoice_number || 'N/A'}</strong></p>
-                    <p>Order Reference: <strong>${response.data.order_reference || response.data.purchase_reference || response.data.id}</strong></p>
-                    <p>Total Items: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
-                    <p>Grand Total: <strong>${formatCurrency(response.data.totals?.grand_total || grandTotal)}</strong></p>
-                    <p>Status: <strong class="text-orange-600">${response.data.status?.toUpperCase() || 'ORDERED'}</strong></p>
+                    <p>${t('lbl_invoice')}: <strong>${response.data.invoice_number || 'N/A'}</strong></p>
+                    <p>${t('lbl_reference')}: <strong>${response.data.order_reference || response.data.purchase_reference || response.data.id}</strong></p>
+                    <p>${t('order_items')}: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
+                    <p>${t('lbl_grand_total')}: <strong>${formatCurrency(response.data.totals?.grand_total || grandTotal)}</strong></p>
+                    <p>${t('lbl_status')}: <strong class="text-orange-600">${response.data.status?.toUpperCase() || 'ORDERED'}</strong></p>
                 `,
                 confirmButtonText: 'View Purchase Orders',
                 showCancelButton: true,
@@ -491,7 +493,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search supplier by name..."
+                                    placeholder={t('placeholder_search_supplier')}
                                     className="form-input w-full pl-10"
                                     value={supplierSearch}
                                     onChange={(e) => {
@@ -556,12 +558,12 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 <div className="grid grid-cols-4 gap-3">
                                     <div className="col-span-2">
                                         <label className="mb-1 block text-sm font-medium">Product Name *</label>
-                                        <input type="text" placeholder="Product Name" className="form-input" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} />
+                                        <input type="text" placeholder={t('placeholder_product_name')} className="form-input" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} />
                                     </div>
                                     <div>
                                         <label className="mb-1 block text-sm font-medium">Unit *</label>
                                         <select className="form-select" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
-                                            <option value="">Select Unit</option>
+                                            <option value="">{t('placeholder_select_unit')}</option>
                                             {units.map((unit: any) => (
                                                 <option key={unit.id} value={unit.name}>
                                                     {unit.name}
@@ -574,7 +576,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         <input
                                             type="number"
                                             min="1"
-                                            placeholder="Qty"
+                                            placeholder={t('lbl_qty')}
                                             className="form-input"
                                             value={newProductQty === 0 ? '' : newProductQty}
                                             onChange={(e) => setNewProductQty(e.target.value === '' ? 0 : Number(e.target.value))}
@@ -584,7 +586,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 <div>
                                     <label className="mb-1 block text-sm font-medium">Description</label>
                                     <textarea
-                                        placeholder="Product description (optional)"
+                                        placeholder={t('placeholder_product_desc')}
                                         className="form-textarea"
                                         rows={2}
                                         value={newProductDescription}
@@ -781,7 +783,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     <textarea
                         className="form-textarea"
                         rows={3}
-                        placeholder="Add notes for this purchase order..."
+                        placeholder={t('placeholder_purchase_notes')}
                         value={notes}
                         onChange={(e) => currentStoreId && dispatch(setNotesRedux({ storeId: currentStoreId, notes: e.target.value }))}
                     />
@@ -790,7 +792,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 {/* Total */}
                 <div className="mb-6 rounded-lg border bg-gray-50 p-4">
                     <div className="flex items-center justify-between text-2xl font-bold">
-                        <span>Est. Grand Total:</span>
+                        <span>{t('lbl_est_grand_total')}:</span>
                         <span className="text-primary">{formatCurrency(grandTotal)}</span>
                     </div>
                     <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>

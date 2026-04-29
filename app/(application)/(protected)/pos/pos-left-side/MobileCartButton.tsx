@@ -1,5 +1,6 @@
 import { Package, ShoppingCart } from 'lucide-react';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 interface MobileCartButtonProps {
     showMobileCart: boolean;
@@ -13,6 +14,7 @@ interface MobileCartButtonProps {
 }
 
 const MobileCartButton: React.FC<MobileCartButtonProps> = ({ showMobileCart, cartItemCount, onToggle, customConfig }) => {
+    const { t } = getTranslation();
     const showIcon = customConfig?.showIcon || <ShoppingCart className="h-6 w-6" />;
     const hideIcon = customConfig?.hideIcon || <Package className="h-6 w-6" />;
 

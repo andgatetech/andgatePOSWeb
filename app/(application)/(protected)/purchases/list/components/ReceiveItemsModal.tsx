@@ -3,6 +3,7 @@
 import { useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { Check, Package, Plus, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { getTranslation } from '@/i18n';
 import Swal from 'sweetalert2';
 
 interface ReceiveItem {
@@ -31,6 +32,7 @@ interface ReceiveItemsModalProps {
 }
 
 const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseOrder, onClose, onSuccess }) => {
+    const { t } = getTranslation();
     const [items, setItems] = useState<ReceiveItem[]>([]);
     const [updatePurchaseOrder, { isLoading }] = useUpdatePurchaseOrderMutation();
 
@@ -110,8 +112,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
             title: 'Confirm Receipt',
             html: `
                 <div class="text-left">
-                    <p class="mb-3">You are about to receive <strong>${totalReceiving} items</strong></p>
-                    <p class="text-sm text-gray-600">This will update inventory and create new stock batches.</p>
+                    <p class="mb-3">${t('purchase_about_to_receive', { count: totalReceiving })}</p>
+                    <p class="text-sm text-gray-600">${t('purchase_receive_note')}</p>
                 </div>
             `,
             icon: 'question',
@@ -148,8 +150,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                 title: 'Items Received Successfully!',
                 html: `
                     <div class="text-left space-y-2">
-                        <p><strong>Invoice:</strong> ${response?.data?.invoice_number || 'N/A'}</p>
-                        <p><strong>Status:</strong> ${response?.data?.status || 'N/A'}</p>
+                        <p><strong>${t('lbl_invoice')}:</strong> ${response?.data?.invoice_number || 'N/A'}</p>
+                        <p><strong>${t('lbl_status')}:</strong> ${response?.data?.status || 'N/A'}</p>
                         ${newProducts > 0 ? `<p class="text-green-600">✓ ${newProducts} new product(s) created</p>` : ''}
                         ${newBatches > 0 ? `<p class="text-blue-600">✓ ${newBatches} new batch(es) created</p>` : ''}
                     </div>
@@ -195,7 +197,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                     {/* Progress Bar */}
                     <div className="mt-4">
                         <div className="mb-2 flex justify-between text-sm">
-                            <span>Progress: {receivedPercentage}%</span>
+                            <span>{t('lbl_progress')}: {receivedPercentage}%</span>
                             <span>
                                 {totalReceived} / {totalOrdered} items
                             </span>

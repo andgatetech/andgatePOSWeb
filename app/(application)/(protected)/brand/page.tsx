@@ -3,6 +3,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import BrandFilter from '@/components/filters/BrandFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
@@ -12,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // Brand Modal Component
 const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, loading }: any) => {
+    const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
     const [formData, setFormData] = useState<{ name: string; description: string; image: File | null }>({
         name: '',
@@ -63,9 +65,9 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                     <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1 pr-4">
                             <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
-                                {modalType === 'create' && 'Create New Brand'}
-                                {modalType === 'edit' && 'Edit Brand'}
-                                {modalType === 'view' && 'Brand Details'}
+                                {modalType === 'create' && t('brand_create_title')}
+                                {modalType === 'edit' && t('brand_edit_title')}
+                                {modalType === 'view' && t('brand_view_title')}
                             </h2>
                             {currentStore && (
                                 <div className="mt-1 flex items-center text-xs text-gray-600 sm:text-sm">
@@ -90,27 +92,27 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                 </div>
                             )}
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_name')}</label>
                                 <p className="text-sm text-gray-900 sm:text-base">{selectedBrand?.name}</p>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-                                <p className="text-sm text-gray-900 sm:text-base">{selectedBrand?.description || 'No description'}</p>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
+                                <p className="text-sm text-gray-900 sm:text-base">{selectedBrand?.description || t('lbl_no_description')}</p>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Store</label>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_store')}</label>
                                 <p className="text-sm text-gray-900 sm:text-base">{selectedBrand?.store?.name || '-'}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
                                 <div>
-                                    <label className="mb-1 block font-medium text-gray-700">Created</label>
+                                    <label className="mb-1 block font-medium text-gray-700">{t('lbl_created')}</label>
                                     <div className="flex flex-col">
                                         <span className="text-gray-900">{selectedBrand?.created_at?.split(' ')[0]}</span>
                                         <span className="text-xs text-gray-500">{selectedBrand?.created_at?.split(' ').slice(1).join(' ')}</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="mb-1 block font-medium text-gray-700">Updated</label>
+                                    <label className="mb-1 block font-medium text-gray-700">{t('lbl_updated')}</label>
                                     <div className="flex flex-col">
                                         <span className="text-gray-900">{selectedBrand?.updated_at?.split(' ')[0]}</span>
                                         <span className="text-xs text-gray-500">{selectedBrand?.updated_at?.split(' ').slice(1).join(' ')}</span>
@@ -122,7 +124,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Image Upload */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">Brand Image (Optional)</label>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('brand_image_label')}</label>
                                 <div className="rounded-lg border-2 border-dashed border-gray-300 p-3 sm:p-4">
                                     {imagePreview ? (
                                         <div className="relative mx-auto h-24 w-24">
@@ -141,7 +143,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                     ) : (
                                         <div className="text-center">
                                             <Upload className="mx-auto mb-2 h-7 w-7 text-gray-400 sm:h-8 sm:w-8" />
-                                            <p className="mb-2 text-xs text-gray-600 sm:text-sm">Click to upload image</p>
+                                            <p className="mb-2 text-xs text-gray-600 sm:text-sm">{t('msg_upload_hint')}</p>
                                             <input
                                                 type="file"
                                                 accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -156,27 +158,27 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                             {/* Name */}
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">
-                                    Name <span className="text-red-500">*</span>
+                                    {t('lbl_name')} <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:text-base"
-                                    placeholder="Enter brand name"
+                                    placeholder={t('brand_name_placeholder')}
                                     required
                                 />
                             </div>
 
                             {/* Description */}
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Description (Optional)</label>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={3}
                                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:text-base"
-                                    placeholder="Enter brand description"
+                                    placeholder={t('brand_desc_placeholder')}
                                 />
                             </div>
 
@@ -187,7 +189,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                     onClick={onClose}
                                     className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:flex-1"
                                 >
-                                    Cancel
+                                    {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
@@ -204,12 +206,12 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                 ></path>
                                             </svg>
-                                            {modalType === 'create' ? 'Creating...' : 'Updating...'}
+                                            {modalType === 'create' ? t('btn_creating') : t('btn_updating')}
                                         </>
                                     ) : (
                                         <>
                                             <Save className="h-4 w-4" />
-                                            {modalType === 'create' ? 'Create' : 'Update'}
+                                            {modalType === 'create' ? t('btn_create') : t('btn_update')}
                                         </>
                                     )}
                                 </button>
@@ -224,6 +226,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 
 // Main Brand Management Component
 const BrandManagement = () => {
+    const { t } = getTranslation();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -324,25 +327,25 @@ const BrandManagement = () => {
                     if (currentStoreId) brandFormData.append('store_id', currentStoreId.toString());
                     await createBrand(brandFormData).unwrap();
                     setSelectedBrand(null);
-                    showSuccessDialog('Success!', 'Brand created successfully');
+                    showSuccessDialog(t('msg_success'), t('brand_created'));
                 } else if (modalType === 'edit' && selectedBrand) {
                     await updateBrand({
                         id: selectedBrand.id,
                         formData: brandFormData,
                     }).unwrap();
-                    showSuccessDialog('Success!', 'Brand updated successfully');
+                    showSuccessDialog(t('msg_success'), t('brand_updated'));
                 }
 
                 closeModal();
             } catch (err: any) {
                 console.error('Error:', err);
-                let errorMessage = 'Something went wrong';
+                let errorMessage = t('msg_error_occurred');
                 if (err?.data?.message) {
                     errorMessage = err.data.message;
                 } else if (err?.error) {
                     errorMessage = err.error;
                 }
-                showErrorDialog('Error', errorMessage);
+                showErrorDialog(t('msg_error'), errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -352,15 +355,15 @@ const BrandManagement = () => {
 
     const handleDelete = useCallback(
         async (id: number) => {
-            const confirmed = await showConfirmDialog('Are you sure?', "You won't be able to revert this!", 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('msg_confirm_delete_text'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteBrand(id).unwrap();
-                    showSuccessDialog('Success', 'Brand deleted successfully');
+                    showSuccessDialog(t('msg_success'), t('brand_deleted'));
                 } catch (error) {
                     console.error('Error deleting brand:', error);
-                    showErrorDialog('Error', 'Failed to delete brand');
+                    showErrorDialog(t('msg_error'), t('brand_error_delete'));
                 }
             }
         },
@@ -371,7 +374,7 @@ const BrandManagement = () => {
         () => [
             {
                 key: 'name',
-                label: 'Brand',
+                label: t('lbl_brand'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex items-center">
@@ -392,60 +395,60 @@ const BrandManagement = () => {
             },
             {
                 key: 'description',
-                label: 'Description',
+                label: t('lbl_description'),
                 render: (value) => (
                     <div className="max-w-xs truncate text-sm text-gray-600" title={value}>
-                        {value || 'No description'}
+                        {value || t('lbl_no_description')}
                     </div>
                 ),
             },
             {
                 key: 'store_name',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value, row) => <div className="text-sm font-medium text-gray-900">{row.store_name || row.store?.store_name || '-'}</div>,
             },
             {
                 key: 'created_at',
-                label: 'Created',
+                label: t('lbl_created'),
                 sortable: true,
                 render: (value: string) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
-                label: 'Updated',
+                label: t('lbl_updated'),
                 sortable: true,
                 render: (value: string) => <DateColumn date={value} />,
             },
         ],
-        []
+        [t]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Details',
+                label: t('brand_action_view'),
                 onClick: (brand) => openModal('view', brand),
                 icon: <Eye className="h-4 w-4" />,
                 className: 'text-gray-700 hover:bg-gray-50',
             },
             {
-                label: 'Edit Brand',
+                label: t('brand_action_edit'),
                 onClick: (brand) => openModal('edit', brand),
                 icon: <Edit className="h-4 w-4" />,
                 className: 'text-blue-600 hover:bg-blue-50',
             },
             {
-                label: 'Delete Brand',
+                label: t('brand_action_delete'),
                 onClick: (brand) => handleDelete(brand.id),
                 icon: <Trash2 className="h-4 w-4" />,
                 className: 'text-red-600 hover:bg-red-50',
             },
         ],
-        [openModal, handleDelete]
+        [t, openModal, handleDelete]
     );
 
     if (isLoading) {
-        return <Loader message="Loading brands..." />;
+        return <Loader message={t('brand_loading')} />;
     }
 
     if (error) {
@@ -453,7 +456,7 @@ const BrandManagement = () => {
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4">
                 <div className="mx-auto">
                     <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                        <p className="text-sm text-red-800 sm:text-base">Error loading brands. Please try again.</p>
+                        <p className="text-sm text-red-800 sm:text-base">{t('brand_error_load')}</p>
                     </div>
                 </div>
             </div>
@@ -470,8 +473,8 @@ const BrandManagement = () => {
                                 <ImageIcon className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Brand Management</h1>
-                                <p className="text-xs text-gray-500 sm:text-sm">Manage your store brands efficiently</p>
+                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('brand_page_title')}</h1>
+                                <p className="text-xs text-gray-500 sm:text-sm">{t('brand_page_desc')}</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-start sm:justify-end">
@@ -480,7 +483,7 @@ const BrandManagement = () => {
                                 className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-purple-700 hover:to-purple-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                             >
                                 <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
-                                <span className="whitespace-nowrap">Add Brand</span>
+                                <span className="whitespace-nowrap">{t('brand_add')}</span>
                                 <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                             </button>
                         </div>
@@ -517,12 +520,12 @@ const BrandManagement = () => {
                                 <ImageIcon className="h-16 w-16 text-gray-400" />
                             </div>
                         ),
-                        title: 'No brands yet',
-                        description: 'Get started by creating your first brand',
+                        title: t('brand_no_data'),
+                        description: t('brand_no_data_desc'),
                         action: (
                             <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">
                                 <Plus className="h-4 w-4" />
-                                Create First Brand
+                                {t('brand_create_first')}
                             </button>
                         ),
                     }}

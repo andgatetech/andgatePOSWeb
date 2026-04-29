@@ -2,6 +2,7 @@
 
 import CustomerFilter from '@/components/filters/CustomerFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
@@ -12,6 +13,7 @@ import CustomersTable from '../components/CustomersTable';
 import ViewCustomerModal from '../components/ViewCustomerModal';
 
 const CustomersPage = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
 
@@ -78,14 +80,14 @@ const CustomersPage = () => {
 
     const handleDelete = useCallback(
         async (customer: any) => {
-            const confirmed = await showConfirmDialog('Delete Customer?', `Are you sure you want to delete ${customer.name}? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('msg_confirm_delete_text'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteCustomer(customer.id).unwrap();
-                    showSuccessDialog('Deleted!', 'Customer has been deleted successfully.');
+                    showSuccessDialog(t('msg_success'), t('customer_deleted'));
                 } catch (error: any) {
-                    showErrorDialog('Error!', error?.data?.message || 'Failed to delete customer.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('customer_error_delete'));
                 }
             }
         },
@@ -97,7 +99,7 @@ const CustomersPage = () => {
     };
 
     if (isLoading) {
-        return <Loader message="Loading customers..." />;
+        return <Loader message={t('customer_loading')} />;
     }
 
     return (
@@ -105,12 +107,12 @@ const CustomersPage = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-                    <p className="mt-1 text-sm text-gray-600">Manage your customers and their loyalty programs</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('customer_page_title')}</h1>
+                    <p className="mt-1 text-sm text-gray-600">{t('customer_page_desc')}</p>
                 </div>
                 <button onClick={handleAddNew} className="btn btn-primary">
                     <Plus className="mr-2 h-5 w-5" />
-                    Add Customer
+                    {t('customer_add')}
                 </button>
             </div>
 

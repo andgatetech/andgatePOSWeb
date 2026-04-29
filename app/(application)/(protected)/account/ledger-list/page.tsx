@@ -2,6 +2,7 @@
 
 import LedgerFilter from '@/components/filters/LedgerFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteLedgerMutation, useGetLedgersQuery } from '@/store/features/ledger/ledger';
@@ -88,14 +89,15 @@ const LedgerListPage = () => {
 
     const handleDelete = useCallback(
         async (ledger: any) => {
-            const confirmed = await showConfirmDialog('Delete Ledger?', `Are you sure you want to delete "${ledger.title}"? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const { t } = getTranslation();
+    const confirmed = await showConfirmDialog('Delete Ledger?', `Are you sure you want to delete "${ledger.title}"? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
 
             if (confirmed) {
                 try {
                     await deleteLedger(ledger.id).unwrap();
                     showSuccessDialog('Deleted!', 'Ledger has been deleted successfully.');
                 } catch (error: any) {
-                    showErrorDialog('Error!', error?.data?.message || 'Failed to delete ledger.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to delete ledger.');
                 }
             }
         },
@@ -111,7 +113,7 @@ const LedgerListPage = () => {
     }, [refetch]);
 
     if (isLoading) {
-        return <Loader message="Loading ledgers..." />;
+        return <Loader message={t('account_loading_ledgers')} />;
     }
 
     return (

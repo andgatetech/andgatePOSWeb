@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface PaginationProps {
     currentPage: number;
@@ -8,6 +9,7 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+    const { t } = getTranslation();
     const [jumpPage, setJumpPage] = useState('');
 
     useEffect(() => {
@@ -96,7 +98,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                             disabled={currentPage === 1}
                             className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <span className="sr-only">Previous</span>
+                            <span className="sr-only">{t('lbl_previous')}</span>
                             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                         </button>
 
@@ -125,14 +127,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                             disabled={currentPage === totalPages}
                             className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <span className="sr-only">Next</span>
+                            <span className="sr-only">{t('lbl_next')}</span>
                             <ChevronRight className="h-5 w-5" aria-hidden="true" />
                         </button>
                     </nav>
 
                     {/* Go To Input (Desktop) */}
                     <form onSubmit={handleJumpSubmit} className="flex items-center gap-x-2">
-                        <span className="text-sm text-gray-500">Go to</span>
+                        <span className="text-sm text-gray-500">{t('lbl_go_to')}</span>
                         <div className="relative rounded-md shadow-sm">
                             <input
                                 type="number"

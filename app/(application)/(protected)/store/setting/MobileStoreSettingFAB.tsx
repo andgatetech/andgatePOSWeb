@@ -3,30 +3,32 @@
 import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Store, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface MobileStoreSettingFABProps {
     activeTab: string;
     onTabChange: (tabId: string) => void;
 }
 
-const tabs = [
-    { id: 'basic', label: 'Basic Info', icon: Store },
-    { id: 'hours', label: 'Hours', icon: Clock },
-    { id: 'units', label: 'Units', icon: Package },
-    { id: 'attributes', label: 'Attributes', icon: Tag },
-    { id: 'payment', label: 'Payment', icon: CreditCard },
-    { id: 'currency', label: 'Currency', icon: Coins },
-    { id: 'paymentstatus', label: 'Pay Status', icon: Flag },
-    { id: 'warranty', label: 'Warranty', icon: Shield },
-    { id: 'adjustment', label: 'Adjustments', icon: ListChecks },
-    { id: 'returnreasons', label: 'Returns', icon: RotateCcw },
-    { id: 'loyalty', label: 'Loyalty', icon: Gift },
-    { id: 'branding', label: 'Branding', icon: Camera },
-    { id: 'status', label: 'Status', icon: Settings },
-];
 
 const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab, onTabChange }) => {
+    const { t } = getTranslation();
     const [isOpen, setIsOpen] = useState(false);
+    const tabs = [
+        { id: 'basic', label: t('lbl_basic_info'), icon: Store },
+        { id: 'hours', label: t('lbl_hours'), icon: Clock },
+        { id: 'units', label: t('lbl_units'), icon: Package },
+        { id: 'attributes', label: t('store_attributes_title'), icon: Tag },
+        { id: 'payment', label: t('lbl_payment_method'), icon: CreditCard },
+        { id: 'currency', label: t('store_currency_title'), icon: Coins },
+        { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag },
+        { id: 'warranty', label: t('lbl_warranty'), icon: Shield },
+        { id: 'adjustment', label: t('lbl_adjustments'), icon: ListChecks },
+        { id: 'returnreasons', label: t('lbl_returns'), icon: RotateCcw },
+        { id: 'loyalty', label: t('store_loyalty_title'), icon: Gift },
+        { id: 'branding', label: t('store_branding'), icon: Camera },
+        { id: 'status', label: t('lbl_status'), icon: Settings },
+    ];
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -46,7 +48,7 @@ const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab
             <div className={`fixed inset-x-0 bottom-0 z-50 transform rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 md:hidden ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
                 <div className="p-4">
                     <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-base font-bold text-gray-900">Store Settings</h3>
+                        <h3 className="text-base font-bold text-gray-900">{t('store_settings_title')}</h3>
                         <button onClick={() => setIsOpen(false)} className="rounded-full bg-gray-100 p-1.5 text-gray-600 transition-colors hover:bg-gray-200">
                             <X className="h-4 w-4" />
                         </button>

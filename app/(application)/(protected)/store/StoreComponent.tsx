@@ -2,6 +2,7 @@
 import SubscriptionError from '@/components/common/SubscriptionError';
 import StoreFilter from '@/components/filters/StoreFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -12,6 +13,7 @@ import CreateStoreModal from './components/CreateStoreModal';
 import StoresTable from './components/StoresTable';
 
 const StoreComponent = () => {
+    const { t } = getTranslation();
     // Get current store from Redux
     const { currentStoreId, userStores } = useCurrentStore();
 
@@ -52,14 +54,14 @@ const StoreComponent = () => {
     }, []);
 
     const handleDeleteStore = async (store: any) => {
-        const confirmed = await showConfirmDialog('Are you sure?', `Delete "${store.store_name}"? This action cannot be undone.`);
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), `${t('msg_delete_store_confirm')} "${store.store_name}"? ${t('msg_cannot_be_undone')}`);
 
         if (confirmed) {
             try {
                 await deleteStore(store.id).unwrap();
-                showSuccessDialog('Deleted!', 'Store has been deleted successfully.');
+                showSuccessDialog(t('msg_deleted'), t('msg_store_deleted'));
             } catch (error) {
-                showErrorDialog('Error!', 'Failed to delete store. Please try again.');
+                showErrorDialog(t('msg_error'), t('msg_failed_delete_store'));
             }
         }
     };
@@ -135,8 +137,8 @@ const StoreComponent = () => {
                             <Store className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Store Management</h1>
-                            <p className="text-xs text-gray-500 sm:text-sm">Manage your store operations and settings</p>
+                            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('store_management_title')}</h1>
+                            <p className="text-xs text-gray-500 sm:text-sm">{t('store_management_subtitle')}</p>
                         </div>
                     </div>
                     <div className="flex items-center justify-start sm:justify-end">
@@ -145,7 +147,7 @@ const StoreComponent = () => {
                             className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                         >
                             <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
-                            <span className="whitespace-nowrap">Create New Store</span>
+                            <span className="whitespace-nowrap">{t('store_create_new')}</span>
                             <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                         </button>
                     </div>

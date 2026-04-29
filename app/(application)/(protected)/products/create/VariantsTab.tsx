@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
@@ -61,6 +62,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     isCreating,
     isEditMode = false,
 }) => {
+    const { t } = getTranslation();
     const { symbol } = useCurrency();
     const [expandedVariantIndex, setExpandedVariantIndex] = useState<number | null>(null);
     const maxImagesPerVariant = 5;
@@ -197,7 +199,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                         title={attributeNames.length === 0 ? 'Add attributes first in Attributes tab' : ''}
                     >
                         <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span>Add Variant</span>
+                        <span>{t('btn_add_new')}</span>
                     </button>
                 </div>
                 {attributeNames.length === 0 && (
@@ -353,8 +355,8 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 onChange={(e) => handleVariantChange(index, 'unit', e.target.value)}
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             >
-                                                <option value="">Select Unit</option>
-                                                <option value="Piece">Piece (Default)</option>
+                                                <option value="">{t('placeholder_select_unit')}</option>
+                                                <option value="Piece">{t('lbl_piece_default')}</option>
                                                 {units.map((unit: any) => (
                                                     <option key={unit.id} value={unit.name}>
                                                         {unit.name}
@@ -452,7 +454,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     }`}
                                                 >
                                                     <ImageIcon className="h-5 w-5" />
-                                                    <span>Click or Drop Images (Max {maxImagesPerVariant})</span>
+                                                    <span>{t('msg_upload_hint')} ({t('lbl_max')} {maxImagesPerVariant})</span>
                                                 </button>
 
                                                 {imageList.length > 0 && (
@@ -489,7 +491,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
-                                        <span>Save & Close</span>
+                                        <span>{t('btn_save')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -508,14 +510,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
                 <button
                     type="button"
                     onClick={onNext}
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 sm:px-6 sm:py-3"
                 >
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -536,14 +538,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
+                            <span>{isEditMode ? t('btn_updating') : t('btn_creating')}</span>
                         </>
                     ) : (
                         <>
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
+                            <span>{isEditMode ? t('product_edit_title') : t('product_create_title')}</span>
                         </>
                     )}
                 </button>

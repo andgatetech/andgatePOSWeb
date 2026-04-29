@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import ImageShowModal from '@/app/(application)/(protected)/products/component/Image Modal/ImageModal2';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
@@ -42,6 +43,7 @@ interface PosLeftSideProps {
 }
 
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
+    const { t } = getTranslation();
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -282,7 +284,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
             // Only check availability and stock in POS mode
             if (reduxSlice === 'pos' && (product.available === false || totalQuantity <= 0)) {
-                showMessage('Product is not available', 'error');
+                showMessage(t('status_out_of_stock'), 'error');
                 return;
             }
 
@@ -290,7 +292,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
 
             if (reduxSlice === 'pos' && currentQuantityInCart >= totalQuantity) {
-                showMessage('Cannot add more, stock limit reached!', 'error');
+                showMessage(t('status_out_of_stock'), 'error');
                 return;
             }
 
@@ -332,7 +334,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
             // Dispatch to appropriate Redux slice with storeId
             if (!currentStoreId) {
-                showMessage('No store selected!', 'error');
+                showMessage(t('lbl_select_store'), 'error');
                 return;
             }
 
@@ -370,7 +372,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     break;
             }
 
-            showMessage('Item added successfully!');
+            showMessage(t('msg_created_success'));
 
             // Reset filters and search after adding product
             setSearchTerm('');
@@ -849,8 +851,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 >
                     <div className="panel flex-1 overflow-auto px-3 py-4 sm:px-6 sm:py-6">
                         <div className="mb-4 sm:mb-6">
-                            <h1 className="mb-1 text-xl font-bold text-gray-900 sm:text-2xl">Select Products</h1>
-                            <p className="text-xs text-gray-600 sm:text-sm">Click or scan a product to add it to your order</p>
+                            <h1 className="mb-1 text-xl font-bold text-gray-900 sm:text-2xl">{t('pos_select_products')}</h1>
+                            <p className="text-xs text-gray-600 sm:text-sm">{t('pos_select_products_hint')}</p>
                         </div>
 
                         <FilterButtons

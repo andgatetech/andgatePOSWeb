@@ -1,6 +1,7 @@
 'use client';
 
 import DateColumn from '@/components/common/DateColumn';
+import { getTranslation } from '@/i18n';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -11,6 +12,7 @@ interface ViewSupplierModalProps {
 }
 
 const ViewSupplierModal: React.FC<ViewSupplierModalProps> = ({ supplier, isOpen, onClose }) => {
+    const { t } = getTranslation();
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -50,39 +52,39 @@ const ViewSupplierModal: React.FC<ViewSupplierModalProps> = ({ supplier, isOpen,
                 {/* Modal Content */}
                 <div className="space-y-3 p-6 text-sm">
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Email</span>
+                        <span className="text-gray-500">{t('lbl_email')}</span>
                         <span className="font-medium">{supplier.email || '—'}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Phone</span>
+                        <span className="text-gray-500">{t('lbl_phone')}</span>
                         <span className="font-medium">{supplier.phone || '—'}</span>
                     </div>
 
                     {supplier.contact_person && (
                         <div className="flex justify-between border-b border-gray-200 py-2">
-                            <span className="text-gray-500">Contact Person</span>
+                            <span className="text-gray-500">{t('supplier_contact_person')}</span>
                             <span className="font-medium">{supplier.contact_person}</span>
                         </div>
                     )}
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Address</span>
+                        <span className="text-gray-500">{t('lbl_address')}</span>
                         <span className="text-right font-medium">{supplier.address || '—'}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Status</span>
+                        <span className="text-gray-500">{t('lbl_status')}</span>
                         <span className={`font-medium capitalize ${currentStatus === 'active' ? 'text-green-600' : currentStatus === 'blocked' ? 'text-red-600' : ''}`}>{currentStatus}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Created</span>
+                        <span className="text-gray-500">{t('lbl_created')}</span>
                         <DateColumn date={supplier.created_at} />
                     </div>
 
                     <div className="flex justify-between py-2">
-                        <span className="text-gray-500">Updated</span>
+                        <span className="text-gray-500">{t('lbl_updated')}</span>
                         <DateColumn date={supplier.updated_at} />
                     </div>
                 </div>

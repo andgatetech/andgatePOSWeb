@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
@@ -47,6 +48,7 @@ const PRESETS = [
 ];
 
 const LabelGenerator = () => {
+    const { t } = getTranslation();
     const dispatch = useDispatch();
     const { currentStore, currentStoreId } = useCurrentStore();
     const cartItems = useSelector((state: RootState) => (currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || [] : []));
@@ -127,7 +129,7 @@ const LabelGenerator = () => {
                 showSuccessDialog('Success!', `${response.data.total_generated} labels generated`);
             }
         } catch (error: any) {
-            showErrorDialog('Error', error?.data?.message || 'Failed to generate');
+            showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to generate');
         }
     };
 
@@ -353,10 +355,10 @@ const LabelGenerator = () => {
                 }
             }
             doc.save(`labels-${currentStore?.store_name || 'store'}.pdf`);
-            showSuccessDialog('Success!', 'PDF downloaded');
+            showSuccessDialog(t('msg_success'), t('msg_success'));
         } catch (error) {
             console.error(error);
-            showErrorDialog('Error', 'Failed to generate PDF');
+            showErrorDialog(t('msg_error'), 'Failed to generate PDF');
         }
     };
 

@@ -3,6 +3,7 @@
 import { useSelector } from 'react-redux';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { Store } from 'lucide-react';
 import Analytics from './Analytics';
@@ -12,6 +13,7 @@ import Summary from './Summary';
 import SectionFour from './SectionFour';
 
 const ComponentsDashboardSales = () => {
+    const { t } = getTranslation();
     const { currentStoreId, currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
 
@@ -19,8 +21,8 @@ const ComponentsDashboardSales = () => {
         <div className=" sm:space-y-6 ">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">Welcome back, {user?.name || 'User'}</h1>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 sm:text-base">Here&apos;s what&apos;s happening with your {currentStore?.store_name || 'store'} today</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl lg:text-4xl">{t('dashboard_welcome_back')}, {user?.name || t('lbl_user')}</h1>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 sm:text-base">{t('dashboard_store_activity')} {currentStore?.store_name || t('lbl_store')} {t('lbl_today')}</p>
             </div>
             {/* Current Store Info */}
             {currentStore && (
@@ -30,8 +32,8 @@ const ComponentsDashboardSales = () => {
                             <Store className="h-5 w-5" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-semibold text-primary sm:text-base">Current Store: {currentStore.store_name}</h3>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">All data shown below is for this store only</p>
+                            <h3 className="text-sm font-semibold text-primary sm:text-base">{t('dashboard_current_store')}: {currentStore.store_name}</h3>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{t('dashboard_store_data_note')}</p>
                         </div>
                     </div>
                 </div>

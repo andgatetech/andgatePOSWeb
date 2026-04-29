@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { AlertCircle, Banknote, CheckCircle, CreditCard, ShoppingCart, XCircle } from 'lucide-react';
 
 interface OrderStatsProps {
@@ -13,10 +14,11 @@ interface OrderStatsProps {
 }
 
 const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const stats = [
         {
-            label: 'Total Orders',
+            label: t('report_total_sales'),
             value: totalOrders,
             icon: ShoppingCart,
             bgColor: 'bg-blue-500',
@@ -24,7 +26,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
             textColor: 'text-blue-600',
         },
         {
-            label: 'Total Revenue',
+            label: t('lbl_revenue'),
             value: formatCurrency(totalRevenue),
             icon: Banknote,
             bgColor: 'bg-green-500',
@@ -32,7 +34,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
             textColor: 'text-green-600',
         },
         {
-            label: 'Paid Orders',
+            label: t('status_paid'),
             value: paidOrders,
             icon: CheckCircle,
             bgColor: 'bg-emerald-500',
@@ -40,7 +42,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
             textColor: 'text-emerald-600',
         },
         {
-            label: 'Partial Paid',
+            label: t('status_partial'),
             value: partialOrders,
             icon: CreditCard,
             bgColor: 'bg-yellow-500',
@@ -48,7 +50,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
             textColor: 'text-yellow-600',
         },
         {
-            label: 'Due/Unpaid',
+            label: t('lbl_due'),
             value: dueOrders,
             icon: XCircle,
             bgColor: 'bg-red-500',
@@ -56,7 +58,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
             textColor: 'text-red-600',
         },
         {
-            label: 'Pending',
+            label: t('status_pending'),
             value: pendingOrders,
             icon: AlertCircle,
             bgColor: 'bg-orange-500',

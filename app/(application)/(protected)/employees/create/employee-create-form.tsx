@@ -2,6 +2,7 @@
 
 import PermissionSelector from '@/app/(application)/(protected)/employees/employees/PermissionSelector';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { useGetUserPermissionsQuery } from '@/store/features/auth/authApi';
 import { useStaffRegisterMutation } from '@/store/features/store/storeApi';
@@ -37,6 +38,7 @@ interface FormErrors {
 }
 
 const EmployeeCreateForm = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth?.user);
@@ -242,7 +244,7 @@ const EmployeeCreateForm = () => {
                             className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
                         >
                             <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            <span>Back to Employees</span>
+                            <span>{t('btn_back')}</span>
                         </button>
                     </div>
                     {currentStore && (
@@ -281,7 +283,7 @@ const EmployeeCreateForm = () => {
                                             className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
                                                 formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
-                                            placeholder="Enter employee full name"
+                                            placeholder={t('placeholder_full_name')}
                                         />
                                         {formErrors.name && <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>}
                                     </div>
@@ -299,7 +301,7 @@ const EmployeeCreateForm = () => {
                                             className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
                                                 formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
-                                            placeholder="Enter email address"
+                                            placeholder={t('placeholder_email')}
                                         />
                                         {formErrors.email && <p className="mt-1 text-xs text-red-500">{formErrors.email}</p>}
                                     </div>
@@ -318,7 +320,7 @@ const EmployeeCreateForm = () => {
                                                 className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
                                                     formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                                 }`}
-                                                placeholder="Enter password (min. 6 characters)"
+                                                placeholder={t('placeholder_password')}
                                             />
                                             <button
                                                 type="button"
@@ -347,7 +349,7 @@ const EmployeeCreateForm = () => {
                                                         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                                                         : 'border-gray-300 focus:border-primary focus:ring-primary'
                                                 }`}
-                                                placeholder="Re-enter password"
+                                                placeholder={t('placeholder_confirm_password')}
                                             />
                                             <button
                                                 type="button"
@@ -372,7 +374,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.phone}
                                             onChange={handleInputChange}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="Enter phone number"
+                                            placeholder={t('placeholder_phone')}
                                         />
                                     </div>
 
@@ -385,7 +387,7 @@ const EmployeeCreateForm = () => {
                                             onChange={handleInputChange}
                                             rows={3}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="Enter address"
+                                            placeholder={t('placeholder_address')}
                                         />
                                     </div>
 
@@ -400,10 +402,10 @@ const EmployeeCreateForm = () => {
                                             onChange={handleInputChange}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         >
-                                            <option value="staff">Staff</option>
-                                            <option value="cashier">Cashier</option>
-                                            <option value="manager">Manager</option>
-                                            <option value="store admin">Store Admin</option>
+                                            <option value="staff">{t('role_staff')}</option>
+                                            <option value="cashier">{t('role_cashier')}</option>
+                                            <option value="manager">{t('role_manager')}</option>
+                                            <option value="store admin">{t('role_store_admin')}</option>
                                         </select>
                                     </div>
                                 </div>

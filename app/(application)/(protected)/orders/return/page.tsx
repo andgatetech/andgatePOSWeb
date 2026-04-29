@@ -5,6 +5,7 @@ import Loader from '@/lib/Loader';
 import { RootState } from '@/store';
 import { useGetOrderByIdQuery } from '@/store/features/Order/Order';
 import { clearReturnSession, initReturnSession, selectOrderReturnSession } from '@/store/features/Order/OrderReturnSlice';
+import { getTranslation } from '@/i18n';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,6 +15,7 @@ import PosLeftSide from '../../pos/PosLeftSide';
 import PosRightSide from '../../pos/PosRightSide';
 
 const OrderReturnPage = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
@@ -81,13 +83,13 @@ const OrderReturnPage = () => {
     if (!orderId) {
         return (
             <div className="flex min-h-screen items-center justify-center">
-                <Loader message="Initializing Return..." />
+                <Loader message={t('order_loading')} />
             </div>
         );
     }
 
     if (isLoading || isLoadingOrder) {
-        return <Loader message="Loading Order for Return..." />;
+        return <Loader message={t('order_loading')} />;
     }
 
     if (error || !orderData?.success || !orderData?.data) {
@@ -108,11 +110,11 @@ const OrderReturnPage = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </div>
-                    <h1 className="mb-2 text-2xl font-bold text-gray-900">Order Not Available</h1>
+                    <h1 className="mb-2 text-2xl font-bold text-gray-900">{t('order_no_data')}</h1>
                     <p className="mb-6 text-gray-600">{errorMessage}</p>
                     <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
-                        Back to Orders
+                        {t('btn_back')}
                     </Link>
                 </div>
             </div>
@@ -138,12 +140,12 @@ const OrderReturnPage = () => {
                             />
                         </svg>
                     </div>
-                    <h1 className="mb-2 text-2xl font-bold text-gray-900">No Items Available for Return</h1>
-                    <p className="mb-2 text-gray-600">This order has been fully returned.</p>
-                    <p className="mb-6 text-sm text-gray-500">Invoice: {order.invoice}</p>
+                    <h1 className="mb-2 text-2xl font-bold text-gray-900">{t('order_no_data')}</h1>
+                    <p className="mb-2 text-gray-600">{t('order_no_data_desc')}</p>
+                    <p className="mb-6 text-sm text-gray-500">{t('lbl_invoice')}: {order.invoice}</p>
                     <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
-                        Back to Orders
+                        {t('btn_back')}
                     </Link>
                 </div>
             </div>
@@ -161,16 +163,16 @@ const OrderReturnPage = () => {
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Order Return / Exchange</h1>
+                                <h1 className="text-2xl font-bold text-gray-900">{t('order_return')}</h1>
                                 <p className="text-sm text-gray-600">
-                                    Invoice: <span className="font-semibold">{order.invoice}</span> | Customer:{' '}
-                                    <span className="font-semibold">{order.is_walk_in ? 'Walk-in' : order.customer?.name || 'N/A'}</span> | Payment:{' '}
-                                    <span className="font-semibold capitalize">{order.payment?.payment_method || 'N/A'}</span>
+                                    {t('lbl_invoice')}: <span className="font-semibold">{order.invoice}</span> | {t('lbl_customer')}:{' '}
+                                    <span className="font-semibold">{order.is_walk_in ? t('order_walk_in') : order.customer?.name || t('lbl_na')}</span> | {t('lbl_payment')}:{' '}
+                                    <span className="font-semibold capitalize">{order.payment?.payment_method || t('lbl_na')}</span>
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 rounded-lg bg-amber-100 px-3 py-1.5 text-amber-800">
-                            <span className="text-sm font-medium">Return Mode</span>
+                            <span className="text-sm font-medium">{t('order_return')}</span>
                         </div>
                     </div>
                 </div>
@@ -182,7 +184,7 @@ const OrderReturnPage = () => {
                     mobileButtonConfig={{
                         showIcon: null,
                         hideIcon: null,
-                        label: 'Products (Exchange)',
+                        label: t('product_title'),
                     }}
                     reduxSlice="orderReturn"
                 >

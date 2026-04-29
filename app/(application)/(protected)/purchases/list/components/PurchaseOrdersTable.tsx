@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Clock, Download, Eye, Printer } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -28,12 +29,13 @@ interface PurchaseOrdersTableProps {
 }
 
 const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewItems, onPrint, onViewTransactions }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'invoice_number',
-                label: 'Invoice',
+                label: t('lbl_invoice'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex flex-col">
@@ -43,7 +45,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             },
             {
                 key: 'supplier',
-                label: 'Supplier',
+                label: t('lbl_supplier'),
                 render: (value) => (
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900">{value?.name || 'Walk-in Purchase'}</span>
@@ -53,12 +55,12 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             },
             {
                 key: 'store_name',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'items',
-                label: 'Items',
+                label: t('order_items'),
                 render: (value) => {
                     const itemCount = value?.length || 0;
                     const newItems = value?.filter((item: any) => item.is_new_product).length || 0;
@@ -74,13 +76,13 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             },
             {
                 key: 'grand_total',
-                label: 'Total Amount',
+                label: t('lbl_total'),
                 sortable: true,
                 render: (value) => <span className="font-semibold text-gray-900">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'amount_due',
-                label: 'Due Amount',
+                label: t('lbl_due'),
                 sortable: true,
                 render: (value) => {
                     const dueAmount = Number(value || 0);
@@ -92,15 +94,15 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             },
             {
                 key: 'payment_status',
-                label: 'Payment Status',
+                label: t('order_payment_status'),
                 sortable: true,
                 render: (value) => {
                     const status = value?.toLowerCase() || 'pending';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partial' },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Pending' },
-                        unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: 'Unpaid' },
+                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
+                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_partial') },
+                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
+                        unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_unpaid') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -108,16 +110,16 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             },
             {
                 key: 'status',
-                label: 'Order Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value) => {
                     const status = value?.toLowerCase() || 'ordered';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        ordered: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Ordered' },
-                        partially_received: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partially Received' },
-                        received: { bg: 'bg-green-100', text: 'text-green-800', label: 'Received' },
-                        cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' },
-                        draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Draft' },
+                        ordered: { bg: 'bg-blue-100', text: 'text-blue-800', label: t('status_ordered') },
+                        partially_received: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_partially_received') },
+                        received: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_received') },
+                        cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_cancelled') },
+                        draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('status_draft') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -125,42 +127,42 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             },
             {
                 key: 'created_at',
-                label: 'Created Date',
+                label: t('lbl_created'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
-                label: 'Updated Date',
+                label: t('lbl_updated'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Items',
+                label: t('purchase_action_view'),
                 onClick: onViewItems,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'View Transactions',
+                label: t('purchase_action_receive'),
                 onClick: onViewTransactions,
                 className: 'text-indigo-600',
                 icon: <Clock className="h-4 w-4" />,
             },
             {
-                label: 'Print',
+                label: t('btn_print'),
                 onClick: onPrint,
                 className: 'text-gray-600',
                 icon: <Printer className="h-4 w-4" />,
             },
         ],
-        [onViewItems, onViewTransactions, onPrint]
+        [t, onViewItems, onViewTransactions, onPrint]
     );
 
     return (
@@ -173,8 +175,8 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
             sorting={sorting}
             emptyState={{
                 icon: <Download className="mx-auto h-16 w-16" />,
-                title: 'No Purchase Orders Found',
-                description: 'No purchase orders match your current filters. Try adjusting your search criteria.',
+                title: t('purchase_no_data'),
+                description: t('order_no_data_desc'),
             }}
         />
     );

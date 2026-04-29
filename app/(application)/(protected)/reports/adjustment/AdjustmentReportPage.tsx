@@ -6,11 +6,13 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import AdjustmentReportFilter from '@/components/filters/reports/AdjustmentReportFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowDown, ArrowDownUp, ArrowUp, DollarSign, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const AdjustmentReportPage = () => {
+    const { t } = getTranslation();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -87,21 +89,21 @@ const AdjustmentReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'reference_no', label: 'Reference', width: 12 },
-            { key: 'product_name', label: 'Product', width: 18 },
-            { key: 'sku', label: 'SKU', width: 14 },
-            { key: 'store_name', label: 'Store', width: 12 },
-            { key: 'adjustment_quantity', label: 'Qty', width: 8, format: (v, r) => `${r.direction === 'increase' ? '+' : '-'}${v}` },
-            { key: 'previous_purchase_price', label: 'Prev. Purchase Price', width: 10, format: (v) => formatPrice(v) },
-            { key: 'adjusted_purchase_price', label: 'Adj. Purchase Price', width: 10, format: (v) => formatPrice(v) },
-            { key: 'previous_selling_price', label: 'Prev. Selling Price', width: 10, format: (v) => formatPrice(v) },
-            { key: 'adjusted_selling_price', label: 'Adj. Selling Price', width: 10, format: (v) => formatPrice(v) },
-            { key: 'reason', label: 'Reason', width: 14 },
-            { key: 'notes', label: 'Notes', width: 16, format: (v) => v || '' },
-            { key: 'adjusted_by_name', label: 'Adjusted By', width: 12 },
-            { key: 'adjusted_at', label: 'Date', width: 14, format: (v) => v || '' },
+            { key: 'reference_no', label: t('lbl_reference'), width: 12 },
+            { key: 'product_name', label: t('lbl_product'), width: 18 },
+            { key: 'sku', label: t('lbl_sku'), width: 14 },
+            { key: 'store_name', label: t('lbl_store'), width: 12 },
+            { key: 'adjustment_quantity', label: t('lbl_quantity'), width: 8, format: (v, r) => `${r.direction === 'increase' ? '+' : '-'}${v}` },
+            { key: 'previous_purchase_price', label: t('lbl_prev_purchase_price'), width: 10, format: (v) => formatPrice(v) },
+            { key: 'adjusted_purchase_price', label: t('lbl_adj_purchase_price'), width: 10, format: (v) => formatPrice(v) },
+            { key: 'previous_selling_price', label: t('lbl_prev_selling_price'), width: 10, format: (v) => formatPrice(v) },
+            { key: 'adjusted_selling_price', label: t('lbl_adj_selling_price'), width: 10, format: (v) => formatPrice(v) },
+            { key: 'reason', label: t('lbl_type'), width: 14 },
+            { key: 'notes', label: t('lbl_notes'), width: 16, format: (v) => v || '' },
+            { key: 'adjusted_by_name', label: t('lbl_adjusted_by'), width: 12 },
+            { key: 'adjusted_at', label: t('lbl_date'), width: 14, format: (v) => v || '' },
         ],
-        [formatPrice]
+        [t, formatPrice]
     );
 
     const filterSummary = useMemo(() => {
@@ -118,16 +120,16 @@ const AdjustmentReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Events', value: summary.total_adjustments || 0 },
-            { label: 'Net Change', value: `${summary.net_change >= 0 ? '+' : ''}${Number(summary.net_change || 0).toLocaleString()}` },
+            { label: t('report_adjustment_title'), value: summary.total_adjustments || 0 },
+            { label: t('lbl_net_change'), value: `${summary.net_change >= 0 ? '+' : ''}${Number(summary.net_change || 0).toLocaleString()}` },
         ],
-        [summary]
+        [t, summary]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Adjustment Events',
+                label: t('report_adjustment_title'),
                 value: summary.total_adjustments || 0,
                 icon: <ArrowDownUp className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -135,7 +137,7 @@ const AdjustmentReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Gross Increase',
+                label: t('lbl_gross_increase'),
                 value: `+${Number(summary.total_increase_quantity || 0).toLocaleString()}`,
                 icon: <ArrowUp className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -143,7 +145,7 @@ const AdjustmentReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Gross Decrease',
+                label: t('lbl_gross_decrease'),
                 value: `-${Number(summary.total_decrease_quantity || 0).toLocaleString()}`,
                 icon: <ArrowDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -151,7 +153,7 @@ const AdjustmentReportPage = () => {
                 textColor: 'text-red-600',
             },
             {
-                label: 'Summary',
+                label: t('lbl_summary'),
                 value: `${summary.net_change >= 0 ? '+' : ''}${Number(summary.net_change || 0).toLocaleString()}`,
                 icon: <TrendingUp className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -159,7 +161,7 @@ const AdjustmentReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary]
+        [t, summary]
     );
 
     const renderPriceChange = useCallback(
@@ -204,7 +206,7 @@ const AdjustmentReportPage = () => {
         () => [
             {
                 key: 'reference_no',
-                label: 'Ref ID',
+                label: t('lbl_reference'),
                 render: (v: any) => (
                     <div className="flex items-center gap-2">
                         <Hash className="h-3.5 w-3.5 text-gray-400" />
@@ -214,7 +216,7 @@ const AdjustmentReportPage = () => {
             },
             {
                 key: 'product_name',
-                label: 'Product',
+                label: t('lbl_product'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -233,7 +235,7 @@ const AdjustmentReportPage = () => {
             },
             {
                 key: 'adjustment_quantity',
-                label: 'Stock Change',
+                label: t('lbl_adjustment'),
                 sortable: true,
                 render: (v: any, r: any) => {
                     const i = r.direction?.toLowerCase() === 'increase';
@@ -252,17 +254,17 @@ const AdjustmentReportPage = () => {
             },
             {
                 key: 'previous_purchase_price',
-                label: 'Purchase Price',
+                label: t('lbl_purchase_price'),
                 render: (_v: any, r: any) => renderPriceChange(r.previous_purchase_price, r.adjusted_purchase_price, 'Purchase'),
             },
             {
                 key: 'previous_selling_price',
-                label: 'Selling Price',
+                label: t('lbl_selling_price'),
                 render: (_v: any, r: any) => renderPriceChange(r.previous_selling_price, r.adjusted_selling_price, 'Selling'),
             },
             {
                 key: 'reason',
-                label: 'Reason',
+                label: t('lbl_type'),
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 text-sm font-medium capitalize text-gray-700">
@@ -275,7 +277,7 @@ const AdjustmentReportPage = () => {
             },
             {
                 key: 'adjusted_by_name',
-                label: 'Adjusted By',
+                label: t('lbl_employee'),
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
                         <User className="h-3.5 w-3.5 text-gray-400" />
@@ -285,20 +287,20 @@ const AdjustmentReportPage = () => {
             },
             {
                 key: 'adjusted_at',
-                label: 'Date & Time',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (v) => <DateColumn date={v} />,
             },
         ],
-        [renderPriceChange]
+        [t, renderPriceChange]
     );
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Stock Adjustment Report"
-                    reportDescription="Log of manual stock changes and corrections"
+                    reportTitle={t('report_adjustment_title')}
+                    reportDescription={t('report_adjustment_title')}
                     reportIcon={<ArrowDownUp className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-slate-600 to-zinc-700"
                     data={adjustments}
@@ -327,8 +329,8 @@ const AdjustmentReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Adjustments Recorded',
-                        description: 'No stock correction logs found in the selected audit period.',
+                        title: t('msg_no_data'),
+                        description: t('msg_no_data'),
                     }}
                 />
             </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSummaryQuery } from '@/store/features/dashboard/dashboad';
 import {
@@ -34,13 +35,7 @@ interface PeriodOption {
 
 // ─── Period Options ──────────────────────────────────────────────────────────
 
-const periodOptions: PeriodOption[] = [
-    { value: 'today', label: 'Today' },
-    { value: 'weekly', label: 'This Week' },
-    { value: 'monthly', label: 'This Month' },
-    { value: 'yearly', label: 'This Year' },
-    { value: 'custom', label: 'Custom Range' },
-];
+const PERIOD_VALUES: PeriodType[] = ['today', 'weekly', 'monthly', 'yearly', 'custom'];
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
@@ -154,6 +149,14 @@ interface FilterDropdownProps {
 }
 
 const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, customEndDate, onStartDateChange, onEndDateChange, onApplyCustom, periodLabel }: FilterDropdownProps) => {
+    const { t } = getTranslation();
+    const periodOptions: PeriodOption[] = [
+        { value: 'today', label: t('lbl_today') },
+        { value: 'weekly', label: t('lbl_this_week') },
+        { value: 'monthly', label: t('lbl_this_month') },
+        { value: 'yearly', label: t('lbl_this_year') },
+        { value: 'custom', label: t('lbl_custom_range') },
+    ];
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -243,7 +246,15 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
 // ─── Main Summary Component ──────────────────────────────────────────────────
 
 export default function Summary() {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
+    const periodOptions: PeriodOption[] = [
+        { value: 'today', label: t('lbl_today') },
+        { value: 'weekly', label: t('lbl_this_week') },
+        { value: 'monthly', label: t('lbl_this_month') },
+        { value: 'yearly', label: t('lbl_this_year') },
+        { value: 'custom', label: t('lbl_custom_range') },
+    ];
     const [period, setPeriod] = useState<PeriodType>('monthly');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
@@ -98,7 +99,8 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
     // Build dynamic title with filter info
     const displayTitle = useMemo(() => {
-        const filterParts: string[] = [];
+        const { t } = getTranslation();
+    const filterParts: string[] = [];
 
         // Add date range if not "All Time"
         if (dateDisplayText && dateDisplayText !== 'All Time') {
@@ -446,7 +448,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                             className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 hover:shadow-sm disabled:opacity-50"
                         >
                             {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
-                            <span>Print</span>
+                            <span>{t('btn_print')}</span>
                         </button>
 
                         <button

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Gift, Star } from 'lucide-react';
 import React from 'react';
 
@@ -13,6 +14,7 @@ interface LoyaltyProgramTabProps {
 }
 
 const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleInputChange }) => {
+    const { t } = getTranslation();
     const { symbol } = useCurrency();
     return (
         <div className="space-y-6">

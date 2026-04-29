@@ -3,6 +3,7 @@
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateOrderMutation, useCreateOrderReturnMutation } from '@/store/features/Order/Order';
@@ -46,6 +47,7 @@ export interface PosRightSideProps {
 
 const EMPTY_ARRAY: any[] = [];
 const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 'pos', orderId, originalOrder }) => {
+    const { t } = getTranslation();
     const dispatch = useDispatch();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -504,23 +506,23 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 // If already fully marked for return, offer to undo
                 if (currentReturnQty >= originalQty) {
                     const result = await Swal.fire({
-                        title: '<h3 class="text-xl font-bold">Item Already Marked for Return</h3>',
+                        title: `<h3 class="text-xl font-bold">${t('pos_item_already_returned')}</h3>`,
                         html: `
                             <div class="text-left mt-2">
                                 <div class="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
-                                    <p class="text-sm text-gray-500 mb-1">Item</p>
+                                    <p class="text-sm text-gray-500 mb-1">${t('lbl_item')}</p>
                                     <p class="font-bold text-gray-800 text-lg">${item.title}</p>
-                                    <p class="text-sm text-amber-600 font-medium mt-1">All ${originalQty} unit(s) are marked for return</p>
+                                    <p class="text-sm text-amber-600 font-medium mt-1">${t('pos_all_units_returned', { qty: originalQty })}</p>
                                 </div>
-                                <p class="text-sm text-gray-600">Would you like to undo the return and keep this item?</p>
+                                <p class="text-sm text-gray-600">${t('pos_undo_return_question')}</p>
                             </div>
                         `,
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'Undo Return (Keep Item)',
+                        confirmButtonText: t('pos_undo_return'),
                         confirmButtonColor: '#10b981',
                         cancelButtonColor: '#e5e7eb',
-                        cancelButtonText: '<span class="text-gray-700">Keep as Return</span>',
+                        cancelButtonText: `<span class="text-gray-700">${t('pos_keep_as_return')}</span>`,
                         customClass: {
                             popup: 'rounded-xl',
                             confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
@@ -539,15 +541,15 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 if (!(await checkReturnReasons())) return;
 
                 const result = await Swal.fire({
-                    title: '<h3 class="text-xl font-bold">Confirm Full Return</h3>',
+                    title: `<h3 class="text-xl font-bold">${t('pos_confirm_full_return')}</h3>`,
                     html: `
                         <div class="text-left mt-2">
                             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-                                <p class="text-sm text-gray-500 mb-1">Item to Return</p>
+                                <p class="text-sm text-gray-500 mb-1">${t('pos_item_to_return')}</p>
                                 <p class="font-bold text-gray-800 text-lg">${item.title}</p>
-                                <p class="text-sm text-amber-600 font-medium mt-1">Full Return: ${originalQty} Unit(s)</p>
+                                <p class="text-sm text-amber-600 font-medium mt-1">${t('pos_full_return')}: ${originalQty} ${t('lbl_units')}</p>
                             </div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Select Reason:</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">${t('lbl_reason')}:</label>
                         </div>
                     `,
                     input: 'select',
@@ -555,12 +557,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         acc[reason.id] = reason.name;
                         return acc;
                     }, {}),
-                    inputPlaceholder: 'Select a reason...',
+                    inputPlaceholder: t('placeholder_select_reason'),
                     showCancelButton: true,
-                    confirmButtonText: 'Confirm Return',
+                    confirmButtonText: t('pos_confirm_return_btn'),
                     confirmButtonColor: '#f59e0b',
                     cancelButtonColor: '#e5e7eb',
-                    cancelButtonText: '<span class="text-gray-700">Cancel</span>',
+                    cancelButtonText: `<span class="text-gray-700">${t('btn_cancel')}</span>`,
                     customClass: {
                         popup: 'rounded-xl',
                         confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
@@ -568,7 +570,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         input: 'border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500',
                     },
                     inputValidator: (value) => {
-                        if (!value) return 'Please select a return reason';
+                        if (!value) return t('msg_select_reason');
                         return null;
                     },
                 });
@@ -659,7 +661,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (Number.isNaN(newQuantity) || newQuantity < 0) return;
 
         if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
+            showMessage(`${t('msg_max_qty')} ${item.PlaceholderQuantity}`, 'error');
             return;
         }
 
@@ -678,24 +680,24 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
                     const returnQty = originalQty - newQuantity;
                     const result = await Swal.fire({
-                        title: '<h3 class="text-xl font-bold">Confirm Partial Return</h3>',
+                        title: `<h3 class="text-xl font-bold">${t('pos_confirm_partial_return')}</h3>`,
                         html: `
                             <div class="text-left mt-2">
                                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-                                    <p class="text-sm text-gray-500 mb-1">Item to Return</p>
+                                    <p class="text-sm text-gray-500 mb-1">${t('pos_item_to_return')}</p>
                                     <p class="font-bold text-gray-800 text-lg">${item.title}</p>
                                     <div class="flex gap-4 mt-2 text-sm">
                                         <div class="bg-white px-3 py-1 rounded border border-gray-200">
-                                            <span class="text-gray-500">Keeping:</span> 
+                                            <span class="text-gray-500">${t('pos_keeping')}:</span> 
                                             <span class="font-bold text-gray-900">${newQuantity}</span>
                                         </div>
                                         <div class="bg-amber-50 px-3 py-1 rounded border border-amber-200">
-                                            <span class="text-amber-700">Returning:</span> 
+                                            <span class="text-amber-700">${t('pos_returning')}:</span> 
                                             <span class="font-bold text-amber-700">${returnQty}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Reason:</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">${t('lbl_reason')}:</label>
                             </div>
                         `,
                         input: 'select',
@@ -703,12 +705,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             acc[reason.id] = reason.name;
                             return acc;
                         }, {}),
-                        inputPlaceholder: 'Select a reason...',
+                        inputPlaceholder: t('placeholder_select_reason'),
                         showCancelButton: true,
-                        confirmButtonText: 'Confirm Return',
+                        confirmButtonText: t('pos_confirm_return_btn'),
                         confirmButtonColor: '#f59e0b',
                         cancelButtonColor: '#e5e7eb',
-                        cancelButtonText: '<span class="text-gray-700">Cancel</span>',
+                        cancelButtonText: `<span class="text-gray-700">${t('btn_cancel')}</span>`,
                         customClass: {
                             popup: 'rounded-xl',
                             confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
@@ -716,7 +718,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             input: 'border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500',
                         },
                         inputValidator: (value) => {
-                            if (!value) return 'Please select a return reason';
+                            if (!value) return t('msg_select_reason');
                             return null;
                         },
                     });

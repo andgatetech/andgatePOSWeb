@@ -2,6 +2,7 @@
 
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { getTranslation } from '@/i18n';
 import Dropdown from './Dropdown';
 
 interface Unit {
@@ -24,6 +25,7 @@ interface UnitsTabProps {
 }
 
 const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, unitName, setUnitName, handleCreateUnit, handleUpdateUnit, handleDeleteUnit, handleToggleUnitActive, setMessage }) => {
+    const { t } = getTranslation();
     const [editingUnitId, setEditingUnitId] = useState<number | null>(null);
     const [editingUnitName, setEditingUnitName] = useState('');
 

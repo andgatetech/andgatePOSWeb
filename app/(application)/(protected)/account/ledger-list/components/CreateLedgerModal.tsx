@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import { useCreateLedgerMutation } from '@/store/features/ledger/ledger';
 import { X } from 'lucide-react';
@@ -12,14 +13,16 @@ interface CreateLedgerModalProps {
     onSuccess: () => void;
 }
 
-const LEDGER_TYPES = [
-    { id: 'assets', label: 'Assets' },
-    { id: 'expenses', label: 'Expenses' },
-    { id: 'income', label: 'Income' },
-    { id: 'liabilities', label: 'Liabilities' },
-];
 
 const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({ isOpen, onClose, onSuccess }) => {
+    
+    const { t } = getTranslation();
+    const LEDGER_TYPES = [
+        { id: 'assets', label: t('account_assets') },
+        { id: 'expenses', label: t('expense_title') },
+        { id: 'income', label: t('account_income') },
+        { id: 'liabilities', label: t('account_liabilities') },
+    ];
     const { currentStore, currentStoreId } = useCurrentStore();
     const [createLedger, { isLoading }] = useCreateLedgerMutation();
 
@@ -31,7 +34,8 @@ const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({ isOpen, onClose, 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validateForm = () => {
-        const newErrors: Record<string, string> = {};
+        const { t } = getTranslation();
+    const newErrors: Record<string, string> = {};
 
         if (!formData.title.trim()) {
             newErrors.title = 'Ledger title is required';
@@ -47,7 +51,7 @@ const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({ isOpen, onClose, 
         if (!validateForm()) return;
 
         if (!currentStoreId) {
-            showErrorDialog('Error!', 'Please select a store first.');
+            showErrorDialog(t('msg_error'), 'Please select a store first.');
             return;
         }
 
@@ -65,7 +69,7 @@ const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({ isOpen, onClose, 
             onClose();
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to create ledger. Please try again.';
-            showErrorDialog('Error!', errorMessage);
+            showErrorDialog(t('msg_error'), errorMessage);
         }
     };
 
@@ -104,7 +108,7 @@ const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({ isOpen, onClose, 
                             type="text"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="Ledger title"
+                            placeholder={t('placeholder_ledger_title')}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                             required
                         />

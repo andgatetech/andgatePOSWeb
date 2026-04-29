@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreLogoQuery, useGetStoreQuery } from '@/store/features/store/storeApi';
 import Image from 'next/image';
@@ -152,7 +153,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
     // Load pdfMake dynamically
     useEffect(() => {
-        const loadPdfMake = async () => {
+        const { t } = getTranslation();
+    const loadPdfMake = async () => {
             try {
                 // Dynamic import for client-side only
                 const pdfMakeModule: any = await import('pdfmake/build/pdfmake');

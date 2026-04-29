@@ -5,6 +5,7 @@ import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import {
@@ -30,6 +31,7 @@ import PurchaseProgressTable from './components/PurchaseProgressTable';
 type TabType = 'drafts' | 'new' | 'progress' | 'completed';
 
 const PurchaseOrderListPage = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
@@ -478,7 +480,7 @@ const PurchaseOrderListPage = () => {
         } catch (error: any) {
             console.error('Error converting draft:', error);
             const errorMsg = error?.data?.error || error?.data?.message || error?.message || 'Failed to convert draft';
-            showErrorDialog('Backend Error', errorMsg);
+            showErrorDialog(t('msg_error'), errorMsg);
         }
     };
 
@@ -489,9 +491,9 @@ const PurchaseOrderListPage = () => {
 
         try {
             await deleteDraft(draft.id).unwrap();
-            showSuccessDialog('Deleted!', 'Draft has been deleted');
+            showSuccessDialog(t('msg_success'), t('purchase_deleted'));
         } catch (error: any) {
-            showErrorDialog('Error', error?.data?.message || 'Failed to delete draft');
+            showErrorDialog(t('msg_error'), error?.data?.message || t('purchase_deleted'));
         }
     };
 
@@ -724,22 +726,22 @@ const PurchaseOrderListPage = () => {
     const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
         {
             key: 'drafts',
-            label: 'Drafts',
+            label: t('purchase_drafts'),
             icon: <FileText className="mr-2 inline h-5 w-5" />,
         },
         {
             key: 'new',
-            label: 'Purchase New',
+            label: t('purchase_new'),
             icon: <ShoppingCart className="mr-2 inline h-5 w-5" />,
         },
         {
             key: 'progress',
-            label: 'Purchase Progress',
+            label: t('purchase_progress'),
             icon: <Loader className="mr-2 inline h-5 w-5" />,
         },
         {
             key: 'completed',
-            label: 'Completed',
+            label: t('status_completed'),
             icon: <CheckCircle className="mr-2 inline h-5 w-5" />,
         },
     ];
@@ -755,8 +757,8 @@ const PurchaseOrderListPage = () => {
                                 <Package className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Purchase Orders</h1>
-                                <p className="text-xs text-gray-500 sm:text-sm">Manage your purchase orders and drafts efficiently</p>
+                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('purchase_page_title')}</h1>
+                                <p className="text-xs text-gray-500 sm:text-sm">{t('purchase_page_desc')}</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-start sm:flex-shrink-0 sm:justify-end">
@@ -1035,7 +1037,7 @@ const PurchaseOrderListPage = () => {
                                             value={paymentAmount}
                                             onChange={(e) => setPaymentAmount(e.target.value)}
                                             className="form-input w-full"
-                                            placeholder="Enter payment amount"
+                                            placeholder={t('placeholder_payment_amount')}
                                             required
                                         />
                                         <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(selectedDue.amount_due)}</p>
@@ -1053,14 +1055,14 @@ const PurchaseOrderListPage = () => {
                                                     </option>
                                                 ))
                                             ) : (
-                                                <option value="cash">Cash</option>
+                                                <option value="cash">{t('lbl_cash')}</option>
                                             )}
                                         </select>
                                     </div>
 
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                                        <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder="Add payment notes" />
+                                        <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder={t('placeholder_payment_notes')} />
                                     </div>
 
                                     <div className="flex gap-3 pt-4">
@@ -1117,14 +1119,14 @@ const PurchaseOrderListPage = () => {
                                                     </option>
                                                 ))
                                             ) : (
-                                                <option value="cash">Cash</option>
+                                                <option value="cash">{t('lbl_cash')}</option>
                                             )}
                                         </select>
                                     </div>
 
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                                        <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder="Add payment notes" />
+                                        <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder={t('placeholder_payment_notes')} />
                                     </div>
 
                                     <div className="flex gap-3 pt-4">

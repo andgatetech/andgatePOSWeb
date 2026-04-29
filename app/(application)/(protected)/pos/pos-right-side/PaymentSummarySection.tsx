@@ -1,4 +1,5 @@
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import type { Customer, PosFormData } from './types';
 
 interface PaymentSummarySectionProps {
@@ -42,6 +43,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     newItemsTotal = 0,
     returnNetAmount = 0,
 }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const canUsePoints = selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
@@ -69,7 +71,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
         if (isWalkInCustomer) {
             // Walk-in customers can only pay fully
             const paidStatus = mappedStatuses.find((s: any) => s.value === 'paid');
-            return paidStatus ? [paidStatus] : [{ value: 'paid', label: 'Paid', color: '#22c55e' }];
+            return paidStatus ? [paidStatus] : [{ value: 'paid', label: t('status_paid'), color: '#22c55e' }];
         }
 
         // For both existing customers and new manual entry customers - allow paid, partial, or due payments
@@ -149,37 +151,37 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             )}
 
             <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
-                <span>Subtotal (without tax)</span>
+                <span>{t('lbl_subtotal_no_tax')}</span>
                 <span>{formatCurrency(subtotalWithoutTax)}</span>
             </div>
             <div className="flex justify-between text-sm sm:text-base">
-                <span>Tax (from items)</span>
+                <span>{t('lbl_tax')}</span>
                 <span>{formatCurrency(taxAmount)}</span>
             </div>
             <div className="flex justify-between text-sm sm:text-base">
-                <span>Discount</span>
+                <span>{t('lbl_discount')}</span>
                 <span>-{formatCurrency(discountAmount)}</span>
             </div>
             {selectedCustomer && formData.membershipDiscount > 0 && (
                 <div className="flex justify-between text-sm text-green-600 sm:text-base">
-                    <span>Membership Discount</span>
+                    <span>{t('pos_membership_discount')}</span>
                     <span>-{formatCurrency(membershipDiscountAmount)}</span>
                 </div>
             )}
             {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
                 <div className="flex justify-between text-sm text-orange-600 sm:text-base">
-                    <span>Points Payment ({formData.pointsToUse} pts)</span>
+                    <span>{t('pos_points_payment', { pts: formData.pointsToUse })}</span>
                     <span>-{formatCurrency(pointsDiscount)}</span>
                 </div>
             )}
             {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
                 <div className="flex justify-between text-sm text-teal-600 sm:text-base">
-                    <span>Balance Payment</span>
+                    <span>{t('pos_balance_payment')}</span>
                     <span>-{formatCurrency(balanceDiscount)}</span>
                 </div>
             )}
             <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
-                <span>Grand Total</span>
+                <span>{t('lbl_grand_total')}</span>
                 <span>{formatCurrency(totalPayable)}</span>
             </div>
 
@@ -189,7 +191,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     Payment Method <span className="text-red-500">*</span>
                 </label>
                 <select name="paymentMethod" className="form-select w-full sm:w-40" value={formData.paymentMethod} onChange={onInputChange} required>
-                    <option value="">Select</option>
+                    <option value="">{t('btn_select_all')}</option>
                     {paymentMethodOptions.map((method) => (
                         <option key={method.id} value={method.payment_method_name || ''}>
                             {method.payment_method_name || 'Unnamed Method'}
@@ -217,7 +219,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             borderWidth: formData.paymentStatus ? '2px' : undefined,
                         }}
                     >
-                        <option value="">Select Status</option>
+                        <option value="">{t('lbl_all_statuses')}</option>
                         {availablePaymentStatuses.map((status: any) => (
                             <option key={status.value} value={status.value}>
                                 {status.label}

@@ -1,6 +1,7 @@
 'use client';
 
 import CameraScanner from '@/app/(application)/(protected)/pos/pos-left-side/CameraScanner';
+import { getTranslation } from '@/i18n';
 import { Barcode, Camera } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -38,6 +39,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
     productStocks = [],
     setProductStocks,
 }) => {
+    const { t } = getTranslation();
     const [showScanner, setShowScanner] = useState(false);
     const [activeScanIndex, setActiveScanIndex] = useState<number | null>(null); // Which variant we're scanning for
 
@@ -110,7 +112,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <Barcode className="h-6 w-6 text-indigo-600" />
-                <h3 className="text-lg font-semibold text-gray-900">SKU Management</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('lbl_sku')}</h3>
             </div>
 
             {isVariantProduct ? (
@@ -133,7 +135,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                     type="text"
                                     value={(stock as any).sku || ''}
                                     onChange={(e) => handleVariantSkuChange(index, e.target.value)}
-                                    placeholder="Enter SKU or leave empty for auto-generate"
+                                    placeholder={t('placeholder_sku')}
                                     className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500"
                                     maxLength={100}
                                 />
@@ -203,7 +205,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                     {/* SKU Input with Scan Button */}
                     <div>
                         <label htmlFor="sku" className="mb-2 block text-sm font-medium text-gray-700">
-                            SKU Code {formData.skuOption === 'manual' && <span className="text-red-500">*</span>}
+                            {t('lbl_sku')} {formData.skuOption === 'manual' && <span className="text-red-500">*</span>}
                         </label>
                         <div className="flex gap-2">
                             <input
@@ -297,7 +299,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
 
                 <button
@@ -316,14 +318,14 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
+                            <span>{isEditMode ? t('btn_updating') : t('btn_creating')}</span>
                         </>
                     ) : (
                         <>
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
+                            <span>{isEditMode ? t('product_edit_title') : t('product_create_title')}</span>
                         </>
                     )}
                 </button>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useCreateFeedbackMutation } from '@/store/features/feedback/feedbackApi';
 import { TextInput } from '@mantine/core';
 import { AlertCircle, ArrowLeft, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Store, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
@@ -10,6 +11,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 const FeedbackPage = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
     const [createFeedback, { isLoading, isSuccess, error }] = useCreateFeedbackMutation();
@@ -31,7 +33,7 @@ const FeedbackPage = () => {
     const feedbackCategories = [
         {
             id: 'suggestion',
-            label: 'Suggestion',
+            label: t('feedback_suggestion'),
             icon: <Lightbulb className="h-4 w-4" />,
             color: 'bg-amber-500',
             light: 'bg-amber-50 border-amber-300 text-amber-700',
@@ -40,7 +42,7 @@ const FeedbackPage = () => {
         },
         {
             id: 'bug',
-            label: 'Bug Report',
+            label: t('feedback_bug'),
             icon: <Bug className="h-4 w-4" />,
             color: 'bg-rose-500',
             light: 'bg-rose-50 border-rose-300 text-rose-700',
@@ -49,7 +51,7 @@ const FeedbackPage = () => {
         },
         {
             id: 'compliment',
-            label: 'Compliment',
+            label: t('feedback_compliment'),
             icon: <ThumbsUp className="h-4 w-4" />,
             color: 'bg-emerald-500',
             light: 'bg-emerald-50 border-emerald-300 text-emerald-700',
@@ -58,7 +60,7 @@ const FeedbackPage = () => {
         },
         {
             id: 'general',
-            label: 'General',
+            label: t('feedback_general'),
             icon: <MessageSquare className="h-4 w-4" />,
             color: 'bg-violet-500',
             light: 'bg-violet-50 border-violet-300 text-violet-700',
@@ -337,7 +339,7 @@ const FeedbackPage = () => {
                                         value={formData.title}
                                         onChange={handleInputChange}
                                         className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-4 pr-10 text-sm text-gray-800 placeholder-gray-400 transition focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
-                                        placeholder="Brief summary of your feedback"
+                                        placeholder={t('placeholder_feedback_title')}
                                         required
                                     />
                                     <Target className="absolute right-3 top-3 h-4 w-4 text-gray-300" />
@@ -388,7 +390,7 @@ const FeedbackPage = () => {
                                     onChange={handleInputChange}
                                     rows={5}
                                     className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 transition focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
-                                    placeholder="Share your thoughts, suggestions, or concerns in detail. The more specific you are, the better we can help..."
+                                    placeholder={t('placeholder_feedback_desc')}
                                     required
                                 />
                                 <div className="mt-1.5 flex items-center justify-between text-xs text-gray-400">

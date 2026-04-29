@@ -1,3 +1,4 @@
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { Eye, Package } from 'lucide-react';
 import Image from 'next/image';
@@ -14,6 +15,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMobileView = false, onAddToCart, onImageShow, mode = 'pos' }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     // Calculate total quantity from stocks
     const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
@@ -36,7 +38,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
         return (
             <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
                 <Package className="mb-1 h-8 w-8 sm:mb-2 sm:h-10 sm:w-10 md:h-12 md:w-12" />
-                <span className="text-xs font-medium sm:text-sm">No Image</span>
+                <span className="text-xs font-medium sm:text-sm">{t('lbl_image')}</span>
             </div>
         );
     };
@@ -88,14 +90,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
                 <h3 className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm">{product.product_name}</h3>
 
                 {/* SKU - Now from first stock */}
-                {product.stocks && product.stocks.length > 0 && product.stocks[0].sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">SKU: {product.stocks[0].sku}</div>}
+                {product.stocks && product.stocks.length > 0 && product.stocks[0].sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">{t('lbl_sku')}: {product.stocks[0].sku}</div>}
 
                 {/* Unit */}
-                <div className="mb-1 text-[10px] font-medium text-blue-600 sm:text-xs">Unit: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}</div>
+                <div className="mb-1 text-[10px] font-medium text-blue-600 sm:text-xs">{t('lbl_unit')}: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : t('lbl_na'))}</div>
 
                 <div className="mt-1.5 flex items-center justify-between sm:mt-2">
                     {renderPrice()}
-                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">Stock: {totalQuantity}</span>
+                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">{t('lbl_stock')}: {totalQuantity}</span>
                 </div>
             </div>
         </div>

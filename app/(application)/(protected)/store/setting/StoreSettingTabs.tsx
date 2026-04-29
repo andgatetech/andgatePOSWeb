@@ -2,6 +2,7 @@
 
 import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings as SettingsIcon, Shield, Store, Tag } from 'lucide-react';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 interface Tab {
     id: string;
@@ -10,28 +11,28 @@ interface Tab {
     description: string;
 }
 
-const tabs: Tab[] = [
-    { id: 'basic', label: 'Basic Info', icon: Store, description: 'Store details' },
-    { id: 'hours', label: 'Operating Hours', icon: Clock, description: 'Store timings' },
-    { id: 'units', label: 'Units', icon: Package, description: 'Product units' },
-    { id: 'attributes', label: 'Attributes', icon: Tag, description: 'Product attributes' },
-    { id: 'payment', label: 'Payment Methods', icon: CreditCard, description: 'Tender options' },
-    { id: 'currency', label: 'Currency', icon: Coins, description: 'Currency settings' },
-    { id: 'paymentstatus', label: 'Payment Status', icon: Flag, description: 'Status options' },
-    { id: 'warranty', label: 'Warranty Types', icon: Shield, description: 'Warranty options' },
-    { id: 'adjustment', label: 'Adjustment Reasons', icon: ListChecks, description: 'Stock adjustments' },
-    { id: 'returnreasons', label: 'Return Reasons', icon: RotateCcw, description: 'Order returns' },
-    { id: 'loyalty', label: 'Loyalty Program', icon: Gift, description: 'Rewards settings' },
-    { id: 'branding', label: 'Branding', icon: Camera, description: 'Logo & visuals' },
-    { id: 'status', label: 'Store Status', icon: SettingsIcon, description: 'Active/Inactive' },
-];
-
 interface StoreSettingTabsProps {
     activeTab: string;
     onTabChange: (tabId: string) => void;
 }
 
 const StoreSettingTabs: React.FC<StoreSettingTabsProps> = ({ activeTab, onTabChange }) => {
+    const { t } = getTranslation();
+    const tabs: Tab[] = [
+        { id: 'basic', label: t('lbl_basic_info'), icon: Store, description: 'Store details' },
+        { id: 'hours', label: t('store_operating_hours'), icon: Clock, description: 'Store timings' },
+        { id: 'units', label: t('lbl_units'), icon: Package, description: 'Product units' },
+        { id: 'attributes', label: t('store_attributes_title'), icon: Tag, description: 'Product attributes' },
+        { id: 'payment', label: t('store_payment_methods'), icon: CreditCard, description: 'Tender options' },
+        { id: 'currency', label: t('store_currency_title'), icon: Coins, description: 'Currency settings' },
+        { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag, description: 'Status options' },
+        { id: 'warranty', label: t('lbl_warranty_types'), icon: Shield, description: 'Warranty options' },
+        { id: 'adjustment', label: t('lbl_adjustment_reasons'), icon: ListChecks, description: 'Stock adjustments' },
+        { id: 'returnreasons', label: t('lbl_return_reason'), icon: RotateCcw, description: 'Order returns' },
+        { id: 'loyalty', label: t('store_loyalty_title'), icon: Gift, description: 'Rewards settings' },
+        { id: 'branding', label: t('store_branding'), icon: Camera, description: 'Logo & visuals' },
+        { id: 'status', label: t('lbl_status'), icon: SettingsIcon, description: 'Active/Inactive' },
+    ];
     return (
         <>
             {/* Desktop & Tablet Tabs */}

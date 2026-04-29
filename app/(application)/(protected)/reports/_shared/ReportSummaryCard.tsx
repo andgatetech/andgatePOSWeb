@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface SummaryItem {
     label: string;
@@ -16,6 +17,7 @@ interface ReportSummaryCardProps {
 }
 
 const ReportSummaryCard: React.FC<ReportSummaryCardProps> = ({ items }) => {
+    const { t } = getTranslation();
     return (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {items.map((stat, index) => (

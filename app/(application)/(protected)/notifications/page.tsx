@@ -3,10 +3,12 @@
 import NotificationList from '@/app/(application)/(protected)/notifications/components/NotificationList';
 import { RootState } from '@/store';
 import { Plus } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 
 const NotificationsPage = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const user = useSelector((state: RootState) => state.auth.user);
 

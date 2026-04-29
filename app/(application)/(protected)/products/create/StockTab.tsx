@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface StockTabProps {
@@ -19,15 +20,16 @@ interface StockTabProps {
 }
 
 const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+    const { t } = getTranslation();
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Stock Management</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('lbl_stock')}</h3>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Unit */}
                 <div>
                     <label htmlFor="units" className="mb-2 block text-sm font-medium text-gray-700">
-                        Unit <span className="text-red-500">*</span>
+                        {t('lbl_unit')} <span className="text-red-500">*</span>
                     </label>
                     <select
                         id="units"
@@ -36,7 +38,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         onChange={handleChange}
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     >
-                        <option value="">Select Unit</option>
+                        <option value="">{t('lbl_unit')}</option>
                         <option value="Piece">Piece (Default)</option>
                         {units.map((unit: any) => (
                             <option key={unit.id} value={unit.name}>
@@ -58,7 +60,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                 {/* Quantity */}
                 <div>
                     <label htmlFor="quantity" className="mb-2 block text-sm font-medium text-gray-700">
-                        Quantity <span className="text-red-500">*</span>
+                        {t('lbl_quantity')} <span className="text-red-500">*</span>
                     </label>
                     <input
                         id="quantity"
@@ -75,7 +77,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                 {/* Low Stock Quantity */}
                 <div>
                     <label htmlFor="low_stock_quantity" className="mb-2 block text-sm font-medium text-gray-700">
-                        Low Stock Alert
+                        {t('lbl_minimum_stock')}
                     </label>
                     <input
                         id="low_stock_quantity"
@@ -93,7 +95,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                 {/* Available Status */}
                 <div>
                     <label htmlFor="available" className="mb-2 block text-sm font-medium text-gray-700">
-                        Availability
+                        {t('product_availability')}
                     </label>
                     <select
                         id="available"
@@ -102,8 +104,8 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         onChange={handleChange}
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     >
-                        <option value="yes">Available</option>
-                        <option value="no">Out of Stock</option>
+                        <option value="yes">{t('product_available')}</option>
+                        <option value="no">{t('status_out_of_stock')}</option>
                     </select>
                 </div>
             </div>
@@ -120,15 +122,15 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                     <div className="flex items-center justify-between">
                         <div>
                             <p className={`text-sm font-medium ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-900' : 'text-gray-700'}`}>
-                                Stock Status
+                                {t('lbl_stock')}
                             </p>
                             <p className={`text-2xl font-bold ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-600' : 'text-gray-600'}`}>
-                                {parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'Low Stock' : 'In Stock'}
+                                {parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? t('status_low_stock') : t('status_in_stock')}
                             </p>
                         </div>
                         <div className="text-right">
                             <p className={`text-sm font-medium ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-900' : 'text-gray-700'}`}>
-                                Available Quantity
+                                {t('lbl_quantity')}
                             </p>
                             <p className={`text-2xl font-bold ${parseFloat(formData.quantity) <= parseFloat(formData.low_stock_quantity || '0') ? 'text-orange-600' : 'text-gray-600'}`}>
                                 {formData.quantity} {formData.units}
@@ -148,14 +150,14 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
                 <button
                     type="button"
                     onClick={onNext}
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 sm:px-6 sm:py-3"
                 >
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -176,14 +178,14 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
+                            <span>{isEditMode ? t('btn_updating') : t('btn_creating')}</span>
                         </>
                     ) : (
                         <>
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
+                            <span>{isEditMode ? t('product_edit_title') : t('product_create_title')}</span>
                         </>
                     )}
                 </button>

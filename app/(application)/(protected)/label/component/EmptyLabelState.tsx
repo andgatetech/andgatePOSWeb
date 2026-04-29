@@ -1,8 +1,10 @@
 'use client';
 
 import { Barcode, PackageSearch, QrCode } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 
 const EmptyLabelState = () => {
+    const { t } = getTranslation();
     return (
         <div className="flex h-full items-center justify-center bg-gray-50 p-6">
             <div className="w-full max-w-md text-center">

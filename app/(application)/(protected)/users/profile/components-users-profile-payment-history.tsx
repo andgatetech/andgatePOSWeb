@@ -5,8 +5,10 @@ import IconHorizontalDots from '@/components/icon/icon-horizontal-dots';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 const ComponentsUsersProfilePaymentHistory = () => {
+    const { t } = getTranslation();
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
     const user = useSelector((state: RootState) => state.auth.user);
 

@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface ViewLedgerModalProps {
     ledger: any;
@@ -13,7 +14,8 @@ interface ViewLedgerModalProps {
 
 const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClose, onEdit }) => {
     useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
+        const { t } = getTranslation();
+    const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
 

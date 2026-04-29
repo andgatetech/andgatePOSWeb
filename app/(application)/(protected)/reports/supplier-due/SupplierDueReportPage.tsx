@@ -6,12 +6,14 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSupplierDueReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, Banknote, FileText, Receipt, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SupplierDueReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -84,15 +86,15 @@ const SupplierDueReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'reference', label: 'Reference', width: 15 },
-            { key: 'supplier', label: 'Supplier', width: 20 },
-            { key: 'total_amount', label: 'Total', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'paid', label: 'Paid', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'due', label: 'Due', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'status', label: 'Status', width: 10 },
-            { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
+            { key: 'reference', label: t('lbl_reference'), width: 15 },
+            { key: 'supplier', label: t('lbl_supplier'), width: 20 },
+            { key: 'total_amount', label: t('lbl_total'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'paid', label: t('status_paid'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'due', label: t('lbl_due'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'status', label: t('lbl_status'), width: 10 },
+            { key: 'created_at', label: t('lbl_date'), width: 12, format: (v) => v || '' },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -109,16 +111,16 @@ const SupplierDueReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Orders with Due', value: summary.total_orders_with_due || 0 },
-            { label: 'Total Due', value: formatCurrency(summary.total_due) },
+            { label: t('lbl_orders_with_due'), value: summary.total_orders_with_due || 0 },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Orders with Due',
+                label: t('lbl_orders_with_due'),
                 value: summary.total_orders_with_due || 0,
                 icon: <Receipt className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -126,7 +128,7 @@ const SupplierDueReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Amount',
+                label: t('lbl_total'),
                 value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -134,7 +136,7 @@ const SupplierDueReportPage = () => {
                 textColor: 'text-purple-600',
             },
             {
-                label: 'Total Paid',
+                label: t('report_total_paid'),
                 value: formatCurrency(summary.total_paid),
                 icon: <TrendingUp className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -142,7 +144,7 @@ const SupplierDueReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Total Due',
+                label: t('lbl_due'),
                 value: formatCurrency(summary.total_due),
                 icon: <AlertCircle className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -150,19 +152,19 @@ const SupplierDueReportPage = () => {
                 textColor: 'text-red-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
-            { key: 'reference', label: 'Reference', sortable: true, render: (v: any) => <span className="font-mono text-sm font-semibold text-gray-900">{v}</span> },
-            { key: 'supplier', label: 'Supplier', render: (v: any) => <span className="text-sm text-gray-700">{v || 'N/A'}</span> },
-            { key: 'total_amount', label: 'Total Amount', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
-            { key: 'paid', label: 'Paid', sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
-            { key: 'due', label: 'Due', sortable: true, render: (v: any) => <span className="font-bold text-red-600">{formatCurrency(v)}</span> },
+            { key: 'reference', label: t('lbl_reference'), sortable: true, render: (v: any) => <span className="font-mono text-sm font-semibold text-gray-900">{v}</span> },
+            { key: 'supplier', label: t('lbl_supplier'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'N/A'}</span> },
+            { key: 'total_amount', label: t('lbl_total'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
+            { key: 'paid', label: t('status_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
+            { key: 'due', label: t('lbl_due'), sortable: true, render: (v: any) => <span className="font-bold text-red-600">{formatCurrency(v)}</span> },
             {
                 key: 'status',
-                label: 'Status',
+                label: t('lbl_status'),
                 render: (v: any) => {
                     const s = v?.toLowerCase();
                     let c = 'bg-gray-100 text-gray-800';
@@ -174,17 +176,17 @@ const SupplierDueReportPage = () => {
             },
             {
                 key: 'created_at',
-                label: 'Order Date',
+                label: t('lbl_order_date'),
                 sortable: true,
                 render: (v) => <DateColumn date={v} />,
             },
             {
                 key: 'due_date',
-                label: 'Due Date',
+                label: t('lbl_due_date'),
                 render: (v: any) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">Not set</span>),
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

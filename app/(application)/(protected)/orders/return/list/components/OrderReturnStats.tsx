@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 
 interface OrderReturnStatsProps {
     totalReturns: number;
@@ -11,33 +12,34 @@ interface OrderReturnStatsProps {
 }
 
 const OrderReturnStats: React.FC<OrderReturnStatsProps> = ({ totalReturns, totalRefundAmount, totalExchangeAmount, pureReturns, exchanges }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     const netImpact = totalExchangeAmount - totalRefundAmount;
 
     const stats = [
         {
-            title: 'Total Returns',
+            title: t('report_order_returns_title'),
             value: totalReturns.toString(),
             color: 'amber',
             bgGradient: 'from-amber-500 to-orange-600',
         },
         {
-            title: 'Pure Returns',
+            title: t('lbl_return'),
             value: pureReturns.toString(),
             subtitle: formatCurrency(totalRefundAmount),
             color: 'red',
             bgGradient: 'from-red-500 to-rose-600',
         },
         {
-            title: 'Exchanges',
+            title: t('lbl_sale'),
             value: exchanges.toString(),
             subtitle: formatCurrency(totalExchangeAmount),
             color: 'blue',
             bgGradient: 'from-blue-500 to-indigo-600',
         },
         {
-            title: 'Net Impact',
+            title: t('lbl_total'),
             value: formatCurrency(Math.abs(netImpact)),
             subtitle: netImpact > 0 ? 'Positive' : netImpact < 0 ? 'Negative' : 'Neutral',
             color: netImpact > 0 ? 'green' : netImpact < 0 ? 'red' : 'gray',

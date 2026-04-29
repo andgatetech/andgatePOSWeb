@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFourQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
@@ -47,6 +48,7 @@ const SectionSkeleton = () => (
 );
 
 const getMethodIcon = (method: string) => {
+    const { t } = getTranslation();
     const icons: Record<string, React.ReactNode> = {
         bkash: <CreditCard className="h-5 w-5" />,
         cash: <Banknote className="h-5 w-5" />,
@@ -88,6 +90,7 @@ type TabType = 'sale' | 'purchase' | 'refund';
 type PaymentTabType = 'sales' | 'refunds' | 'purchases';
 
 export default function SectionFour() {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -126,7 +129,7 @@ export default function SectionFour() {
     if (isError) {
         return (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6">
-                <p className="text-sm text-red-600 sm:text-base">Failed to load section data. Please try again.</p>
+                <p className="text-sm text-red-600 sm:text-base">{t('msg_failed_to_load_section')}</p>
             </div>
         );
     }
@@ -135,9 +138,9 @@ export default function SectionFour() {
     const recent_transactions = sectionData?.data?.recent_transactions || { sales: [], refunds: [], purchases: [] };
 
     const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-        { id: 'sale', label: 'Sale', icon: <TrendingUp className="h-4 w-4" /> },
-        { id: 'purchase', label: 'Purchase', icon: <ShoppingCart className="h-4 w-4" /> },
-        { id: 'refund', label: 'Refunds', icon: <FileText className="h-4 w-4" /> },
+        { id: 'sale', label: t('report_sales_title'), icon: <TrendingUp className="h-4 w-4" /> },
+        { id: 'purchase', label: t('purchase_title'), icon: <ShoppingCart className="h-4 w-4" /> },
+        { id: 'refund', label: t('lbl_refunds'), icon: <FileText className="h-4 w-4" /> },
     ];
 
     const currentPaymentMethods = paymentTab === 'sales' ? payment_summary.sales_by_method : paymentTab === 'refunds' ? payment_summary.refunds_by_method : payment_summary.purchases_by_method;
@@ -157,7 +160,7 @@ export default function SectionFour() {
             return (
                 <tr>
                     <td colSpan={4} className="text-gray-500 py-12 text-center">
-                        No data available
+                        {t('msg_no_data_available')}
                     </td>
                 </tr>
             );
@@ -217,17 +220,17 @@ export default function SectionFour() {
                     <div className="mb-3 flex items-center justify-between">
                         <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                             <Banknote className="h-5 w-5 text-primary" />
-                            Payment Methods
+                            {t('lbl_payment_methods')}
                         </h2>
                         <select
                             value={paymentFilter}
                             onChange={(e) => setPaymentFilter(e.target.value)}
                             className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                            <option value="today">Today</option>
-                            <option value="last_week">Weekly</option>
-                            <option value="last_year">Yearly</option>
-                            <option value="custom">Custom</option>
+                            <option value="today">{t('lbl_today')}</option>
+                            <option value="last_week">{t('lbl_weekly')}</option>
+                            <option value="last_year">{t('lbl_yearly')}</option>
+                            <option value="custom">{t('lbl_custom_range')}</option>
                         </select>
                     </div>
 
@@ -235,7 +238,7 @@ export default function SectionFour() {
                     {paymentFilter === 'custom' && (
                         <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                             <div className="flex-1">
-                                <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_start_date')}</label>
                                 <input
                                     type="date"
                                     value={paymentStartDate}
@@ -244,7 +247,7 @@ export default function SectionFour() {
                                 />
                             </div>
                             <div className="flex-1">
-                                <label className="mb-1 block text-xs font-medium text-gray-600">End Date</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_end_date')}</label>
                                 <input
                                     type="date"
                                     value={paymentEndDate}
@@ -264,7 +267,7 @@ export default function SectionFour() {
                             }`}
                         >
                             <TrendingUp className="mr-1.5 inline h-4 w-4" />
-                            Sales
+                            {t('lbl_sales')}
                         </button>
                         <button
                             onClick={() => setPaymentTab('refunds')}
@@ -273,7 +276,7 @@ export default function SectionFour() {
                             }`}
                         >
                             <FileText className="mr-1.5 inline h-4 w-4" />
-                            Refunds
+                            {t('lbl_refunds')}
                         </button>
                         <button
                             onClick={() => setPaymentTab('purchases')}
@@ -282,14 +285,14 @@ export default function SectionFour() {
                             }`}
                         >
                             <ShoppingCart className="mr-1.5 inline h-4 w-4" />
-                            Purchases
+                            {t('lbl_purchases')}
                         </button>
                     </div>
 
                     {/* Payment Methods Content */}
                     <div className="scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 min-h-0 flex-1 overflow-y-auto p-4">
                         {currentPaymentMethods.length === 0 ? (
-                            <div className="flex h-48 w-full items-center justify-center text-gray-500">No payment data</div>
+                            <div className="flex h-48 w-full items-center justify-center text-gray-500">{t('msg_no_payment_data')}</div>
                         ) : (
                             <div className="w-full space-y-4">
                                 {currentPaymentMethods.map((method: any, index: number) => {
@@ -314,7 +317,7 @@ export default function SectionFour() {
                                                     </div>
                                                     <div>
                                                         <p className="text-gray-900 font-semibold capitalize transition-colors duration-300 group-hover:text-gray-900">{method.method}</p>
-                                                        <p className="text-gray-500 text-xs">{method.count} transactions</p>
+                                                        <p className="text-gray-500 text-xs">{method.count} {t('lbl_transactions')}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
@@ -339,19 +342,19 @@ export default function SectionFour() {
                     </div>
 
                     <div className="mt-4 border-t border-gray-200 pt-4">
-                        <h3 className="mb-2 text-sm font-semibold text-gray-700">Payment Summary</h3>
+                        <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('lbl_payment_summary')}</h3>
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2 text-gray-600">
                                     <div className="h-2 w-2 rounded-full bg-primary"></div>
-                                    Total {paymentTab === 'sales' ? 'Sales' : paymentTab === 'refunds' ? 'Refunds' : 'Purchases'}
+                                    {t('lbl_total')} {paymentTab === 'sales' ? t('lbl_sales') : paymentTab === 'refunds' ? t('lbl_refunds') : t('lbl_purchases')}
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(totalAmount)}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2 text-gray-600">
                                     <div className="h-2 w-2 rounded-full bg-warning"></div>
-                                    Total Transactions
+                                    {t('lbl_total_transactions')}
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">{currentPaymentMethods.reduce((acc: number, m: any) => acc + m.count, 0)}</span>
                             </div>
@@ -366,10 +369,10 @@ export default function SectionFour() {
                     <div className="mb-3 flex items-center justify-between">
                         <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                             <Receipt className="h-5 w-5 text-primary" />
-                            Recent Transactions
+                            {t('dashboard_recent_transactions')}
                         </h2>
                         <Link href="/reports/transaction" className="text-sm font-medium text-primary transition-all hover:underline">
-                            View All
+                            {t('lbl_view_all')}
                         </Link>
                     </div>
 
@@ -394,12 +397,12 @@ export default function SectionFour() {
                         <table className="w-full">
                             <thead className="sticky top-0 z-10">
                                 <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Date & Time</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{t('lbl_date_time')}</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
-                                        {activeTab === 'purchase' ? 'Supplier' : 'Customer'}
+                                        {activeTab === 'purchase' ? t('lbl_supplier') : t('lbl_customer')}
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Status</th>
-                                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">Total</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{t('lbl_status')}</th>
+                                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{t('lbl_total')}</th>
                                 </tr>
                             </thead>
                             <tbody>{renderRows()}</tbody>

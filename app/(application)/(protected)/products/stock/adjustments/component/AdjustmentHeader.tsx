@@ -1,4 +1,5 @@
 import { ClipboardList, Trash2 } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 
 interface AdjustmentHeaderProps {
     storeName?: string;
@@ -11,6 +12,7 @@ interface AdjustmentHeaderProps {
  * Header section with store name, item count, and clear all button
  */
 const AdjustmentHeader = ({ storeName, itemCount, onClearAll }: AdjustmentHeaderProps) => {
+    const { t } = getTranslation();
     return (
         <div className="border-b border-gray-200 bg-white shadow-sm">
             <div className="p-4 sm:p-6">

@@ -3,6 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
 import {
@@ -73,6 +74,7 @@ const createEmptyPaymentStatusForm = (): PaymentStatusForm => ({
 const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
 
 const StoreSetting = () => {
+    const { t } = getTranslation();
     const searchParams = useSearchParams();
     const { currentStore } = useCurrentStore();
     const storeId = currentStore?.id;
@@ -266,11 +268,11 @@ const StoreSetting = () => {
     // Units management functions
     const handleCreateUnit = async () => {
         if (!unitName.trim()) {
-            showErrorDialog('Error', 'Please enter unit name');
+            showErrorDialog(t('msg_error'), 'Please enter unit name');
             return;
         }
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create unit.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create unit.');
             return;
         }
 
@@ -288,7 +290,7 @@ const StoreSetting = () => {
             }).unwrap();
 
             setUnitName('');
-            showSuccessDialog('Success!', 'Unit created successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_created_success'));
         } catch (error: any) {
             console.error('Create unit error:', error);
             const errorMessage = error?.data?.message || 'Failed to create unit';
@@ -298,11 +300,11 @@ const StoreSetting = () => {
 
     const handleUpdateUnit = async (id: number, name: string) => {
         if (!name.trim()) {
-            showErrorDialog('Error', 'Unit name cannot be empty');
+            showErrorDialog(t('msg_error'), 'Unit name cannot be empty');
             return;
         }
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected.');
+            showErrorDialog(t('msg_error'), 'No valid store selected.');
             return;
         }
 
@@ -334,7 +336,7 @@ const StoreSetting = () => {
         if (!confirmed) return;
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected.');
+            showErrorDialog(t('msg_error'), 'No valid store selected.');
             return;
         }
 
@@ -358,7 +360,7 @@ const StoreSetting = () => {
 
     const handleToggleUnitActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected.');
+            showErrorDialog(t('msg_error'), 'No valid store selected.');
             return;
         }
 
@@ -387,18 +389,18 @@ const StoreSetting = () => {
     // Product Attributes Management Functions
     const handleCreateAttribute = async () => {
         if (!attributeName.trim()) {
-            showErrorDialog('Error', 'Please enter attribute name');
+            showErrorDialog(t('msg_error'), 'Please enter attribute name');
             return;
         }
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create attribute.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create attribute.');
             return;
         }
         const payload = { name: attributeName.trim(), store_id: storeId };
         try {
             await createAttribute(payload).unwrap();
             setAttributeName('');
-            showSuccessDialog('Success!', 'Attribute created successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_created_success'));
         } catch (error: any) {
             const errorMessage = error?.data?.message || 'Failed to create attribute';
             showErrorDialog('Create Failed!', errorMessage);
@@ -417,7 +419,7 @@ const StoreSetting = () => {
 
     const handleUpdateAttribute = async (id: number) => {
         if (!editingAttributeName.trim()) {
-            showErrorDialog('Error', 'Please enter attribute name');
+            showErrorDialog(t('msg_error'), 'Please enter attribute name');
             return;
         }
 
@@ -451,7 +453,7 @@ const StoreSetting = () => {
             // Get current attribute
             const currentAttribute = attributesData.find((attr: any) => attr.id === id);
             if (!currentAttribute) {
-                showErrorDialog('Error', 'Attribute not found');
+                showErrorDialog(t('msg_error'), 'Attribute not found');
                 return;
             }
 
@@ -472,12 +474,12 @@ const StoreSetting = () => {
     // Payment Methods Management Functions
     const handleCreatePaymentMethod = async () => {
         if (!paymentMethodForm.payment_method_name.trim()) {
-            showErrorDialog('Error', 'Payment method name is required');
+            showErrorDialog(t('msg_error'), 'Payment method name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create payment method.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create payment method.');
             return;
         }
 
@@ -496,7 +498,7 @@ const StoreSetting = () => {
 
             await createPaymentMethod(payload).unwrap();
 
-            showSuccessDialog('Success!', 'Payment method added successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_success'));
             resetNewPaymentMethodForm();
             await refetchStore();
         } catch (error: any) {
@@ -507,12 +509,12 @@ const StoreSetting = () => {
 
     const handleUpdatePaymentMethod = async (id: number) => {
         if (!editingPaymentMethodForm.payment_method_name.trim()) {
-            showErrorDialog('Error', 'Payment method name is required');
+            showErrorDialog(t('msg_error'), 'Payment method name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update payment method.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update payment method.');
             return;
         }
 
@@ -542,7 +544,7 @@ const StoreSetting = () => {
 
     const handleDeletePaymentMethod = async (id: number, name: string) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot delete payment method.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot delete payment method.');
             return;
         }
 
@@ -565,13 +567,13 @@ const StoreSetting = () => {
 
     const handleTogglePaymentMethodActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update payment method status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update payment method status.');
             return;
         }
 
         const method = paymentMethods.find((pm: any) => pm.id === id);
         if (!method) {
-            showErrorDialog('Error', 'Payment method not found');
+            showErrorDialog(t('msg_error'), 'Payment method not found');
             return;
         }
 
@@ -599,12 +601,12 @@ const StoreSetting = () => {
     // Adjustment Reasons Management Functions
     const handleCreateAdjustmentReason = async () => {
         if (!adjustmentReasonName.trim()) {
-            showErrorDialog('Error', 'Adjustment reason name is required');
+            showErrorDialog(t('msg_error'), 'Adjustment reason name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create adjustment reason.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create adjustment reason.');
             return;
         }
 
@@ -617,7 +619,7 @@ const StoreSetting = () => {
 
             await createAdjustmentReason(payload).unwrap();
 
-            showSuccessDialog('Success!', 'Adjustment reason added successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_success'));
             setAdjustmentReasonName('');
             setAdjustmentReasonDescription('');
             await refetchStore();
@@ -629,12 +631,12 @@ const StoreSetting = () => {
 
     const handleUpdateAdjustmentReason = async (id: number, name: string, description: string) => {
         if (!name.trim()) {
-            showErrorDialog('Error', 'Adjustment reason name is required');
+            showErrorDialog(t('msg_error'), 'Adjustment reason name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update adjustment reason.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update adjustment reason.');
             return;
         }
 
@@ -658,7 +660,7 @@ const StoreSetting = () => {
 
     const handleDeleteAdjustmentReason = async (id: number, name: string) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot delete adjustment reason.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot delete adjustment reason.');
             return;
         }
 
@@ -678,13 +680,13 @@ const StoreSetting = () => {
 
     const handleToggleAdjustmentReasonActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update adjustment reason status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update adjustment reason status.');
             return;
         }
 
         const reason = adjustmentReasonsData.find((r: any) => r.id === id);
         if (!reason) {
-            showErrorDialog('Error', 'Adjustment reason not found');
+            showErrorDialog(t('msg_error'), 'Adjustment reason not found');
             return;
         }
 
@@ -710,12 +712,12 @@ const StoreSetting = () => {
     // ============ Order Return Reasons Management Functions ============
     const handleCreateOrderReturnReason = async () => {
         if (!orderReturnReasonName.trim()) {
-            showErrorDialog('Error', 'Order return reason name is required');
+            showErrorDialog(t('msg_error'), 'Order return reason name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create order return reason.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create order return reason.');
             return;
         }
 
@@ -728,7 +730,7 @@ const StoreSetting = () => {
 
             await createOrderReturnReason(payload).unwrap();
 
-            showSuccessDialog('Success!', 'Order return reason added successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_success'));
             setOrderReturnReasonName('');
             setOrderReturnReasonDescription('');
             await refetchStore();
@@ -740,12 +742,12 @@ const StoreSetting = () => {
 
     const handleUpdateOrderReturnReason = async (id: number, name: string, description: string) => {
         if (!name.trim()) {
-            showErrorDialog('Error', 'Order return reason name is required');
+            showErrorDialog(t('msg_error'), 'Order return reason name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update order return reason.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update order return reason.');
             return;
         }
 
@@ -769,7 +771,7 @@ const StoreSetting = () => {
 
     const handleDeleteOrderReturnReason = async (id: number, name: string) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot delete order return reason.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot delete order return reason.');
             return;
         }
 
@@ -789,13 +791,13 @@ const StoreSetting = () => {
 
     const handleToggleOrderReturnReasonActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update order return reason status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update order return reason status.');
             return;
         }
 
         const reason = orderReturnReasonsData.find((r: any) => r.id === id);
         if (!reason) {
-            showErrorDialog('Error', 'Order return reason not found');
+            showErrorDialog(t('msg_error'), 'Order return reason not found');
             return;
         }
 
@@ -820,13 +822,13 @@ const StoreSetting = () => {
 
     const handleToggleReturnToStock = async (id: number, returnToStock: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update return to stock setting.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update return to stock setting.');
             return;
         }
 
         const reason = orderReturnReasonsData.find((r: any) => r.id === id);
         if (!reason) {
-            showErrorDialog('Error', 'Order return reason not found');
+            showErrorDialog(t('msg_error'), 'Order return reason not found');
             return;
         }
 
@@ -889,20 +891,20 @@ const StoreSetting = () => {
 
     const handleCreateCurrency = async () => {
         if (!currencyForm.currency_code.trim()) {
-            showErrorDialog('Error', 'Currency code is required');
+            showErrorDialog(t('msg_error'), 'Currency code is required');
             return;
         }
         if (!currencyForm.currency_name.trim()) {
-            showErrorDialog('Error', 'Currency name is required');
+            showErrorDialog(t('msg_error'), 'Currency name is required');
             return;
         }
         if (!currencyForm.currency_symbol.trim()) {
-            showErrorDialog('Error', 'Currency symbol is required');
+            showErrorDialog(t('msg_error'), 'Currency symbol is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create currency.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create currency.');
             return;
         }
 
@@ -918,7 +920,7 @@ const StoreSetting = () => {
                 decimal_separator: currencyForm.decimal_separator,
             }).unwrap();
 
-            showSuccessDialog('Success!', 'Currency added successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_success'));
             resetNewCurrencyForm();
             await refetchStore();
         } catch (error: any) {
@@ -929,20 +931,20 @@ const StoreSetting = () => {
 
     const handleUpdateCurrency = async (id: number) => {
         if (!editingCurrencyForm.currency_code.trim()) {
-            showErrorDialog('Error', 'Currency code is required');
+            showErrorDialog(t('msg_error'), 'Currency code is required');
             return;
         }
         if (!editingCurrencyForm.currency_name.trim()) {
-            showErrorDialog('Error', 'Currency name is required');
+            showErrorDialog(t('msg_error'), 'Currency name is required');
             return;
         }
         if (!editingCurrencyForm.currency_symbol.trim()) {
-            showErrorDialog('Error', 'Currency symbol is required');
+            showErrorDialog(t('msg_error'), 'Currency symbol is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update currency.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update currency.');
             return;
         }
 
@@ -972,7 +974,7 @@ const StoreSetting = () => {
 
     const handleDeleteCurrency = async (id: number, name: string) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot delete currency.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot delete currency.');
             return;
         }
 
@@ -995,7 +997,7 @@ const StoreSetting = () => {
 
     const handleToggleCurrencyActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected.');
+            showErrorDialog(t('msg_error'), 'No valid store selected.');
             return;
         }
 
@@ -1009,7 +1011,7 @@ const StoreSetting = () => {
             const currencyToUpdate = currencies.find((c: any) => c.id === id);
 
             if (!currencyToUpdate) {
-                showErrorDialog('Error', 'Currency not found');
+                showErrorDialog(t('msg_error'), 'Currency not found');
                 return;
             }
 
@@ -1073,12 +1075,12 @@ const StoreSetting = () => {
 
     const handleCreatePaymentStatus = async () => {
         if (!paymentStatusForm.status_name.trim()) {
-            showErrorDialog('Error', 'Status name is required');
+            showErrorDialog(t('msg_error'), 'Status name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create payment status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create payment status.');
             return;
         }
 
@@ -1092,7 +1094,7 @@ const StoreSetting = () => {
                 is_active: true,
             }).unwrap();
 
-            showSuccessDialog('Success!', 'Payment status added successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_success'));
             resetNewPaymentStatusForm();
             await refetchStore();
         } catch (error: any) {
@@ -1103,12 +1105,12 @@ const StoreSetting = () => {
 
     const handleUpdatePaymentStatus = async (id: number) => {
         if (!editingPaymentStatusForm.status_name.trim()) {
-            showErrorDialog('Error', 'Status name is required');
+            showErrorDialog(t('msg_error'), 'Status name is required');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update payment status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update payment status.');
             return;
         }
 
@@ -1135,7 +1137,7 @@ const StoreSetting = () => {
 
     const handleDeletePaymentStatus = async (id: number, name: string) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot delete payment status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot delete payment status.');
             return;
         }
 
@@ -1158,13 +1160,13 @@ const StoreSetting = () => {
 
     const handleTogglePaymentStatusActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot update payment status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot update payment status.');
             return;
         }
 
         const status = paymentStatusesData.find((s: any) => s.id === id);
         if (!status) {
-            showErrorDialog('Error', 'Payment status not found');
+            showErrorDialog(t('msg_error'), 'Payment status not found');
             return;
         }
 
@@ -1190,13 +1192,13 @@ const StoreSetting = () => {
 
     const handleSetDefaultPaymentStatus = async (id: number) => {
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot set default payment status.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot set default payment status.');
             return;
         }
 
         const status = paymentStatusesData.find((s: any) => s.id === id);
         if (!status) {
-            showErrorDialog('Error', 'Payment status not found');
+            showErrorDialog(t('msg_error'), 'Payment status not found');
             return;
         }
 
@@ -1225,11 +1227,11 @@ const StoreSetting = () => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.type.startsWith('image/')) {
-                showErrorDialog('Error', 'Please select a valid image file');
+                showErrorDialog(t('msg_error'), 'Please select a valid image file');
                 return;
             }
             if (file.size > 2 * 1024 * 1024) {
-                showErrorDialog('Error', 'Image size must be less than 2MB');
+                showErrorDialog(t('msg_error'), 'Image size must be less than 2MB');
                 return;
             }
 
@@ -1267,7 +1269,7 @@ const StoreSetting = () => {
 
         // Basic validation
         if (!formData.store_name.trim()) {
-            showErrorDialog('Error', 'Store name is required');
+            showErrorDialog(t('msg_error'), 'Store name is required');
             return;
         }
 
@@ -1277,7 +1279,7 @@ const StoreSetting = () => {
             const closeTime = new Date(`1970-01-01T${formData.closing_time}`);
 
             if (openTime >= closeTime) {
-                showErrorDialog('Error', 'Opening time must be before closing time');
+                showErrorDialog(t('msg_error'), 'Opening time must be before closing time');
                 return;
             }
         }

@@ -1,3 +1,4 @@
+import { getTranslation } from '@/i18n';
 import { Award, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
@@ -14,6 +15,7 @@ interface BrandPanelProps {
 }
 
 const BrandPanel: React.FC<BrandPanelProps> = ({ isOpen, brands, isLoading, searchTerm, onSearchChange, onSelect, onClose }) => {
+    const { t } = getTranslation();
     if (!isOpen) return null;
 
     const filteredBrands = brands.filter((brand: any) => (brand.name || brand.brand_name || '').toLowerCase().includes(searchTerm.toLowerCase()));
@@ -25,7 +27,7 @@ const BrandPanel: React.FC<BrandPanelProps> = ({ isOpen, brands, isLoading, sear
                 <div className="flex items-center justify-between border-b bg-gray-50 p-3 sm:p-4">
                     <div className="flex items-center space-x-2">
                         <Award className="h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
-                        <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Select Brand</h2>
+                        <h2 className="text-base font-semibold text-gray-900 sm:text-lg">{t('lbl_select_brand')}</h2>
                     </div>
                     <button onClick={onClose} className="rounded-full p-1.5 transition-colors hover:bg-gray-200 sm:p-2">
                         <X className="h-4 w-4 text-gray-600 sm:h-5 sm:w-5" />
@@ -38,7 +40,7 @@ const BrandPanel: React.FC<BrandPanelProps> = ({ isOpen, brands, isLoading, sear
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search brands..."
+                            placeholder={t('btn_search')}
                             className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-4 focus:border-transparent focus:ring-2 focus:ring-green-500"
                             value={searchTerm}
                             onChange={(e) => onSearchChange(e.target.value)}
@@ -73,7 +75,7 @@ const BrandPanel: React.FC<BrandPanelProps> = ({ isOpen, brands, isLoading, sear
                                 </div>
                             ))
                         ) : (
-                            <div className="col-span-2 py-8 text-center text-gray-500">No brands found</div>
+                            <div className="col-span-2 py-8 text-center text-gray-500">{t('msg_no_data')}</div>
                         )}
                     </div>
                 </div>

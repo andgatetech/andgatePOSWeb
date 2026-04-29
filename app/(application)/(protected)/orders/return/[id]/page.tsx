@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
 import { ArrowLeft } from 'lucide-react';
@@ -9,6 +10,7 @@ import { useState } from 'react';
 import OrderReturnDetails from './components/OrderReturnDetails';
 
 const OrderReturnDetailsPage = () => {
+    const { t } = getTranslation();
     const params = useParams();
     const router = useRouter();
     const returnId = params?.id ? parseInt(params.id as string) : null;
@@ -42,11 +44,11 @@ const OrderReturnDetailsPage = () => {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-50 p-4">
                 <div className="text-center">
-                    <h2 className="mb-2 text-2xl font-bold text-gray-900">Error Loading Return</h2>
-                    <p className="mb-6 text-gray-600">Unable to load the return details. Please try again.</p>
+                    <h2 className="mb-2 text-2xl font-bold text-gray-900">{t('msg_failed_load')}</h2>
+                    <p className="mb-6 text-gray-600">{t('msg_try_again')}</p>
                     <Link href="/orders/return/list" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
-                        Back to Returns
+                        {t('btn_back')}
                     </Link>
                 </div>
             </div>
@@ -65,7 +67,7 @@ const OrderReturnDetailsPage = () => {
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Return Details</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">{t('order_view_title')}</h1>
                             <p className="text-sm text-gray-600">Return #{orderReturn.return_number || `#${orderReturn.id}`}</p>
                         </div>
                     </div>

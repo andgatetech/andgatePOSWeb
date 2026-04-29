@@ -1,6 +1,7 @@
 'use client';
 
 import Loader from '@/lib/Loader';
+import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteFeedbackMutation, useGetAllFeedbacksQuery } from '@/store/features/feedback/feedbackApi';
 import { Bug, Calendar, CheckCircle, Clock, Eye, Filter, Lightbulb, MessageSquare, RefreshCw, Search, Star, ThumbsUp, Trash2, User, X, ChevronDown, ChevronRight, Download } from 'lucide-react';
@@ -20,6 +21,7 @@ const formatDate = (dateString: string | undefined | null) => {
 };
 
 const FeedbackManagementPage = () => {
+    const { t } = getTranslation();
     const [filters, setFilters] = useState({
         search: '',
         status: '',
@@ -38,18 +40,18 @@ const FeedbackManagementPage = () => {
     const feedbacks = feedbackData?.data || [];
 
     const statusOptions = [
-        { value: '', label: 'All Statuses' },
-        { value: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400', icon: <Clock className="h-3 w-3" /> },
-        { value: 'reviewed', label: 'Reviewed', color: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-400', icon: <Eye className="h-3 w-3" /> },
-        { value: 'resolved', label: 'Resolved', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400', icon: <CheckCircle className="h-3 w-3" /> },
+        { value: '', label: t('lbl_all_statuses') },
+        { value: 'pending', label: t('status_pending'), color: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400', icon: <Clock className="h-3 w-3" /> },
+        { value: 'reviewed', label: t('status_reviewed'), color: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-400', icon: <Eye className="h-3 w-3" /> },
+        { value: 'resolved', label: t('status_resolved'), color: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400', icon: <CheckCircle className="h-3 w-3" /> },
     ];
 
     const categoryOptions = [
-        { value: '', label: 'All Categories' },
-        { value: 'bug', label: 'Bug Report', icon: <Bug className="h-4 w-4" />, bg: 'bg-rose-500', light: 'bg-rose-50 text-rose-700' },
-        { value: 'suggestion', label: 'Suggestion', icon: <Lightbulb className="h-4 w-4" />, bg: 'bg-amber-500', light: 'bg-amber-50 text-amber-700' },
-        { value: 'compliment', label: 'Compliment', icon: <ThumbsUp className="h-4 w-4" />, bg: 'bg-emerald-500', light: 'bg-emerald-50 text-emerald-700' },
-        { value: 'general', label: 'General', icon: <MessageSquare className="h-4 w-4" />, bg: 'bg-violet-500', light: 'bg-violet-50 text-violet-700' },
+        { value: '', label: t('lbl_all_categories') },
+        { value: 'bug', label: t('feedback_bug'), icon: <Bug className="h-4 w-4" />, bg: 'bg-rose-500', light: 'bg-rose-50 text-rose-700' },
+        { value: 'suggestion', label: t('feedback_suggestion'), icon: <Lightbulb className="h-4 w-4" />, bg: 'bg-amber-500', light: 'bg-amber-50 text-amber-700' },
+        { value: 'compliment', label: t('feedback_compliment'), icon: <ThumbsUp className="h-4 w-4" />, bg: 'bg-emerald-500', light: 'bg-emerald-50 text-emerald-700' },
+        { value: 'general', label: t('feedback_general'), icon: <MessageSquare className="h-4 w-4" />, bg: 'bg-violet-500', light: 'bg-violet-50 text-violet-700' },
     ];
 
     const handleFilterChange = (key, value) => {
@@ -66,7 +68,7 @@ const FeedbackManagementPage = () => {
                 refetch();
             } catch (error) {
                 console.error('Failed to delete feedback:', error);
-                showErrorDialog('Error', 'Failed to delete feedback');
+                showErrorDialog(t('msg_error'), 'Failed to delete feedback');
             }
         }
     };
@@ -93,10 +95,10 @@ const FeedbackManagementPage = () => {
     const hasActiveFilters = filters.search || filters.status || filters.category || filters.dateFrom || filters.dateTo || filters.rating;
 
     const stats = [
-        { label: 'Total', value: feedbacks.length, icon: <MessageSquare className="h-5 w-5" />, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
-        { label: 'Pending', value: feedbacks.filter((f) => f.status === 'pending').length, icon: <Clock className="h-5 w-5" />, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-        { label: 'Reviewed', value: feedbacks.filter((f) => f.status === 'reviewed').length, icon: <Eye className="h-5 w-5" />, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-        { label: 'Resolved', value: feedbacks.filter((f) => f.status === 'resolved').length, icon: <CheckCircle className="h-5 w-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        { label: t('lbl_total'), value: feedbacks.length, icon: <MessageSquare className="h-5 w-5" />, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
+        { label: t('status_pending'), value: feedbacks.filter((f) => f.status === 'pending').length, icon: <Clock className="h-5 w-5" />, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+        { label: t('status_reviewed'), value: feedbacks.filter((f) => f.status === 'reviewed').length, icon: <Eye className="h-5 w-5" />, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+        { label: t('status_resolved'), value: feedbacks.filter((f) => f.status === 'resolved').length, icon: <CheckCircle className="h-5 w-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
     ];
 
     return (
@@ -163,7 +165,7 @@ const FeedbackManagementPage = () => {
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search title or message..."
+                                placeholder={t('placeholder_search')}
                                 value={filters.search}
                                 onChange={(e) => handleFilterChange('search', e.target.value)}
                                 className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
@@ -218,7 +220,7 @@ const FeedbackManagementPage = () => {
                                     onChange={(e) => handleFilterChange('rating', e.target.value)}
                                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
                                 >
-                                    <option value="">All Ratings</option>
+                                    <option value="">{t('lbl_all_ratings')}</option>
                                     <option value="5">5 Stars</option>
                                     <option value="4">4+ Stars</option>
                                     <option value="3">3+ Stars</option>
@@ -260,7 +262,7 @@ const FeedbackManagementPage = () => {
 
             {/* ── Feedback List ── */}
             {isLoading ? (
-                <Loader fullScreen={false} message="Loading feedback..." className="py-12" />
+                <Loader fullScreen={false} message={t('feedback_loading')} className="py-12" />
             ) : feedbacks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-20 text-center">
                     <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 border border-gray-100">

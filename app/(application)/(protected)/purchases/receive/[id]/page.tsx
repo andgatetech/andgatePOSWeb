@@ -1,6 +1,7 @@
 'use client';
 import Loading from '@/app/loading';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import type { RootState } from '@/store';
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { ArrowLeft, Calculator, CheckCircle } from 'lucide-react';
@@ -11,6 +12,7 @@ import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
 const ReceiveItemsPage = () => {
+    const { t } = getTranslation();
     const params = useParams();
     const router = useRouter();
     const { formatCurrency } = useCurrency();
@@ -343,16 +345,16 @@ const ReceiveItemsPage = () => {
                     <table className="table-hover">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Type / Variant</th>
-                                <th>Ordered</th>
-                                <th>Already Received</th>
-                                <th>Receive Now</th>
-                                <th>Purchase Price</th>
-                                <th>Avg. Cost</th>
-                                <th>Selling Price</th>
-                                <th>Total</th>
-                                <th>Action</th>
+                                <th>{t('lbl_product')}</th>
+                                <th>{t('lbl_type')} / {t('lbl_variant')}</th>
+                                <th>{t('status_ordered')}</th>
+                                <th>{t('lbl_already_received')}</th>
+                                <th>{t('lbl_receive_now')}</th>
+                                <th>{t('lbl_purchase_price')}</th>
+                                <th>{t('lbl_avg_cost')}</th>
+                                <th>{t('lbl_selling_price')}</th>
+                                <th>{t('lbl_total')}</th>
+                                <th>{t('lbl_action')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -530,7 +532,7 @@ const ReceiveItemsPage = () => {
                                 max={grandTotal}
                                 value={paymentAmount === 0 ? '' : paymentAmount}
                                 onChange={(e) => setPaymentAmount(e.target.value === '' ? 0 : parseFloat(e.target.value))}
-                                placeholder="Enter payment amount"
+                                placeholder={t('placeholder_payment_amount')}
                             />
                             <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(grandTotal)}</p>
                         </div>
@@ -545,7 +547,7 @@ const ReceiveItemsPage = () => {
                                         </option>
                                     ))
                                 ) : (
-                                    <option value="cash">Cash</option>
+                                    <option value="cash">{t('lbl_cash')}</option>
                                 )}
                             </select>
                         </div>
@@ -554,7 +556,7 @@ const ReceiveItemsPage = () => {
                     {/* Payment Notes */}
                     <div>
                         <label className="mb-2 block text-sm font-semibold">Payment Notes (Optional)</label>
-                        <textarea className="form-textarea" rows={3} value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder="Add any notes about this payment..." />
+                        <textarea className="form-textarea" rows={3} value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder={t('placeholder_payment_notes')} />
                     </div>
 
                     {/* New Balance Preview */}
@@ -604,7 +606,7 @@ const ReceiveItemsPage = () => {
 
                 <div className="mt-4 rounded-lg bg-blue-50 p-4">
                     <p className="text-sm text-blue-800">
-                        <strong>Note:</strong> Clicking &quot;Receive Items&quot; will:
+                        <strong>{t('lbl_note')}:</strong> {t('purchase_receive_click_note')}
                     </p>
                     <ul className="mt-2 space-y-1 text-sm text-blue-700">
                         <li>✓ Update stock quantities for existing products</li>

@@ -2,6 +2,7 @@
 
 import { useGetUnreadCountQuery, useMarkAsReadMutation } from '@/store/features/notification/notificationApi';
 import { AlertTriangle, CircleAlert, Megaphone, Sparkles, X } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import Marquee from 'react-fast-marquee';
 
 const CriticalBanner = () => {
@@ -32,13 +33,14 @@ const CriticalBanner = () => {
     return (
         <div className="mb-4 flex flex-col gap-2">
             {allBanners.map((notification) => {
-                const sev = notification.severity;
+                const { t } = getTranslation();
+    const sev = notification.severity;
 
                 let config = {
                     bgColor: 'bg-[#E9D5FF] text-[#3B0764] dark:bg-[#5B21B6] dark:text-[#E9D5FF]',
                     Icon: Megaphone,
                     iconColor: 'text-[#3B0764] dark:text-[#E9D5FF]',
-                    label: 'Notice',
+                    label: t('lbl_notice'),
                 };
 
                 if (sev === 'critical') {
@@ -46,21 +48,21 @@ const CriticalBanner = () => {
                         bgColor: 'bg-[#CC071E] text-white',
                         Icon: CircleAlert,
                         iconColor: 'text-white',
-                        label: 'Critical',
+                        label: t('lbl_critical'),
                     };
                 } else if (sev === 'warning') {
                     config = {
                         bgColor: 'bg-[#FEF3C7] text-black dark:bg-[#B45309] dark:text-amber-100',
                         Icon: AlertTriangle,
                         iconColor: 'text-[#D97706] dark:text-amber-200',
-                        label: 'Warning',
+                        label: t('lbl_warning'),
                     };
                 } else if (sev === 'success') {
                     config = {
                         bgColor: 'bg-[#CCFBF1] text-[#1F2937] dark:bg-[#115E59] dark:text-[#CCFBF1]',
                         Icon: Sparkles,
                         iconColor: 'text-[#FBBF24] dark:text-[#FDE047]',
-                        label: 'New Feature',
+                        label: t('lbl_new_feature'),
                     };
                 }
 

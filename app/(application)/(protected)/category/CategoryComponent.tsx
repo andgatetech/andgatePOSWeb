@@ -4,6 +4,7 @@ import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
@@ -12,6 +13,7 @@ import Image from 'next/image';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const CategoryComponent = () => {
+    const { t } = getTranslation();
     const { currentStoreId, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -143,13 +145,13 @@ const CategoryComponent = () => {
                     store_id: currentStoreId,
                 };
                 await createCategory(categoryData).unwrap();
-                showSuccessDialog('Success!', 'Category created successfully');
+                showSuccessDialog(t('msg_success'), t('category_created'));
             } else if (modalType === 'edit' && selectedCategory) {
                 await updateCategory({
                     id: selectedCategory.id,
                     updatedCategory: formData,
                 }).unwrap();
-                showSuccessDialog('Success!', 'Category updated successfully');
+                showSuccessDialog(t('msg_success'), t('category_updated'));
             }
 
             closeModal();
@@ -157,14 +159,14 @@ const CategoryComponent = () => {
             console.error('Error:', err);
 
             // Extract message from RTK Query error
-            let errorMessage = 'Something went wrong';
+            let errorMessage = t('msg_error_occurred');
             if (err?.data?.message) {
                 errorMessage = err.data.message; // Custom backend message
             } else if (err?.error) {
                 errorMessage = err.error; // Fallback
             }
 
-            showErrorDialog('Error', errorMessage);
+            showErrorDialog(t('msg_error'), errorMessage);
         } finally {
             setLoading(false);
         }
@@ -172,15 +174,15 @@ const CategoryComponent = () => {
 
     const handleDelete = useCallback(
         async (id: number) => {
-            const confirmed = await showConfirmDialog('Delete Category?', 'Are you sure you want to delete this category?', 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('msg_confirm_delete_text'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteCategory(id).unwrap();
-                    showSuccessDialog('Deleted!', 'Category deleted successfully');
+                    showSuccessDialog(t('msg_success'), t('category_deleted'));
                 } catch (error) {
                     console.error('Error deleting category:', error);
-                    showErrorDialog('Error', 'Failed to delete category');
+                    showErrorDialog(t('msg_error'), t('category_error_delete'));
                 }
             }
         },
@@ -192,7 +194,7 @@ const CategoryComponent = () => {
         () => [
             {
                 key: 'image_url',
-                label: 'Image',
+                label: t('lbl_image'),
                 render: (value, row) => (
                     <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
                         {value ? <Image src={value} alt={row.name} fill className="object-cover" sizes="64px" /> : <ImageIcon className="h-8 w-8 text-gray-400" />}
@@ -201,31 +203,31 @@ const CategoryComponent = () => {
             },
             {
                 key: 'name',
-                label: 'Name',
+                label: t('lbl_name'),
                 sortable: true,
                 render: (value) => <span className="font-semibold text-gray-900">{value}</span>,
             },
             {
                 key: 'description',
-                label: 'Description',
+                label: t('lbl_description'),
                 render: (value) => <span className="line-clamp-2 text-sm text-gray-600">{value}</span>,
                 className: 'max-w-md',
             },
             {
                 key: 'created_at',
-                label: 'Created At',
+                label: t('lbl_created'),
                 sortable: true,
 
                 render: (value) => <DateColumn date={value} />,
             },
             {
                 key: 'updated_at',
-                label: 'Updated At',
+                label: t('lbl_updated'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        []
+        [t]
     );
 
     // Add actions dropdown to categories
@@ -252,7 +254,7 @@ const CategoryComponent = () => {
                                         className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50"
                                     >
                                         <Eye className="h-4 w-4" />
-                                        View
+                                        {t('category_action_view')}
                                     </button>
                                 </li>
                                 <li className="border-t">
@@ -261,7 +263,7 @@ const CategoryComponent = () => {
                                         className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-green-600 transition-colors hover:bg-green-50"
                                     >
                                         <Edit className="h-4 w-4" />
-                                        Edit
+                                        {t('category_action_edit')}
                                     </button>
                                 </li>
                                 <li className="border-t">
@@ -270,7 +272,7 @@ const CategoryComponent = () => {
                                         className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                                     >
                                         <Trash2 className="h-4 w-4" />
-                                        Delete
+                                        {t('category_action_delete')}
                                     </button>
                                 </li>
                             </ul>
@@ -287,20 +289,20 @@ const CategoryComponent = () => {
             ...columns,
             {
                 key: 'actions',
-                label: 'Actions',
+                label: t('lbl_actions'),
                 render: (value: any) => value,
                 className: 'w-20 text-center',
             },
         ],
-        [columns]
+        [t, columns]
     );
 
     if (isLoading) {
-        return <Loader message="Loading categories..." />;
+        return <Loader message={t('category_loading')} />;
     }
 
     if (error) {
-        return <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">Error loading categories. Please try again later.</div>;
+        return <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">{t('category_error_load')}</div>;
     }
 
     return (
@@ -315,8 +317,8 @@ const CategoryComponent = () => {
                                 <Layers className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Category Management</h1>
-                                <p className="text-xs text-gray-500 sm:text-sm">Manage your store categories efficiently</p>
+                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('category_page_title')}</h1>
+                                <p className="text-xs text-gray-500 sm:text-sm">{t('category_page_desc')}</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-start sm:justify-end">
@@ -325,7 +327,7 @@ const CategoryComponent = () => {
                                 className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                             >
                                 <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
-                                <span className="whitespace-nowrap">Add Category</span>
+                                <span className="whitespace-nowrap">{t('category_add')}</span>
                                 <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                             </button>
                         </div>
@@ -361,12 +363,12 @@ const CategoryComponent = () => {
                                 <ImageIcon className="h-16 w-16 text-gray-400" />
                             </div>
                         ),
-                        title: 'No categories yet',
-                        description: 'Get started by creating your first category',
+                        title: t('category_no_data'),
+                        description: t('category_no_data_desc'),
                         action: (
                             <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                                 <Plus className="h-4 w-4" />
-                                Add First Category
+                                {t('category_create_first')}
                             </button>
                         ),
                     }}
@@ -380,9 +382,9 @@ const CategoryComponent = () => {
                         {/* Modal Header */}
                         <div className="flex items-center justify-between border-b border-gray-200 p-6">
                             <h2 className="text-xl font-semibold text-gray-900">
-                                {modalType === 'create' && 'Create New Category'}
-                                {modalType === 'edit' && 'Edit Category'}
-                                {modalType === 'view' && 'Category Details'}
+                                {modalType === 'create' && t('category_create_title')}
+                                {modalType === 'edit' && t('category_edit_title')}
+                                {modalType === 'view' && t('category_view_title')}
                             </h2>
                             <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
                                 <X className="h-5 w-5" />
@@ -405,20 +407,20 @@ const CategoryComponent = () => {
                                         </div>
                                     )}
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_name')}</label>
                                         <p className="text-gray-900">{selectedCategory?.name}</p>
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
                                         <p className="text-gray-900">{selectedCategory?.description}</p>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
-                                            <label className="mb-1 block font-medium text-gray-700">Created</label>
+                                            <label className="mb-1 block font-medium text-gray-700">{t('lbl_created')}</label>
                                             <p className="text-gray-600">{selectedCategory?.created_at}</p>
                                         </div>
                                         <div>
-                                            <label className="mb-1 block font-medium text-gray-700">Updated</label>
+                                            <label className="mb-1 block font-medium text-gray-700">{t('lbl_updated')}</label>
                                             <p className="text-gray-600">{selectedCategory?.updated_at}</p>
                                         </div>
                                     </div>
@@ -427,7 +429,7 @@ const CategoryComponent = () => {
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     {/* Image Upload */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Category Image (Optional)</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('category_image_label')}</label>
                                         <div className="rounded-lg border-2 border-dashed border-gray-300 p-4">
                                             {imagePreview ? (
                                                 <div className="relative mx-auto h-24 w-24">
@@ -446,7 +448,7 @@ const CategoryComponent = () => {
                                             ) : (
                                                 <div className="text-center">
                                                     <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                                                    <p className="mb-2 text-sm text-gray-600">Click to upload image</p>
+                                                    <p className="mb-2 text-sm text-gray-600">{t('msg_upload_hint')}</p>
                                                     <input
                                                         type="file"
                                                         accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -461,34 +463,34 @@ const CategoryComponent = () => {
                                     {/* Name */}
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">
-                                            Name <span className="text-red-500">*</span>
+                                            {t('lbl_name')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-primary"
-                                            placeholder="Enter category name"
+                                            placeholder={t('category_name_placeholder')}
                                             required
                                         />
                                     </div>
 
                                     {/* Description */}
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-700">Description (Optional)</label>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
                                         <textarea
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                             rows={3}
                                             className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-primary"
-                                            placeholder="Enter category description"
+                                            placeholder={t('category_desc_placeholder')}
                                         />
                                     </div>
 
                                     {/* Form Actions */}
                                     <div className="flex gap-3 pt-4">
                                         <button type="button" onClick={closeModal} className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50">
-                                            Cancel
+                                            {t('btn_cancel')}
                                         </button>
                                         <button
                                             type="submit"
@@ -500,7 +502,7 @@ const CategoryComponent = () => {
                                             ) : (
                                                 <>
                                                     <Save className="h-4 w-4" />
-                                                    {modalType === 'create' ? 'Create' : 'Update'}
+                                                    {modalType === 'create' ? t('btn_create') : t('btn_update')}
                                                 </>
                                             )}
                                         </button>

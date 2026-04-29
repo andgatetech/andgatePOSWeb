@@ -2,6 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -20,6 +21,7 @@ const PAYMENT_TYPE_LABELS: Record<string, string> = {
 };
 
 const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, onClose }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     useEffect(() => {

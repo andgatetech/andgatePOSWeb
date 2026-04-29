@@ -6,6 +6,7 @@ import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
@@ -14,6 +15,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const ProductTable = () => {
+    const { t } = getTranslation();
     const { currentStoreId, userStores } = useCurrentStore();
     const { formatCurrency } = useCurrency();
     const [open, setOpen] = useState(false);
@@ -181,10 +183,10 @@ const ProductTable = () => {
 
     const handleDeleteProduct = async (productId: number) => {
         const confirmed = await showConfirmDialog(
-            'Are you sure?',
-            'This product will be permanently deleted!',
-            'Yes, delete it!',
-            'Cancel',
+            t('msg_confirm_delete_title'),
+            t('msg_confirm_delete_text'),
+            t('msg_confirm_delete_btn'),
+            t('btn_cancel'),
             false // Don't show toast on confirm
         );
 
@@ -194,22 +196,21 @@ const ProductTable = () => {
 
         try {
             await deleteProduct(productId).unwrap();
-            showSuccessDialog('Deleted!', 'Product has been deleted successfully.');
+            showSuccessDialog(t('msg_success'), t('product_deleted'));
         } catch (error) {
-            showErrorDialog('Delete Failed!', 'Failed to delete product. Please try again.');
+            showErrorDialog(t('msg_error'), t('product_error_delete'));
         }
     };
 
     // Handle availability toggle
     const handleAvailabilityToggle = async (productId: number, currentAvailability: boolean) => {
         const newAvailability = currentAvailability ? 'no' : 'yes';
-        const statusText = newAvailability === 'yes' ? 'Available' : 'Unavailable';
 
         try {
             await updateAvailability({ id: productId, available: newAvailability }).unwrap();
-            showSuccessDialog('Updated!', `Product is now ${statusText}.`);
+            showSuccessDialog(t('msg_success'), t('product_updated'));
         } catch (error) {
-            showErrorDialog('Update Failed!', 'Failed to update product availability. Please try again.');
+            showErrorDialog(t('msg_error'), t('product_error_load'));
         }
     };
 
@@ -302,7 +303,7 @@ const ProductTable = () => {
     }, [apiParams]);
 
     if (isLoading) {
-        return <Loader message="Loading products..." />;
+        return <Loader message={t('product_loading')} />;
     }
 
     const handleImageShow = (product: any) => {
@@ -328,8 +329,8 @@ const ProductTable = () => {
                                     <Package className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
-                                    <p className="text-sm text-gray-500">View and manage all your store products</p>
+                                    <h1 className="text-2xl font-bold text-gray-900">{t('product_page_title')}</h1>
+                                    <p className="text-sm text-gray-500">{t('product_page_desc')}</p>
                                 </div>
                             </div>
                         </div>
@@ -341,7 +342,7 @@ const ProductTable = () => {
                     <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Total Products</p>
+                                <p className="text-sm font-medium text-gray-600">{t('product_page_title')}</p>
                                 <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
                             </div>
                             <Package className="h-8 w-8 text-blue-500" />
@@ -351,7 +352,7 @@ const ProductTable = () => {
                     <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Available</p>
+                                <p className="text-sm font-medium text-gray-600">{t('product_available')}</p>
                                 <p className="text-2xl font-bold text-green-600">{availableProducts}</p>
                             </div>
                             <CheckCircle className="h-8 w-8 text-green-500" />
@@ -361,7 +362,7 @@ const ProductTable = () => {
                     <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Unavailable</p>
+                                <p className="text-sm font-medium text-gray-600">{t('product_unavailable')}</p>
                                 <p className="text-2xl font-bold text-red-600">{unavailableProducts}</p>
                             </div>
                             <XCircle className="h-8 w-8 text-red-500" />
@@ -371,7 +372,7 @@ const ProductTable = () => {
                     <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Low Stock</p>
+                                <p className="text-sm font-medium text-gray-600">{t('status_low_stock')}</p>
                                 <p className="text-2xl font-bold text-orange-600">{lowStockProducts}</p>
                             </div>
                             <AlertCircle className="h-8 w-8 text-orange-500" />
@@ -381,7 +382,7 @@ const ProductTable = () => {
                     <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Out of Stock</p>
+                                <p className="text-sm font-medium text-gray-600">{t('status_out_of_stock')}</p>
                                 <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
                             </div>
                             <XCircle className="h-8 w-8 text-red-400" />
@@ -425,18 +426,18 @@ const ProductTable = () => {
                                             {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Details</th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_image')}</th>
                                     <th
                                         className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
                                         onClick={() => handleSort('available')}
                                     >
                                         <div className="flex items-center gap-2">
-                                            Status
+                                            {t('lbl_status')}
                                             {sortField === 'available' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Pricing & Tax</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_price')}</th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
@@ -527,14 +528,14 @@ const ProductTable = () => {
                                                             }`}
                                                         >
                                                             {stockStatus.status === 'out'
-                                                                ? 'Out of Stock'
+                                                                ? t('status_out_of_stock')
                                                                 : stockStatus.status === 'critical'
-                                                                ? 'Critical'
+                                                                ? t('status_low_stock')
                                                                 : stockStatus.status === 'low'
-                                                                ? 'Low Stock'
+                                                                ? t('status_low_stock')
                                                                 : stockStatus.status === 'medium'
-                                                                ? 'Medium'
-                                                                : 'In Stock'}
+                                                                ? t('status_in_stock')
+                                                                : t('status_in_stock')}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -562,12 +563,12 @@ const ProductTable = () => {
                                                     {isAvailable ? (
                                                         <>
                                                             <CheckCircle className="mr-2 h-4 w-4" />
-                                                            Available
+                                                            {t('product_available')}
                                                         </>
                                                     ) : (
                                                         <>
                                                             <XCircle className="mr-2 h-4 w-4" />
-                                                            Unavailable
+                                                            {t('product_unavailable')}
                                                         </>
                                                     )}
                                                 </button>
@@ -611,7 +612,7 @@ const ProductTable = () => {
                                                     <ul className="min-w-[120px] rounded-lg border bg-white shadow-lg">
                                                         <li>
                                                             <Link href={`/products/edit/${product.id}`}>
-                                                                <div className="cursor-pointer px-4 py-2 font-medium text-blue-600 hover:bg-blue-50">Edit Product</div>
+                                                                <div className="cursor-pointer px-4 py-2 font-medium text-blue-600 hover:bg-blue-50">{t('product_action_edit')}</div>
                                                             </Link>
                                                         </li>
                                                         <li className="border-t">
@@ -619,7 +620,7 @@ const ProductTable = () => {
                                                                 onClick={() => handleDeleteProduct(product.id)}
                                                                 className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                             >
-                                                                Delete Product
+                                                                {t('product_action_delete')}
                                                             </button>
                                                         </li>
                                                     </ul>
@@ -704,13 +705,13 @@ const ProductTable = () => {
                     {products.length === 0 && (
                         <div className="py-16 text-center">
                             <Package className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-                            <h3 className="mb-2 text-lg font-semibold text-gray-900">No products found</h3>
-                            <p className="mb-6 text-gray-500">{Object.keys(apiParams).length > 0 ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first product.'}</p>
+                            <h3 className="mb-2 text-lg font-semibold text-gray-900">{t('product_no_data')}</h3>
+                            <p className="mb-6 text-gray-500">{Object.keys(apiParams).length > 0 ? t('product_no_data_desc') : t('product_no_data_desc')}</p>
                             {Object.keys(apiParams).length === 0 && (
                                 <Link href="/protected/products/add">
                                     <button className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90">
                                         <Package className="mr-2 h-4 w-4" />
-                                        Add Your First Product
+                                        {t('product_add')}
                                     </button>
                                 </Link>
                             )}

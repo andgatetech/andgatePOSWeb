@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetDashboardAnalyticsQuery } from '@/store/features/dashboard/dashboad';
 import { ShoppingCart, UserCheck, Users } from 'lucide-react';
 import { useState } from 'react';
@@ -87,6 +88,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function Analytics() {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const [chartPeriod, setChartPeriod] = useState('weekly');
     const [customerPeriod, setCustomerPeriod] = useState('this_week');
@@ -102,17 +104,17 @@ export default function Analytics() {
     });
 
     const periodButtons = [
-        { label: 'Daily', value: 'daily' },
-        { label: 'Weekly', value: 'weekly' },
-        { label: 'Monthly', value: 'monthly' },
-        { label: 'Yearly', value: 'yearly' },
+        { label: t('lbl_daily'), value: 'daily' },
+        { label: t('lbl_weekly'), value: 'weekly' },
+        { label: t('lbl_monthly'), value: 'monthly' },
+        { label: t('lbl_yearly'), value: 'yearly' },
     ];
 
     const customerPeriodOptions = [
-        { label: 'Today', value: 'today' },
-        { label: 'This Week', value: 'this_week' },
-        { label: 'This Month', value: 'this_month' },
-        { label: 'This Year', value: 'this_year' },
+        { label: t('lbl_today'), value: 'today' },
+        { label: t('lbl_this_week'), value: 'this_week' },
+        { label: t('lbl_this_month'), value: 'this_month' },
+        { label: t('lbl_this_year'), value: 'this_year' },
     ];
 
     if (isLoading) {
@@ -243,11 +245,11 @@ export default function Analytics() {
                     <div className="flex h-full flex-col rounded-lg border border-gray-200 bg-white p-4">
                         {/* Overall Information */}
                         <div className="mb-4">
-                            <h2 className="mb-3 text-sm font-bold text-gray-900 sm:text-base">Overall Information</h2>
+                            <h2 className="mb-3 text-sm font-bold text-gray-900 sm:text-base">{t('dashboard_overall_info')}</h2>
                             <div className="grid grid-cols-3 gap-2">
-                                <InfoCard title="Suppliers" count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-primary" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
+                                <InfoCard title={t('supplier_title')} count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-primary" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
                                 <InfoCard
-                                    title="Customers"
+                                    title={t('customer_title')}
                                     count={overall_information?.pos_customers?.count ?? 0}
                                     icon={UserCheck}
                                     iconColor="text-warning"
@@ -255,7 +257,7 @@ export default function Analytics() {
                                     cardBg="bg-warning/[0.05]"
                                 />
                                 <InfoCard
-                                    title="Orders"
+                                    title={t('order_title')}
                                     count={overall_information?.pos_orders?.count ?? 0}
                                     icon={ShoppingCart}
                                     iconColor="text-success"

@@ -5,12 +5,14 @@ import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/R
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProductReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, BarChart3, Box, FileText, Hash, Layers, Package, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ProductReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -83,20 +85,20 @@ const ProductReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'sku', label: 'SKU', width: 12 },
-            { key: 'category', label: 'Category', width: 15 },
-            { key: 'brand', label: 'Brand', width: 12 },
-            { key: 'qty', label: 'Stock', width: 10 },
-            { key: 'total_ordered', label: 'Sold', width: 10 },
-            { key: 'quantity_returned', label: 'Returned', width: 10 },
-            { key: 'net_quantity_sold', label: 'Net Qty', width: 10 },
-            { key: 'revenue', label: 'Gross Revenue', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'return_amount', label: 'Return Amount', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'net_revenue', label: 'Net Revenue', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'return_rate', label: 'Return Rate %', width: 12, format: (v) => `${Number(v || 0).toFixed(2)}%` },
+            { key: 'product_name', label: t('lbl_product'), width: 25 },
+            { key: 'sku', label: t('lbl_sku'), width: 12 },
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'brand', label: t('brand_title'), width: 12 },
+            { key: 'qty', label: t('lbl_stock'), width: 10 },
+            { key: 'total_ordered', label: t('lbl_sold'), width: 10 },
+            { key: 'quantity_returned', label: t('status_returned'), width: 10 },
+            { key: 'net_quantity_sold', label: t('lbl_net_qty'), width: 10 },
+            { key: 'revenue', label: t('lbl_gross_revenue'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'return_amount', label: t('lbl_return'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'net_revenue', label: t('lbl_revenue'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'return_rate', label: t('lbl_return_rate'), width: 12, format: (v) => `${Number(v || 0).toFixed(2)}%` },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -113,22 +115,22 @@ const ProductReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Products', value: summary.total_products || 0 },
-            { label: 'Quantity Sold', value: summary.total_ordered || 0 },
-            { label: 'Quantity Returned', value: summary.total_returned || 0 },
-            { label: 'Net Quantity', value: summary.net_quantity_sold || 0 },
-            { label: 'Gross Revenue', value: formatCurrency(summary.total_revenue) },
-            { label: 'Return Amount', value: formatCurrency(summary.total_return_amount) },
-            { label: 'Net Revenue', value: formatCurrency(summary.net_revenue) },
-            { label: 'Return Rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
+            { label: t('product_title'), value: summary.total_products || 0 },
+            { label: t('lbl_qty_sold'), value: summary.total_ordered || 0 },
+            { label: t('lbl_qty_returned'), value: summary.total_returned || 0 },
+            { label: t('lbl_net_qty'), value: summary.net_quantity_sold || 0 },
+            { label: t('lbl_gross_revenue'), value: formatCurrency(summary.total_revenue) },
+            { label: t('lbl_return'), value: formatCurrency(summary.total_return_amount) },
+            { label: t('lbl_revenue'), value: formatCurrency(summary.net_revenue) },
+            { label: t('lbl_return_rate'), value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Unique Products',
+                label: t('lbl_unique_items'),
                 value: Number(summary.total_products || 0).toLocaleString(),
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -136,7 +138,7 @@ const ProductReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Inventory',
+                label: t('lbl_total_inventory'),
                 value: Number(summary.total_quantity || 0).toLocaleString(),
                 icon: <Layers className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -144,7 +146,7 @@ const ProductReportPage = () => {
                 textColor: 'text-purple-600',
             },
             {
-                label: 'Orders Fulfilled',
+                label: t('lbl_orders_fulfilled'),
                 value: Number(summary.total_ordered || 0).toLocaleString(),
                 icon: <ShoppingCart className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -152,7 +154,7 @@ const ProductReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Total Returned',
+                label: t('lbl_return'),
                 value: Number(summary.total_returned || 0).toLocaleString(),
                 icon: <Package className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -160,7 +162,7 @@ const ProductReportPage = () => {
                 textColor: 'text-red-600',
             },
             {
-                label: 'Net Quantity Sold',
+                label: t('lbl_net_qty'),
                 value: Number(summary.net_quantity_sold || 0).toLocaleString(),
                 icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -168,7 +170,7 @@ const ProductReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Gross Revenue',
+                label: t('lbl_gross_revenue'),
                 value: formatCurrency(summary.total_revenue),
                 icon: <Banknote className="h-4 w-4 text-pink-600" />,
                 bgColor: 'bg-pink-500',
@@ -176,7 +178,7 @@ const ProductReportPage = () => {
                 textColor: 'text-pink-600',
             },
             {
-                label: 'Return Amount',
+                label: t('lbl_return'),
                 value: formatCurrency(summary.total_return_amount),
                 icon: <TrendingUp className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -184,7 +186,7 @@ const ProductReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Net Revenue',
+                label: t('lbl_revenue'),
                 value: formatCurrency(summary.net_revenue),
                 icon: <Banknote className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -192,7 +194,7 @@ const ProductReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Return Rate',
+                label: t('lbl_return_rate'),
                 value: `${Number(summary.return_rate || 0).toFixed(2)}%`,
                 icon: <BarChart3 className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -200,14 +202,14 @@ const ProductReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'product_name',
-                label: 'Product Information',
+                label: t('product_title'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -234,11 +236,11 @@ const ProductReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'category', label: 'Category', render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Uncategorized'}</span> },
-            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
+            { key: 'category', label: t('lbl_category'), render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Uncategorized'}</span> },
+            { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
             {
                 key: 'qty',
-                label: 'Current Stock',
+                label: t('lbl_stock'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -251,7 +253,7 @@ const ProductReportPage = () => {
             },
             {
                 key: 'total_ordered',
-                label: 'Quantity Sold',
+                label: t('lbl_qty_sold'),
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
@@ -262,7 +264,7 @@ const ProductReportPage = () => {
             },
             {
                 key: 'quantity_returned',
-                label: 'Qty Returned',
+                label: t('lbl_qty_returned'),
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
@@ -274,7 +276,7 @@ const ProductReportPage = () => {
             },
             {
                 key: 'net_quantity_sold',
-                label: 'Net Qty',
+                label: t('lbl_net_qty'),
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
@@ -284,7 +286,7 @@ const ProductReportPage = () => {
             },
             {
                 key: 'revenue',
-                label: 'Gross Sales',
+                label: t('lbl_gross_sales'),
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 font-bold text-gray-700">
@@ -295,13 +297,13 @@ const ProductReportPage = () => {
             },
             {
                 key: 'return_amount',
-                label: 'Return Amount',
+                label: t('lbl_return'),
                 sortable: true,
                 render: (v: any) => <div className="flex items-center gap-1.5 font-medium text-red-600">{Number(v) > 0 ? `-${formatCurrency(v)}` : formatCurrency(0)}</div>,
             },
             {
                 key: 'net_revenue',
-                label: 'Net Revenue',
+                label: t('lbl_revenue'),
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 font-bold text-emerald-600">
@@ -312,7 +314,7 @@ const ProductReportPage = () => {
             },
             {
                 key: 'return_rate',
-                label: 'Return Rate %',
+                label: t('lbl_return_rate'),
                 sortable: true,
                 render: (v: any) => {
                     const rate = Number(v || 0);
@@ -321,7 +323,7 @@ const ProductReportPage = () => {
                 },
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

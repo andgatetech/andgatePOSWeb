@@ -2,6 +2,7 @@
 
 import ExpenseFilter from '@/components/filters/ExpenseFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteExpenseMutation, useGetExpensesQuery } from '@/store/features/expense/expenseApi';
@@ -89,14 +90,15 @@ const ExpenseListPage = () => {
 
     const handleDelete = useCallback(
         async (expense: any) => {
-            const confirmed = await showConfirmDialog('Delete Expense?', `Are you sure you want to delete "${expense.title}"? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const { t } = getTranslation();
+    const confirmed = await showConfirmDialog('Delete Expense?', `Are you sure you want to delete "${expense.title}"? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
 
             if (confirmed) {
                 try {
                     await deleteExpense(expense.id).unwrap();
                     showSuccessDialog('Deleted!', 'Expense has been deleted successfully.');
                 } catch (error: any) {
-                    showErrorDialog('Error!', error?.data?.message || 'Failed to delete expense.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to delete expense.');
                 }
             }
         },
@@ -112,7 +114,7 @@ const ExpenseListPage = () => {
     }, [refetch]);
 
     if (isLoading) {
-        return <Loader message="Loading expenses..." />;
+        return <Loader message={t('expense_loading')} />;
     }
 
     return (

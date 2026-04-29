@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFiveQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
@@ -49,6 +50,7 @@ const SectionSkeleton = () => (
 
 // Donut Chart Component
 const DonutChart = ({ data, colors, count, label }: { data: Array<{ label: string; value: number }>; colors: string[]; count: number | string; label: string }) => {
+    const { t } = getTranslation();
     const total = data.reduce((sum, item) => sum + item.value, 0);
     const hasData = total > 0 && data.length > 0;
     let currentAngle = -90; // Start from top
@@ -166,13 +168,13 @@ const DonutChart = ({ data, colors, count, label }: { data: Array<{ label: strin
                             </div>
                             <div className="text-right">
                                 <span className="font-bold text-gray-900 dark:text-white">{segment.value}</span>
-                                <span className="ml-1 text-xs text-gray-500">Sales</span>
+                                <span className="ml-1 text-xs text-gray-500">{t('lbl_sales')}</span>
                             </div>
                         </motion.div>
                     ))
                 ) : (
                     <div className="text-center text-sm text-gray-400">
-                        <p>No data available</p>
+                        <p>{t('msg_no_data')}</p>
                     </div>
                 )}
             </div>
@@ -181,6 +183,7 @@ const DonutChart = ({ data, colors, count, label }: { data: Array<{ label: strin
 };
 
 export default function SectionsFive() {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -239,7 +242,7 @@ export default function SectionsFive() {
     if (isError) {
         return (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6">
-                <p className="text-sm text-red-600 sm:text-base">Failed to load dashboard sections. Please try again.</p>
+                <p className="text-sm text-red-600 sm:text-base">{t('msg_failed_to_load_dashboard')}</p>
             </div>
         );
     }
@@ -273,17 +276,17 @@ export default function SectionsFive() {
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                         <Tag className="h-5 w-5 text-warning" />
-                        Top Categories
+                        {t('dashboard_top_categories')}
                     </h2>
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value="today">Today</option>
-                        <option value="last_week">Weekly</option>
-                        <option value="last_year">Yearly</option>
-                        <option value="custom">Custom</option>
+                        <option value="today">{t('lbl_today')}</option>
+                        <option value="last_week">{t('lbl_weekly')}</option>
+                        <option value="last_year">{t('lbl_yearly')}</option>
+                        <option value="custom">{t('lbl_custom_range')}</option>
                     </select>
                 </div>
 
@@ -291,7 +294,7 @@ export default function SectionsFive() {
                 {categoryFilter === 'custom' && (
                     <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_start_date')}</label>
                             <input
                                 type="date"
                                 value={categoryStartDate}
@@ -300,7 +303,7 @@ export default function SectionsFive() {
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">End Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_end_date')}</label>
                             <input
                                 type="date"
                                 value={categoryEndDate}
@@ -313,26 +316,26 @@ export default function SectionsFive() {
 
                 <div className="flex flex-col items-center justify-center p-4">
                     {categoryChartData.length > 0 ? (
-                        <DonutChart data={categoryChartData} colors={categoryColors} count={top_categories.count} label="Categories" />
+                        <DonutChart data={categoryChartData} colors={categoryColors} count={top_categories.count} label={t('lbl_categories')} />
                     ) : (
-                        <div className="flex h-48 w-full items-center justify-center text-gray-500">No data available</div>
+                        <div className="flex h-48 w-full items-center justify-center text-gray-500">{t('msg_no_data_available')}</div>
                     )}
                 </div>
 
                 <div className="mt-4 border-t border-gray-200 pt-4">
-                    <h3 className="mb-2 text-sm font-semibold text-gray-700">Category Statistics</h3>
+                    <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('dashboard_category_statistics')}</h3>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
                                 <div className="h-2 w-2 rounded-full bg-primary"></div>
-                                Total Number Of Categories
+                                {t('dashboard_total_categories')}
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{top_categories.count}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
                                 <div className="h-2 w-2 rounded-full bg-warning"></div>
-                                Total Revenue
+                                {t('lbl_total_revenue')}
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0))}</span>
                         </div>
@@ -348,17 +351,17 @@ export default function SectionsFive() {
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                         <ShoppingBag className="h-5 w-5 text-primary" />
-                        Top Brands
+                        {t('dashboard_top_brands')}
                     </h2>
                     <select
                         value={brandFilter}
                         onChange={(e) => setBrandFilter(e.target.value)}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value="today">Today</option>
-                        <option value="last_week">Weekly</option>
-                        <option value="last_year">Yearly</option>
-                        <option value="custom">Custom</option>
+                        <option value="today">{t('lbl_today')}</option>
+                        <option value="last_week">{t('lbl_weekly')}</option>
+                        <option value="last_year">{t('lbl_yearly')}</option>
+                        <option value="custom">{t('lbl_custom_range')}</option>
                     </select>
                 </div>
 
@@ -366,7 +369,7 @@ export default function SectionsFive() {
                 {brandFilter === 'custom' && (
                     <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_start_date')}</label>
                             <input
                                 type="date"
                                 value={brandStartDate}
@@ -375,7 +378,7 @@ export default function SectionsFive() {
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">End Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_end_date')}</label>
                             <input
                                 type="date"
                                 value={brandEndDate}
@@ -388,26 +391,26 @@ export default function SectionsFive() {
 
                 <div className="flex flex-col items-center justify-center p-4">
                     {brandChartData.length > 0 ? (
-                        <DonutChart data={brandChartData} colors={brandColors} count={top_brands.count} label="Brands" />
+                        <DonutChart data={brandChartData} colors={brandColors} count={top_brands.count} label={t('lbl_brands')} />
                     ) : (
-                        <div className="flex h-48 w-full items-center justify-center text-gray-500">No data available</div>
+                        <div className="flex h-48 w-full items-center justify-center text-gray-500">{t('msg_no_data_available')}</div>
                     )}
                 </div>
 
                 <div className="mt-4 border-t border-gray-200 pt-4">
-                    <h3 className="mb-2 text-sm font-semibold text-gray-700">Brand Statistics</h3>
+                    <h3 className="mb-2 text-sm font-semibold text-gray-700">{t('dashboard_brand_statistics')}</h3>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
                                 <div className="h-2 w-2 rounded-full bg-primary"></div>
-                                Total Number Of Brands
+                                {t('dashboard_total_brands')}
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{top_brands.count}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
                                 <div className="h-2 w-2 rounded-full bg-warning"></div>
-                                Total Revenue
+                                {t('lbl_total_revenue')}
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0))}</span>
                         </div>
@@ -423,17 +426,17 @@ export default function SectionsFive() {
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                         <Package className="h-5 w-5 text-success" />
-                        Top Purchased Products
+                        {t('dashboard_top_purchased_products')}
                     </h2>
                     <select
                         value={purchaseFilter}
                         onChange={(e) => setPurchaseFilter(e.target.value)}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value="today">Today</option>
-                        <option value="last_week">Weekly</option>
-                        <option value="last_year">Yearly</option>
-                        <option value="custom">Custom</option>
+                        <option value="today">{t('lbl_today')}</option>
+                        <option value="last_week">{t('lbl_weekly')}</option>
+                        <option value="last_year">{t('lbl_yearly')}</option>
+                        <option value="custom">{t('lbl_custom_range')}</option>
                     </select>
                 </div>
 
@@ -441,7 +444,7 @@ export default function SectionsFive() {
                 {purchaseFilter === 'custom' && (
                     <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_start_date')}</label>
                             <input
                                 type="date"
                                 value={purchaseStartDate}
@@ -450,7 +453,7 @@ export default function SectionsFive() {
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">End Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_end_date')}</label>
                             <input
                                 type="date"
                                 value={purchaseEndDate}
@@ -463,7 +466,7 @@ export default function SectionsFive() {
 
                 {/* View All Button */}
                 <Link href="/reports/purchase" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
-                    View All
+                    {t('lbl_view_all')}
                 </Link>
 
                 {/* Divider */}
@@ -497,7 +500,7 @@ export default function SectionsFive() {
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">
-                                        {formatCurrency(product.total_cost)} • {product.total_purchased} Purchased
+                                        {formatCurrency(product.total_cost)} • {product.total_purchased} {t('lbl_purchased')}
                                     </p>
                                 </div>
                                 <div className="flex-shrink-0">
@@ -514,7 +517,7 @@ export default function SectionsFive() {
                     ) : (
                         <div className="py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
-                            <p className="mt-2 text-sm text-gray-500">No purchased products found</p>
+                            <p className="mt-2 text-sm text-gray-500">{t('msg_no_purchased_products')}</p>
                         </div>
                     )}
                 </div>

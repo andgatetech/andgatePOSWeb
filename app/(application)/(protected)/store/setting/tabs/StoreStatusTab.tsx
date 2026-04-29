@@ -2,6 +2,7 @@
 
 import { Power } from 'lucide-react';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 interface StoreStatusTabProps {
     formData: {
@@ -11,6 +12,7 @@ interface StoreStatusTabProps {
 }
 
 const StoreStatusTab: React.FC<StoreStatusTabProps> = ({ formData, handleInputChange }) => {
+    const { t } = getTranslation();
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">

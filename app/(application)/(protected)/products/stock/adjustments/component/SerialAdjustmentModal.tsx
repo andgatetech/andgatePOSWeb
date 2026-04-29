@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface SerialData {
     id: number;
@@ -20,6 +21,7 @@ interface SerialAdjustmentModalProps {
 }
 
 const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockId, onSave }: SerialAdjustmentModalProps) => {
+    const { t } = getTranslation();
     const [mode, setMode] = useState<'update-status' | 'bulk-add'>('update-status');
     const [serials, setSerials] = useState<SerialData[]>([]);
 
@@ -182,10 +184,10 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                                                         onChange={(e) => updateSerial(serial.id, 'status', e.target.value)}
                                                         className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                                                     >
-                                                        <option value="in_stock">In Stock</option>
-                                                        <option value="sold">Sold</option>
-                                                        <option value="returned">Returned </option>
-                                                        <option value="damaged">Damaged</option>
+                                                        <option value="in_stock">{t('status_in_stock')}</option>
+                                                        <option value="sold">{t('lbl_sold')}</option>
+                                                        <option value="returned">{t('status_returned')}</option>
+                                                        <option value="damaged">{t('lbl_damaged')}</option>
                                                     </select>
                                                 </div>
                                                 <div>
@@ -235,10 +237,10 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">Status *</label>
                                     <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value as any)} className="w-full rounded-lg border border-gray-300 px-3 py-2">
-                                        <option value="in_stock">In Stock </option>
-                                        <option value="sold">Sold</option>
-                                        <option value="returned">Returned </option>
-                                        <option value="damaged">Damaged</option>
+                                        <option value="in_stock">{t('status_in_stock')}</option>
+                                        <option value="sold">{t('lbl_sold')}</option>
+                                        <option value="returned">{t('status_returned')}</option>
+                                        <option value="damaged">{t('lbl_damaged')}</option>
                                     </select>
                                 </div>
                                 <div>

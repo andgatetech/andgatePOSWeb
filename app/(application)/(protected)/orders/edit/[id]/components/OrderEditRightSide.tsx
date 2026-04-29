@@ -18,6 +18,7 @@ import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/featu
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
 import { skipToken } from '@reduxjs/toolkit/query';
+import { getTranslation } from '@/i18n';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,6 +34,7 @@ interface OrderEditRightSideProps {
 }
 
 const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, originalOrder }) => {
+    const { t } = getTranslation();
     const dispatch = useDispatch();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -596,7 +598,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     };
 
     const clearAllItems = async () => {
-        const confirmed = await showConfirmDialog('Clear Cart?', 'Are you sure you want to clear all items?', 'Yes, clear all', 'Cancel', false);
+        const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('pos_clear_cart'), t('btn_confirm'), t('btn_cancel'), false);
         if (confirmed && currentStoreId) {
             dispatch(clearItemsRedux(currentStoreId));
         }
@@ -648,12 +650,12 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
     const handleSubmit = async () => {
         if (invoiceItems.length === 0) {
-            showMessage('At least one item is required', 'error');
+            showMessage(t('msg_error_occurred'), 'error');
             return;
         }
         const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
         if (invalidItems.length > 0) {
-            showMessage('Please select products and set quantities for all items', 'error');
+            showMessage(t('msg_error_occurred'), 'error');
             return;
         }
 
@@ -777,7 +779,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             setLoading(true);
             const response = await updateOrder({ id: orderId, ...orderData }).unwrap();
             setLoading(false);
-            showMessage('Order updated successfully!', 'success');
+            showMessage(t('msg_updated_success'), 'success');
 
             // Transform backend response to match preview modal format
             const transformedResponse = {
@@ -838,7 +840,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
     const handlePreview = () => {
         if (invoiceItems.length === 0) {
-            showMessage('No items to preview', 'error');
+            showMessage(t('msg_no_data'), 'error');
             return;
         }
         setShowPreview(true);
@@ -1006,10 +1008,10 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
                 <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
                     <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading || invoiceItems.length === 0 || isLoadingCustomer}>
-                        {isLoadingCustomer ? 'Loading Customer...' : 'Update Order'} <IconSave />
+                        {isLoadingCustomer ? t('btn_loading') : t('btn_update')} <IconSave />
                     </button>
                     <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
-                        Preview <IconEye />
+                        {t('btn_view')} <IconEye />
                     </button>
                 </div>
             </div>

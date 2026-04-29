@@ -2,6 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -12,6 +13,7 @@ interface ViewCustomerModalProps {
 }
 
 const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen, onClose }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     useEffect(() => {
@@ -54,52 +56,52 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
                 {/* Modal Content */}
                 <div className="space-y-3 p-6 text-sm">
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Email</span>
+                        <span className="text-gray-500">{t('lbl_email')}</span>
                         <span className="font-medium">{customer.email || '—'}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Phone</span>
+                        <span className="text-gray-500">{t('lbl_phone')}</span>
                         <span className="font-medium">{customer.phone || '—'}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Membership</span>
+                        <span className="text-gray-500">{t('lbl_loyalty_tier')}</span>
                         <span className="font-medium capitalize">{membership}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Points</span>
+                        <span className="text-gray-500">{t('lbl_loyalty_points')}</span>
                         <span className="font-medium">{customer.points || 0}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Balance</span>
+                        <span className="text-gray-500">{t('lbl_balance')}</span>
                         <span className={`font-medium ${customer.balance > 0 ? 'text-green-600' : customer.balance < 0 ? 'text-red-600' : ''}`}>
                             {formatCurrency(Math.abs(customer.balance || 0))}
-                            {customer.balance < 0 && ' (Due)'}
+                            {customer.balance < 0 && ` (${t('lbl_due')})`}
                         </span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Status</span>
-                        <span className={`font-medium ${isActive ? 'text-green-600' : 'text-red-600'}`}>{isActive ? 'Active' : 'Inactive'}</span>
+                        <span className="text-gray-500">{t('lbl_status')}</span>
+                        <span className={`font-medium ${isActive ? 'text-green-600' : 'text-red-600'}`}>{isActive ? t('status_active') : t('status_inactive')}</span>
                     </div>
 
                     {customer.details && (
                         <div className="border-b border-gray-200 py-2">
-                            <p className="mb-1 text-gray-500">Details</p>
+                            <p className="mb-1 text-gray-500">{t('lbl_notes')}</p>
                             <p className="text-gray-900">{customer.details}</p>
                         </div>
                     )}
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Joined</span>
+                        <span className="text-gray-500">{t('customer_col_joined_date')}</span>
                         <DateColumn date={customer.created_at} />
                     </div>
 
                     <div className="flex justify-between py-2">
-                        <span className="text-gray-500">Updated</span>
+                        <span className="text-gray-500">{t('lbl_updated')}</span>
                         <DateColumn date={customer.updated_at} />
                     </div>
                 </div>
@@ -107,7 +109,7 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
                 {/* Modal Footer */}
                 <div className="flex gap-2 px-6 pb-6 pt-3">
                     <button onClick={onClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
-                        Close
+                        {t('btn_close')}
                     </button>
                 </div>
             </div>

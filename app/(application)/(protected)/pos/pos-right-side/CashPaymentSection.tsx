@@ -1,4 +1,5 @@
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import type { PosFormData } from './types';
 
 interface CashPaymentSectionProps {
@@ -15,7 +16,8 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
     const { formatCurrency, symbol } = useCurrency();
 
     const handleQuickAmount = (amount: number) => {
-        const event = {
+        const { t } = getTranslation();
+    const event = {
             target: {
                 name: 'amountPaid',
                 value: amount.toString(),

@@ -3,6 +3,7 @@
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
@@ -25,6 +26,7 @@ import VariantsTab, { ProductStock } from './VariantsTab';
 import WarrantyTab from './WarrantyTab';
 
 const ProductCreateForm = () => {
+    const { t } = getTranslation();
     const maxNumber = 10;
     const [images, setImages] = useState<any>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -237,13 +239,13 @@ const ProductCreateForm = () => {
     const handleSubmit = async () => {
         // Validation
         if (!formData.product_name.trim()) {
-            showErrorDialog('Validation Error', 'Please enter Product Name!');
+            showErrorDialog(t('msg_error'), t('lbl_product'));
             setActiveTab('basic');
             return;
         }
 
         if (!formData.category_id) {
-            showErrorDialog('Validation Error', 'Please select a Category!');
+            showErrorDialog(t('msg_error'), t('lbl_select_category'));
             setActiveTab('basic');
             return;
         }
@@ -252,7 +254,7 @@ const ProductCreateForm = () => {
         if (formData.has_attributes) {
             // For variant products, validate stocks/variants
             if (!productStocks || productStocks.length === 0) {
-                showErrorDialog('Validation Error', 'Please configure at least one variant in the Variants tab!');
+                showErrorDialog(t('msg_error'), t('lbl_variant'));
                 setActiveTab('variants');
                 return;
             }
@@ -263,32 +265,32 @@ const ProductCreateForm = () => {
                 const variantName = stock.variant_data && Object.keys(stock.variant_data).length > 0 ? Object.values(stock.variant_data).join('-') : `Variant ${i + 1}`;
 
                 if (!stock.price || parseFloat(stock.price) <= 0) {
-                    showErrorDialog('Validation Error', `${variantName}: Please enter valid selling price!`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_selling_price')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.purchase_price || parseFloat(stock.purchase_price) <= 0) {
-                    showErrorDialog('Validation Error', `${variantName}: Please enter valid purchase price!`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_purchase_price')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.quantity || parseFloat(stock.quantity) < 0) {
-                    showErrorDialog('Validation Error', `${variantName}: Please enter valid quantity!`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_quantity')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.unit || stock.unit.trim() === '') {
-                    showErrorDialog('Validation Error', `${variantName}: Please enter a unit (e.g., pcs, kg, ltr)!`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_unit')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (stock.low_stock_quantity && parseFloat(stock.low_stock_quantity) < 0) {
-                    showErrorDialog('Validation Error', `${variantName}: Low stock quantity cannot be negative!`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_minimum_stock')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (stock.tax_rate && (parseFloat(stock.tax_rate) < 0 || parseFloat(stock.tax_rate) > 100)) {
-                    showErrorDialog('Validation Error', `${variantName}: Tax rate must be between 0 and 100!`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_tax')}`);
                     setActiveTab('variants');
                     return;
                 }
@@ -302,17 +304,17 @@ const ProductCreateForm = () => {
         // For simple products (no variants), validate and auto-create single stock from formData
         // Validate simple product pricing & stock
         if (!formData.price || parseFloat(formData.price) <= 0) {
-            showErrorDialog('Validation Error', 'Please enter valid selling price!');
+            showErrorDialog(t('msg_error'), t('lbl_selling_price'));
             setActiveTab('pricing');
             return;
         }
         if (!formData.purchase_price || parseFloat(formData.purchase_price) <= 0) {
-            showErrorDialog('Validation Error', 'Please enter valid purchase price!');
+            showErrorDialog(t('msg_error'), t('lbl_purchase_price'));
             setActiveTab('pricing');
             return;
         }
         if (!formData.quantity || parseFloat(formData.quantity) < 0) {
-            showErrorDialog('Validation Error', 'Please enter valid quantity!');
+            showErrorDialog(t('msg_error'), t('lbl_quantity'));
             setActiveTab('stock');
             return;
         }
@@ -543,7 +545,7 @@ const ProductCreateForm = () => {
             setActiveTab('basic'); // Reset to basic tab
 
             // showSuccessDialog(title, text, confirmButtonText, showCancelButton, cancelButtonText)
-            showSuccessDialog('Success!', 'Product has been created successfully', 'Go to Products', true, 'Create Another').then((result) => {
+            showSuccessDialog(t('msg_success'), t('product_created'), t('btn_view'), true, t('btn_create')).then((result) => {
                 if (result.isConfirmed) {
                     router.push('/products');
                 }
@@ -568,8 +570,8 @@ const ProductCreateForm = () => {
 
             // Don't show Swal for 403 subscription errors - SubscriptionError component will handle it
             if (error?.status !== 403) {
-                const errorMessage = error?.data?.message || 'Something went wrong while creating the product';
-                showErrorDialog('Error!', errorMessage);
+                const errorMessage = error?.data?.message || t('msg_error_occurred');
+                showErrorDialog(t('msg_error'), errorMessage);
             }
         }
     };
@@ -591,8 +593,8 @@ const ProductCreateForm = () => {
                                     <Store className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-gray-900">Create New Product</h1>
-                                    <p className="text-sm text-gray-500">{currentStore ? `Add to ${currentStore.store_name}` : 'Add to your inventory'}</p>
+                                    <h1 className="text-xl font-bold text-gray-900">{t('product_create_title')}</h1>
+                                    <p className="text-sm text-gray-500">{currentStore ? `${t('product_add')} ${currentStore.store_name}` : t('product_add')}</p>
                                 </div>
                             </div>
                         </div>

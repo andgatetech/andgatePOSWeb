@@ -1,10 +1,12 @@
 import { ArrowDown, ArrowUp, FileText, Package, Search } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 
 /**
  * EmptyState Component
  * Displays when no products are selected for stock adjustment
  */
 const EmptyState = () => {
+    const { t } = getTranslation();
     return (
         <div className="flex h-full flex-col items-center justify-center bg-gray-50 p-6">
             <div className="w-full max-w-md text-center">

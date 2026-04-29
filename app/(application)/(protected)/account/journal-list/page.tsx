@@ -2,6 +2,7 @@
 
 import JournalFilter from '@/components/filters/JournalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteJournalMutation, useGetJournalsQuery } from '@/store/features/journals/journals';
@@ -89,14 +90,15 @@ const JournalListPage = () => {
 
     const handleDelete = useCallback(
         async (journal: any) => {
-            const confirmed = await showConfirmDialog('Delete Journal Entry?', `Are you sure you want to delete this journal entry? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const { t } = getTranslation();
+    const confirmed = await showConfirmDialog('Delete Journal Entry?', `Are you sure you want to delete this journal entry? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
 
             if (confirmed) {
                 try {
                     await deleteJournal(journal.id).unwrap();
                     showSuccessDialog('Deleted!', 'Journal entry has been deleted successfully.');
                 } catch (error: any) {
-                    showErrorDialog('Error!', error?.data?.message || 'Failed to delete journal entry.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to delete journal entry.');
                 }
             }
         },
@@ -112,7 +114,7 @@ const JournalListPage = () => {
     }, [refetch]);
 
     if (isLoading) {
-        return <Loader message="Loading journals..." />;
+        return <Loader message={t('account_loading_journals')} />;
     }
 
     return (

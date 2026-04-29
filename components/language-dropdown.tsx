@@ -3,13 +3,12 @@ import Dropdown from '@/components/dropdown';
 import IconCaretDown from '@/components/icon/icon-caret-down';
 import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
-import { toggleRTL } from '@/store/themeConfigSlice';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 interface LanguageDropdownProps {
     className?: string;
+    variant?: 'light' | 'dark';
 }
 
 // Maps language code → flag SVG filename (language code ≠ country code)
@@ -19,22 +18,11 @@ const LANG_FLAG: Record<string, string> = {
 };
 const flagFor = (code: string) => LANG_FLAG[code] ?? code.toUpperCase();
 
-const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
-    const dispatch = useDispatch();
-    const router = useRouter();
+const LanguageDropdown = ({ className = '', variant = 'light' }: LanguageDropdownProps) => {
     const { i18n } = getTranslation();
 
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
-
-    const setLocale = (flag: string) => {
-        if (flag.toLowerCase() === 'ae') {
-            dispatch(toggleRTL('rtl'));
-        } else {
-            dispatch(toggleRTL('ltr'));
-        }
-        router.refresh();
-    };
 
     return (
         <div className={`dropdown ${className}`}>
@@ -42,7 +30,11 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                 <Dropdown
                     offset={[0, 8]}
                     placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                    btnClassName="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700 transition-all hover:border-blue-600 hover:text-blue-600"
+                    btnClassName={
+                        variant === 'dark'
+                            ? 'flex items-center gap-2 rounded-md bg-white/[0.08] px-3 py-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white'
+                            : 'flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700 transition-all hover:border-blue-600 hover:text-blue-600'
+                    }
                     button={
                         <>
                             <Image src={`/assets/images/flags/${flagFor(i18n.language)}.svg`} alt={i18n.language} width={20} height={20} className="rounded-full object-cover" />
@@ -59,10 +51,7 @@ const LanguageDropdown = ({ className = '' }: LanguageDropdownProps) => {
                                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-blue-50 hover:text-blue-600 ${
                                         i18n.language === item.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
                                     }`}
-                                    onClick={() => {
-                                        i18n.changeLanguage(item.code);
-                                        setLocale(item.code);
-                                    }}
+                                    onClick={() => i18n.changeLanguage(item.code)}
                                 >
                                     <Image src={`/assets/images/flags/${flagFor(item.code)}.svg`} alt={item.name} width={20} height={20} className="rounded-full object-cover" />
                                     <span className="text-sm">{item.name}</span>

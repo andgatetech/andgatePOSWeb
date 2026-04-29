@@ -6,12 +6,14 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetPurchaseItemsReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, CheckCircle, FileText, Package, Truck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseItemsReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -84,16 +86,16 @@ const PurchaseItemsReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'reference', label: 'Reference', width: 15 },
-            { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'category', label: 'Category', width: 15 },
-            { key: 'purchase_qty', label: 'Qty', width: 10 },
-            { key: 'received_qty', label: 'Received', width: 10 },
-            { key: 'unit_price', label: 'Unit Price', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'purchase_amount', label: 'Total', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'due_date', label: 'Due Date', width: 12, format: (v) => v || '' },
+            { key: 'reference', label: t('lbl_reference'), width: 15 },
+            { key: 'product_name', label: t('lbl_product'), width: 25 },
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'purchase_qty', label: t('lbl_qty'), width: 10 },
+            { key: 'received_qty', label: t('status_received'), width: 10 },
+            { key: 'unit_price', label: t('lbl_unit_price'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'purchase_amount', label: t('lbl_total'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'due_date', label: t('lbl_due_date'), width: 12, format: (v) => v || '' },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -110,17 +112,17 @@ const PurchaseItemsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Unique Items', value: summary.total_items || 0 },
-            { label: 'Total Quantity', value: summary.total_quantity || 0 },
-            { label: 'Total Amount', value: formatCurrency(summary.total_amount) },
+            { label: t('lbl_unique_items'), value: summary.total_items || 0 },
+            { label: t('lbl_qty'), value: summary.total_quantity || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Total Unique Items',
+                label: t('lbl_unique_items'),
                 value: summary.total_items || 0,
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -128,7 +130,7 @@ const PurchaseItemsReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Quantity',
+                label: t('lbl_qty'),
                 value: summary.total_quantity || 0,
                 icon: <Truck className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -136,7 +138,7 @@ const PurchaseItemsReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Total Received',
+                label: t('lbl_total_received'),
                 value: summary.total_received || 0,
                 icon: <CheckCircle className="h-4 w-4 text-teal-600" />,
                 bgColor: 'bg-teal-500',
@@ -144,7 +146,7 @@ const PurchaseItemsReportPage = () => {
                 textColor: 'text-teal-600',
             },
             {
-                label: 'Total Amount',
+                label: t('lbl_total'),
                 value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -152,21 +154,21 @@ const PurchaseItemsReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
-            { key: 'reference', label: 'Reference', render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
-            { key: 'sku', label: 'SKU', render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
-            { key: 'product_name', label: 'Product', sortable: true, render: (v: any) => <span className="font-medium text-gray-900">{v}</span> },
-            { key: 'category', label: 'Category', render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
-            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
-            { key: 'instock_qty', label: 'Instock', render: (v: any) => <span className={`font-semibold ${Number(v) > 0 ? 'text-gray-900' : 'text-red-600'}`}>{v}</span> },
-            { key: 'purchase_qty', label: 'Qty', sortable: true, render: (v: any) => <span className="font-bold text-blue-600">{v}</span> },
+            { key: 'reference', label: t('lbl_reference'), render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
+            { key: 'sku', label: t('lbl_sku'), render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
+            { key: 'product_name', label: t('lbl_product'), sortable: true, render: (v: any) => <span className="font-medium text-gray-900">{v}</span> },
+            { key: 'category', label: t('lbl_category'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
+            { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
+            { key: 'instock_qty', label: t('status_in_stock'), render: (v: any) => <span className={`font-semibold ${Number(v) > 0 ? 'text-gray-900' : 'text-red-600'}`}>{v}</span> },
+            { key: 'purchase_qty', label: t('lbl_qty'), sortable: true, render: (v: any) => <span className="font-bold text-blue-600">{v}</span> },
             {
                 key: 'received_qty',
-                label: 'Received',
+                label: t('status_received'),
                 render: (v: any, r: any) => {
                     const f = Number(v) >= Number(r.purchase_qty);
                     return (
@@ -177,15 +179,15 @@ const PurchaseItemsReportPage = () => {
                     );
                 },
             },
-            { key: 'unit_price', label: 'Unit Price', render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
-            { key: 'purchase_amount', label: 'Total', sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
+            { key: 'unit_price', label: t('lbl_unit_price'), render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
+            { key: 'purchase_amount', label: t('lbl_total'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
             {
                 key: 'due_date',
-                label: 'Due Date',
+                label: t('lbl_due_date'),
                 render: (v: any) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">N/A</span>),
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

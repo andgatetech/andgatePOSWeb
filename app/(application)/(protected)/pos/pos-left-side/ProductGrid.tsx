@@ -1,3 +1,4 @@
+import { getTranslation } from '@/i18n';
 import { Package } from 'lucide-react';
 import React from 'react';
 import ProductCard from './ProductCard';
@@ -13,15 +14,14 @@ interface ProductGridProps {
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, leftWidth, isMobileView, onAddToCart, onImageShow, mode = 'pos' }) => {
+    const { t } = getTranslation();
     if (products.length === 0) {
         return (
             <div className="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-12 sm:py-16">
                 <Package className="mb-4 h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
-                <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">No Products Found</h3>
+                <h3 className="mb-2 text-base font-semibold text-gray-900 sm:text-lg">{t('msg_no_data')}</h3>
                 <p className="mb-4 max-w-md text-center text-sm text-gray-600 sm:text-base">
-                    No products match your current filters or search.
-                    <br />
-                    Try adjusting your filters or search terms.
+                    {t('pos_search_product')}
                 </p>
             </div>
         );

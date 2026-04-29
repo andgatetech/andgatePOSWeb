@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface TaxTabProps {
@@ -17,15 +18,16 @@ interface TaxTabProps {
 }
 
 const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+    const { t } = getTranslation();
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Tax Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('lbl_tax')}</h3>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Tax Rate */}
                 <div>
                     <label htmlFor="tax_rate" className="mb-2 block text-sm font-medium text-gray-700">
-                        Tax Rate (%)
+                        {t('lbl_tax')} (%)
                     </label>
                     <div className="relative">
                         <input
@@ -47,7 +49,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
 
                 {/* Tax Included */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">Tax Inclusion</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_tax')}</label>
                     <div className="flex items-center space-x-6 pt-3">
                         <label className="flex cursor-pointer items-center">
                             <input
@@ -58,7 +60,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                                 onChange={() => setFormData((prev: any) => ({ ...prev, tax_included: false }))}
                                 className="h-4 w-4 text-gray-600 focus:ring-gray-500"
                             />
-                            <span className="ml-2 text-sm text-gray-700">Tax Exclusive</span>
+                            <span className="ml-2 text-sm text-gray-700">{t('status_partial')}</span>
                         </label>
                         <label className="flex cursor-pointer items-center">
                             <input
@@ -69,7 +71,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                                 onChange={() => setFormData((prev: any) => ({ ...prev, tax_included: true }))}
                                 className="h-4 w-4 text-gray-600 focus:ring-gray-500"
                             />
-                            <span className="ml-2 text-sm text-gray-700">Tax Inclusive</span>
+                            <span className="ml-2 text-sm text-gray-700">{t('lbl_tax')}</span>
                         </label>
                     </div>
                     <p className="mt-2 text-xs text-gray-500">{formData.tax_included ? 'Price includes tax amount' : 'Tax will be added to the price'}</p>
@@ -104,14 +106,14 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
                 <button
                     type="button"
                     onClick={onNext}
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 sm:px-6 sm:py-3"
                 >
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -132,14 +134,14 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
+                            <span>{isEditMode ? t('btn_updating') : t('btn_creating')}</span>
                         </>
                     ) : (
                         <>
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>{isEditMode ? 'Update Product' : 'Create Product'}</span>
+                            <span>{isEditMode ? t('product_edit_title') : t('product_create_title')}</span>
                         </>
                     )}
                 </button>

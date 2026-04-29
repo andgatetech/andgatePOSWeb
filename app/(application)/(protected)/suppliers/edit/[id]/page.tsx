@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleSupplierQuery, useUpdateSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { Store, User } from 'lucide-react';
@@ -17,6 +18,7 @@ interface SupplierFormData {
 }
 
 const EditSupplierPage = () => {
+    const { t } = getTranslation();
     const { id } = useParams();
     const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
@@ -125,12 +127,12 @@ const EditSupplierPage = () => {
 
             await updateSupplier(submitData).unwrap();
 
-            showSuccessDialog('Success!', 'Supplier updated successfully');
+            showSuccessDialog(t('msg_success'), t('supplier_updated'));
             router.push('/suppliers/list');
         } catch (error: any) {
             console.error('Update supplier failed', error);
-            const errorMessage = error?.data?.message || 'Something went wrong while updating the supplier';
-            showErrorDialog('Error!', errorMessage, 'Try Again');
+            const errorMessage = error?.data?.message || t('msg_error_occurred');
+            showErrorDialog(t('msg_error'), errorMessage, t('btn_confirm'));
         }
     };
 
@@ -148,7 +150,7 @@ const EditSupplierPage = () => {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            Loading...
+                            {t('supplier_loading')}
                         </div>
                     </div>
                 </div>
@@ -169,8 +171,8 @@ const EditSupplierPage = () => {
                                 <User className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Edit Supplier</h1>
-                                <p className="text-sm text-gray-500">Update supplier information for {supplier?.name}</p>
+                                <h1 className="text-2xl font-bold text-gray-900">{t('supplier_edit_title')}</h1>
+                                <p className="text-sm text-gray-500">{supplier?.name}</p>
                             </div>
                         </div>
                     </div>
@@ -194,12 +196,12 @@ const EditSupplierPage = () => {
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             {/* Basic Information Section */}
                             <div>
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_name')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Supplier Name */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Supplier Name <span className="text-red-500">*</span>
+                                            {t('lbl_supplier')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="name"
@@ -207,7 +209,7 @@ const EditSupplierPage = () => {
                                             type="text"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            placeholder="Enter supplier name"
+                                            placeholder={t('lbl_name')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500 ${
                                                 errors.name ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -218,7 +220,7 @@ const EditSupplierPage = () => {
                                     {/* Email */}
                                     <div>
                                         <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Email Address <span className="text-red-500">*</span>
+                                            {t('lbl_email')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="email"
@@ -226,7 +228,7 @@ const EditSupplierPage = () => {
                                             type="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            placeholder="supplier@example.com"
+                                            placeholder={t('lbl_email')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500 ${
                                                 errors.email ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -237,7 +239,7 @@ const EditSupplierPage = () => {
                                     {/* Phone */}
                                     <div>
                                         <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Phone Number <span className="text-red-500">*</span>
+                                            {t('lbl_phone')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="phone"
@@ -245,7 +247,7 @@ const EditSupplierPage = () => {
                                             type="tel"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            placeholder="+1234567890"
+                                            placeholder={t('lbl_phone')}
                                             className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500 ${
                                                 errors.phone ? 'border-red-300' : 'border-gray-300'
                                             }`}
@@ -256,7 +258,7 @@ const EditSupplierPage = () => {
                                     {/* Contact Person */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="contact_person" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Contact Person
+                                            {t('lbl_full_name')}
                                         </label>
                                         <input
                                             id="contact_person"
@@ -264,7 +266,7 @@ const EditSupplierPage = () => {
                                             type="text"
                                             value={formData.contact_person}
                                             onChange={handleChange}
-                                            placeholder="Enter contact person name"
+                                            placeholder={t('lbl_full_name')}
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         />
                                     </div>
@@ -273,19 +275,19 @@ const EditSupplierPage = () => {
 
                             {/* Contact & Status Section */}
                             <div className="border-t border-gray-200 pt-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Contact & Status</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_address')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Address */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Address <span className="text-red-500">*</span>
+                                            {t('lbl_address')} <span className="text-red-500">*</span>
                                         </label>
                                         <textarea
                                             id="address"
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
-                                            placeholder="Enter complete address"
+                                            placeholder={t('lbl_address')}
                                             rows={3}
                                             maxLength={500}
                                             className={`w-full resize-none rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500 ${
@@ -299,7 +301,7 @@ const EditSupplierPage = () => {
                                     {/* Status */}
                                     <div>
                                         <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
-                                            Status
+                                            {t('lbl_status')}
                                         </label>
                                         <select
                                             id="status"
@@ -308,15 +310,15 @@ const EditSupplierPage = () => {
                                             onChange={handleChange}
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         >
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                            <option value="blocked">Blocked</option>
+                                            <option value="active">{t('status_active')}</option>
+                                            <option value="inactive">{t('status_inactive')}</option>
+                                            <option value="blocked">{t('status_rejected')}</option>
                                         </select>
                                     </div>
 
                                     {/* Store Info (Read-only) */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Store</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_store')}</label>
                                         <input
                                             type="text"
                                             value={supplier?.store_name || 'N/A'}
@@ -335,7 +337,7 @@ const EditSupplierPage = () => {
                                         onClick={() => router.push('/suppliers/list')}
                                         className="w-full rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:w-auto"
                                     >
-                                        Cancel
+                                        {t('btn_cancel')}
                                     </button>
                                     <button
                                         type="submit"
@@ -352,14 +354,14 @@ const EditSupplierPage = () => {
                                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                     ></path>
                                                 </svg>
-                                                Updating...
+                                                {t('btn_updating')}
                                             </>
                                         ) : (
                                             <>
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                                Update Supplier
+                                                {t('supplier_edit_title')}
                                             </>
                                         )}
                                     </button>

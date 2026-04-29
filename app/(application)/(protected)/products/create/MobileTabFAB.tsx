@@ -1,5 +1,6 @@
 'use client';
 
+import { getTranslation } from '@/i18n';
 import { Barcode, DollarSign, Hash, Image as ImageIcon, Info, Package, Receipt, Shield, Sliders, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -10,18 +11,6 @@ interface Tab {
     icon: any;
 }
 
-const tabs: Tab[] = [
-    { id: 'basic', label: 'Basic Info', icon: Info },
-    { id: 'pricing', label: 'Pricing', icon: DollarSign },
-    { id: 'stock', label: 'Stock', icon: Package },
-    { id: 'attributes', label: 'Attributes', icon: Tag },
-    { id: 'variants', label: 'Variants', icon: Sliders },
-    { id: 'warranty', label: 'Warranty', icon: Shield },
-    { id: 'serial', label: 'Serial/IMEI', icon: Hash },
-    { id: 'tax', label: 'Tax', icon: Receipt },
-    { id: 'sku', label: 'SKU', icon: Barcode },
-    { id: 'images', label: 'Images', icon: ImageIcon },
-];
 
 interface MobileTabFABProps {
     activeTab: string;
@@ -30,7 +19,20 @@ interface MobileTabFABProps {
 }
 
 const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, visibleTabs }) => {
+    const { t } = getTranslation();
     const [isOpen, setIsOpen] = useState(false);
+    const tabs: Tab[] = [
+        { id: 'basic', label: t('lbl_basic_info'), icon: Info },
+        { id: 'pricing', label: t('lbl_pricing'), icon: DollarSign },
+        { id: 'stock', label: t('lbl_stock'), icon: Package },
+        { id: 'attributes', label: t('store_attributes_title'), icon: Tag },
+        { id: 'variants', label: t('lbl_variant'), icon: Sliders },
+        { id: 'warranty', label: t('lbl_warranty'), icon: Shield },
+        { id: 'serial', label: t('lbl_serial'), icon: Hash },
+        { id: 'tax', label: t('lbl_tax'), icon: Receipt },
+        { id: 'sku', label: t('lbl_sku'), icon: Barcode },
+        { id: 'images', label: t('lbl_images'), icon: ImageIcon },
+    ];
 
     // Filter tabs to only show visible ones
     const displayTabs = tabs.filter((tab) => visibleTabs.includes(tab.id));
@@ -53,7 +55,7 @@ const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, vis
             <div className={`fixed inset-x-0 bottom-0 z-50 transform rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 md:hidden ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
                 <div className="p-4">
                     <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-base font-bold text-gray-900">Product Sections</h3>
+                        <h3 className="text-base font-bold text-gray-900">{t('product_page_title')}</h3>
                         <button onClick={() => setIsOpen(false)} className="rounded-full bg-gray-100 p-1.5 text-gray-600 transition-colors hover:bg-gray-200">
                             <X className="h-4 w-4" />
                         </button>

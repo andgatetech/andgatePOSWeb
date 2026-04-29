@@ -1,6 +1,7 @@
 'use client';
 
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { getTranslation } from '@/i18n';
 import { useCreateWarrantyTypeMutation, useDeleteWarrantyTypeMutation, useUpdateWarrantyTypeMutation } from '@/store/features/warrenty/WarrantyTypeApi';
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
@@ -14,6 +15,7 @@ interface WarrantyTypesTabProps {
 }
 
 const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTypesData, warrantyTypesLoading, setMessage }) => {
+    const { t } = getTranslation();
     const [createWarrantyType] = useCreateWarrantyTypeMutation();
     const [updateWarrantyType] = useUpdateWarrantyTypeMutation();
     const [deleteWarrantyType] = useDeleteWarrantyTypeMutation();
@@ -47,7 +49,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
 
     const handleCreateWarranty = async () => {
         if (!warrantyName.trim()) {
-            showErrorDialog('Error', 'Please enter warranty name');
+            showErrorDialog(t('msg_error'), 'Please enter warranty name');
             return;
         }
 
@@ -55,12 +57,12 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         const daysValue = warrantyDurationDays ? parseInt(warrantyDurationDays) : null;
 
         if (!monthsValue && !daysValue) {
-            showErrorDialog('Error', 'Please enter at least one duration (months or days)');
+            showErrorDialog(t('msg_error'), 'Please enter at least one duration (months or days)');
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog('Error', 'No valid store selected. Cannot create warranty type.');
+            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create warranty type.');
             return;
         }
 
@@ -88,7 +90,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             setWarrantyDurationMonths('');
             setWarrantyDurationDays('');
             setWarrantyDescription('');
-            showSuccessDialog('Success!', 'Warranty type created successfully!');
+            showSuccessDialog(t('msg_success'), t('msg_created_success'));
         } catch (error: any) {
             console.error('Create warranty error:', error);
             const errorMessage = error?.data?.message || 'Failed to create warranty type';
@@ -113,7 +115,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
 
     const handleUpdateWarranty = async (id: number) => {
         if (!editingWarrantyData.name.trim()) {
-            showErrorDialog('Error', 'Please enter warranty name');
+            showErrorDialog(t('msg_error'), 'Please enter warranty name');
             return;
         }
 
@@ -121,7 +123,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         const daysValue = editingWarrantyData.duration_days ? parseInt(editingWarrantyData.duration_days) : null;
 
         if (!monthsValue && !daysValue) {
-            showErrorDialog('Error', 'Please enter at least one duration (months or days)');
+            showErrorDialog(t('msg_error'), 'Please enter at least one duration (months or days)');
             return;
         }
 
@@ -173,7 +175,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         try {
             const currentWarranty = warrantyTypesData.find((w: any) => w.id === id);
             if (!currentWarranty) {
-                showErrorDialog('Error', 'Warranty type not found');
+                showErrorDialog(t('msg_error'), 'Warranty type not found');
                 return;
             }
 

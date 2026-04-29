@@ -1,5 +1,6 @@
 import IconX from '@/components/icon/icon-x';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Hash, Shield } from 'lucide-react';
 import React from 'react';
 
@@ -48,6 +49,7 @@ interface ItemPreviewModalProps {
 }
 
 const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, item }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     if (!isOpen || !item) return null;
 

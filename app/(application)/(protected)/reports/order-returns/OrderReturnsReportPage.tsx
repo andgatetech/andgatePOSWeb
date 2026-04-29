@@ -6,6 +6,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import OrderReturnsReportFilter from '@/components/filters/reports/OrderReturnsReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetOrderReturnsReportMutation } from '@/store/features/reports/reportApi';
@@ -13,6 +14,7 @@ import { ArrowLeftRight, FileText, Hash, PackageX, Percent, RefreshCw, TrendingD
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const OrderReturnsReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -113,7 +115,7 @@ const OrderReturnsReportPage = () => {
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Total Returns',
+                label: t('lbl_total_returns'),
                 value: Number(summary.total_returns || 0).toLocaleString(),
                 icon: <PackageX className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -121,7 +123,7 @@ const OrderReturnsReportPage = () => {
                 textColor: 'text-red-600',
             },
             {
-                label: 'Returns Only',
+                label: t('lbl_returns'),
                 value: Number(summary.total_returns_only || 0).toLocaleString(),
                 icon: <RefreshCw className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -129,7 +131,7 @@ const OrderReturnsReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Exchanges',
+                label: t('lbl_exchanges'),
                 value: Number(summary.total_exchanges || 0).toLocaleString(),
                 icon: <ArrowLeftRight className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -137,7 +139,7 @@ const OrderReturnsReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Return Amount',
+                label: t('lbl_return'),
                 value: formatCurrency(summary.total_return_amount),
                 icon: <TrendingDown className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
@@ -145,7 +147,7 @@ const OrderReturnsReportPage = () => {
                 textColor: 'text-rose-600',
             },
             {
-                label: 'Average Return Value',
+                label: t('lbl_average_return'),
                 value: formatCurrency(summary.average_return_value),
                 icon: <Percent className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -153,14 +155,14 @@ const OrderReturnsReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'return_number',
-                label: 'Return #',
+                label: t('lbl_return_no'),
                 sortable: true,
                 render: (value: any) => (
                     <div className="flex items-center gap-2">
@@ -171,7 +173,7 @@ const OrderReturnsReportPage = () => {
             },
             {
                 key: 'order',
-                label: 'Invoice',
+                label: t('lbl_invoice'),
                 render: (_: any, row: any) => (
                     <div className="flex items-center gap-1.5">
                         <FileText className="h-3.5 w-3.5 text-gray-400" />
@@ -181,7 +183,7 @@ const OrderReturnsReportPage = () => {
             },
             {
                 key: 'customer',
-                label: 'Customer',
+                label: t('lbl_customer'),
                 render: (_: any, row: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 font-medium text-gray-900">
@@ -194,7 +196,7 @@ const OrderReturnsReportPage = () => {
             },
             {
                 key: 'return_type',
-                label: 'Type',
+                label: t('lbl_type'),
                 sortable: true,
                 render: (value: any) => {
                     const isReturn = value === 'return';
@@ -212,18 +214,18 @@ const OrderReturnsReportPage = () => {
             },
             {
                 key: 'return_reason',
-                label: 'Reason',
+                label: t('lbl_reason'),
                 render: (value: any) => <span className="text-xs text-gray-600">{value?.name?.replace(/_/g, ' ').toUpperCase() || 'N/A'}</span>,
             },
             {
                 key: 'total_return_amount',
-                label: 'Return Amount',
+                label: t('lbl_return'),
                 sortable: true,
                 render: (value: any) => <span className="font-semibold text-red-600">-{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_status',
-                label: 'Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value: any) => {
                     const status = value?.toLowerCase() || '';
@@ -239,46 +241,46 @@ const OrderReturnsReportPage = () => {
             },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'return_number', label: 'Return #', width: 15 },
+            { key: 'return_number', label: t('lbl_return_no'), width: 15 },
             {
                 key: 'order',
-                label: 'Invoice',
+                label: t('lbl_invoice'),
                 width: 15,
                 format: (_, row) => row?.order?.invoice || 'N/A',
             },
             {
                 key: 'customer',
-                label: 'Customer',
+                label: t('lbl_customer'),
                 width: 25,
                 format: (_, row) => (row?.is_walk_in ? 'Walk-in' : row?.customer?.name || 'N/A'),
             },
-            { key: 'return_type', label: 'Type', width: 12 },
-            { key: 'return_reason', label: 'Reason', width: 15 },
+            { key: 'return_type', label: t('lbl_type'), width: 12 },
+            { key: 'return_reason', label: t('lbl_reason'), width: 15 },
             {
                 key: 'total_return_amount',
-                label: 'Return Amount',
+                label: t('lbl_return'),
                 width: 15,
                 format: (value) => formatCurrency(value),
             },
-            { key: 'payment_status', label: 'Status', width: 12 },
+            { key: 'payment_status', label: t('lbl_status'), width: 12 },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 width: 12,
                 format: (value) => value || '',
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -291,15 +293,15 @@ const OrderReturnsReportPage = () => {
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.return_type && apiParams.return_type !== 'all') {
             const typeDisplay = apiParams.return_type.charAt(0).toUpperCase() + apiParams.return_type.slice(1);
-            customFilters.push({ label: 'Type', value: typeDisplay });
+            customFilters.push({ label: t('lbl_type'), value: typeDisplay });
         }
         if (apiParams.payment_status && apiParams.payment_status !== 'all') {
             const statusDisplay = apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1);
-            customFilters.push({ label: 'Status', value: statusDisplay });
+            customFilters.push({ label: t('lbl_status'), value: statusDisplay });
         }
         if (apiParams.return_reason && apiParams.return_reason !== 'all') {
             const reasonDisplay = apiParams.return_reason.replace(/_/g, ' ').toUpperCase();
-            customFilters.push({ label: 'Reason', value: reasonDisplay });
+            customFilters.push({ label: t('lbl_reason'), value: reasonDisplay });
         }
 
         let dateType = 'none';
@@ -322,16 +324,16 @@ const OrderReturnsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Total Returns', value: summary.total_returns || 0 },
-            { label: 'Returns Only', value: summary.total_returns_only || 0 },
-            { label: 'Exchanges', value: summary.total_exchanges || 0 },
-            { label: 'Return Amount', value: formatCurrency(summary.total_return_amount) },
+            { label: t('lbl_total_returns'), value: summary.total_returns || 0 },
+            { label: t('lbl_returns'), value: summary.total_returns_only || 0 },
+            { label: t('lbl_exchanges'), value: summary.total_exchanges || 0 },
+            { label: t('lbl_return'), value: formatCurrency(summary.total_return_amount) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     if (isLoading && !reportData?.data) {
-        return <Loader message="Loading report..." />;
+        return <Loader message={t('report_loading')} />;
     }
 
     return (

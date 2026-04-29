@@ -2,6 +2,7 @@
 
 import { Clock, Sunrise, Sunset } from 'lucide-react';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 interface OperatingHoursTabProps {
     formData: {
@@ -12,6 +13,7 @@ interface OperatingHoursTabProps {
 }
 
 const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleInputChange }) => {
+    const { t } = getTranslation();
     const calculateTotalHours = () => {
         if (formData.opening_time && formData.closing_time) {
             const openTime = new Date(`1970-01-01T${formData.opening_time}`);

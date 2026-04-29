@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, Save } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 
 interface AdjustmentSummaryProps {
     totalItems: number;
@@ -13,6 +14,7 @@ interface AdjustmentSummaryProps {
  * Summary footer with totals and save button
  */
 const AdjustmentSummary = ({ totalItems, totalIncrease, totalDecrease, isSaving, onSubmit }: AdjustmentSummaryProps) => {
+    const { t } = getTranslation();
     return (
         <div className="border-t border-gray-200 bg-white shadow-lg">
             <div className="p-4 sm:p-6">

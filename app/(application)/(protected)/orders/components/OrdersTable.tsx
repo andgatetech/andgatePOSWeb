@@ -2,6 +2,7 @@
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { setReturnOrderId } from '@/store/features/Order/OrderReturnSlice';
 import { Download, Edit, Eye, RotateCcw } from 'lucide-react';
@@ -30,6 +31,7 @@ interface OrdersTableProps {
 }
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview }) => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { formatCurrency } = useCurrency();
     const dispatch = useDispatch();
@@ -38,7 +40,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
         () => [
             {
                 key: 'invoice',
-                label: 'Invoice',
+                label: t('lbl_invoice'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="flex flex-col">
@@ -48,7 +50,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'customer',
-                label: 'Customer',
+                label: t('lbl_customer'),
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900">{row.is_walk_in ? 'Walk-in Customer' : value?.name || 'N/A'}</span>
@@ -58,12 +60,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'store',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value, row) => <span className="text-sm text-gray-700">{value?.name || row.store?.name || 'N/A'}</span>,
             },
             {
                 key: 'items_count',
-                label: 'Items',
+                label: t('order_items'),
                 render: (value, row) => {
                     const itemCount = value ?? row.items?.length ?? row.order_items?.length ?? 0;
                     return (
@@ -75,7 +77,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'financial',
-                label: 'Total Amount',
+                label: t('lbl_total'),
                 sortable: true,
                 render: (value, row) => {
                     const total = value?.grand_total ?? row.grand_total ?? row.total ?? 0;
@@ -84,7 +86,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'financial_due',
-                label: 'Due Amount',
+                label: t('lbl_due'),
                 sortable: true,
                 render: (value, row) => {
                     const dueAmount = Number(row.financial?.due_amount ?? row.due_amount ?? 0);
@@ -96,17 +98,17 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'payment',
-                label: 'Payment Status',
+                label: t('order_payment_status'),
                 sortable: true,
                 render: (value, row) => {
                     const status = (value?.status ?? row.payment_status)?.toLowerCase() || 'pending';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
-                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partial' },
-                        due: { bg: 'bg-red-100', text: 'text-red-800', label: 'Due' },
-                        unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: 'Unpaid' },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Pending' },
+                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
+                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
+                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_partial') },
+                        due: { bg: 'bg-red-100', text: 'text-red-800', label: t('lbl_due') },
+                        unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_unpaid') },
+                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || 'Unknown' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -114,7 +116,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'payment_method',
-                label: 'Payment Method',
+                label: t('lbl_payment_method'),
                 render: (value, row) => {
                     const method = row.payment?.method ?? row.payment_method ?? 'cash';
                     return <span className="text-sm capitalize text-gray-700">{method === 'due' ? 'Due' : method}</span>;
@@ -122,15 +124,15 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'status',
-                label: 'Order Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value, row) => {
                     const status = value?.toLowerCase() || 'completed';
                     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
-                        fully_returned: { bg: 'bg-red-100', text: 'text-red-800', label: 'Fully Returned' },
-                        partially_returned: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Partially Returned' },
-                        pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
+                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_completed') },
+                        fully_returned: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_fully_returned') },
+                        partially_returned: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_partially_returned') },
+                        pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_pending') },
                     };
                     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
@@ -138,7 +140,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'returns',
-                label: 'Refund Amount',
+                label: t('lbl_return'),
                 render: (value, row) => {
                     const hasReturns = value?.has_returns ?? false;
                     const totalReturned = value?.total_returned ?? 0;
@@ -159,7 +161,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             },
             {
                 key: 'created_at',
-                label: 'Timeline',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value, row) => {
                     const formatRawDateTime = (dateTimeStr: string) => {
@@ -195,20 +197,20 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'Edit Order',
+                label: t('order_action_edit'),
                 onClick: (order: any) => router.push(`/orders/edit/${order.id}`),
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
                 hidden: (order: any) => order.status === 'fully_returned',
             },
             {
-                label: 'Make Return',
+                label: t('order_action_return'),
                 onClick: (order: any) => {
                     if (currentStoreId) {
                         dispatch(setReturnOrderId({ storeId: currentStoreId, orderId: order.id }));
@@ -231,19 +233,19 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
             {
-                label: 'View Details',
+                label: t('order_action_view'),
                 onClick: onViewDetails,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'Invoice / Receipt',
+                label: t('order_action_invoice'),
                 onClick: onOpenInvoicePreview,
                 className: 'text-green-600',
                 icon: <Download className="h-4 w-4" />,
             },
         ],
-        [router, onViewDetails, onOpenInvoicePreview, currentStoreId, dispatch]
+        [t, router, onViewDetails, onOpenInvoicePreview, currentStoreId, dispatch]
     );
 
     return (
@@ -256,8 +258,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             sorting={sorting}
             emptyState={{
                 icon: <Eye className="mx-auto h-16 w-16" />,
-                title: 'No Orders Found',
-                description: 'No orders match your current filters. Try adjusting your search criteria.',
+                title: t('order_no_data'),
+                description: t('order_no_data_desc'),
             }}
         />
     );

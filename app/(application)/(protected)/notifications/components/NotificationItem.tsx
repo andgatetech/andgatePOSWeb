@@ -3,6 +3,7 @@
 import { useArchiveNotificationMutation, useMarkAsReadMutation } from '@/store/features/notification/notificationApi';
 import type { Notification } from '@/store/features/notification/notificationTypes';
 import { AlertTriangle, CheckCircle, CircleAlert, Info, Trash2, X } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 
 interface NotificationItemProps {
     notification: Notification;
@@ -42,6 +43,7 @@ const severityConfig = {
 };
 
 const NotificationItem = ({ notification, variant = 'list', onClickItem }: NotificationItemProps) => {
+    const { t } = getTranslation();
     const [markAsRead, { isLoading: isMarking }] = useMarkAsReadMutation();
     const [archiveNotification, { isLoading: isArchiving }] = useArchiveNotificationMutation();
 

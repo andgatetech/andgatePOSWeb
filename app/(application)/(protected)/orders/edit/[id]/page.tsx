@@ -12,8 +12,10 @@ import PosLeftSide from '../../../pos/PosLeftSide';
 import OrderEditRightSide from './components/OrderEditRightSide';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 
 const OrderEditPage = () => {
+    const { t } = getTranslation();
     const params = useParams();
     const router = useRouter();
     const dispatch = useDispatch();
@@ -109,7 +111,7 @@ const OrderEditPage = () => {
     }
 
     if (isLoading || isLoadingOrder) {
-        return <Loader message="Order Loading..." />;
+        return <Loader message={t('order_loading')} />;
     }
 
     if (error || !orderData?.success) {
@@ -139,17 +141,17 @@ const OrderEditPage = () => {
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Edit Order</h1>
+                                <h1 className="text-2xl font-bold text-gray-900">{t('order_action_edit')}</h1>
                                 <p className="text-sm text-gray-600">
-                                    Invoice: <span className="font-semibold">{order.invoice}</span> | Customer:{' '}
-                                    <span className="font-semibold">{order.is_walk_in ? 'Walk-in' : order.customer?.name || 'N/A'}</span>
+                                    {t('lbl_invoice')}: <span className="font-semibold">{order.invoice}</span> | {t('lbl_customer')}:{' '}
+                                    <span className="font-semibold">{order.is_walk_in ? t('order_walk_in') : order.customer?.name || t('lbl_na')}</span>
                                 </p>
                             </div>
                         </div>
                         {isUpdating && (
                             <div className="flex items-center gap-2 text-blue-600">
                                 <Loader2 className="h-5 w-5 animate-spin" />
-                                <span className="text-sm font-medium">Updating...</span>
+                                <span className="text-sm font-medium">{t('btn_updating')}</span>
                             </div>
                         )}
                     </div>
@@ -164,7 +166,7 @@ const OrderEditPage = () => {
                     mobileButtonConfig={{
                         showIcon: null,
                         hideIcon: null,
-                        label: 'Products',
+                        label: t('product_title'),
                     }}
                     reduxSlice="orderEdit"
                 >

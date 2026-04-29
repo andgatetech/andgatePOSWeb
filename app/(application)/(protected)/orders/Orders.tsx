@@ -4,6 +4,7 @@ import OrderFilter from '@/components/filters/OrderFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetAllOrdersQuery, useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
+import { getTranslation } from '@/i18n';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import PosInvoicePreview from '../pos/PosInvoicePreview';
@@ -12,6 +13,7 @@ import OrderStats from './components/OrderStats';
 import OrdersTable from './components/OrdersTable';
 
 const Orders = () => {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -165,7 +167,7 @@ const Orders = () => {
     const totalItems = paginationMeta?.total || 0;
 
     if (isLoading) {
-        return <Loader message="Loading orders..." />;
+        return <Loader message={t('order_loading')} />;
     }
 
     return (
@@ -187,8 +189,8 @@ const Orders = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Orders Management</h1>
-                                    <p className="text-sm text-gray-500">View and manage all your orders</p>
+                                    <h1 className="text-2xl font-bold text-gray-900">{t('order_page_title')}</h1>
+                                    <p className="text-sm text-gray-500">{t('order_page_desc')}</p>
                                 </div>
                             </div>
                         </div>

@@ -5,12 +5,14 @@ import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/R
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSalesItemsReportMutation } from '@/store/features/reports/reportApi';
 import { BarChart3, FileText, Layers, Package, ShoppingCart, Tag, TrendingDown, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesItemsReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -84,18 +86,18 @@ const SalesItemsReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'sku', label: 'SKU', width: 18 },
-            { key: 'variant', label: 'Variant', width: 15, format: (v) => (v && typeof v === 'object' ? Object.values(v).join(' / ') : v || '') },
-            { key: 'category', label: 'Category', width: 15 },
-            { key: 'brand', label: 'Brand', width: 12 },
-            { key: 'sold_qty', label: 'Sold Qty', width: 10 },
-            { key: 'sold_amount', label: 'Sold Amount', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'cost_of_goods', label: 'Cost of Goods', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'unit_profit', label: 'Unit Profit', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'total_profit', label: 'Total Profit', width: 15, format: (v) => formatCurrency(v) },
+            { key: 'product_name', label: t('lbl_product'), width: 25 },
+            { key: 'sku', label: t('lbl_sku'), width: 18 },
+            { key: 'variant', label: t('lbl_variant'), width: 15, format: (v) => (v && typeof v === 'object' ? Object.values(v).join(' / ') : v || '') },
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'brand', label: t('brand_title'), width: 12 },
+            { key: 'sold_qty', label: t('lbl_qty_sold'), width: 10 },
+            { key: 'sold_amount', label: t('lbl_sales_amount'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'cost_of_goods', label: t('lbl_cost_of_goods'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'unit_profit', label: t('lbl_unit_profit'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'total_profit', label: t('lbl_profit'), width: 15, format: (v) => formatCurrency(v) },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -112,18 +114,18 @@ const SalesItemsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Unique Items', value: summary.total_items || 0 },
-            { label: 'Total Qty Sold', value: summary.total_sold_qty || 0 },
-            { label: 'Total Sold Amount', value: formatCurrency(summary.total_sold_amount) },
-            { label: 'Total Profit', value: formatCurrency(summary.total_profit) },
+            { label: t('lbl_unique_items'), value: summary.total_items || 0 },
+            { label: t('lbl_qty_sold'), value: summary.total_sold_qty || 0 },
+            { label: t('lbl_sales_amount'), value: formatCurrency(summary.total_sold_amount) },
+            { label: t('lbl_profit'), value: formatCurrency(summary.total_profit) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Unique Items Sold',
+                label: t('lbl_unique_items'),
                 value: summary.total_items || 0,
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -131,7 +133,7 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Quantity Sold',
+                label: t('lbl_qty_sold'),
                 value: Number(summary.total_sold_qty || 0).toLocaleString(),
                 icon: <ShoppingCart className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -139,7 +141,7 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Total Sold Amount',
+                label: t('lbl_sales_amount'),
                 value: formatCurrency(summary.total_sold_amount),
                 icon: <TrendingUp className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -147,7 +149,7 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Total Profit',
+                label: t('lbl_profit'),
                 value: formatCurrency(summary.total_profit),
                 icon: <BarChart3 className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -155,14 +157,14 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'product_name',
-                label: 'Product',
+                label: t('lbl_product'),
                 sortable: true,
                 render: (v: any, row: any) => {
                     const variantStr = row.variant && typeof row.variant === 'object' ? Object.values(row.variant).join(' / ') : row.variant || null;
@@ -176,13 +178,13 @@ const SalesItemsReportPage = () => {
             },
             {
                 key: 'sku',
-                label: 'SKU',
+                label: t('lbl_sku'),
                 sortable: true,
                 render: (v: any) => <span className="font-mono text-xs text-gray-500">{v}</span>,
             },
             {
                 key: 'category',
-                label: 'Category',
+                label: t('lbl_category'),
                 sortable: true,
                 render: (v: any) => (
                     <span className="inline-flex items-center gap-1.5 rounded bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600">
@@ -192,7 +194,7 @@ const SalesItemsReportPage = () => {
             },
             {
                 key: 'brand',
-                label: 'Brand',
+                label: t('brand_title'),
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5 text-sm text-gray-600">
@@ -203,25 +205,25 @@ const SalesItemsReportPage = () => {
             },
             {
                 key: 'sold_qty',
-                label: 'Sold Qty',
+                label: t('lbl_qty_sold'),
                 sortable: true,
                 render: (v: any) => <span className="font-bold text-gray-900">{Number(v).toLocaleString()}</span>,
             },
             {
                 key: 'sold_amount',
-                label: 'Sold Amount',
+                label: t('lbl_sales_amount'),
                 sortable: true,
                 render: (v: any) => <span className="font-bold text-emerald-600">{formatCurrency(v)}</span>,
             },
             {
                 key: 'cost_of_goods',
-                label: 'Cost of Goods',
+                label: t('lbl_cost_of_goods'),
                 sortable: true,
                 render: (v: any) => <span className="font-medium text-gray-600">{formatCurrency(v)}</span>,
             },
             {
                 key: 'unit_profit',
-                label: 'Unit Profit',
+                label: t('lbl_unit_profit'),
                 sortable: true,
                 render: (v: any) => {
                     const profit = Number(v);
@@ -235,7 +237,7 @@ const SalesItemsReportPage = () => {
             },
             {
                 key: 'total_profit',
-                label: 'Total Profit',
+                label: t('lbl_profit'),
                 sortable: true,
                 render: (v: any) => {
                     const profit = Number(v);
@@ -248,7 +250,7 @@ const SalesItemsReportPage = () => {
                 },
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

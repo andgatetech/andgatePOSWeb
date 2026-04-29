@@ -2,6 +2,7 @@
 
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { getTranslation } from '@/i18n';
 import Dropdown from './Dropdown';
 
 interface AttributesTabProps {
@@ -38,6 +39,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
     handleToggleActive,
 }) => {
     // Pagination state
+    const { t } = getTranslation();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 

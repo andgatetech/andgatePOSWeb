@@ -1,8 +1,10 @@
 'use client';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { getTranslation } from '@/i18n';
 import { usePopper } from 'react-popper';
 
 const Dropdown = (props: any, forwardedRef: any) => {
+    const { t } = getTranslation();
     const [visibility, setVisibility] = useState<any>(false);
 
     const referenceRef = useRef<any>();

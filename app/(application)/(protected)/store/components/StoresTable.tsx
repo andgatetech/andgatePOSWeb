@@ -5,6 +5,7 @@ import { Building2, Clock, Coins, CreditCard, MapPin, Package, Phone, Settings, 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface StoresTableProps {
     stores: any[];
@@ -26,13 +27,14 @@ interface StoresTableProps {
 }
 
 const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination, sorting, onDelete }) => {
+    const { t } = getTranslation();
     const router = useRouter();
 
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'logo_path',
-                label: 'Logo',
+                label: t('store_logo'),
                 render: (value, row) => {
                     const logoUrl = value || row.logo_path;
                     return (
@@ -58,7 +60,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             },
             {
                 key: 'store_name',
-                label: 'Store Details',
+                label: t('store_settings_title'),
                 sortable: true,
                 render: (value, row) => (
                     <div className="space-y-1">
@@ -84,7 +86,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             },
             {
                 key: 'currency',
-                label: 'Currency',
+                label: t('store_currency_title'),
                 render: (value, row) => {
                     // Handle both 'currency' (single object) and 'currencies' (array)
                     const currencyData = row.currency || (row.currencies && row.currencies.length > 0 ? row.currencies[0] : null);
@@ -106,7 +108,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             },
             {
                 key: 'payment_methods',
-                label: 'Payment Methods',
+                label: t('store_payment_methods'),
                 render: (value) => (
                     <div className="flex items-center gap-1.5">
                         <CreditCard className="h-4 w-4 text-gray-400" />
@@ -127,7 +129,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             },
             {
                 key: 'units',
-                label: 'Units',
+                label: t('lbl_units'),
                 render: (value) => (
                     <div className="flex items-center gap-1.5">
                         <Package className="h-4 w-4 text-gray-400" />
@@ -148,7 +150,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             },
             {
                 key: 'opening_time',
-                label: 'Working Hours',
+                label: t('store_operating_hours'),
                 render: (value, row) => {
                     // Format time from "09:00:00" to "9:00 AM"
                     const formatTime = (time: string) => {
@@ -177,7 +179,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             },
             {
                 key: 'is_active',
-                label: 'Status',
+                label: t('lbl_status'),
                 sortable: true,
                 render: (value, row) => {
                     const isActive = (value === true || value === 1 || value === '1') && !row.store_disabled;
@@ -189,24 +191,24 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                 },
             },
         ],
-        []
+        [t]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'Settings',
+                label: t('store_settings_title'),
                 onClick: () => router.push('/store/setting'),
                 icon: <Settings className="h-4 w-4" />,
             },
             {
-                label: 'Delete Store',
+                label: t('btn_delete'),
                 onClick: onDelete,
                 className: 'text-red-600',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],
-        [onDelete, router]
+        [t, onDelete, router]
     );
 
     return (

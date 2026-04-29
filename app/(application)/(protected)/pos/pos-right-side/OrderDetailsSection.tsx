@@ -1,6 +1,7 @@
 import IconShoppingCart from '@/components/icon/icon-shopping-cart';
 import IconX from '@/components/icon/icon-x';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { ChevronDown, ChevronUp, Eye, Hash, Shield } from 'lucide-react';
 import { useState } from 'react';
 import ItemPreviewModal from './ItemPreviewModal';
@@ -88,7 +89,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     };
 
     const totalAmountForItem = (item: InvoiceItem) => {
-        const basePrice = item.rate * item.quantity;
+        const { t } = getTranslation();
+    const basePrice = item.rate * item.quantity;
         if (item.tax_rate && !item.tax_included) {
             const taxAmount = basePrice * (item.tax_rate / 100);
             return formatCurrency(basePrice + taxAmount);
@@ -468,7 +470,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     className={`form-input h-6 w-14 border-y border-gray-300 px-1 py-0 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
                                                         isFullyReturned ? 'bg-amber-50' : ''
                                                     }`}
-                                                    placeholder="Qty"
+                                                    placeholder={t('lbl_qty')}
                                                     value={item.quantity === 0 ? '0' : item.quantity}
                                                     onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                     onBlur={() => onQuantityBlur(item.id)}
@@ -490,7 +492,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 <input
                                                     type="number"
                                                     className="form-input h-9 w-full border-gray-300 pr-6 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                    placeholder="Qty"
+                                                    placeholder={t('lbl_qty')}
                                                     value={item.quantity === 0 ? '' : item.quantity}
                                                     onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                     onBlur={() => onQuantityBlur(item.id)}

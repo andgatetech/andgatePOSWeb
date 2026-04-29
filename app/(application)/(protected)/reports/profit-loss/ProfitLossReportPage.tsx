@@ -2,6 +2,7 @@
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
 import {
@@ -26,13 +27,7 @@ import CountUp from 'react-countup';
 
 type PeriodType = 'today' | 'weekly' | 'monthly' | 'yearly' | 'custom';
 
-const periodOptions: { value: PeriodType; label: string }[] = [
-    { value: 'today', label: 'Today' },
-    { value: 'weekly', label: 'This Week' },
-    { value: 'monthly', label: 'This Month' },
-    { value: 'yearly', label: 'This Year' },
-    { value: 'custom', label: 'Custom Range' },
-];
+
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -64,6 +59,7 @@ const PeriodFilter = ({
     onApply: () => void;
     label: string;
 }) => {
+    const { t } = getTranslation();
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -224,7 +220,15 @@ const CalcStep = ({
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 const ProfitLossReportPage = () => {
-    const { formatCurrency, symbol } = useCurrency();
+    const { t } = getTranslation();
+    const periodOptions: { value: PeriodType; label: string }[] = [
+        { value: 'today', label: t('lbl_today') },
+        { value: 'weekly', label: t('lbl_this_week') },
+        { value: 'monthly', label: t('lbl_this_month') },
+        { value: 'yearly', label: t('lbl_this_year') },
+        { value: 'custom', label: t('lbl_custom_range') },
+    ];
+        const { formatCurrency, symbol } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
 
     const [period, setPeriod] = useState<PeriodType>('monthly');
@@ -291,9 +295,9 @@ const ProfitLossReportPage = () => {
 
     // Export helpers
     const exportColumns: ExportColumn[] = useMemo(() => [
-        { key: 'item', label: 'Item', width: 30 },
-        { key: 'amount', label: 'Amount', width: 20 },
-    ], []);
+        { key: 'item', label: t('lbl_item'), width: 30 },
+        { key: 'amount', label: t('lbl_amount'), width: 20 },
+    ], [t]);
 
     const filterSummary = useMemo(() => {
         const storeName = currentStore?.store_name || 'All Stores';
@@ -307,9 +311,9 @@ const ProfitLossReportPage = () => {
     }, [currentStore, periodInfo, period]);
 
     const exportSummary = useMemo(() => [
-        { label: 'You Earned', value: formatCurrency(summary.you_earned) },
-        { label: 'You Keep', value: formatCurrency(summary.you_keep) },
-        { label: 'Business Margin', value: `${businessProfit.margin || 0}%` },
+        { label: t('lbl_you_earned'), value: formatCurrency(summary.you_earned) },
+        { label: t('lbl_you_keep'), value: formatCurrency(summary.you_keep) },
+        { label: t('lbl_margin'), value: `${businessProfit.margin || 0}%` },
     ], [summary, businessProfit, formatCurrency]);
 
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {

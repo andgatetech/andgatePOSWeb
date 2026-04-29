@@ -6,11 +6,13 @@ import ReusableTable from '@/components/common/ReusableTable';
 import CustomerReportFilter from '@/components/filters/reports/CustomerReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetCustomerReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, Banknote, FileText, Hash, Mail, Phone, ShoppingCart, TrendingDown, Users, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CustomerReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -89,21 +91,21 @@ const CustomerReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'reference', label: 'ID', width: 12 },
-            { key: 'customer', label: 'Name', width: 20 },
-            { key: 'phone', label: 'Phone', width: 15 },
-            { key: 'email', label: 'Email', width: 20 },
-            { key: 'total_orders', label: 'Orders', width: 8 },
-            { key: 'amount', label: 'Total', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'paid', label: 'Paid', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'due', label: 'Due', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'total_returns', label: 'Returns', width: 8 },
-            { key: 'total_return_amount', label: 'Return Amount', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'net_purchase_value', label: 'Net Purchase', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'return_rate', label: 'Return Rate %', width: 10, format: (v) => `${Number(v || 0).toFixed(2)}%` },
-            { key: 'status', label: 'Status', width: 10 },
+            { key: 'reference', label: t('lbl_id'), width: 12 },
+            { key: 'customer', label: t('lbl_name'), width: 20 },
+            { key: 'phone', label: t('lbl_phone'), width: 15 },
+            { key: 'email', label: t('lbl_email'), width: 20 },
+            { key: 'total_orders', label: t('lbl_order'), width: 8 },
+            { key: 'amount', label: t('lbl_total'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'paid', label: t('lbl_paid'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'due', label: t('lbl_due'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'total_returns', label: t('lbl_return'), width: 8 },
+            { key: 'total_return_amount', label: t('lbl_return'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'net_purchase_value', label: t('lbl_net_purchase'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'return_rate', label: t('lbl_return_rate'), width: 10, format: (v) => `${Number(v || 0).toFixed(2)}%` },
+            { key: 'status', label: t('lbl_status'), width: 10 },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -113,7 +115,7 @@ const CustomerReportPage = () => {
             ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
             : currentStore?.store_name || 'All Stores';
         const customFilters: { label: string; value: string }[] = [];
-        if (apiParams.only_due) customFilters.push({ label: 'Filter', value: 'Only Due' });
+        if (apiParams.only_due) customFilters.push({ label: t('btn_filter'), value: 'Only Due' });
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -122,20 +124,20 @@ const CustomerReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Customers', value: summary.total_customers || 0 },
-            { label: 'Total Amount', value: formatCurrency(summary.total_amount) },
-            { label: 'Total Returned', value: formatCurrency(summary.total_returned) },
-            { label: 'Net Purchase Value', value: formatCurrency(summary.net_purchase_value) },
-            { label: 'Return Rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
-            { label: 'Total Due', value: formatCurrency(summary.total_due) },
+            { label: t('customer_title'), value: summary.total_customers || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
+            { label: t('lbl_return'), value: formatCurrency(summary.total_returned) },
+            { label: t('lbl_net_purchase'), value: formatCurrency(summary.net_purchase_value) },
+            { label: t('lbl_return_rate'), value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Total Customers',
+                label: t('customer_total'),
                 value: summary.total_customers || 0,
                 icon: <Users className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -143,7 +145,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Customers with Due',
+                label: t('lbl_customers_with_due'),
                 value: summary.total_customers_with_due || 0,
                 icon: <AlertCircle className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -151,7 +153,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-amber-600',
             },
             {
-                label: 'Total Amount',
+                label: t('lbl_total'),
                 value: formatCurrency(summary.total_amount),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -159,7 +161,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-purple-600',
             },
             {
-                label: 'Total Paid',
+                label: t('report_total_paid'),
                 value: formatCurrency(summary.total_paid),
                 icon: <Wallet className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -167,7 +169,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Total Due',
+                label: t('lbl_due'),
                 value: formatCurrency(summary.total_due),
                 icon: <TrendingDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -175,7 +177,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-red-600',
             },
             {
-                label: 'Total Returned',
+                label: t('lbl_return'),
                 value: formatCurrency(summary.total_returned),
                 icon: <AlertCircle className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -183,7 +185,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Net Purchase Value',
+                label: t('lbl_net_purchase'),
                 value: formatCurrency(summary.net_purchase_value),
                 icon: <Banknote className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -191,7 +193,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-emerald-600',
             },
             {
-                label: 'Return Rate',
+                label: t('lbl_return_rate'),
                 value: `${Number(summary.return_rate || 0).toFixed(2)}%`,
                 icon: <TrendingDown className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -199,14 +201,14 @@ const CustomerReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'reference',
-                label: 'Customer ID',
+                label: t('lbl_customer'),
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2">
@@ -219,7 +221,7 @@ const CustomerReportPage = () => {
             },
             {
                 key: 'customer',
-                label: 'Customer Details',
+                label: t('lbl_customer'),
                 sortable: true,
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
@@ -239,7 +241,7 @@ const CustomerReportPage = () => {
             },
             {
                 key: 'total_orders',
-                label: 'Orders',
+                label: t('lbl_order'),
                 sortable: true,
                 render: (value: any) => (
                     <div className="flex items-center gap-1.5">
@@ -248,17 +250,17 @@ const CustomerReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'amount', label: 'Sales Amount', sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
-            { key: 'paid', label: 'Paid', render: (value: any) => <span className="font-medium text-emerald-600">{formatCurrency(value)}</span> },
+            { key: 'amount', label: t('lbl_amount'), sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
+            { key: 'paid', label: t('lbl_paid'), render: (value: any) => <span className="font-medium text-emerald-600">{formatCurrency(value)}</span> },
             {
                 key: 'due',
-                label: 'Outstanding Due',
+                label: t('lbl_due'),
                 sortable: true,
                 render: (value: any) => <span className={`font-bold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
             },
             {
                 key: 'total_returns',
-                label: 'Returns',
+                label: t('lbl_return'),
                 sortable: true,
                 render: (value: any) => (
                     <div className="flex items-center gap-1.5">
@@ -270,7 +272,7 @@ const CustomerReportPage = () => {
             },
             {
                 key: 'total_return_amount',
-                label: 'Return Amount',
+                label: t('lbl_amount'),
                 sortable: true,
                 render: (value: any) => (
                     <span className={`font-medium ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{Number(value) > 0 ? `-${formatCurrency(value)}` : formatCurrency(0)}</span>
@@ -278,13 +280,13 @@ const CustomerReportPage = () => {
             },
             {
                 key: 'net_purchase_value',
-                label: 'Net Purchase',
+                label: t('lbl_purchase'),
                 sortable: true,
                 render: (value: any) => <span className="font-bold text-emerald-600">{formatCurrency(value)}</span>,
             },
             {
                 key: 'return_rate',
-                label: 'Return Rate %',
+                label: t('lbl_return_rate'),
                 sortable: true,
                 render: (value: any) => {
                     const rate = Number(value || 0);
@@ -299,7 +301,7 @@ const CustomerReportPage = () => {
             },
             {
                 key: 'status',
-                label: 'Status',
+                label: t('lbl_status'),
                 render: (value: any) => {
                     const status = value?.toLowerCase() || '';
                     const config: Record<string, { bg: string; text: string }> = {
@@ -312,15 +314,15 @@ const CustomerReportPage = () => {
                 },
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Customer Analytics Report"
-                    reportDescription="Complete analysis of customer transactions, payments, and outstanding dues"
+                    reportTitle={t('report_customer_title')}
+                    reportDescription={t('report_customer_title')}
                     reportIcon={<Users className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-indigo-600 to-indigo-700"
                     data={customers}
@@ -349,8 +351,8 @@ const CustomerReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: apiParams.only_due ? 'No Dues Found' : 'No Customers Found',
-                        description: apiParams.only_due ? 'Great news! No customers currently have outstanding balances.' : 'No orders match your current filters.',
+                        title: t('msg_no_data'),
+                        description: t('msg_no_data'),
                     }}
                 />
             </div>

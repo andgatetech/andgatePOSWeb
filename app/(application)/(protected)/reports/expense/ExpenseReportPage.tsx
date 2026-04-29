@@ -7,11 +7,13 @@ import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetExpenseReportMutation } from '@/store/features/reports/reportApi';
 import { Banknote, Calculator, CreditCard, FileText, Receipt, Store, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ExpenseReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -84,16 +86,16 @@ const ExpenseReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'title', label: 'Title', width: 20 },
-            { key: 'ledger_title', label: 'Ledger', width: 15 },
-            { key: 'expense_ledger_type', label: 'Type', width: 12 },
-            { key: 'store_name', label: 'Store', width: 15 },
-            { key: 'user_name', label: 'User', width: 15 },
-            { key: 'payment_type', label: 'Payment', width: 10 },
-            { key: 'amount', label: 'Amount', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'created_at', label: 'Date', width: 12, format: (v) => v || '' },
+            { key: 'title', label: t('lbl_title'), width: 20 },
+            { key: 'ledger_title', label: t('account_ledger'), width: 15 },
+            { key: 'expense_ledger_type', label: t('lbl_type'), width: 12 },
+            { key: 'store_name', label: t('lbl_store'), width: 15 },
+            { key: 'user_name', label: t('lbl_employee'), width: 15 },
+            { key: 'payment_type', label: t('lbl_payment'), width: 10 },
+            { key: 'amount', label: t('lbl_amount'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'created_at', label: t('lbl_date'), width: 12, format: (v) => v || '' },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -110,17 +112,17 @@ const ExpenseReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Records', value: summary.expense_count || 0 },
-            { label: 'Total', value: formatCurrency(summary.total_expenses) },
-            { label: 'Average', value: formatCurrency(summary.average_expense) },
+            { label: t('lbl_records'), value: summary.expense_count || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_expenses) },
+            { label: t('lbl_average'), value: formatCurrency(summary.average_expense) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Expense Records',
+                label: t('expense_title'),
                 value: summary.expense_count || 0,
                 icon: <FileText className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -128,7 +130,7 @@ const ExpenseReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Total Expenses',
+                label: t('expense_total'),
                 value: formatCurrency(summary.total_expenses),
                 icon: <Banknote className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
@@ -136,7 +138,7 @@ const ExpenseReportPage = () => {
                 textColor: 'text-rose-600',
             },
             {
-                label: 'Avg. Expense',
+                label: t('lbl_avg_expense'),
                 value: formatCurrency(summary.average_expense),
                 icon: <Calculator className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
@@ -144,14 +146,14 @@ const ExpenseReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'title',
-                label: 'Expense Title',
+                label: t('lbl_title'),
                 sortable: true,
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
@@ -166,7 +168,7 @@ const ExpenseReportPage = () => {
             },
             {
                 key: 'store_name',
-                label: 'Store / User',
+                label: t('lbl_store'),
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
@@ -181,7 +183,7 @@ const ExpenseReportPage = () => {
             },
             {
                 key: 'payment_type',
-                label: 'Payment',
+                label: t('lbl_payment'),
                 render: (value: any) => (
                     <div className="flex items-center gap-1.5">
                         <CreditCard className="h-4 w-4 text-gray-400" />
@@ -189,23 +191,23 @@ const ExpenseReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'amount', label: 'Amount', sortable: true, render: (value: any) => <span className="font-bold text-rose-600">{formatCurrency(value)}</span> },
+            { key: 'amount', label: t('lbl_amount'), sortable: true, render: (value: any) => <span className="font-bold text-rose-600">{formatCurrency(value)}</span> },
             {
                 key: 'created_at',
-                label: 'Date & Time',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Expense Report"
-                    reportDescription="List of all operational and administrative expenses"
+                    reportTitle={t('report_expense_title')}
+                    reportDescription={t('report_expense_title')}
                     reportIcon={<Receipt className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-rose-600 to-red-700"
                     data={expenses}
@@ -234,8 +236,8 @@ const ExpenseReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Expense Records',
-                        description: "We couldn't find any expenses matching your selected range.",
+                        title: t('msg_no_data'),
+                        description: t('msg_no_data'),
                     }}
                 />
             </div>

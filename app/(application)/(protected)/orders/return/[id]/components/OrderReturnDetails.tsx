@@ -1,12 +1,14 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 
 interface OrderReturnDetailsProps {
     orderReturn: any;
 }
 
 const OrderReturnDetails: React.FC<OrderReturnDetailsProps> = ({ orderReturn }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     const netAmount = Number(orderReturn.net_amount || 0);

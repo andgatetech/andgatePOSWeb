@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
 import { Check, Plus, Tag, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -27,6 +28,7 @@ interface AttributesTabProps {
 }
 
 const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttributes, setProductAttributes, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+    const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};
     const { data: attributesResponse, isLoading: attributesLoading } = useGetStoreAttributesQuery(queryParams, { refetchOnMountOrArgChange: 300 });
@@ -167,7 +169,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                             <Tag className="h-5 w-5 text-gray-600" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Product Attributes</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">{t('lbl_variant')}</h3>
                             <p className="text-sm text-gray-600">
                                 Product: <span className="font-semibold text-blue-700">{formData.product_name || 'Not Set'}</span>
                             </p>
@@ -179,7 +181,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                         className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 sm:px-6 sm:py-3"
                     >
                         <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span>Add Attribute</span>
+                        <span>{t('btn_add_new')}</span>
                     </button>
                 </div>
                 <p className="mt-2 text-xs text-gray-500">Select from suggestions or type custom attribute names</p>
@@ -320,14 +322,14 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span>Previous</span>
+                    <span>{t('btn_back')}</span>
                 </button>
                 <button
                     type="button"
                     onClick={onNext}
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700 sm:px-6 sm:py-3"
                 >
-                    <span>Next</span>
+                    <span>{t('btn_save')}</span>
                     <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

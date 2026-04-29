@@ -2,6 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Calendar, Clock, CreditCard, Hash, Package, Receipt, RotateCcw, Shield, Store, TrendingUp, User, X } from 'lucide-react';
 import { Fragment } from 'react';
@@ -14,6 +15,7 @@ interface OrderDetailsModalProps {
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order }) => {
     const { formatCurrency } = useCurrency();
+    const { t } = getTranslation();
     if (!order) return null;
 
     const paymentStatusConfig: Record<string, { bg: string; text: string }> = {
@@ -47,8 +49,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 {/* Header */}
                                 <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4">
                                     <div>
-                                        <Dialog.Title className="text-2xl font-bold text-gray-900">Order Details</Dialog.Title>
-                                        <p className="mt-1 text-sm text-gray-600">Invoice: {order.invoice}</p>
+                                        <Dialog.Title className="text-2xl font-bold text-gray-900">{t('order_view_title')}</Dialog.Title>
+                                        <p className="mt-1 text-sm text-gray-600">{t('order_invoice')}: {order.invoice}</p>
                                     </div>
                                     <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white hover:text-gray-600">
                                         <X className="h-6 w-6" />
@@ -63,7 +65,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2">
                                             <TrendingUp className="h-4 w-4 text-blue-600" />
                                             <span className="text-sm font-medium text-blue-900">
-                                                Status: <span className="capitalize">{order.status?.replace('_', ' ') || 'N/A'}</span>
+                                                {t('lbl_status')}: <span className="capitalize">{order.status?.replace('_', ' ') || t('lbl_na')}</span>
                                             </span>
                                         </div>
                                         {/* Return Status */}
@@ -71,7 +73,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                             <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2">
                                                 <RotateCcw className="h-4 w-4 text-red-600" />
                                                 <span className="text-sm font-medium text-red-900">
-                                                    Return: <span className="capitalize">{order.return_status?.replace('_', ' ')}</span>
+                                                    {t('order_return')}: <span className="capitalize">{order.return_status?.replace('_', ' ')}</span>
                                                 </span>
                                             </div>
                                         )}
@@ -83,15 +85,15 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                             <div className="mb-3 flex items-center gap-2">
                                                 <User className="h-5 w-5 text-blue-600" />
-                                                <h3 className="font-semibold text-gray-900">Customer Information</h3>
+                                                <h3 className="font-semibold text-gray-900">{t('order_customer')}</h3>
                                             </div>
                                             {order.is_walk_in ? (
-                                                <p className="text-gray-600">Walk-in Customer</p>
+                                                <p className="text-gray-600">{t('order_walk_in')}</p>
                                             ) : (
                                                 <div className="space-y-2 text-sm">
-                                                    <p className="font-medium text-gray-900">{order.customer?.name || 'N/A'}</p>
-                                                    {order.customer?.phone && <p className="text-gray-600">Phone: {order.customer.phone}</p>}
-                                                    {order.customer?.email && <p className="text-gray-600">Email: {order.customer.email}</p>}
+                                                    <p className="font-medium text-gray-900">{order.customer?.name || t('lbl_na')}</p>
+                                                    {order.customer?.phone && <p className="text-gray-600">{t('lbl_phone')}: {order.customer.phone}</p>}
+                                                    {order.customer?.email && <p className="text-gray-600">{t('lbl_email')}: {order.customer.email}</p>}
                                                 </div>
                                             )}
                                         </div>
@@ -100,11 +102,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                             <div className="mb-3 flex items-center gap-2">
                                                 <Store className="h-5 w-5 text-purple-600" />
-                                                <h3 className="font-semibold text-gray-900">Store Information</h3>
+                                                <h3 className="font-semibold text-gray-900">{t('lbl_store')}</h3>
                                             </div>
                                             <div className="space-y-2 text-sm">
-                                                <p className="font-medium text-gray-900">{order.store?.name || order.store_name || 'N/A'}</p>
-                                                <p className="text-gray-600">Served by: {order.user?.name || order.user_name || 'N/A'}</p>
+                                                <p className="font-medium text-gray-900">{order.store?.name || order.store_name || t('lbl_na')}</p>
+                                                <p className="text-gray-600">{order.user?.name || order.user_name || t('lbl_na')}</p>
                                             </div>
                                         </div>
 
@@ -112,11 +114,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                             <div className="mb-3 flex items-center gap-2">
                                                 <Calendar className="h-5 w-5 text-green-600" />
-                                                <h3 className="font-semibold text-gray-900">Timeline</h3>
+                                                <h3 className="font-semibold text-gray-900">{t('order_order_date')}</h3>
                                             </div>
                                             <div className="space-y-3 text-sm">
                                                 <div>
-                                                    <p className="mb-1 text-xs font-semibold uppercase text-gray-500">Created</p>
+                                                    <p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t('lbl_created')}</p>
                                                     <div className="text-gray-900">
                                                         {order.created_at ? (
                                                             <>
@@ -129,7 +131,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <p className="mb-1 text-xs font-semibold uppercase text-gray-500">Updated</p>
+                                                    <p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t('lbl_updated')}</p>
                                                     <div className="text-gray-900">
                                                         {order.updated_at ? (
                                                             <>
@@ -148,15 +150,15 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                             <div className="mb-3 flex items-center gap-2">
                                                 <CreditCard className="h-5 w-5 text-orange-600" />
-                                                <h3 className="font-semibold text-gray-900">Payment Details</h3>
+                                                <h3 className="font-semibold text-gray-900">{t('order_payment_status')}</h3>
                                             </div>
                                             <div className="space-y-2 text-sm">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-gray-600">Method:</span>
-                                                    <span className="font-medium capitalize text-gray-900">{order.payment?.method ?? order.payment_method ?? 'N/A'}</span>
+                                                    <span className="text-gray-600">{t('lbl_payment_method')}:</span>
+                                                    <span className="font-medium capitalize text-gray-900">{order.payment?.method ?? order.payment_method ?? t('lbl_na')}</span>
                                                 </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-gray-600">Status:</span>
+                                                    <span className="text-gray-600">{t('lbl_status')}:</span>
                                                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>{paymentStatus.toUpperCase()}</span>
                                                 </div>
                                             </div>
@@ -167,7 +169,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                     <div className="mb-6">
                                         <div className="mb-4 flex items-center gap-2">
                                             <Package className="h-5 w-5 text-indigo-600" />
-                                            <h3 className="text-lg font-semibold text-gray-900">Order Items ({order.items_count})</h3>
+                                            <h3 className="text-lg font-semibold text-gray-900">{t('order_items')} ({order.items_count})</h3>
                                         </div>
                                         <div className="space-y-4">
                                             {order.items?.map((item: any, index: number) => (
@@ -209,22 +211,22 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     {/* Item Details Grid */}
                                                     <div className="mb-3 grid grid-cols-2 gap-4 md:grid-cols-4">
                                                         <div>
-                                                            <p className="mb-1 text-xs text-gray-500">Quantity</p>
+                                                            <p className="mb-1 text-xs text-gray-500">{t('lbl_quantity')}</p>
                                                             <p className="font-semibold text-gray-900">
                                                                 {item.quantity ?? 0} {item.unit ?? 'Piece'}
                                                             </p>
                                                             {item.quantity_returned > 0 && <p className="text-xs text-red-600">Returned: {item.quantity_returned}</p>}
                                                         </div>
                                                         <div>
-                                                            <p className="mb-1 text-xs text-gray-500">Unit Price</p>
+                                                            <p className="mb-1 text-xs text-gray-500">{t('lbl_selling_price')}</p>
                                                             <p className="font-semibold text-gray-900">{formatCurrency(item.unit_price ?? 0)}</p>
                                                         </div>
                                                         <div>
-                                                            <p className="mb-1 text-xs text-gray-500">Discount</p>
+                                                            <p className="mb-1 text-xs text-gray-500">{t('lbl_discount')}</p>
                                                             <p className="font-semibold text-red-600">{formatCurrency(item.discount ?? 0)}</p>
                                                         </div>
                                                         <div>
-                                                            <p className="mb-1 text-xs text-gray-500">Subtotal</p>
+                                                            <p className="mb-1 text-xs text-gray-500">{t('lbl_subtotal')}</p>
                                                             <p className="font-bold text-gray-900">{formatCurrency(item.subtotal ?? 0)}</p>
                                                         </div>
                                                     </div>
@@ -234,21 +236,21 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <div className="mb-3 rounded-md bg-gray-50 p-3">
                                                             <div className="mb-2 flex items-center gap-2">
                                                                 <AlertCircle className="h-4 w-4 text-gray-600" />
-                                                                <span className="text-xs font-semibold text-gray-700">Stock Information</span>
+                                                                <span className="text-xs font-semibold text-gray-700">{t('lbl_stock')}</span>
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
                                                                 <div>
-                                                                    <span className="text-gray-500">Current Stock:</span>
+                                                                    <span className="text-gray-500">{t('lbl_stock')}:</span>
                                                                     <span className={`ml-1 font-semibold ${item.stock.is_low_stock ? 'text-red-600' : 'text-green-600'}`}>
                                                                         {item.stock.current_quantity}
                                                                     </span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-gray-500">Cost at Sale:</span>
+                                                                    <span className="text-gray-500">{t('lbl_purchase_price')}:</span>
                                                                     <span className="ml-1 font-semibold text-gray-700">{formatCurrency(item.snapshot?.purchase_price ?? 0)}</span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-gray-500">Barcode:</span>
+                                                                    <span className="text-gray-500">{t('lbl_barcode')}:</span>
                                                                     <span className="ml-1 font-semibold text-gray-700">{item.snapshot?.barcode ?? '-'}</span>
                                                                 </div>
                                                                 {item.stock.is_low_stock && (
@@ -265,7 +267,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <div className="mb-3 rounded-md bg-blue-50 p-3">
                                                             <div className="mb-2 flex items-center gap-2">
                                                                 <Hash className="h-4 w-4 text-blue-600" />
-                                                                <span className="text-xs font-semibold text-blue-900">Serial Numbers</span>
+                                                                <span className="text-xs font-semibold text-blue-900">{t('lbl_serial')}</span>
                                                             </div>
                                                             <div className="flex flex-wrap gap-2">
                                                                 {item.serials.map((serial: any) => (
@@ -282,7 +284,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <div className="rounded-md bg-green-50 p-3">
                                                             <div className="mb-2 flex items-center gap-2">
                                                                 <Shield className="h-4 w-4 text-green-600" />
-                                                                <span className="text-xs font-semibold text-green-900">Warranty Information</span>
+                                                                <span className="text-xs font-semibold text-green-900">{t('lbl_variant')}</span>
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-3 text-xs">
                                                                 <div>
@@ -323,41 +325,41 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                     <div className="rounded-lg border border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50 p-6">
                                         <div className="mb-4 flex items-center gap-2">
                                             <Receipt className="h-5 w-5 text-blue-600" />
-                                            <h3 className="text-lg font-semibold text-gray-900">Order Summary</h3>
+                                            <h3 className="text-lg font-semibold text-gray-900">{t('lbl_subtotal')}</h3>
                                         </div>
                                         <div className="space-y-3">
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-gray-600">Subtotal:</span>
+                                                <span className="text-gray-600">{t('lbl_subtotal')}:</span>
                                                 <span className="font-medium text-gray-900">{formatCurrency(order.financial?.total ?? order.total ?? 0)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-gray-600">Tax:</span>
+                                                <span className="text-gray-600">{t('lbl_tax')}:</span>
                                                 <span className="font-medium text-gray-900">{formatCurrency(order.financial?.tax ?? order.tax ?? 0)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span className="text-gray-600">Discount:</span>
+                                                <span className="text-gray-600">{t('lbl_discount')}:</span>
                                                 <span className="font-medium text-red-600">-{formatCurrency(order.financial?.discount ?? order.discount ?? 0)}</span>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between">
-                                                    <span className="text-lg font-semibold text-gray-900">Grand Total:</span>
+                                                    <span className="text-lg font-semibold text-gray-900">{t('lbl_total')}:</span>
                                                     <span className="text-2xl font-bold text-blue-600">{formatCurrency(order.financial?.grand_total ?? order.grand_total ?? 0)}</span>
                                                 </div>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-600">Amount Paid:</span>
+                                                    <span className="text-gray-600">{t('lbl_paid')}:</span>
                                                     <span className="font-medium text-green-600">{formatCurrency(order.financial?.amount_paid ?? order.amount_paid ?? 0)}</span>
                                                 </div>
                                                 {(order.financial?.change_amount ?? order.change_amount ?? 0) > 0 && (
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-600">Change:</span>
+                                                        <span className="text-gray-600">{t('lbl_change')}:</span>
                                                         <span className="font-medium text-gray-900">{formatCurrency(order.financial?.change_amount ?? order.change_amount ?? 0)}</span>
                                                     </div>
                                                 )}
                                                 {(order.financial?.due_amount ?? order.due_amount ?? 0) > 0 && (
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-600">Due Amount:</span>
+                                                        <span className="text-gray-600">{t('lbl_due')}:</span>
                                                         <span className="font-medium text-red-600">{formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0)}</span>
                                                     </div>
                                                 )}
@@ -370,20 +372,20 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-6">
                                             <div className="mb-4 flex items-center gap-2">
                                                 <RotateCcw className="h-5 w-5 text-red-600" />
-                                                <h3 className="text-lg font-semibold text-red-900">Return & Refund Information</h3>
+                                                <h3 className="text-lg font-semibold text-red-900">{t('order_return')}</h3>
                                             </div>
                                             <div className="space-y-3">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-red-700">Total Returned Amount:</span>
+                                                    <span className="text-red-700">{t('lbl_amount')}:</span>
                                                     <span className="font-bold text-red-900">{formatCurrency(order.returns.total_returned ?? 0)}</span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-red-700">Number of Returns:</span>
+                                                    <span className="text-red-700">{t('order_return')}:</span>
                                                     <span className="font-medium text-red-900">{order.returns.count ?? 0}</span>
                                                 </div>
                                                 {order.returns.items && order.returns.items.length > 0 && (
                                                     <div className="mt-4 border-t border-red-200 pt-3">
-                                                        <h4 className="mb-2 text-sm font-semibold text-red-900">Return Details:</h4>
+                                                        <h4 className="mb-2 text-sm font-semibold text-red-900">{t('order_return')}:</h4>
                                                         <div className="space-y-2">
                                                             {order.returns.items.map((returnItem: any) => (
                                                                 <div key={returnItem.id} className="rounded bg-white p-3 text-sm">
@@ -413,7 +415,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         <div className="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-6">
                                             <div className="mb-4 flex items-center gap-2">
                                                 <CreditCard className="h-5 w-5 text-indigo-600" />
-                                                <h3 className="text-lg font-semibold text-indigo-900">Transaction History</h3>
+                                                <h3 className="text-lg font-semibold text-indigo-900">{t('lbl_payment')}</h3>
                                             </div>
                                             <div className="space-y-2">
                                                 {order.transactions.map((transaction: any) => (

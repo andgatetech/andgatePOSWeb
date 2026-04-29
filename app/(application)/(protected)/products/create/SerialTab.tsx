@@ -1,4 +1,5 @@
 'use client';
+import { getTranslation } from '@/i18n';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, ChevronDown, ChevronUp, Hash, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -28,6 +29,7 @@ interface SerialTabProps {
 }
 
 const SerialTab = ({ formData, productSerials, setProductSerials, productStocks, productAttributes, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }: SerialTabProps) => {
+    const { t } = getTranslation();
     const hasVariants = productAttributes && productAttributes.length > 0 && productStocks && productStocks.length > 0;
 
     const [sameSerialForAll, setSameSerialForAll] = useState(() => !hasVariants);
@@ -603,7 +605,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                     type="text"
                     value={notesValue}
                     onChange={(e) => handleSerialChange(entryIndex, 'notes', e.target.value)}
-                    placeholder="Notes (optional)"
+                    placeholder={t('placeholder_notes')}
                     className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-40 sm:px-3 sm:text-sm"
                 />
             </div>
@@ -709,7 +711,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                         type="text"
                                         value={productSerials[0]?.serial_number || ''}
                                         onChange={(e) => handleSingleSerialChange('serial_number', e.target.value)}
-                                        placeholder="Enter or scan Serial/IMEI"
+                                        placeholder={t('placeholder_serial')}
                                         className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                     />
                                     <button
@@ -726,7 +728,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                     type="text"
                                     value={productSerials[0]?.notes || ''}
                                     onChange={(e) => handleSingleSerialChange('notes', e.target.value)}
-                                    placeholder="Notes (optional)"
+                                    placeholder={t('placeholder_notes')}
                                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-48"
                                 />
                             </div>
@@ -877,7 +879,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
-                        Previous
+                        {t('btn_back')}
                     </button>
 
                     <button
@@ -896,14 +898,14 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                     />
                                 </svg>
-                                {isEditMode ? 'Updating...' : 'Creating...'}
+                                {isEditMode ? t('btn_updating') : t('btn_creating')}
                             </>
                         ) : (
                             <>
                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                {isEditMode ? 'Update Product' : 'Create Product'}
+                                {isEditMode ? t('product_edit_title') : t('product_create_title')}
                             </>
                         )}
                     </button>

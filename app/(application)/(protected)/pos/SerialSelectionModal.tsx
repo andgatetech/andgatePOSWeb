@@ -3,6 +3,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Calendar, Package, Shield, X } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface Serial {
     id: number;
@@ -58,6 +59,7 @@ interface SerialSelectionModalProps {
 }
 
 const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfirm }: SerialSelectionModalProps) => {
+    const { t } = getTranslation();
     const [selectedSerialIds, setSelectedSerialIds] = useState<number[]>([]);
     const [quantity, setQuantity] = useState(1);
 
@@ -135,7 +137,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
 
     const handleConfirm = () => {
         if (selectedSerialIds.length !== quantity) {
-            alert(`Please select exactly ${quantity} serial number(s)`);
+            alert(`${t('msg_select_exactly')} ${quantity} ${t('lbl_serial_numbers')}`);
             return;
         }
 
@@ -146,9 +148,9 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
 
     const getWarrantyDuration = () => {
         if (!warranty) return null;
-        if (warranty.duration_months) return `${warranty.duration_months} months`;
-        if (warranty.duration_days) return `${warranty.duration_days} days`;
-        return 'Lifetime';
+        if (warranty.duration_months) return `${warranty.duration_months} ${t('lbl_months')}`;
+        if (warranty.duration_days) return `${warranty.duration_days} ${t('lbl_days')}`;
+        return t('lbl_lifetime');
     };
 
     return (
@@ -175,13 +177,13 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                     <div className="flex-1">
                                         <Dialog.Title as="h3" className="flex items-center gap-2 text-xl font-bold text-gray-900">
                                             <Package className="h-6 w-6 text-blue-600" />
-                                            Serial Number Selection
+                                            {t('lbl_serial_number_selection')}
                                         </Dialog.Title>
                                         <p className="mt-1 text-sm text-gray-600">{product.product_name}</p>
                                         {selectedStock && selectedStock.variant_name && (
                                             <p className="text-xs text-gray-500">
-                                                Variant: {selectedStock.variant_name}
-                                                {selectedStock.serials ? ' (Variant-specific serials)' : ''}
+                                                {t('lbl_variant')}: {selectedStock.variant_name}
+                                                {selectedStock.serials ? ` (${t('lbl_variant_specific_serials')})` : ''}
                                             </p>
                                         )}
                                     </div>
@@ -196,20 +198,20 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                         <div className="flex items-start gap-3">
                                             <Shield className="mt-0.5 h-5 w-5 text-green-600" />
                                             <div className="flex-1">
-                                                <h4 className="font-semibold text-green-900">Warranty Included</h4>
+                                                <h4 className="font-semibold text-green-900">{t('lbl_warranty_included')}</h4>
                                                 <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-green-700">
                                                     {warranty.warranty_type_name && (
                                                         <div>
-                                                            <span className="font-medium">Type:</span> {warranty.warranty_type_name}
+                                                            <span className="font-medium">{t('lbl_type')}:</span> {warranty.warranty_type_name}
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <span className="font-medium">Duration:</span> {getWarrantyDuration()}
+                                                        <span className="font-medium">{t('lbl_duration')}:</span> {getWarrantyDuration()}
                                                     </div>
                                                 </div>
                                                 <p className="mt-2 text-xs text-green-600">
                                                     <Calendar className="mr-1 inline h-3 w-3" />
-                                                    Warranty will be activated from the invoice date
+                                                    {t('msg_warranty_activation')}
                                                 </p>
                                             </div>
                                         </div>
@@ -218,7 +220,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
 
                                 {/* Quantity Selector */}
                                 <div className="mb-6">
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">Quantity to Sell</label>
+                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_quantity_to_sell')}</label>
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => handleQuantityChange(quantity - 1)}
@@ -242,14 +244,14 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                         >
                                             +
                                         </button>
-                                        <span className="text-sm text-gray-600">Available: {availableSerials.length} serials</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_available')}: {availableSerials.length} {t('lbl_serials')}</span>
                                     </div>
                                 </div>
 
                                 {/* Serial Selection Instructions */}
                                 <div className="mb-4">
                                     <p className="text-sm font-medium text-gray-700">
-                                        Select {quantity} serial number{quantity > 1 ? 's' : ''} ({selectedSerialIds.length}/{quantity} selected)
+                                        {t('lbl_select')} {quantity} {quantity > 1 ? t('lbl_serial_numbers') : t('lbl_serial_number')} ({selectedSerialIds.length}/{quantity} {t('lbl_selected')})
                                     </p>
                                 </div>
 
@@ -258,7 +260,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                     {availableSerials.length === 0 ? (
                                         <div className="p-8 text-center text-gray-500">
                                             <Package className="mx-auto mb-2 h-12 w-12 text-gray-300" />
-                                            <p>No available serial numbers in stock</p>
+                                            <p>{t('msg_no_serials_in_stock')}</p>
                                         </div>
                                     ) : (
                                         <div className="divide-y divide-gray-200">
@@ -288,7 +290,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                                                     {serial.notes && <p className="text-xs text-gray-500">{serial.notes}</p>}
                                                                 </div>
                                                             </div>
-                                                            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">In Stock</span>
+                                                            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">{t('status_in_stock')}</span>
                                                         </div>
                                                     </div>
                                                 );
@@ -300,14 +302,14 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                 {/* Actions */}
                                 <div className="mt-6 flex justify-end gap-3">
                                     <button onClick={onClose} className="rounded-lg border border-gray-300 px-6 py-2.5 font-medium text-gray-700 hover:bg-gray-50">
-                                        Cancel
+                                        {t('btn_cancel')}
                                     </button>
                                     <button
                                         onClick={handleConfirm}
                                         disabled={selectedSerialIds.length !== quantity}
                                         className="rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
-                                        Add to Cart ({selectedSerialIds.length}/{quantity})
+                                        {t('btn_add_to_cart')} ({selectedSerialIds.length}/{quantity})
                                     </button>
                                 </div>
                             </Dialog.Panel>

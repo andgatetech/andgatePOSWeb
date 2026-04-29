@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { CurrencyDisplay } from '@/lib/CurrencyDisplay';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
 import { DashboardProduct } from '@/types/dashboard.types';
@@ -85,12 +86,13 @@ const SectionSkeleton = () => (
 
 // Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
+    const { t } = getTranslation();
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-        completed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Completed' },
-        partial: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Partial' },
-        pending: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Pending' },
-        cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelled' },
-        onhold: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'On Hold' },
+        completed: { bg: 'bg-green-100', text: 'text-green-700', label: t('status_completed') },
+        partial: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: t('status_partial') },
+        pending: { bg: 'bg-blue-100', text: 'text-blue-700', label: t('status_pending') },
+        cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: t('status_cancelled') },
+        onhold: { bg: 'bg-orange-100', text: 'text-orange-700', label: t('status_on_hold') },
     };
 
     const config = statusConfig[status.toLowerCase()] || statusConfig.pending;
@@ -100,26 +102,28 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 // Stock status badge component
 const StockStatusBadge = ({ status, quantity }: { status: string; quantity: number }) => {
+    const { t } = getTranslation();
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-        critical: { bg: 'bg-red-100', text: 'text-red-700', label: 'Critical' },
-        low: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Low Stock' },
-        instock: { bg: 'bg-green-100', text: 'text-green-700', label: 'In Stock' },
+        critical: { bg: 'bg-red-100', text: 'text-red-700', label: t('lbl_critical') },
+        low: { bg: 'bg-orange-100', text: 'text-orange-700', label: t('status_low_stock') },
+        instock: { bg: 'bg-green-100', text: 'text-green-700', label: t('status_in_stock') },
     };
 
     const config = statusConfig[status.toLowerCase()] || statusConfig.instock;
 
     return (
         <div className="text-right">
-            <p className="mb-1 text-xs text-gray-500">Status</p>
+            <p className="mb-1 text-xs text-gray-500">{t('lbl_status')}</p>
             <span className={`rounded-full px-2 py-1 text-xs font-semibold ${config.bg} ${config.text}`}>{config.label}</span>
             <p className="mt-1 text-xs text-gray-500">
-                Stock: <span className="font-bold text-gray-900 dark:text-white">{quantity}</span>
+                {t('lbl_stock')}: <span className="font-bold text-gray-900 dark:text-white">{quantity}</span>
             </p>
         </div>
     );
 };
 
 export default function DashboardSections() {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const [topSellingFilter, setTopSellingFilter] = useState('last_week');
     const [customStartDate, setCustomStartDate] = useState('');
@@ -154,7 +158,7 @@ export default function DashboardSections() {
     if (isError || !sectionsData?.data) {
         return (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6">
-                <p className="text-sm text-red-600 sm:text-base">Failed to load dashboard sections. Please try again.</p>
+                <p className="text-sm text-red-600 sm:text-base">{t('msg_failed_to_load_dashboard')}</p>
             </div>
         );
     }
@@ -174,16 +178,16 @@ export default function DashboardSections() {
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
                         <TrendingUp className="h-5 w-5 text-blue-500" />
-                        Top Selling Products
+                        {t('dashboard_top_selling_products')}
                     </h3>
                     <select
                         value={topSellingFilter}
                         onChange={(e) => setTopSellingFilter(e.target.value)}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value="today">Today</option>
-                        <option value="last_week">Weekly</option>
-                        <option value="custom">Custom Date</option>
+                        <option value="today">{t('lbl_today')}</option>
+                        <option value="last_week">{t('lbl_weekly')}</option>
+                        <option value="custom">{t('lbl_custom_range')}</option>
                     </select>
                 </div>
 
@@ -191,7 +195,7 @@ export default function DashboardSections() {
                 {topSellingFilter === 'custom' && (
                     <div className="animate-fade-in-up mb-4 flex gap-2 rounded-lg bg-gray-50 p-3">
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">Start Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_start_date')}</label>
                             <input
                                 type="date"
                                 value={customStartDate}
@@ -200,7 +204,7 @@ export default function DashboardSections() {
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="mb-1 block text-xs font-medium text-gray-600">End Date</label>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_end_date')}</label>
                             <input
                                 type="date"
                                 value={customEndDate}
@@ -213,7 +217,7 @@ export default function DashboardSections() {
 
                 {/* View All Button */}
                 <Link href="/reports/product" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
-                    View All
+                    {t('lbl_view_all')}
                 </Link>
 
                 {/* Divider */}
@@ -247,7 +251,7 @@ export default function DashboardSections() {
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">
-                                        <CurrencyDisplay amount={product.total_revenue} /> • {product.total_sales} Sales
+                                        <CurrencyDisplay amount={product.total_revenue} /> • {product.total_sales} {t('lbl_sales')}
                                     </p>
                                 </div>
                                 <div className="flex-shrink-0">
@@ -264,7 +268,7 @@ export default function DashboardSections() {
                     ) : (
                         <div className="py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
-                            <p className="mt-2 text-sm text-gray-500">No products found</p>
+                            <p className="mt-2 text-sm text-gray-500">{t('msg_no_products_found')}</p>
                         </div>
                     )}
                 </motion.div>
@@ -281,24 +285,24 @@ export default function DashboardSections() {
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
                         <Package className="h-5 w-5 text-red-500" />
-                        Low Stock Alert
+                        {t('dashboard_low_stock_alert')}
                     </h3>
                     <select
                         value={lowStockThreshold}
                         onChange={(e) => setLowStockThreshold(Number(e.target.value))}
                         className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                        <option value={5}>Under 5</option>
-                        <option value={10}>Under 10</option>
-                        <option value={15}>Under 15</option>
-                        <option value={50}>Under 50</option>
-                        <option value={100}>Under 100</option>
+                        <option value={5}>{t('lbl_under')} 5</option>
+                        <option value={10}>{t('lbl_under')} 10</option>
+                        <option value={15}>{t('lbl_under')} 15</option>
+                        <option value={50}>{t('lbl_under')} 50</option>
+                        <option value={100}>{t('lbl_under')} 100</option>
                     </select>
                 </div>
 
                 {/* View All Button */}
                 <Link href="/reports/stock" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
-                    View All
+                    {t('lbl_view_all')}
                 </Link>
 
                 {/* Divider */}
@@ -331,7 +335,7 @@ export default function DashboardSections() {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
-                                    <p className="text-xs text-gray-600">SKU: {product.sku}</p>
+                                    <p className="text-xs text-gray-600">{t('lbl_sku')}: {product.sku}</p>
                                 </div>
                                 <div className="transform transition-transform group-hover:scale-105">
                                     <StockStatusBadge status={product.stock_status} quantity={product.stock_quantity} />
@@ -341,7 +345,7 @@ export default function DashboardSections() {
                     ) : (
                         <div className="py-8 text-center">
                             <Package className="mx-auto h-12 w-12 text-gray-300" />
-                            <p className="mt-2 text-sm text-gray-500">No low stock products</p>
+                            <p className="mt-2 text-sm text-gray-500">{t('msg_no_low_stock_products')}</p>
                         </div>
                     )}
                 </motion.div>
@@ -358,13 +362,13 @@ export default function DashboardSections() {
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
                         <Calendar className="h-5 w-5 text-green-500" />
-                        Recent Sales
+                        {t('dashboard_recent_sales')}
                     </h3>
                 </div>
 
                 {/* View All Button */}
                 <Link href="/reports/sales" className="mb-3 block w-full text-center text-sm font-medium text-primary transition-colors hover:text-primary/80">
-                    View All
+                    {t('lbl_view_all')}
                 </Link>
 
                 {/* Divider */}
@@ -404,7 +408,7 @@ export default function DashboardSections() {
                                     <p className="text-xs text-gray-500">{sale.order_date_formatted}</p>
                                 </div>
                                 <div className="flex-shrink-0 transform transition-transform group-hover:scale-105">
-                                    <p className="mb-1 text-xs text-gray-500">Status</p>
+                                    <p className="mb-1 text-xs text-gray-500">{t('lbl_status')}</p>
                                     <StatusBadge status={sale.status} />
                                 </div>
                             </motion.div>
@@ -412,7 +416,7 @@ export default function DashboardSections() {
                     ) : (
                         <div className="py-8 text-center">
                             <Calendar className="mx-auto h-12 w-12 text-gray-300" />
-                            <p className="mt-2 text-sm text-gray-500">No recent sales</p>
+                            <p className="mt-2 text-sm text-gray-500">{t('msg_no_recent_sales')}</p>
                         </div>
                     )}
                 </motion.div>

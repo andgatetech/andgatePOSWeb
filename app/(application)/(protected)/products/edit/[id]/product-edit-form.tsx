@@ -3,6 +3,7 @@
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleProductQuery, useGetUnitsQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
@@ -41,6 +42,7 @@ type ProductWarrantyState = {
 };
 
 const ProductEditForm = () => {
+    const { t } = getTranslation();
     const params = useParams();
     const productId = params.id as string;
     const maxNumber = 10;
@@ -807,13 +809,13 @@ const ProductEditForm = () => {
             }
 
             if (Array.from(fd.keys()).length === 1) {
-                showSuccessDialog('No Changes', 'Nothing to update');
+                showSuccessDialog(t('msg_success'), t('msg_no_data'));
                 return;
             }
 
             const result = await updateProduct({ id: productId, formData: fd }).unwrap();
 
-            showSuccessDialog('Success!', 'Product has been updated successfully');
+            showSuccessDialog(t('msg_success'), t('product_updated'));
 
             setTimeout(() => {
                 router.push('/products');
@@ -837,8 +839,8 @@ const ProductEditForm = () => {
             }
 
             if (error?.status !== 403) {
-                const errorMessage = error?.data?.message || 'Something went wrong while updating the product';
-                showErrorDialog('Error!', errorMessage);
+                const errorMessage = error?.data?.message || t('msg_error_occurred');
+                showErrorDialog(t('msg_error'), errorMessage);
             }
         }
     };
@@ -849,7 +851,7 @@ const ProductEditForm = () => {
     }
 
     if (productLoading) {
-        return <Loader message="Loading Product..." />;
+        return <Loader message={t('product_loading')} />;
     }
 
     if (productError) {

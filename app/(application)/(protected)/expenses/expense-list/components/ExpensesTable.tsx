@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { CreditCard, Edit, Eye, Receipt, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -27,26 +28,26 @@ interface ExpensesTableProps {
     onDelete: (expense: any) => void;
 }
 
-const PAYMENT_TYPE_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
-    cash: { label: 'Cash', color: 'text-green-700', bgColor: 'bg-green-100' },
-    bank: { label: 'Bank', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-    card: { label: 'Card', color: 'text-purple-700', bgColor: 'bg-purple-100' },
-    others: { label: 'Others', color: 'text-gray-700', bgColor: 'bg-gray-100' },
-};
-
 const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
+    const PAYMENT_TYPE_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
+        cash: { label: t('lbl_cash'), color: 'text-green-700', bgColor: 'bg-green-100' },
+        bank: { label: t('lbl_bank'), color: 'text-blue-700', bgColor: 'bg-blue-100' },
+        card: { label: t('lbl_card'), color: 'text-purple-700', bgColor: 'bg-purple-100' },
+        others: { label: t('lbl_others'), color: 'text-gray-700', bgColor: 'bg-gray-100' },
+    };
 
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'title',
-                label: 'Title',
+                label: t('lbl_title'),
                 render: (value) => <span className="font-medium text-gray-900">{value}</span>,
             },
             {
                 key: 'ledger_info',
-                label: 'Ledger',
+                label: t('account_ledger'),
                 render: (_, row) => (
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">{row.ledger_title}</span>
@@ -58,7 +59,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             },
             {
                 key: 'notes',
-                label: 'Notes',
+                label: t('lbl_notes'),
                 render: (value) => {
                     if (!value) return <span className="text-gray-400">-</span>;
                     const truncatedNotes = value.length > 30 ? value.substring(0, 30) + '...' : value;
@@ -71,13 +72,13 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             },
             {
                 key: 'debit',
-                label: 'Amount',
+                label: t('lbl_amount'),
                 sortable: true,
                 render: (value) => <span className="text-sm font-semibold text-red-600">{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_type',
-                label: 'Payment',
+                label: t('lbl_payment_method'),
                 render: (value) => {
                     const config = PAYMENT_TYPE_CONFIG[value?.toLowerCase()] || PAYMENT_TYPE_CONFIG.others;
                     return (
@@ -90,40 +91,40 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             },
             {
                 key: 'store_name',
-                label: 'Store',
+                label: t('lbl_store'),
                 render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'user_name',
-                label: 'User',
+                label: t('user_title'),
                 render: (value) => <span className="text-sm text-gray-700">{value || 'N/A'}</span>,
             },
             {
                 key: 'created_at',
-                label: 'Date',
+                label: t('lbl_date'),
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: 'View Details',
+                label: t('btn_view'),
                 onClick: onViewDetails,
                 className: 'text-blue-600',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: 'Edit Expense',
+                label: t('btn_edit'),
                 onClick: onEdit,
                 className: 'text-orange-600',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
-                label: 'Delete Expense',
+                label: t('btn_delete'),
                 onClick: onDelete,
                 className: 'text-red-600',
                 icon: <Trash2 className="h-4 w-4" />,

@@ -2,6 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { Download, Printer, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -14,6 +15,7 @@ interface PaymentReceiptProps {
 }
 
 const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transaction, onClose }) => {
+    const { t } = getTranslation();
     const receiptRef = useRef<HTMLDivElement>(null);
     const { currentStore } = useCurrentStore();
     const { formatCurrency, symbol } = useCurrency();

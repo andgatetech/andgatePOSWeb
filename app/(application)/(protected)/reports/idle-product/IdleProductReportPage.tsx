@@ -6,12 +6,14 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import IdleProductReportFilter from '@/components/filters/reports/IdleProductReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetIdleProductReportMutation } from '@/store/features/reports/reportApi';
 import { AlertTriangle, Banknote, BarChart3, Box, Calendar, Clock, FileText, Package, Store, Tag, Timer } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const IdleProductReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({ idle_days: 30 });
@@ -84,16 +86,16 @@ const IdleProductReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'sku', label: 'SKU', width: 12 },
-            { key: 'category', label: 'Category', width: 15 },
-            { key: 'brand', label: 'Brand', width: 12 },
-            { key: 'quantity', label: 'Stock', width: 10 },
-            { key: 'stock_value', label: 'Value', width: 12, format: (v) => formatCurrency(v) },
-            { key: 'last_sold_at', label: 'Last Sale', width: 15, format: (v) => v || 'Never' },
-            { key: 'days_idle', label: 'Days Idle', width: 10 },
+            { key: 'product_name', label: t('lbl_product'), width: 25 },
+            { key: 'sku', label: t('lbl_sku'), width: 12 },
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'brand', label: t('brand_title'), width: 12 },
+            { key: 'quantity', label: t('lbl_stock'), width: 10 },
+            { key: 'stock_value', label: t('lbl_value'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'last_sold_at', label: t('lbl_last_sale'), width: 15, format: (v) => v || 'Never' },
+            { key: 'days_idle', label: t('lbl_idle_days'), width: 10 },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -103,7 +105,7 @@ const IdleProductReportPage = () => {
             ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
             : currentStore?.store_name || 'All Stores';
         const customFilters: { label: string; value: string }[] = [];
-        if (apiParams.idle_days) customFilters.push({ label: 'Idle Days', value: `>${apiParams.idle_days} Days` });
+        if (apiParams.idle_days) customFilters.push({ label: t('lbl_idle_days'), value: `>${apiParams.idle_days} Days` });
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -112,17 +114,17 @@ const IdleProductReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Idle Items', value: summary.total_idle_items || 0 },
-            { label: 'Trapped Capital', value: formatCurrency(summary.total_idle_value) },
-            { label: 'Date', value: new Date().toISOString() },
+            { label: t('lbl_idle_items'), value: summary.total_idle_items || 0 },
+            { label: t('lbl_trapped_capital'), value: formatCurrency(summary.total_idle_value) },
+            { label: t('lbl_date'), value: new Date().toISOString() },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Idle SKUs',
+                label: t('lbl_idle_items'),
                 value: summary.total_idle_items || 0,
                 icon: <Package className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -130,7 +132,7 @@ const IdleProductReportPage = () => {
                 textColor: 'text-orange-600',
             },
             {
-                label: 'Aging Threshold',
+                label: t('lbl_aging_threshold'),
                 value: `${summary.idle_days_threshold || 0} Days`,
                 icon: <Clock className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -138,7 +140,7 @@ const IdleProductReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Trapped Capital',
+                label: t('lbl_trapped_capital'),
                 value: formatCurrency(summary.total_idle_value),
                 icon: <Banknote className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
@@ -146,7 +148,7 @@ const IdleProductReportPage = () => {
                 textColor: 'text-rose-600',
             },
             {
-                label: 'Analysis Cutoff',
+                label: t('lbl_analysis_cutoff'),
                 value: summary.cutoff_date || 'N/A',
                 icon: <Calendar className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -154,14 +156,14 @@ const IdleProductReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const columns = useMemo(
         () => [
             {
                 key: 'product_name',
-                label: 'Aging Inventory',
+                label: t('lbl_aging_inventory'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -185,7 +187,7 @@ const IdleProductReportPage = () => {
             },
             {
                 key: 'category',
-                label: 'Category',
+                label: t('lbl_category'),
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-700">{v || 'Uncategorized'}</span>
@@ -195,10 +197,10 @@ const IdleProductReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
+            { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm font-medium text-gray-700">{v || 'Unbranded'}</span> },
             {
                 key: 'quantity',
-                label: 'Current Stock',
+                label: t('lbl_stock'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -209,7 +211,7 @@ const IdleProductReportPage = () => {
             },
             {
                 key: 'last_sold_at',
-                label: 'Last Sale Date',
+                label: t('lbl_last_sale'),
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <div className={`flex items-center gap-1.5 text-sm font-bold ${v ? 'text-amber-700' : 'text-rose-700'}`}>
@@ -231,7 +233,7 @@ const IdleProductReportPage = () => {
             },
             {
                 key: 'days_idle',
-                label: 'Days Since Last Sale',
+                label: t('lbl_days_since_sale'),
                 sortable: true,
                 render: (v: any) => {
                     const d = Number(v);
@@ -247,7 +249,7 @@ const IdleProductReportPage = () => {
                 },
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     return (

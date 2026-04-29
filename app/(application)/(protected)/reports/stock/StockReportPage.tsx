@@ -5,6 +5,7 @@ import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/R
 import ReusableTable from '@/components/common/ReusableTable';
 import StockReportFilter from '@/components/filters/reports/StockReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetStockReportMutation } from '@/store/features/reports/reportApi';
@@ -12,6 +13,7 @@ import { AlertTriangle, CheckCircle, FileText, Layers, Package, XCircle } from '
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const StockReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -84,17 +86,17 @@ const StockReportPage = () => {
 
     const exportColumns: ExportColumn[] = useMemo(
         () => [
-            { key: 'sku', label: 'SKU', width: 12 },
-            { key: 'product_name', label: 'Product', width: 25 },
-            { key: 'category', label: 'Category', width: 15 },
-            { key: 'brand', label: 'Brand', width: 12 },
-            { key: 'quantity', label: 'Stock', width: 10 },
-            { key: 'stock_value', label: 'Stock Value', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'retail_value', label: 'Retail Value', width: 15, format: (v) => formatCurrency(v) },
-            { key: 'profit_margin', label: 'Margin %', width: 10, format: (v) => `${Number(v).toFixed(2)}%` },
-            { key: 'price', label: 'Price', width: 12, format: (v) => formatCurrency(v) },
+            { key: 'sku', label: t('lbl_sku'), width: 12 },
+            { key: 'product_name', label: t('lbl_product'), width: 25 },
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'brand', label: t('brand_title'), width: 12 },
+            { key: 'quantity', label: t('lbl_stock'), width: 10 },
+            { key: 'stock_value', label: t('lbl_stock_value'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'retail_value', label: t('lbl_retail_value'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'profit_margin', label: t('lbl_margin'), width: 10, format: (v) => `${Number(v).toFixed(2)}%` },
+            { key: 'price', label: t('lbl_price'), width: 12, format: (v) => formatCurrency(v) },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     const filterSummary = useMemo(() => {
@@ -111,29 +113,29 @@ const StockReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'Total Items', value: summary.total_items || 0 },
-            { label: 'Total Quantity', value: (summary.total_quantity || 0).toLocaleString() },
-            { label: 'Returned to Stock', value: (summary.quantity_returned_to_stock || 0).toLocaleString() },
-            { label: 'Total Stock Value', value: formatCurrency(summary.total_stock_value) },
+            { label: t('order_items'), value: summary.total_items || 0 },
+            { label: t('lbl_qty'), value: (summary.total_quantity || 0).toLocaleString() },
+            { label: t('lbl_returned_stock'), value: (summary.quantity_returned_to_stock || 0).toLocaleString() },
+            { label: t('lbl_stock_value'), value: formatCurrency(summary.total_stock_value) },
         ],
-        [summary, formatCurrency]
+        [t, summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
-            { label: 'Total Items', value: summary.total_items || 0, icon: <Package className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
+            { label: t('order_items'), value: summary.total_items || 0, icon: <Package className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
             {
-                label: 'Total Quantity',
+                label: t('lbl_qty'),
                 value: (summary.total_quantity || 0).toLocaleString(),
                 icon: <Layers className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
-            { label: 'In Stock', value: summary.in_stock || 0, icon: <CheckCircle className="h-4 w-4 text-green-600" />, bgColor: 'bg-green-500', lightBg: 'bg-green-50', textColor: 'text-green-600' },
-            { label: 'Out of Stock', value: summary.out_of_stock || 0, icon: <XCircle className="h-4 w-4 text-red-600" />, bgColor: 'bg-red-500', lightBg: 'bg-red-50', textColor: 'text-red-600' },
+            { label: t('status_in_stock'), value: summary.in_stock || 0, icon: <CheckCircle className="h-4 w-4 text-green-600" />, bgColor: 'bg-green-500', lightBg: 'bg-green-50', textColor: 'text-green-600' },
+            { label: t('status_out_of_stock'), value: summary.out_of_stock || 0, icon: <XCircle className="h-4 w-4 text-red-600" />, bgColor: 'bg-red-500', lightBg: 'bg-red-50', textColor: 'text-red-600' },
             {
-                label: 'Returned to Stock',
+                label: t('lbl_returned_stock'),
                 value: (summary.quantity_returned_to_stock || 0).toLocaleString(),
                 icon: <Package className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
@@ -141,15 +143,15 @@ const StockReportPage = () => {
                 textColor: 'text-emerald-600',
             },
         ],
-        [summary]
+        [t, summary]
     );
 
     const columns = useMemo(
         () => [
-            { key: 'sku', label: 'SKU', render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
+            { key: 'sku', label: t('lbl_sku'), render: (v: any) => <span className="font-mono text-sm text-gray-600">{v || '-'}</span> },
             {
                 key: 'product_name',
-                label: 'Product',
+                label: t('lbl_product'),
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
@@ -165,11 +167,11 @@ const StockReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'category', label: 'Category', render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
-            { key: 'brand', label: 'Brand', render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
+            { key: 'category', label: t('lbl_category'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
+            { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
             {
                 key: 'quantity',
-                label: 'Stock',
+                label: t('lbl_stock'),
                 sortable: true,
                 render: (v: any, r: any) => {
                     const isLow = r.is_low_stock;
@@ -186,18 +188,18 @@ const StockReportPage = () => {
                     );
                 },
             },
-            { key: 'stock_value', label: 'Stock Value', sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span> },
-            { key: 'retail_value', label: 'Retail Value', sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
+            { key: 'stock_value', label: t('lbl_stock_value'), sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span> },
+            { key: 'retail_value', label: t('lbl_retail_value'), sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
             {
                 key: 'profit_margin',
-                label: 'Margin %',
+                label: t('lbl_margin'),
                 sortable: true,
                 render: (v: any) => <span className={`font-semibold ${Number(v) < 0 ? 'text-red-600' : 'text-green-600'}`}>{Number(v).toFixed(2)}%</span>,
             },
-            { key: 'price', label: 'Selling Price', render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
+            { key: 'price', label: t('lbl_selling_price'), render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
             {
                 key: 'available',
-                label: 'Status',
+                label: t('lbl_status'),
                 render: (v: any, r: any) =>
                     r.is_out_of_stock ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Out of Stock</span>
@@ -208,7 +210,7 @@ const StockReportPage = () => {
                     ),
             },
         ],
-        [formatCurrency]
+        [t, formatCurrency]
     );
 
     if (isLoading && !reportData?.data) {

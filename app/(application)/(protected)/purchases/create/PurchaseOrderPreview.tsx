@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import type { RootState } from '@/store';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
@@ -26,6 +27,7 @@ interface PurchaseItem {
 }
 
 const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onClose }) => {
+    const { t } = getTranslation();
     const previewRef = useRef(null);
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
@@ -121,15 +123,15 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                             <div className="flex flex-col gap-6 sm:flex-row lg:w-2/3">
                                 <div className="sm:w-1/2 lg:w-2/5">
                                     <div className="mb-2 flex justify-between">
-                                        <span>PO Reference:</span>
+                                        <span>{t('purchase_po_reference')}:</span>
                                         <span className="font-medium">DRAFT-{Date.now()}</span>
                                     </div>
                                     <div className="mb-2 flex justify-between">
-                                        <span>Date:</span>
+                                        <span>{t('lbl_date')}:</span>
                                         <span>{currentDate}</span>
                                     </div>
                                     <div className="mb-2 flex justify-between">
-                                        <span>Time:</span>
+                                        <span>{t('lbl_time')}:</span>
                                         <span>{currentTime}</span>
                                     </div>
                                 </div>
@@ -226,11 +228,11 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                         <div className="mt-6 flex flex-col justify-end gap-2 px-4 sm:flex-row sm:justify-end">
                             <div className="w-full space-y-1 text-right sm:w-[40%]">
                                 <div className="flex justify-between">
-                                    <span>Estimated Subtotal</span>
+                                    <span>{t('lbl_subtotal')}</span>
                                     <span>{formatCurrency(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
-                                    <span>Est. Grand Total</span>
+                                    <span>{t('lbl_est_grand_total')}</span>
                                     <span className="text-primary">{formatCurrency(grandTotal)}</span>
                                 </div>
                                 <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>

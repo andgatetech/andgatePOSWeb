@@ -2,12 +2,14 @@ import ComponentsUsersAccountSettingsTabs from '@/app/(application)/(protected)/
 import { Metadata } from 'next';
 import Link from 'next/link';
 import React from 'react';
+import { getTranslation } from '@/i18n';
 
 export const metadata: Metadata = {
     title: 'Account Setting',
 };
 
 const UserAccountSettings = () => {
+    const { t } = getTranslation();
     return (
         <div>
             <ul className="flex space-x-2 rtl:space-x-reverse">

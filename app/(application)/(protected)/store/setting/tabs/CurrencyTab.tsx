@@ -1,5 +1,6 @@
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { getTranslation } from '@/i18n';
 import Dropdown from './Dropdown';
 
 export interface CurrencyForm {
@@ -70,7 +71,8 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
     );
 
     const formatPreview = (currencyData: CurrencyForm) => {
-        const amount = '1,234.56';
+        const { t } = getTranslation();
+    const amount = '1,234.56';
         if (currencyData.currency_position === 'before') {
             return `${currencyData.currency_symbol}${amount}`;
         }
@@ -130,8 +132,8 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 onChange={(e) => setNewCurrencyField('currency_position', e.target.value)}
                                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                             >
-                                <option value="before">Before ($100)</option>
-                                <option value="after">After (100$)</option>
+                                <option value="before">{t('lbl_before')} ($100)</option>
+                                <option value="after">{t('lbl_after')} (100$)</option>
                             </select>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -262,8 +264,8 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                         onChange={(e) => setEditingCurrencyField('currency_position', e.target.value)}
                                                         className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                                                     >
-                                                        <option value="before">Before</option>
-                                                        <option value="after">After</option>
+                                                        <option value="before">{t('lbl_before')}</option>
+                                                        <option value="after">{t('lbl_after')}</option>
                                                     </select>
                                                 ) : (
                                                     <span className="text-sm capitalize text-gray-600">{cur.currency_position}</span>

@@ -2,6 +2,7 @@
 
 import SupplierFilter from '@/components/filters/SupplierFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
@@ -12,6 +13,7 @@ import SuppliersTable from '../components/SuppliersTable';
 import ViewSupplierModal from '../components/ViewSupplierModal';
 
 const SuppliersPage = () => {
+    const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
 
@@ -78,18 +80,18 @@ const SuppliersPage = () => {
 
     const handleDelete = useCallback(
         async (supplier: any) => {
-            const confirmed = await showConfirmDialog('Delete Supplier?', `Are you sure you want to delete ${supplier.name}? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('supplier_delete_confirm'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteSupplier(supplier.id).unwrap();
-                    showSuccessDialog('Deleted!', 'Supplier has been deleted successfully.');
+                    showSuccessDialog(t('msg_success'), t('supplier_deleted'));
                 } catch (error: any) {
-                    showErrorDialog('Error!', error?.data?.message || 'Failed to delete supplier.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('supplier_error_delete'));
                 }
             }
         },
-        [deleteSupplier]
+        [deleteSupplier, t]
     );
 
     const handleAddNew = () => {
@@ -97,7 +99,7 @@ const SuppliersPage = () => {
     };
 
     if (isLoading) {
-        return <Loader message="Loading suppliers..." />;
+        return <Loader message={t('supplier_loading')} />;
     }
 
     return (
@@ -105,12 +107,12 @@ const SuppliersPage = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-                    <p className="mt-1 text-sm text-gray-600">Manage your suppliers and their information</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('supplier_page_title')}</h1>
+                    <p className="mt-1 text-sm text-gray-600">{t('supplier_page_desc')}</p>
                 </div>
                 <button onClick={handleAddNew} className="btn btn-primary">
                     <Plus className="mr-2 h-5 w-5" />
-                    Add Supplier
+                    {t('supplier_add')}
                 </button>
             </div>
 
