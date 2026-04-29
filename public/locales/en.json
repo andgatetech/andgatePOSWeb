@@ -125,7 +125,7 @@
   "coming_soon_cover": "Coming Soon Cover",
   "contact_us_boxed": "Contact Us Boxed",
   "contact_us_cover": "Contact Us Cover",
-  "upcoming_feature": "Coming Soon: AI-Powered Sales Analytics",
+  "upcoming_feature": "Built for Bangladesh — POS + Free Online Store",
   "hero_title": "Easy POS for Your Shop",
   "hero_subtitle": "Made for Bangladeshi SMEs – Start Free, Manage Sales, Stock & Customers Easily",
   "hero_description": "From small shops to growing businesses, our cloud-based POS helps you track sales, control inventory, and grow profits — anytime, anywhere.",
@@ -182,13 +182,13 @@
   "quick_step_3": "Add Products",
   "quick_step_3_desc": "Import inventory or add products manually.",
   "quick_step_4": "Start Selling",
-  "quick_step_4_desc": "Complete your first transaction and explore features.",
+  "quick_step_4_desc": "Process your first sale — your free Hawkeri online store goes live automatically at the same time.",
   "watch_video": "Watch Quick Start Video",
-  "cta_title": "Join 300+ Shop Owners Using AndgatePOS",
-  "cta_desc": "Join over 300 businesses using AndgatePOS for success. Start free today and see the difference in 24 hours.",
+  "cta_title": "Join 100+ Shop Owners Already Using AndgatePOS",
+  "cta_desc": "More than 100 businesses across Bangladesh are growing with AndgatePOS. Start free today — no credit card needed.",
   "cta_start": "Start Journey Now",
   "cta_signin": "Sign In",
-  "cta_benefits": "✓ Small setup fees ✓ Cancel anytime ✓ 24/7 support included",
+  "cta_benefits": "✓ Free plan available ✓ Cancel anytime ✓ 24/7 support included",
   "contact": {
     "page_title": "Get Started with AndgatePOS",
     "page_subtitle": "Fill out the form below and our team will get in touch to set up your POS — no complicated process, we'll walk you through it.",
@@ -353,13 +353,13 @@
     "sectionSubtitle": "Here's what you can do with AndgatePOS — built for shop owners who need something practical, not complicated.",
     "sections": [
       {
-        "title": "Today's Sales, Profit & Stock — All on One Screen",
-        "subtitle": "Dashboard",
+        "title": "Sales Reports, Stock & Profit — All in One Place",
+        "subtitle": "Reports & Dashboard",
         "features": [
-          "See today's revenue the moment you open the app",
-          "Know which products are selling and which are not",
-          "Sales, stock, and expenses on one screen",
-          "Live business snapshot updated in real time"
+          "20+ built-in reports: sales, stock, P&L, tax, supplier dues",
+          "See today's revenue and top-selling products at a glance",
+          "Filter reports by date range, store, and product",
+          "Export any report anytime"
         ],
         "ctaText": "View Dashboard"
       },
@@ -433,10 +433,10 @@
         "title": "All Orders in One Place — Nothing Gets Missed",
         "subtitle": "Orders",
         "features": [
-          "View all orders in one place",
-          "Order status tracking",
-          "Invoice generation",
-          "Order history & analytics"
+          "View all sales orders in one place",
+          "Track order status from pending to completed",
+          "Process order returns and issue refunds",
+          "Print invoices and receipts"
         ],
         "ctaText": "Manage Orders"
       },
@@ -455,10 +455,10 @@
         "title": "Supplier Management",
         "subtitle": "Suppliers",
         "features": [
-          "Add & manage suppliers",
-          "Supplier contact information",
-          "Supplier history tracking",
-          "Supplier performance metrics"
+          "Add and manage all your suppliers",
+          "Track outstanding dues and payment terms",
+          "Supplier contact information and history",
+          "Supplier performance metrics and reports"
         ],
         "ctaText": "Manage Suppliers"
       },
@@ -581,6 +581,7 @@
   },
   "testimonials": {
     "header": {
+      "badge": "Customer Reviews",
       "title": "Loved by Business Owners in Bangladesh",
       "subtitle": "See how entrepreneurs across Bangladesh are growing with andgatePOS."
     },
@@ -1352,13 +1353,13 @@
   "business_type_fashion_title": "Fashion & Clothing",
   "business_type_fashion_desc": "Manage garments, sizes, colors and seasonal stock with ease.",
   "business_type_grocery_title": "Grocery & Superstore",
-  "business_type_grocery_desc": "Rapid scanning, expiry tracking, and fast checkout.",
+  "business_type_grocery_desc": "High-volume barcode checkout, stock level alerts, purchase orders, and multi-payment support.",
   "business_type_electronics_title": "Electronics & Tech",
   "business_type_electronics_desc": "Warranty tracking, serial numbers, and supplier management.",
   "business_type_beauty_title": "Beauty & Cosmetics",
-  "business_type_beauty_desc": "Batch tracking, loyalty points, and customer profiles.",
+  "business_type_beauty_desc": "Customer loyalty tiers, purchase history, product variants, and detailed customer profiles.",
   "business_type_pharmacy_title": "Pharmacy & Health",
-  "business_type_pharmacy_desc": "Expiry dates, dosage tracking, and prescription records.",
+  "business_type_pharmacy_desc": "Serial number tracking, supplier management, stock alerts, and detailed purchase & inventory reports.",
   "business_types_cta": "Start for your business type",
   "map_heading": "Serving Businesses Across Bangladesh 🇧🇩",
   "map_subtitle": "From Dhaka to Cox's Bazar — our POS powers businesses in all 8 divisions.",
@@ -1394,7 +1395,6 @@
   "register_perk_4_title": "Secure & reliable",
   "register_perk_4_desc": "99.9% uptime, bank-grade security",
   "register_social_proof": "businesses already using AndgatePOS",
-
   "ecommerce_badge": "Free with Every Plan",
   "ecommerce_powered_by": "Powered by",
   "ecommerce_live_badge": "Live",
