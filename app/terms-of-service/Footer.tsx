@@ -24,6 +24,7 @@ const Footer = () => {
         { label: t('footer.nav.pricing'), href: '/pricing' },
         { label: t('footer.nav.overview'), href: '/#overview' },
         { label: t('footer.nav.training'), href: '/training' },
+        { label: t('footer.nav.promotion') || 'বিশেষ অফার', href: '/promotion' },
     ];
 
     const companyLinks = [

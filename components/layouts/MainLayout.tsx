@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import LanguageDropdown from '../language-dropdown';
+import WhatsAppFloat from '../whatsapp-float';
 import AndGate from '/public/images/andgatePOS.jpeg';
 
 interface MainLayoutProps {
@@ -112,6 +113,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </nav>
 
             <main>{children}</main>
+            <WhatsAppFloat />
         </div>
     );
 }

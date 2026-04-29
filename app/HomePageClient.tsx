@@ -97,6 +97,7 @@ export default function HomePageClient() {
             highlights: [t('core_pos_h1'), t('core_pos_h2'), t('core_pos_h3'), t('core_pos_h4')],
             gradient: 'from-[#046ca9] to-[#034d79]',
             shadow: 'shadow-[#046ca9]/20',
+            href: '/features/pos',
         },
         {
             icon: <Archive className="h-7 w-7 text-white" />,
@@ -106,6 +107,7 @@ export default function HomePageClient() {
             highlights: [t('core_inventory_h1'), t('core_inventory_h2'), t('core_inventory_h3'), t('core_inventory_h4')],
             gradient: 'from-[#046ca9] to-[#0586cb]',
             shadow: 'shadow-[#046ca9]/20',
+            href: '/features/inventory',
         },
         {
             icon: <BarChart3 className="h-7 w-7 text-white" />,
@@ -115,6 +117,7 @@ export default function HomePageClient() {
             highlights: [t('core_analytics_h1'), t('core_analytics_h2'), t('core_analytics_h3'), t('core_analytics_h4')],
             gradient: 'from-[#035887] to-[#046ca9]',
             shadow: 'shadow-[#046ca9]/20',
+            href: '/features/reports',
         },
     ];
 
@@ -376,9 +379,13 @@ export default function HomePageClient() {
                                             </li>
                                         ))}
                                     </ul>
-                                    <span className={`mt-6 inline-flex items-center gap-1.5 text-sm font-semibold bg-gradient-to-r ${mod.gradient} bg-clip-text text-transparent`}>
+                                    <Link
+                                        href={mod.href}
+                                        className={`mt-6 inline-flex items-center gap-1.5 text-sm font-semibold bg-gradient-to-r ${mod.gradient} bg-clip-text text-transparent transition-opacity hover:opacity-75`}
+                                    >
                                         {t('core_learn_more')}
-                                    </span>
+                                        <ArrowRight className="h-3.5 w-3.5 text-[#046ca9] transition-transform group-hover:translate-x-1" />
+                                    </Link>
                                 </div>
                             </div>
                         ))}

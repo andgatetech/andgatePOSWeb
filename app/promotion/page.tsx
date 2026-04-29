@@ -1,43 +1,47 @@
 'use client';
 
 import Navbar from './components/navbar';
+import PromoFAQ from './components/promo-faq';
 import PromoHero from './components/promo-hero';
+import PromoLossHook from './components/promo-loss-hook';
 import PromoPricing from './components/promo-pricing';
 import PromoProblemSolution from './components/promo-problem-solution';
 import PromoRegisterForm from './components/promo-register-form';
+import PromoStats from './components/promo-stats';
 import PromoTestimonials from './components/promo-testimonials';
 import PromotionTracker from './components/promotion-tracker';
+import WhatsAppFloat from '@/components/whatsapp-float';
 
 export default function PromotionPage() {
     return (
         <div className="flex min-h-screen flex-col bg-white">
-            {/* Fires ViewContent pixel + GTM promotion_page_view on load */}
             <PromotionTracker />
+            <WhatsAppFloat />
             <Navbar />
 
-            {/* Main content area */}
-            <main className="flex flex-1 flex-col justify-center">
-                {/* Stunning Video Hero Section */}
+            <main className="flex flex-1 flex-col pt-16">
+                {/* 1. Hero — hook + video + urgency badge */}
                 <PromoHero />
 
-                <div className="pt-10"></div>
+                {/* 2. Trust stats bar */}
+                <PromoStats />
 
-                {/* What We Offer / Problem-Solution Section */}
+                {/* 3. Loss-aversion + Before/After transformation */}
+                <PromoLossHook />
+
+                {/* 4. Pain point pairs — emotionally charged */}
                 <PromoProblemSolution />
 
-                <div className="pt-10"></div>
-
-                {/* Testimonial Marquee Section */}
+                {/* 5. Testimonials marquee */}
                 <PromoTestimonials />
 
-                <div className="pt-10"></div>
-
-                {/* Pricing Section styled with Promo Button */}
+                {/* 6. Pricing plans */}
                 <PromoPricing />
 
-                <div className="pt-10"></div>
+                {/* 7. FAQ — objection handling */}
+                <PromoFAQ />
 
-                {/* Beautiful split side-by-side Form Section */}
+                {/* 8. Registration form — final CTA */}
                 <PromoRegisterForm />
             </main>
         </div>
