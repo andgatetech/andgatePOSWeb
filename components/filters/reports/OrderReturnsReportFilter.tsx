@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import { CreditCard, RefreshCw, Tag } from 'lucide-react';
 import React from 'react';
 
@@ -10,6 +11,7 @@ interface OrderReturnsReportFilterProps {
 }
 
 const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedReturnType, setSelectedReturnType] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [selectedReturnReason, setSelectedReturnReason] = React.useState<string>('all');
@@ -67,9 +69,9 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
                     onChange={(e) => setSelectedReturnType(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Types</option>
-                    <option value="return">Return Only</option>
-                    <option value="exchange">Exchange</option>
+                    <option value="all">{t('lbl_all_types')}</option>
+                    <option value="return">{t('lbl_return_only')}</option>
+                    <option value="exchange">{t('lbl_exchange')}</option>
                 </select>
                 <RefreshCw className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -81,10 +83,10 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="partial">Partial</option>
+                    <option value="all">{t('lbl_all_status')}</option>
+                    <option value="pending">{t('lbl_pending')}</option>
+                    <option value="completed">{t('lbl_completed')}</option>
+                    <option value="partial">{t('lbl_partial')}</option>
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -96,12 +98,12 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
                     onChange={(e) => setSelectedReturnReason(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Reasons</option>
-                    <option value="defective">Defective</option>
-                    <option value="wrong_item">Wrong Item</option>
-                    <option value="damaged">Damaged</option>
-                    <option value="customer_request">Customer Request</option>
-                    <option value="other">Other</option>
+                    <option value="all">{t('lbl_all_reasons')}</option>
+                    <option value="defective">{t('lbl_defective')}</option>
+                    <option value="wrong_item">{t('lbl_wrong_item')}</option>
+                    <option value="damaged">{t('lbl_damaged')}</option>
+                    <option value="customer_request">{t('lbl_customer_request')}</option>
+                    <option value="other">{t('lbl_other')}</option>
                 </select>
                 <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -111,7 +113,7 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search return number, invoice, customer..."
+            placeholder={t('placeholder_search_returns')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

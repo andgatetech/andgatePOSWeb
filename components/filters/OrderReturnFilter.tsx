@@ -4,6 +4,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { RefreshCcw } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface OrderReturnFilterProps {
@@ -11,6 +12,7 @@ interface OrderReturnFilterProps {
 }
 
 const OrderReturnFilter: React.FC<OrderReturnFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedReturnType, setSelectedReturnType] = React.useState<string>('all');
 
     const { userStores } = useCurrentStore();
@@ -58,9 +60,9 @@ const OrderReturnFilter: React.FC<OrderReturnFilterProps> = ({ onFilterChange })
                     onChange={(e) => setSelectedReturnType(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 sm:w-auto"
                 >
-                    <option value="all">All Return Types</option>
-                    <option value="return">Pure Return</option>
-                    <option value="exchange">Exchange</option>
+                    <option value="all">{t('lbl_all_return_types')}</option>
+                    <option value="return">{t('lbl_pure_return')}</option>
+                    <option value="exchange">{t('lbl_exchange')}</option>
                 </select>
                 <RefreshCcw className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -70,7 +72,7 @@ const OrderReturnFilter: React.FC<OrderReturnFilterProps> = ({ onFilterChange })
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search return #, invoice, customers..."
+            placeholder={t('placeholder_search_returns')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

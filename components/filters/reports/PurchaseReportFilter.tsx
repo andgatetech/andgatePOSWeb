@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import { ClipboardList, CreditCard } from 'lucide-react';
 import React from 'react';
 
@@ -10,6 +11,7 @@ interface PurchaseReportFilterProps {
 }
 
 const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
 
@@ -61,9 +63,9 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Status</option>
-                    <option value="ordered">Ordered</option>
-                    <option value="received">Received</option>
+                    <option value="all">{t('lbl_all_status')}</option>
+                    <option value="ordered">{t('lbl_ordered')}</option>
+                    <option value="received">{t('lbl_received')}</option>
                 </select>
                 <ClipboardList className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -74,10 +76,10 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Payment</option>
-                    <option value="pending">Pending</option>
-                    <option value="partial">Partial</option>
-                    <option value="paid">Paid</option>
+                    <option value="all">{t('lbl_all_payment')}</option>
+                    <option value="pending">{t('lbl_pending')}</option>
+                    <option value="partial">{t('lbl_partial')}</option>
+                    <option value="paid">{t('lbl_paid')}</option>
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -87,7 +89,7 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search purchases..."
+            placeholder={t('placeholder_search_purchases')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

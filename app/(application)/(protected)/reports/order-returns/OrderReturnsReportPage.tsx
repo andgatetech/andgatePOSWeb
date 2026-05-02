@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const OrderReturnsReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -116,7 +116,7 @@ const OrderReturnsReportPage = () => {
         () => [
             {
                 label: t('lbl_total_returns'),
-                value: Number(summary.total_returns || 0).toLocaleString(),
+                value: formatNumber(summary.total_returns || 0),
                 icon: <PackageX className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -124,7 +124,7 @@ const OrderReturnsReportPage = () => {
             },
             {
                 label: t('lbl_returns'),
-                value: Number(summary.total_returns_only || 0).toLocaleString(),
+                value: formatNumber(summary.total_returns_only || 0),
                 icon: <RefreshCw className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
                 lightBg: 'bg-orange-50',
@@ -132,7 +132,7 @@ const OrderReturnsReportPage = () => {
             },
             {
                 label: t('lbl_exchanges'),
-                value: Number(summary.total_exchanges || 0).toLocaleString(),
+                value: formatNumber(summary.total_exchanges || 0),
                 icon: <ArrowLeftRight className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -155,7 +155,7 @@ const OrderReturnsReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -188,7 +188,7 @@ const OrderReturnsReportPage = () => {
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 font-medium text-gray-900">
                             <User className="h-3.5 w-3.5 text-gray-400" />
-                            {row.is_walk_in ? 'Walk-in Customer' : row.customer?.name || 'N/A'}
+                            {row.is_walk_in ? t('lbl_walk_in_customer') : row.customer?.name || 'N/A'}
                         </div>
                         {!row.is_walk_in && row.customer?.phone && <span className="pl-5 text-[10px] text-gray-500">{row.customer.phone}</span>}
                     </div>
@@ -262,7 +262,7 @@ const OrderReturnsReportPage = () => {
                 key: 'customer',
                 label: t('lbl_customer'),
                 width: 25,
-                format: (_, row) => (row?.is_walk_in ? 'Walk-in' : row?.customer?.name || 'N/A'),
+                format: (_, row) => (row?.is_walk_in ? t('lbl_walk_in') : row?.customer?.name || 'N/A'),
             },
             { key: 'return_type', label: t('lbl_type'), width: 12 },
             { key: 'return_reason', label: t('lbl_reason'), width: 15 },
@@ -285,10 +285,10 @@ const OrderReturnsReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
 
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.return_type && apiParams.return_type !== 'all') {
@@ -324,12 +324,12 @@ const OrderReturnsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_total_returns'), value: summary.total_returns || 0 },
-            { label: t('lbl_returns'), value: summary.total_returns_only || 0 },
-            { label: t('lbl_exchanges'), value: summary.total_exchanges || 0 },
-            { label: t('lbl_return'), value: formatCurrency(summary.total_return_amount) },
+            { label: 'lbl_total_returns', value: summary.total_returns || 0 },
+            { label: 'lbl_returns', value: summary.total_returns_only || 0 },
+            { label: 'lbl_exchanges', value: summary.total_exchanges || 0 },
+            { label: 'lbl_return', value: formatCurrency(summary.total_return_amount) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     if (isLoading && !reportData?.data) {
@@ -340,8 +340,8 @@ const OrderReturnsReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Order Returns Report"
-                    reportDescription="Overview of product returns and exchanges"
+                    reportTitle={t('report_order_returns_title')}
+                    reportDescription={t('report_order_returns_desc')}
                     reportIcon={<PackageX className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-red-600 to-rose-700"
                     data={orderReturns}
@@ -373,8 +373,8 @@ const OrderReturnsReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Return Records Found',
-                        description: "We couldn't find any returns matching your selected filters.",
+                        title: t('report_no_returns_found'),
+                        description: t('report_no_returns_desc'),
                     }}
                 />
             </div>

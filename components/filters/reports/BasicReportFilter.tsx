@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface BasicReportFilterProps {
@@ -10,7 +11,9 @@ interface BasicReportFilterProps {
     showDateFilter?: boolean;
 }
 
-const BasicReportFilter: React.FC<BasicReportFilterProps> = ({ onFilterChange, placeholder = 'Search...', showDateFilter = true }) => {
+const BasicReportFilter: React.FC<BasicReportFilterProps> = ({ onFilterChange, placeholder, showDateFilter = true }) => {
+    const { t } = getTranslation();
+    const resolvedPlaceholder = placeholder ?? t('lbl_search');
     const { userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
 
@@ -34,7 +37,7 @@ const BasicReportFilter: React.FC<BasicReportFilterProps> = ({ onFilterChange, p
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters]);
 
-    return <UniversalFilter onFilterChange={handleFilterChange} placeholder={placeholder} showStoreFilter={true} showDateFilter={showDateFilter} showSearch={true} />;
+    return <UniversalFilter onFilterChange={handleFilterChange} placeholder={resolvedPlaceholder} showStoreFilter={true} showDateFilter={showDateFilter} showSearch={true} />;
 };
 
 export default BasicReportFilter;

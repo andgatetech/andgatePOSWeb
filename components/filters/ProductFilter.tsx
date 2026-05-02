@@ -4,6 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { Package, Tag } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface ProductFilterProps {
@@ -11,6 +12,7 @@ interface ProductFilterProps {
 }
 
 const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedCategory, setSelectedCategory] = React.useState<number | 'all'>('all');
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
 
@@ -93,7 +95,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
                     className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     disabled={categories.length === 0}
                 >
-                    <option value="all">{categories.length === 0 ? 'No Categories' : 'All Categories'}</option>
+                    <option value="all">{categories.length === 0 ? t('lbl_no_categories') : t('lbl_all_categories')}</option>
                     {categories.map((category: any) => (
                         <option key={category.id} value={category.id}>
                             {category.name}
@@ -110,9 +112,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="all">All Status</option>
-                    <option value="active">Active (Available)</option>
-                    <option value="inactive">Inactive (Unavailable)</option>
+                    <option value="all">{t('lbl_all_status')}</option>
+                    <option value="active">{t('lbl_active_available')}</option>
+                    <option value="inactive">{t('lbl_inactive_unavailable')}</option>
                 </select>
                 <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -123,7 +125,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
         <UniversalFilter
             onFilterChange={handleFilterChange}
             onResetFilters={handleResetFilters}
-            placeholder="Search products..."
+            placeholder={t('placeholder_search_products')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

@@ -6,6 +6,7 @@ import { getTranslation } from '@/i18n';
 import Marquee from 'react-fast-marquee';
 
 const CriticalBanner = () => {
+    const { t } = getTranslation();
     // Shares cached data with the dropdown — no extra API call
     const { data: unreadData } = useGetUnreadCountQuery(undefined, {
         pollingInterval: 1800000, // 30 minutes
@@ -33,8 +34,7 @@ const CriticalBanner = () => {
     return (
         <div className="mb-4 flex flex-col gap-2">
             {allBanners.map((notification) => {
-                const { t } = getTranslation();
-    const sev = notification.severity;
+                const sev = notification.severity;
 
                 let config = {
                     bgColor: 'bg-[#E9D5FF] text-[#3B0764] dark:bg-[#5B21B6] dark:text-[#E9D5FF]',
@@ -83,7 +83,7 @@ const CriticalBanner = () => {
                             type="button"
                             className="flex-shrink-0 rounded p-1 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
                             onClick={() => handleDismiss(notification.id)}
-                            title="Dismiss"
+                            title={t('btn_dismiss')}
                         >
                             <X className="h-4 w-4" />
                         </button>

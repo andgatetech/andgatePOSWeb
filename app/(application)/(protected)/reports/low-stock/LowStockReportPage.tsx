@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LowStockReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -99,10 +99,10 @@ const LowStockReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -111,18 +111,18 @@ const LowStockReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_low_stock_items'), value: summary.total_low_stock_items || 0 },
-            { label: t('lbl_out_of_stock_items'), value: summary.out_of_stock_items || 0 },
-            { label: t('lbl_total_items'), value: summary.total_items_tracked || 0 },
+            { label: 'lbl_low_stock_items', value: summary.total_low_stock_items || 0 },
+            { label: 'lbl_out_of_stock_items', value: summary.out_of_stock_items || 0 },
+            { label: 'lbl_total_items', value: summary.total_items_tracked || 0 },
         ],
-        [t, summary]
+        [summary]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_stock_alert'),
-                value: summary.total_low_stock_items || 0,
+                value: formatNumber(summary.total_low_stock_items || 0),
                 icon: <AlertTriangle className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
                 lightBg: 'bg-orange-50',
@@ -130,7 +130,7 @@ const LowStockReportPage = () => {
             },
             {
                 label: t('lbl_stock_outs'),
-                value: summary.out_of_stock_items || 0,
+                value: formatNumber(summary.out_of_stock_items || 0),
                 icon: <AlertCircle className="h-4 w-4 text-rose-600" />,
                 bgColor: 'bg-rose-500',
                 lightBg: 'bg-rose-50',
@@ -138,7 +138,7 @@ const LowStockReportPage = () => {
             },
             {
                 label: t('lbl_critical_threshold'),
-                value: summary.critical_stock_items || 0,
+                value: formatNumber(summary.critical_stock_items || 0),
                 icon: <TrendingDown className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
                 lightBg: 'bg-amber-50',
@@ -146,14 +146,14 @@ const LowStockReportPage = () => {
             },
             {
                 label: t('order_items'),
-                value: summary.total_items_tracked || 0,
+                value: formatNumber(summary.total_items_tracked || 0),
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
                 textColor: 'text-blue-600',
             },
         ],
-        [t, summary]
+        [summary]
     );
 
     const columns = useMemo(
@@ -242,8 +242,8 @@ const LowStockReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Low Stock Report"
-                    reportDescription="List of products that are running low and need restocking"
+                    reportTitle={t('report_low_stock_title')}
+                    reportDescription={t('report_low_stock_desc')}
                     reportIcon={<AlertTriangle className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-orange-600 to-amber-700"
                     data={stocks}

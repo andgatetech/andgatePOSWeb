@@ -5,6 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import type { RootState } from '@/store';
 import { CreditCard } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
@@ -13,6 +14,7 @@ interface OrderFilterProps {
 }
 
 const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const { symbol } = useCurrency();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('all');
@@ -83,7 +85,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Payment Status</option>
+                    <option value="all">{t('lbl_all_payment_status')}</option>
                     {activePaymentStatuses.length > 0 ? (
                         activePaymentStatuses.map((status) => (
                             <option key={status.id} value={status.status_name}>
@@ -92,9 +94,9 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                         ))
                     ) : (
                         <>
-                            <option value="paid">Paid</option>
-                            <option value="partial">Partial</option>
-                            <option value="pending">Pending</option>
+                            <option value="paid">{t('lbl_paid')}</option>
+                            <option value="partial">{t('lbl_partial')}</option>
+                            <option value="pending">{t('lbl_pending')}</option>
                         </>
                     )}
                 </select>
@@ -106,7 +108,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                 <div className="relative w-full sm:w-40">
                     <input
                         type="number"
-                        placeholder="Min Amount"
+                        placeholder={t('placeholder_min_amount')}
                         value={minAmount}
                         onChange={(e) => setMinAmount(e.target.value)}
                         className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
@@ -117,7 +119,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                 <div className="relative w-full sm:w-40">
                     <input
                         type="number"
-                        placeholder="Max Amount"
+                        placeholder={t('placeholder_max_amount')}
                         value={maxAmount}
                         onChange={(e) => setMaxAmount(e.target.value)}
                         className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
@@ -131,7 +133,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search orders, customers..."
+            placeholder={t('placeholder_search_orders')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

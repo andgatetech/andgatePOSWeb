@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseItemsReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -100,10 +100,10 @@ const PurchaseItemsReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -112,18 +112,18 @@ const PurchaseItemsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_unique_items'), value: summary.total_items || 0 },
-            { label: t('lbl_qty'), value: summary.total_quantity || 0 },
-            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
+            { label: 'lbl_unique_items', value: summary.total_items || 0 },
+            { label: 'lbl_qty', value: summary.total_quantity || 0 },
+            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_unique_items'),
-                value: summary.total_items || 0,
+                value: formatNumber(summary.total_items || 0),
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -131,7 +131,7 @@ const PurchaseItemsReportPage = () => {
             },
             {
                 label: t('lbl_qty'),
-                value: summary.total_quantity || 0,
+                value: formatNumber(summary.total_quantity || 0),
                 icon: <Truck className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -139,7 +139,7 @@ const PurchaseItemsReportPage = () => {
             },
             {
                 label: t('lbl_total_received'),
-                value: summary.total_received || 0,
+                value: formatNumber(summary.total_received || 0),
                 icon: <CheckCircle className="h-4 w-4 text-teal-600" />,
                 bgColor: 'bg-teal-500',
                 lightBg: 'bg-teal-50',
@@ -154,7 +154,7 @@ const PurchaseItemsReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -194,8 +194,8 @@ const PurchaseItemsReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Purchase Items Report"
-                    reportDescription="View details of items purchased across all orders"
+                    reportTitle={t('report_purchase_items_title')}
+                    reportDescription={t('report_purchase_items_desc')}
                     reportIcon={<Package className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-amber-600 to-amber-700"
                     data={items}
@@ -222,7 +222,7 @@ const PurchaseItemsReportPage = () => {
                         onItemsPerPageChange: handleItemsPerPageChange,
                     }}
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Items Found', description: 'No purchase items match your current filters.' }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_items_found'), description: t('report_no_purchase_items_desc') }}
                 />
             </div>
         </div>

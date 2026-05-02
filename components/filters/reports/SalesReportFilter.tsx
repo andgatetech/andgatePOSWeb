@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import type { RootState } from '@/store';
 import { CreditCard, Wallet } from 'lucide-react';
 import React from 'react';
@@ -12,6 +13,7 @@ interface SalesReportFilterProps {
 }
 
 const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('all');
 
@@ -70,7 +72,7 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Status</option>
+                    <option value="all">{t('lbl_all_status')}</option>
                     {activePaymentStatuses.length > 0 ? (
                         activePaymentStatuses.map((status) => (
                             <option key={status.id} value={status.status_name}>
@@ -79,9 +81,9 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
                         ))
                     ) : (
                         <>
-                            <option value="paid">Paid</option>
-                            <option value="partial">Partial</option>
-                            <option value="pending">Pending</option>
+                            <option value="paid">{t('lbl_paid')}</option>
+                            <option value="partial">{t('lbl_partial')}</option>
+                            <option value="pending">{t('lbl_pending')}</option>
                         </>
                     )}
                 </select>
@@ -95,7 +97,7 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
                     onChange={(e) => setSelectedPaymentMethod(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Methods</option>
+                    <option value="all">{t('lbl_all_methods')}</option>
                     {activePaymentMethods.length > 0 ? (
                         activePaymentMethods.map((method) => (
                             <option key={method.id} value={method.payment_method_name}>
@@ -103,7 +105,7 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
                             </option>
                         ))
                     ) : (
-                        <option value="cash">Cash</option>
+                        <option value="cash">{t('lbl_cash')}</option>
                     )}
                 </select>
                 <Wallet className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -114,7 +116,7 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search invoices, customers..."
+            placeholder={t('placeholder_search_invoices')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

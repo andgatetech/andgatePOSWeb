@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const IdleProductReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({ idle_days: 30 });
     const [currentPage, setCurrentPage] = useState(1);
@@ -100,10 +100,10 @@ const IdleProductReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.idle_days) customFilters.push({ label: t('lbl_idle_days'), value: `>${apiParams.idle_days} Days` });
         let dateType = 'none';
@@ -114,18 +114,18 @@ const IdleProductReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_idle_items'), value: summary.total_idle_items || 0 },
-            { label: t('lbl_trapped_capital'), value: formatCurrency(summary.total_idle_value) },
-            { label: t('lbl_date'), value: new Date().toISOString() },
+            { label: 'lbl_idle_items', value: summary.total_idle_items || 0 },
+            { label: 'lbl_trapped_capital', value: formatCurrency(summary.total_idle_value) },
+            { label: 'lbl_date', value: new Date().toISOString() },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_idle_items'),
-                value: summary.total_idle_items || 0,
+                value: formatNumber(summary.total_idle_items || 0),
                 icon: <Package className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
                 lightBg: 'bg-orange-50',
@@ -156,7 +156,7 @@ const IdleProductReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -204,8 +204,8 @@ const IdleProductReportPage = () => {
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">{Number(v).toLocaleString()} Units</span>
-                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">Value: {formatCurrency(r.stock_value)}</span>
+                        <span className="font-bold text-gray-900">{formatNumber(v)} {t('lbl_units')}</span>
+                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">{t('lbl_value')}: {formatCurrency(r.stock_value)}</span>
                     </div>
                 ),
             },
@@ -256,8 +256,8 @@ const IdleProductReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Slow Moving Items"
-                    reportDescription="Tracking products that have not been sold recently"
+                    reportTitle={t('report_idle_product_title')}
+                    reportDescription={t('report_idle_product_desc')}
                     reportIcon={<Clock className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-amber-600 to-orange-700"
                     data={products}
@@ -287,7 +287,7 @@ const IdleProductReportPage = () => {
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
                         title: 'Portfolio Currently Active',
-                        description: 'No dormant products found based on your current aging criteria.',
+                        description: t('report_no_dormant_desc'),
                     }}
                 />
             </div>

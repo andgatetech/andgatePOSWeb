@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { ArrowDownUp, DollarSign } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface JournalFilterProps {
@@ -10,13 +11,14 @@ interface JournalFilterProps {
     currentStoreId?: number | null;
 }
 
-const TYPE_OPTIONS = [
-    { value: 'all', label: 'All Types' },
-    { value: 'debit', label: 'Debit' },
-    { value: 'credit', label: 'Credit' },
-];
-
 const JournalFilter: React.FC<JournalFilterProps> = ({ onFilterChange, currentStoreId }) => {
+    const { t } = getTranslation();
+
+    const TYPE_OPTIONS = [
+        { value: 'all', label: t('lbl_all_types') },
+        { value: 'debit', label: t('lbl_debit') },
+        { value: 'credit', label: t('lbl_credit') },
+    ];
     const [selectedType, setSelectedType] = React.useState<string>('all');
     const [minAmount, setMinAmount] = React.useState<string>('');
     const [maxAmount, setMaxAmount] = React.useState<string>('');
@@ -94,7 +96,7 @@ const JournalFilter: React.FC<JournalFilterProps> = ({ onFilterChange, currentSt
             <div className="relative">
                 <input
                     type="number"
-                    placeholder="Min Amount"
+                    placeholder={t('placeholder_min_amount')}
                     value={minAmount}
                     onChange={(e) => setMinAmount(e.target.value)}
                     className="w-28 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-32"
@@ -106,7 +108,7 @@ const JournalFilter: React.FC<JournalFilterProps> = ({ onFilterChange, currentSt
             <div className="relative">
                 <input
                     type="number"
-                    placeholder="Max Amount"
+                    placeholder={t('placeholder_max_amount')}
                     value={maxAmount}
                     onChange={(e) => setMaxAmount(e.target.value)}
                     className="w-28 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-32"
@@ -119,7 +121,7 @@ const JournalFilter: React.FC<JournalFilterProps> = ({ onFilterChange, currentSt
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search journal entries..."
+            placeholder={t('placeholder_search_journals')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

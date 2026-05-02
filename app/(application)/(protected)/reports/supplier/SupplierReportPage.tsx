@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SupplierReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -100,10 +100,10 @@ const SupplierReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -112,16 +112,16 @@ const SupplierReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('report_total_sales'), value: summary.total_orders || 0 },
-            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
-            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
+            { label: 'report_total_sales', value: formatNumber(summary.total_orders || 0) },
+            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
+            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
-            { label: t('report_total_sales'), value: summary.total_orders || 0, icon: <Receipt className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
+            { label: t('report_total_sales'), value: formatNumber(summary.total_orders || 0), icon: <Receipt className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
             {
                 label: t('lbl_total'),
                 value: formatCurrency(summary.total_amount),
@@ -147,7 +147,7 @@ const SupplierReportPage = () => {
                 textColor: 'text-red-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -212,8 +212,8 @@ const SupplierReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Supplier Report"
-                    reportDescription="View all supplier purchase orders"
+                    reportTitle={t('report_supplier_title')}
+                    reportDescription={t('report_supplier_desc')}
                     reportIcon={<Users className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-cyan-600 to-cyan-700"
                     data={orders}
@@ -240,7 +240,7 @@ const SupplierReportPage = () => {
                         onItemsPerPageChange: handleItemsPerPageChange,
                     }}
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Orders Found', description: 'No supplier orders match your current filters.' }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_orders_found'), description: t('report_no_supplier_orders_desc') }}
                 />
             </div>
         </div>

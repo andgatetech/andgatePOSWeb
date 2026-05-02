@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import { Clock, Layers } from 'lucide-react';
 import React from 'react';
 
@@ -11,6 +12,7 @@ interface IdleProductReportFilterProps {
 }
 
 const IdleProductReportFilter: React.FC<IdleProductReportFilterProps> = ({ onFilterChange, categories = [] }) => {
+    const { t } = getTranslation();
     const [idleDays, setIdleDays] = React.useState<string>('30');
     const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
 
@@ -61,11 +63,11 @@ const IdleProductReportFilter: React.FC<IdleProductReportFilterProps> = ({ onFil
                     onChange={(e) => setIdleDays(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="7">7+ Days Idle</option>
-                    <option value="14">14+ Days Idle</option>
-                    <option value="30">30+ Days Idle</option>
-                    <option value="60">60+ Days Idle</option>
-                    <option value="90">90+ Days Idle</option>
+                    <option value="7">7+ {t('lbl_days_idle')}</option>
+                    <option value="14">14+ {t('lbl_days_idle')}</option>
+                    <option value="30">30+ {t('lbl_days_idle')}</option>
+                    <option value="60">60+ {t('lbl_days_idle')}</option>
+                    <option value="90">90+ {t('lbl_days_idle')}</option>
                 </select>
                 <Clock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -76,7 +78,7 @@ const IdleProductReportFilter: React.FC<IdleProductReportFilterProps> = ({ onFil
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Categories</option>
+                    <option value="all">{t('lbl_all_categories')}</option>
                     {categories.map((cat) => (
                         <option key={cat.id} value={cat.id}>
                             {cat.name}
@@ -91,7 +93,7 @@ const IdleProductReportFilter: React.FC<IdleProductReportFilterProps> = ({ onFil
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search products..."
+            placeholder={t('placeholder_search_products')}
             showStoreFilter={true}
             showDateFilter={false}
             showSearch={true}

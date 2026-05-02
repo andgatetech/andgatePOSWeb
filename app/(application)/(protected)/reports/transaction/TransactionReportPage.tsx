@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TransactionReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -99,10 +99,10 @@ const TransactionReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.payment_status && apiParams.payment_status !== 'all')
             customFilters.push({ label: t('lbl_status'), value: apiParams.payment_status.charAt(0).toUpperCase() + apiParams.payment_status.slice(1) });
@@ -116,22 +116,22 @@ const TransactionReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_transactions'), value: summary.total_transactions || 0 },
-            { label: t('lbl_sales_transactions'), value: summary.total_sales_transactions || 0 },
-            { label: t('lbl_sales_amount'), value: formatCurrency(summary.total_sales_amount) },
-            { label: t('lbl_refund_transactions'), value: summary.total_refund_transactions || 0 },
-            { label: t('lbl_refund_amount'), value: formatCurrency(summary.total_refund_amount) },
-            { label: t('lbl_net_amount'), value: formatCurrency(summary.net_amount) },
-            { label: t('lbl_average'), value: formatCurrency(summary.average_transaction) },
+            { label: 'lbl_transactions', value: summary.total_transactions || 0 },
+            { label: 'lbl_sales_transactions', value: summary.total_sales_transactions || 0 },
+            { label: 'lbl_sales_amount', value: formatCurrency(summary.total_sales_amount) },
+            { label: 'lbl_refund_transactions', value: summary.total_refund_transactions || 0 },
+            { label: 'lbl_refund_amount', value: formatCurrency(summary.total_refund_amount) },
+            { label: 'lbl_net_amount', value: formatCurrency(summary.net_amount) },
+            { label: 'lbl_average', value: formatCurrency(summary.average_transaction) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_transactions'),
-                value: summary.total_transactions || 0,
+                value: formatNumber(summary.total_transactions || 0),
                 icon: <ArrowLeftRight className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -139,7 +139,7 @@ const TransactionReportPage = () => {
             },
             {
                 label: t('lbl_sales_transactions'),
-                value: summary.total_sales_transactions || 0,
+                value: formatNumber(summary.total_sales_transactions || 0),
                 icon: <Banknote className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -155,7 +155,7 @@ const TransactionReportPage = () => {
             },
             {
                 label: t('lbl_refund_transactions'),
-                value: summary.total_refund_transactions || 0,
+                value: formatNumber(summary.total_refund_transactions || 0),
                 icon: <ArrowLeftRight className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -186,7 +186,7 @@ const TransactionReportPage = () => {
                 textColor: 'text-blue-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -265,8 +265,8 @@ const TransactionReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Money Transactions"
-                    reportDescription="Detailed list of all payments and money movements"
+                    reportTitle={t('report_transaction_title')}
+                    reportDescription={t('report_transaction_desc')}
                     reportIcon={<ArrowLeftRight className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-blue-600 to-indigo-700"
                     data={transactions}
@@ -295,8 +295,8 @@ const TransactionReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Transactions Found',
-                        description: 'No audit records match your current filter selection.',
+                        title: t('report_no_transactions_found'),
+                        description: t('report_no_audit_records_desc'),
                     }}
                 />
             </div>

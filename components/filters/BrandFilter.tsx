@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { Tag } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface BrandFilterProps {
@@ -11,6 +12,7 @@ interface BrandFilterProps {
 }
 
 const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
     const { userStores } = useCurrentStore();
 
@@ -52,9 +54,9 @@ const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange }) => {
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="all">{t('lbl_all_status')}</option>
+                    <option value="active">{t('lbl_active')}</option>
+                    <option value="inactive">{t('lbl_inactive')}</option>
                 </select>
                 <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -65,7 +67,7 @@ const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange }) => {
         <UniversalFilter
             onFilterChange={handleFilterChange}
             onResetFilters={handleResetFilters}
-            placeholder="Search brands..."
+            placeholder={t('placeholder_search_brands')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { CheckCircle } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface SupplierFilterProps {
@@ -10,6 +11,7 @@ interface SupplierFilterProps {
 }
 
 const SupplierFilter: React.FC<SupplierFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
 
     const { currentStore, userStores } = useCurrentStore();
@@ -57,10 +59,10 @@ const SupplierFilter: React.FC<SupplierFilterProps> = ({ onFilterChange }) => {
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="blocked">Blocked</option>
+                    <option value="all">{t('lbl_all_status')}</option>
+                    <option value="active">{t('lbl_active')}</option>
+                    <option value="inactive">{t('lbl_inactive')}</option>
+                    <option value="blocked">{t('lbl_blocked')}</option>
                 </select>
                 <CheckCircle className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -70,7 +72,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = ({ onFilterChange }) => {
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search suppliers by name, email, phone..."
+            placeholder={t('placeholder_search_suppliers')}
             showStoreFilter={true}
             showDateFilter={false}
             showSearch={true}

@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { BookOpen, CheckCircle } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface LedgerFilterProps {
@@ -10,21 +11,22 @@ interface LedgerFilterProps {
     currentStoreId?: number | null;
 }
 
-const LEDGER_TYPES = [
-    { value: 'all', label: 'All Types' },
-    { value: 'Assets', label: 'Assets' },
-    { value: 'Expenses', label: 'Expenses' },
-    { value: 'Income', label: 'Income' },
-    { value: 'Liabilities', label: 'Liabilities' },
-];
-
-const STATUS_OPTIONS = [
-    { value: 'all', label: 'All Status' },
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
-];
-
 const LedgerFilter: React.FC<LedgerFilterProps> = ({ onFilterChange, currentStoreId }) => {
+    const { t } = getTranslation();
+
+    const LEDGER_TYPES = [
+        { value: 'all', label: t('lbl_all_types') },
+        { value: 'Assets', label: t('lbl_assets') },
+        { value: 'Expenses', label: t('expense_title') },
+        { value: 'Income', label: t('lbl_income') },
+        { value: 'Liabilities', label: t('lbl_liabilities') },
+    ];
+
+    const STATUS_OPTIONS = [
+        { value: 'all', label: t('lbl_all_status') },
+        { value: 'active', label: t('lbl_active') },
+        { value: 'inactive', label: t('lbl_inactive') },
+    ];
     const [selectedType, setSelectedType] = React.useState<string>('all');
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
 
@@ -118,7 +120,7 @@ const LedgerFilter: React.FC<LedgerFilterProps> = ({ onFilterChange, currentStor
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search ledgers by title..."
+            placeholder={t('placeholder_search_ledgers')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

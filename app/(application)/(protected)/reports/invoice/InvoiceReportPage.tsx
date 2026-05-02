@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const InvoiceReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -101,10 +101,10 @@ const InvoiceReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -113,18 +113,18 @@ const InvoiceReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_total_invoices'), value: summary.total_invoices || 0 },
-            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
-            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
+            { label: 'lbl_total_invoices', value: summary.total_invoices || 0 },
+            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
+            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_total_invoices'),
-                value: summary.total_invoices || 0,
+                value: formatNumber(summary.total_invoices || 0),
                 icon: <FileText className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -155,7 +155,7 @@ const InvoiceReportPage = () => {
                 textColor: 'text-red-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -254,8 +254,8 @@ const InvoiceReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="All Invoices"
-                    reportDescription="View and track all customer billing history"
+                    reportTitle={t('report_invoice_title')}
+                    reportDescription={t('report_invoice_desc')}
                     reportIcon={<Receipt className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-purple-600 to-indigo-700"
                     data={invoices}
@@ -284,7 +284,7 @@ const InvoiceReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Invoices Found',
+                        title: t('report_no_invoices_found'),
                         description: 'Try adjusting your date range or filters to locate specific invoices.',
                     }}
                 />

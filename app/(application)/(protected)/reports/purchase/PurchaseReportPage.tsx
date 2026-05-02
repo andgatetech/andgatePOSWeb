@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PurchaseReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -121,10 +121,10 @@ const PurchaseReportPage = () => {
     // Filter summary for export
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.status && apiParams.status !== 'all') {
             customFilters.push({ label: t('lbl_status'), value: apiParams.status.charAt(0).toUpperCase() + apiParams.status.slice(1) });
@@ -141,19 +141,19 @@ const PurchaseReportPage = () => {
     // Export summary
     const exportSummary = useMemo(
         () => [
-            { label: t('report_total_sales'), value: summary.total_purchase_orders || 0 },
-            { label: t('lbl_total_value'), value: formatCurrency(summary.total_purchase_value) },
-            { label: t('lbl_amount_paid'), value: formatCurrency(summary.total_amount_paid) },
-            { label: t('lbl_due'), value: formatCurrency(summary.total_amount_due) },
+            { label: 'report_total_sales', value: summary.total_purchase_orders || 0 },
+            { label: 'lbl_total_value', value: formatCurrency(summary.total_purchase_value) },
+            { label: 'lbl_amount_paid', value: formatCurrency(summary.total_amount_paid) },
+            { label: 'lbl_due', value: formatCurrency(summary.total_amount_due) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('report_total_sales'),
-                value: summary.total_purchase_orders || 0,
+                value: formatNumber(summary.total_purchase_orders || 0),
                 icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -192,7 +192,7 @@ const PurchaseReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -265,8 +265,8 @@ const PurchaseReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Purchase Report"
-                    reportDescription="Complete analysis of procurement and purchase history"
+                    reportTitle={t('report_purchase_title')}
+                    reportDescription={t('report_purchase_desc')}
                     reportIcon={<ShoppingCart className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-orange-600 to-orange-700"
                     data={orders}
@@ -363,7 +363,7 @@ const PurchaseReportPage = () => {
                         onItemsPerPageChange: handleItemsPerPageChange,
                     }}
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Purchases Found', description: 'No purchases match your current filters.' }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_purchases_found'), description: t('report_no_purchases_desc') }}
                 />
             </div>
         </div>

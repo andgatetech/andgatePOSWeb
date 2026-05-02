@@ -4,6 +4,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { DollarSign, Package } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface PurchaseDuesFilterProps {
@@ -11,6 +12,7 @@ interface PurchaseDuesFilterProps {
 }
 
 const PurchaseDuesFilter: React.FC<PurchaseDuesFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState('all');
     const [selectedOrderStatus, setSelectedOrderStatus] = React.useState('all');
     const [hasDueOnly, setHasDueOnly] = React.useState(false);
@@ -71,13 +73,13 @@ const PurchaseDuesFilter: React.FC<PurchaseDuesFilterProps> = ({ onFilterChange 
                     onChange={(e) => setSelectedOrderStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Orders</option>
-                    <option value="draft">Draft</option>
-                    <option value="approved">Approved</option>
-                    <option value="ordered">Ordered</option>
-                    <option value="partially_received">Partially Received</option>
-                    <option value="received">Received</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value="all">{t('lbl_all_orders')}</option>
+                    <option value="draft">{t('lbl_draft')}</option>
+                    <option value="approved">{t('lbl_approved')}</option>
+                    <option value="ordered">{t('lbl_ordered')}</option>
+                    <option value="partially_received">{t('lbl_partially_received')}</option>
+                    <option value="received">{t('lbl_received')}</option>
+                    <option value="cancelled">{t('lbl_cancelled')}</option>
                 </select>
             </div>
 
@@ -89,13 +91,13 @@ const PurchaseDuesFilter: React.FC<PurchaseDuesFilterProps> = ({ onFilterChange 
                     onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Payment Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="due">Due</option>
-                    <option value="partial">Partial</option>
-                    <option value="advanced">Advanced</option>
-                    <option value="paid">Paid</option>
-                    <option value="failed">Failed</option>
+                    <option value="all">{t('lbl_all_payment_status')}</option>
+                    <option value="pending">{t('lbl_pending')}</option>
+                    <option value="due">{t('lbl_due')}</option>
+                    <option value="partial">{t('lbl_partial')}</option>
+                    <option value="advanced">{t('lbl_advanced')}</option>
+                    <option value="paid">{t('lbl_paid')}</option>
+                    <option value="failed">{t('lbl_failed')}</option>
                 </select>
             </div>
 

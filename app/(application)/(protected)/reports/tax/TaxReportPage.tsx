@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TaxReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -116,10 +116,10 @@ const TaxReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -128,11 +128,11 @@ const TaxReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_tax'), value: formatCurrency(summary.total_tax_collected) },
-            { label: t('report_total_sales'), value: formatCurrency(summary.total_sales) },
-            { label: t('lbl_effective_rate'), value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
+            { label: 'lbl_tax', value: formatCurrency(summary.total_tax_collected) },
+            { label: 'report_total_sales', value: formatCurrency(summary.total_sales) },
+            { label: 'lbl_effective_rate', value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -147,7 +147,7 @@ const TaxReportPage = () => {
             },
             {
                 label: t('report_total_sales'),
-                value: summary.total_orders || 0,
+                value: formatNumber(summary.total_orders || 0),
                 icon: <ShoppingCart className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -170,7 +170,7 @@ const TaxReportPage = () => {
                 textColor: 'text-orange-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(() => {
@@ -229,8 +229,8 @@ const TaxReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Tax Report"
-                    reportDescription="View tax collection summary"
+                    reportTitle={t('report_tax_title')}
+                    reportDescription={t('report_tax_desc')}
                     reportIcon={<Calculator className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-sky-600 to-sky-700"
                     data={items}
@@ -275,7 +275,7 @@ const TaxReportPage = () => {
                         onItemsPerPageChange: handleItemsPerPageChange,
                     }}
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Tax Data Found', description: 'No tax records match your current filters.' }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_tax_data_found'), description: t('report_no_tax_desc') }}
                 />
             </div>
         </div>

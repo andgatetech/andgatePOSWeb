@@ -4,6 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import type { RootState } from '@/store';
 import { FileText, Package } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
@@ -15,6 +16,7 @@ interface PurchaseFilterProps {
 }
 
 const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPurchaseType = true, showPaymentStatus = true, showOrderStatus = true }) => {
+    const { t } = getTranslation();
     const [selectedPurchaseType, setSelectedPurchaseType] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
     const [selectedOrderStatus, setSelectedOrderStatus] = React.useState<string>('all');
@@ -78,9 +80,9 @@ const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPur
                         onChange={(e) => setSelectedPurchaseType(e.target.value)}
                         className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                     >
-                        <option value="all">All Types</option>
-                        <option value="supplier">Supplier</option>
-                        <option value="walk_in">Walk-in</option>
+                        <option value="all">{t('lbl_all_types')}</option>
+                        <option value="supplier">{t('lbl_supplier')}</option>
+                        <option value="walk_in">{t('lbl_walk_in')}</option>
                     </select>
                     <FileText className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -94,7 +96,7 @@ const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPur
                         onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                         className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                     >
-                        <option value="all">All Payment Status</option>
+                        <option value="all">{t('lbl_all_payment_status')}</option>
                         {activePaymentStatuses.length > 0 ? (
                             activePaymentStatuses.map((status) => (
                                 <option key={status.id} value={status.status_name}>
@@ -103,9 +105,9 @@ const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPur
                             ))
                         ) : (
                             <>
-                                <option value="paid">Paid</option>
-                                <option value="partial">Partial</option>
-                                <option value="pending">Pending</option>
+                                <option value="paid">{t('lbl_paid')}</option>
+                                <option value="partial">{t('lbl_partial')}</option>
+                                <option value="pending">{t('lbl_pending')}</option>
                             </>
                         )}
                     </select>
@@ -121,11 +123,11 @@ const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPur
                         onChange={(e) => setSelectedOrderStatus(e.target.value)}
                         className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                     >
-                        <option value="all">All Order Status</option>
-                        <option value="ordered">Ordered</option>
-                        <option value="partially_received">Partially Received</option>
-                        <option value="received">Received</option>
-                        <option value="cancelled">Cancelled</option>
+                        <option value="all">{t('lbl_all_order_status')}</option>
+                        <option value="ordered">{t('lbl_ordered')}</option>
+                        <option value="partially_received">{t('lbl_partially_received')}</option>
+                        <option value="received">{t('lbl_received')}</option>
+                        <option value="cancelled">{t('lbl_cancelled')}</option>
                     </select>
                     <Package className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -136,7 +138,7 @@ const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPur
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search purchase orders, suppliers..."
+            placeholder={t('placeholder_search_purchases')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

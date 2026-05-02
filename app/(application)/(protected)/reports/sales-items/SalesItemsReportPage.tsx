@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesItemsReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -102,10 +102,10 @@ const SalesItemsReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -114,19 +114,19 @@ const SalesItemsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_unique_items'), value: summary.total_items || 0 },
-            { label: t('lbl_qty_sold'), value: summary.total_sold_qty || 0 },
-            { label: t('lbl_sales_amount'), value: formatCurrency(summary.total_sold_amount) },
-            { label: t('lbl_profit'), value: formatCurrency(summary.total_profit) },
+            { label: 'lbl_unique_items', value: summary.total_items || 0 },
+            { label: 'lbl_qty_sold', value: summary.total_sold_qty || 0 },
+            { label: 'lbl_sales_amount', value: formatCurrency(summary.total_sold_amount) },
+            { label: 'lbl_profit', value: formatCurrency(summary.total_profit) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_unique_items'),
-                value: summary.total_items || 0,
+                value: formatNumber(summary.total_items || 0),
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -134,7 +134,7 @@ const SalesItemsReportPage = () => {
             },
             {
                 label: t('lbl_qty_sold'),
-                value: Number(summary.total_sold_qty || 0).toLocaleString(),
+                value: formatNumber(summary.total_sold_qty || 0),
                 icon: <ShoppingCart className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
                 lightBg: 'bg-orange-50',
@@ -157,7 +157,7 @@ const SalesItemsReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -207,7 +207,7 @@ const SalesItemsReportPage = () => {
                 key: 'sold_qty',
                 label: t('lbl_qty_sold'),
                 sortable: true,
-                render: (v: any) => <span className="font-bold text-gray-900">{Number(v).toLocaleString()}</span>,
+                render: (v: any) => <span className="font-bold text-gray-900">{formatNumber(v)}</span>,
             },
             {
                 key: 'sold_amount',
@@ -257,8 +257,8 @@ const SalesItemsReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Sold Items Report"
-                    reportDescription="List of all products and how many units were sold"
+                    reportTitle={t('report_sales_items_title')}
+                    reportDescription={t('report_sales_items_desc')}
                     reportIcon={<BarChart3 className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-teal-500 to-emerald-600"
                     data={items}
@@ -287,8 +287,8 @@ const SalesItemsReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Sales Data Found',
-                        description: 'No items were sold matching your current filter criteria.',
+                        title: t('report_no_sales_data_found'),
+                        description: t('report_no_sales_items_desc'),
                     }}
                 />
             </div>

@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { CreditCard, DollarSign } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface ExpenseFilterProps {
@@ -10,15 +11,16 @@ interface ExpenseFilterProps {
     currentStoreId?: number | null;
 }
 
-const PAYMENT_TYPE_OPTIONS = [
-    { value: 'all', label: 'All Payment Types' },
-    { value: 'cash', label: 'Cash' },
-    { value: 'bank', label: 'Bank' },
-    { value: 'card', label: 'Card' },
-    { value: 'others', label: 'Others' },
-];
-
 const ExpenseFilter: React.FC<ExpenseFilterProps> = ({ onFilterChange, currentStoreId }) => {
+    const { t } = getTranslation();
+
+    const PAYMENT_TYPE_OPTIONS = [
+        { value: 'all', label: t('lbl_all_payment_types') },
+        { value: 'cash', label: t('lbl_cash') },
+        { value: 'bank', label: t('lbl_bank') },
+        { value: 'card', label: t('lbl_card') },
+        { value: 'others', label: t('lbl_others') },
+    ];
     const [selectedPaymentType, setSelectedPaymentType] = React.useState<string>('all');
     const [minAmount, setMinAmount] = React.useState<string>('');
     const [maxAmount, setMaxAmount] = React.useState<string>('');
@@ -96,7 +98,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({ onFilterChange, currentSt
             <div className="relative">
                 <input
                     type="number"
-                    placeholder="Min Amount"
+                    placeholder={t('placeholder_min_amount')}
                     value={minAmount}
                     onChange={(e) => setMinAmount(e.target.value)}
                     className="w-28 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-32"
@@ -108,7 +110,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({ onFilterChange, currentSt
             <div className="relative">
                 <input
                     type="number"
-                    placeholder="Max Amount"
+                    placeholder={t('placeholder_max_amount')}
                     value={maxAmount}
                     onChange={(e) => setMaxAmount(e.target.value)}
                     className="w-28 rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-32"
@@ -121,7 +123,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({ onFilterChange, currentSt
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search expenses..."
+            placeholder={t('placeholder_search_expenses')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { Users } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface StaffFilterProps {
@@ -10,6 +11,7 @@ interface StaffFilterProps {
 }
 
 const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreId }) => {
+    const { t } = getTranslation();
     const [selectedRole, setSelectedRole] = React.useState<string>('all');
 
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
@@ -36,11 +38,11 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
                     onChange={(e) => setSelectedRole(e.target.value)}
                     className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="all">All Roles</option>
-                    <option value="staff">Staff</option>
-                    <option value="manager">Manager</option>
-                    <option value="cashier">Cashier</option>
-                    <option value="store_admin">Store Admin</option>
+                    <option value="all">{t('lbl_all_roles')}</option>
+                    <option value="staff">{t('lbl_staff')}</option>
+                    <option value="manager">{t('lbl_manager')}</option>
+                    <option value="cashier">{t('lbl_cashier')}</option>
+                    <option value="store_admin">{t('lbl_store_admin')}</option>
                 </select>
                 <Users className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -51,7 +53,7 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
         <UniversalFilter
             onFilterChange={handleFilterChange}
             onResetFilters={handleResetFilters}
-            placeholder="Search staff members..."
+            placeholder={t('placeholder_search_staff')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

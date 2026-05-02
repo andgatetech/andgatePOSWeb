@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ProductReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -103,10 +103,10 @@ const ProductReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -115,23 +115,23 @@ const ProductReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('product_title'), value: summary.total_products || 0 },
-            { label: t('lbl_qty_sold'), value: summary.total_ordered || 0 },
-            { label: t('lbl_qty_returned'), value: summary.total_returned || 0 },
-            { label: t('lbl_net_qty'), value: summary.net_quantity_sold || 0 },
-            { label: t('lbl_gross_revenue'), value: formatCurrency(summary.total_revenue) },
-            { label: t('lbl_return'), value: formatCurrency(summary.total_return_amount) },
-            { label: t('lbl_revenue'), value: formatCurrency(summary.net_revenue) },
-            { label: t('lbl_return_rate'), value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
+            { label: 'product_title', value: summary.total_products || 0 },
+            { label: 'lbl_qty_sold', value: summary.total_ordered || 0 },
+            { label: 'lbl_qty_returned', value: summary.total_returned || 0 },
+            { label: 'lbl_net_qty', value: summary.net_quantity_sold || 0 },
+            { label: 'lbl_gross_revenue', value: formatCurrency(summary.total_revenue) },
+            { label: 'lbl_return', value: formatCurrency(summary.total_return_amount) },
+            { label: 'lbl_revenue', value: formatCurrency(summary.net_revenue) },
+            { label: 'lbl_return_rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('lbl_unique_items'),
-                value: Number(summary.total_products || 0).toLocaleString(),
+                value: formatNumber(summary.total_products || 0),
                 icon: <Package className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -139,7 +139,7 @@ const ProductReportPage = () => {
             },
             {
                 label: t('lbl_total_inventory'),
-                value: Number(summary.total_quantity || 0).toLocaleString(),
+                value: formatNumber(summary.total_quantity || 0),
                 icon: <Layers className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -147,7 +147,7 @@ const ProductReportPage = () => {
             },
             {
                 label: t('lbl_orders_fulfilled'),
-                value: Number(summary.total_ordered || 0).toLocaleString(),
+                value: formatNumber(summary.total_ordered || 0),
                 icon: <ShoppingCart className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -155,7 +155,7 @@ const ProductReportPage = () => {
             },
             {
                 label: t('lbl_return'),
-                value: Number(summary.total_returned || 0).toLocaleString(),
+                value: formatNumber(summary.total_returned || 0),
                 icon: <Package className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -163,7 +163,7 @@ const ProductReportPage = () => {
             },
             {
                 label: t('lbl_net_qty'),
-                value: Number(summary.net_quantity_sold || 0).toLocaleString(),
+                value: formatNumber(summary.net_quantity_sold || 0),
                 icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -202,7 +202,7 @@ const ProductReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(
@@ -330,8 +330,8 @@ const ProductReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Product Report"
-                    reportDescription="Overview of all items and their sales details"
+                    reportTitle={t('report_product_title')}
+                    reportDescription={t('report_product_desc')}
                     reportIcon={<Package className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-pink-600 to-rose-700"
                     data={products}
@@ -360,8 +360,8 @@ const ProductReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'Catalogue Entry Not Found',
-                        description: 'No products match your current search criteria or category filter.',
+                        title: t('report_catalogue_not_found'),
+                        description: t('report_no_products_desc'),
                     }}
                 />
             </div>

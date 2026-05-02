@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SalesReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -127,7 +127,7 @@ const SalesReportPage = () => {
         () => [
             {
                 label: t('report_total_sales'),
-                value: Number(summary.total_orders || 0).toLocaleString(),
+                value: formatNumber(summary.total_orders || 0),
                 icon: <ShoppingCart className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -174,7 +174,7 @@ const SalesReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     // Table columns
@@ -198,7 +198,7 @@ const SalesReportPage = () => {
                     <div className="flex flex-col">
                         <div className="flex items-center gap-1.5 font-medium text-gray-900">
                             <User className="h-3.5 w-3.5 text-gray-400" />
-                            {row.is_walk_in ? 'Walk-in Customer' : row.customer?.name || 'N/A'}
+                            {row.is_walk_in ? t('lbl_walk_in_customer') : row.customer?.name || 'N/A'}
                         </div>
                         {!row.is_walk_in && row.customer?.phone && <span className="pl-5 text-[10px] text-gray-500">{row.customer.phone}</span>}
                     </div>
@@ -275,7 +275,7 @@ const SalesReportPage = () => {
                 key: 'customer',
                 label: t('lbl_customer'),
                 width: 25,
-                format: (_, row) => (row?.is_walk_in ? 'Walk-in' : row?.customer?.name || 'N/A'),
+                format: (_, row) => (row?.is_walk_in ? t('lbl_walk_in') : row?.customer?.name || 'N/A'),
             },
             { key: 'user_name', label: t('lbl_created_by'), width: 15 },
             {
@@ -328,10 +328,10 @@ const SalesReportPage = () => {
     // Filter summary for export
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
 
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.payment_status && apiParams.payment_status !== 'all') {
@@ -367,12 +367,12 @@ const SalesReportPage = () => {
     // Summary for export
     const exportSummary = useMemo(
         () => [
-            { label: t('report_total_sales'), value: summary.total_orders || 0 },
-            { label: t('lbl_gross_sales'), value: formatCurrency(summary.total_sales) },
-            { label: t('lbl_collection'), value: formatCurrency(summary.total_amount_paid) },
-            { label: t('status_outstanding'), value: formatCurrency(summary.total_due_amount) },
+            { label: 'report_total_sales', value: summary.total_orders || 0 },
+            { label: 'lbl_gross_sales', value: formatCurrency(summary.total_sales) },
+            { label: 'lbl_collection', value: formatCurrency(summary.total_amount_paid) },
+            { label: 'status_outstanding', value: formatCurrency(summary.total_due_amount) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     if (isLoading && !reportData?.data) {
@@ -384,8 +384,8 @@ const SalesReportPage = () => {
             <div className="mx-auto">
                 {/* Unified Export Toolbar with Report Header */}
                 <ReportExportToolbar
-                    reportTitle="Sales Report"
-                    reportDescription="Overview of your store sales and income"
+                    reportTitle={t('report_sales_title')}
+                    reportDescription={t('report_sales_desc')}
                     reportIcon={<ShoppingCart className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-emerald-600 to-teal-700"
                     data={orders}
@@ -417,8 +417,8 @@ const SalesReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'No Sales Records Found',
-                        description: "We couldn't find any orders matching your selected filters.",
+                        title: t('report_no_records_found'),
+                        description: t('report_no_records_desc'),
                     }}
                 />
             </div>

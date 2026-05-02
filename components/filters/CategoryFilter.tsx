@@ -2,6 +2,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface CategoryFilterProps {
@@ -10,6 +11,7 @@ interface CategoryFilterProps {
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
     const { userStores } = useCurrentStore();
 
@@ -40,7 +42,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ onFilterChange }) => {
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search categories..."
+            placeholder={t('placeholder_search_categories')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const StockReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -101,10 +101,10 @@ const StockReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -113,12 +113,12 @@ const StockReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('order_items'), value: summary.total_items || 0 },
-            { label: t('lbl_qty'), value: (summary.total_quantity || 0).toLocaleString() },
-            { label: t('lbl_returned_stock'), value: (summary.quantity_returned_to_stock || 0).toLocaleString() },
-            { label: t('lbl_stock_value'), value: formatCurrency(summary.total_stock_value) },
+            { label: 'order_items', value: summary.total_items || 0 },
+            { label: 'lbl_qty', value: (formatNumber(summary.total_quantity || 0)) },
+            { label: 'lbl_returned_stock', value: (formatNumber(summary.quantity_returned_to_stock || 0)) },
+            { label: 'lbl_stock_value', value: formatCurrency(summary.total_stock_value) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
@@ -126,7 +126,7 @@ const StockReportPage = () => {
             { label: t('order_items'), value: summary.total_items || 0, icon: <Package className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
             {
                 label: t('lbl_qty'),
-                value: (summary.total_quantity || 0).toLocaleString(),
+                value: (formatNumber(summary.total_quantity || 0)),
                 icon: <Layers className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
@@ -136,14 +136,14 @@ const StockReportPage = () => {
             { label: t('status_out_of_stock'), value: summary.out_of_stock || 0, icon: <XCircle className="h-4 w-4 text-red-600" />, bgColor: 'bg-red-500', lightBg: 'bg-red-50', textColor: 'text-red-600' },
             {
                 label: t('lbl_returned_stock'),
-                value: (summary.quantity_returned_to_stock || 0).toLocaleString(),
+                value: (formatNumber(summary.quantity_returned_to_stock || 0)),
                 icon: <Package className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
                 textColor: 'text-emerald-600',
             },
         ],
-        [t, summary]
+        [summary]
     );
 
     const columns = useMemo(
@@ -221,8 +221,8 @@ const StockReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Stock Report"
-                    reportDescription="View complete inventory stock levels"
+                    reportTitle={t('report_stock_title')}
+                    reportDescription={t('report_stock_desc')}
                     reportIcon={<Layers className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-indigo-600 to-indigo-700"
                     data={stocks}
@@ -250,7 +250,7 @@ const StockReportPage = () => {
                         onItemsPerPageChange: handleItemsPerPageChange,
                     }}
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
-                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: 'No Stock Found', description: 'No stock items match your current filters.' }}
+                    emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_stock_found'), description: t('report_no_stock_desc') }}
                 />
             </div>
         </div>

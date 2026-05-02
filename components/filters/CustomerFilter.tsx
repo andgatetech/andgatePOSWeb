@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { Award } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 import React from 'react';
 
 interface CustomerFilterProps {
@@ -10,6 +11,7 @@ interface CustomerFilterProps {
 }
 
 const CustomerFilter: React.FC<CustomerFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const [selectedMembership, setSelectedMembership] = React.useState<string>('all');
 
     const { currentStore, userStores } = useCurrentStore();
@@ -57,11 +59,11 @@ const CustomerFilter: React.FC<CustomerFilterProps> = ({ onFilterChange }) => {
                     onChange={(e) => setSelectedMembership(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
-                    <option value="all">All Membership</option>
-                    <option value="normal">Normal</option>
-                    <option value="silver">Silver</option>
-                    <option value="gold">Gold</option>
-                    <option value="platinum">Platinum</option>
+                    <option value="all">{t('lbl_all_membership')}</option>
+                    <option value="normal">{t('lbl_normal')}</option>
+                    <option value="silver">{t('lbl_silver')}</option>
+                    <option value="gold">{t('lbl_gold')}</option>
+                    <option value="platinum">{t('lbl_platinum')}</option>
                 </select>
                 <Award className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
@@ -71,7 +73,7 @@ const CustomerFilter: React.FC<CustomerFilterProps> = ({ onFilterChange }) => {
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search customers by name, email, phone..."
+            placeholder={t('placeholder_search_customers')}
             showStoreFilter={true}
             showDateFilter={false}
             showSearch={true}

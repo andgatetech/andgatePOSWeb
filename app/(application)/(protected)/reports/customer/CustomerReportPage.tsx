@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CustomerReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -110,10 +110,10 @@ const CustomerReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         const customFilters: { label: string; value: string }[] = [];
         if (apiParams.only_due) customFilters.push({ label: t('btn_filter'), value: 'Only Due' });
         let dateType = 'none';
@@ -124,21 +124,21 @@ const CustomerReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('customer_title'), value: summary.total_customers || 0 },
-            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
-            { label: t('lbl_return'), value: formatCurrency(summary.total_returned) },
-            { label: t('lbl_net_purchase'), value: formatCurrency(summary.net_purchase_value) },
-            { label: t('lbl_return_rate'), value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
-            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
+            { label: 'customer_title', value: summary.total_customers || 0 },
+            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
+            { label: 'lbl_return', value: formatCurrency(summary.total_returned) },
+            { label: 'lbl_net_purchase', value: formatCurrency(summary.net_purchase_value) },
+            { label: 'lbl_return_rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
+            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('customer_total'),
-                value: summary.total_customers || 0,
+                value: formatNumber(summary.total_customers || 0),
                 icon: <Users className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -146,7 +146,7 @@ const CustomerReportPage = () => {
             },
             {
                 label: t('lbl_customers_with_due'),
-                value: summary.total_customers_with_due || 0,
+                value: formatNumber(summary.total_customers_with_due || 0),
                 icon: <AlertCircle className="h-4 w-4 text-amber-600" />,
                 bgColor: 'bg-amber-500',
                 lightBg: 'bg-amber-50',
@@ -201,7 +201,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(

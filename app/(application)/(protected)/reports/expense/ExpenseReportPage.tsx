@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ExpenseReportPage = () => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -100,10 +100,10 @@ const ExpenseReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -112,18 +112,18 @@ const ExpenseReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('lbl_records'), value: summary.expense_count || 0 },
-            { label: t('lbl_total'), value: formatCurrency(summary.total_expenses) },
-            { label: t('lbl_average'), value: formatCurrency(summary.average_expense) },
+            { label: 'lbl_records', value: summary.expense_count || 0 },
+            { label: 'lbl_total', value: formatCurrency(summary.total_expenses) },
+            { label: 'lbl_average', value: formatCurrency(summary.average_expense) },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('expense_title'),
-                value: summary.expense_count || 0,
+                value: formatNumber(summary.expense_count || 0),
                 icon: <FileText className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -146,7 +146,7 @@ const ExpenseReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [t, summary, formatCurrency]
+        [summary, formatCurrency]
     );
 
     const columns = useMemo(

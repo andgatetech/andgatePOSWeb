@@ -20,6 +20,7 @@ import {
     TrendingUp,
     Wallet,
 } from 'lucide-react';
+import UniversalCookie from 'universal-cookie';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CountUp from 'react-countup';
 
@@ -27,16 +28,30 @@ import CountUp from 'react-countup';
 
 type PeriodType = 'today' | 'weekly' | 'monthly' | 'yearly' | 'custom';
 
-
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const AnimatedCurrency = ({ value, symbol }: { value: number; symbol: string }) => (
-    <span>
-        {symbol}
-        <CountUp end={value} duration={1.5} decimals={2} separator="," />
-    </span>
-);
+const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+const toLocalDigits = (str: string): string => {
+    if (typeof window === 'undefined') return str;
+    const lang = new UniversalCookie().get('i18nextLng') || 'bn';
+    if (lang !== 'bn') return str;
+    return str.replace(/[0-9]/g, (d) => BN_DIGITS[parseInt(d)]);
+};
+
+const AnimatedCurrency = ({ value, symbol }: { value: number; symbol: string }) => {
+    const formattingFn = (val: number) => {
+        const fixed = val.toFixed(2);
+        const [int, dec] = fixed.split('.');
+        const withSep = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return toLocalDigits(`${withSep}.${dec}`);
+    };
+    return (
+        <span>
+            {symbol}
+            <CountUp end={value} duration={1.5} decimals={2} separator="," formattingFn={formattingFn} />
+        </span>
+    );
+};
 
 // ─── Period Filter Dropdown ──────────────────────────────────────────────────
 
@@ -228,7 +243,7 @@ const ProfitLossReportPage = () => {
         { value: 'yearly', label: t('lbl_this_year') },
         { value: 'custom', label: t('lbl_custom_range') },
     ];
-        const { formatCurrency, symbol } = useCurrency();
+        const { formatCurrency, formatNumber, symbol } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
 
     const [period, setPeriod] = useState<PeriodType>('monthly');
@@ -300,7 +315,7 @@ const ProfitLossReportPage = () => {
     ], [t]);
 
     const filterSummary = useMemo(() => {
-        const storeName = currentStore?.store_name || 'All Stores';
+        const storeName = currentStore?.store_name || t('lbl_all_stores');
         // Map our period values to what ReportExportToolbar expects
         const typeMap: Record<string, string> = { today: 'today', weekly: 'this_week', monthly: 'this_month', yearly: 'this_year', custom: 'custom' };
         const mappedType = typeMap[period] || 'none';
@@ -311,9 +326,9 @@ const ProfitLossReportPage = () => {
     }, [currentStore, periodInfo, period]);
 
     const exportSummary = useMemo(() => [
-        { label: t('lbl_you_earned'), value: formatCurrency(summary.you_earned) },
-        { label: t('lbl_you_keep'), value: formatCurrency(summary.you_keep) },
-        { label: t('lbl_margin'), value: `${businessProfit.margin || 0}%` },
+        { label: 'lbl_you_earned', value: formatCurrency(summary.you_earned) },
+        { label: 'lbl_you_keep', value: formatCurrency(summary.you_keep) },
+        { label: 'lbl_margin', value: `${formatNumber(businessProfit.margin || 0)}%` },
     ], [summary, businessProfit, formatCurrency]);
 
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
@@ -327,7 +342,7 @@ const ProfitLossReportPage = () => {
                 { item: 'Net Sales (You Earned)', amount: formatCurrency(d.income?.net_sales) },
                 { item: 'Cost of Products', amount: formatCurrency(d.cost?.cost_of_goods_sold) },
                 { item: 'Product Profit', amount: formatCurrency(d.product_profit?.amount) },
-                { item: 'Product Margin', amount: `${d.product_profit?.margin || 0}%` },
+                { item: 'Product Margin', amount: `${formatNumber(d.product_profit?.margin || 0)}%` },
                 { item: 'Expenses', amount: formatCurrency(d.expenses?.total) },
                 { item: 'Business Profit (You Keep)', amount: formatCurrency(d.business_profit?.amount) },
             ];
@@ -341,8 +356,8 @@ const ProfitLossReportPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 <ReportExportToolbar
-                    reportTitle="Profit & Loss"
-                    reportDescription="Understand how your business is performing"
+                    reportTitle={t('report_profit_loss_title')}
+                    reportDescription={t('report_profit_loss_desc')}
                     reportIcon={<TrendingUp className="h-6 w-6 text-white" />}
                     iconBgClass="bg-gradient-to-r from-emerald-600 to-emerald-700"
                     data={[]}
@@ -406,14 +421,14 @@ const ProfitLossReportPage = () => {
                                                 <AnimatedCurrency value={Math.abs(businessProfit.amount || 0)} symbol={symbol} />
                                             </p>
                                             <p className={`mt-1 text-sm ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
-                                                Business Margin: <span className="font-bold">{businessProfit.margin || 0}%</span>
+                                                Business Margin: <span className="font-bold">{formatNumber(businessProfit.margin || 0)}%</span>
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex gap-4 sm:gap-6">
                                         <div className={`rounded-xl px-4 py-3 ${isProfit ? 'bg-emerald-50' : 'bg-red-50'}`}>
                                             <p className="text-[11px] font-medium text-gray-400">Product Margin</p>
-                                            <p className={`text-2xl font-bold ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>{productProfit.margin || 0}%</p>
+                                            <p className={`text-2xl font-bold ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>{formatNumber(productProfit.margin || 0)}%</p>
                                         </div>
                                         <div className="rounded-xl bg-gray-50 px-4 py-3">
                                             <p className="text-[11px] font-medium text-gray-400">Total Orders</p>
@@ -479,8 +494,8 @@ const ProfitLossReportPage = () => {
                                 <CalcStep step={1} icon={ShoppingCart} iconBg="bg-emerald-50" iconColor="text-emerald-600" title="Total Sales" subtitle="All your sales" value={income.total_sales || 0} symbol={symbol} valueColor="text-emerald-700" />
                                 <CalcStep step={2} icon={ArrowDown} iconBg="bg-orange-50" iconColor="text-orange-500" title="Returns & Discounts" subtitle="Returned items + discounts given" value={(income.sales_returns || 0) + (income.total_discount || 0)} symbol={symbol} valueColor="text-orange-600" operation="-" />
                                 <CalcStep step={3} icon={Banknote} iconBg="bg-blue-50" iconColor="text-blue-600" title="Net Sales" subtitle="What you actually earned" value={income.net_sales || 0} symbol={symbol} valueColor="text-blue-700" operation="=" />
-                                <CalcStep step={4} icon={Package} iconBg="bg-orange-50" iconColor="text-orange-600" title="Product Cost" subtitle={`Purchase price of ${cost.total_items_sold || 0} items sold`} value={cost.cost_of_goods_sold || 0} symbol={symbol} valueColor="text-orange-700" operation="-" />
-                                <CalcStep step={5} icon={TrendingUp} iconBg="bg-violet-50" iconColor="text-violet-600" title="Product Profit" subtitle={`${productProfit.margin || 0}% margin`} value={productProfit.amount || 0} symbol={symbol} valueColor="text-violet-700" operation="=" />
+                                <CalcStep step={4} icon={Package} iconBg="bg-orange-50" iconColor="text-orange-600" title="Product Cost" subtitle={`Purchase price of ${formatNumber(cost.total_items_sold || 0)} items sold`} value={cost.cost_of_goods_sold || 0} symbol={symbol} valueColor="text-orange-700" operation="-" />
+                                <CalcStep step={5} icon={TrendingUp} iconBg="bg-violet-50" iconColor="text-violet-600" title="Product Profit" subtitle={`${formatNumber(productProfit.margin || 0)}% margin`} value={productProfit.amount || 0} symbol={symbol} valueColor="text-violet-700" operation="=" />
                                 <CalcStep step={6} icon={Receipt} iconBg="bg-red-50" iconColor="text-red-500" title="Expenses" subtitle="Rent, utilities, salaries, etc." value={expenses.total || 0} symbol={symbol} valueColor="text-red-600" operation="-" />
                                 <CalcStep step={7} icon={isProfit ? TrendingUp : ArrowDown} iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'} iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'} title="Business Profit" subtitle="This is what you keep" value={businessProfit.amount || 0} symbol={symbol} valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'} operation="=" />
                             </div>
@@ -547,7 +562,7 @@ const ProfitLossReportPage = () => {
                                         </div>
                                         <div className="text-right">
                                             <span className="text-lg font-bold text-violet-700">{formatCurrency(productProfit.amount)}</span>
-                                            <p className="text-[11px] text-violet-500">{productProfit.margin || 0}% margin</p>
+                                            <p className="text-[11px] text-violet-500">{formatNumber(productProfit.margin || 0)}% margin</p>
                                         </div>
                                     </div>
                                     <div className="pt-2.5">
@@ -594,12 +609,12 @@ const ProfitLossReportPage = () => {
                                 <div className="flex gap-6 text-center">
                                     <div>
                                         <p className="text-xs text-white/70">Product Margin</p>
-                                        <p className="text-xl font-bold">{productProfit.margin || 0}%</p>
+                                        <p className="text-xl font-bold">{formatNumber(productProfit.margin || 0)}%</p>
                                     </div>
                                     <div className="h-10 w-px bg-white/20"></div>
                                     <div>
                                         <p className="text-xs text-white/70">Business Margin</p>
-                                        <p className="text-xl font-bold">{businessProfit.margin || 0}%</p>
+                                        <p className="text-xl font-bold">{formatNumber(businessProfit.margin || 0)}%</p>
                                     </div>
                                 </div>
                             </div>

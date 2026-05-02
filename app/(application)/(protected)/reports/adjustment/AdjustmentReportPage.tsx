@@ -6,6 +6,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import AdjustmentReportFilter from '@/components/filters/reports/AdjustmentReportFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
 import { ArrowDown, ArrowDownUp, ArrowUp, DollarSign, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
@@ -13,6 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const AdjustmentReportPage = () => {
     const { t } = getTranslation();
+    const { formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -84,7 +86,7 @@ const AdjustmentReportPage = () => {
 
     const formatPrice = useCallback((val: any) => {
         if (val === null || val === undefined) return '—';
-        return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return formatNumber(val, 2);
     }, []);
 
     const exportColumns: ExportColumn[] = useMemo(
@@ -108,10 +110,10 @@ const AdjustmentReportPage = () => {
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
-            ? 'All Stores'
+            ? t('lbl_all_stores')
             : apiParams.store_id
-            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || 'All Stores'
-            : currentStore?.store_name || 'All Stores';
+            ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
+            : currentStore?.store_name || t('lbl_all_stores');
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
@@ -120,17 +122,17 @@ const AdjustmentReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: t('report_adjustment_title'), value: summary.total_adjustments || 0 },
-            { label: t('lbl_net_change'), value: `${summary.net_change >= 0 ? '+' : ''}${Number(summary.net_change || 0).toLocaleString()}` },
+            { label: 'report_adjustment_title', value: summary.total_adjustments || 0 },
+            { label: 'lbl_net_change', value: `${summary.net_change >= 0 ? '+' : ''}${formatNumber(summary.net_change || 0)}` },
         ],
-        [t, summary]
+        [summary]
     );
 
     const summaryItems = useMemo(
         () => [
             {
                 label: t('report_adjustment_title'),
-                value: summary.total_adjustments || 0,
+                value: formatNumber(summary.total_adjustments || 0),
                 icon: <ArrowDownUp className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
                 lightBg: 'bg-blue-50',
@@ -138,7 +140,7 @@ const AdjustmentReportPage = () => {
             },
             {
                 label: t('lbl_gross_increase'),
-                value: `+${Number(summary.total_increase_quantity || 0).toLocaleString()}`,
+                value: `+${formatNumber(summary.total_increase_quantity || 0)}`,
                 icon: <ArrowUp className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
                 lightBg: 'bg-green-50',
@@ -146,7 +148,7 @@ const AdjustmentReportPage = () => {
             },
             {
                 label: t('lbl_gross_decrease'),
-                value: `-${Number(summary.total_decrease_quantity || 0).toLocaleString()}`,
+                value: `-${formatNumber(summary.total_decrease_quantity || 0)}`,
                 icon: <ArrowDown className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
                 lightBg: 'bg-red-50',
@@ -154,14 +156,14 @@ const AdjustmentReportPage = () => {
             },
             {
                 label: t('lbl_summary'),
-                value: `${summary.net_change >= 0 ? '+' : ''}${Number(summary.net_change || 0).toLocaleString()}`,
+                value: `${summary.net_change >= 0 ? '+' : ''}${formatNumber(summary.net_change || 0)}`,
                 icon: <TrendingUp className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
         ],
-        [t, summary]
+        [summary]
     );
 
     const renderPriceChange = useCallback(
@@ -243,7 +245,7 @@ const AdjustmentReportPage = () => {
                         <div className="flex flex-col">
                             <div className={`flex items-center gap-1 font-bold ${i ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 {i ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />}
-                                {Number(v).toLocaleString()}
+                                {formatNumber(v)}
                             </div>
                             <span className="text-[10px] text-gray-400">
                                 {r.previous_stock} → {r.adjusted_stock}

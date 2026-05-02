@@ -3,6 +3,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
 import { CircleAlert } from 'lucide-react';
 import React, { useCallback } from 'react';
 
@@ -11,6 +12,7 @@ interface CustomerReportFilterProps {
 }
 
 const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterChange }) => {
+    const { t } = getTranslation();
     const { userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
     const [isOnlyDue, setIsOnlyDue] = React.useState(false);
@@ -51,7 +53,7 @@ const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterCha
                 }`}
             >
                 <CircleAlert className={`h-4 w-4 ${isOnlyDue ? 'text-red-600' : 'text-gray-400'}`} />
-                {isOnlyDue ? 'Only Dues Active' : 'Filter Only Due'}
+                {isOnlyDue ? t('lbl_only_dues_active') : t('lbl_filter_only_due')}
             </button>
         </div>
     );
@@ -59,7 +61,7 @@ const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterCha
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
-            placeholder="Search customers, phone, email..."
+            placeholder={t('placeholder_search_customers_report')}
             showStoreFilter={true}
             showDateFilter={true}
             showSearch={true}

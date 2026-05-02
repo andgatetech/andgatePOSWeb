@@ -3,6 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import enLocale from '@/public/locales/en.json';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
@@ -33,7 +34,7 @@ export interface ReportExportToolbarProps {
     iconBgClass?: string; // NEW: Optional background class for icon
     data: any[];
     columns: ExportColumn[];
-    summary?: { label: string; value: string | number }[];
+    summary?: { label: string; value: string | number }[]; // label = i18n key (looked up in English for PDF)
     filterSummary?: {
         dateRange?: { startDate?: string; endDate?: string; type?: string };
         storeName?: string;
@@ -43,6 +44,11 @@ export interface ReportExportToolbarProps {
     // Optional: function to fetch ALL data for export (bypasses pagination)
     fetchAllData?: () => Promise<any[]>;
 }
+
+const parseSafeDate = (dateStr: string): Date => {
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? new Date() : d;
+};
 
 const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     reportTitle,
@@ -61,6 +67,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const { code, symbol } = useCurrency();
     const user = useSelector((state: RootState) => state.auth?.user);
     const [isExporting, setIsExporting] = useState(false);
+
+    // Always use English for PDF — jsPDF built-in fonts don't support Bengali Unicode
+    const tPdf = (key: string): string => (enLocale as Record<string, string>)[key] || key;
 
     // Store details from Redux
     const storeDetails = useMemo(
@@ -126,15 +135,16 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const sanitizeForPdf = useCallback(
         (text: string): string => {
             if (!text) return '';
-            // Replace currency symbol with code for better PDF font support
             let cleanText = String(text);
+            // Convert Bengali digits to ASCII digits first (Bengali digits are used by formatCurrency/formatNumber)
+            cleanText = cleanText.replace(/[০-৯]/g, (d) => String('০১২৩৪৫৬৭৮৯'.indexOf(d)));
+            // Replace currency symbol with code
             if (symbol) {
-                // Escape symbol for regex
                 const escapedSymbol = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 cleanText = cleanText.replace(new RegExp(escapedSymbol, 'g'), `${code} `);
             }
-            // Fallback for Bengali Taka symbol if any hardcoded instances remain
             cleanText = cleanText.replace(/৳/g, 'BDT ');
+            // Strip any remaining non-ASCII (Bengali text labels etc.)
             return cleanText.replace(/[^\x00-\x7F]/g, '');
         },
         [symbol, code]
@@ -236,6 +246,24 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const tableWidth = pageWidth - margin * 2;
             let yPos = 12;
 
+            // Compute English date label for PDF (tPdf always returns English)
+            const pdfDateText = (() => {
+                if (!filterSummary?.dateRange) return tPdf('lbl_all_time');
+                const { type, startDate, endDate } = filterSummary.dateRange;
+                if (type === 'none' || (!startDate && !endDate)) return tPdf('lbl_all_time');
+                if (type === 'today') return tPdf('lbl_today');
+                if (type === 'yesterday') return tPdf('lbl_yesterday');
+                if (type === 'this_week') return tPdf('lbl_this_week');
+                if (type === 'last_week') return tPdf('lbl_last_week');
+                if (type === 'this_month') return tPdf('lbl_this_month');
+                if (type === 'last_month') return tPdf('lbl_last_month');
+                if (type === 'this_year') return tPdf('lbl_this_year');
+                if (startDate && endDate) return `${format(parseSafeDate(startDate), 'dd MMM yyyy')} - ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
+                if (startDate) return `${tPdf('lbl_from')} ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
+                if (endDate) return `${tPdf('lbl_until')} ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
+                return tPdf('lbl_custom_range');
+            })();
+
             // === HEADER SECTION ===
             // Left side: Store Details
             doc.setFontSize(14);
@@ -248,11 +276,11 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
             if (storeDetails.contact) {
-                doc.text(`${t('lbl_phone')}: ${storeDetails.contact}`, margin, yPos);
+                doc.text(`${tPdf('lbl_phone')}: ${sanitizeForPdf(storeDetails.contact)}`, margin, yPos);
                 yPos += 4;
             }
             if (storeDetails.location) {
-                doc.text(`${t('lbl_address')}: ${sanitizeForPdf(storeDetails.location)}`, margin, yPos);
+                doc.text(`${tPdf('lbl_address')}: ${sanitizeForPdf(storeDetails.location)}`, margin, yPos);
                 yPos += 4;
             }
 
@@ -261,18 +289,18 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(59, 130, 246);
-            doc.text(reportTitle, rightX, 12, { align: 'right' });
+            doc.text(sanitizeForPdf(reportTitle), rightX, 12, { align: 'right' });
 
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
-            doc.text(`${t('lbl_period')}: ${dateDisplayText}`, rightX, 17, { align: 'right' });
-            doc.text(`${t('lbl_store')}: ${storeDisplayText}`, rightX, 21, { align: 'right' });
-            doc.text(`${t('lbl_generated')}: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, rightX, 25, { align: 'right' });
+            doc.text(`${tPdf('lbl_period')}: ${pdfDateText}`, rightX, 17, { align: 'right' });
+            doc.text(`${tPdf('lbl_store')}: ${sanitizeForPdf(storeDisplayText)}`, rightX, 21, { align: 'right' });
+            doc.text(`${tPdf('lbl_generated')}: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, rightX, 25, { align: 'right' });
 
             // Custom filters
             if (filterSummary?.customFilters && filterSummary.customFilters.length > 0) {
-                const filterText = filterSummary.customFilters.map((f) => `${f.label}: ${f.value}`).join(' | ');
+                const filterText = filterSummary.customFilters.map((f) => `${sanitizeForPdf(f.label)}: ${sanitizeForPdf(f.value)}`).join(' | ');
                 doc.text(filterText, rightX, 29, { align: 'right' });
                 yPos = Math.max(yPos, 33);
             } else {
@@ -290,7 +318,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             if (summary.length > 0) {
                 doc.setFontSize(9);
                 doc.setTextColor(60);
-                const summaryText = summary.map((s) => `${s.label}: ${sanitizeForPdf(String(s.value))}`).join('   |   ');
+                const summaryText = summary.map((s) => `${tPdf(String(s.label))}: ${sanitizeForPdf(String(s.value))}`).join('   |   ');
 
                 // Wrap text if too long
                 const splitTitle = doc.splitTextToSize(summaryText, tableWidth);
@@ -314,7 +342,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const totals = getTotals(exportData);
             if (Object.keys(totals).length > 0) {
                 const totalRow = columns.map((col, idx) => {
-                    if (idx === 0) return t('lbl_total').toUpperCase();
+                    if (idx === 0) return tPdf('lbl_total').toUpperCase();
                     if (col.key === 'serial' || col.label === '#') return '';
                     // Only show total if the column was calculated in getTotals
                     return totals[col.label] !== undefined ? `${totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
@@ -343,7 +371,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
             autoTable(doc, {
                 startY: yPos,
-                head: [columns.map((col) => col.label)],
+                head: [columns.map((col) => sanitizeForPdf(col.label))],
                 body: tableData,
                 styles: {
                     fontSize: fontSize,
@@ -387,13 +415,13 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 doc.setPage(i);
                 doc.setFontSize(7);
                 doc.setTextColor(150);
-                doc.text(`${t('lbl_page')} ${i} ${t('lbl_of')} ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
-                doc.text(`${storeDetails.name} - ${reportTitle}`, margin, pageHeight - 10);
+                doc.text(`${tPdf('lbl_page')} ${i} ${tPdf('lbl_of')} ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+                doc.text(`${sanitizeForPdf(storeDetails.name)} - ${sanitizeForPdf(reportTitle)}`, margin, pageHeight - 10);
             }
 
             return doc;
         },
-        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf, t]
+        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf]
     );
 
     // PDF Export
@@ -457,7 +485,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                             className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-all hover:bg-red-100 hover:shadow-sm disabled:opacity-50"
                         >
                             {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                            <span>PDF</span>
+                            <span>{t('btn_pdf')}</span>
                         </button>
 
                         <button
@@ -466,7 +494,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                             className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 transition-all hover:bg-green-100 hover:shadow-sm disabled:opacity-50"
                         >
                             {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}
-                            <span>Excel</span>
+                            <span>{t('btn_excel')}</span>
                         </button>
                     </div>
                 </div>
