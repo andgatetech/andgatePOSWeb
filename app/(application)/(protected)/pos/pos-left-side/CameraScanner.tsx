@@ -3,7 +3,6 @@
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { Camera, X } from 'lucide-react';
 import React, { useCallback, useEffect, useId, useRef } from 'react';
-import { getTranslation } from '@/i18n';
 
 interface CameraScannerProps {
     /** Whether the scanner is visible / active */
@@ -54,8 +53,7 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
     onCloseRef.current = onClose;
 
     const stopScanner = useCallback(async () => {
-        const { t } = getTranslation();
-    const scanner = scannerRef.current;
+        const scanner = scannerRef.current;
         if (!scanner) {
             isStartingRef.current = false;
             return;

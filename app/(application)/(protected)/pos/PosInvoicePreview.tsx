@@ -153,8 +153,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
     // Load pdfMake dynamically
     useEffect(() => {
-        const { t } = getTranslation();
-    const loadPdfMake = async () => {
+        const loadPdfMake = async () => {
             try {
                 // Dynamic import for client-side only
                 const pdfMakeModule: any = await import('pdfmake/build/pdfmake');

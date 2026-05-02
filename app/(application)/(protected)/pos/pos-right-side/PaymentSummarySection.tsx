@@ -90,7 +90,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
         <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">
             {selectedCustomer && formData.membershipDiscount > 0 && (
                 <div className="flex justify-between rounded bg-green-50 p-2">
-                    <label className="text-sm font-semibold text-green-700 sm:text-base">Membership Discount ({selectedCustomer.membership})</label>
+                    <label className="text-sm font-semibold text-green-700 sm:text-base">{t('pos_membership_discount')} ({selectedCustomer.membership})</label>
                     <span className="text-sm font-semibold text-green-700 sm:text-base">{formData.membershipDiscount}%</span>
                 </div>
             )}
@@ -100,13 +100,13 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <div className="mb-3 flex items-center justify-between">
                         <label className="flex items-center">
                             <input type="checkbox" name="usePoints" className="mr-2" checked={formData.usePoints} onChange={onInputChange} />
-                            <span className="font-semibold text-orange-700">Use Loyalty Points</span>
+                            <span className="font-semibold text-orange-700">{t('lbl_use_loyalty_points')}</span>
                         </label>
-                        <span className="text-sm text-orange-600">Available: {Number(selectedCustomer.points) || 0} points</span>
+                        <span className="text-sm text-orange-600">{t('lbl_available')}: {Number(selectedCustomer.points) || 0} {t('lbl_points')}</span>
                     </div>
                     {formData.usePoints && (
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-orange-600">Points to use:</span>
+                            <span className="text-sm text-orange-600">{t('lbl_points_to_use')}:</span>
                             <input
                                 type="number"
                                 name="pointsToUse"
@@ -118,7 +118,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             />
                         </div>
                     )}
-                    {formData.usePoints && formData.pointsToUse > 0 && <div className="mt-2 text-sm text-orange-600">Points discount: -{formatCurrency(pointsDiscount)}</div>}
+                    {formData.usePoints && formData.pointsToUse > 0 && <div className="mt-2 text-sm text-orange-600">{t('lbl_points_discount')}: -{formatCurrency(pointsDiscount)}</div>}
                 </div>
             )}
 
@@ -127,13 +127,13 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <div className="mb-3 flex items-center justify-between">
                         <label className="flex items-center">
                             <input type="checkbox" name="useBalance" className="mr-2" checked={formData.useBalance} onChange={onInputChange} />
-                            <span className="font-semibold text-teal-700">Use Account Balance</span>
+                            <span className="font-semibold text-teal-700">{t('lbl_use_account_balance')}</span>
                         </label>
-                        <span className="text-sm text-teal-600">Available: {formatCurrency(selectedCustomer?.balance)}</span>
+                        <span className="text-sm text-teal-600">{t('lbl_available')}: {formatCurrency(selectedCustomer?.balance)}</span>
                     </div>
                     {formData.useBalance && (
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-teal-600">Balance to use:</span>
+                            <span className="text-sm text-teal-600">{t('lbl_balance_to_use')}:</span>
                             <input
                                 type="number"
                                 name="balanceToUse"
@@ -146,7 +146,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             />
                         </div>
                     )}
-                    {formData.useBalance && formData.balanceToUse > 0 && <div className="mt-2 text-sm text-teal-600">Balance discount: -{formatCurrency(balanceDiscount)}</div>}
+                    {formData.useBalance && formData.balanceToUse > 0 && <div className="mt-2 text-sm text-teal-600">{t('lbl_balance_discount')}: -{formatCurrency(balanceDiscount)}</div>}
                 </div>
             )}
 
@@ -188,13 +188,13 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {/* Payment Method and Payment Status - Moved after Grand Total */}
             <div className="mt-4 flex flex-col justify-between gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:items-center">
                 <label className="text-sm font-semibold sm:text-base">
-                    Payment Method <span className="text-red-500">*</span>
+                    {t('lbl_payment_method')} <span className="text-red-500">*</span>
                 </label>
                 <select name="paymentMethod" className="form-select w-full sm:w-40" value={formData.paymentMethod} onChange={onInputChange} required>
                     <option value="">{t('btn_select_all')}</option>
                     {paymentMethodOptions.map((method) => (
                         <option key={method.id} value={method.payment_method_name || ''}>
-                            {method.payment_method_name || 'Unnamed Method'}
+                            {method.payment_method_name || t('lbl_unnamed_method')}
                         </option>
                     ))}
                 </select>
@@ -202,7 +202,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 
             <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                 <label className="text-sm font-semibold sm:text-base">
-                    Payment Status <span className="text-red-500">*</span>
+                    {t('lbl_payment_status')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                     {/* Color indicator for selected status */}
@@ -233,8 +233,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {formData.paymentStatus === 'partial' && !isWalkInCustomer && (
                 <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
                     <div className="mb-2 flex items-center justify-between">
-                        <label className="text-sm font-semibold text-blue-700">Partial Payment Amount:</label>
-                        <span className="text-xs text-blue-600">Total: {formatCurrency(totalPayable)}</span>
+                        <label className="text-sm font-semibold text-blue-700">{t('lbl_partial_payment_amount')}:</label>
+                        <span className="text-xs text-blue-600">{t('lbl_grand_total')}: {formatCurrency(totalPayable)}</span>
                     </div>
                     <div className="relative">
                         <input
@@ -244,18 +244,18 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             min="0"
                             max={totalPayable}
                             className="form-input w-full border-blue-300 pl-4 pr-4 text-lg font-semibold focus:border-primary focus:ring-primary"
-                            placeholder="Enter amount"
+                            placeholder={t('lbl_enter_amount')}
                             value={formData.partialPaymentAmount || ''}
                             onChange={onInputChange}
                         />
                     </div>
                     {formData.partialPaymentAmount > 0 && formData.partialPaymentAmount < totalPayable && (
                         <div className="mt-2 flex justify-between text-sm">
-                            <span className="text-blue-600">Remaining Due:</span>
+                            <span className="text-blue-600">{t('lbl_remaining_due')}:</span>
                             <span className="font-semibold text-red-600">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
                         </div>
                     )}
-                    {formData.partialPaymentAmount >= totalPayable && <div className="mt-2 text-sm text-amber-600">⚠️ Amount equals or exceeds total. Consider selecting &quot;Paid&quot; status.</div>}
+                    {formData.partialPaymentAmount >= totalPayable && <div className="mt-2 text-sm text-amber-600">⚠️ {t('msg_amount_exceeds_total')}</div>}
                 </div>
             )}
 
@@ -266,13 +266,13 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="text-sm font-semibold text-red-700">Full Amount Due</span>
+                        <span className="text-sm font-semibold text-red-700">{t('lbl_full_amount_due')}</span>
                     </div>
                     <div className="mt-2 flex justify-between border-t border-red-200 pt-2">
-                        <span className="text-sm text-red-600">Total Due Amount:</span>
+                        <span className="text-sm text-red-600">{t('lbl_total_due_amount')}:</span>
                         <span className="text-lg font-bold text-red-700">{formatCurrency(totalPayable)}</span>
                     </div>
-                    <div className="mt-2 text-xs text-red-600">This amount will be recorded as due for customer: {selectedCustomer.name}</div>
+                    <div className="mt-2 text-xs text-red-600">{t('msg_amount_recorded_due_customer')}: {selectedCustomer.name}</div>
                 </div>
             )}
 
@@ -280,20 +280,20 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {formData.paymentStatus === 'partial' && formData.partialPaymentAmount > 0 && (
                 <>
                     <div className="mt-3 rounded-lg border-2 border-blue-300 bg-blue-50 p-3">
-                        <div className="mb-2 text-center text-sm font-semibold text-blue-800">Payment Breakdown</div>
+                        <div className="mb-2 text-center text-sm font-semibold text-blue-800">{t('lbl_payment_breakdown')}</div>
                         <div className="space-y-1">
                             <div className="flex justify-between text-sm">
-                                <span className="text-green-700">Amount Paying Now:</span>
+                                <span className="text-green-700">{t('lbl_amount_paying_now')}:</span>
                                 <span className="font-semibold text-green-800">{formatCurrency(formData.partialPaymentAmount)}</span>
                             </div>
                             <div className="flex justify-between border-t border-blue-200 pt-1 text-sm">
-                                <span className="text-red-700">Amount Due Later:</span>
+                                <span className="text-red-700">{t('lbl_amount_due_later')}:</span>
                                 <span className="font-bold text-red-800">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-50 p-3 text-blue-900 shadow-sm">
-                        <span className="text-lg font-bold">Total Payable Now</span>
+                        <span className="text-lg font-bold">{t('lbl_total_payable_now')}</span>
                         <span className="text-2xl font-black">{formatCurrency(formData.partialPaymentAmount)}</span>
                     </div>
                 </>
@@ -302,20 +302,20 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {formData.paymentStatus === 'due' && selectedCustomer && (
                 <>
                     <div className="mt-3 rounded-lg border-2 border-red-300 bg-red-50 p-3">
-                        <div className="mb-2 text-center text-sm font-semibold text-red-800">Payment Summary</div>
+                        <div className="mb-2 text-center text-sm font-semibold text-red-800">{t('lbl_payment_summary')}</div>
                         <div className="space-y-1">
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-700">Amount Paying Now:</span>
+                                <span className="text-gray-700">{t('lbl_amount_paying_now')}:</span>
                                 <span className="font-semibold text-gray-800">{formatCurrency(0)}</span>
                             </div>
                             <div className="flex justify-between border-t border-red-200 pt-1">
-                                <span className="text-red-700">Full Amount Due:</span>
+                                <span className="text-red-700">{t('lbl_full_amount_due')}:</span>
                                 <span className="text-lg font-bold text-red-800">{formatCurrency(totalPayable)}</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-between rounded-lg bg-gradient-to-r from-red-100 to-red-50 p-3 text-red-900 shadow-sm">
-                        <span className="text-lg font-bold">Total Payable Now</span>
+                        <span className="text-lg font-bold">{t('lbl_total_payable_now')}</span>
                         <span className="text-2xl font-black">{formatCurrency(0)}</span>
                     </div>
                 </>
@@ -330,7 +330,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                             </svg>
-                            Return Mode
+                            {t('pos_return_mode')}
                         </div>
                     </div>
 
@@ -344,7 +344,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5" />
                                     </svg>
                                 </span>
-                                Returned Items
+                                {t('pos_returned_items')}
                             </span>
                             <span className="text-lg font-bold text-red-600 dark:text-red-400">−{formatCurrency(returnTotal)}</span>
                         </div>
@@ -358,7 +358,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
                                     </span>
-                                    Exchange Items
+                                    {t('pos_exchange_items')}
                                 </span>
                                 <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(newItemsTotal)}</span>
                             </div>
@@ -366,7 +366,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 
                         {/* Net Amount Row */}
                         <div className="flex items-center justify-between border-t-2 border-slate-300 pt-2 dark:border-slate-600">
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Net Amount</span>
+                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('lbl_net_amount')}</span>
                             <span
                                 className={`text-lg font-bold ${
                                     returnNetAmount < 0 ? 'text-emerald-600 dark:text-emerald-400' : returnNetAmount > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'
@@ -393,8 +393,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                         </svg>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-white">Refund Customer</p>
-                                        <p className="text-xs text-white/70">Cash/Card refund</p>
+                                        <p className="font-bold text-white">{t('pos_refund_customer')}</p>
+                                        <p className="text-xs text-white/70">{t('pos_cash_card_refund')}</p>
                                     </div>
                                 </div>
                                 <p className="text-2xl font-black text-white">{formatCurrency(Math.abs(returnNetAmount))}</p>
@@ -411,8 +411,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                         </svg>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-white">Collect Payment</p>
-                                        <p className="text-xs text-white/70">Additional amount</p>
+                                        <p className="font-bold text-white">{t('pos_collect_payment')}</p>
+                                        <p className="text-xs text-white/70">{t('pos_additional_amount')}</p>
                                     </div>
                                 </div>
                                 <p className="text-2xl font-black text-white">{formatCurrency(returnNetAmount)}</p>
@@ -429,8 +429,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                         </svg>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-white">Even Exchange</p>
-                                        <p className="text-xs text-white/70">No payment needed</p>
+                                        <p className="font-bold text-white">{t('pos_even_exchange')}</p>
+                                        <p className="text-xs text-white/70">{t('pos_no_payment_needed')}</p>
                                     </div>
                                 </div>
                                 <p className="text-2xl font-black text-white">{formatCurrency(0)}</p>

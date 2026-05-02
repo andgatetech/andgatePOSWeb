@@ -32,14 +32,14 @@ const LanguageDropdown = ({ className = '', variant = 'light' }: LanguageDropdow
                     placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
                     btnClassName={
                         variant === 'dark'
-                            ? 'flex items-center gap-2 rounded-md bg-white/[0.08] px-3 py-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white'
+                            ? 'flex items-center gap-0 sm:gap-2 rounded-md bg-white/[0.08] p-2 sm:px-3 sm:py-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white'
                             : 'flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700 transition-all hover:border-blue-600 hover:text-blue-600'
                     }
                     button={
                         <>
                             <Image src={`/assets/images/flags/${flagFor(i18n.language)}.svg`} alt={i18n.language} width={20} height={20} className="rounded-full object-cover" />
-                            <span className="text-sm font-medium uppercase">{i18n.language}</span>
-                            <IconCaretDown />
+                            <span className="hidden text-sm font-medium uppercase sm:inline">{i18n.language}</span>
+                            <IconCaretDown className="hidden sm:block" />
                         </>
                     }
                 >

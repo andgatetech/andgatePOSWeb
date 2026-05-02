@@ -1719,19 +1719,19 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     {isReturnMode ? (
                         <>
                             <button type="button" className="btn btn-warning flex-1 text-sm sm:text-base" onClick={handleReturnSubmit} disabled={loading}>
-                                Submit Return <IconSave />
+                                {t('btn_submit_return')} <IconSave />
                             </button>
                             <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={() => router.push('/orders')}>
-                                Cancel
+                                {t('btn_cancel')}
                             </button>
                         </>
                     ) : (
                         <>
                             <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
-                                Confirm Order <IconSave />
+                                {t('btn_confirm_order')} <IconSave />
                             </button>
                             <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
-                                Preview <IconEye />
+                                {t('btn_preview')} <IconEye />
                             </button>
                         </>
                     )}

@@ -4,14 +4,13 @@ import CalculatorButton from '@/components/custom/CalculatorButton';
 import Dropdown from '@/components/dropdown';
 import LanguageDropdown from '@/components/language-dropdown';
 import IconLogout from '@/components/icon/icon-logout';
-import IconMenu from '@/components/icon/icon-menu';
 import IconUser from '@/components/icon/icon-user';
 
 import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { resetToggleSidebar, toggleSidebar } from '@/store/themeConfigSlice';
-import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
+import { Maximize, Menu, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslation } from '@/i18n';
@@ -137,7 +136,7 @@ const Header = () => {
                             className="collapse-icon ml-2 flex flex-none rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white lg:hidden"
                             onClick={() => dispatch(toggleSidebar())}
                         >
-                            <IconMenu className="h-5 w-5" />
+                            <Menu size={20} color="currentColor" />
                         </button>
                     </div>
 
