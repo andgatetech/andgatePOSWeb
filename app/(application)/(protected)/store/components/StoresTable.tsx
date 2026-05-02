@@ -100,7 +100,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                                     <div className="text-xs text-gray-500">{currencyData.currency_symbol}</div>
                                 </div>
                             ) : (
-                                <span className="text-sm text-gray-400">Not set</span>
+                                <span className="text-sm text-gray-400">{t('lbl_not_set')}</span>
                             )}
                         </div>
                     );
@@ -122,7 +122,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                                 {value.length > 2 && <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">+{value.length - 2}</span>}
                             </div>
                         ) : (
-                            <span className="text-sm text-gray-400">None</span>
+                            <span className="text-sm text-gray-400">{t('lbl_none')}</span>
                         )}
                     </div>
                 ),
@@ -143,7 +143,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                                 {value.length > 2 && <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">+{value.length - 2}</span>}
                             </div>
                         ) : (
-                            <span className="text-sm text-gray-400">None</span>
+                            <span className="text-sm text-gray-400">{t('lbl_none')}</span>
                         )}
                     </div>
                 ),
@@ -171,7 +171,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                                     <div className="text-xs text-gray-500">to {formatTime(row.closing_time)}</div>
                                 </div>
                             ) : (
-                                <span className="text-sm text-gray-400">Not set</span>
+                                <span className="text-sm text-gray-400">{t('lbl_not_set')}</span>
                             )}
                         </div>
                     );
@@ -185,7 +185,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                     const isActive = (value === true || value === 1 || value === '1') && !row.store_disabled;
                     return (
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {isActive ? 'Active' : 'Inactive'}
+                            {isActive ? t('lbl_active') : t('lbl_inactive')}
                         </span>
                     );
                 },
@@ -221,8 +221,8 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             sorting={sorting}
             emptyState={{
                 icon: <Building2 className="mx-auto h-16 w-16" />,
-                title: 'No Stores Found',
-                description: 'No stores match your current filters. Try adding a new store.',
+                title: t('store_empty_title'),
+                description: t('store_empty_desc'),
             }}
         />
     );

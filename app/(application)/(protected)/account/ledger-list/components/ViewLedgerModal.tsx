@@ -13,9 +13,9 @@ interface ViewLedgerModalProps {
 }
 
 const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClose, onEdit }) => {
+    const { t } = getTranslation();
     useEffect(() => {
-        const { t } = getTranslation();
-    const handleEscape = (e: KeyboardEvent) => {
+        const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
 
@@ -58,22 +58,22 @@ const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClo
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Journals</span>
+                        <span className="text-gray-500">{t('account_journals')}</span>
                         <span className="font-medium">{ledger.journals_count || 0}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Status</span>
+                        <span className="text-gray-500">{t('lbl_status')}</span>
                         <span className={`font-medium capitalize ${status === 'active' ? 'text-green-600' : ''}`}>{status}</span>
                     </div>
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">Created</span>
+                        <span className="text-gray-500">{t('lbl_created')}</span>
                         <DateColumn date={ledger.created_at} />
                     </div>
 
                     <div className="flex justify-between py-2">
-                        <span className="text-gray-500">Updated</span>
+                        <span className="text-gray-500">{t('lbl_updated')}</span>
                         <DateColumn date={ledger.updated_at} />
                     </div>
                 </div>
@@ -81,10 +81,10 @@ const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClo
                 {/* Modal Footer */}
                 <div className="flex gap-2 px-6 pb-6 pt-3">
                     <button onClick={onClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
-                        Close
+                        {t('btn_close')}
                     </button>
                     <button onClick={onEdit} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800">
-                        Edit
+                        {t('btn_edit')}
                     </button>
                 </div>
             </div>

@@ -153,17 +153,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     // Add new product (not in inventory)
     const handleAddNewProduct = () => {
         if (!newProductName.trim()) {
-            showMessage('Please enter product name', 'error');
+            showMessage(t('msg_please_enter_product_name'), 'error');
             return;
         }
 
         if (!newProductUnit) {
-            showMessage('Please select a unit', 'error');
+            showMessage(t('msg_please_select_unit'), 'error');
             return;
         }
 
         if (newProductQty <= 0) {
-            showMessage('Please enter valid quantity', 'error');
+            showMessage(t('msg_please_enter_valid_quantity'), 'error');
             return;
         }
 
@@ -183,7 +183,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
         // ✅ Fixed: Use the imported action with storeId
         if (!currentStoreId) {
-            showMessage('Please select a store', 'error');
+            showMessage(t('msg_please_select_store'), 'error');
             return;
         }
         dispatch(addItemRedux({ storeId: currentStoreId, item: newItem }));
@@ -192,7 +192,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         setNewProductQty(1);
         setNewProductUnit('');
         setShowAddNewProduct(false);
-        showMessage('New product added to draft');
+        showMessage(t('msg_new_product_added_to_draft'));
     };
 
     // Calculate total
@@ -206,17 +206,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const handleSaveDraft = async () => {
         // Validation
         if (!currentStoreId) {
-            showMessage('Please select a store', 'error');
+            showMessage(t('msg_please_select_store'), 'error');
             return;
         }
 
         if (purchaseType === 'supplier' && !supplierId) {
-            showMessage('Please select a supplier', 'error');
+            showMessage(t('msg_please_select_supplier'), 'error');
             return;
         }
 
         if (purchaseItems.length === 0) {
-            showMessage('Please add at least one item', 'error');
+            showMessage(t('msg_please_add_one_item'), 'error');
             return;
         }
 
@@ -274,15 +274,15 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
             Swal.fire({
                 icon: 'success',
-                title: isEditMode ? 'Draft Updated!' : 'Draft Saved!',
+                title: isEditMode ? t('msg_draft_updated') : t('msg_draft_saved'),
                 html: `
                     <p>${t('purchase_draft_ref')}: <strong>${response.data.draft_reference || response.data.draft_id}</strong></p>
                     <p>${t('order_items')}: <strong>${response.data.items?.length || purchaseItems.length}</strong></p>
                     <p>${t('lbl_estimated_total')}: <strong>${formatCurrency(grandTotal)}</strong></p>
                 `,
-                confirmButtonText: 'View Drafts',
+                confirmButtonText: t('btn_view_drafts'),
                 showCancelButton: !isEditMode,
-                cancelButtonText: 'Create Another',
+                cancelButtonText: t('btn_create_another'),
             }).then((result) => {
                 if (result.isConfirmed) {
                     router.push('/purchases/list');
@@ -300,7 +300,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 data: error?.data,
             });
 
-            const errorMessage = error?.data?.message || error?.message || 'Failed to save draft';
+            const errorMessage = error?.data?.message || error?.message || t('msg_failed_to_save_draft');
             const errorDetails = error?.data?.errors
                 ? Object.entries(error.data.errors)
                       .map(([field, msgs]: [string, any]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
@@ -309,7 +309,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
             Swal.fire({
                 icon: 'error',
-                title: 'Error Saving Draft',
+                title: t('msg_error_saving_draft'),
                 html: `<p>${errorMessage}</p>${errorDetails ? `<div class="text-left mt-2"><small>${errorDetails}</small></div>` : ''}`,
             });
         }
@@ -320,17 +320,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
         // Validation
         if (!currentStoreId) {
-            showMessage('Please select a store', 'error');
+            showMessage(t('msg_please_select_store'), 'error');
             return;
         }
 
         if (purchaseType === 'supplier' && !supplierId) {
-            showMessage('Please select a supplier', 'error');
+            showMessage(t('msg_please_select_supplier'), 'error');
             return;
         }
 
         if (purchaseItems.length === 0) {
-            showMessage('Please add at least one item', 'error');
+            showMessage(t('msg_please_add_one_item'), 'error');
             return;
         }
 
@@ -382,7 +382,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
             Swal.fire({
                 icon: 'success',
-                title: 'Purchase Order Created!',
+                title: t('msg_purchase_order_created'),
                 html: `
                     <p>${t('lbl_invoice')}: <strong>${response.data.invoice_number || 'N/A'}</strong></p>
                     <p>${t('lbl_reference')}: <strong>${response.data.order_reference || response.data.purchase_reference || response.data.id}</strong></p>
@@ -390,9 +390,9 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     <p>${t('lbl_grand_total')}: <strong>${formatCurrency(response.data.totals?.grand_total || grandTotal)}</strong></p>
                     <p>${t('lbl_status')}: <strong class="text-orange-600">${response.data.status?.toUpperCase() || 'ORDERED'}</strong></p>
                 `,
-                confirmButtonText: 'View Purchase Orders',
+                confirmButtonText: t('btn_view_purchase_orders'),
                 showCancelButton: true,
-                cancelButtonText: 'Create Another',
+                cancelButtonText: t('btn_create_another'),
             }).then((result) => {
                 if (result.isConfirmed) {
                     router.push('/purchases/list');
@@ -410,7 +410,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 data: error?.data,
             });
 
-            const errorMessage = error?.data?.message || error?.message || 'Failed to create purchase order';
+            const errorMessage = error?.data?.message || error?.message || t('msg_failed_to_create_purchase_order');
             const errorDetails = error?.data?.errors
                 ? Object.entries(error.data.errors)
                       .map(([field, msgs]: [string, any]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
@@ -419,14 +419,14 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
             Swal.fire({
                 icon: 'error',
-                title: 'Error Creating Purchase Order',
+                title: t('msg_error_creating_purchase_order'),
                 html: `<p>${errorMessage}</p>${errorDetails ? `<div class="text-left mt-2"><small>${errorDetails}</small></div>` : ''}`,
             });
         }
     };
 
     const clearAllItems = async () => {
-        const confirmed = await showConfirmDialog('Clear All Items?', 'This will remove all items from your purchase order.', 'Yes, Clear All', 'Cancel', true, 'All items cleared successfully!');
+        const confirmed = await showConfirmDialog(t('msg_clear_all_items'), t('msg_remove_all_purchase_items'), t('btn_yes_clear_all'), t('btn_cancel'), true, t('msg_all_items_cleared'));
 
         if (confirmed && currentStoreId) {
             dispatch(clearItemsRedux(currentStoreId));
@@ -436,11 +436,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     return (
         <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
             <div className="panel">
-                <h2 className="mb-5 text-xl font-bold">{isEditMode ? 'Edit Purchase Draft' : 'Purchase Order Draft'}</h2>
+                <h2 className="mb-5 text-xl font-bold">{isEditMode ? t('lbl_edit_purchase_draft') : t('lbl_purchase_order_draft')}</h2>
 
                 {/* Purchase Type Selection */}
                 <div className="mb-6">
-                    <label className="mb-2 block font-semibold">Purchase Type *</label>
+                    <label className="mb-2 block font-semibold">{t('lbl_purchase_type')} *</label>
                     <div className="flex gap-3">
                         <button
                             type="button"
@@ -455,7 +455,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 }
                             }}
                         >
-                            From Supplier
+                            {t('lbl_from_supplier')}
                         </button>
                         <button
                             type="button"
@@ -468,7 +468,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                 clearSupplierSelection();
                             }}
                         >
-                            Walk-in / Own Buy
+                            {t('lbl_walk_in_own_buy')}
                         </button>
                     </div>
                 </div>
@@ -476,13 +476,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 {/* Supplier Selection - Only show if purchase type is 'supplier' */}
                 {purchaseType === 'supplier' && (
                     <div className="mb-6">
-                        <label className="mb-2 block font-semibold">Supplier *</label>
+                        <label className="mb-2 block font-semibold">{t('lbl_supplier')} *</label>
                         {selectedSupplier ? (
                             <div className="flex items-center justify-between rounded-lg border bg-gray-50 p-3">
                                 <div>
                                     <p className="font-semibold">{selectedSupplier.name}</p>
-                                    {selectedSupplier.contact_person && <p className="text-sm text-gray-600">Contact: {selectedSupplier.contact_person}</p>}
-                                    {selectedSupplier.phone && <p className="text-sm text-gray-600">Phone: {selectedSupplier.phone}</p>}
+                                    {selectedSupplier.contact_person && <p className="text-sm text-gray-600">{t('lbl_contact')}: {selectedSupplier.contact_person}</p>}
+                                    {selectedSupplier.phone && <p className="text-sm text-gray-600">{t('lbl_phone')}: {selectedSupplier.phone}</p>}
                                 </div>
                                 <button onClick={clearSupplierSelection} className="rounded-full p-2 hover:bg-gray-200">
                                     <X className="h-5 w-5" />
@@ -525,7 +525,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     </div>
                                 )}
                                 {showSupplierResults && supplierSearch.trim() !== '' && suppliers.length === 0 && (
-                                    <div className="absolute z-10 mt-1 w-full rounded-lg border bg-white p-4 text-center text-sm text-gray-500 shadow-lg">No suppliers found</div>
+                                    <div className="absolute z-10 mt-1 w-full rounded-lg border bg-white p-4 text-center text-sm text-gray-500 shadow-lg">{t('msg_no_suppliers_found')}</div>
                                 )}
                             </div>
                         )}
@@ -535,9 +535,9 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 {/* Items Table */}
                 <div className="mb-6">
                     <div className="mb-3 flex items-center justify-between sm:mb-4">
-                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">Purchase Items</h3>
+                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">{t('lbl_purchase_items')}</h3>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs sm:text-sm">Items: {purchaseItems.length}</span>
+                            <span className="text-xs sm:text-sm">{t('lbl_items')}: {purchaseItems.length}</span>
                             {purchaseItems.length > 0 && (
                                 <button onClick={clearAllItems} className="btn btn-sm btn-outline-danger" title="Clear all items">
                                     <Trash2 className="h-3.5 w-3.5" />
@@ -545,7 +545,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                             )}
                             <button onClick={() => setShowAddNewProduct(!showAddNewProduct)} className="btn btn-sm btn-outline-primary">
                                 <Plus className="mr-1 h-4 w-4" />
-                                Add New Product
+                                {t('lbl_add_new_product')}
                             </button>
                         </div>
                     </div>
@@ -553,15 +553,15 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     {/* Add New Product Form */}
                     {showAddNewProduct && (
                         <div className="mb-4 rounded-lg border bg-blue-50 p-4">
-                            <h4 className="mb-3 font-semibold">Add Product Not in Inventory</h4>
+                            <h4 className="mb-3 font-semibold">{t('lbl_add_product_not_in_inventory')}</h4>
                             <div className="grid grid-cols-1 gap-3">
                                 <div className="grid grid-cols-4 gap-3">
                                     <div className="col-span-2">
-                                        <label className="mb-1 block text-sm font-medium">Product Name *</label>
+                                        <label className="mb-1 block text-sm font-medium">{t('lbl_product_name')} *</label>
                                         <input type="text" placeholder={t('placeholder_product_name')} className="form-input" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium">Unit *</label>
+                                        <label className="mb-1 block text-sm font-medium">{t('lbl_unit')} *</label>
                                         <select className="form-select" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
                                             <option value="">{t('placeholder_select_unit')}</option>
                                             {units.map((unit: any) => (
@@ -572,7 +572,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium">Ordered Quantity *</label>
+                                        <label className="mb-1 block text-sm font-medium">{t('lbl_ordered_quantity')} *</label>
                                         <input
                                             type="number"
                                             min="1"
@@ -584,7 +584,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium">Description</label>
+                                    <label className="mb-1 block text-sm font-medium">{t('lbl_description')}</label>
                                     <textarea
                                         placeholder={t('placeholder_product_desc')}
                                         className="form-textarea"
@@ -597,7 +597,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                             <div className="mt-3 flex gap-2">
                                 <button onClick={handleAddNewProduct} className="btn btn-sm btn-primary">
                                     <Plus className="mr-1 h-4 w-4" />
-                                    Add to Order
+                                    {t('btn_add_to_order')}
                                 </button>
                                 <button
                                     onClick={() => {
@@ -609,7 +609,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     }}
                                     className="btn btn-sm btn-outline-secondary"
                                 >
-                                    Cancel
+                                    {t('btn_cancel')}
                                 </button>
                             </div>
                         </div>
@@ -621,14 +621,14 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                                        <th className="w-16 border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">S.No</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">Product</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Type</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Unit</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Ordered Qty</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Est. Price</th>
-                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">Est. Total</th>
-                                        <th className="border-b border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">Action</th>
+                                        <th className="w-16 border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">{t('lbl_sno')}</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-left text-xs font-semibold text-gray-700">{t('lbl_product')}</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">{t('lbl_type')}</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">{t('lbl_unit')}</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">{t('lbl_ordered_qty')}</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">{t('lbl_est_price')}</th>
+                                        <th className="border-b border-r border-gray-300 p-3 text-right text-xs font-semibold text-gray-700">{t('lbl_est_total')}</th>
+                                        <th className="border-b border-gray-300 p-3 text-center text-xs font-semibold text-gray-700">{t('lbl_action')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
@@ -639,8 +639,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                     <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                                                         <ShoppingCart className="h-8 w-8 text-gray-600" />
                                                     </div>
-                                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">No Items Added</h3>
-                                                    <p className="text-sm text-gray-600">Select products from the left or add new items</p>
+                                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">{t('msg_no_items_added')}</h3>
+                                                    <p className="text-sm text-gray-600">{t('msg_select_products_or_add_new')}</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -670,13 +670,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                     </td>
                                                     <td className="border-r border-gray-300 p-3 text-center">
                                                         {item.itemType === 'existing' ? (
-                                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Existing</span>
+                                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">{t('lbl_existing')}</span>
                                                         ) : (
-                                                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">New</span>
+                                                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">{t('lbl_new')}</span>
                                                         )}
                                                     </td>
                                                     <td className="border-r border-gray-300 p-3 text-center text-sm">
-                                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || t('lbl_piece')}</span>
                                                     </td>
                                                     <td className="border-r border-gray-300 p-3 text-center">
                                                         <input
@@ -734,8 +734,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                 <div className="flex-1">
                                                     <p className="font-semibold text-gray-900">{item.title}</p>
                                                     <div className="mt-1 flex items-center gap-2">
-                                                        <span className="text-xs text-gray-400">Unit: {item.unit}</span>
-                                                        {item.itemType === 'existing' ? <span className="badge bg-success text-xs">Existing</span> : <span className="badge bg-info text-xs">New</span>}
+                                                        <span className="text-xs text-gray-400">{t('lbl_unit')}: {item.unit}</span>
+                                                        {item.itemType === 'existing' ? <span className="badge bg-success text-xs">{t('lbl_existing')}</span> : <span className="badge bg-info text-xs">{t('lbl_new')}</span>}
                                                     </div>
                                                 </div>
                                             </div>
@@ -745,7 +745,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="mb-1 block text-xs font-medium text-gray-600">Quantity</label>
+                                                <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_quantity')}</label>
                                                 <input
                                                     type="number"
                                                     className="form-input w-full"
@@ -755,7 +755,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-xs font-medium text-gray-600">Purchase Price</label>
+                                                <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_purchase_price')}</label>
                                                 <input
                                                     type="number"
                                                     className="form-input w-full"
@@ -767,7 +767,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                             </div>
                                         </div>
                                         <div className="mt-3 flex items-center justify-between border-t pt-3">
-                                            <span className="text-sm font-medium text-gray-600">Amount</span>
+                                            <span className="text-sm font-medium text-gray-600">{t('lbl_amount')}</span>
                                             <span className="text-lg font-bold text-primary">{formatCurrency(item.quantity * item.purchasePrice)}</span>
                                         </div>
                                     </div>
@@ -779,7 +779,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
                 {/* Notes */}
                 <div className="mb-6">
-                    <label className="mb-2 block font-semibold">Notes</label>
+                    <label className="mb-2 block font-semibold">{t('lbl_notes')}</label>
                     <textarea
                         className="form-textarea"
                         rows={3}
@@ -795,7 +795,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         <span>{t('lbl_est_grand_total')}:</span>
                         <span className="text-primary">{formatCurrency(grandTotal)}</span>
                     </div>
-                    <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>
+                    <p className="mt-2 text-xs text-gray-500">* {t('msg_prices_adjusted_during_receiving')}</p>
                 </div>
 
                 {/* Action Buttons */}
@@ -807,7 +807,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         title={purchaseItems.length === 0 ? 'Add items first' : purchaseType === 'supplier' && !supplierId ? 'Select supplier first' : 'Save draft'}
                     >
                         <Save className="mr-2 h-5 w-5" />
-                        {isSavingDraft || isUpdatingDraft ? 'Saving...' : isEditMode ? 'Update Draft' : 'Save as Draft'}
+                        {isSavingDraft || isUpdatingDraft ? t('lbl_saving') : isEditMode ? t('btn_update_draft') : t('btn_save_as_draft')}
                     </button>
                     <button
                         onClick={() => setShowPreview(true)}
@@ -816,7 +816,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         title={purchaseItems.length === 0 ? 'Add items first' : 'Preview purchase order'}
                     >
                         <FileText className="mr-2 h-5 w-5" />
-                        Preview
+                        {t('btn_preview')}
                     </button>
                     <button
                         onClick={handleCreatePurchaseOrder}
@@ -825,7 +825,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         title={purchaseItems.length === 0 ? 'Add items first' : purchaseType === 'supplier' && !supplierId ? 'Select supplier first' : 'Create purchase order'}
                     >
                         <ShoppingCart className="mr-2 h-5 w-5" />
-                        {isCreatingPurchase ? 'Creating...' : 'Create Purchase Order'}
+                        {isCreatingPurchase ? t('lbl_creating') : t('btn_create_purchase_order')}
                     </button>
                 </div>
             </div>

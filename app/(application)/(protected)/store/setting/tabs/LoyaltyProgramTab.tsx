@@ -19,7 +19,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
-                <h3 className="mb-6 text-lg font-semibold text-gray-900">Loyalty Program Settings</h3>
+                <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_loyalty_title')}</h3>
 
                 <div className="space-y-6">
                     {/* Enable/Disable Toggle */}
@@ -31,9 +31,9 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                 </div>
                                 <div>
                                     <label htmlFor="loyalty_points_enabled" className="text-base font-semibold text-gray-900">
-                                        Enable Loyalty Points
+                                        {t('lbl_enable_loyalty_points')}
                                     </label>
-                                    <p className="mt-1 text-sm text-gray-600">Reward customers with points for their purchases</p>
+                                    <p className="mt-1 text-sm text-gray-600">{t('msg_loyalty_points_desc')}</p>
                                 </div>
                             </div>
                             <input
@@ -52,7 +52,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                         <div className="space-y-2">
                             <label className="flex items-center text-sm font-medium text-gray-700">
                                 <Star className="mr-2 h-4 w-4 text-yellow-600" />
-                                Points Rate (Points per {symbol}1)
+                                {t('lbl_points_per')} {symbol}1
                             </label>
                             <input
                                 type="number"
@@ -60,11 +60,11 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                 value={formData.loyalty_points_rate}
                                 onChange={handleInputChange}
                                 className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 md:w-1/2"
-                                placeholder="Enter points rate"
+                                placeholder={t('placeholder_loyalty_rate')}
                                 min="0"
                                 step="0.01"
                             />
-                            <p className="text-xs text-gray-500">Example: If rate is 1, customer gets 1 point for every {symbol}1 spent</p>
+                            <p className="text-xs text-gray-500">{t('lbl_loyalty_points_rate')} {symbol}1 {t('lbl_spent')}</p>
                         </div>
                     )}
 
@@ -72,7 +72,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                     {formData.loyalty_points_enabled && formData.loyalty_points_rate && (
                         <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
                             <p className="text-sm text-yellow-800">
-                                <strong>Current Rate:</strong> Customers will earn <strong>{formData.loyalty_points_rate}</strong> points for every {symbol}1 they spend.
+                                <strong>{t('lbl_current_rate')}:</strong> {t('lbl_for_every')} <strong>{formData.loyalty_points_rate}</strong> {t('lbl_points')} {symbol}1 {t('lbl_spent')}.
                             </p>
                         </div>
                     )}

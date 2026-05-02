@@ -49,7 +49,7 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                 label: t('lbl_supplier'),
                 render: (value) => (
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{value?.name || 'Walk-in Purchase'}</span>
+                        <span className="font-medium text-gray-900">{value?.name || t('lbl_walk_in_purchase')}</span>
                         {value?.phone && <span className="text-xs text-gray-500">{value.phone}</span>}
                     </div>
                 ),
@@ -67,7 +67,7 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                     return (
                         <div className="flex flex-col gap-1">
                             <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                                {itemCount} {t('lbl_items')}
                             </span>
                         </div>
                     );
@@ -89,13 +89,13 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                 key: 'payment_status',
                 label: t('order_payment_status'),
                 sortable: true,
-                render: () => <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Paid</span>,
+                render: () => <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">{t('lbl_paid')}</span>,
             },
             {
                 key: 'status',
                 label: t('lbl_status'),
                 sortable: true,
-                render: () => <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Received</span>,
+                render: () => <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">{t('lbl_received')}</span>,
             },
             {
                 key: 'created_at',

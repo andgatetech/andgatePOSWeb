@@ -69,7 +69,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
             <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Purchase Order Preview</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{t('lbl_purchase_order_preview')}</h2>
                     <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700">
                         <X className="h-6 w-6" />
                     </button>
@@ -80,7 +80,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                     <div className="panel" ref={previewRef}>
                         {/* Header */}
                         <div className="flex items-center justify-between px-4">
-                            <h2 className="text-2xl font-semibold uppercase text-primary">Purchase Order</h2>
+                            <h2 className="text-2xl font-semibold uppercase text-primary">{t('lbl_purchase_order')}</h2>
                             {currentStore?.logo_path ? (
                                 <Image
                                     src={currentStore.logo_path.startsWith('/') ? currentStore.logo_path : `/assets/images/${currentStore.logo_path}`}
@@ -108,15 +108,15 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                         {/* Supplier & PO Details */}
                         <div className="flex flex-col justify-between gap-6 px-4 lg:flex-row">
                             <div className="flex-1 space-y-1">
-                                <div className="font-semibold text-gray-700">Purchase From:</div>
+                                <div className="font-semibold text-gray-700">{t('lbl_purchase_from')}:</div>
                                 {purchaseType === 'supplier' && supplierId ? (
                                     <>
-                                        <div className="font-semibold text-black">{supplierName || 'Supplier'}</div>
-                                        <div>{supplierEmail || 'No Email'}</div>
-                                        <div>{supplierPhone || 'No Phone'}</div>
+                                        <div className="font-semibold text-black">{supplierName || t('lbl_supplier')}</div>
+                                        <div>{supplierEmail || t('lbl_no_email')}</div>
+                                        <div>{supplierPhone || t('lbl_no_phone')}</div>
                                     </>
                                 ) : (
-                                    <div className="font-semibold text-black">Walk-in / Own Purchase</div>
+                                    <div className="font-semibold text-black">{t('lbl_walk_in_own_buy')}</div>
                                 )}
                             </div>
 
@@ -138,15 +138,15 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
 
                                 <div className="sm:w-1/2 lg:w-2/5">
                                     <div className="mb-2 flex justify-between">
-                                        <span className="text-gray-600">Type:</span>
-                                        <span className="font-medium capitalize">{purchaseType === 'supplier' ? 'From Supplier' : 'Walk-in Purchase'}</span>
+                                        <span className="text-gray-600">{t('lbl_type')}:</span>
+                                        <span className="font-medium capitalize">{purchaseType === 'supplier' ? t('lbl_from_supplier') : t('lbl_walk_in_purchase')}</span>
                                     </div>
                                     <div className="mb-2 flex justify-between">
-                                        <span className="text-gray-600">Status:</span>
-                                        <span className="font-semibold uppercase text-yellow-600">DRAFT</span>
+                                        <span className="text-gray-600">{t('lbl_status')}:</span>
+                                        <span className="font-semibold uppercase text-yellow-600">{t('lbl_draft')}</span>
                                     </div>
                                     <div className="mb-2 flex justify-between">
-                                        <span className="text-gray-600">Total Items:</span>
+                                        <span className="text-gray-600">{t('lbl_total_items')}:</span>
                                         <span className="font-medium">{purchaseItems.length}</span>
                                     </div>
                                 </div>
@@ -158,13 +158,13 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                             <table className="w-full table-auto border-collapse">
                                 <thead>
                                     <tr className="border-b-2 border-gray-300 bg-gray-50">
-                                        <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wide text-gray-700">S.NO</th>
-                                        <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wide text-gray-700">ITEMS</th>
-                                        <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">TYPE</th>
-                                        <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">UNIT</th>
-                                        <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">QTY ORDERED</th>
-                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">EST. PRICE</th>
-                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">EST. TOTAL</th>
+                                        <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_sno')}</th>
+                                        <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_items')}</th>
+                                        <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_type')}</th>
+                                        <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_unit')}</th>
+                                        <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_qty_ordered')}</th>
+                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_est_price')}</th>
+                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_est_total')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
@@ -173,7 +173,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                             <td colSpan={7} className="border-b border-gray-300 p-8 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center py-4">
                                                     <div className="mb-2 text-3xl">📦</div>
-                                                    <div className="font-medium">No items added yet</div>
+                                                    <div className="font-medium">{t('msg_no_items_added_yet')}</div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -188,7 +188,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                                         {item.variantName && (
                                                             <div className="flex items-center gap-1">
                                                                 <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800">
-                                                                    Variant: {item.variantName}
+                                                                    {t('lbl_variant')}: {item.variantName}
                                                                 </span>
                                                             </div>
                                                         )}
@@ -196,13 +196,13 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                                 </td>
                                                 <td className="border-gray-300 p-3 text-center">
                                                     {item.itemType === 'existing' ? (
-                                                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Existing</span>
+                                                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">{t('lbl_existing')}</span>
                                                     ) : (
-                                                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">New</span>
+                                                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">{t('lbl_new')}</span>
                                                     )}
                                                 </td>
                                                 <td className="border-gray-300 p-3 text-center">
-                                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || 'piece'}</span>
+                                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs">{item.unit || t('lbl_piece')}</span>
                                                 </td>
                                                 <td className="border-gray-300 p-3 text-center text-sm font-medium">{item.quantity}</td>
                                                 <td className="border-gray-300 p-3 text-right text-sm">{formatCurrency(item.purchasePrice)}</td>
@@ -218,7 +218,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                         {notes && (
                             <div className="mt-6 px-4">
                                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                                    <h4 className="mb-2 font-semibold text-gray-700">Notes:</h4>
+                                    <h4 className="mb-2 font-semibold text-gray-700">{t('lbl_notes')}:</h4>
                                     <p className="text-sm text-gray-600">{notes}</p>
                                 </div>
                             </div>
@@ -235,15 +235,15 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                     <span>{t('lbl_est_grand_total')}</span>
                                     <span className="text-primary">{formatCurrency(grandTotal)}</span>
                                 </div>
-                                <p className="mt-2 text-xs text-gray-500">* Prices can be adjusted during receiving</p>
+                                <p className="mt-2 text-xs text-gray-500">* {t('msg_prices_adjusted_during_receiving')}</p>
                             </div>
                         </div>
 
                         {/* Footer */}
                         <div className="mt-6 border-t border-gray-200 px-4 pt-4 text-center">
-                            <div className="text-sm text-gray-600">This is a draft purchase order preview</div>
+                            <div className="text-sm text-gray-600">{t('msg_draft_purchase_order_preview')}</div>
                             <div className="mt-1 text-xs text-gray-500">
-                                Generated on {currentDate} at {currentTime}
+                                {t('lbl_generated_on')} {currentDate} {t('lbl_at')} {currentTime}
                             </div>
                         </div>
                     </div>
@@ -253,7 +253,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                 <div className="sticky bottom-0 border-t border-gray-200 bg-gray-50 px-6 py-4">
                     <div className="flex justify-end gap-3">
                         <button onClick={onClose} className="btn btn-outline px-6 py-2.5">
-                            Close Preview
+                            {t('btn_close_preview')}
                         </button>
                     </div>
                 </div>

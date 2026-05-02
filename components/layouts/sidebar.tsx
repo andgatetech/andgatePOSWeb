@@ -81,8 +81,8 @@ const Sidebar = () => {
         setStoreWarning(null);
         setIsSwitchingStore(true);
         setIsStoreDropdownOpen(false);
-        if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" is currently inactive.`);
-        else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" has been disabled.`);
+        if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_currently_inactive')}`);
+        else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_has_been_disabled')}`);
         dispatch(setCurrentStore(store));
         if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
         if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');
@@ -136,11 +136,11 @@ const Sidebar = () => {
 
                         <div className="min-w-0 flex-1 text-left">
                             <p className="truncate text-[13px] font-semibold leading-tight text-white/90">
-                                {isSwitchingStore ? 'Switching...' : currentStore?.store_name || 'Select Store'}
+                                {isSwitchingStore ? t('lbl_switching') : currentStore?.store_name || t('lbl_select_store')}
                             </p>
                             <p className="text-[10px] leading-tight text-white/55">
-                                {currentStore && isStoreInactive(currentStore) ? 'Inactive store' :
-                                 currentStore && isStoreDisabled(currentStore) ? 'Store disabled' : 'Current store'}
+                                {currentStore && isStoreInactive(currentStore) ? t('lbl_inactive_store') :
+                                 currentStore && isStoreDisabled(currentStore) ? t('lbl_store_disabled') : t('lbl_current_store')}
                             </p>
                         </div>
 
@@ -163,7 +163,7 @@ const Sidebar = () => {
                     {/* Store list dropdown */}
                     <AnimateHeight duration={200} height={isStoreDropdownOpen ? 'auto' : 0}>
                         <div className="mt-2 overflow-hidden rounded-xl border border-white/[0.09] bg-[#111e3a]">
-                            <p className="px-3 py-2 text-[9px] font-semibold uppercase tracking-widest text-white/45">Switch Store</p>
+                            <p className="px-3 py-2 text-[9px] font-semibold uppercase tracking-widest text-white/45">{t('lbl_switch_store')}</p>
                             <div className="pb-1.5">
                                 {userStores.map((store) => (
                                     <button
@@ -186,12 +186,12 @@ const Sidebar = () => {
                                         )}
                                         {isStoreInactive(store) && (
                                             <span className="flex items-center gap-1 rounded bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-orange-400">
-                                                <AlertTriangle className="h-2.5 w-2.5" /> Inactive
+                                                <AlertTriangle className="h-2.5 w-2.5" /> {t('lbl_inactive')}
                                             </span>
                                         )}
                                         {isStoreDisabled(store) && (
                                             <span className="flex items-center gap-1 rounded bg-red-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-red-400">
-                                                <Ban className="h-2.5 w-2.5" /> Disabled
+                                                <Ban className="h-2.5 w-2.5" /> {t('lbl_disabled')}
                                             </span>
                                         )}
                                     </button>
@@ -356,7 +356,7 @@ const Sidebar = () => {
                                 <p className={`mt-0.5 text-[10px] ${
                                     isExpired ? 'text-red-400' : isExpiring ? 'text-orange-400' : 'text-white/50'
                                 }`}>
-                                    {isExpired ? 'Subscription expired' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining`}
+                                    {isExpired ? t('msg_subscription_expired') : `${daysLeft} ${t('lbl_days')} ${t('lbl_remaining')}`}
                                 </p>
                             </div>
                             <Link
@@ -367,7 +367,7 @@ const Sidebar = () => {
                                     'bg-white/[0.08] text-white/65 hover:bg-white/[0.14] hover:text-white/90'
                                 }`}
                             >
-                                Upgrade
+                                {t('btn_upgrade')}
                             </Link>
                         </div>
                     </div>

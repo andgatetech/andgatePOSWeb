@@ -75,7 +75,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
 
     const saveEditingReason = (id: number) => {
         if (!editingReasonName.trim()) {
-            setMessage({ type: 'error', text: 'Adjustment reason name cannot be empty' });
+            setMessage({ type: 'error', text: t('msg_adjustment_reason_name_empty') });
             return;
         }
         handleUpdateAdjustmentReason(id, editingReasonName.trim(), editingReasonDescription.trim());
@@ -87,7 +87,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
     return (
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Product Adjustment Reasons</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('store_adjustment_reasons_title')}</h3>
 
                 {/* Add New Adjustment Reason */}
                 <div className="mb-4 space-y-2">
@@ -96,7 +96,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                         value={adjustmentReasonName}
                         onChange={(e) => setAdjustmentReasonName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateAdjustmentReason()}
-                        placeholder="Enter adjustment reason name (e.g., Damaged Goods, Expired)"
+                        placeholder={t('placeholder_adjustment_reason')}
                         className="w-full rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
                     <div className="flex gap-2">
@@ -105,7 +105,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                             value={adjustmentReasonDescription}
                             onChange={(e) => setAdjustmentReasonDescription(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleCreateAdjustmentReason()}
-                            placeholder="Enter description (optional)"
+                            placeholder={t('placeholder_description_optional')}
                             className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                         />
                         <button
@@ -114,7 +114,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                             className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90"
                         >
                             <Plus className="mr-1 h-4 w-4" />
-                            Add
+                            {t('btn_add')}
                         </button>
                     </div>
                 </div>
@@ -124,11 +124,11 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Reason Name</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Description</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_reason_name')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_description')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -150,11 +150,11 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                                     onChange={(e) => setEditingReasonName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && reason.id && saveEditingReason(reason.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    placeholder="Enter reason name"
+                                                    placeholder={t('placeholder_adjustment_reason')}
                                                     autoFocus
                                                 />
                                             ) : (
-                                                <span className="text-sm font-medium text-gray-900">{reason.name || 'Unnamed Reason'}</span>
+                                                <span className="text-sm font-medium text-gray-900">{reason.name || t('lbl_unnamed_reason')}</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3">
@@ -165,7 +165,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                                     onChange={(e) => setEditingReasonDescription(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && reason.id && saveEditingReason(reason.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    placeholder="Enter description"
+                                                    placeholder={t('placeholder_description_optional')}
                                                 />
                                             ) : (
                                                 <span className="text-sm text-gray-600">{reason.description || '-'}</span>
@@ -190,11 +190,11 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                                         type="button"
                                                         onClick={() => reason.id && saveEditingReason(reason.id)}
                                                         className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                        title="Save"
+                                                        title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
                                                     </button>
-                                                    <button type="button" onClick={cancelEditingReason} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                    <button type="button" onClick={cancelEditingReason} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                         <X className="h-4 w-4" />
                                                     </button>
                                                 </div>
@@ -216,7 +216,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                                                     }}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    Edit Reason
+                                                                    {t('btn_edit_reason')}
                                                                 </button>
                                                             </li>
                                                             <li className="border-t">
@@ -228,7 +228,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                                                     }}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                 >
-                                                                    Delete Reason
+                                                                    {t('btn_delete_reason')}
                                                                 </button>
                                                             </li>
                                                         </ul>
@@ -241,7 +241,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                             ) : (
                                 <tr>
                                     <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No adjustment reasons added yet. Click &quot;Add&quot; to create your first reason.
+                                        {t('msg_no_adjustment_reasons_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -253,8 +253,8 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> reasons
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span> {t('store_adjustment_reasons_title')}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -263,7 +263,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -283,7 +283,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -293,7 +293,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                 {/* Total Count */}
                 {adjustmentReasonsData && adjustmentReasonsData.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{adjustmentReasonsData.length}</span> adjustment reason(s)
+                        {t('lbl_total')}: <span className="font-semibold">{adjustmentReasonsData.length}</span>
                     </div>
                 )}
             </div>

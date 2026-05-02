@@ -140,8 +140,8 @@ const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, paginat
             sorting={sorting}
             emptyState={{
                 icon: <BookOpen className="mx-auto h-16 w-16" />,
-                title: 'No Ledgers Found',
-                description: 'No ledgers match your current filters. Try adjusting your search criteria or add a new ledger.',
+                title: t('msg_no_ledgers_found'),
+                description: t('msg_no_ledgers_desc'),
             }}
         />
     );

@@ -174,7 +174,7 @@ const PurchaseOrderListPage = () => {
 
     // ─── Shared handlers ───
     const handleViewItems = (item: any) => {
-        const title = item.draft_reference ? `Draft: ${item.draft_reference}` : `Purchase Order: ${item.invoice_number}`;
+        const title = item.draft_reference ? `${t('lbl_purchase_draft')}: ${item.draft_reference}` : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
         setSelectedItems(item.items || []);
         setModalTitle(title);
         setViewModalOpen(true);
@@ -185,7 +185,7 @@ const PurchaseOrderListPage = () => {
         if (!printWindow) return;
 
         const isDraft = !!item.draft_reference;
-        const title = isDraft ? `Draft: ${item.draft_reference}` : `Purchase Order: ${item.invoice_number}`;
+        const title = isDraft ? `${t('lbl_purchase_draft')}: ${item.draft_reference}` : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
         const items = item.items || [];
 
         const total = items.reduce((sum: number, itm: any) => {
@@ -310,34 +310,34 @@ const PurchaseOrderListPage = () => {
             </head>
             <body>
                 <div class="header">
-                    <h1>${isDraft ? '📋 Purchase Draft' : '📦 Purchase Order'}</h1>
+                    <h1>${isDraft ? '📋 ' + t('lbl_purchase_draft') : '📦 ' + t('lbl_purchase_order')}</h1>
                     <p>${item.store_name || 'Store'}</p>
                 </div>
 
                 <div class="info-section">
                     <div class="info-box">
-                        <h3>${isDraft ? 'Draft Reference' : 'Invoice Number'}</h3>
+                        <h3>${isDraft ? t('lbl_draft_reference') : t('lbl_invoice_number')}</h3>
                         <p>${isDraft ? item.draft_reference : item.invoice_number}</p>
                     </div>
                     ${
                         item.supplier
                             ? `
                         <div class="info-box">
-                            <h3>Supplier</h3>
+                            <h3>${t('lbl_supplier')}</h3>
                             <p>${item.supplier.name || item.supplier}</p>
                         </div>
                     `
                             : ''
                     }
                     <div class="info-box">
-                        <h3>${isDraft ? 'Estimated Total' : 'Grand Total'}</h3>
+                        <h3>${isDraft ? t('lbl_estimated_total') : t('lbl_grand_total')}</h3>
                         <p style="color: #2563eb; font-size: 20px;">${formatCurrency(isDraft ? item.estimated_total : item.grand_total)}</p>
                     </div>
                     ${
                         !isDraft
                             ? `
                         <div class="info-box">
-                            <h3>Payment Status</h3>
+                            <h3>${t('lbl_payment_status')}</h3>
                             <p style="text-transform: uppercase; font-weight: 600; color: ${item.payment_status === 'paid' ? '#059669' : item.payment_status === 'partial' ? '#d97706' : '#dc2626'};">
                                 ${item.payment_status || 'N/A'}
                             </p>
@@ -351,11 +351,11 @@ const PurchaseOrderListPage = () => {
                     <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
-                            <th>Product Name</th>
-                            <th class="text-center" style="width: 100px;">Quantity</th>
-                            <th class="text-right" style="width: 120px;">Unit Price</th>
-                            <th class="text-center" style="width: 80px;">Unit</th>
-                            <th class="text-right" style="width: 120px;">Subtotal</th>
+                            <th>${t('lbl_product_name')}</th>
+                            <th class="text-center" style="width: 100px;">${t('lbl_quantity')}</th>
+                            <th class="text-right" style="width: 120px;">${t('lbl_unit_price')}</th>
+                            <th class="text-center" style="width: 80px;">${t('lbl_unit')}</th>
+                            <th class="text-right" style="width: 120px;">${t('lbl_subtotal')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -374,12 +374,12 @@ const PurchaseOrderListPage = () => {
                                     <td class="text-center">${idx + 1}</td>
                                     <td>
                                         ${productName}
-                                        ${isVariant && variantName ? '<br><span style="font-size: 11px; color: #2563eb; font-weight: 600;">Variant: ' + variantName + '</span>' : ''}
-                                        ${isNew ? '<span class="badge badge-new">New</span>' : ''}
+                                        ${isVariant && variantName ? '<br><span style="font-size: 11px; color: #2563eb; font-weight: 600;">' + t('lbl_variant') + ': ' + variantName + '</span>' : ''}
+                                        ${isNew ? '<span class="badge badge-new">' + t('lbl_new') + '</span>' : ''}
                                     </td>
                                     <td class="text-center"><strong>${quantity}</strong></td>
                                     <td class="text-right">${formatCurrency(unitPrice)}</td>
-                                    <td class="text-center">${itm.unit || 'piece'}</td>
+                                    <td class="text-center">${itm.unit || t('lbl_piece')}</td>
                                     <td class="text-right"><strong>${formatCurrency(subtotal)}</strong></td>
                                 </tr>
                             `;
@@ -388,7 +388,7 @@ const PurchaseOrderListPage = () => {
                     </tbody>
                     <tfoot>
                         <tr class="total-row">
-                            <td colspan="5" class="text-right">TOTAL:</td>
+                            <td colspan="5" class="text-right">${t('lbl_total').toUpperCase()}:</td>
                             <td class="text-right" style="color: #2563eb;">${formatCurrency(total)}</td>
                         </tr>
                     </tfoot>
@@ -399,11 +399,11 @@ const PurchaseOrderListPage = () => {
                         ? `
                     <div class="info-section">
                         <div class="info-box">
-                            <h3>Amount Paid</h3>
+                            <h3>${t('lbl_amount_paid')}</h3>
                             <p style="color: #059669;">${formatCurrency(item.amount_paid)}</p>
                         </div>
                         <div class="info-box">
-                            <h3>Amount Due</h3>
+                            <h3>${t('lbl_amount_due')}</h3>
                             <p style="color: #dc2626;">${formatCurrency(item.amount_due)}</p>
                         </div>
                     </div>
@@ -413,7 +413,7 @@ const PurchaseOrderListPage = () => {
 
                 <div class="footer">
                     <p>Generated on ${new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                    <p style="margin-top: 5px;">Thank you for your business!</p>
+                    <p style="margin-top: 5px;">${t('lbl_thank_you_business')}</p>
                 </div>
 
                 <script>
@@ -443,10 +443,10 @@ const PurchaseOrderListPage = () => {
     // ─── Draft handlers ───
     const handleConvertToPurchaseOrder = async (draft: any) => {
         const isConfirmed = await showConfirmDialog(
-            'Convert to Purchase Order?',
-            `<p>Convert draft <strong>${draft.draft_reference}</strong> to an official purchase order?</p>`,
-            'Yes, Convert',
-            'Cancel'
+            t('msg_convert_to_po'),
+            `<p>${t('msg_convert_draft_confirm')} <strong>${draft.draft_reference}</strong>?</p>`,
+            t('btn_yes_convert'),
+            t('btn_cancel')
         );
 
         if (!isConfirmed) return;
@@ -471,9 +471,9 @@ const PurchaseOrderListPage = () => {
             const invoiceNumber = purchaseOrder.invoice_number;
 
             showSuccessDialog(
-                'Purchase Order Created!',
-                `<p>Invoice: <strong>${invoiceNumber}</strong></p><p>Total: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>`,
-                'View Purchase Orders'
+                t('msg_po_created'),
+                `<p>${t('lbl_invoice')}: <strong>${invoiceNumber}</strong></p><p>${t('lbl_total')}: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>`,
+                t('btn_view_purchase_orders')
             ).then(() => {
                 setActiveTab('new');
             });
@@ -485,7 +485,7 @@ const PurchaseOrderListPage = () => {
     };
 
     const handleDeleteDraft = async (draft: any) => {
-        const isConfirmed = await showConfirmDialog('Delete Draft?', `Are you sure you want to delete draft ${draft.draft_reference}?`, 'Yes, Delete', 'Cancel');
+        const isConfirmed = await showConfirmDialog(t('msg_delete_draft_confirm'), `${t('msg_are_you_sure_delete_draft')} ${draft.draft_reference}?`, t('btn_yes_delete'), t('btn_cancel'));
 
         if (!isConfirmed) return;
 
@@ -519,11 +519,11 @@ const PurchaseOrderListPage = () => {
         e.preventDefault();
         const amount = parseFloat(paymentAmount);
         if (amount <= 0) {
-            Swal.fire('Error', 'Payment amount must be greater than 0', 'error');
+            Swal.fire(t('msg_error'), t('msg_payment_amount_positive'), 'error');
             return;
         }
         if (amount > selectedDue.amount_due) {
-            Swal.fire('Error', 'Payment amount cannot exceed due amount', 'error');
+            Swal.fire(t('msg_error'), t('msg_payment_exceed_due'), 'error');
             return;
         }
 
@@ -558,16 +558,16 @@ const PurchaseOrderListPage = () => {
                 setShowReceipt(true);
 
                 Swal.fire({
-                    title: 'Success!',
-                    text: 'Partial payment made successfully',
+                    title: t('msg_success'),
+                    text: t('msg_partial_payment_success'),
                     icon: 'success',
                     timer: 2000,
                     showConfirmButton: false,
                 });
             }, 100);
         } catch (err: any) {
-            const errorMessage = err?.data?.message || 'Payment failed';
-            Swal.fire('Error', errorMessage, 'error');
+            const errorMessage = err?.data?.message || t('msg_payment_failed');
+            Swal.fire(t('msg_error'), errorMessage, 'error');
         }
     };
 
@@ -604,54 +604,54 @@ const PurchaseOrderListPage = () => {
                 setShowReceipt(true);
 
                 Swal.fire({
-                    title: 'Success!',
-                    text: 'Full due cleared successfully',
+                    title: t('msg_success'),
+                    text: t('msg_full_due_cleared'),
                     icon: 'success',
                     timer: 2000,
                     showConfirmButton: false,
                 });
             }, 100);
         } catch (err: any) {
-            const errorMessage = err?.data?.message || 'Failed to clear due';
-            Swal.fire('Error', errorMessage, 'error');
+            const errorMessage = err?.data?.message || t('msg_failed_to_clear_due');
+            Swal.fire(t('msg_error'), errorMessage, 'error');
         }
     };
 
     const handleDeleteOrder = async (due: any) => {
         if (due.payment_status !== 'pending' || due.status !== 'ordered') {
             Swal.fire({
-                title: 'Delete Not Possible',
+                title: t('msg_delete_not_possible'),
                 html: `
-                    <p class="mb-3">This purchase order cannot be deleted.</p>
+                    <p class="mb-3">${t('msg_po_cannot_be_deleted')}</p>
                     <div class="text-left bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-700 mb-2"><strong>Delete is only allowed when:</strong></p>
+                        <p class="text-sm text-gray-700 mb-2"><strong>${t('msg_delete_allowed_when')}</strong></p>
                         <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                            <li>Payment Status: <strong class="text-red-600">Pending</strong></li>
-                            <li>Order Status: <strong class="text-blue-600">Ordered</strong></li>
+                            <li>${t('lbl_payment_status')}: <strong class="text-red-600">${t('lbl_status_pending')}</strong></li>
+                            <li>${t('lbl_order_status')}: <strong class="text-blue-600">${t('lbl_status_ordered')}</strong></li>
                         </ul>
                         <div class="mt-3 pt-3 border-t border-gray-200">
-                            <p class="text-sm text-gray-700"><strong>Current Status:</strong></p>
-                            <p class="text-sm text-gray-600">Payment: <strong class="text-${due.payment_status === 'pending' ? 'green' : 'red'}-600">${due.payment_status || 'N/A'}</strong></p>
-                            <p class="text-sm text-gray-600">Order: <strong class="text-${due.status === 'ordered' ? 'green' : 'red'}-600">${due.status || 'N/A'}</strong></p>
+                            <p class="text-sm text-gray-700"><strong>${t('lbl_current_status')}:</strong></p>
+                            <p class="text-sm text-gray-600">${t('lbl_payment')}: <strong class="text-${due.payment_status === 'pending' ? 'green' : 'red'}-600">${due.payment_status || 'N/A'}</strong></p>
+                            <p class="text-sm text-gray-600">${t('lbl_order')}: <strong class="text-${due.status === 'ordered' ? 'green' : 'red'}-600">${due.status || 'N/A'}</strong></p>
                         </div>
                     </div>
                 `,
                 icon: 'error',
-                confirmButtonText: 'OK',
+                confirmButtonText: t('btn_ok'),
                 confirmButtonColor: '#dc2626',
             });
             return;
         }
 
         const result = await Swal.fire({
-            title: 'Delete Purchase Order?',
-            html: `<p>Are you sure you want to delete <strong>${due.invoice_number}</strong>?</p><p class="text-sm text-gray-500 mt-2">This action cannot be undone.</p>`,
+            title: t('msg_delete_po_confirm'),
+            html: `<p>${t('msg_are_you_sure_delete_po')} <strong>${due.invoice_number}</strong>?</p><p class="text-sm text-gray-500 mt-2">${t('msg_action_cannot_be_undone')}</p>`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, Delete',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: t('btn_yes_delete'),
+            cancelButtonText: t('btn_cancel'),
         });
 
         if (!result.isConfirmed) return;
@@ -659,15 +659,15 @@ const PurchaseOrderListPage = () => {
         try {
             await deletePurchaseDue(due.id).unwrap();
             Swal.fire({
-                title: 'Deleted!',
-                text: 'Purchase order has been deleted successfully',
+                title: t('msg_deleted'),
+                text: t('msg_po_deleted_successfully'),
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false,
             });
         } catch (err: any) {
-            const errorMessage = err?.data?.message || 'Failed to delete purchase order';
-            Swal.fire('Error', errorMessage, 'error');
+            const errorMessage = err?.data?.message || t('msg_failed_to_delete_po');
+            Swal.fire(t('msg_error'), errorMessage, 'error');
         }
     };
 
@@ -767,7 +767,7 @@ const PurchaseOrderListPage = () => {
                                 className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
                             >
                                 <Package className="mr-2 h-4 w-4 flex-shrink-0 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
-                                <span className="whitespace-nowrap">Create Purchase Order</span>
+                                <span className="whitespace-nowrap">{t('btn_create_purchase_order')}</span>
                                 <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                             </Link>
                         </div>
@@ -914,7 +914,7 @@ const PurchaseOrderListPage = () => {
                             {selectedItems.length === 0 ? (
                                 <div className="rounded-lg border border-dashed p-8 text-center">
                                     <Package className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-                                    <p className="text-gray-500">No items found</p>
+                                    <p className="text-gray-500">{t('msg_no_items_found')}</p>
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
@@ -922,11 +922,11 @@ const PurchaseOrderListPage = () => {
                                         <thead>
                                             <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
                                                 <th className="border-b border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">#</th>
-                                                <th className="border-b border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">Product Name</th>
-                                                <th className="border-b border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">Quantity</th>
-                                                <th className="border-b border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-700">Unit Price</th>
-                                                <th className="border-b border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">Unit</th>
-                                                <th className="border-b border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-700">Subtotal</th>
+                                                <th className="border-b border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_product_name')}</th>
+                                                <th className="border-b border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_quantity')}</th>
+                                                <th className="border-b border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-700">{t('lbl_unit_price')}</th>
+                                                <th className="border-b border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_unit')}</th>
+                                                <th className="border-b border-gray-300 px-4 py-3 text-right text-sm font-semibold text-gray-700">{t('lbl_subtotal')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white">
@@ -937,7 +937,7 @@ const PurchaseOrderListPage = () => {
                                                 const sku = item.sku || null;
                                                 const description = item.description || null;
                                                 const unitPrice = parseFloat(item.purchase_price) || 0;
-                                                const unit = item.unit || 'piece';
+                                                const unit = item.unit || t('lbl_piece');
                                                 const quantity = parseFloat(item.quantity_ordered) || 0;
                                                 const subtotal = parseFloat(item.estimated_subtotal) || parseFloat(item.subtotal) || parseFloat(item.total) || quantity * unitPrice;
                                                 const isNewProduct = item.is_new_product || item.product_id === null;
@@ -948,12 +948,12 @@ const PurchaseOrderListPage = () => {
                                                         <td className="px-4 py-3">
                                                             <div>
                                                                 <p className="font-medium text-gray-900">{productName}</p>
-                                                                {isVariant && variantName && <p className="text-xs font-medium text-blue-600">Variant: {variantName}</p>}
+                                                                {isVariant && variantName && <p className="text-xs font-medium text-blue-600">{t('lbl_variant')}: {variantName}</p>}
                                                                 {sku && <p className="text-xs text-gray-500">SKU: {sku}</p>}
                                                                 {description && <p className="text-xs text-gray-400">{description}</p>}
                                                                 {isNewProduct && (
                                                                     <span className="mt-1 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
-                                                                        New Product
+                                                                        {t('lbl_new_product')}
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -973,7 +973,7 @@ const PurchaseOrderListPage = () => {
                                         <tfoot>
                                             <tr className="bg-gray-50">
                                                 <td colSpan={5} className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                                                    Total:
+                                                    {t('lbl_total')}:
                                                 </td>
                                                 <td className="px-4 py-3 text-right text-lg font-bold text-primary">
                                                     {formatCurrency(
@@ -993,7 +993,7 @@ const PurchaseOrderListPage = () => {
 
                             <div className="mt-6 flex justify-end gap-3">
                                 <button onClick={() => setViewModalOpen(false)} className="rounded-lg bg-gray-200 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300">
-                                    Close
+                                    {t('btn_close')}
                                 </button>
                             </div>
                         </div>
@@ -1007,7 +1007,7 @@ const PurchaseOrderListPage = () => {
                     <div className="relative max-h-[90vh] w-full max-w-md overflow-auto rounded-lg bg-white shadow-2xl">
                         {/* Modal Header */}
                         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
-                            <h2 className="text-xl font-bold text-gray-800">{paymentModalType === 'partial' ? 'Make Partial Payment' : 'Clear Full Due'}</h2>
+                            <h2 className="text-xl font-bold text-gray-800">{paymentModalType === 'partial' ? t('btn_make_partial_payment') : t('btn_clear_full_due')}</h2>
                             <button onClick={closePaymentModal} className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-800">
                                 <X className="h-5 w-5" />
                             </button>
@@ -1019,15 +1019,15 @@ const PurchaseOrderListPage = () => {
                                 <form onSubmit={handlePartialPayment} className="space-y-4">
                                     <div className="rounded-lg bg-blue-50 p-4">
                                         <div className="flex justify-between">
-                                            <span className="text-sm font-medium text-gray-700">Total Due:</span>
+                                            <span className="text-sm font-medium text-gray-700">{t('lbl_total_due')}:</span>
                                             <span className="font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
                                         </div>
-                                        <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
+                                        <div className="text-xs text-gray-600">{t('lbl_invoice')}: {selectedDue.invoice_number}</div>
                                     </div>
 
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Payment Amount <span className="text-red-500">*</span>
+                                            {t('lbl_payment_amount')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="number"
@@ -1040,12 +1040,12 @@ const PurchaseOrderListPage = () => {
                                             placeholder={t('placeholder_payment_amount')}
                                             required
                                         />
-                                        <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(selectedDue.amount_due)}</p>
+                                        <p className="mt-1 text-xs text-gray-500">{t('lbl_maximum')}: {formatCurrency(selectedDue.amount_due)}</p>
                                     </div>
 
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Payment Method <span className="text-red-500">*</span>
+                                            {t('lbl_payment_method')} <span className="text-red-500">*</span>
                                         </label>
                                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full" required>
                                             {activePaymentMethods.length > 0 ? (
@@ -1061,7 +1061,7 @@ const PurchaseOrderListPage = () => {
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes_optional')}</label>
                                         <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder={t('placeholder_payment_notes')} />
                                     </div>
 
@@ -1072,14 +1072,14 @@ const PurchaseOrderListPage = () => {
                                             className="flex-1 rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
                                             disabled={isPaymentLoading}
                                         >
-                                            Cancel
+                                            {t('btn_cancel')}
                                         </button>
                                         <button
                                             type="submit"
                                             className="flex-1 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50"
                                             disabled={isPaymentLoading}
                                         >
-                                            {isPaymentLoading ? 'Processing...' : 'Make Payment'}
+                                            {isPaymentLoading ? t('lbl_processing') : t('btn_make_payment')}
                                         </button>
                                     </div>
                                 </form>
@@ -1093,23 +1093,23 @@ const PurchaseOrderListPage = () => {
                                 >
                                     <div className="rounded-lg bg-blue-50 p-4">
                                         <div className="flex justify-between">
-                                            <span className="text-sm font-medium text-gray-700">Total Due:</span>
+                                            <span className="text-sm font-medium text-gray-700">{t('lbl_total_due')}:</span>
                                             <span className="font-bold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
                                         </div>
-                                        <div className="text-xs text-gray-600">Invoice: {selectedDue.invoice_number}</div>
+                                        <div className="text-xs text-gray-600">{t('lbl_invoice')}: {selectedDue.invoice_number}</div>
                                     </div>
 
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Payment Amount <span className="text-red-500">*</span>
+                                            {t('lbl_payment_amount')} <span className="text-red-500">*</span>
                                         </label>
                                         <input type="number" step="0.01" value={selectedDue.amount_due} className="form-input w-full bg-gray-100" readOnly disabled />
-                                        <p className="mt-1 text-xs text-green-600">Full amount will be cleared</p>
+                                        <p className="mt-1 text-xs text-green-600">{t('msg_full_amount_cleared')}</p>
                                     </div>
 
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Payment Method <span className="text-red-500">*</span>
+                                            {t('lbl_payment_method')} <span className="text-red-500">*</span>
                                         </label>
                                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full" required>
                                             {activePaymentMethods.length > 0 ? (
@@ -1125,7 +1125,7 @@ const PurchaseOrderListPage = () => {
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes_optional')}</label>
                                         <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} rows={3} className="form-textarea w-full" placeholder={t('placeholder_payment_notes')} />
                                     </div>
 
@@ -1136,14 +1136,14 @@ const PurchaseOrderListPage = () => {
                                             className="flex-1 rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
                                             disabled={isClearingDue}
                                         >
-                                            Cancel
+                                            {t('btn_cancel')}
                                         </button>
                                         <button
                                             type="submit"
                                             className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
                                             disabled={isClearingDue}
                                         >
-                                            {isClearingDue ? 'Processing...' : 'Clear Full Due'}
+                                            {isClearingDue ? t('lbl_processing') : t('btn_clear_full_due')}
                                         </button>
                                     </div>
                                 </form>

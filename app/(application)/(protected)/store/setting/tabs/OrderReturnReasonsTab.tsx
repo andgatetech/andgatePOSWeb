@@ -78,7 +78,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
 
     const saveEditingReason = (id: number) => {
         if (!editingReasonName.trim()) {
-            setMessage({ type: 'error', text: 'Order return reason name cannot be empty' });
+            setMessage({ type: 'error', text: t('msg_order_return_reason_name_empty') });
             return;
         }
         handleUpdateOrderReturnReason(id, editingReasonName.trim(), editingReasonDescription.trim());
@@ -90,7 +90,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
     return (
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Order Return Reasons</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('store_order_return_reasons_title')}</h3>
 
                 {/* Add New Order Return Reason */}
                 <div className="mb-4 space-y-2">
@@ -99,7 +99,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                         value={orderReturnReasonName}
                         onChange={(e) => setOrderReturnReasonName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateOrderReturnReason()}
-                        placeholder="Enter return reason name (e.g., Defective Product, Wrong Item)"
+                        placeholder={t('placeholder_return_reason')}
                         className="w-full rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
                     <div className="flex gap-2">
@@ -108,7 +108,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                             value={orderReturnReasonDescription}
                             onChange={(e) => setOrderReturnReasonDescription(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleCreateOrderReturnReason()}
-                            placeholder="Enter description (optional)"
+                            placeholder={t('placeholder_description_optional')}
                             className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                         />
                         <button
@@ -117,7 +117,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                             className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90"
                         >
                             <Plus className="mr-1 h-4 w-4" />
-                            Add
+                            {t('btn_add')}
                         </button>
                     </div>
                 </div>
@@ -127,12 +127,12 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Reason Name</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Description</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Return to Stock</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_reason_name')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_description')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_return_to_stock')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,11 +154,11 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     onChange={(e) => setEditingReasonName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && reason.id && saveEditingReason(reason.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    placeholder="Enter reason name"
+                                                    placeholder={t('placeholder_return_reason')}
                                                     autoFocus
                                                 />
                                             ) : (
-                                                <span className="text-sm font-medium text-gray-900">{reason.name || 'Unnamed Reason'}</span>
+                                                <span className="text-sm font-medium text-gray-900">{reason.name || t('lbl_unnamed_reason')}</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3">
@@ -169,14 +169,14 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     onChange={(e) => setEditingReasonDescription(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && reason.id && saveEditingReason(reason.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    placeholder="Enter description"
+                                                    placeholder={t('placeholder_description_optional')}
                                                 />
                                             ) : (
                                                 <span className="text-sm text-gray-600">{reason.description || '-'}</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-center">
-                                            <label className="relative inline-flex cursor-pointer items-center" title="When enabled, stock will be returned to inventory">
+                                            <label className="relative inline-flex cursor-pointer items-center" title={t('msg_return_to_stock_hint')}>
                                                 <input
                                                     type="checkbox"
                                                     checked={reason.return_to_stock === true || reason.return_to_stock === 1}
@@ -205,11 +205,11 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                         type="button"
                                                         onClick={() => reason.id && saveEditingReason(reason.id)}
                                                         className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                        title="Save"
+                                                        title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
                                                     </button>
-                                                    <button type="button" onClick={cancelEditingReason} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                    <button type="button" onClick={cancelEditingReason} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                         <X className="h-4 w-4" />
                                                     </button>
                                                 </div>
@@ -231,7 +231,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                                     }}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    Edit Reason
+                                                                    {t('btn_edit_reason')}
                                                                 </button>
                                                             </li>
                                                             <li className="border-t">
@@ -243,7 +243,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                                     }}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                 >
-                                                                    Delete Reason
+                                                                    {t('btn_delete_reason')}
                                                                 </button>
                                                             </li>
                                                         </ul>
@@ -256,7 +256,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                             ) : (
                                 <tr>
                                     <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No order return reasons added yet. Click &quot;Add&quot; to create your first reason.
+                                        {t('msg_no_order_return_reasons_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -268,8 +268,8 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> reasons
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span> {t('store_order_return_reasons_title')}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -278,7 +278,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -298,7 +298,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -308,7 +308,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                 {/* Total Count */}
                 {orderReturnReasonsData && orderReturnReasonsData.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{orderReturnReasonsData.length}</span> order return reason(s)
+                        {t('lbl_total')}: <span className="font-semibold">{orderReturnReasonsData.length}</span>
                     </div>
                 )}
             </div>

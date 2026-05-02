@@ -124,7 +124,7 @@ const StoreComponent = () => {
     }
 
     if (isLoadingStore) {
-        return <Loader message="Loading stores..." />;
+        return <Loader message={t('msg_loading_stores')} />;
     }
 
     return (

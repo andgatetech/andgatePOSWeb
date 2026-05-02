@@ -38,7 +38,7 @@ const FeedbackPage = () => {
             color: 'bg-amber-500',
             light: 'bg-amber-50 border-amber-300 text-amber-700',
             ring: 'ring-amber-400',
-            description: 'Ideas to improve our service',
+            description: t('feedback_suggestion_desc'),
         },
         {
             id: 'bug',
@@ -47,7 +47,7 @@ const FeedbackPage = () => {
             color: 'bg-rose-500',
             light: 'bg-rose-50 border-rose-300 text-rose-700',
             ring: 'ring-rose-400',
-            description: 'Report technical issues',
+            description: t('feedback_bug_desc'),
         },
         {
             id: 'compliment',
@@ -56,7 +56,7 @@ const FeedbackPage = () => {
             color: 'bg-emerald-500',
             light: 'bg-emerald-50 border-emerald-300 text-emerald-700',
             ring: 'ring-emerald-400',
-            description: 'Share what you love',
+            description: t('feedback_compliment_desc'),
         },
         {
             id: 'general',
@@ -65,7 +65,7 @@ const FeedbackPage = () => {
             color: 'bg-violet-500',
             light: 'bg-violet-50 border-violet-300 text-violet-700',
             ring: 'ring-violet-400',
-            description: 'Any other feedback',
+            description: t('feedback_general_desc'),
         },
     ];
 
@@ -189,7 +189,7 @@ const FeedbackPage = () => {
         try {
             await createFeedback(submitFormData);
             toast.dismiss();
-            toast.success('Feedbac record successfully', { toastId: 'create-feedback' });
+            toast.success(t('msg_feedback_created'), { toastId: 'create-feedback' });
             router.push('/feedbacks');
             setSubmitted(true);
             setTimeout(() => {
@@ -201,13 +201,13 @@ const FeedbackPage = () => {
         } catch (err) {
             console.error('Failed to submit feedback:', err);
             toast.dismiss();
-            toast.error('something went wrong!');
+            toast.error(t('msg_something_went_wrong'));
         }
     };
 
     const isFormValid = formData.title.trim() && formData.message.trim() && selectedCategory;
 
-    const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+    const ratingLabels = ['', t('rating_poor'), t('rating_fair'), t('rating_good'), t('rating_very_good'), t('rating_excellent')];
 
     // ── Success Screen ──
     if (submitted && isSuccess) {
@@ -217,29 +217,29 @@ const FeedbackPage = () => {
                     <div className="mb-5 inline-flex h-16 w-16 animate-bounce items-center justify-center rounded-2xl bg-emerald-500 text-white">
                         <CheckCircle className="h-8 w-8" />
                     </div>
-                    <h2 className="mb-2 text-2xl font-bold text-gray-900">Thank You!</h2>
+                    <h2 className="mb-2 text-2xl font-bold text-gray-900">{t('feedback_success_title')}</h2>
                     <p className="mb-6 text-sm leading-relaxed text-gray-500">
-                        Your feedback has been submitted successfully. We appreciate your input and will review it carefully.
+                        {t('feedback_success_desc')}
                     </p>
                     <div className="mb-6 rounded-xl bg-violet-50 p-4">
                         <div className="mb-1 flex items-center justify-center gap-1.5">
                             <Heart className="h-4 w-4 text-rose-500" />
-                            <span className="text-xs font-semibold text-gray-700">Our Promise</span>
+                            <span className="text-xs font-semibold text-gray-700">{t('feedback_promise_title')}</span>
                         </div>
-                        <p className="text-xs text-gray-500">Every piece of feedback helps us improve andgatePOS. Your voice matters in shaping the future of our platform.</p>
+                        <p className="text-xs text-gray-500">{t('feedback_promise_desc')}</p>
                     </div>
                     <div className="space-y-2">
                         <button
                             onClick={() => setSubmitted(false)}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
                         >
-                            Submit Another Feedback
+                            {t('btn_submit_another_feedback')}
                         </button>
                         <button
                             onClick={() => router.push('/feedbacks')}
                             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-6 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
                         >
-                            View All Feedbacks
+                            {t('btn_view_all_feedbacks')}
                         </button>
                     </div>
                 </div>
@@ -253,15 +253,15 @@ const FeedbackPage = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Give Feedback</h1>
-                    <p className="mt-1 text-sm text-gray-500">Share your thoughts to help us improve andgatePOS</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('feedback_give_title')}</h1>
+                    <p className="mt-1 text-sm text-gray-500">{t('feedback_give_desc')}</p>
                 </div>
                 <button
                     onClick={() => router.push('/feedbacks')}
                     className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Back to Feedbacks
+                    {t('btn_back_to_feedbacks')}
                 </button>
             </div>
 
@@ -272,8 +272,8 @@ const FeedbackPage = () => {
                     {/* Category Selection */}
                     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
                         <div className="border-b border-gray-100 px-5 py-4">
-                            <h2 className="text-sm font-semibold text-gray-800">Feedback Type <span className="text-rose-500">*</span></h2>
-                            <p className="mt-0.5 text-xs text-gray-400">What type of feedback would you like to share?</p>
+                            <h2 className="text-sm font-semibold text-gray-800">{t('lbl_feedback_type')} <span className="text-rose-500">*</span></h2>
+                            <p className="mt-0.5 text-xs text-gray-400">{t('feedback_type_question')}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-3 p-5 md:grid-cols-4">
                             {feedbackCategories.map((cat) => (
@@ -300,14 +300,14 @@ const FeedbackPage = () => {
                     {/* Form Fields */}
                     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
                         <div className="border-b border-gray-100 px-5 py-4">
-                            <h2 className="text-sm font-semibold text-gray-800">Feedback Details</h2>
+                            <h2 className="text-sm font-semibold text-gray-800">{t('lbl_feedback_details')}</h2>
                         </div>
                         <div className="space-y-5 p-5">
 
                             {/* Store Field */}
                             <div className="relative">
                                 <TextInput
-                                    label="Store"
+                                    label={t('lbl_store')}
                                     value={currentStore?.store_name || ''}
                                     readOnly
                                     styles={{
@@ -329,7 +329,7 @@ const FeedbackPage = () => {
                             {/* Title */}
                             <div>
                                 <label htmlFor="title" className="mb-1.5 block text-xs font-medium text-gray-500">
-                                    Feedback Title <span className="text-rose-500">*</span>
+                                    {t('lbl_feedback_title')} <span className="text-rose-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <input
@@ -349,7 +349,7 @@ const FeedbackPage = () => {
                             {/* Rating */}
                             <div>
                                 <label className="mb-2 block text-xs font-medium text-gray-500">
-                                    Overall Rating <span className="text-gray-400">(Optional)</span>
+                                    {t('lbl_overall_rating')} <span className="text-gray-400">({t('lbl_optional')})</span>
                                 </label>
                                 <div className="flex items-center gap-1">
                                     {[1, 2, 3, 4, 5].map((star) => (
@@ -381,7 +381,7 @@ const FeedbackPage = () => {
                             {/* Message */}
                             <div>
                                 <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-gray-500">
-                                    Your Detailed Feedback <span className="text-rose-500">*</span>
+                                    {t('lbl_your_detailed_feedback')} <span className="text-rose-500">*</span>
                                 </label>
                                 <textarea
                                     id="message"
@@ -395,7 +395,7 @@ const FeedbackPage = () => {
                                 />
                                 <div className="mt-1.5 flex items-center justify-between text-xs text-gray-400">
                                     <span>{formData.message.length} characters</span>
-                                    <span>Minimum 10 characters recommended</span>
+                                    <span>{t('feedback_min_chars')}</span>
                                 </div>
                             </div>
                         </div>
@@ -404,8 +404,8 @@ const FeedbackPage = () => {
                     {/* File Upload */}
                     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
                         <div className="border-b border-gray-100 px-5 py-4">
-                            <h2 className="text-sm font-semibold text-gray-800">Attachments <span className="text-gray-400 font-normal">(Optional)</span></h2>
-                            <p className="mt-0.5 text-xs text-gray-400">Max 5MB per file · Up to 10 files · Images, PDF, DOC, Excel</p>
+                            <h2 className="text-sm font-semibold text-gray-800">{t('lbl_attachments')} <span className="text-gray-400 font-normal">({t('lbl_optional')})</span></h2>
+                            <p className="mt-0.5 text-xs text-gray-400">{t('feedback_upload_hint')}</p>
                         </div>
                         <div className="p-5 space-y-4">
                             {/* Drop Zone */}
@@ -432,16 +432,16 @@ const FeedbackPage = () => {
                                         <Upload className="h-5 w-5" />
                                     </div>
                                     <p className={`text-sm font-medium ${dragActive ? 'text-violet-700' : 'text-gray-700'}`}>
-                                        {dragActive ? 'Drop files here' : 'Drag & drop or click to upload'}
+                                        {dragActive ? t('feedback_drop_here') : t('feedback_drag_upload')}
                                     </p>
-                                    <p className="mt-1 text-xs text-gray-400">Supports: Images, PDF, DOC, TXT, Excel</p>
+                                    <p className="mt-1 text-xs text-gray-400">{t('feedback_supports')}</p>
                                 </div>
                             </div>
 
                             {/* File List */}
                             {selectedFiles.length > 0 && (
                                 <div className="space-y-2">
-                                    <p className="text-xs font-medium text-gray-500">Selected Files ({selectedFiles.length}/10)</p>
+                                    <p className="text-xs font-medium text-gray-500">{t('feedback_selected_files')} ({selectedFiles.length}/10)</p>
                                     <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                                         {selectedFiles.map((fileObj) => (
                                             <div key={fileObj.id} className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-2.5">
@@ -491,7 +491,7 @@ const FeedbackPage = () => {
                     {error && (
                         <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
                             <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                            <span>{error?.data?.message || error?.message || 'Failed to submit feedback. Please try again.'}</span>
+                            <span>{error?.data?.message || error?.message || t('msg_failed_submit_feedback')}</span>
                         </div>
                     )}
 
@@ -509,12 +509,12 @@ const FeedbackPage = () => {
                         {isLoading ? (
                             <>
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                                Submitting feedback…
+                                {t('feedback_submitting')}
                             </>
                         ) : (
                             <>
                                 <Send className="h-4 w-4" />
-                                Submit Feedback
+                                {t('btn_submit_feedback')}
                             </>
                         )}
                     </button>
@@ -528,15 +528,15 @@ const FeedbackPage = () => {
                             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500 text-white">
                                 <Zap className="h-3.5 w-3.5" />
                             </div>
-                            <h3 className="text-sm font-semibold text-violet-900">Tips for great feedback</h3>
+                            <h3 className="text-sm font-semibold text-violet-900">{t('feedback_tips_title')}</h3>
                         </div>
                         <ul className="space-y-2 text-xs text-violet-700">
                             {[
-                                'Be specific about what you experienced',
-                                'Include steps to reproduce any bugs',
-                                'Attach screenshots when possible',
-                                'Describe the expected vs actual behavior',
-                                'Mention which feature or page you were on',
+                                t('feedback_tip_1'),
+                                t('feedback_tip_2'),
+                                t('feedback_tip_3'),
+                                t('feedback_tip_4'),
+                                t('feedback_tip_5'),
                             ].map((tip, i) => (
                                 <li key={i} className="flex items-start gap-2">
                                     <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-violet-200 text-[9px] font-bold text-violet-700">{i + 1}</span>
@@ -548,7 +548,7 @@ const FeedbackPage = () => {
 
                     {/* Categories info */}
                     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                        <h3 className="mb-3 text-sm font-semibold text-gray-800">Category Guide</h3>
+                        <h3 className="mb-3 text-sm font-semibold text-gray-800">{t('feedback_cat_guide_title')}</h3>
                         <div className="space-y-3">
                             {feedbackCategories.map((cat) => (
                                 <div key={cat.id} className="flex items-center gap-3">
@@ -568,10 +568,10 @@ const FeedbackPage = () => {
                     <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-5">
                         <div className="mb-2 flex items-center gap-2">
                             <Heart className="h-4 w-4 text-rose-500" />
-                            <h3 className="text-sm font-semibold text-emerald-900">We value your input</h3>
+                            <h3 className="text-sm font-semibold text-emerald-900">{t('feedback_value_title')}</h3>
                         </div>
                         <p className="text-xs leading-relaxed text-emerald-700">
-                            Every piece of feedback helps us build a better product for Bangladeshi businesses. We review all submissions and may follow up with you for clarification. 🚀
+                            {t('feedback_value_desc')}
                         </p>
                     </div>
                 </div>

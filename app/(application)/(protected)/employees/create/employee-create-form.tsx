@@ -74,25 +74,25 @@ const EmployeeCreateForm = () => {
         const errors: FormErrors = {};
 
         if (!formData.name.trim()) {
-            errors.name = 'Name is required';
+            errors.name = t('msg_name_required');
         }
 
         if (!formData.email.trim()) {
-            errors.email = 'Email is required';
+            errors.email = t('msg_email_required');
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            errors.email = 'Email is invalid';
+            errors.email = t('msg_invalid_email');
         }
 
         if (!formData.password.trim()) {
-            errors.password = 'Password is required';
+            errors.password = t('msg_password_required');
         } else if (formData.password.length < 6) {
-            errors.password = 'Password must be at least 6 characters';
+            errors.password = t('msg_password_min_6');
         }
 
         if (!formData.password_confirmation.trim()) {
-            errors.password_confirmation = 'Please confirm your password';
+            errors.password_confirmation = t('msg_confirm_password_required');
         } else if (formData.password !== formData.password_confirmation) {
-            errors.password_confirmation = 'Passwords do not match';
+            errors.password_confirmation = t('msg_passwords_not_match');
         }
 
         setFormErrors(errors);
@@ -120,10 +120,10 @@ const EmployeeCreateForm = () => {
             await staffRegister(staffData).unwrap();
 
             await Swal.fire({
-                title: 'Success!',
-                text: 'Employee registered successfully!',
+                title: t('msg_success'),
+                text: t('msg_employee_registered'),
                 icon: 'success',
-                confirmButtonText: 'Go to Employees',
+                confirmButtonText: t('btn_go_to_employees'),
                 confirmButtonColor: '#10b981',
                 background: '#ffffff',
                 color: '#374151',
@@ -138,13 +138,13 @@ const EmployeeCreateForm = () => {
         } catch (error: any) {
             console.error('Registration failed:', error);
 
-            const errorMessage = error?.data?.message || 'Failed to register employee. Please try again.';
+            const errorMessage = error?.data?.message || t('msg_failed_register_employee');
 
             await Swal.fire({
-                title: 'Error!',
+                title: t('msg_error'),
                 text: errorMessage,
                 icon: 'error',
-                confirmButtonText: 'Try Again',
+                confirmButtonText: t('btn_try_again'),
                 confirmButtonColor: '#ef4444',
                 background: '#ffffff',
                 color: '#374151',
@@ -217,7 +217,7 @@ const EmployeeCreateForm = () => {
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
                 <div className="text-center">
                     <div className="mx-auto h-16 w-16 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                    <p className="mt-4 text-gray-600">Loading permissions...</p>
+                    <p className="mt-4 text-gray-600">{t('lbl_loading_permissions')}</p>
                 </div>
             </div>
         );
@@ -234,8 +234,8 @@ const EmployeeCreateForm = () => {
                                 <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">Create New Employee</h1>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `Add a new employee to ${currentStore.store_name}` : 'Add a new employee to your team'}</p>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('lbl_create_new_employee')}</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('employee_add_to_store')} ${currentStore.store_name}` : t('employee_add_to_team')}</p>
                             </div>
                         </div>
                         <button
@@ -254,7 +254,7 @@ const EmployeeCreateForm = () => {
                                     <Store className="h-3.5 w-3.5 text-blue-600 sm:h-4 sm:w-4" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium text-blue-900 sm:text-sm">Current Store: {currentStore.store_name}</p>
+                                    <p className="text-xs font-medium text-blue-900 sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
                                 </div>
                             </div>
                         </div>
@@ -265,7 +265,7 @@ const EmployeeCreateForm = () => {
                 <form onSubmit={handleSubmit}>
                     <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
                         <div className="p-4 sm:p-6 md:p-8">
-                            <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">Employee Information</h2>
+                            <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_employee_information')}</h2>
 
                             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 {/* Left Column */}
@@ -273,7 +273,7 @@ const EmployeeCreateForm = () => {
                                     {/* Name */}
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Full Name <span className="text-red-500">*</span>
+                                            {t('lbl_full_name')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -291,7 +291,7 @@ const EmployeeCreateForm = () => {
                                     {/* Email */}
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Email Address <span className="text-red-500">*</span>
+                                            {t('lbl_email_address')} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="email"
@@ -309,7 +309,7 @@ const EmployeeCreateForm = () => {
                                     {/* Password */}
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Password <span className="text-red-500">*</span>
+                                            {t('lbl_password')} <span className="text-red-500">*</span>
                                         </label>
                                         <div className="relative">
                                             <input
@@ -336,7 +336,7 @@ const EmployeeCreateForm = () => {
                                     {/* Confirm Password */}
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Confirm Password <span className="text-red-500">*</span>
+                                            {t('lbl_confirm_password')} <span className="text-red-500">*</span>
                                         </label>
                                         <div className="relative">
                                             <input
@@ -367,7 +367,7 @@ const EmployeeCreateForm = () => {
                                 <div className="space-y-6">
                                     {/* Phone */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Phone Number</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_phone_number')}</label>
                                         <input
                                             type="text"
                                             name="phone"
@@ -380,7 +380,7 @@ const EmployeeCreateForm = () => {
 
                                     {/* Address */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Address</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_address')}</label>
                                         <textarea
                                             name="address"
                                             value={formData.address}
@@ -394,7 +394,7 @@ const EmployeeCreateForm = () => {
                                     {/* Role */}
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            Role <span className="text-red-500">*</span>
+                                            {t('lbl_role')} <span className="text-red-500">*</span>
                                         </label>
                                         <select
                                             name="role_in_store"
@@ -416,8 +416,8 @@ const EmployeeCreateForm = () => {
                                 <div className="mb-4 flex items-center gap-3">
                                     <Shield className="h-5 w-5 text-blue-600" />
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">Permissions</h2>
-                                        <p className="text-xs text-gray-500">Choose what this employee is allowed to do in the system</p>
+                                        <h2 className="text-lg font-semibold text-gray-900">{t('lbl_permissions')}</h2>
+                                        <p className="text-xs text-gray-500">{t('employee_permissions_desc')}</p>
                                     </div>
                                 </div>
 
@@ -442,7 +442,7 @@ const EmployeeCreateForm = () => {
                                     disabled={isSubmitting}
                                     className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
-                                    Cancel
+                                    {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
@@ -452,12 +452,12 @@ const EmployeeCreateForm = () => {
                                     {isSubmitting ? (
                                         <>
                                             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                                            Creating...
+                                            {t('lbl_creating')}
                                         </>
                                     ) : (
                                         <>
                                             <Users className="mr-2 h-5 w-5" />
-                                            Create Employee
+                                            {t('lbl_create_employee')}
                                         </>
                                     )}
                                 </button>

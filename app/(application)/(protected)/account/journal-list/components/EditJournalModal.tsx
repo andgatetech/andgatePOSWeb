@@ -16,6 +16,7 @@ interface EditJournalModalProps {
 }
 
 const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, onSuccess, journal }) => {
+    const { t } = getTranslation();
     const { currentStore, currentStoreId } = useCurrentStore();
     const [updateJournal, { isLoading }] = useUpdateJournalMutation();
 
@@ -44,22 +45,21 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
     }, [journal]);
 
     const validateForm = () => {
-        const { t } = getTranslation();
-    const newErrors: Record<string, string> = {};
+        const newErrors: Record<string, string> = {};
 
         if (!formData.ledger_id) {
-            newErrors.ledger_id = 'Please select a ledger';
+            newErrors.ledger_id = t('msg_select_ledger');
         }
 
         const debit = parseFloat(formData.debit || '0');
         const credit = parseFloat(formData.credit || '0');
 
         if (debit === 0 && credit === 0) {
-            newErrors.amount = 'Either debit or credit amount is required';
+            newErrors.amount = t('msg_debit_or_credit_required');
         }
 
         if (debit > 0 && credit > 0) {
-            newErrors.amount = 'Cannot have both debit and credit in one entry';
+            newErrors.amount = t('msg_cannot_have_both_debit_credit');
         }
 
         setErrors(newErrors);
@@ -82,12 +82,12 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
                 },
             }).unwrap();
 
-            showMessage('Journal entry updated successfully!', 'success');
+            showMessage(t('msg_journal_updated'), 'success');
             setErrors({});
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.data?.message || 'Failed to update journal entry. Please try again.';
+            const errorMessage = error?.data?.message || t('msg_failed_update_journal');
             showErrorDialog(t('msg_error'), errorMessage);
         }
     };
@@ -106,7 +106,7 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
                 <div className="border-b px-6 py-4">
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-base font-medium">Edit Journal</h2>
+                            <h2 className="text-base font-medium">{t('lbl_edit_journal')}</h2>
                             <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
                                 <X className="h-4 w-4" />
                             </button>
@@ -119,7 +119,7 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
                 <form onSubmit={handleSubmit} className="space-y-4 p-6">
                     <div className="space-y-1.5">
                         <label htmlFor="journal-ledger" className="text-xs text-gray-500">
-                            Ledger
+                            {t('account_ledger')}
                         </label>
                         <select
                             id="journal-ledger"
@@ -127,7 +127,7 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
                             onChange={(e) => setFormData({ ...formData, ledger_id: e.target.value })}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         >
-                            <option value="">Select ledger</option>
+                            <option value="">{t('placeholder_select_ledger')}</option>
                             {ledgers.map((ledger: any) => (
                                 <option key={ledger.id} value={ledger.id}>
                                     {ledger.title}
@@ -140,7 +140,7 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                             <label htmlFor="debit-amount" className="text-xs text-gray-500">
-                                Debit
+                                {t('lbl_debit')}
                             </label>
                             <input
                                 id="debit-amount"
@@ -155,7 +155,7 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
                         </div>
                         <div className="space-y-1.5">
                             <label htmlFor="credit-amount" className="text-xs text-gray-500">
-                                Credit
+                                {t('lbl_credit')}
                             </label>
                             <input
                                 id="credit-amount"
@@ -173,7 +173,7 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
 
                     <div className="space-y-1.5">
                         <label htmlFor="journal-notes" className="text-xs text-gray-500">
-                            Notes
+                            {t('lbl_notes')}
                         </label>
                         <textarea
                             id="journal-notes"
@@ -187,10 +187,10 @@ const EditJournalModal: React.FC<EditJournalModalProps> = ({ isOpen, onClose, on
 
                     <div className="flex gap-2 pt-2">
                         <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
-                            Cancel
+                            {t('btn_cancel')}
                         </button>
                         <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
-                            {isLoading ? 'Saving...' : 'Save'}
+                            {isLoading ? t('lbl_saving') : t('btn_save')}
                         </button>
                     </div>
                 </form>

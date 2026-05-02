@@ -35,7 +35,7 @@ export default function SendNotificationPage() {
         const strippedMessage = formData.message.replace(/<[^>]*>?/gm, '').trim();
 
         if (!formData.title.trim() || !strippedMessage) {
-            setError('Title and message are required.');
+            setError(t('msg_title_and_message_required'));
             return;
         }
 
@@ -46,26 +46,24 @@ export default function SendNotificationPage() {
                 router.push('/notifications');
             }, 1500);
         } catch (err: any) {
-            setError(err?.data?.message || 'Failed to send announcement.');
+            setError(err?.data?.message || t('msg_failed_send_announcement'));
         }
     };
 
     return (
         <div className="panel flex h-full flex-col">
             <div className="mb-5 flex items-center justify-between">
-                <h5 className="text-lg font-semibold dark:text-white-light">Send Announcement</h5>
+                <h5 className="text-lg font-semibold dark:text-white-light">{t('btn_send_announcement')}</h5>
                 <button type="button" className="btn btn-outline-primary btn-sm flex items-center gap-2" onClick={() => router.push('/notifications')}>
                     <ArrowLeft className="h-4 w-4" />
-                    Back to Notifications
+                    {t('btn_back_to_notifications')}
                 </button>
             </div>
 
             <div className="mb-5 rounded border border-info/20 bg-info/10 p-3 text-sm text-info">
                 <div className="flex items-start gap-2">
                     <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                    <p>
-                        This announcement will automatically be sent to <strong>all staff members</strong> associated with your store. They will receive it instantly in their notification list.
-                    </p>
+                    <p>{t('msg_announcement_info')}</p>
                 </div>
             </div>
 
@@ -74,8 +72,8 @@ export default function SendNotificationPage() {
                     <div className="mb-4 rounded-full bg-success/20 p-3 text-success">
                         <Send className="h-8 w-8" />
                     </div>
-                    <h4 className="mb-2 text-lg font-semibold text-gray-800 dark:text-white-light">Announcement Sent!</h4>
-                    <p className="text-gray-500">All staff in your store have been notified. Redirecting...</p>
+                    <h4 className="mb-2 text-lg font-semibold text-gray-800 dark:text-white-light">{t('msg_announcement_sent')}</h4>
+                    <p className="text-gray-500">{t('msg_announcement_sent_desc')}</p>
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -84,7 +82,7 @@ export default function SendNotificationPage() {
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <div className="col-span-1 lg:col-span-2">
                             <label htmlFor="title" className="mb-1 block text-sm font-medium">
-                                Title
+                                {t('lbl_title')}
                             </label>
                             <input
                                 id="title"
@@ -99,7 +97,7 @@ export default function SendNotificationPage() {
 
                         <div className="col-span-1 lg:col-span-2">
                             <label htmlFor="severity" className="mb-1 block text-sm font-medium">
-                                Severity
+                                {t('lbl_severity')}
                             </label>
                             <div className="flex flex-wrap gap-4">
                                 <label className="flex cursor-pointer items-center">
@@ -112,7 +110,7 @@ export default function SendNotificationPage() {
                                         onChange={() => setFormData({ ...formData, severity: 'info' })}
                                     />
                                     <span className="flex items-center gap-1 ltr:ml-2 rtl:mr-2">
-                                        <Info className="h-4 w-4 text-info" /> Info
+                                        <Info className="h-4 w-4 text-info" /> {t('lbl_info')}
                                     </span>
                                 </label>
                                 <label className="flex cursor-pointer items-center">
@@ -125,7 +123,7 @@ export default function SendNotificationPage() {
                                         onChange={() => setFormData({ ...formData, severity: 'warning' })}
                                     />
                                     <span className="flex items-center gap-1 ltr:ml-2 rtl:mr-2">
-                                        <AlertTriangle className="h-4 w-4 text-warning" /> Warning
+                                        <AlertTriangle className="h-4 w-4 text-warning" /> {t('lbl_warning')}
                                     </span>
                                 </label>
                                 <label className="flex cursor-pointer items-center">
@@ -138,7 +136,7 @@ export default function SendNotificationPage() {
                                         onChange={() => setFormData({ ...formData, severity: 'critical' })}
                                     />
                                     <span className="flex items-center gap-1 ltr:ml-2 rtl:mr-2">
-                                        <AlertCircle className="h-4 w-4 text-danger" /> Critical
+                                        <AlertCircle className="h-4 w-4 text-danger" /> {t('lbl_critical')}
                                     </span>
                                 </label>
                                 <label className="flex cursor-pointer items-center">
@@ -151,7 +149,7 @@ export default function SendNotificationPage() {
                                         onChange={() => setFormData({ ...formData, severity: 'success' })}
                                     />
                                     <span className="flex items-center gap-1 ltr:ml-2 rtl:mr-2">
-                                        <CheckCircle className="h-4 w-4 text-success" /> Success
+                                        <CheckCircle className="h-4 w-4 text-success" /> {t('lbl_success')}
                                     </span>
                                 </label>
                             </div>
@@ -160,7 +158,7 @@ export default function SendNotificationPage() {
 
                     <div className="pb-10">
                         <label htmlFor="message" className="mb-1 block text-sm font-medium">
-                            Message
+                            {t('lbl_message')}
                         </label>
                         <div className="h-64">
                             <ReactQuill
@@ -175,18 +173,18 @@ export default function SendNotificationPage() {
 
                     <div className="mt-8 flex items-center justify-end gap-3">
                         <button type="button" className="btn btn-outline-danger" onClick={() => router.push('/notifications')} disabled={isLoading}>
-                            Cancel
+                            {t('btn_cancel')}
                         </button>
                         <button type="submit" className="btn btn-primary" disabled={isLoading}>
                             {isLoading ? (
                                 <span className="flex items-center gap-2">
                                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-l-transparent align-middle"></span>
-                                    Sending...
+                                    {t('lbl_sending')}
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-2">
                                     <Send className="h-4 w-4" />
-                                    Send Announcement
+                                    {t('btn_send_announcement')}
                                 </span>
                             )}
                         </button>

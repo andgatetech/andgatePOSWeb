@@ -103,7 +103,7 @@ const LabelGenerator = () => {
     // --- Generation Logic ---
     const handleGenerate = async () => {
         if (cartItems.length === 0) {
-            showErrorDialog('No Products', 'Please add products');
+            showErrorDialog(t('msg_error'), t('msg_please_add_products'));
             return;
         }
         try {
@@ -126,10 +126,10 @@ const LabelGenerator = () => {
                     barcode: l.barcode || l.qr_code || l.qrcode || l.image || '',
                 }));
                 if (currentStoreId) dispatch(setGeneratedLabels({ storeId: currentStoreId, labels }));
-                showSuccessDialog('Success!', `${response.data.total_generated} labels generated`);
+                showSuccessDialog(t('msg_success'), `${response.data.total_generated} ${t('msg_labels_generated')}`);
             }
         } catch (error: any) {
-            showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to generate');
+            showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_generate'));
         }
     };
 
@@ -198,7 +198,7 @@ const LabelGenerator = () => {
     };
 
     const handlePrint = () => {
-        if (!generatedLabels.length) return showErrorDialog('No Labels', 'Generate first');
+        if (!generatedLabels.length) return showErrorDialog(t('msg_error'), t('msg_generate_first'));
         const win = window.open('', '_blank', 'width=800,height=600');
         if (win) {
             win.document.write(generatePrintHTML());
@@ -232,7 +232,7 @@ const LabelGenerator = () => {
 
     const handleDownloadPDF = async () => {
         if (!generatedLabels.length) {
-            showErrorDialog('No Labels', 'Please generate labels first');
+            showErrorDialog(t('msg_error'), t('msg_please_generate_labels_first'));
             return;
         }
         try {
@@ -358,7 +358,7 @@ const LabelGenerator = () => {
             showSuccessDialog(t('msg_success'), t('msg_success'));
         } catch (error) {
             console.error(error);
-            showErrorDialog(t('msg_error'), 'Failed to generate PDF');
+            showErrorDialog(t('msg_error'), t('msg_failed_generate_pdf'));
         }
     };
 
@@ -371,16 +371,16 @@ const LabelGenerator = () => {
         <div className="relative flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
             {isGenerating && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-sm">
-                    <Loader fullScreen={false} message={labelType === 'barcode' ? 'Generating Barcodes...' : 'Generating QR Codes...'} />
+                    <Loader fullScreen={false} message={labelType === 'barcode' ? t('msg_generating_barcodes') : t('msg_generating_qr_codes')} />
                 </div>
             )}
 
             <div className="border-b border-gray-200 bg-white px-4 py-4 shadow-sm sm:px-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Label Generator</h2>
+                        <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('lbl_label_generator')}</h2>
                         <p className="mt-1 text-sm text-gray-600">
-                            {cartItems.length} product(s) • {totalLabels} label(s)
+                            {cartItems.length} {t('lbl_products_short')} • {totalLabels} {t('lbl_labels_short')}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -388,10 +388,10 @@ const LabelGenerator = () => {
                             onClick={() => setShowSettings(!showSettings)}
                             className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:from-blue-600 hover:to-blue-700"
                         >
-                            <Settings2 className="mr-2 inline h-4 w-4" /> {showSettings ? 'Hide' : 'Show'} Settings
+                            <Settings2 className="mr-2 inline h-4 w-4" /> {showSettings ? t('btn_hide') : t('btn_show')} {t('lbl_settings')}
                         </button>
                         <button onClick={handleClearAll} className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100">
-                            <Trash2 className="mr-2 inline h-4 w-4" /> Clear All
+                            <Trash2 className="mr-2 inline h-4 w-4" /> {t('btn_clear_all')}
                         </button>
                     </div>
                 </div>
@@ -403,7 +403,7 @@ const LabelGenerator = () => {
                             labelType === 'barcode' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'border border-gray-300 bg-white text-gray-700'
                         }`}
                     >
-                        Barcode
+                        {t('lbl_barcode')}
                     </button>
                     <button
                         onClick={() => setLabelType('qrcode')}
@@ -411,7 +411,7 @@ const LabelGenerator = () => {
                             labelType === 'qrcode' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md' : 'border border-gray-300 bg-white text-gray-700'
                         }`}
                     >
-                        QR Code
+                        {t('lbl_qr_code')}
                     </button>
                 </div>
 
@@ -420,7 +420,7 @@ const LabelGenerator = () => {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             {/* LEFT SIDE: PAPER & PRESETS */}
                             <div>
-                                <h3 className="mb-4 text-base font-bold text-gray-900">Label Size & Presets</h3>
+                                <h3 className="mb-4 text-base font-bold text-gray-900">{t('lbl_label_size_presets')}</h3>
 
                                 <div className="mb-4">
                                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -451,9 +451,9 @@ const LabelGenerator = () => {
                                                 isCustomLabel ? 'border-blue-600 bg-blue-100 text-blue-900' : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
                                             }`}
                                         >
-                                            <Settings2 className="mr-1 inline h-3 w-3" /> Custom
+                                            <Settings2 className="mr-1 inline h-3 w-3" /> {t('lbl_custom')}
                                             <br />
-                                            <span className="text-gray-500">Edit Size</span>
+                                            <span className="text-gray-500">{t('lbl_edit_size')}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -462,7 +462,7 @@ const LabelGenerator = () => {
                                 {isCustomLabel && (
                                     <div className="animate-in fade-in slide-in-from-top-2 mb-4 grid grid-cols-2 gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
                                         <div>
-                                            <label className="mb-1 block text-xs font-semibold text-gray-700">Width (mm)</label>
+                                            <label className="mb-1 block text-xs font-semibold text-gray-700">{t('lbl_width_mm')}</label>
                                             <input
                                                 type="number"
                                                 min="10"
@@ -473,7 +473,7 @@ const LabelGenerator = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="mb-1 block text-xs font-semibold text-gray-700">Height (mm)</label>
+                                            <label className="mb-1 block text-xs font-semibold text-gray-700">{t('lbl_height_mm')}</label>
                                             <input
                                                 type="number"
                                                 min="10"
@@ -487,7 +487,7 @@ const LabelGenerator = () => {
                                 )}
 
                                 <div className="border-t border-gray-100 pt-4">
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">Paper Size</label>
+                                    <label className="mb-2 block text-sm font-semibold text-gray-700">{t('lbl_paper_size')}</label>
                                     <select value={paperSize} onChange={(e) => setPaperSize(e.target.value)} className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm">
                                         {PAPER_SIZES.map((size) => (
                                             <option key={size.value} value={size.value}>
@@ -498,7 +498,7 @@ const LabelGenerator = () => {
                                     {paperSize === 'custom' && (
                                         <div className="mt-2 grid grid-cols-2 gap-3 rounded-lg bg-gray-50 p-2">
                                             <div>
-                                                <label className="text-xs">Page W (mm)</label>
+                                                <label className="text-xs">{t('lbl_page_w_mm')}</label>
                                                 <input
                                                     type="number"
                                                     value={customPaperDims.width === 0 ? '' : customPaperDims.width}
@@ -507,7 +507,7 @@ const LabelGenerator = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-xs">Page H (mm)</label>
+                                                <label className="text-xs">{t('lbl_page_h_mm')}</label>
                                                 <input
                                                     type="number"
                                                     value={customPaperDims.height === 0 ? '' : customPaperDims.height}
@@ -523,7 +523,7 @@ const LabelGenerator = () => {
                             {/* RIGHT SIDE: VISUAL PREVIEW */}
                             <div className="relative flex flex-col items-center justify-center overflow-visible rounded-xl border border-gray-200 bg-gray-100 p-6">
                                 <h4 className="absolute left-4 top-3 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-gray-400">
-                                    <ScanLine className="h-3 w-3" /> Live Preview
+                                    <ScanLine className="h-3 w-3" /> {t('lbl_live_preview')}
                                 </h4>
 
                                 {/* Scale 1mm = 4px for visibility, limited max */}
@@ -574,10 +574,10 @@ const LabelGenerator = () => {
 
                         {/* Global Settings Bar (Bottom) */}
                         <div className="mt-6 border-t border-gray-200 pt-4">
-                            <h3 className="mb-3 text-sm font-bold text-gray-900">Content Settings</h3>
+                            <h3 className="mb-3 text-sm font-bold text-gray-900">{t('lbl_content_settings')}</h3>
                             <div className="flex flex-wrap gap-4">
                                 <div className="flex items-center gap-2">
-                                    <label className="text-sm font-semibold text-gray-700">Copies:</label>
+                                    <label className="text-sm font-semibold text-gray-700">{t('lbl_copies')}:</label>
                                     <input
                                         type="number"
                                         min="1"
@@ -588,7 +588,7 @@ const LabelGenerator = () => {
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <label className="text-sm font-semibold text-gray-700">Type:</label>
+                                    <label className="text-sm font-semibold text-gray-700">{t('lbl_type')}:</label>
                                     <select
                                         value={labelType === 'barcode' ? globalBarcodeType : globalQRSize}
                                         onChange={(e) => (labelType === 'barcode' ? setGlobalBarcodeType(e.target.value) : setGlobalQRSize(parseInt(e.target.value)))}
@@ -626,7 +626,7 @@ const LabelGenerator = () => {
             <div className="border-b border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="text-sm font-medium text-gray-600">
-                        Total: <span className="font-bold text-gray-900">{totalLabels} labels</span> for <span className="font-bold text-gray-900">{cartItems.length} items</span>
+                        {t('lbl_total')}: <span className="font-bold text-gray-900">{totalLabels} {t('lbl_labels_short')}</span> {t('lbl_for')} <span className="font-bold text-gray-900">{cartItems.length} {t('lbl_items')}</span>
                     </div>
                     <div className="flex gap-2">
                         {generatedLabels.length > 0 && (
@@ -650,7 +650,7 @@ const LabelGenerator = () => {
                             disabled={isGenerating}
                             className="flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-purple-700 disabled:opacity-50"
                         >
-                            {isGenerating ? 'Generating...' : 'Generate Labels'}
+                            {isGenerating ? t('lbl_generating') : t('btn_generate_labels')}
                         </button>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 import SubscriptionError from '@/components/common/SubscriptionError';
 
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
@@ -65,6 +66,7 @@ function PlanCard({
     billingCycle: 'monthly' | 'annually';
     onSelect: (plan: Plan) => void;
 }) {
+    const { t } = getTranslation();
     const colorKey = getPlanColor(index);
     const colors = colorClasses[colorKey];
     const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
@@ -87,19 +89,19 @@ function PlanCard({
             {isCurrentPlan && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                     <div className="flex items-center gap-1 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
-                        <Check className="h-3 w-3" /> Current Plan
+                        <Check className="h-3 w-3" /> {t('lbl_current_plan')}
                     </div>
                 </div>
             )}
             {isMostPopular && !isCurrentPlan && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <div className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white shadow">Most Popular</div>
+                    <div className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white shadow">{t('lbl_most_popular')}</div>
                 </div>
             )}
             {isSelected && !isCurrentPlan && (
                 <div className="absolute -top-3.5 right-4">
                     <div className="flex items-center gap-1 rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow">
-                        <CheckCircle2 className="h-3 w-3" /> Selected
+                        <CheckCircle2 className="h-3 w-3" /> {t('lbl_selected')}
                     </div>
                 </div>
             )}
@@ -120,12 +122,12 @@ function PlanCard({
                 <div className="mb-1 flex items-baseline gap-1.5">
                     {hasDiscount && <span className="text-sm text-gray-400 line-through">{originalPrice}</span>}
                     <span className="text-2xl font-black text-gray-900">{finalPrice}</span>
-                    <span className="text-xs text-gray-500">/{isAnnually ? 'yr' : 'mo'}</span>
+                    <span className="text-xs text-gray-500">/{isAnnually ? t('lbl_yr') : t('lbl_mo')}</span>
                 </div>
                 {isAnnually && yearlySavings > 0 && (
                     <div className="mb-3">
                         <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                            Save {yearlySavings}% vs monthly
+                            {t('lbl_save')} {yearlySavings}% {t('lbl_vs_monthly')}
                         </span>
                     </div>
                 )}
@@ -140,7 +142,7 @@ function PlanCard({
                                 <span className="text-xs text-gray-600">{item.title_en}</span>
                             </li>
                         ))}
-                        {plan.items.length > 4 && <li className="text-xs text-gray-400">+{plan.items.length - 4} more features</li>}
+                        {plan.items.length > 4 && <li className="text-xs text-gray-400">+{plan.items.length - 4} {t('lbl_more_features')}</li>}
                     </ul>
                 )}
 
@@ -157,7 +159,7 @@ function PlanCard({
                         isCurrentPlan ? 'cursor-not-allowed bg-green-100 text-green-700' : isSelected ? `${colors.button} shadow-sm` : `${colors.badge} hover:opacity-90`
                     )}
                 >
-                    {isCurrentPlan ? '✓ Current Plan' : isSelected ? '✓ Selected' : `Choose ${plan.name_en}`}
+                    {isCurrentPlan ? `✓ ${t('lbl_current_plan')}` : isSelected ? `✓ ${t('lbl_selected')}` : `${t('btn_choose')} ${plan.name_en}`}
                 </button>
             </div>
         </div>
@@ -166,6 +168,7 @@ function PlanCard({
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SubscriptionPage() {
+    const { t } = getTranslation();
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -257,6 +260,18 @@ export default function SubscriptionPage() {
         }
     };
 
+    const contactItems = [
+        { icon: MapPin, label: t('lbl_visit_us'), value: 'House 34, Road 3, Block B, Aftabnagar, Dhaka' },
+        { icon: Phone, label: t('lbl_call_us'), value: '+880 1577303608' },
+        { icon: Mail, label: t('lbl_email_us'), value: 'support@andgatetech.net' },
+    ];
+
+    const nextSteps = [
+        { n: 1, title: t('subscription_step1_title'), desc: t('subscription_step1_desc') },
+        { n: 2, title: t('subscription_step2_title'), desc: t('subscription_step2_desc') },
+        { n: 3, title: t('subscription_step3_title'), desc: t('subscription_step3_desc') },
+    ];
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -267,10 +282,10 @@ export default function SubscriptionPage() {
                 <div className="mb-8 text-center">
                     <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-700">
                         <Crown className="h-4 w-4" />
-                        Upgrade Subscription
+                        {t('lbl_upgrade_subscription')}
                     </div>
-                    <h1 className="mb-2 text-3xl font-black text-gray-900 md:text-4xl">Choose Your Plan</h1>
-                    <p className="text-gray-500">Select a plan below, then fill out the form — our team will activate it for you.</p>
+                    <h1 className="mb-2 text-3xl font-black text-gray-900 md:text-4xl">{t('subscription_page_title')}</h1>
+                    <p className="text-gray-500">{t('subscription_page_subtitle')}</p>
                 </div>
 
                 {/* ── Plan Cards ── */}
@@ -278,7 +293,7 @@ export default function SubscriptionPage() {
                     {plansLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                            <span className="ml-3 text-gray-500">Loading plans...</span>
+                            <span className="ml-3 text-gray-500">{t('msg_loading_plans')}</span>
                         </div>
                     ) : (
                         <>
@@ -290,11 +305,11 @@ export default function SubscriptionPage() {
                                             key={cycle}
                                             onClick={() => setBillingCycle(cycle)}
                                             className={classNames(
-                                                'rounded-lg px-5 py-2 text-sm font-semibold capitalize transition-all duration-200',
+                                                'rounded-lg px-5 py-2 text-sm font-semibold transition-all duration-200',
                                                 billingCycle === cycle ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'
                                             )}
                                         >
-                                            {cycle}
+                                            {cycle === 'monthly' ? t('lbl_monthly') : t('lbl_annually')}
                                         </button>
                                     ))}
                                 </div>
@@ -323,7 +338,7 @@ export default function SubscriptionPage() {
                             {selectedPlan && (
                                 <div className="mt-6 flex flex-col items-center gap-1 text-sm text-gray-400">
                                     <div className="h-6 w-px bg-gray-300" />
-                                    <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-600">Step 2 — Fill the form below</span>
+                                    <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-600">{t('subscription_step2_label')}</span>
                                     <div className="h-6 w-px bg-gray-300" />
                                 </div>
                             )}
@@ -341,15 +356,15 @@ export default function SubscriptionPage() {
                                     <Send className="h-4 w-4 text-blue-600" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-bold text-gray-900">Submit Upgrade Request</h2>
+                                    <h2 className="text-lg font-bold text-gray-900">{t('subscription_form_title')}</h2>
                                     <p className="text-xs text-gray-500">
                                         {selectedPlan ? (
                                             <span>
-                                                Selected: <strong className="text-blue-700">{selectedPlan.name_en}</strong> —{' '}
-                                                {formatPrice(billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.yearly_price)}/{billingCycle === 'monthly' ? 'mo' : 'yr'}
+                                                {t('subscription_form_selected')} <strong className="text-blue-700">{selectedPlan.name_en}</strong> —{' '}
+                                                {formatPrice(billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.yearly_price)}/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}
                                             </span>
                                         ) : (
-                                            'Select a plan above first'
+                                            t('subscription_select_plan_first')
                                         )}
                                     </p>
                                 </div>
@@ -359,7 +374,7 @@ export default function SubscriptionPage() {
                                 <div className="grid gap-5 md:grid-cols-2">
                                     <div>
                                         <label htmlFor="name" className="mb-1.5 block text-sm font-semibold text-gray-700">
-                                            Full Name *
+                                            {t('lbl_full_name')} *
                                         </label>
                                         <div className="relative">
                                             <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -371,13 +386,13 @@ export default function SubscriptionPage() {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-blue-500 focus:bg-white focus:outline-none"
-                                                placeholder="Your name"
+                                                placeholder={t('placeholder_your_name')}
                                             />
                                         </div>
                                     </div>
                                     <div>
                                         <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-gray-700">
-                                            Email *
+                                            {t('lbl_email')} *
                                         </label>
                                         <div className="relative">
                                             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -398,7 +413,7 @@ export default function SubscriptionPage() {
                                 <div className="grid gap-5 md:grid-cols-2">
                                     <div>
                                         <label htmlFor="phone" className="mb-1.5 block text-sm font-semibold text-gray-700">
-                                            Phone *
+                                            {t('lbl_phone')} *
                                         </label>
                                         <div className="relative">
                                             <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -416,7 +431,7 @@ export default function SubscriptionPage() {
                                     </div>
                                     <div>
                                         <label htmlFor="store_name" className="mb-1.5 block text-sm font-semibold text-gray-700">
-                                            Store
+                                            {t('lbl_store')}
                                         </label>
                                         <div className="relative">
                                             <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -427,7 +442,7 @@ export default function SubscriptionPage() {
                                                 value={formData.store_name}
                                                 readOnly
                                                 className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 py-2.5 pl-10 pr-4 text-sm text-gray-600"
-                                                placeholder="Auto-filled"
+                                                placeholder={t('placeholder_auto_filled')}
                                             />
                                         </div>
                                     </div>
@@ -436,7 +451,7 @@ export default function SubscriptionPage() {
                                 {/* Selected package (read + editable fallback) */}
                                 <div>
                                     <label htmlFor="package" className="mb-1.5 block text-sm font-semibold text-gray-700">
-                                        Selected Package *
+                                        {t('lbl_selected_package')} *
                                     </label>
                                     <div className="relative">
                                         <Crown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -454,7 +469,7 @@ export default function SubscriptionPage() {
                                                     ? 'cursor-not-allowed border-blue-200 bg-blue-50 font-semibold text-blue-700'
                                                     : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:bg-white'
                                             )}
-                                            placeholder="Select a plan above"
+                                            placeholder={t('placeholder_select_plan_above')}
                                         />
                                     </div>
                                     {selectedPlan && (
@@ -466,7 +481,7 @@ export default function SubscriptionPage() {
                                             }}
                                             className="mt-1 text-xs text-gray-400 underline hover:text-gray-600"
                                         >
-                                            Clear selection
+                                            {t('btn_clear_selection')}
                                         </button>
                                     )}
                                 </div>
@@ -478,11 +493,11 @@ export default function SubscriptionPage() {
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
+                                            <Loader2 className="h-4 w-4 animate-spin" /> {t('btn_sending')}
                                         </>
                                     ) : (
                                         <>
-                                            <Send className="h-4 w-4" /> Submit Upgrade Request
+                                            <Send className="h-4 w-4" /> {t('subscription_form_title')}
                                         </>
                                     )}
                                 </button>
@@ -494,13 +509,9 @@ export default function SubscriptionPage() {
                     <div className="space-y-5 lg:col-span-2">
                         {/* Contact info */}
                         <div className="rounded-2xl bg-white p-5 shadow-sm">
-                            <h3 className="mb-4 text-base font-bold text-gray-900">Get in Touch</h3>
+                            <h3 className="mb-4 text-base font-bold text-gray-900">{t('subscription_get_in_touch')}</h3>
                             <div className="space-y-3">
-                                {[
-                                    { icon: MapPin, label: 'Visit Us', value: 'House 34, Road 3, Block B, Aftabnagar, Dhaka' },
-                                    { icon: Phone, label: 'Call Us', value: '+880 1577303608' },
-                                    { icon: Mail, label: 'Email Us', value: 'support@andgatetech.net' },
-                                ].map(({ icon: Icon, label, value }) => (
+                                {contactItems.map(({ icon: Icon, label, value }) => (
                                     <div key={label} className="flex items-start gap-3">
                                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
                                             <Icon className="h-4 w-4 text-blue-600" />
@@ -516,13 +527,9 @@ export default function SubscriptionPage() {
 
                         {/* What happens next */}
                         <div className="rounded-2xl bg-white p-5 shadow-sm">
-                            <h3 className="mb-4 text-base font-bold text-gray-900">What Happens Next?</h3>
+                            <h3 className="mb-4 text-base font-bold text-gray-900">{t('subscription_what_happens_next')}</h3>
                             <div className="space-y-3">
-                                {[
-                                    { n: 1, title: 'We Review Your Request', desc: 'Our team reviews within 2 hours' },
-                                    { n: 2, title: 'Payment Setup', desc: 'We guide you through payment' },
-                                    { n: 3, title: 'Instant Activation', desc: 'Your new plan activates immediately' },
-                                ].map(({ n, title, desc }) => (
+                                {nextSteps.map(({ n, title, desc }) => (
                                     <div key={n} className="flex items-start gap-3">
                                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">{n}</div>
                                         <div>
@@ -550,13 +557,13 @@ export default function SubscriptionPage() {
                             </div>
                         </div>
                         <div className="text-center">
-                            <h3 className="mb-2 text-2xl font-bold text-gray-900">Request Submitted!</h3>
-                            <p className="mb-6 text-gray-500">Thank you! Our team will contact you shortly to complete your upgrade.</p>
+                            <h3 className="mb-2 text-2xl font-bold text-gray-900">{t('subscription_request_submitted')}</h3>
+                            <p className="mb-6 text-gray-500">{t('subscription_thank_you')}</p>
                             <button
                                 onClick={() => router.push('/dashboard')}
                                 className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white hover:from-blue-700 hover:to-indigo-700"
                             >
-                                Back to Dashboard
+                                {t('btn_back_to_dashboard')}
                             </button>
                         </div>
                     </div>

@@ -14,6 +14,7 @@ import JournalsTable from './components/JournalsTable';
 import ViewJournalModal from './components/ViewJournalModal';
 
 const JournalListPage = () => {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
 
     // Filter and pagination state
@@ -90,15 +91,14 @@ const JournalListPage = () => {
 
     const handleDelete = useCallback(
         async (journal: any) => {
-            const { t } = getTranslation();
-    const confirmed = await showConfirmDialog('Delete Journal Entry?', `Are you sure you want to delete this journal entry? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_delete_journal_confirm'), t('msg_are_you_sure_delete_journal'), t('btn_yes_delete_it'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteJournal(journal.id).unwrap();
-                    showSuccessDialog('Deleted!', 'Journal entry has been deleted successfully.');
+                    showSuccessDialog(t('msg_deleted'), t('msg_journal_deleted'));
                 } catch (error: any) {
-                    showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to delete journal entry.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_delete_journal'));
                 }
             }
         },
@@ -127,8 +127,8 @@ const JournalListPage = () => {
                             <BookOpen className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Journals</h1>
-                            <p className="text-sm text-gray-600">Manage your accounting journal entries</p>
+                            <h1 className="text-2xl font-bold text-gray-900">{t('account_journals')}</h1>
+                            <p className="text-sm text-gray-600">{t('account_journals_desc')}</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ const JournalListPage = () => {
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
                 >
                     <Plus className="h-5 w-5" />
-                    Add Entry
+                    {t('btn_add_entry')}
                 </button>
             </div>
 

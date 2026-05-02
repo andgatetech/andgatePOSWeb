@@ -49,7 +49,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
 
     const handleCreateWarranty = async () => {
         if (!warrantyName.trim()) {
-            showErrorDialog(t('msg_error'), 'Please enter warranty name');
+            showErrorDialog(t('msg_error'), t('msg_warranty_name_required'));
             return;
         }
 
@@ -57,12 +57,12 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         const daysValue = warrantyDurationDays ? parseInt(warrantyDurationDays) : null;
 
         if (!monthsValue && !daysValue) {
-            showErrorDialog(t('msg_error'), 'Please enter at least one duration (months or days)');
+            showErrorDialog(t('msg_error'), t('msg_warranty_duration_required'));
             return;
         }
 
         if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog(t('msg_error'), 'No valid store selected. Cannot create warranty type.');
+            showErrorDialog(t('msg_error'), t('msg_no_valid_store'));
             return;
         }
 
@@ -93,8 +93,8 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             showSuccessDialog(t('msg_success'), t('msg_created_success'));
         } catch (error: any) {
             console.error('Create warranty error:', error);
-            const errorMessage = error?.data?.message || 'Failed to create warranty type';
-            showErrorDialog('Create Failed!', errorMessage);
+            const errorMessage = error?.data?.message || t('msg_failed_create_warranty');
+            showErrorDialog(t('msg_create_failed'), errorMessage);
         }
     };
 
@@ -115,7 +115,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
 
     const handleUpdateWarranty = async (id: number) => {
         if (!editingWarrantyData.name.trim()) {
-            showErrorDialog(t('msg_error'), 'Please enter warranty name');
+            showErrorDialog(t('msg_error'), t('msg_warranty_name_required'));
             return;
         }
 
@@ -123,7 +123,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         const daysValue = editingWarrantyData.duration_days ? parseInt(editingWarrantyData.duration_days) : null;
 
         if (!monthsValue && !daysValue) {
-            showErrorDialog(t('msg_error'), 'Please enter at least one duration (months or days)');
+            showErrorDialog(t('msg_error'), t('msg_warranty_duration_required'));
             return;
         }
 
@@ -149,25 +149,25 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             await updateWarrantyType(payload).unwrap();
             setEditingWarrantyId(null);
             setEditingWarrantyData({ name: '', duration_months: '', duration_days: '', description: '' });
-            showSuccessDialog('Updated!', 'Warranty type updated successfully!');
+            showSuccessDialog(t('msg_updated'), t('msg_warranty_updated'));
         } catch (error: any) {
             console.error('Update warranty error:', error);
-            const errorMessage = error?.data?.message || 'Failed to update warranty type';
-            showErrorDialog('Update Failed!', errorMessage);
+            const errorMessage = error?.data?.message || t('msg_failed_update_warranty');
+            showErrorDialog(t('msg_update_failed'), errorMessage);
         }
     };
 
     const handleDeleteWarranty = async (id: number, name: string) => {
-        const confirmed = await showConfirmDialog('Delete Warranty Type?', `Are you sure you want to delete "${name}"? This cannot be undone.`, 'Yes, delete it!', 'Cancel');
+        const confirmed = await showConfirmDialog(t('msg_delete_warranty_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
 
         if (!confirmed) return;
 
         try {
             await deleteWarrantyType(id).unwrap();
-            showSuccessDialog('Deleted!', 'Warranty type deleted successfully!');
+            showSuccessDialog(t('msg_deleted'), t('msg_warranty_deleted'));
         } catch (error: any) {
-            const errorMessage = error?.data?.message || 'Failed to delete warranty type. It may be in use by products.';
-            showErrorDialog('Delete Failed!', errorMessage);
+            const errorMessage = error?.data?.message || t('msg_failed_delete_warranty');
+            showErrorDialog(t('msg_delete_failed'), errorMessage);
         }
     };
 
@@ -175,7 +175,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
         try {
             const currentWarranty = warrantyTypesData.find((w: any) => w.id === id);
             if (!currentWarranty) {
-                showErrorDialog(t('msg_error'), 'Warranty type not found');
+                showErrorDialog(t('msg_error'), t('msg_warranty_not_found'));
                 return;
             }
 
@@ -199,11 +199,11 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
             console.log('Toggle payload:', payload);
 
             await updateWarrantyType(payload).unwrap();
-            showSuccessDialog('Updated!', 'Warranty type status updated successfully!');
+            showSuccessDialog(t('msg_updated'), t('msg_warranty_status_updated'));
         } catch (error: any) {
             console.error('Toggle warranty error:', error);
-            const errorMessage = error?.data?.message || 'Failed to update warranty type status';
-            showErrorDialog('Update Failed!', errorMessage);
+            const errorMessage = error?.data?.message || t('msg_failed_update_warranty_status');
+            showErrorDialog(t('msg_update_failed'), errorMessage);
         }
     };
 
@@ -234,7 +234,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
     return (
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Warranty Types</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('store_warranty_types_title')}</h3>
 
                 {/* Add New Warranty Type */}
                 <div className="mb-4 grid grid-cols-1 gap-2 md:grid-cols-5">
@@ -242,7 +242,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         type="text"
                         value={warrantyName}
                         onChange={(e) => setWarrantyName(e.target.value)}
-                        placeholder="Warranty name *"
+                        placeholder={t('placeholder_warranty_name')}
                         className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
                     <input
@@ -251,10 +251,10 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         onChange={(e) => {
                             setWarrantyDurationMonths(e.target.value);
                             if (e.target.value) {
-                                setWarrantyDurationDays(''); // Clear days when months is filled
+                                setWarrantyDurationDays('');
                             }
                         }}
-                        placeholder="Months (optional)"
+                        placeholder={t('placeholder_months_optional')}
                         min="0"
                         disabled={!!warrantyDurationDays}
                         className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
@@ -265,10 +265,10 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         onChange={(e) => {
                             setWarrantyDurationDays(e.target.value);
                             if (e.target.value) {
-                                setWarrantyDurationMonths(''); // Clear months when days is filled
+                                setWarrantyDurationMonths('');
                             }
                         }}
-                        placeholder="Days (optional)"
+                        placeholder={t('placeholder_days_optional')}
                         min="0"
                         disabled={!!warrantyDurationMonths}
                         className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
@@ -277,7 +277,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         type="text"
                         value={warrantyDescription}
                         onChange={(e) => setWarrantyDescription(e.target.value)}
-                        placeholder="Description (optional)"
+                        placeholder={t('placeholder_description_optional')}
                         className="rounded border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <button
@@ -286,23 +286,23 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         className="inline-flex items-center justify-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90"
                     >
                         <Plus className="mr-1 h-4 w-4" />
-                        Add Warranty
+                        {t('btn_add_warranty')}
                     </button>
                 </div>
 
-                <p className="mb-4 text-xs text-gray-500">* Enter either months OR days (not both)</p>
+                <p className="mb-4 text-xs text-gray-500">{t('msg_warranty_months_or_days')}</p>
 
                 {/* Warranty Types Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Duration</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Description</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_warranty_name')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_duration')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_description')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -393,11 +393,11 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                         type="button"
                                                         onClick={() => handleUpdateWarranty(warranty.id)}
                                                         className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                        title="Save"
+                                                        title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
                                                     </button>
-                                                    <button type="button" onClick={cancelEditingWarranty} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                    <button type="button" onClick={cancelEditingWarranty} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                         <X className="h-4 w-4" />
                                                     </button>
                                                 </div>
@@ -414,7 +414,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                                 onClick={() => startEditingWarranty(warranty.id, warranty.name, warranty.duration_months, warranty.duration_days, warranty.description)}
                                                                 className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                             >
-                                                                Edit Warranty
+                                                                {t('btn_edit_warranty')}
                                                             </button>
                                                         </li>
                                                         <li className="border-t">
@@ -422,7 +422,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                                 onClick={() => handleDeleteWarranty(warranty.id, warranty.name)}
                                                                 className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                             >
-                                                                Delete Warranty
+                                                                {t('btn_delete_warranty')}
                                                             </button>
                                                         </li>
                                                     </ul>
@@ -434,7 +434,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                             ) : (
                                 <tr>
                                     <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No warranty types added yet. Add your first warranty type above.
+                                        {t('msg_no_warranty_types_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -446,8 +446,8 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> warranty types
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -456,7 +456,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -476,7 +476,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -486,7 +486,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                 {/* Total Count */}
                 {warrantyTypesData && warrantyTypesData.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{warrantyTypesData.length}</span> warranty type(s)
+                        {t('lbl_total')}: <span className="font-semibold">{warrantyTypesData.length}</span>
                     </div>
                 )}
             </div>

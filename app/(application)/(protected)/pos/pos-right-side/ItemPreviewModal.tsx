@@ -70,7 +70,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                 </button>
 
                 <div className="mb-6">
-                    <h3 className="mb-2 text-xl font-bold text-gray-900">Product Details</h3>
+                    <h3 className="mb-2 text-xl font-bold text-gray-900">{t('lbl_product_details')}</h3>
                     <div className="h-1 w-20 rounded bg-gradient-to-r from-blue-500 to-indigo-500"></div>
                 </div>
 
@@ -81,16 +81,16 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
 
                     {/* Badges */}
                     <div className="mt-3 flex flex-wrap gap-2">
-                        {item.isWholesale && <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">Wholesale</span>}
-                        {item.has_serial && <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">Serialized</span>}
-                        {item.has_warranty && <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Has Warranty</span>}
+                        {item.isWholesale && <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">{t('lbl_wholesale')}</span>}
+                        {item.has_serial && <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">{t('lbl_serialized')}</span>}
+                        {item.has_warranty && <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">{t('lbl_has_warranty')}</span>}
                     </div>
                 </div>
 
                 {/* Variant Details */}
                 {item.variantName && (
                     <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <h5 className="mb-2 text-sm font-semibold text-gray-700">Variant</h5>
+                        <h5 className="mb-2 text-sm font-semibold text-gray-700">{t('lbl_variant')}</h5>
                         <p className="mb-2 font-medium text-gray-900">{item.variantName}</p>
                         {item.variantData && (
                             <div className="flex flex-wrap gap-2">
@@ -110,7 +110,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                     <div className="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-4">
                         <h5 className="mb-3 flex items-center gap-2 text-sm font-semibold text-indigo-900">
                             <Hash className="h-4 w-4" />
-                            Serial Numbers
+                            {t('lbl_serial_numbers_title')}
                         </h5>
                         <div className="space-y-2">
                             {item.serials.map((serial) => (
@@ -133,39 +133,39 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                     <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
                         <h5 className="mb-3 flex items-center gap-2 text-sm font-semibold text-green-900">
                             <Shield className="h-4 w-4" />
-                            Warranty Information
+                            {t('lbl_warranty_information')}
                         </h5>
                         <div className="space-y-2 rounded-lg bg-white p-4">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Type:</span>
+                                <span className="text-sm text-gray-600">{t('lbl_type')}:</span>
                                 <span className="text-sm font-semibold text-gray-900">{item.warranty.warranty_type_name}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Duration:</span>
+                                <span className="text-sm text-gray-600">{t('lbl_duration')}:</span>
                                 <span className="text-sm font-semibold text-gray-900">
-                                    {item.warranty.duration_months ? `${item.warranty.duration_months} months` : item.warranty.duration_days ? `${item.warranty.duration_days} days` : 'Lifetime'}
+                                    {item.warranty.duration_months ? `${item.warranty.duration_months} ${t('lbl_months')}` : item.warranty.duration_days ? `${item.warranty.duration_days} ${t('lbl_days')}` : t('lbl_lifetime')}
                                 </span>
                             </div>
                             {item.warranty.start_date && (
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">Start Date:</span>
+                                    <span className="text-sm text-gray-600">{t('lbl_start_date')}:</span>
                                     <span className="text-sm font-semibold text-gray-900">{item.warranty.start_date}</span>
                                 </div>
                             )}
                             {item.warranty.end_date && (
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">End Date:</span>
+                                    <span className="text-sm text-gray-600">{t('lbl_end_date')}:</span>
                                     <span className="text-sm font-semibold text-gray-900">{item.warranty.end_date}</span>
                                 </div>
                             )}
                             {item.warranty.remaining_days !== null && (
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">Remaining:</span>
-                                    <span className="text-sm font-semibold text-gray-900">{item.warranty.remaining_days} days</span>
+                                    <span className="text-sm text-gray-600">{t('lbl_remaining')}:</span>
+                                    <span className="text-sm font-semibold text-gray-900">{item.warranty.remaining_days} {t('lbl_days')}</span>
                                 </div>
                             )}
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Status:</span>
+                                <span className="text-sm text-gray-600">{t('lbl_status')}:</span>
                                 <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.warranty.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                                     {item.warranty.status}
                                 </span>
@@ -176,30 +176,30 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
 
                 {/* Pricing Details */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <h5 className="mb-3 text-sm font-semibold text-gray-700">Pricing</h5>
+                    <h5 className="mb-3 text-sm font-semibold text-gray-700">{t('lbl_pricing')}</h5>
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <span className="text-sm text-gray-600">Quantity:</span>
+                            <span className="text-sm text-gray-600">{t('lbl_quantity')}:</span>
                             <span className="text-sm font-semibold text-gray-900">{item.quantity}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-sm text-gray-600">Unit:</span>
-                            <span className="text-sm font-semibold text-gray-900">{item.unit || 'piece'}</span>
+                            <span className="text-sm text-gray-600">{t('lbl_unit')}:</span>
+                            <span className="text-sm font-semibold text-gray-900">{item.unit || t('lbl_piece')}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-sm text-gray-600">Rate per unit:</span>
+                            <span className="text-sm text-gray-600">{t('lbl_rate_per_unit')}:</span>
                             <span className="text-sm font-semibold text-gray-900">{formatCurrency(item.rate)}</span>
                         </div>
                         {item.tax_rate && (
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">Tax:</span>
+                                <span className="text-sm text-gray-600">{t('lbl_tax')}:</span>
                                 <span className="text-sm font-semibold text-gray-900">
-                                    {item.tax_rate}% ({item.tax_included ? 'Included' : 'Excluded'})
+                                    {item.tax_rate}% ({item.tax_included ? t('lbl_included') : t('lbl_excluded')})
                                 </span>
                             </div>
                         )}
                         <div className="flex justify-between border-t border-gray-300 pt-2">
-                            <span className="text-base font-bold text-gray-900">Total Amount:</span>
+                            <span className="text-base font-bold text-gray-900">{t('lbl_total_amount')}:</span>
                             <span className="text-lg font-bold text-primary">{totalAmount()}</span>
                         </div>
                     </div>
@@ -207,7 +207,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
 
                 <div className="mt-6 flex justify-end">
                     <button className="btn btn-secondary px-5 py-2 text-sm hover:bg-gray-200" onClick={onClose}>
-                        Close
+                        {t('btn_close')}
                     </button>
                 </div>
             </div>

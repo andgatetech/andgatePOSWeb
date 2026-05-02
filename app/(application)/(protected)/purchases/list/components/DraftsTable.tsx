@@ -51,7 +51,7 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 label: t('lbl_supplier'),
                 render: (value, row) => (
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{row.purchase_type === 'walk_in' ? 'Walk-in Purchase' : value?.name || 'N/A'}</span>
+                        <span className="font-medium text-gray-900">{row.purchase_type === 'walk_in' ? t('lbl_walk_in_purchase') : value?.name || 'N/A'}</span>
                     </div>
                 ),
             },
@@ -70,9 +70,9 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                     return (
                         <div className="flex flex-col gap-1">
                             <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                                {totalItems} {t('lbl_items')}
                             </span>
-                            {newProducts > 0 && <span className="text-xs text-green-600">+{newProducts} new</span>}
+                            {newProducts > 0 && <span className="text-xs text-green-600">+{newProducts} {t('lbl_new')}</span>}
                         </div>
                     );
                 },

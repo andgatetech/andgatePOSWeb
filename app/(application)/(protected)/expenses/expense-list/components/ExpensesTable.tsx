@@ -143,8 +143,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             sorting={sorting}
             emptyState={{
                 icon: <Receipt className="mx-auto h-16 w-16" />,
-                title: 'No Expenses Found',
-                description: 'No expenses match your current filters. Try adjusting your search criteria or add a new expense.',
+                title: t('msg_no_expenses_found'),
+                description: t('msg_no_expenses_desc'),
             }}
         />
     );

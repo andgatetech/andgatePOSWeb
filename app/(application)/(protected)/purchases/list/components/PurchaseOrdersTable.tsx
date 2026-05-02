@@ -48,7 +48,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
                 label: t('lbl_supplier'),
                 render: (value) => (
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{value?.name || 'Walk-in Purchase'}</span>
+                        <span className="font-medium text-gray-900">{value?.name || t('lbl_walk_in_purchase')}</span>
                         {value?.phone && <span className="text-xs text-gray-500">{value.phone}</span>}
                     </div>
                 ),
@@ -67,9 +67,9 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({ orders, isLoa
                     return (
                         <div className="flex flex-col gap-1">
                             <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                                {itemCount} {t('lbl_items')}
                             </span>
-                            {newItems > 0 && <span className="text-xs text-green-600">+{newItems} new</span>}
+                            {newItems > 0 && <span className="text-xs text-green-600">+{newItems} {t('lbl_new')}</span>}
                         </div>
                     );
                 },

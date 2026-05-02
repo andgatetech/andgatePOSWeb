@@ -1,6 +1,7 @@
 'use client';
 import { ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 export interface TableColumn {
     key: string;
@@ -55,6 +56,7 @@ interface ActionsDropdownProps {
 }
 
 const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen, onToggle, onClose }) => {
+    const { t } = getTranslation();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -93,7 +95,7 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
 
     return (
         <div className="relative flex justify-center">
-            <button ref={buttonRef} onClick={onToggle} className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900" title="Actions">
+            <button ref={buttonRef} onClick={onToggle} className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900" title={t('lbl_actions')}>
                 <MoreVertical className="h-5 w-5" />
             </button>
 
@@ -141,6 +143,7 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
 };
 
 const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, isLoading = false, emptyState, pagination, sorting, className = '', rowClassName }) => {
+    const { t } = getTranslation();
     const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
 
     if (isLoading) {
@@ -190,7 +193,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                                     </div>
                                 </th>
                             ))}
-                            {actions && actions.length > 0 && <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-700">Actions</th>}
+                            {actions && actions.length > 0 && <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_actions')}</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">

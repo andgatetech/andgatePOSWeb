@@ -56,6 +56,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     fileName,
     fetchAllData,
 }) => {
+    const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
     const { code, symbol } = useCurrency();
     const user = useSelector((state: RootState) => state.auth?.user);
@@ -73,37 +74,36 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
     // Get date display text
     const dateDisplayText = useMemo(() => {
-        if (!filterSummary?.dateRange) return 'All Time';
+        if (!filterSummary?.dateRange) return t('lbl_all_time');
         const { type, startDate, endDate } = filterSummary.dateRange;
 
-        if (type === 'none' || (!startDate && !endDate)) return 'All Time';
-        if (type === 'today') return 'Today';
-        if (type === 'yesterday') return 'Yesterday';
-        if (type === 'this_week') return 'This Week';
-        if (type === 'last_week') return 'Last Week';
-        if (type === 'this_month') return 'This Month';
-        if (type === 'last_month') return 'Last Month';
-        if (type === 'this_year') return 'This Year';
+        if (type === 'none' || (!startDate && !endDate)) return t('lbl_all_time');
+        if (type === 'today') return t('lbl_today');
+        if (type === 'yesterday') return t('lbl_yesterday');
+        if (type === 'this_week') return t('lbl_this_week');
+        if (type === 'last_week') return t('lbl_last_week');
+        if (type === 'this_month') return t('lbl_this_month');
+        if (type === 'last_month') return t('lbl_last_month');
+        if (type === 'this_year') return t('lbl_this_year');
 
         if (startDate && endDate) {
             return `${format(parseSafeDate(startDate), 'dd MMM yyyy')} - ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
         }
-        if (startDate) return `From ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
-        if (endDate) return `Until ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
+        if (startDate) return `${t('lbl_from')} ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
+        if (endDate) return `${t('lbl_until')} ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
 
-        return 'Custom Range';
-    }, [filterSummary?.dateRange]);
+        return t('lbl_custom_range');
+    }, [filterSummary?.dateRange, t]);
 
-    const storeDisplayText = filterSummary?.storeName || currentStore?.store_name || 'All Stores';
+    const storeDisplayText = filterSummary?.storeName || currentStore?.store_name || t('lbl_all_stores');
     const baseFileName = fileName || reportTitle.toLowerCase().replace(/\s+/g, '_');
 
     // Build dynamic title with filter info
     const displayTitle = useMemo(() => {
-        const { t } = getTranslation();
-    const filterParts: string[] = [];
+        const filterParts: string[] = [];
 
         // Add date range if not "All Time"
-        if (dateDisplayText && dateDisplayText !== 'All Time') {
+        if (dateDisplayText && dateDisplayText !== t('lbl_all_time')) {
             filterParts.push(dateDisplayText);
         }
 
@@ -120,7 +120,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
         }
 
         return reportTitle;
-    }, [reportTitle, dateDisplayText, filterSummary?.customFilters]);
+    }, [reportTitle, dateDisplayText, filterSummary?.customFilters, t]);
 
     // Helper to sanitize text for PDF (replace unsupported Unicode)
     const sanitizeForPdf = useCallback(
@@ -200,7 +200,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 const totalRow: Record<string, any> = {};
                 columns.forEach((col, idx) => {
                     if (idx === 0) {
-                        totalRow[col.label] = 'TOTAL:';
+                        totalRow[col.label] = t('lbl_total').toUpperCase() + ':';
                     } else {
                         totalRow[col.label] = totals[col.label] !== undefined ? totals[col.label] : '';
                     }
@@ -248,11 +248,11 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
             if (storeDetails.contact) {
-                doc.text(`Phone: ${storeDetails.contact}`, margin, yPos);
+                doc.text(`${t('lbl_phone')}: ${storeDetails.contact}`, margin, yPos);
                 yPos += 4;
             }
             if (storeDetails.location) {
-                doc.text(`Address: ${sanitizeForPdf(storeDetails.location)}`, margin, yPos);
+                doc.text(`${t('lbl_address')}: ${sanitizeForPdf(storeDetails.location)}`, margin, yPos);
                 yPos += 4;
             }
 
@@ -266,9 +266,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100);
-            doc.text(`Period: ${dateDisplayText}`, rightX, 17, { align: 'right' });
-            doc.text(`Store: ${storeDisplayText}`, rightX, 21, { align: 'right' });
-            doc.text(`Generated: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, rightX, 25, { align: 'right' });
+            doc.text(`${t('lbl_period')}: ${dateDisplayText}`, rightX, 17, { align: 'right' });
+            doc.text(`${t('lbl_store')}: ${storeDisplayText}`, rightX, 21, { align: 'right' });
+            doc.text(`${t('lbl_generated')}: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, rightX, 25, { align: 'right' });
 
             // Custom filters
             if (filterSummary?.customFilters && filterSummary.customFilters.length > 0) {
@@ -314,7 +314,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const totals = getTotals(exportData);
             if (Object.keys(totals).length > 0) {
                 const totalRow = columns.map((col, idx) => {
-                    if (idx === 0) return 'TOTAL';
+                    if (idx === 0) return t('lbl_total').toUpperCase();
                     if (col.key === 'serial' || col.label === '#') return '';
                     // Only show total if the column was calculated in getTotals
                     return totals[col.label] !== undefined ? `${totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
@@ -387,13 +387,13 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 doc.setPage(i);
                 doc.setFontSize(7);
                 doc.setTextColor(150);
-                doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+                doc.text(`${t('lbl_page')} ${i} ${t('lbl_of')} ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
                 doc.text(`${storeDetails.name} - ${reportTitle}`, margin, pageHeight - 10);
             }
 
             return doc;
         },
-        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf]
+        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf, t]
     );
 
     // PDF Export

@@ -69,6 +69,7 @@ interface ColorfulCardProps {
 
 const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCurrency = true, isPercentage = false, showMinus = false }: ColorfulCardProps) => {
     const { symbol } = useCurrency();
+    const { t } = getTranslation();
 
     return (
         <div className={`group rounded-xl p-4 shadow-sm transition-all duration-200 hover:shadow-lg ${bgGradient}`}>
@@ -88,7 +89,7 @@ const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCu
             </div>
             <div className="mt-3 border-t border-white/20 pt-2.5">
                 <Link href={route} className="text-xs font-medium text-white/80 transition-colors hover:text-white">
-                    View All →
+                    {t('lbl_view_all')} →
                 </Link>
             </div>
         </div>
@@ -110,6 +111,7 @@ interface WhiteCardProps {
 
 const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, isCurrency = true, isPercentage = false }: WhiteCardProps) => {
     const { symbol } = useCurrency();
+    const { t } = getTranslation();
 
     return (
         <div className="group rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-200 hover:border-gray-200 hover:shadow-md">
@@ -128,7 +130,7 @@ const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, 
             </div>
             <div className="mt-3 border-t border-gray-100 pt-2.5">
                 <Link href={route} className="text-xs font-medium text-primary transition-colors hover:text-primary/80">
-                    View All →
+                    {t('lbl_view_all')} →
                 </Link>
             </div>
         </div>
@@ -207,7 +209,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                         <div className="mt-2 border-t border-gray-100 pt-3">
                             <div className="space-y-2 px-1">
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-gray-500">Start Date</label>
+                                    <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_start_date')}</label>
                                     <input
                                         type="date"
                                         value={customStartDate}
@@ -216,7 +218,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-1 block text-xs font-medium text-gray-500">End Date</label>
+                                    <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_end_date')}</label>
                                     <input
                                         type="date"
                                         value={customEndDate}
@@ -232,7 +234,7 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
                                     disabled={!customStartDate || !customEndDate}
                                     className="mt-1 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    Apply Range
+                                    {t('btn_apply_range')}
                                 </button>
                             </div>
                         </div>
@@ -289,7 +291,7 @@ export default function Summary() {
         if (period === 'custom' && appliedCustomStart && appliedCustomEnd) {
             return `${appliedCustomStart} — ${appliedCustomEnd}`;
         }
-        return option?.label || 'This Month';
+        return option?.label || t('lbl_this_month');
     };
 
     // ─── Loading ─────────────────────────────────────────────────────────────
@@ -298,7 +300,7 @@ export default function Summary() {
         return (
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-800">Overview</h2>
+                    <h2 className="text-lg font-semibold text-gray-800">{t('lbl_overview')}</h2>
                     <div className="h-9 w-36 animate-pulse rounded-lg bg-gray-200"></div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -320,7 +322,7 @@ export default function Summary() {
     if (isError || !dashboardData?.data) {
         return (
             <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-                <p className="text-sm text-red-600">Failed to load dashboard data. Please try again.</p>
+                <p className="text-sm text-red-600">{t('msg_failed_to_load_dashboard')}</p>
             </div>
         );
     }
@@ -335,14 +337,14 @@ export default function Summary() {
 
     const row1Cards = [
         {
-            title: 'Total Sales',
+            title: t('lbl_total_sales'),
             numericValue: cards.total_sales?.value ?? 0,
             icon: FileText,
             bgGradient: 'bg-gradient-to-br from-[#046ca9] to-[#034d79]',
             route: '/reports/sales',
         },
         {
-            title: 'Profit Margin',
+            title: t('lbl_profit_margin'),
             numericValue: cards.profit_margin?.value ?? 0,
             icon: Percent,
             bgGradient: 'bg-gradient-to-br from-[#059669] to-[#047857]',
@@ -351,7 +353,7 @@ export default function Summary() {
             isPercentage: true,
         },
         {
-            title: 'Sales Receivable',
+            title: t('lbl_sales_receivable'),
             numericValue: cards.sales_receivable?.value ?? 0,
             icon: CreditCard,
             bgGradient: 'bg-gradient-to-br from-[#d97706] to-[#b45309]',
@@ -359,7 +361,7 @@ export default function Summary() {
             showMinus: true,
         },
         {
-            title: 'Total Purchase',
+            title: t('lbl_total_purchase'),
             numericValue: cards.total_purchase?.value ?? 0,
             icon: ShoppingCart,
             bgGradient: 'bg-gradient-to-br from-[#6366f1] to-[#4f46e5]',
@@ -369,21 +371,21 @@ export default function Summary() {
 
     const row2Cards = [
         {
-            title: 'Total Sales Return',
+            title: t('lbl_total_sales_return'),
             numericValue: cards.total_sales_return?.value ?? 0,
             icon: RefreshCw,
             bgGradient: 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c]',
             route: '/reports/order-returns',
         },
         {
-            title: 'Business Profit',
+            title: t('lbl_business_profit'),
             numericValue: cards.business_profit?.value ?? 0,
             icon: Wallet,
             bgGradient: 'bg-gradient-to-br from-[#059669] to-[#047857]',
             route: '/reports/profit-loss',
         },
         {
-            title: 'Total Expenses',
+            title: t('lbl_total_expenses'),
             numericValue: cards.total_expenses?.value ?? 0,
             icon: Banknote,
             bgGradient: 'bg-gradient-to-br from-[#dc2626] to-[#b91c1c]',
@@ -391,7 +393,7 @@ export default function Summary() {
             showMinus: true,
         },
         {
-            title: 'Product Profit',
+            title: t('lbl_product_profit'),
             numericValue: cards.product_profit?.value ?? 0,
             icon: TrendingUp,
             bgGradient: 'bg-gradient-to-br from-[#0284c7] to-[#0369a1]',
@@ -403,7 +405,7 @@ export default function Summary() {
 
     const row3Cards = [
         {
-            title: 'Total Discount',
+            title: t('lbl_total_discount'),
             numericValue: cards.total_discount?.value ?? 0,
             icon: BadgePercent,
             iconBg: 'bg-warning/[0.1]',
@@ -411,7 +413,7 @@ export default function Summary() {
             route: '/reports/sales',
         },
         {
-            title: 'Total Tax',
+            title: t('lbl_total_tax'),
             numericValue: cards.total_tax?.value ?? 0,
             icon: Receipt,
             iconBg: 'bg-primary/[0.1]',
@@ -419,7 +421,7 @@ export default function Summary() {
             route: '/reports/sales',
         },
         {
-            title: 'Total Orders',
+            title: t('lbl_total_orders'),
             numericValue: cards.total_orders?.value ?? 0,
             icon: Layers,
             iconBg: 'bg-primary/[0.1]',
@@ -428,7 +430,7 @@ export default function Summary() {
             isCurrency: false,
         },
         {
-            title: 'Total Items Sold',
+            title: t('lbl_total_items_sold'),
             numericValue: cards.total_items_sold?.value ?? 0,
             icon: Package,
             iconBg: 'bg-success/[0.1]',
@@ -444,7 +446,7 @@ export default function Summary() {
         <div className="space-y-4">
             {/* Header with Filter */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-2 sm:pt-0">
-                <h2 className="text-lg font-semibold text-gray-800">Overview</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{t('lbl_overview')}</h2>
                 <FilterDropdown
                     selectedPeriod={period}
                     onPeriodChange={handlePeriodChange}

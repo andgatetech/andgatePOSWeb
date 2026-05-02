@@ -57,6 +57,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
     handleTogglePaymentStatusActive,
     handleSetDefaultPaymentStatus,
 }) => {
+    const { t } = getTranslation();
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -90,16 +91,16 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
                 <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Payment Statuses</h3>
-                    <p className="text-sm text-gray-500">Configure the payment status options for your invoices and orders.</p>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('store_payment_statuses_title')}</h3>
+                    <p className="text-sm text-gray-500">{t('store_payment_statuses_desc')}</p>
                 </div>
 
                 {/* Add New Payment Status */}
                 <div className="mb-6 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <h4 className="text-sm font-semibold text-gray-800">Add Payment Status</h4>
+                    <h4 className="text-sm font-semibold text-gray-800">{t('store_add_payment_status')}</h4>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Status Name *</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_status_name')} *</label>
                             <input
                                 type="text"
                                 value={newPaymentStatus.status_name}
@@ -109,7 +110,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Status Color</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_status_color')}</label>
                             <div className="flex items-center gap-2">
                                 <input
                                     type="color"
@@ -132,7 +133,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label className="text-xs font-medium text-gray-600">Description</label>
+                        <label className="text-xs font-medium text-gray-600">{t('lbl_description')}</label>
                         <textarea
                             value={newPaymentStatus.description}
                             onChange={(e) => setNewPaymentStatusField('description', e.target.value)}
@@ -143,7 +144,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                     </div>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <span className="text-xs text-gray-500">Preview:</span>
+                            <span className="text-xs text-gray-500">{t('lbl_preview')}:</span>
                             <StatusBadge name={newPaymentStatus.status_name || 'Status'} color={newPaymentStatus.status_color} />
                         </div>
                         <button
@@ -152,7 +153,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                             className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success/90"
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
-                            Add Status
+                            {t('btn_add_status')}
                         </button>
                     </div>
                 </div>
@@ -162,13 +163,13 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">ID</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Status</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Color</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Description</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Default</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Active</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Actions</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_status_name')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_status_color')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_description')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_default')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -180,8 +181,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                 </tr>
                             ) : paginatedData && paginatedData.length > 0 ? (
                                 paginatedData.map((status: any) => {
-                                    const { t } = getTranslation();
-    const isEditing = editingPaymentStatusId === status.id;
+                                    const isEditing = editingPaymentStatusId === status.id;
                                     const activeValue = status.is_active === true || status.is_active === 1 || status.is_active === '1';
                                     const defaultValue = status.is_default === true || status.is_default === 1 || status.is_default === '1';
 
@@ -243,14 +243,14 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 {defaultValue ? (
-                                                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">Default</span>
+                                                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{t('lbl_default')}</span>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleSetDefaultPaymentStatus(status.id)}
                                                         className="text-xs text-gray-400 transition-colors hover:text-emerald-600"
-                                                        title="Set as default"
+                                                        title={t('btn_set')}
                                                     >
-                                                        Set
+                                                        {t('btn_set')}
                                                     </button>
                                                 )}
                                             </td>
@@ -271,11 +271,11 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                             type="button"
                                                             onClick={() => handleUpdatePaymentStatus(status.id)}
                                                             className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                            title="Save"
+                                                            title={t('btn_save')}
                                                         >
                                                             <Check className="h-4 w-4" />
                                                         </button>
-                                                        <button type="button" onClick={cancelEditingPaymentStatus} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                        <button type="button" onClick={cancelEditingPaymentStatus} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                             <X className="h-4 w-4" />
                                                         </button>
                                                     </div>
@@ -293,7 +293,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                                         onClick={() => startEditingPaymentStatus(status)}
                                                                         className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                     >
-                                                                        Edit Status
+                                                                        {t('btn_edit_status')}
                                                                     </button>
                                                                 </li>
                                                                 {!defaultValue && (
@@ -302,7 +302,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                                             onClick={() => handleDeletePaymentStatus(status.id, status.status_name)}
                                                                             className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                         >
-                                                                            Delete Status
+                                                                            {t('btn_delete_status')}
                                                                         </button>
                                                                     </li>
                                                                 )}
@@ -317,7 +317,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No payment statuses added yet. Use the form above to create one.
+                                        {t('msg_no_payment_statuses_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -329,8 +329,8 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> payment statuses
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -339,7 +339,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -359,7 +359,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -369,7 +369,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                 {/* Total Count */}
                 {paymentStatuses && paymentStatuses.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{paymentStatuses.length}</span> payment status(es)
+                        {t('lbl_total')}: <span className="font-semibold">{paymentStatuses.length}</span>
                     </div>
                 )}
             </div>

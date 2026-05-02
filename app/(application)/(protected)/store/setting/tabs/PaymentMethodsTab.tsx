@@ -42,6 +42,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
     handleDeletePaymentMethod,
     handleTogglePaymentMethodActive,
 }) => {
+    const { t } = getTranslation();
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -68,16 +69,16 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
                 <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Payment Methods</h3>
-                    <p className="text-sm text-gray-500">Configure the tender types available to your staff during checkout.</p>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('store_payment_methods_title')}</h3>
+                    <p className="text-sm text-gray-500">{t('store_payment_methods_desc')}</p>
                 </div>
 
                 {/* Add New Payment Method */}
                 <div className="mb-6 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <h4 className="text-sm font-semibold text-gray-800">Add Payment Method</h4>
+                    <h4 className="text-sm font-semibold text-gray-800">{t('store_add_payment_method')}</h4>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Method Name *</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_method_name')} *</label>
                             <input
                                 type="text"
                                 value={newPaymentMethod.payment_method_name}
@@ -87,7 +88,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Reference / Number (Optional)</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_reference_number')} ({t('lbl_optional')})</label>
                             <input
                                 type="text"
                                 value={newPaymentMethod.payment_details_number}
@@ -99,7 +100,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Description</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_description')}</label>
                             <textarea
                                 value={newPaymentMethod.description}
                                 onChange={(e) => setNewPaymentMethodField('description', e.target.value)}
@@ -109,7 +110,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Notes</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_notes')}</label>
                             <textarea
                                 value={newPaymentMethod.notes}
                                 onChange={(e) => setNewPaymentMethodField('notes', e.target.value)}
@@ -126,7 +127,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                             className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success/90"
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
-                            Add Method
+                            {t('btn_add_method')}
                         </button>
                     </div>
                 </div>
@@ -136,13 +137,13 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">ID</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Method</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Reference</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Description</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Notes</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Active</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Actions</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_method_name')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_reference_number')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_description')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_notes')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,8 +155,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                 </tr>
                             ) : paginatedData && paginatedData.length > 0 ? (
                                 paginatedData.map((method: any) => {
-                                    const { t } = getTranslation();
-    const isEditing = editingPaymentMethodId === method.id;
+                                    const isEditing = editingPaymentMethodId === method.id;
                                     const activeValue = method.is_active === true || method.is_active === 1 || method.is_active === '1';
 
                                     return (
@@ -227,11 +227,11 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                             type="button"
                                                             onClick={() => handleUpdatePaymentMethod(method.id)}
                                                             className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                            title="Save"
+                                                            title={t('btn_save')}
                                                         >
                                                             <Check className="h-4 w-4" />
                                                         </button>
-                                                        <button type="button" onClick={cancelEditingPaymentMethod} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                        <button type="button" onClick={cancelEditingPaymentMethod} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                             <X className="h-4 w-4" />
                                                         </button>
                                                     </div>
@@ -249,7 +249,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                                         onClick={() => startEditingPaymentMethod(method)}
                                                                         className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                     >
-                                                                        Edit Method
+                                                                        {t('btn_edit_method')}
                                                                     </button>
                                                                 </li>
                                                                 <li className="border-t">
@@ -257,7 +257,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                                         onClick={() => handleDeletePaymentMethod(method.id, method.payment_method_name)}
                                                                         className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                     >
-                                                                        Delete Method
+                                                                        {t('btn_delete_method')}
                                                                     </button>
                                                                 </li>
                                                             </ul>
@@ -271,7 +271,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No payment methods added yet. Use the form above to create one.
+                                        {t('msg_no_payment_methods_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -283,8 +283,8 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> payment methods
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -293,7 +293,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -313,7 +313,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -323,7 +323,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                 {/* Total Count */}
                 {paymentMethods && paymentMethods.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{paymentMethods.length}</span> payment method(s)
+                        {t('lbl_total')}: <span className="font-semibold">{paymentMethods.length}</span>
                     </div>
                 )}
             </div>

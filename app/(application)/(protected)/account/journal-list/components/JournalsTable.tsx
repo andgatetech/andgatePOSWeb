@@ -144,8 +144,8 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             sorting={sorting}
             emptyState={{
                 icon: <BookOpen className="mx-auto h-16 w-16" />,
-                title: 'No Journal Entries Found',
-                description: 'No journal entries match your current filters. Try adjusting your search criteria or add a new entry.',
+                title: t('msg_no_journal_entries_found'),
+                description: t('msg_no_journal_entries_desc'),
             }}
         />
     );

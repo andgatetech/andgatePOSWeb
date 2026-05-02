@@ -543,7 +543,7 @@ const ProductEditForm = () => {
 
     const handleSubmit = async () => {
         if (!currentStore?.id) {
-            showErrorDialog('Store Required', 'Please select a store first!');
+            showErrorDialog(t('msg_store_required'), t('msg_select_store_first'));
             return;
         }
 
@@ -671,11 +671,11 @@ const ProductEditForm = () => {
                     const validMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
                     if (!validMimes.includes(img.file.type)) {
-                        showErrorDialog('Invalid Image', `Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG, PNG, and WebP images are allowed!`);
+                        showErrorDialog(t('msg_invalid_image'), `${t('lbl_variant')} ${index + 1}, ${t('lbl_image')} ${imgIndex + 1}: ${t('msg_only_jpg_png_webp_allowed')}`);
                         throw new Error('Invalid image type');
                     }
                     if (img.file.size > 2 * 1024 * 1024) {
-                        showErrorDialog('File Too Large', `Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
+                        showErrorDialog(t('msg_file_too_large'), `${t('lbl_variant')} ${index + 1}, ${t('lbl_image')} ${imgIndex + 1}: ${t('msg_image_max_2mb')}`);
                         throw new Error('Image too large');
                     }
 
@@ -693,11 +693,11 @@ const ProductEditForm = () => {
                     } else if (img.file) {
                         const validMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
                         if (!validMimes.includes(img.file.type)) {
-                            showErrorDialog('Invalid Image', `Image ${i + 1}: Only JPG, PNG, and WebP images are allowed!`);
+                            showErrorDialog(t('msg_invalid_image'), `${t('lbl_image')} ${i + 1}: ${t('msg_only_jpg_png_webp_allowed')}`);
                             return;
                         }
                         if (img.file.size > 2 * 1024 * 1024) {
-                            showErrorDialog('File Too Large', `Image ${i + 1}: File size must be less than 2MB!`);
+                            showErrorDialog(t('msg_file_too_large'), `${t('lbl_image')} ${i + 1}: ${t('msg_image_max_2mb')}`);
                             return;
                         }
                         newImageFiles.push(img.file as File);
@@ -830,8 +830,8 @@ const ProductEditForm = () => {
                 // Look for SKU-related validation keys like 'stocks.0.sku', 'stocks.1.sku', 'sku', etc.
                 const skuErrorKey = Object.keys(errorData).find((key) => key.toLowerCase().includes('sku'));
                 if (skuErrorKey) {
-                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : 'SKU validation failed';
-                    showErrorDialog('SKU Error', skuMsg);
+                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : t('msg_sku_validation_failed');
+                    showErrorDialog(t('msg_sku_error'), skuMsg);
                     setSkuError(skuMsg);
                     setActiveTab('sku');
                     return;
@@ -858,9 +858,9 @@ const ProductEditForm = () => {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
-                    <h3 className="text-lg font-semibold text-red-600">Error loading product</h3>
+                    <h3 className="text-lg font-semibold text-red-600">{t('msg_error_loading_product')}</h3>
                     <button onClick={() => router.push('/products')} className="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
-                        Back to Products
+                        {t('btn_back_to_products')}
                     </button>
                 </div>
             </div>
@@ -874,8 +874,8 @@ const ProductEditForm = () => {
                 <div className="mb-8 rounded-xl bg-white p-6 shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-                            <p className="mt-1 text-sm text-gray-600">Update product information and inventory</p>
+                            <h1 className="text-3xl font-bold text-gray-900">{t('product_edit_title')}</h1>
+                            <p className="mt-1 text-sm text-gray-600">{t('product_edit_desc')}</p>
                         </div>
                         {currentStore && (
                             <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2">

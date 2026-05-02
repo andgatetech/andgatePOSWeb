@@ -349,7 +349,7 @@ const ProductCreateForm = () => {
             if (currentStore?.id) {
                 fd.append('store_id', String(currentStore.id));
             } else {
-                showErrorDialog('Store Required', 'Please select a store first!');
+                showErrorDialog(t('msg_store_required'), t('msg_select_store_first'));
                 return;
             }
 
@@ -431,12 +431,12 @@ const ProductCreateForm = () => {
                             const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
 
                             if (!validMimes.includes(img.file.type)) {
-                                showErrorDialog('Invalid Image', `Variant ${index + 1}, Image ${imgIndex + 1}: Only JPG and PNG images are allowed!`);
+                                showErrorDialog(t('msg_invalid_image'), `${t('lbl_variant')} ${index + 1}, ${t('lbl_image')} ${imgIndex + 1}: ${t('msg_only_jpg_png_allowed')}`);
                                 throw new Error('Invalid image type');
                             }
 
                             if (img.file.size > 2 * 1024 * 1024) {
-                                showErrorDialog('File Too Large', `Variant ${index + 1}, Image ${imgIndex + 1}: File size must be less than 2MB!`);
+                                showErrorDialog(t('msg_file_too_large'), `${t('lbl_variant')} ${index + 1}, ${t('lbl_image')} ${imgIndex + 1}: ${t('msg_image_max_2mb')}`);
                                 throw new Error('Image too large');
                             }
 
@@ -453,12 +453,12 @@ const ProductCreateForm = () => {
                     const validMimes = ['image/jpeg', 'image/png', 'image/jpg'];
 
                     if (!validMimes.includes(img.file.type)) {
-                        showErrorDialog('Invalid Image', `Image ${i + 1}: Only JPG and PNG images are allowed!`);
+                        showErrorDialog(t('msg_invalid_image'), `${t('lbl_image')} ${i + 1}: ${t('msg_only_jpg_png_allowed')}`);
                         return;
                     }
 
                     if (img.file.size > 2 * 1024 * 1024) {
-                        showErrorDialog('File Too Large', `Image ${i + 1}: File size must be less than 2MB!`);
+                        showErrorDialog(t('msg_file_too_large'), `${t('lbl_image')} ${i + 1}: ${t('msg_image_max_2mb')}`);
                         return;
                     }
 
@@ -560,8 +560,8 @@ const ProductCreateForm = () => {
                 // Look for SKU-related validation keys like 'stocks.0.sku', 'stocks.1.sku', 'sku', etc.
                 const skuErrorKey = Object.keys(errorData).find((key) => key.toLowerCase().includes('sku'));
                 if (skuErrorKey) {
-                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : 'SKU validation failed';
-                    showErrorDialog('SKU Error', skuMsg);
+                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : t('msg_sku_validation_failed');
+                    showErrorDialog(t('msg_sku_error'), skuMsg);
                     setSkuError(skuMsg);
                     setActiveTab('sku');
                     return;

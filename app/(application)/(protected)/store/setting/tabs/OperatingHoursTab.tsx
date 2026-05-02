@@ -29,14 +29,14 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
-                <h3 className="mb-6 text-lg font-semibold text-gray-900">Business Hours</h3>
+                <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_business_hours_title')}</h3>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Opening Time */}
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <Sunrise className="mr-2 h-4 w-4 text-orange-600" />
-                            Opening Time
+                            {t('lbl_opening_time')}
                         </label>
                         <input
                             type="time"
@@ -51,7 +51,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <Sunset className="mr-2 h-4 w-4 text-purple-600" />
-                            Closing Time
+                            {t('lbl_closing_time')}
                         </label>
                         <input
                             type="time"
@@ -68,7 +68,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
                     <div className="mt-6 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-4">
                         <div className="flex items-center justify-center space-x-3">
                             <Clock className="h-5 w-5 text-purple-600" />
-                            <span className="text-sm font-medium text-gray-700">Total Operating Hours:</span>
+                            <span className="text-sm font-medium text-gray-700">{t('lbl_total_operating_hours')}</span>
                             <span className="text-lg font-bold text-purple-700">{calculateTotalHours()}</span>
                         </div>
                     </div>

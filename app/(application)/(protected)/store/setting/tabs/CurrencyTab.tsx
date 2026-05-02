@@ -45,6 +45,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
     handleDeleteCurrency,
     handleToggleCurrencyActive,
 }) => {
+    const { t } = getTranslation();
     // Normalize currency input to array
     const currencyList = Array.isArray(currency) ? currency : currency ? [currency] : [];
 
@@ -71,8 +72,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
     );
 
     const formatPreview = (currencyData: CurrencyForm) => {
-        const { t } = getTranslation();
-    const amount = '1,234.56';
+        const amount = '1,234.56';
         if (currencyData.currency_position === 'before') {
             return `${currencyData.currency_symbol}${amount}`;
         }
@@ -83,16 +83,16 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
                 <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Currency Settings</h3>
-                    <p className="text-sm text-gray-500">Configure the currency used for your store transactions and display.</p>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('store_currency_settings_title')}</h3>
+                    <p className="text-sm text-gray-500">{t('store_currency_settings_desc')}</p>
                 </div>
 
                 {/* Add Currency Form */}
                 <div className="mb-6 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <h4 className="text-sm font-semibold text-gray-800">Add Currency</h4>
+                    <h4 className="text-sm font-semibold text-gray-800">{t('store_add_currency')}</h4>
                     <div className="grid gap-3 md:grid-cols-3">
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Currency Code *</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_currency_code')} *</label>
                             <input
                                 type="text"
                                 value={newCurrency.currency_code}
@@ -103,7 +103,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Currency Name *</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_currency_name')} *</label>
                             <input
                                 type="text"
                                 value={newCurrency.currency_name}
@@ -113,7 +113,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Symbol *</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_currency_symbol')} *</label>
                             <input
                                 type="text"
                                 value={newCurrency.currency_symbol}
@@ -126,7 +126,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                     </div>
                     <div className="grid gap-3 md:grid-cols-4">
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Symbol Position</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_symbol_position')}</label>
                             <select
                                 value={newCurrency.currency_position}
                                 onChange={(e) => setNewCurrencyField('currency_position', e.target.value)}
@@ -137,7 +137,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             </select>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Decimal Places</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_decimal_places')}</label>
                             <input
                                 type="number"
                                 value={newCurrency.decimal_places}
@@ -148,7 +148,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Thousand Separator</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_thousand_separator')}</label>
                             <input
                                 type="text"
                                 value={newCurrency.thousand_separator}
@@ -159,7 +159,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-medium text-gray-600">Decimal Separator</label>
+                            <label className="text-xs font-medium text-gray-600">{t('lbl_decimal_separator')}</label>
                             <input
                                 type="text"
                                 value={newCurrency.decimal_separator}
@@ -172,7 +172,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between rounded-lg border border-dashed border-gray-300 bg-white p-3">
-                        <span className="text-xs text-gray-500">Preview:</span>
+                        <span className="text-xs text-gray-500">{t('lbl_preview')}:</span>
                         <span className="text-sm font-medium text-emerald-700">{formatPreview(newCurrency)}</span>
                     </div>
 
@@ -183,7 +183,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success/90"
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
-                            Add Currency
+                            {t('btn_add_currency')}
                         </button>
                     </div>
                 </div>
@@ -193,14 +193,14 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">ID</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Code</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Name</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Symbol</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Position</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Decimals</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Active</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Actions</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_currency_code')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_currency_name')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_currency_symbol')}</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_symbol_position')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_decimal_places')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -302,11 +302,11 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                             type="button"
                                                             onClick={() => handleUpdateCurrency(cur.id)}
                                                             className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                            title="Save"
+                                                            title={t('btn_save')}
                                                         >
                                                             <Check className="h-4 w-4" />
                                                         </button>
-                                                        <button type="button" onClick={cancelEditingCurrency} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                        <button type="button" onClick={cancelEditingCurrency} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                             <X className="h-4 w-4" />
                                                         </button>
                                                     </div>
@@ -324,7 +324,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                                         onClick={() => startEditingCurrency(cur)}
                                                                         className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                     >
-                                                                        Edit Currency
+                                                                        {t('btn_edit_currency')}
                                                                     </button>
                                                                 </li>
                                                                 <li className="border-t">
@@ -332,7 +332,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                                         onClick={() => handleDeleteCurrency(cur.id, cur.currency_name)}
                                                                         className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                     >
-                                                                        Delete Currency
+                                                                        {t('btn_delete_currency')}
                                                                     </button>
                                                                 </li>
                                                             </ul>
@@ -346,7 +346,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No currency configured. Use the form above to add one.
+                                        {t('msg_no_currency_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -358,8 +358,8 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> currencies
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -368,7 +368,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -388,7 +388,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>

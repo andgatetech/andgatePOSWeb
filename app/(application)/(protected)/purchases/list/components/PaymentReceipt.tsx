@@ -327,55 +327,55 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                     </div>
                                     <div class="store-info">
                                         <h1>${currentStore?.store_name || '.................................'}</h1>
-                                        <p>Number: ${currentStore?.store_contact || '.........................'}</p>
-                                        <p>Address: ${currentStore?.store_location || '.......................'}</p>
+                                        <p>${t('lbl_number')}: ${currentStore?.store_contact || '.........................'}</p>
+                                        <p>${t('lbl_address')}: ${currentStore?.store_location || '.......................'}</p>
                                        
                                     </div>
                                 </div>
                                 <div class="receipt-number">
-                                    <p>Receipt No :</p>
+                                    <p>${t('lbl_receipt_no')} :</p>
                                     <p>${String(transaction.id).padStart(6, '0')}</p>
-                                    <p style="font-size: 11px; color: #4b5563; margin-top: 4px;">Date: ${formatDate(transaction.paid_at)}</p>
+                                    <p style="font-size: 11px; color: #4b5563; margin-top: 4px;">${t('lbl_date')}: ${formatDate(transaction.paid_at)}</p>
                                 </div>
                             </div>
                             
                             <div style="text-align: center; margin: 8px 0;">
-                                <h2 style="font-size: 20px; font-weight: bold; color: #1f2937; letter-spacing: 3px;">MONEY RECEIPT</h2>
+                                <h2 style="font-size: 20px; font-weight: bold; color: #1f2937; letter-spacing: 3px;">${t('lbl_money_receipt')}</h2>
                             </div>
                             
                             <div class="main-content">
                                 <div class="left-column">
                                     <div class="info-row">
-                                        <span class="info-label">Received from :</span>
-                                        <div class="info-value">${purchaseOrder.supplier?.name || 'Walk-in Purchase'}</div>
+                                        <span class="info-label">${t('lbl_received_from')} :</span>
+                                        <div class="info-value">${purchaseOrder.supplier?.name || t('lbl_walk_in_purchase')}</div>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">Amount (Tk) :</span>
+                                        <span class="info-label">${t('lbl_amount_tk')} :</span>
                                         <div class="amount-box">
                                             <span>${formatCurrency(transaction.amount)}</span>
                                         </div>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">Amount in Word :</span>
+                                        <span class="info-label">${t('lbl_amount_in_word')} :</span>
                                         <div class="info-value" style="font-size: 11px;">${numberToWords(transaction.amount)}</div>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">Payment For :</span>
-                                        <div class="info-value">Purchase Order - ${purchaseOrder.invoice_number}</div>
+                                        <span class="info-label">${t('lbl_payment_for')} :</span>
+                                        <div class="info-value">${t('lbl_purchase_order')} - ${purchaseOrder.invoice_number}</div>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">Transaction No :</span>
+                                        <span class="info-label">${t('lbl_transaction_no')} :</span>
                                         <div class="info-value">${String(transaction.id).padStart(8, '0')}</div>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">Contact No :</span>
+                                        <span class="info-label">${t('lbl_contact_no')} :</span>
                                         <div class="info-value">${purchaseOrder.supplier?.phone || purchaseOrder.supplier?.contact || currentStore?.store_contact || 'N/A'}</div>
                                     </div>
                                     ${
                                         transaction.notes
                                             ? `
                                     <div class="info-row">
-                                        <span class="info-label">Notes :</span>
+                                        <span class="info-label">${t('lbl_notes')} :</span>
                                         <div class="info-value" style="font-size: 11px; color: #4b5563;">${transaction.notes}</div>
                                     </div>
                                     `
@@ -386,19 +386,19 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                 <div class="right-column">
                                     <div class="payment-details">
                                         <div class="balance-row">
-                                            <span>Amount of Balance:</span>
+                                            <span>${t('lbl_amount_of_balance')}:</span>
                                             <div class="amount">
                                                 <span>${formatCurrency(purchaseOrder.grand_total)}</span>
                                             </div>
                                         </div>
                                         <div class="balance-row">
-                                            <span>Payment Amount:</span>
+                                            <span>${t('lbl_payment_amount')}:</span>
                                             <div class="amount">
                                                 <span>${formatCurrency(transaction.amount)}</span>
                                             </div>
                                         </div>
                                         <div class="balance-row">
-                                            <span>Balance Due:</span>
+                                            <span>${t('lbl_balance_due')}:</span>
                                             <div class="amount">
                                                 <span>${formatCurrency(purchaseOrder.amount_due)}</span>
                                             </div>
@@ -406,7 +406,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         
                                         <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
                                             <div style="display: flex; align-items: center; gap: 8px;">
-                                                <span style="font-size: 12px; font-weight: 600; color: #374151;">By:</span>
+                                                <span style="font-size: 12px; font-weight: 600; color: #374151;">${t('lbl_by')}:</span>
                                                 <label class="payment-method">
                                                     <input type="radio" checked disabled>
                                                     <span>${transaction.payment_method.charAt(0).toUpperCase() + transaction.payment_method.slice(1).replace('_', ' ')}</span>
@@ -421,7 +421,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         </div>
                                         <div class="signature">
                                             <div class="signature-line"></div>
-                                            <p>Authorized Signature</p>
+                                            <p>${t('lbl_authorized_signature')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -507,15 +507,15 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                     <div className="mb-6 flex gap-3 print:hidden">
                         <button onClick={handlePrint} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white transition hover:bg-primary/90">
                             <Printer size={18} />
-                            Print
+                            {t('btn_print')}
                         </button>
                         <button onClick={handleDownload} className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700">
                             <Download size={18} />
-                            Download
+                            {t('btn_download')}
                         </button>
                         <button onClick={onClose} className="ml-auto flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-white transition hover:bg-gray-700">
                             <X size={18} />
-                            Close
+                            {t('btn_close')}
                         </button>
                     </div>
 
@@ -530,7 +530,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                         <div className="relative z-20 flex h-full flex-col p-6">
                             {/* MONEY RECEIPT Title - Top */}
                             <div className="mb-3 text-center">
-                                <h2 className="text-2xl font-bold tracking-widest text-gray-800">MONEY RECEIPT</h2>
+                                <h2 className="text-2xl font-bold tracking-widest text-gray-800">{t('lbl_money_receipt')}</h2>
                             </div>
 
                             {/* Header Row */}
@@ -541,15 +541,15 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                     </div>
                                     <div>
                                         <h1 className="text-xl font-bold text-gray-800">{currentStore?.store_name || '.................................'}</h1>
-                                        <p className="text-xs text-gray-500">Number: {currentStore?.store_contact || '.........................'}</p>
-                                        <p className="text-xs text-gray-500">Address: {currentStore?.store_location || '.......................'}</p>
+                                        <p className="text-xs text-gray-500">{t('lbl_number')}: {currentStore?.store_contact || '.........................'}</p>
+                                        <p className="text-xs text-gray-500">{t('lbl_address')}: {currentStore?.store_location || '.......................'}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="mb-1 text-xs text-gray-600">Receipt No :</p>
+                                    <p className="mb-1 text-xs text-gray-600">{t('lbl_receipt_no')} :</p>
                                     <p className="text-2xl font-bold text-gray-800">{String(transaction.id).padStart(6, '0')}</p>
                                     <div className="mt-1 flex justify-end gap-1 text-xs text-gray-500">
-                                        Date: <DateColumn date={transaction.paid_at} />
+                                        {t('lbl_date')}: <DateColumn date={transaction.paid_at} />
                                     </div>
                                 </div>
                             </div>
@@ -559,34 +559,34 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                 {/* Left Column */}
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2">
-                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Received from :</label>
-                                        <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-sm text-gray-800">{purchaseOrder.supplier?.name || 'Walk-in Purchase'}</div>
+                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_received_from')} :</label>
+                                        <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-sm text-gray-800">{purchaseOrder.supplier?.name || t('lbl_walk_in_purchase')}</div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Amount (Tk) :</label>
+                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_amount_tk')} :</label>
                                         <div className="flex flex-1 items-center rounded border border-gray-200 bg-gray-50 px-3 py-2">
                                             <span className="flex-1 text-lg font-bold text-gray-800">{formatCurrency(transaction.amount)}</span>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Amount in Word :</label>
+                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_amount_in_word')} :</label>
                                         <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-xs text-gray-700">{numberToWords(transaction.amount)}</div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Payment For :</label>
-                                        <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-sm text-gray-800">Purchase Order - {purchaseOrder.invoice_number}</div>
+                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_payment_for')} :</label>
+                                        <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-sm text-gray-800">{t('lbl_purchase_order')} - {purchaseOrder.invoice_number}</div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Transaction No :</label>
+                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_transaction_no')} :</label>
                                         <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-sm text-gray-800">{String(transaction.id).padStart(8, '0')}</div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Contact No :</label>
+                                        <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_contact_no')} :</label>
                                         <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-sm text-gray-800">
                                             {purchaseOrder.supplier?.phone || purchaseOrder.supplier?.contact || currentStore?.store_contact || 'N/A'}
                                         </div>
@@ -594,7 +594,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
 
                                     {transaction.notes && (
                                         <div className="flex items-center gap-2">
-                                            <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">Notes :</label>
+                                            <label className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">{t('lbl_notes')} :</label>
                                             <div className="flex-1 border-b-2 border-gray-300 px-2 py-1 text-xs text-gray-600">{transaction.notes}</div>
                                         </div>
                                     )}
@@ -605,19 +605,19 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                     {/* Payment Details */}
                                     <div className="flex-1 space-y-2">
                                         <div className="flex items-center justify-between text-xs">
-                                            <span className="font-semibold text-gray-700">Amount of Balance:</span>
+                                            <span className="font-semibold text-gray-700">{t('lbl_amount_of_balance')}:</span>
                                             <div className="flex items-center gap-1">
                                                 <span className="w-20 text-right">{formatCurrency(purchaseOrder.grand_total)}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center justify-between text-xs">
-                                            <span className="font-semibold text-gray-700">Payment Amount:</span>
+                                            <span className="font-semibold text-gray-700">{t('lbl_payment_amount')}:</span>
                                             <div className="flex items-center gap-1">
                                                 <span className="w-20 text-right">{formatCurrency(transaction.amount)}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center justify-between text-xs">
-                                            <span className="font-semibold text-gray-700">Balance Due:</span>
+                                            <span className="font-semibold text-gray-700">{t('lbl_balance_due')}:</span>
                                             <div className="flex items-center gap-1">
                                                 <span className="w-20 text-right">{formatCurrency(purchaseOrder.amount_due)}</span>
                                             </div>
@@ -626,7 +626,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         {/* Payment Method */}
                                         <div className="mt-3 border-t border-gray-200 pt-2">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs font-semibold text-gray-700">By:</span>
+                                                <span className="text-xs font-semibold text-gray-700">{t('lbl_by')}:</span>
                                                 <label className="flex cursor-pointer items-center gap-2">
                                                     <input type="radio" checked readOnly className="h-3 w-3 text-orange-600" />
                                                     <span className="text-xs text-gray-700">
@@ -644,7 +644,7 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ purchaseOrder, transact
                                         </div>
                                         <div className="mt-2 text-right">
                                             <div className="mb-1 w-24 border-b-2 border-gray-400"></div>
-                                            <p className="text-xs text-gray-500">Authorized Signature</p>
+                                            <p className="text-xs text-gray-500">{t('lbl_authorized_signature')}</p>
                                         </div>
                                     </div>
                                 </div>

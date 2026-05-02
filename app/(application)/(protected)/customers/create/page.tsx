@@ -67,26 +67,26 @@ const CreateCustomerPage = () => {
         const newErrors: Partial<CustomerFormData> = {};
 
         if (!formData.name.trim()) {
-            newErrors.name = 'Customer name is required';
-            showMessage('Customer name is required', 'error');
+            newErrors.name = t('msg_customer_name_required');
+            showMessage(t('msg_customer_name_required'), 'error');
         } else if (formData.name.trim().length < 2) {
-            newErrors.name = 'Name must be at least 2 characters';
-            showMessage('Name must be at least 2 characters', 'error');
+            newErrors.name = t('msg_name_min_2_chars');
+            showMessage(t('msg_name_min_2_chars'), 'error');
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (formData.email.trim() && !emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address';
-            if (!newErrors.name) showMessage('Please enter a valid email address', 'error');
+            newErrors.email = t('msg_invalid_email');
+            if (!newErrors.name) showMessage(t('msg_invalid_email'), 'error');
         }
 
         const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
         if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-            if (!newErrors.name && !newErrors.email) showMessage('Phone number is required', 'error');
+            newErrors.phone = t('msg_phone_required');
+            if (!newErrors.name && !newErrors.email) showMessage(t('msg_phone_required'), 'error');
         } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Please enter a valid phone number';
-            if (!newErrors.name && !newErrors.email) showMessage('Please enter a valid phone number', 'error');
+            newErrors.phone = t('msg_invalid_phone');
+            if (!newErrors.name && !newErrors.email) showMessage(t('msg_invalid_phone'), 'error');
         }
 
         setErrors(newErrors);
@@ -101,7 +101,7 @@ const CreateCustomerPage = () => {
         }
 
         if (!currentStoreId) {
-            showMessage('Please select a store first!', 'error');
+            showMessage(t('msg_select_store_first'), 'error');
             return;
         }
 
@@ -156,7 +156,7 @@ const CreateCustomerPage = () => {
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            Loading...
+                            {t('lbl_loading')}
                         </div>
                     </div>
                 </div>
@@ -176,7 +176,7 @@ const CreateCustomerPage = () => {
                             </div>
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-900">{t('customer_create_title')}</h1>
-                                <p className="text-sm text-gray-500">{currentStore ? `Add a new customer to ${currentStore.store_name}` : t('customer_page_desc')}</p>
+                                <p className="text-sm text-gray-500">{currentStore ? `${t('customer_add_to_store')} ${currentStore.store_name}` : t('customer_page_desc')}</p>
                             </div>
                         </div>
                     </div>
@@ -187,7 +187,7 @@ const CreateCustomerPage = () => {
                                     <Store className="h-4 w-4 text-blue-600" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-blue-900">Current Store: {currentStore.store_name}</p>
+                                    <p className="text-sm font-medium text-blue-900">{t('lbl_current_store')}: {currentStore.store_name}</p>
                                 </div>
                             </div>
                         </div>
@@ -200,7 +200,7 @@ const CreateCustomerPage = () => {
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             {/* Basic Information Section */}
                             <div>
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_basic_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Customer Name */}
                                     <div className="md:col-span-2">
@@ -263,7 +263,7 @@ const CreateCustomerPage = () => {
 
                             {/* Membership & Loyalty Section */}
                             <div className="border-t border-gray-200 pt-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Membership & Loyalty</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_membership_loyalty')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                     {/* Membership */}
                                     <div>
@@ -316,14 +316,14 @@ const CreateCustomerPage = () => {
                                             placeholder="0.00"
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
                                         />
-                                        <p className="mt-1 text-xs text-gray-500">Negative for due amount</p>
+                                        <p className="mt-1 text-xs text-gray-500">{t('msg_negative_for_due')}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Additional Information Section */}
                             <div className="border-t border-gray-200 pt-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">Additional Information</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_additional_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Details */}
                                     <div className="md:col-span-2">
@@ -345,7 +345,7 @@ const CreateCustomerPage = () => {
 
                                     {/* Active Status */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">Account Status</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_account_status')}</label>
                                         <div className="flex items-center space-x-3">
                                             <input
                                                 id="is_active"
@@ -356,10 +356,10 @@ const CreateCustomerPage = () => {
                                                 className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-primary"
                                             />
                                             <label htmlFor="is_active" className="text-sm text-gray-700">
-                                                Active Account
+                                                {t('lbl_active_account')}
                                             </label>
                                         </div>
-                                        <p className="mt-1 text-xs text-gray-500">Inactive accounts cannot make purchases</p>
+                                        <p className="mt-1 text-xs text-gray-500">{t('msg_inactive_account_desc')}</p>
                                     </div>
 
                                     {/* Store Info (Read-only) */}
@@ -424,13 +424,13 @@ const CreateCustomerPage = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div className="text-sm text-blue-800">
-                            <p className="mb-1 font-medium">Customer Creation Tips:</p>
+                            <p className="mb-1 font-medium">{t('lbl_customer_creation_tips')}</p>
                             <ul className="space-y-1 text-blue-700">
-                                <li>• Email address must be unique and valid for customer notifications</li>
-                                <li>• Membership tiers affect loyalty point earning rates and special offers</li>
-                                <li>• Account balance can be negative (due amount) or positive (credit)</li>
-                                <li>• Loyalty points reward customer engagement and drive repeat purchases</li>
-                                <li>• Add customer preferences in details for personalized service</li>
+                                <li>• {t('customer_tip_1')}</li>
+                                <li>• {t('customer_tip_2')}</li>
+                                <li>• {t('customer_tip_3')}</li>
+                                <li>• {t('customer_tip_4')}</li>
+                                <li>• {t('customer_tip_5')}</li>
                             </ul>
                         </div>
                     </div>

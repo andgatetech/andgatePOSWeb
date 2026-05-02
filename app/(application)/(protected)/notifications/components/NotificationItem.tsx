@@ -91,7 +91,7 @@ const NotificationItem = ({ notification, variant = 'list', onClickItem }: Notif
                     className="mt-1 flex-shrink-0 rounded p-1 text-gray-300 opacity-0 transition-all hover:bg-gray-200 hover:text-gray-600 group-hover:opacity-100 dark:hover:bg-gray-700 dark:hover:text-gray-300"
                     onClick={handleArchive}
                     disabled={isArchiving}
-                    title="Dismiss"
+                    title={t('lbl_dismiss')}
                 >
                     <X className="h-3.5 w-3.5" />
                 </button>
@@ -146,14 +146,14 @@ const NotificationItem = ({ notification, variant = 'list', onClickItem }: Notif
                             disabled={isMarking}
                             className="rounded-lg border border-indigo-200 px-3 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-500/30 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
                         >
-                            Read
+                            {t('lbl_read')}
                         </button>
                     )}
                     <button
                         type="button"
                         onClick={(e) => void handleArchive(e)}
                         disabled={isArchiving}
-                        title="Archive"
+                        title={t('lbl_archive')}
                         className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
                     >
                         <Trash2 className="h-4 w-4" />

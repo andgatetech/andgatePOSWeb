@@ -18,6 +18,7 @@ interface EditExpenseModalProps {
 }
 
 const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, onSuccess, expense }) => {
+    const { t } = getTranslation();
     const { currentStore, currentStoreId } = useCurrentStore();
     const [updateExpense, { isLoading }] = useUpdateExpenseMutation();
 
@@ -52,20 +53,19 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
     }, [expense]);
 
     const validateForm = () => {
-        const { t } = getTranslation();
-    const newErrors: Record<string, string> = {};
+        const newErrors: Record<string, string> = {};
 
         if (!formData.title.trim()) {
-            newErrors.title = 'Title is required';
+            newErrors.title = t('msg_title_required');
         }
 
         const debit = parseFloat(formData.debit || '0');
         if (debit <= 0) {
-            newErrors.debit = 'Amount must be greater than 0';
+            newErrors.debit = t('msg_amount_greater_than_0');
         }
 
         if (!formData.payment_type) {
-            newErrors.payment_type = 'Payment type is required';
+            newErrors.payment_type = t('msg_payment_type_required');
         }
 
         setErrors(newErrors);
@@ -94,12 +94,12 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                 data: payload,
             }).unwrap();
 
-            showMessage('Expense updated successfully!', 'success');
+            showMessage(t('msg_expense_updated'), 'success');
             setErrors({});
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.data?.message || 'Failed to update expense. Please try again.';
+            const errorMessage = error?.data?.message || t('msg_failed_update_expense');
             showErrorDialog(t('msg_error'), errorMessage);
         }
     };
@@ -118,7 +118,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                 <div className="border-b px-6 py-4">
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-base font-medium">Edit Expense</h2>
+                            <h2 className="text-base font-medium">{t('lbl_edit_expense')}</h2>
                             <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
                                 <X className="h-4 w-4" />
                             </button>
@@ -130,7 +130,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                 <form onSubmit={handleSubmit} className="space-y-4 p-6">
                     <div className="space-y-1.5">
                         <label htmlFor="edit-expense-title" className="text-xs text-gray-500">
-                            Title <span className="text-red-500">*</span>
+                            {t('lbl_title')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="edit-expense-title"
@@ -140,7 +140,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                                 setFormData({ ...formData, title: e.target.value });
                                 if (errors.title) setErrors({ ...errors, title: '' });
                             }}
-                            placeholder="Enter expense title"
+                            placeholder={t('placeholder_expense_title')}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                             required
                         />
@@ -149,7 +149,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-expense-ledger" className="text-xs text-gray-500">
-                            Ledger
+                            {t('lbl_ledger')}
                         </label>
                         <select
                             id="edit-expense-ledger"
@@ -157,7 +157,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                             onChange={(e) => setFormData({ ...formData, ledger_id: e.target.value })}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         >
-                            <option value="">Select a ledger</option>
+                            <option value="">{t('placeholder_select_ledger')}</option>
                             {ledgers.map((ledger: any) => (
                                 <option key={ledger.id} value={ledger.id}>
                                     {ledger.title}
@@ -168,7 +168,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-expense-amount" className="text-xs text-gray-500">
-                            Amount <span className="text-red-500">*</span>
+                            {t('lbl_amount')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="edit-expense-amount"
@@ -189,7 +189,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
 
                     <div className="space-y-1.5">
                         <label className="text-xs text-gray-500">
-                            Payment Type <span className="text-red-500">*</span>
+                            {t('lbl_payment_type')} <span className="text-red-500">*</span>
                         </label>
                         <div className="grid grid-cols-4 gap-1.5">
                             {activePaymentMethods.length > 0 ? (
@@ -221,7 +221,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
                                     }`}
                                 >
                                     <span className="text-base">💵</span>
-                                    <span className="text-[10px] leading-tight">Cash</span>
+                                    <span className="text-[10px] leading-tight">{t('lbl_cash')}</span>
                                 </button>
                             )}
                         </div>
@@ -230,7 +230,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
 
                     <div className="space-y-1.5">
                         <label htmlFor="edit-expense-notes" className="text-xs text-gray-500">
-                            Notes
+                            {t('lbl_notes')}
                         </label>
                         <textarea
                             id="edit-expense-notes"
@@ -244,10 +244,10 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({ isOpen, onClose, on
 
                     <div className="flex gap-2 pt-2">
                         <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
-                            Cancel
+                            {t('btn_cancel')}
                         </button>
                         <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
-                            {isLoading ? 'Updating...' : 'Update Expense'}
+                            {isLoading ? t('lbl_updating') : t('lbl_update_expense')}
                         </button>
                     </div>
                 </form>

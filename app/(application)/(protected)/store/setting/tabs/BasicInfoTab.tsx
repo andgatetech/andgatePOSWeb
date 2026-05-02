@@ -19,14 +19,14 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
-                <h3 className="mb-6 text-lg font-semibold text-gray-900">Store Information</h3>
+                <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_information_title')}</h3>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Store Name */}
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <Building2 className="mr-2 h-4 w-4 text-blue-600" />
-                            Store Name *
+                            {t('lbl_store_name')} *
                         </label>
                         <input
                             type="text"
@@ -34,7 +34,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                             value={formData.store_name}
                             onChange={handleInputChange}
                             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-primary focus:ring-2 focus:ring-blue-200"
-                            placeholder="Enter store name"
+                            placeholder={t('placeholder_store_name')}
                             required
                         />
                     </div>
@@ -43,7 +43,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <MapPin className="mr-2 h-4 w-4 text-green-600" />
-                            Store Location
+                            {t('lbl_store_location')}
                         </label>
                         <input
                             type="text"
@@ -51,7 +51,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                             value={formData.store_location}
                             onChange={handleInputChange}
                             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-green-500 focus:ring-2 focus:ring-green-200"
-                            placeholder="Enter complete address"
+                            placeholder={t('placeholder_store_location')}
                         />
                     </div>
 
@@ -59,7 +59,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <Phone className="mr-2 h-4 w-4 text-purple-600" />
-                            Contact Number
+                            {t('lbl_contact_number')}
                         </label>
                         <input
                             type="tel"
@@ -75,7 +75,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
                             <Tag className="mr-2 h-4 w-4 text-orange-600" />
-                            Maximum Discount (%)
+                            {t('lbl_max_discount')}
                         </label>
                         <input
                             type="number"

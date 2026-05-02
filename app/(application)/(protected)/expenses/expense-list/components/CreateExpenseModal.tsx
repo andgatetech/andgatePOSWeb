@@ -17,6 +17,7 @@ interface CreateExpenseModalProps {
 }
 
 const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose, onSuccess }) => {
+    const { t } = getTranslation();
     const { currentStore, currentStoreId } = useCurrentStore();
     const [createExpense, { isLoading }] = useCreateExpenseMutation();
 
@@ -40,20 +41,19 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validateForm = () => {
-        const { t } = getTranslation();
-    const newErrors: Record<string, string> = {};
+        const newErrors: Record<string, string> = {};
 
         if (!formData.title.trim()) {
-            newErrors.title = 'Title is required';
+            newErrors.title = t('msg_title_required');
         }
 
         const debit = parseFloat(formData.debit || '0');
         if (debit <= 0) {
-            newErrors.debit = 'Amount must be greater than 0';
+            newErrors.debit = t('msg_amount_greater_than_0');
         }
 
         if (!formData.payment_type) {
-            newErrors.payment_type = 'Payment type is required';
+            newErrors.payment_type = t('msg_payment_type_required');
         }
 
         setErrors(newErrors);
@@ -66,7 +66,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
         if (!validateForm()) return;
 
         if (!currentStoreId) {
-            showErrorDialog(t('msg_error'), 'Please select a store first.');
+            showErrorDialog(t('msg_error'), t('msg_select_store_first'));
             return;
         }
 
@@ -87,13 +87,13 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
 
             await createExpense(payload).unwrap();
 
-            showMessage('Expense created successfully!', 'success');
+            showMessage(t('msg_expense_created'), 'success');
             setFormData({ title: '', ledger_id: '', debit: '', payment_type: activePaymentMethods[0]?.payment_method_name || '', notes: '', expense_ledger_type: '' });
             setErrors({});
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.data?.message || 'Failed to create expense. Please try again.';
+            const errorMessage = error?.data?.message || t('msg_failed_create_expense');
             showErrorDialog(t('msg_error'), errorMessage);
         }
     };
@@ -113,7 +113,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                 <div className="border-b px-6 py-4">
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-base font-medium">Create Expense</h2>
+                            <h2 className="text-base font-medium">{t('lbl_create_expense')}</h2>
                             <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
                                 <X className="h-4 w-4" />
                             </button>
@@ -125,7 +125,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                 <form onSubmit={handleSubmit} className="space-y-4 p-6">
                     <div className="space-y-1.5">
                         <label htmlFor="expense-title" className="text-xs text-gray-500">
-                            Title <span className="text-red-500">*</span>
+                            {t('lbl_title')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="expense-title"
@@ -135,7 +135,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                                 setFormData({ ...formData, title: e.target.value });
                                 if (errors.title) setErrors({ ...errors, title: '' });
                             }}
-                            placeholder="Enter expense title"
+                            placeholder={t('placeholder_expense_title')}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                             required
                         />
@@ -144,7 +144,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
 
                     <div className="space-y-1.5">
                         <label htmlFor="expense-ledger" className="text-xs text-gray-500">
-                            Ledger <span className="text-gray-400">(Optional)</span>
+                            {t('lbl_ledger')} <span className="text-gray-400">({t('lbl_optional')})</span>
                         </label>
                         <select
                             id="expense-ledger"
@@ -160,19 +160,19 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                             }}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         >
-                            <option value="">Auto-create expense ledger</option>
+                            <option value="">{t('placeholder_auto_create_expense_ledger')}</option>
                             {ledgers.map((ledger: any) => (
                                 <option key={ledger.id} value={ledger.id}>
                                     {ledger.title}
                                 </option>
                             ))}
                         </select>
-                        <p className="text-[10px] text-gray-500">Select an existing expense ledger or leave empty to auto-create</p>
+                        <p className="text-[10px] text-gray-500">{t('msg_expense_ledger_hint')}</p>
                     </div>
 
                     <div className="space-y-1.5">
                         <label htmlFor="expense-amount" className="text-xs text-gray-500">
-                            Amount <span className="text-red-500">*</span>
+                            {t('lbl_amount')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="expense-amount"
@@ -193,7 +193,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
 
                     <div className="space-y-1.5">
                         <label className="text-xs text-gray-500">
-                            Payment Type <span className="text-red-500">*</span>
+                            {t('lbl_payment_type')} <span className="text-red-500">*</span>
                         </label>
                         <div className="grid grid-cols-4 gap-1.5">
                             {activePaymentMethods.length > 0 ? (
@@ -225,7 +225,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
                                     }`}
                                 >
                                     <span className="text-base">💵</span>
-                                    <span className="text-[10px] leading-tight">Cash</span>
+                                    <span className="text-[10px] leading-tight">{t('lbl_cash')}</span>
                                 </button>
                             )}
                         </div>
@@ -234,7 +234,7 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
 
                     <div className="space-y-1.5">
                         <label htmlFor="expense-notes" className="text-xs text-gray-500">
-                            Notes
+                            {t('lbl_notes')}
                         </label>
                         <textarea
                             id="expense-notes"
@@ -248,10 +248,10 @@ const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({ isOpen, onClose
 
                     <div className="flex gap-2 pt-2">
                         <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
-                            Cancel
+                            {t('btn_cancel')}
                         </button>
                         <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
-                            {isLoading ? 'Creating...' : 'Create Expense'}
+                            {isLoading ? t('lbl_creating') : t('lbl_create_expense')}
                         </button>
                     </div>
                 </form>

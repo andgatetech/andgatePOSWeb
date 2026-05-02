@@ -16,7 +16,7 @@ const StoreStatusTab: React.FC<StoreStatusTabProps> = ({ formData, handleInputCh
     return (
         <div className="space-y-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
-                <h3 className="mb-6 text-lg font-semibold text-gray-900">Store Status</h3>
+                <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_status_title')}</h3>
 
                 <div className="rounded-xl bg-gray-50 p-6">
                     <div className="flex items-center justify-between">
@@ -25,9 +25,9 @@ const StoreStatusTab: React.FC<StoreStatusTabProps> = ({ formData, handleInputCh
                                 <Power className="h-8 w-8" />
                             </div>
                             <div>
-                                <h4 className="text-lg font-semibold text-gray-900">Store is {formData.is_active ? 'Active' : 'Inactive'}</h4>
+                                <h4 className="text-lg font-semibold text-gray-900">{formData.is_active ? t('lbl_store_is_active') : t('lbl_store_is_inactive')}</h4>
                                 <p className="mt-1 text-sm text-gray-600">
-                                    {formData.is_active ? 'Your store is currently operational and accepting orders' : 'Your store is currently closed and not accepting orders'}
+                                    {formData.is_active ? t('msg_store_is_active_desc') : t('msg_store_is_inactive_desc')}
                                 </p>
                             </div>
                         </div>
@@ -46,8 +46,8 @@ const StoreStatusTab: React.FC<StoreStatusTabProps> = ({ formData, handleInputCh
                 {/* Warning Box */}
                 <div className={`mt-6 rounded-xl border p-4 ${formData.is_active ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
                     <p className={`text-sm ${formData.is_active ? 'text-green-800' : 'text-red-800'}`}>
-                        <strong>Note:</strong>{' '}
-                        {formData.is_active ? 'Customers can browse and purchase products from your store.' : 'Customers will not be able to place orders while the store is inactive.'}
+                        <strong>{t('lbl_note')}:</strong>{' '}
+                        {formData.is_active ? t('msg_store_active_note') : t('msg_store_inactive_note')}
                     </p>
                 </div>
             </div>

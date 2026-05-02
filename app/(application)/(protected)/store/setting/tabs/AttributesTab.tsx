@@ -57,7 +57,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
     return (
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Product Attributes</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('store_attributes_title')}</h3>
 
                 {/* Add New Attribute */}
                 <div className="mb-4 flex gap-2">
@@ -66,12 +66,12 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                         value={attributeName}
                         onChange={(e) => setAttributeName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateAttribute()}
-                        placeholder="Enter attribute name (e.g., Color, Size)"
+                        placeholder={t('placeholder_attribute_name')}
                         className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
                     <button type="button" onClick={handleCreateAttribute} className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90">
                         <Plus className="mr-1 h-4 w-4" />
-                        Add
+                        {t('btn_add')}
                     </button>
                 </div>
 
@@ -80,10 +80,10 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Attribute Name</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_attribute_name')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,7 +105,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                     onChange={(e) => setEditingAttributeName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && handleUpdateAttribute(attribute.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    placeholder="Enter attribute name"
+                                                    placeholder={t('placeholder_attribute_name')}
                                                     autoFocus
                                                 />
                                             ) : (
@@ -131,11 +131,11 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                         type="button"
                                                         onClick={() => handleUpdateAttribute(attribute.id)}
                                                         className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                        title="Save"
+                                                        title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
                                                     </button>
-                                                    <button type="button" onClick={cancelEditingAttribute} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                    <button type="button" onClick={cancelEditingAttribute} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                         <X className="h-4 w-4" />
                                                     </button>
                                                 </div>
@@ -153,7 +153,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                                     onClick={() => startEditingAttribute(attribute.id, attribute.name)}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    Edit Attribute
+                                                                    {t('btn_edit_attribute')}
                                                                 </button>
                                                             </li>
                                                             <li className="border-t">
@@ -161,7 +161,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                                                     onClick={() => handleDeleteAttribute(attribute.id, attribute.name)}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                 >
-                                                                    Delete Attribute
+                                                                    {t('btn_delete_attribute')}
                                                                 </button>
                                                             </li>
                                                         </ul>
@@ -174,7 +174,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                             ) : (
                                 <tr>
                                     <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No attributes added yet. Add your first attribute above.
+                                        {t('msg_no_attributes_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -186,8 +186,8 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> attributes
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span> {t('store_attributes_title')}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -196,7 +196,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -216,7 +216,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -226,7 +226,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({
                 {/* Total Count */}
                 {attributesData && attributesData.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{attributesData.length}</span> attribute(s)
+                        {t('lbl_total')}: <span className="font-semibold">{attributesData.length}</span>
                     </div>
                 )}
             </div>

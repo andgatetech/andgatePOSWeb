@@ -44,11 +44,10 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
     }, [ledger]);
 
     const validateForm = () => {
-        const { t } = getTranslation();
-    const newErrors: Record<string, string> = {};
+        const newErrors: Record<string, string> = {};
 
         if (!formData.title.trim()) {
-            newErrors.title = 'Ledger title is required';
+            newErrors.title = t('msg_ledger_title_required');
         }
 
         setErrors(newErrors);
@@ -69,12 +68,12 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
                 },
             }).unwrap();
 
-            showMessage('Ledger updated successfully!', 'success');
+            showMessage(t('msg_ledger_updated'), 'success');
             setErrors({});
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.data?.message || 'Failed to update ledger. Please try again.';
+            const errorMessage = error?.data?.message || t('msg_failed_update_ledger');
             showErrorDialog(t('msg_error'), errorMessage);
         }
     };
@@ -93,7 +92,7 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
                 <div className="border-b px-6 py-4">
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-base font-medium">Edit Ledger</h2>
+                            <h2 className="text-base font-medium">{t('lbl_edit_ledger')}</h2>
                             <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
                                 <X className="h-4 w-4" />
                             </button>
@@ -106,7 +105,7 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
                 <form onSubmit={handleSubmit} className="space-y-4 p-6">
                     <div className="space-y-1.5">
                         <label htmlFor="ledger-title" className="text-xs text-gray-500">
-                            Title
+                            {t('lbl_title')}
                         </label>
                         <input
                             id="ledger-title"
@@ -122,7 +121,7 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
 
                     <div className="space-y-1.5">
                         <label htmlFor="ledger-type" className="text-xs text-gray-500">
-                            Type
+                            {t('lbl_type')}
                         </label>
                         <select
                             id="ledger-type"
@@ -130,7 +129,7 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
                             onChange={(e) => setFormData({ ...formData, ledger_type: e.target.value })}
                             className="h-9 w-full rounded-md border border-gray-300 px-3 text-sm focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
                         >
-                            <option value="">Select type</option>
+                            <option value="">{t('placeholder_select_type')}</option>
                             {LEDGER_TYPES.map((type) => (
                                 <option key={type.id} value={type.id}>
                                     {type.label}
@@ -141,10 +140,10 @@ const EditLedgerModal: React.FC<EditLedgerModalProps> = ({ isOpen, onClose, onSu
 
                     <div className="flex gap-2 pt-2">
                         <button type="button" onClick={handleClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
-                            Cancel
+                            {t('btn_cancel')}
                         </button>
                         <button type="submit" disabled={isLoading} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
-                            {isLoading ? 'Saving...' : 'Save'}
+                            {isLoading ? t('lbl_saving') : t('btn_save')}
                         </button>
                     </div>
                 </form>

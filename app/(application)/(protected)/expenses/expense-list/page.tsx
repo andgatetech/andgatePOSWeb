@@ -14,6 +14,7 @@ import ExpensesTable from './components/ExpensesTable';
 import ViewExpenseModal from './components/ViewExpenseModal';
 
 const ExpenseListPage = () => {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
 
     // Filter and pagination state
@@ -90,15 +91,14 @@ const ExpenseListPage = () => {
 
     const handleDelete = useCallback(
         async (expense: any) => {
-            const { t } = getTranslation();
-    const confirmed = await showConfirmDialog('Delete Expense?', `Are you sure you want to delete "${expense.title}"? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_delete_expense_confirm'), `${t('msg_are_you_sure_delete_expense')} "${expense.title}"?`, t('btn_yes_delete_it'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteExpense(expense.id).unwrap();
-                    showSuccessDialog('Deleted!', 'Expense has been deleted successfully.');
+                    showSuccessDialog(t('msg_deleted'), t('msg_expense_deleted'));
                 } catch (error: any) {
-                    showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to delete expense.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_delete_expense'));
                 }
             }
         },
@@ -127,8 +127,8 @@ const ExpenseListPage = () => {
                             <Receipt className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Expenses</h1>
-                            <p className="text-sm text-gray-600">Manage your expense records</p>
+                            <h1 className="text-2xl font-bold text-gray-900">{t('lbl_expenses')}</h1>
+                            <p className="text-sm text-gray-600">{t('expense_page_desc')}</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ const ExpenseListPage = () => {
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:from-red-600 hover:to-rose-700 hover:shadow-xl"
                 >
                     <Plus className="h-5 w-5" />
-                    Add Expense
+                    {t('btn_add_expense')}
                 </button>
             </div>
 

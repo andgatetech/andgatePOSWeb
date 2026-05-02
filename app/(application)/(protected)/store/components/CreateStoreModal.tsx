@@ -39,7 +39,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
         e.preventDefault();
 
         if (!formData.store_name.trim() || !formData.address.trim()) {
-            showMessage('Please fill in all required fields', 'error');
+            showMessage(t('msg_fill_required_fields'), 'error');
             return;
         }
 
@@ -56,12 +56,12 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
             await createStore(storeData).unwrap();
 
             setFormData({ store_name: '', address: '', store_phone: '' });
-            showMessage('Store created successfully!', 'success');
+            showMessage(t('msg_store_created'), 'success');
             onClose();
         } catch (error: any) {
             console.error('Error creating store:', error);
             if (error?.status !== 403) {
-                showMessage('Failed to create store. Please try again.', 'error');
+                showMessage(t('msg_failed_create_store'), 'error');
             }
         } finally {
             setIsSubmitting(false);
@@ -98,8 +98,8 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                 <Store className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900">Create New Store</h3>
-                                <p className="text-sm text-gray-500">Add a new store to your business</p>
+                                <h3 className="text-xl font-bold text-gray-900">{t('store_create_new_title')}</h3>
+                                <p className="text-sm text-gray-500">{t('store_create_subtitle')}</p>
                             </div>
                         </div>
                         <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary">
@@ -112,7 +112,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                         {/* Store Name */}
                         <div>
                             <label htmlFor="store_name" className="mb-2 block text-sm font-medium text-gray-700">
-                                Store Name <span className="text-red-500">*</span>
+                                {t('lbl_store_name')} <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                                 <Building2 className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -132,7 +132,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                         {/* Address */}
                         <div>
                             <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
-                                Store Address <span className="text-red-500">*</span>
+                                {t('lbl_store_address')} <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                                 <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -152,7 +152,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                         {/* Store Phone (Optional) */}
                         <div>
                             <label htmlFor="store_phone" className="mb-2 block text-sm font-medium text-gray-700">
-                                Store Phone <span className="text-xs text-gray-400">(Optional)</span>
+                                {t('lbl_store_phone')} <span className="text-xs text-gray-400">({t('lbl_optional')})</span>
                             </label>
                             <div className="relative">
                                 <svg className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -183,7 +183,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                 disabled={isSubmitting}
                                 className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Cancel
+                                {t('btn_cancel')}
                             </button>
                             <button
                                 type="submit"
@@ -200,12 +200,12 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                             />
                                         </svg>
-                                        Creating...
+                                        {t('lbl_creating')}
                                     </>
                                 ) : (
                                     <>
                                         <Store className="mr-2 h-4 w-4" />
-                                        Create Store
+                                        {t('btn_create_store')}
                                     </>
                                 )}
                             </button>

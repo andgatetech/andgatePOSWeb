@@ -96,11 +96,11 @@ const SubscriptionProgress = () => {
             <div className="rounded-xl border border-red-200 bg-red-50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <span className="text-sm font-semibold text-red-800">Account Blocked</span>
+                    <span className="text-sm font-semibold text-red-800">{getTranslation().t('lbl_account_blocked')}</span>
                 </div>
-                <p className="mb-3 text-xs text-red-700">Your account has been temporarily suspended.</p>
+                <p className="mb-3 text-xs text-red-700">{getTranslation().t('msg_account_suspended')}</p>
                 <button onClick={() => router.push('/contact')} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
-                    Contact Support
+                    {getTranslation().t('btn_contact_support')}
                 </button>
             </div>
         );
@@ -185,7 +185,7 @@ const AdminProfile = () => {
     if (!user)
         return (
             <div className="rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm">
-                <p className="text-sm text-red-500">Profile not found.</p>
+                <p className="text-sm text-red-500">{getTranslation().t('msg_profile_not_found')}</p>
             </div>
         );
 
@@ -226,7 +226,7 @@ const AdminProfile = () => {
                     className="mt-3 flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50 hover:text-blue-600"
                 >
                     <Edit3 className="h-3 w-3" />
-                    Edit Profile
+                    {getTranslation().t('btn_edit_profile')}
                 </Link>
 
                 {/* Info rows */}
@@ -234,7 +234,7 @@ const AdminProfile = () => {
                     <div className="flex items-center gap-2.5 rounded-lg bg-gray-50 px-3 py-2">
                         <Mail className="h-3.5 w-3.5 shrink-0 text-gray-400" />
                         <div className="min-w-0">
-                            <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Email</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">{getTranslation().t('lbl_email')}</p>
                             <p className="truncate text-xs text-gray-800">{user.email}</p>
                         </div>
                     </div>
@@ -242,7 +242,7 @@ const AdminProfile = () => {
                         <div className="flex items-center gap-2.5 rounded-lg bg-gray-50 px-3 py-2">
                             <Phone className="h-3.5 w-3.5 shrink-0 text-gray-400" />
                             <div>
-                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Phone</p>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">{getTranslation().t('lbl_phone')}</p>
                                 <p className="text-xs text-gray-800">{user.phone}</p>
                             </div>
                         </div>
@@ -251,7 +251,7 @@ const AdminProfile = () => {
                         <div className="flex items-center gap-2.5 rounded-lg bg-gray-50 px-3 py-2">
                             <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
                             <div>
-                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Address</p>
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">{getTranslation().t('lbl_address')}</p>
                                 <p className="text-xs text-gray-800">{user.address}</p>
                             </div>
                         </div>
@@ -259,7 +259,7 @@ const AdminProfile = () => {
                     <div className="flex items-center gap-2.5 rounded-lg bg-gray-50 px-3 py-2">
                         <Calendar className="h-3.5 w-3.5 shrink-0 text-gray-400" />
                         <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Member Since</p>
+                            <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">{getTranslation().t('lbl_member_since')}</p>
                             <p className="text-xs text-gray-800">{user.member_since || 'N/A'}</p>
                         </div>
                     </div>
@@ -297,11 +297,11 @@ const FeatureChips = ({ items }: { items: { title_en: string; title_bn: string |
                 >
                     {expanded ? (
                         <>
-                            <ChevronUp className="h-3.5 w-3.5" /> Show less
+                            <ChevronUp className="h-3.5 w-3.5" /> {getTranslation().t('btn_show_less')}
                         </>
                     ) : (
                         <>
-                            <ChevronDown className="h-3.5 w-3.5" /> Show {items.length - INITIAL_SHOW} more features
+                            <ChevronDown className="h-3.5 w-3.5" /> {getTranslation().t('btn_show')} {items.length - INITIAL_SHOW} {getTranslation().t('lbl_more_features')}
                         </>
                     )}
                 </button>
@@ -357,10 +357,10 @@ const Profile = () => {
             <ul className="flex space-x-2 text-sm text-gray-500 rtl:space-x-reverse">
                 <li>
                     <Link href="#" className="text-primary hover:underline">
-                        Users
+                        {getTranslation().t('lbl_users')}
                     </Link>
                 </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">Profile</li>
+                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">{getTranslation().t('lbl_profile')}</li>
             </ul>
 
             {/* Main Grid */}
@@ -381,7 +381,7 @@ const Profile = () => {
                                         {subscriptionUser.plan_name_en} Plan
                                         <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold capitalize text-indigo-700">{subscriptionUser.billing_cycle}</span>
                                     </h5>
-                                    <p className="mt-0.5 text-xs text-gray-400">{subscriptionUser.items?.length ?? 0} features included</p>
+                                    <p className="mt-0.5 text-xs text-gray-400">{subscriptionUser.items?.length ?? 0} {getTranslation().t('lbl_features_included')}</p>
                                 </div>
                                 <button onClick={() => router.push('/contact')} className={`flex items-center gap-1.5 text-sm ${buttonConfig.className}`}>
                                     {buttonConfig.icon}
@@ -396,7 +396,7 @@ const Profile = () => {
 
                             {/* Features chip grid */}
                             <div className="px-5 py-4">
-                                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Included Features</p>
+                                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{getTranslation().t('lbl_included_features')}</p>
                                 <FeatureChips items={subscriptionUser.items ?? []} />
                             </div>
                         </div>

@@ -62,7 +62,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                 </div>
                                 <div>
                                     <h1 className="text-lg font-bold text-gray-900 sm:text-2xl">{purchaseOrder.invoice_number}</h1>
-                                    <p className="mt-1 text-xs text-gray-500 sm:text-sm">Purchase Order #{purchaseOrder.id}</p>
+                                    <p className="mt-1 text-xs text-gray-500 sm:text-sm">{t('lbl_purchase_order')} #{purchaseOrder.id}</p>
                                     <div className="mt-2 flex items-center gap-2">
                                         <Building2 className="h-4 w-4 text-gray-400" />
                                         <span className="text-xs font-medium text-gray-700 sm:text-sm">{purchaseOrder.store_name}</span>
@@ -99,14 +99,14 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg lg:col-span-2">
                             <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
                                 <Wallet className="h-6 w-6 text-blue-600" />
-                                Payment Summary
+                                {t('lbl_payment_summary')}
                             </h2>
 
                             <div className="space-y-6">
                                 {/* Payment Progress */}
                                 <div>
                                     <div className="mb-2 flex items-center justify-between">
-                                        <span className="text-sm font-medium text-gray-700">Payment Progress</span>
+                                        <span className="text-sm font-medium text-gray-700">{t('lbl_payment_progress')}</span>
                                         <span className="text-sm font-bold text-blue-600">{paymentProgress.toFixed(0)}%</span>
                                     </div>
                                     <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200 shadow-inner">
@@ -120,15 +120,15 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                 {/* Amount Details */}
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
                                     <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-3 sm:p-4">
-                                        <p className="mb-1 text-xs font-medium text-blue-700 sm:text-sm">Grand Total</p>
+                                        <p className="mb-1 text-xs font-medium text-blue-700 sm:text-sm">{t('lbl_grand_total')}</p>
                                         <p className="text-xl font-bold text-blue-900 sm:text-2xl">{formatCurrency(purchaseOrder.grand_total)}</p>
                                     </div>
                                     <div className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-3 sm:p-4">
-                                        <p className="mb-1 text-xs font-medium text-green-700 sm:text-sm">Amount Paid</p>
+                                        <p className="mb-1 text-xs font-medium text-green-700 sm:text-sm">{t('lbl_amount_paid')}</p>
                                         <p className="text-xl font-bold text-green-900 sm:text-2xl">{formatCurrency(purchaseOrder.amount_paid)}</p>
                                     </div>
                                     <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 p-3 sm:p-4">
-                                        <p className="mb-1 text-xs font-medium text-orange-700 sm:text-sm">Amount Due</p>
+                                        <p className="mb-1 text-xs font-medium text-orange-700 sm:text-sm">{t('lbl_amount_due')}</p>
                                         <p className="text-xl font-bold text-orange-900 sm:text-2xl">{formatCurrency(purchaseOrder.amount_due)}</p>
                                     </div>
                                 </div>
@@ -137,13 +137,13 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                 <div>
                                     <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
                                         <Clock className="h-5 w-5 text-gray-600" />
-                                        Transaction History
+                                        {t('lbl_transaction_history')}
                                     </h3>
                                     <div className="space-y-3">
                                         {transactions.length === 0 ? (
                                             <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-slate-50 py-12">
                                                 <CreditCard className="mb-3 h-12 w-12 text-gray-400" />
-                                                <p className="text-sm font-medium text-gray-600">No transactions recorded</p>
+                                                <p className="text-sm font-medium text-gray-600">{t('msg_no_transactions_recorded')}</p>
                                             </div>
                                         ) : (
                                             transactions.map((transaction: any) => (
@@ -157,8 +157,8 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                                 {getPaymentMethodIcon(transaction.payment_method)}
                                                             </div>
                                                             <div>
-                                                                <p className="font-semibold text-gray-900">Payment #{transaction.id}</p>
-                                                                <p className="text-xs capitalize text-gray-500">{transaction.payment_method} Payment</p>
+                                                                <p className="font-semibold text-gray-900">{t('lbl_payment')} #{transaction.id}</p>
+                                                                <p className="text-xs capitalize text-gray-500">{transaction.payment_method} {t('lbl_payment')}</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
@@ -174,7 +174,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                                 className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
                                                             >
                                                                 <Receipt className="h-4 w-4" />
-                                                                Receipt
+                                                                {t('lbl_receipt')}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -191,7 +191,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
                             <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
                                 <Package className="h-6 w-6 text-purple-600" />
-                                Order Items
+                                {t('lbl_order_items')}
                             </h2>
 
                             <div className="space-y-4">
@@ -217,20 +217,20 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
 
                                                 <div className="mt-3 space-y-2">
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-600">Ordered:</span>
-                                                        <span className="font-bold text-gray-900">{item.quantity_ordered} units</span>
+                                                        <span className="text-gray-600">{t('lbl_ordered')}:</span>
+                                                        <span className="font-bold text-gray-900">{item.quantity_ordered} {t('lbl_units')}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-600">Received:</span>
-                                                        <span className={`font-bold ${item.quantity_received > 0 ? 'text-green-600' : 'text-orange-600'}`}>{item.quantity_received} units</span>
+                                                        <span className="text-gray-600">{t('lbl_received')}:</span>
+                                                        <span className={`font-bold ${item.quantity_received > 0 ? 'text-green-600' : 'text-orange-600'}`}>{item.quantity_received} {t('lbl_units')}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-600">Price:</span>
+                                                        <span className="text-gray-600">{t('lbl_price')}:</span>
                                                         <span className="font-bold text-gray-900">{formatCurrency(item.purchase_price)}</span>
                                                     </div>
                                                     <div className="border-t border-purple-300 pt-2">
                                                         <div className="flex justify-between">
-                                                            <span className="font-bold text-gray-700">Total:</span>
+                                                            <span className="font-bold text-gray-700">{t('lbl_total')}:</span>
                                                             <span className="text-lg font-bold text-purple-700">{formatCurrency(item.total)}</span>
                                                         </div>
                                                     </div>
@@ -252,7 +252,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                     <div className="m-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg sm:m-6 sm:p-6">
                         <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
                             <Clock className="h-6 w-6 text-indigo-600" />
-                            Order Timeline
+                            {t('lbl_order_timeline')}
                         </h2>
 
                         <div className="relative">
@@ -264,7 +264,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                         <ShoppingCart className="h-6 w-6 text-white" />
                                     </div>
                                     <div className="flex-1 rounded-lg bg-gradient-to-r from-blue-50 to-transparent p-4">
-                                        <h3 className="font-bold text-gray-900">Order Created</h3>
+                                        <h3 className="font-bold text-gray-900">{t('lbl_order_created')}</h3>
                                         <div className="text-sm text-gray-600">
                                             <DateColumn date={purchaseOrder.created_at} />
                                         </div>
@@ -277,7 +277,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                             <Wallet className="h-6 w-6 text-white" />
                                         </div>
                                         <div className="flex-1 rounded-lg bg-gradient-to-r from-green-50 to-transparent p-4">
-                                            <h3 className="font-bold text-gray-900">Payment Received - {formatCurrency(transaction.amount)}</h3>
+                                            <h3 className="font-bold text-gray-900">{t('lbl_payment_received')} - {formatCurrency(transaction.amount)}</h3>
                                             <p className="text-sm capitalize text-gray-600">
                                                 {transaction.payment_method} •{' '}
                                                 <span className="inline-block align-middle">
@@ -293,7 +293,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                         <Clock className="h-6 w-6 text-white" />
                                     </div>
                                     <div className="flex-1 rounded-lg bg-gradient-to-r from-purple-50 to-transparent p-4">
-                                        <h3 className="font-bold text-gray-900">Last Updated</h3>
+                                        <h3 className="font-bold text-gray-900">{t('lbl_last_updated')}</h3>
                                         <div className="text-sm text-gray-600">
                                             <DateColumn date={purchaseOrder.updated_at} />
                                         </div>

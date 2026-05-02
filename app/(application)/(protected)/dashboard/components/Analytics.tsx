@@ -144,7 +144,7 @@ export default function Analytics() {
     if (isError || !analyticsData?.data) {
         return (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6">
-                <p className="text-sm text-red-600 sm:text-base">Failed to load analytics data. Please try again.</p>
+                <p className="text-sm text-red-600 sm:text-base">{t('msg_failed_to_load_analytics')}</p>
             </div>
         );
     }
@@ -169,13 +169,13 @@ export default function Analytics() {
 
     // Prepare pie chart data
     const rawPieData = [
-        { name: 'First Time', value: customers_overview?.first_time?.count ?? 0, percentage: customers_overview?.first_time?.percentage ?? 0 },
-        { name: 'Return', value: customers_overview?.return?.count ?? 0, percentage: customers_overview?.return?.percentage ?? 0 },
+        { name: t('lbl_first_time'), value: customers_overview?.first_time?.count ?? 0, percentage: customers_overview?.first_time?.percentage ?? 0 },
+        { name: t('lbl_return'), value: customers_overview?.return?.count ?? 0, percentage: customers_overview?.return?.percentage ?? 0 },
     ];
 
     const hasData = rawPieData.some((item) => item.value > 0);
 
-    const pieData = hasData ? rawPieData : [{ name: 'No Data', value: 1, percentage: 0 }];
+    const pieData = hasData ? rawPieData : [{ name: t('lbl_no_data'), value: 1, percentage: 0 }];
 
     const COLORS = hasData ? ['#d97706', '#059669'] : ['#f3f4f6'];
 
@@ -187,7 +187,7 @@ export default function Analytics() {
                 <div className="lg:col-span-2">
                     <div className="h-full rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <h2 className="text-lg font-bold text-gray-900 sm:text-xl">Sales & Purchase</h2>
+                            <h2 className="text-lg font-bold text-gray-900 sm:text-xl">{t('lbl_sales_and_purchase')}</h2>
                             <div className="flex gap-2">
                                 {periodButtons.map((period) => (
                                     <button
@@ -207,13 +207,13 @@ export default function Analytics() {
                             <div className="flex items-center gap-2">
                                 <div className="h-3 w-3 rounded-full bg-[#046ca9]"></div>
                                 <span className="text-sm text-gray-600">
-                                    Total Sales: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_sales?.formatted ?? '0'}</span>
+                                    {t('lbl_total_sales')}: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_sales?.formatted ?? '0'}</span>
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="h-3 w-3 rounded-full bg-[#d97706]"></div>
                                 <span className="text-sm text-gray-600">
-                                    Total Purchase: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_purchase?.formatted ?? '0'}</span>
+                                    {t('lbl_total_purchase')}: <span className="font-semibold text-gray-900">{sales_purchase_chart?.total_purchase?.formatted ?? '0'}</span>
                                 </span>
                             </div>
                         </div>
@@ -234,8 +234,8 @@ export default function Analytics() {
                                 />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ fontSize: '14px' }} />
-                                <Bar dataKey="Total Sales" fill="#046ca9" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
-                                <Bar dataKey="Total Purchase" fill="#d97706" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
+                                <Bar dataKey="Total Sales" name={t('lbl_total_sales')} fill="#046ca9" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
+                                <Bar dataKey="Total Purchase" name={t('lbl_total_purchase')} fill="#d97706" radius={[8, 8, 0, 0]} isAnimationActive={true} minPointSize={5} barSize={40} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -272,7 +272,7 @@ export default function Analytics() {
                         {/* Customers Overview */}
                         <div className="flex flex-1 flex-col justify-center">
                             <div className="mb-3 flex items-center justify-between">
-                                <h3 className="text-sm font-bold text-gray-900 sm:text-base">Customers Overview</h3>
+                                <h3 className="text-sm font-bold text-gray-900 sm:text-base">{t('dashboard_customers_overview')}</h3>
                                 <select
                                     value={customerPeriod}
                                     onChange={(e) => setCustomerPeriod(e.target.value)}
@@ -308,7 +308,7 @@ export default function Analytics() {
                                         <p className="text-lg font-bold text-gray-900">
                                             <CountUp end={customers_overview.total_active} duration={2} />
                                         </p>
-                                        <p className="text-[10px] text-gray-600">Total</p>
+                                        <p className="text-[10px] text-gray-600">{t('lbl_total')}</p>
                                     </div>
                                 </div>
 
@@ -318,7 +318,7 @@ export default function Analytics() {
                                     <div className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 text-center transition-colors hover:bg-gray-100">
                                         <div className="flex items-center justify-between">
                                             <div className="text-left">
-                                                <p className="text-[10px] font-medium text-[#d97706]">First Time</p>
+                                                <p className="text-[10px] font-medium text-[#d97706]">{t('lbl_first_time')}</p>
                                                 <p className="text-lg font-bold text-gray-900">
                                                     <CountUp end={customers_overview.first_time.count} duration={2} separator="," decimals={1} decimal="." />K
                                                 </p>
@@ -333,7 +333,7 @@ export default function Analytics() {
                                     <div className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 text-center transition-colors hover:bg-gray-100">
                                         <div className="flex items-center justify-between">
                                             <div className="text-left">
-                                                <p className="text-[10px] font-medium text-[#059669]">Return</p>
+                                                <p className="text-[10px] font-medium text-[#059669]">{t('lbl_return')}</p>
                                                 <p className="text-lg font-bold text-gray-900">
                                                     <CountUp end={customers_overview.return.count} duration={2} separator="," decimals={1} decimal="." />K
                                                 </p>

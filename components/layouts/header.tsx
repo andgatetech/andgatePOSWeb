@@ -14,11 +14,13 @@ import { resetToggleSidebar, toggleSidebar } from '@/store/themeConfigSlice';
 import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getTranslation } from '@/i18n';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Header = () => {
+    const { t } = getTranslation();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const router = useRouter();
@@ -162,7 +164,7 @@ const Header = () => {
                                 type="button"
                                 className="flex items-center rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white"
                                 onClick={toggleFullscreen}
-                                title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                                title={isFullscreen ? t('lbl_exit_fullscreen') : t('lbl_enter_fullscreen')}
                             >
                                 {isFullscreen ? <Minimize className="h-[18px] w-[18px]" /> : <Maximize className="h-[18px] w-[18px]" />}
                             </button>
@@ -186,13 +188,13 @@ const Header = () => {
                                     <li>
                                         <Link href="/users/profile" className="dark:hover:text-white">
                                             <IconUser className="h-4 w-4 shrink-0 ltr:mr-2 rtl:ml-2" />
-                                            Profile
+                                            {t('lbl_profile')}
                                         </Link>
                                     </li>
                                     <li className="border-t border-white-light dark:border-white-light/10">
                                         <button onClick={handleLogout} className="flex w-full items-center !py-3 text-danger">
                                             <IconLogout className="h-4 w-4 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
-                                            Sign Out
+                                            {t('btn_sign_out')}
                                         </button>
                                     </li>
                                 </ul>

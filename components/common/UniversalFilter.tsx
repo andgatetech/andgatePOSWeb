@@ -1,5 +1,6 @@
 'use client';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { endOfDay, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from 'date-fns';
 import { Calendar, ChevronDown, Filter, RotateCcw, Search, Store, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -28,19 +29,6 @@ export interface UniversalFilterProps {
     externalResetTrigger?: number; // External trigger to reset filters
 }
 
-const DATE_FILTER_OPTIONS = [
-    { value: 'none', label: 'No Date Filter' },
-    { value: 'today', label: 'Today' },
-    { value: 'yesterday', label: 'Yesterday' },
-    { value: 'this_week', label: 'This Week' },
-    { value: 'last_week', label: 'Last Week' },
-    { value: 'this_month', label: 'This Month' },
-    { value: 'last_month', label: 'Last Month' },
-    { value: 'this_year', label: 'This Year' },
-    { value: 'last_year', label: 'Last Year' },
-    { value: 'custom', label: 'Custom Range' },
-];
-
 const UniversalFilter: React.FC<UniversalFilterProps> = ({
     onFilterChange,
     placeholder = 'Search...',
@@ -53,8 +41,22 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
     onResetFilters,
     externalResetTrigger = 0,
 }) => {
+    const { t } = getTranslation();
     const { currentStoreId, userStores } = useCurrentStore();
     const isMounted = useRef(false);
+
+    const DATE_FILTER_OPTIONS = [
+        { value: 'none', label: t('filter_no_date') },
+        { value: 'today', label: t('filter_today') },
+        { value: 'yesterday', label: t('filter_yesterday') },
+        { value: 'this_week', label: t('filter_this_week') },
+        { value: 'last_week', label: t('filter_last_week') },
+        { value: 'this_month', label: t('filter_this_month') },
+        { value: 'last_month', label: t('filter_last_month') },
+        { value: 'this_year', label: t('filter_this_year') },
+        { value: 'last_year', label: t('filter_last_year') },
+        { value: 'custom', label: t('filter_custom_range') },
+    ];
 
     // State management
     const [search, setSearch] = useState(initialFilters.search || '');
@@ -237,7 +239,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                         <button
                             onClick={handleSearchClick}
                             className="flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-white transition-colors hover:bg-primary/90"
-                            title="Search"
+                            title={t('lbl_search')}
                         >
                             <Search className="h-5 w-5" />
                         </button>
@@ -256,7 +258,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                         >
                             <Store className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
                             <span className="max-w-[120px] truncate text-xs sm:max-w-none sm:text-sm">
-                                {selectedStore === 'all' ? 'All Stores' : userStores.find((store) => store.id === selectedStore)?.store_name || 'Select Store'}
+                                {selectedStore === 'all' ? t('lbl_all_stores') : userStores.find((store) => store.id === selectedStore)?.store_name || t('lbl_select_store')}
                             </span>
                             <ChevronDown className="h-3 w-3 text-gray-400 sm:h-4 sm:w-4" />
                         </button>
@@ -272,7 +274,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                         }}
                                         className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${selectedStore === 'all' ? 'bg-primary/[0.08] text-primary' : 'text-gray-900'}`}
                                     >
-                                        All Stores
+                                        {t('lbl_all_stores')}
                                     </button>
                                     {userStores.map((store) => (
                                         <button
@@ -327,7 +329,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                     {dateFilterType === 'custom' && (
                                         <div className="space-y-3 border-t border-gray-100 p-4">
                                             <div>
-                                                <label className="mb-1 block text-xs font-medium text-gray-700">From Date</label>
+                                                <label className="mb-1 block text-xs font-medium text-gray-700">{t('lbl_from_date')}</label>
                                                 <input
                                                     type="date"
                                                     value={customStartDate}
@@ -336,7 +338,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                                 />
                                             </div>
                                             <div>
-                                                <label className="mb-1 block text-xs font-medium text-gray-700">To Date</label>
+                                                <label className="mb-1 block text-xs font-medium text-gray-700">{t('lbl_to_date')}</label>
                                                 <input
                                                     type="date"
                                                     value={customEndDate}
@@ -348,7 +350,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                                 onClick={() => setShowDateDropdown(false)}
                                                 className="w-full rounded bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
                                             >
-                                                Apply
+                                                {t('btn_apply')}
                                             </button>
                                         </div>
                                     )}
@@ -366,10 +368,10 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     <button
                         onClick={resetFilters}
                         className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-600 hover:bg-gray-50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:gap-2 sm:px-4 sm:py-2.5"
-                        title="Reset Filters"
+                        title={t('lbl_reset_filters')}
                     >
                         <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        <span className="text-xs sm:text-sm">Reset</span>
+                        <span className="text-xs sm:text-sm">{t('btn_reset')}</span>
                     </button>
                 )}
 
@@ -384,7 +386,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                 <div className="mt-3 flex flex-wrap gap-2">
                     {search && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/[0.1] px-2.5 py-0.5 text-xs font-medium text-primary">
-                            Search: &quot;{search}&quot;
+                            {t('lbl_search')}: &quot;{search}&quot;
                             <button
                                 onClick={() => {
                                     setSearch('');
@@ -397,7 +399,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     )}
                     {selectedStore !== (currentStoreId || 'all') && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                            Store: {selectedStore === 'all' ? 'All Stores' : userStores.find((store) => store.id === selectedStore)?.store_name || 'Unknown'}
+                            {t('lbl_store')}: {selectedStore === 'all' ? t('lbl_all_stores') : userStores.find((store) => store.id === selectedStore)?.store_name || t('lbl_unknown')}
                             <button onClick={() => setSelectedStore(currentStoreId || 'all')}>
                                 <X className="h-3 w-3 hover:text-green-600" />
                             </button>
@@ -405,7 +407,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                     )}
                     {dateFilterType !== 'none' && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
-                            Date: {DATE_FILTER_OPTIONS.find((option) => option.value === dateFilterType)?.label}
+                            {t('lbl_date')}: {DATE_FILTER_OPTIONS.find((option) => option.value === dateFilterType)?.label}
                             <button onClick={() => setDateFilterType('none')}>
                                 <X className="h-3 w-3 hover:text-purple-600" />
                             </button>

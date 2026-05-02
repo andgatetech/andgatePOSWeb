@@ -14,6 +14,7 @@ import LedgersTable from './components/LedgersTable';
 import ViewLedgerModal from './components/ViewLedgerModal';
 
 const LedgerListPage = () => {
+    const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
 
     // Filter and pagination state
@@ -89,15 +90,14 @@ const LedgerListPage = () => {
 
     const handleDelete = useCallback(
         async (ledger: any) => {
-            const { t } = getTranslation();
-    const confirmed = await showConfirmDialog('Delete Ledger?', `Are you sure you want to delete "${ledger.title}"? This action cannot be undone.`, 'Yes, delete it!', 'Cancel', false);
+            const confirmed = await showConfirmDialog(t('msg_delete_ledger_confirm'), `${t('msg_are_you_sure_delete')} "${ledger.title}"? ${t('msg_action_cannot_be_undone')}`, t('btn_yes_delete_it'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
                     await deleteLedger(ledger.id).unwrap();
-                    showSuccessDialog('Deleted!', 'Ledger has been deleted successfully.');
+                    showSuccessDialog(t('msg_deleted'), t('msg_ledger_deleted'));
                 } catch (error: any) {
-                    showErrorDialog(t('msg_error'), error?.data?.message || 'Failed to delete ledger.');
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_delete_ledger'));
                 }
             }
         },
@@ -126,8 +126,8 @@ const LedgerListPage = () => {
                             <BookOpen className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Ledgers</h1>
-                            <p className="text-sm text-gray-600">Manage your financial ledgers and accounts</p>
+                            <h1 className="text-2xl font-bold text-gray-900">{t('lbl_ledgers')}</h1>
+                            <p className="text-sm text-gray-600">{t('account_ledgers_desc')}</p>
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,7 @@ const LedgerListPage = () => {
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
                 >
                     <Plus className="h-5 w-5" />
-                    Add Ledger
+                    {t('btn_add_ledger')}
                 </button>
             </div>
 

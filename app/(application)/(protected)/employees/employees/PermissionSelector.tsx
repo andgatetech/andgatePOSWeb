@@ -86,12 +86,12 @@ function PermissionRow({ permission, checked, onToggle, disabled, badgeClass }: 
                     )}
 
                     {/* No sidebar access note */}
-                    {menus.length === 0 && <p className="mt-1 text-[10px] italic text-gray-400">No sidebar menu — background action only</p>}
+                    {menus.length === 0 && <p className="mt-1 text-[10px] italic text-gray-400">{getTranslation().t('permission_no_sidebar')}</p>}
                 </div>
 
                 {/* ON / OFF label */}
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide ${checked ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
-                    {checked ? 'ON' : 'OFF'}
+                    {checked ? getTranslation().t('lbl_on') : getTranslation().t('lbl_off')}
                 </span>
             </div>
         </div>
@@ -134,7 +134,7 @@ function CategoryCard({
                         <div>
                             <h3 className="text-sm font-bold text-gray-800">{label}</h3>
                             <p className="text-[10px] text-gray-500">
-                                {checkedCount} of {permissions.length} enabled
+                                {checkedCount} {getTranslation().t('lbl_of')} {permissions.length} {getTranslation().t('lbl_enabled')}
                             </p>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ function CategoryCard({
                                 allSelected ? 'bg-emerald-100 text-emerald-700' : someSelected ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
                             }`}
                         >
-                            {allSelected ? 'All ON' : someSelected ? 'Partial' : 'All OFF'}
+                            {allSelected ? getTranslation().t('lbl_all_on') : someSelected ? getTranslation().t('lbl_partial') : getTranslation().t('lbl_all_off')}
                         </span>
 
                         {/* Category toggle button */}
@@ -158,7 +158,7 @@ function CategoryCard({
                                     allSelected ? 'border-red-200 bg-white text-red-600 hover:bg-red-50' : 'border-blue-200 bg-white text-blue-600 hover:bg-blue-50'
                                 }`}
                             >
-                                {allSelected ? 'Turn All OFF' : 'Turn All ON'}
+                                {allSelected ? getTranslation().t('btn_turn_all_off') : getTranslation().t('btn_turn_all_on')}
                             </button>
                         )}
 
@@ -167,7 +167,7 @@ function CategoryCard({
                             type="button"
                             onClick={() => setExpanded((v) => !v)}
                             className="rounded-lg p-1 text-gray-400 hover:bg-white/60 hover:text-gray-600"
-                            aria-label={expanded ? 'Collapse' : 'Expand'}
+                            aria-label={expanded ? getTranslation().t('lbl_collapse') : getTranslation().t('lbl_expand')}
                         >
                             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </button>
@@ -204,10 +204,10 @@ function CategoryCard({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function PermissionSelector({ allPermissions, isChecked, onToggle, onCategoryToggle, onSelectAll, selectAll, selectedCount, loading }: PermissionSelectorProps) {
+    const { t } = getTranslation();
     // Group and sort permissions by category
     const groupedPermissions = useMemo(() => {
-        const { t } = getTranslation();
-    const groups: Record<string, Permission[]> = {};
+        const groups: Record<string, Permission[]> = {};
 
         allPermissions.forEach((permission) => {
             const category = permission.name.split('.')[0] || 'general';
@@ -235,7 +235,7 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
             <div className="flex items-center justify-center py-16">
                 <div className="text-center">
                     <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
-                    <p className="mt-3 text-sm text-gray-500">Loading permissions...</p>
+                    <p className="mt-3 text-sm text-gray-500">{t('lbl_loading_permissions')}</p>
                 </div>
             </div>
         );
@@ -245,7 +245,7 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
         return (
             <div className="rounded-xl border-2 border-dashed border-gray-200 py-12 text-center text-gray-400">
                 <Shield className="mx-auto mb-2 h-10 w-10 opacity-30" />
-                <p className="text-sm">No permissions available.</p>
+                <p className="text-sm">{t('msg_no_permissions_available')}</p>
             </div>
         );
     }
@@ -260,16 +260,16 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
                     </div>
                     <div>
                         <p className="text-sm font-bold text-blue-900">
-                            {enabledCount} / {totalPermissions} permissions enabled
+                            {enabledCount} / {totalPermissions} {t('lbl_permissions_enabled')}
                         </p>
-                        <p className="text-xs text-blue-600">Toggle individual actions or use the Turn All ON / OFF button per module</p>
+                        <p className="text-xs text-blue-600">{t('permission_toggle_hint')}</p>
                     </div>
                 </div>
 
                 {/* Select All toggle */}
                 <label className="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-blue-200 bg-white px-3 py-2 transition hover:bg-blue-50">
                     <ToggleSwitch checked={selectAll} onChange={onSelectAll} />
-                    <span className={`text-xs font-bold ${selectAll ? 'text-emerald-700' : 'text-gray-600'}`}>{selectAll ? 'All Permissions ON' : 'Enable All Permissions'}</span>
+                    <span className={`text-xs font-bold ${selectAll ? 'text-emerald-700' : 'text-gray-600'}`}>{selectAll ? t('lbl_all_permissions_on') : t('lbl_enable_all_permissions')}</span>
                 </label>
             </div>
 
@@ -277,15 +277,15 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
             <div className="flex flex-wrap gap-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1.5">
                     <span className="inline-block h-3 w-5 rounded-full bg-emerald-500" />
-                    Permission is <strong className="text-emerald-700">ON</strong> — employee can do this
+                    {t('permission_legend_on')}
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="inline-block h-3 w-5 rounded-full bg-gray-200" />
-                    Permission is <strong className="text-gray-600">OFF</strong> — access denied
+                    {t('permission_legend_off')}
                 </span>
                 <span className="flex items-center gap-1.5">
                     <Menu className="h-3 w-3 text-blue-500" />
-                    Badge = sidebar menu item that becomes visible
+                    {t('permission_legend_badge')}
                 </span>
             </div>
 

@@ -59,16 +59,16 @@ const FeedbackManagementPage = () => {
     };
 
     const handleDelete = async (feedbackId) => {
-        const confirmed = await showConfirmDialog('Delete Feedback?', 'Are you sure you want to delete this feedback?', 'Yes, delete it!', 'Cancel', false);
+        const confirmed = await showConfirmDialog(t('msg_delete_feedback_confirm'), t('msg_are_you_sure_delete_feedback'), t('btn_yes_delete_it'), t('btn_cancel'), false);
 
         if (confirmed) {
             try {
                 await deleteFeedback(feedbackId);
-                showSuccessDialog('Deleted!', 'Feedback deleted successfully');
+                showSuccessDialog(t('msg_deleted'), t('msg_feedback_deleted'));
                 refetch();
             } catch (error) {
                 console.error('Failed to delete feedback:', error);
-                showErrorDialog(t('msg_error'), 'Failed to delete feedback');
+                showErrorDialog(t('msg_error'), t('msg_failed_delete_feedback'));
             }
         }
     };
@@ -106,8 +106,8 @@ const FeedbackManagementPage = () => {
             {/* ── Page Header ── */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Feedback Management</h1>
-                    <p className="mt-1 text-sm text-gray-500">Monitor and manage customer feedback submissions</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('feedback_management_title')}</h1>
+                    <p className="mt-1 text-sm text-gray-500">{t('feedback_management_desc')}</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
@@ -115,11 +115,11 @@ const FeedbackManagementPage = () => {
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900"
                     >
                         <RefreshCw className="h-4 w-4" />
-                        Refresh
+                        {t('btn_refresh')}
                     </button>
                     <button className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900">
                         <Download className="h-4 w-4" />
-                        Export
+                        {t('btn_export')}
                     </button>
                 </div>
             </div>
@@ -142,10 +142,10 @@ const FeedbackManagementPage = () => {
                 <div className="flex items-center justify-between px-5 py-4">
                     <div className="flex items-center gap-2">
                         <Filter className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm font-semibold text-gray-700">Filters & Search</span>
+                        <span className="text-sm font-semibold text-gray-700">{t('lbl_filters_and_search')}</span>
                         {hasActiveFilters && (
                             <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">
-                                Active
+                                {t('lbl_active')}
                             </span>
                         )}
                     </div>
@@ -153,7 +153,7 @@ const FeedbackManagementPage = () => {
                         onClick={() => setShowFilters(!showFilters)}
                         className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700"
                     >
-                        {showFilters ? 'Less' : 'More'} filters
+                        {showFilters ? t('btn_less_filters') : t('btn_more_filters')}
                         {showFilters ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                     </button>
                 </div>
@@ -196,7 +196,7 @@ const FeedbackManagementPage = () => {
                     {showFilters && (
                         <div className="mt-3 grid grid-cols-1 gap-3 border-t border-gray-100 pt-3 md:grid-cols-3">
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">From Date</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_from_date')}</label>
                                 <input
                                     type="date"
                                     value={filters.dateFrom}
@@ -205,7 +205,7 @@ const FeedbackManagementPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">To Date</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_to_date')}</label>
                                 <input
                                     type="date"
                                     value={filters.dateTo}
@@ -214,7 +214,7 @@ const FeedbackManagementPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">Minimum Rating</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_min_rating')}</label>
                                 <select
                                     value={filters.rating}
                                     onChange={(e) => handleFilterChange('rating', e.target.value)}
@@ -236,24 +236,24 @@ const FeedbackManagementPage = () => {
                         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
                             {filters.search && (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 border border-violet-200 px-2.5 py-1 text-xs font-medium text-violet-700">
-                                    Search: &quot;{filters.search}&quot;
+                                    {t('lbl_search')}: &quot;{filters.search}&quot;
                                     <button onClick={() => handleFilterChange('search', '')} className="ml-0.5 hover:text-violet-900"><X className="h-3 w-3" /></button>
                                 </span>
                             )}
                             {filters.status && (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-medium text-blue-700">
-                                    Status: {statusOptions.find((s) => s.value === filters.status)?.label}
+                                    {t('lbl_status')}: {statusOptions.find((s) => s.value === filters.status)?.label}
                                     <button onClick={() => handleFilterChange('status', '')} className="ml-0.5 hover:text-blue-900"><X className="h-3 w-3" /></button>
                                 </span>
                             )}
                             {filters.category && (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-medium text-amber-700">
-                                    Category: {categoryOptions.find((c) => c.value === filters.category)?.label}
+                                    {t('lbl_category')}: {categoryOptions.find((c) => c.value === filters.category)?.label}
                                     <button onClick={() => handleFilterChange('category', '')} className="ml-0.5 hover:text-amber-900"><X className="h-3 w-3" /></button>
                                 </span>
                             )}
                             <button onClick={clearFilters} className="ml-auto text-xs font-medium text-gray-400 underline hover:text-gray-600">
-                                Clear all
+                                {t('btn_clear_all')}
                             </button>
                         </div>
                     )}
@@ -268,8 +268,8 @@ const FeedbackManagementPage = () => {
                     <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-50 border border-gray-100">
                         <MessageSquare className="h-8 w-8 text-gray-300" />
                     </div>
-                    <h3 className="mb-1 text-base font-semibold text-gray-700">No feedback found</h3>
-                    <p className="max-w-xs text-sm text-gray-400">Try adjusting your filters or search terms to find feedback.</p>
+                    <h3 className="mb-1 text-base font-semibold text-gray-700">{t('feedback_no_found')}</h3>
+                    <p className="max-w-xs text-sm text-gray-400">{t('feedback_no_found_desc')}</p>
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -316,7 +316,7 @@ const FeedbackManagementPage = () => {
                                             <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
                                                 <span className="inline-flex items-center gap-1">
                                                     <User className="h-3.5 w-3.5" />
-                                                    {feedback.user?.name || 'Anonymous'}
+                                                    {feedback.user?.name || t('lbl_anonymous')}
                                                 </span>
                                                 <span className="inline-flex items-center gap-1">
                                                     <Calendar className="h-3.5 w-3.5" />
@@ -347,7 +347,7 @@ const FeedbackManagementPage = () => {
                                                     onClick={() => setExpandedFeedback(isExpanded ? null : feedback.id)}
                                                     className="mt-1.5 text-xs font-medium text-violet-600 hover:text-violet-800"
                                                 >
-                                                    {isExpanded ? 'Show less ↑' : 'Read more ↓'}
+                                                    {isExpanded ? t('btn_show_less') : t('btn_read_more')}
                                                 </button>
                                             )}
                                         </div>

@@ -56,7 +56,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
 
     const saveEditingUnit = (id: number) => {
         if (!editingUnitName.trim()) {
-            setMessage({ type: 'error', text: 'Unit name cannot be empty' });
+            setMessage({ type: 'error', text: t('msg_unit_name_empty') });
             return;
         }
         handleUpdateUnit(id, editingUnitName.trim());
@@ -67,7 +67,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
     return (
         <div className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Product Units</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('store_units_title')}</h3>
 
                 {/* Add New Unit */}
                 <div className="mb-4 flex gap-2">
@@ -76,12 +76,12 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                         value={unitName}
                         onChange={(e) => setUnitName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateUnit()}
-                        placeholder="Enter unit name (e.g., Piece, Box, Kg)"
+                        placeholder={t('placeholder_unit_name')}
                         className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
                     <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90">
                         <Plus className="mr-1 h-4 w-4" />
-                        Add
+                        {t('btn_add')}
                     </button>
                 </div>
 
@@ -90,10 +90,10 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b bg-gray-50">
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Unit Name</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Active</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_id')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_unit_name')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_active')}</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -115,11 +115,11 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                     onChange={(e) => setEditingUnitName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && unit.id && saveEditingUnit(unit.id)}
                                                     className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                    placeholder="Enter unit name"
+                                                    placeholder={t('placeholder_unit_name')}
                                                     autoFocus
                                                 />
                                             ) : (
-                                                <span className="text-sm font-medium text-gray-900">{unit.name || 'Unnamed Unit'}</span>
+                                                <span className="text-sm font-medium text-gray-900">{unit.name || t('lbl_unnamed_unit')}</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-center">
@@ -141,11 +141,11 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                         type="button"
                                                         onClick={() => unit.id && saveEditingUnit(unit.id)}
                                                         className="rounded bg-success p-1.5 text-white hover:bg-success/90"
-                                                        title="Save"
+                                                        title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
                                                     </button>
-                                                    <button type="button" onClick={cancelEditingUnit} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title="Cancel">
+                                                    <button type="button" onClick={cancelEditingUnit} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
                                                         <X className="h-4 w-4" />
                                                     </button>
                                                 </div>
@@ -167,7 +167,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                                     }}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
                                                                 >
-                                                                    Edit Unit
+                                                                    {t('btn_edit_unit')}
                                                                 </button>
                                                             </li>
                                                             <li className="border-t">
@@ -179,7 +179,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                                     }}
                                                                     className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
                                                                 >
-                                                                    Delete Unit
+                                                                    {t('btn_delete_unit')}
                                                                 </button>
                                                             </li>
                                                         </ul>
@@ -192,7 +192,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                             ) : (
                                 <tr>
                                     <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
-                                        No units added yet. Click &quot;Add&quot; to create your first unit.
+                                        {t('msg_no_units_yet')}
                                     </td>
                                 </tr>
                             )}
@@ -204,8 +204,8 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            Showing <span className="font-semibold">{startIndex + 1}</span> to <span className="font-semibold">{Math.min(endIndex, totalItems)}</span> of{' '}
-                            <span className="font-semibold">{totalItems}</span> units
+                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
+                            <span className="font-semibold">{totalItems}</span> {t('lbl_units')}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -214,7 +214,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Previous
+                                {t('btn_previous')}
                             </button>
                             <div className="flex gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -234,7 +234,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Next
+                                {t('btn_next')}
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -244,7 +244,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                 {/* Total Count */}
                 {unitsData && unitsData.length > 0 && (
                     <div className="mt-4 text-sm text-gray-600">
-                        Total: <span className="font-semibold">{unitsData.length}</span> unit(s)
+                        {t('lbl_total')}: <span className="font-semibold">{unitsData.length}</span> {t('lbl_units')}
                     </div>
                 )}
             </div>

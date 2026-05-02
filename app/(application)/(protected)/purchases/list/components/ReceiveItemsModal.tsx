@@ -97,19 +97,19 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
         const invalidItems = items.filter((item) => item.quantity_received > item.quantity_ordered || item.purchase_price <= 0 || (item.selling_price || 0) <= 0);
 
         if (invalidItems.length > 0) {
-            Swal.fire('Validation Error', 'Please check all quantities and prices are valid', 'error');
+            Swal.fire(t('lbl_validation_error'), t('msg_check_quantities_prices'), 'error');
             return;
         }
 
         const totalReceiving = items.reduce((sum, item) => sum + item.quantity_received, 0);
 
         if (totalReceiving === 0) {
-            Swal.fire('No Items', 'Please specify quantity to receive for at least one item', 'warning');
+            Swal.fire(t('lbl_no_items'), t('msg_specify_quantity_to_receive'), 'warning');
             return;
         }
 
         const result = await Swal.fire({
-            title: 'Confirm Receipt',
+            title: t('lbl_confirm_receipt'),
             html: `
                 <div class="text-left">
                     <p class="mb-3">${t('purchase_about_to_receive', { count: totalReceiving })}</p>
@@ -120,8 +120,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
             showCancelButton: true,
             confirmButtonColor: '#10b981',
             cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Yes, Receive Items',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: t('btn_yes_receive_items'),
+            cancelButtonText: t('btn_cancel'),
         });
 
         if (!result.isConfirmed) return;
@@ -147,13 +147,13 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Items Received Successfully!',
+                title: t('msg_items_received_successfully'),
                 html: `
                     <div class="text-left space-y-2">
                         <p><strong>${t('lbl_invoice')}:</strong> ${response?.data?.invoice_number || 'N/A'}</p>
                         <p><strong>${t('lbl_status')}:</strong> ${response?.data?.status || 'N/A'}</p>
-                        ${newProducts > 0 ? `<p class="text-green-600">✓ ${newProducts} new product(s) created</p>` : ''}
-                        ${newBatches > 0 ? `<p class="text-blue-600">✓ ${newBatches} new batch(es) created</p>` : ''}
+                        ${newProducts > 0 ? `<p class="text-green-600">✓ ${newProducts} ${t('msg_new_products_created')}</p>` : ''}
+                        ${newBatches > 0 ? `<p class="text-blue-600">✓ ${newBatches} ${t('msg_new_batches_created')}</p>` : ''}
                     </div>
                 `,
             });
@@ -161,7 +161,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
             onSuccess?.();
             onClose();
         } catch (error: any) {
-            Swal.fire('Error', error?.data?.message || 'Failed to receive items', 'error');
+            Swal.fire(t('msg_error'), error?.data?.message || t('msg_failed_to_receive_items'), 'error');
         }
     };
 
@@ -183,9 +183,9 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                 <Package className="h-6 w-6" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold">Receive Items</h2>
+                                <h2 className="text-2xl font-bold">{t('lbl_receive_items')}</h2>
                                 <p className="text-sm text-blue-100">
-                                    Purchase Order: <span className="font-semibold">{purchaseOrder?.invoice_number || 'N/A'}</span>
+                                    {t('lbl_purchase_order')}: <span className="font-semibold">{purchaseOrder?.invoice_number || 'N/A'}</span>
                                 </p>
                             </div>
                         </div>
@@ -199,7 +199,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                         <div className="mb-2 flex justify-between text-sm">
                             <span>{t('lbl_progress')}: {receivedPercentage}%</span>
                             <span>
-                                {totalReceived} / {totalOrdered} items
+                                {totalReceived} / {totalOrdered} {t('lbl_items')}
                             </span>
                         </div>
                         <div className="h-2 overflow-hidden rounded-full bg-white/20">
@@ -212,15 +212,15 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                 <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div className="rounded-lg bg-white p-4 shadow-sm">
-                            <p className="text-sm text-gray-600">Total Ordered</p>
+                            <p className="text-sm text-gray-600">{t('lbl_total_ordered')}</p>
                             <p className="text-2xl font-bold text-blue-600">{totalOrdered}</p>
                         </div>
                         <div className="rounded-lg bg-white p-4 shadow-sm">
-                            <p className="text-sm text-gray-600">Receiving Now</p>
+                            <p className="text-sm text-gray-600">{t('lbl_receiving_now')}</p>
                             <p className="text-2xl font-bold text-green-600">{totalReceived}</p>
                         </div>
                         <div className="rounded-lg bg-white p-4 shadow-sm">
-                            <p className="text-sm text-gray-600">Pending</p>
+                            <p className="text-sm text-gray-600">{t('lbl_pending')}</p>
                             <p className="text-2xl font-bold text-orange-600">{totalPending}</p>
                         </div>
                     </div>
@@ -234,7 +234,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                         disabled={isLoading}
                     >
                         <Check className="h-4 w-4" />
-                        Receive All Items
+                        {t('btn_receive_all_items')}
                     </button>
                 </div>
 
@@ -244,14 +244,14 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                         <thead>
                             <tr className="border-b-2 border-gray-200 bg-gray-50">
                                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">#</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Product</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">Ordered</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">Already Received</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">Receive Qty</th>
-                                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-700">Purchase Price</th>
-                                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-700">Selling Price</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">Low Stock</th>
-                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">Actions</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">{t('lbl_product')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_ordered')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_already_received')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_receive_qty')}</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-700">{t('lbl_purchase_price')}</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-700">{t('lbl_selling_price')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_low_stock')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -266,14 +266,14 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                         <td className="px-4 py-3">
                                             <div>
                                                 <p className="font-medium text-gray-900">{item.product_name}</p>
-                                                {item.is_variant && item.variant_name && <p className="text-xs font-medium text-blue-600">Variant: {item.variant_name}</p>}
+                                                {item.is_variant && item.variant_name && <p className="text-xs font-medium text-blue-600">{t('lbl_variant')}: {item.variant_name}</p>}
                                                 {item.is_new_product && (
                                                     <span className="mt-1 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
                                                         <Plus className="mr-1 h-3 w-3" />
-                                                        New Product
+                                                        {t('lbl_new_product')}
                                                     </span>
                                                 )}
-                                                <p className="text-xs text-gray-500">Unit: {item.unit || 'piece'}</p>
+                                                <p className="text-xs text-gray-500">{t('lbl_unit')}: {item.unit || t('lbl_piece')}</p>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-center">
@@ -355,13 +355,13 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                     <div className="flex items-center justify-between gap-4">
                         <div className="text-sm text-gray-600">
                             <p>
-                                <span className="font-semibold text-gray-900">{items.filter((i) => i.quantity_received > 0).length}</span> of{' '}
-                                <span className="font-semibold text-gray-900">{items.length}</span> items will be received
+                                <span className="font-semibold text-gray-900">{items.filter((i) => i.quantity_received > 0).length}</span> {t('lbl_of')}{' '}
+                                <span className="font-semibold text-gray-900">{items.length}</span> {t('msg_items_will_be_received')}
                             </p>
                         </div>
                         <div className="flex gap-3">
                             <button onClick={onClose} className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50" disabled={isLoading}>
-                                Cancel
+                                {t('btn_cancel')}
                             </button>
                             <button
                                 onClick={handleSubmit}
@@ -369,7 +369,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                 disabled={isLoading || totalReceived === 0}
                             >
                                 <Save className="h-4 w-4" />
-                                {isLoading ? 'Processing...' : 'Confirm Receipt'}
+                                {isLoading ? t('lbl_processing') : t('lbl_confirm_receipt')}
                             </button>
                         </div>
                     </div>
