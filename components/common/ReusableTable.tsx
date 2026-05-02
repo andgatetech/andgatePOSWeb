@@ -64,30 +64,18 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
     useEffect(() => {
         if (isOpen && buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
-            const dropdownWidth = 192; // w-48 = 12rem = 192px
-            const dropdownHeight = actions.length * 48; // Approximate height per item
+            const dropdownWidth = 192;
+            const dropdownHeight = actions.length * 48;
             const viewportWidth = window.innerWidth;
 
-            // Calculate position
             let top = rect.bottom + 5;
-
-            // Right-align: dropdown's right edge aligns with button's right edge
             let left = rect.right - dropdownWidth;
 
-            // Adjust if dropdown goes below viewport
             if (top + dropdownHeight > window.innerHeight) {
                 top = rect.top - dropdownHeight - 5;
             }
-
-            // Clamp: don't go off left edge
-            if (left < 8) {
-                left = 8;
-            }
-
-            // Clamp: don't go off right edge
-            if (left + dropdownWidth > viewportWidth - 8) {
-                left = viewportWidth - dropdownWidth - 8;
-            }
+            if (left < 8) left = 8;
+            if (left + dropdownWidth > viewportWidth - 8) left = viewportWidth - dropdownWidth - 8;
 
             setPosition({ top, left });
         }
@@ -95,44 +83,39 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
 
     return (
         <div className="relative flex justify-center">
-            <button ref={buttonRef} onClick={onToggle} className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900" title={t('lbl_actions')}>
-                <MoreVertical className="h-5 w-5" />
+            <button
+                ref={buttonRef}
+                onClick={onToggle}
+                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                title={t('lbl_actions')}
+            >
+                <MoreVertical className="h-4 w-4" />
             </button>
 
-            {/* Dropdown Menu */}
             {isOpen && (
                 <>
-                    {/* Backdrop to close dropdown */}
                     <div className="fixed inset-0 z-[100]" onClick={onClose} />
-
-                    {/* Dropdown */}
                     <div
                         ref={dropdownRef}
-                        className="fixed z-[101] w-48 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl"
-                        style={{
-                            top: `${position.top}px`,
-                            left: `${position.left}px`,
-                        }}
+                        className="fixed z-[101] w-48 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl"
+                        style={{ top: `${position.top}px`, left: `${position.left}px` }}
                     >
                         {actions.map((action, actionIndex) => (
                             <button
                                 key={actionIndex}
-                                onClick={() => {
-                                    action.onClick(row);
-                                    onClose();
-                                }}
-                                className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-gray-50 ${
+                                onClick={() => { action.onClick(row); onClose(); }}
+                                className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium transition-colors ${
                                     action.className?.includes('text-red')
-                                        ? 'text-red-700 hover:bg-red-50'
+                                        ? 'text-red-600 hover:bg-red-50'
                                         : action.className?.includes('text-green')
                                         ? 'text-green-700 hover:bg-green-50'
                                         : action.className?.includes('text-blue')
                                         ? 'text-blue-700 hover:bg-blue-50'
-                                        : 'text-gray-700'
-                                }`}
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                } ${actionIndex > 0 ? 'border-t border-gray-50' : ''}`}
                             >
-                                {action.icon && <span>{action.icon}</span>}
-                                <span className="font-medium">{action.label}</span>
+                                {action.icon && <span className="flex-shrink-0">{action.icon}</span>}
+                                <span>{action.label}</span>
                             </button>
                         ))}
                     </div>
@@ -142,7 +125,17 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
     );
 };
 
-const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, isLoading = false, emptyState, pagination, sorting, className = '', rowClassName }) => {
+const ReusableTable: React.FC<ReusableTableProps> = ({
+    data,
+    columns,
+    actions,
+    isLoading = false,
+    emptyState,
+    pagination,
+    sorting,
+    className = '',
+    rowClassName,
+}) => {
     const { t } = getTranslation();
     const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
 
@@ -150,67 +143,72 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
         return (
             <div className="flex h-64 items-center justify-center">
                 <div className="text-center">
-                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-                    <p className="mt-4 text-sm text-gray-600">Loading...</p>
+                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                    <p className="mt-3 text-sm text-gray-500">{t('lbl_loading')}</p>
                 </div>
             </div>
         );
     }
 
     const handleSort = (field: string) => {
-        if (sorting?.onSort) {
-            sorting.onSort(field);
-        }
+        if (sorting?.onSort) sorting.onSort(field);
     };
 
-    const getDefaultRowClassName = (row: any, index: number) => {
-        const baseClass = 'transition-colors hover:bg-blue-50';
-        const stripeClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-        return `${baseClass} ${stripeClass}`;
-    };
+    const getDefaultRowClassName = (_row: any, index: number) =>
+        `border-b border-gray-100 transition-colors last:border-0 ${
+            index % 2 === 0 ? 'bg-white hover:bg-primary/5' : 'bg-slate-50/60 hover:bg-primary/5'
+        }`;
+
+    const startRecord = pagination ? (pagination.currentPage - 1) * pagination.itemsPerPage + 1 : 0;
+    const endRecord = pagination ? Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) : 0;
 
     return (
-        <div className={`overflow-hidden rounded-xl border bg-white shadow-sm ${className}`}>
+        <div className={`overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm ${className}`}>
             {/* Table */}
             <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                        <tr>
+                <table className="w-full border-collapse">
+                    <thead>
+                        <tr className="bg-primary">
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors ${
-                                        column.sortable ? 'cursor-pointer hover:bg-gray-200' : ''
+                                    className={`px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors ${
+                                        column.sortable ? 'cursor-pointer select-none hover:bg-white/10' : ''
                                     } ${column.className || ''}`}
                                     onClick={column.sortable ? () => handleSort(column.key) : undefined}
                                 >
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1.5">
                                         {column.label}
-                                        {column.sortable &&
-                                            sorting &&
-                                            sorting.field === column.key &&
-                                            (sorting.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                        {column.sortable && sorting && sorting.field === column.key && (
+                                            sorting.direction === 'asc'
+                                                ? <ChevronUp className="h-3.5 w-3.5 text-white" />
+                                                : <ChevronDown className="h-3.5 w-3.5 text-white" />
+                                        )}
                                     </div>
                                 </th>
                             ))}
-                            {actions && actions.length > 0 && <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_actions')}</th>}
+                            {actions && actions.length > 0 && (
+                                <th className="w-16 px-4 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-white/90">
+                                    {t('lbl_actions')}
+                                </th>
+                            )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody>
                         {data.map((row, index) => {
                             const finalRowClassName = rowClassName ? rowClassName(row, index) : getDefaultRowClassName(row, index);
-                            const rowId = row.id || index;
+                            const rowId = row.id ?? index;
                             const isDropdownOpen = openDropdownId === rowId;
 
                             return (
                                 <tr key={rowId} className={finalRowClassName}>
                                     {columns.map((column) => (
-                                        <td key={column.key} className={`px-4 py-4 ${column.className || ''}`}>
+                                        <td key={column.key} className={`px-4 py-3.5 text-sm ${column.className || ''}`}>
                                             {column.render ? column.render(row[column.key], row) : row[column.key]}
                                         </td>
                                     ))}
                                     {actions && actions.length > 0 && (
-                                        <td className="px-4 py-4 text-center">
+                                        <td className="px-4 py-3.5 text-center">
                                             <ActionsDropdown
                                                 actions={actions}
                                                 row={row}
@@ -227,88 +225,96 @@ const ReusableTable: React.FC<ReusableTableProps> = ({ data, columns, actions, i
                 </table>
             </div>
 
-            {/* Pagination */}
-            {pagination && pagination.totalPages > 1 && (
-                <div className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4">
-                    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-                        {/* Items per page */}
-                        <div className="flex items-center gap-4">
-                            <div className="text-sm text-gray-700">
-                                Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.itemsPerPage + 1}</span> to{' '}
-                                <span className="font-medium">{Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)}</span> of{' '}
-                                <span className="font-medium">{pagination.totalItems}</span> items
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="whitespace-nowrap text-sm text-gray-600">Show:</span>
-                                <select
-                                    value={pagination.itemsPerPage}
-                                    onChange={(e) => pagination.onItemsPerPageChange(Number(e.target.value))}
-                                    className="rounded-lg border border-gray-300 px-3 py-1 text-sm transition-all focus:border-primary focus:ring-2 focus:ring-blue-200"
-                                >
-                                    <option value={10}>10</option>
-                                    <option value={20}>20</option>
-                                    <option value={50}>50</option>
-                                    <option value={100}>100</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Page navigation */}
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => pagination.onPageChange(Math.max(1, pagination.currentPage - 1))}
-                                disabled={pagination.currentPage === 1}
-                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                Previous
-                            </button>
-
-                            <div className="flex items-center gap-1">
-                                {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
-                                    let pageNum;
-                                    if (pagination.totalPages <= 5) {
-                                        pageNum = i + 1;
-                                    } else if (pagination.currentPage <= 3) {
-                                        pageNum = i + 1;
-                                    } else if (pagination.currentPage >= pagination.totalPages - 2) {
-                                        pageNum = pagination.totalPages - 4 + i;
-                                    } else {
-                                        pageNum = pagination.currentPage - 2 + i;
-                                    }
-
-                                    return (
-                                        <button
-                                            key={pageNum}
-                                            onClick={() => pagination.onPageChange(pageNum)}
-                                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                                pagination.currentPage === pageNum ? 'bg-primary text-white shadow-md' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                            }`}
-                                        >
-                                            {pageNum}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            <button
-                                onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.currentPage + 1))}
-                                disabled={pagination.currentPage === pagination.totalPages}
-                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Empty state */}
             {data.length === 0 && emptyState && (
                 <div className="py-16 text-center">
-                    {emptyState.icon && <div className="mx-auto mb-4 text-gray-400">{emptyState.icon}</div>}
-                    <h3 className="mb-2 text-lg font-semibold text-gray-900">{emptyState.title}</h3>
-                    <p className="mb-6 text-gray-500">{emptyState.description}</p>
+                    {emptyState.icon && (
+                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                            {emptyState.icon}
+                        </div>
+                    )}
+                    <h3 className="mb-1 text-base font-semibold text-gray-700">{emptyState.title}</h3>
+                    <p className="mb-6 text-sm text-gray-400">{emptyState.description}</p>
                     {emptyState.action && emptyState.action}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {pagination && (pagination.totalPages > 1 || pagination.totalItems > 0) && (
+                <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/80 px-5 py-3 sm:flex-row">
+                    {/* Showing info + per-page */}
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>
+                            {t('lbl_showing')}{' '}
+                            <span className="font-semibold text-gray-700">{startRecord}</span>
+                            {' '}{t('lbl_to')}{' '}
+                            <span className="font-semibold text-gray-700">{endRecord}</span>
+                            {' '}{t('lbl_of')}{' '}
+                            <span className="font-semibold text-gray-700">{pagination.totalItems}</span>
+                            {' '}{t('lbl_items')}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs">{t('lbl_show')}:</span>
+                            <select
+                                value={pagination.itemsPerPage}
+                                onChange={(e) => pagination.onItemsPerPageChange(Number(e.target.value))}
+                                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+                            >
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Page navigation */}
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => pagination.onPageChange(Math.max(1, pagination.currentPage - 1))}
+                            disabled={pagination.currentPage === 1}
+                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            {t('btn_previous')}
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                            {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
+                                let pageNum: number;
+                                if (pagination.totalPages <= 5) {
+                                    pageNum = i + 1;
+                                } else if (pagination.currentPage <= 3) {
+                                    pageNum = i + 1;
+                                } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                                    pageNum = pagination.totalPages - 4 + i;
+                                } else {
+                                    pageNum = pagination.currentPage - 2 + i;
+                                }
+
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => pagination.onPageChange(pageNum)}
+                                        className={`min-w-[32px] rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+                                            pagination.currentPage === pageNum
+                                                ? 'bg-primary text-white shadow-sm'
+                                                : 'border border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.currentPage + 1))}
+                            disabled={pagination.currentPage === pagination.totalPages}
+                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            {t('btn_next')}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

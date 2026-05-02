@@ -394,53 +394,53 @@ const ProductTable = () => {
                 <ProductFilter key={`product-filter-${currentStoreId}`} onFilterChange={handleFilterChange} />
 
                 {/* Enhanced Table */}
-                <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-sm">
+                <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                     <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                                <tr>
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-primary">
                                     <th
-                                        className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
                                         onClick={() => handleSort('sku')}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5">
                                             SKU
-                                            {sortField === 'sku' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                            {sortField === 'sku' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
                                         </div>
                                     </th>
                                     <th
-                                        className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
                                         onClick={() => handleSort('product_name')}
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Product name
-                                            {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                        <div className="flex items-center gap-1.5">
+                                            {t('lbl_product_name')}
+                                            {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
                                         </div>
                                     </th>
                                     <th
-                                        className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
                                         onClick={() => handleSort('quantity')}
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Stock Level
-                                            {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                        <div className="flex items-center gap-1.5">
+                                            {t('lbl_stock_level')}
+                                            {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_image')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_image')}</th>
                                     <th
-                                        className="cursor-pointer px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 transition-colors hover:bg-gray-200"
+                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
                                         onClick={() => handleSort('available')}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5">
                                             {t('lbl_status')}
-                                            {sortField === 'available' && (sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+                                            {sortField === 'available' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_price')}</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">{t('lbl_actions')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_price')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_actions')}</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
+                            <tbody>
                                 {products.map((product: any, index: number) => {
                                     // Calculate actual quantity from stocks if available
                                     const actualQuantity =
@@ -463,7 +463,7 @@ const ProductTable = () => {
                                     const stockStatus = getStockStatus(actualQuantity, displayLowStock);
 
                                     return (
-                                        <tr key={product.id} className={`transition-colors hover:bg-blue-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                        <tr key={product.id} className={`border-b border-gray-100 transition-colors last:border-0 ${index % 2 === 0 ? 'bg-white hover:bg-primary/5' : 'bg-slate-50/60 hover:bg-primary/5'}`}>
                                             {/* Product Details */}
                                             {/* SKU & Unit */}
                                             <td className="px-4 py-4">
@@ -631,82 +631,16 @@ const ProductTable = () => {
                                 })}
                             </tbody>
                         </table>
-                        {/* Items per page and results info */}
-                        <div className="mb-6 mt-6 flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-                            <div className="text-sm text-gray-600">
-                                {totalRecords === 0 ? (
-                                    <>
-                                        Showing <span className="font-medium">0</span> products
-                                    </>
-                                ) : (
-                                    <>
-                                        Showing <span className="font-medium">{startRecord}</span>-<span className="font-medium">{endRecord}</span> of{' '}
-                                        <span className="font-medium">{totalRecords}</span> products
-                                    </>
-                                )}
-                                {apiParams.search && totalRecords > 0 && <span> matching &quot;{apiParams.search}&quot;</span>}
-                            </div>
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                                <div className="flex items-center gap-2">
-                                    <span className="whitespace-nowrap text-sm text-gray-600">Show:</span>
-                                    <select
-                                        value={itemsPerPage}
-                                        onChange={(e) => {
-                                            const value = Number(e.target.value);
-                                            goToPage(1);
-                                            setItemsPerPage(value);
-                                        }}
-                                        className="rounded-lg border border-gray-300 px-3 py-2 transition-all focus:border-primary focus:ring-2 focus:ring-blue-200"
-                                    >
-                                        <option value={10}>10</option>
-                                        <option value={20}>20</option>
-                                        <option value={30}>30</option>
-                                        <option value={100}>100</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (currentPage > 1) {
-                                                setCurrentPage((prev) => prev - 1);
-                                            }
-                                        }}
-                                        disabled={activePage <= 1}
-                                        className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                                            activePage <= 1 ? 'cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:bg-gray-100'
-                                        }`}
-                                    >
-                                        Previous
-                                    </button>
-                                    <span className="text-sm text-gray-600">
-                                        Page <span className="font-medium">{totalRecords === 0 ? 0 : activePage}</span> of <span className="font-medium">{totalRecords === 0 ? 0 : totalPages}</span>
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (currentPage < totalPages) {
-                                                setCurrentPage((prev) => prev + 1);
-                                            }
-                                        }}
-                                        disabled={activePage >= totalPages || totalRecords === 0}
-                                        className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                                            activePage >= totalPages || totalRecords === 0 ? 'cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:bg-gray-100'
-                                        }`}
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Empty state */}
                     {products.length === 0 && (
                         <div className="py-16 text-center">
-                            <Package className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-                            <h3 className="mb-2 text-lg font-semibold text-gray-900">{t('product_no_data')}</h3>
-                            <p className="mb-6 text-gray-500">{Object.keys(apiParams).length > 0 ? t('product_no_data_desc') : t('product_no_data_desc')}</p>
+                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                                <Package className="h-8 w-8 text-gray-400" />
+                            </div>
+                            <h3 className="mb-1 text-base font-semibold text-gray-700">{t('product_no_data')}</h3>
+                            <p className="mb-6 text-sm text-gray-400">{t('product_no_data_desc')}</p>
                             {Object.keys(apiParams).length === 0 && (
                                 <Link href="/protected/products/add">
                                     <button className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90">
@@ -715,6 +649,75 @@ const ProductTable = () => {
                                     </button>
                                 </Link>
                             )}
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalRecords > 0 && (
+                        <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/80 px-5 py-3 sm:flex-row">
+                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                                <span>
+                                    {t('lbl_showing')}{' '}
+                                    <span className="font-semibold text-gray-700">{startRecord}</span>
+                                    {' '}{t('lbl_to')}{' '}
+                                    <span className="font-semibold text-gray-700">{endRecord}</span>
+                                    {' '}{t('lbl_of')}{' '}
+                                    <span className="font-semibold text-gray-700">{totalRecords}</span>
+                                    {' '}{t('lbl_items')}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-xs">{t('lbl_show')}:</span>
+                                    <select
+                                        value={itemsPerPage}
+                                        onChange={(e) => { goToPage(1); setItemsPerPage(Number(e.target.value)); }}
+                                        className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+                                    >
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={30}>30</option>
+                                        <option value={100}>100</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={() => goToPage(activePage - 1)}
+                                    disabled={activePage <= 1}
+                                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    {t('btn_previous')}
+                                </button>
+                                {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                                    let pageNum: number;
+                                    if (totalPages <= 5) pageNum = i + 1;
+                                    else if (activePage <= 3) pageNum = i + 1;
+                                    else if (activePage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                                    else pageNum = activePage - 2 + i;
+                                    return (
+                                        <button
+                                            key={pageNum}
+                                            type="button"
+                                            onClick={() => goToPage(pageNum)}
+                                            className={`min-w-[32px] rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+                                                activePage === pageNum
+                                                    ? 'bg-primary text-white shadow-sm'
+                                                    : 'border border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                                            }`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    );
+                                })}
+                                <button
+                                    type="button"
+                                    onClick={() => goToPage(activePage + 1)}
+                                    disabled={activePage >= totalPages || totalRecords === 0}
+                                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    {t('btn_next')}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
