@@ -121,10 +121,10 @@ export default function TrainingPage() {
         },
     ];
 
-    const difficultyConfig: Record<string, { bg: string; text: string }> = {
-        Beginner: { bg: 'bg-emerald-100', text: 'text-emerald-700' },
-        Intermediate: { bg: 'bg-amber-100', text: 'text-amber-700' },
-        Advanced: { bg: 'bg-rose-100', text: 'text-rose-700' },
+    const difficultyConfig: Record<string, { bg: string; text: string; label: string }> = {
+        Beginner: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: t('training.difficulty.beginner') },
+        Intermediate: { bg: 'bg-amber-100', text: 'text-amber-700', label: t('training.difficulty.intermediate') },
+        Advanced: { bg: 'bg-rose-100', text: 'text-rose-700', label: t('training.difficulty.advanced') },
     };
 
     const totalVideos = trainingCategories.reduce((sum, c) => sum + c.videos.length, 0);
@@ -168,7 +168,7 @@ export default function TrainingPage() {
                 <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
                     <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#046ca9]/30 bg-[#046ca9]/15 px-4 py-2 text-sm font-medium text-[#5bb8e8] backdrop-blur-sm">
                         <BookOpen className="h-4 w-4" />
-                        Learning Center
+                        {t('training.hero_badge')}
                     </div>
                     <h1 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
                         {t('training.page_title') || 'Master'}
@@ -183,9 +183,9 @@ export default function TrainingPage() {
                     {/* Stats chips */}
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         {[
-                            { icon: <Play className="h-4 w-4" />, label: `${totalVideos} video tutorials` },
-                            { icon: <BookOpen className="h-4 w-4" />, label: `${trainingCategories.length} topic categories` },
-                            { icon: <Zap className="h-4 w-4" />, label: 'Beginner to Advanced' },
+                            { icon: <Play className="h-4 w-4" />, label: `${totalVideos} ${t('training.stat_video_tutorials')}` },
+                            { icon: <BookOpen className="h-4 w-4" />, label: `${trainingCategories.length} ${t('training.stat_topic_categories')}` },
+                            { icon: <Zap className="h-4 w-4" />, label: t('training.stat_levels') },
                         ].map((chip, i) => (
                             <div
                                 key={i}
@@ -214,7 +214,7 @@ export default function TrainingPage() {
                                     <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
                                     <p className="mt-1 text-sm text-gray-600">{category.description}</p>
                                     <span className={`mt-2 inline-block text-xs font-semibold ${category.textColor}`}>
-                                        {category.videos.length} tutorials
+                                        {category.videos.length} {t('training.tutorials_available')}
                                     </span>
                                 </div>
                             </div>
@@ -277,7 +277,7 @@ export default function TrainingPage() {
                                                 <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500">{video.description}</p>
                                                 <div className="flex items-center justify-between">
                                                     <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${diff.bg} ${diff.text}`}>
-                                                        {video.difficulty}
+                                                        {diff.label}
                                                     </span>
                                                     <span className="text-xs text-gray-400">{video.duration}</span>
                                                 </div>

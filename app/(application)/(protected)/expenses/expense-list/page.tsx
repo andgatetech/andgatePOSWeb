@@ -121,34 +121,31 @@ const ExpenseListPage = () => {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-rose-600 shadow-lg">
-                            <Receipt className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{t('lbl_expenses')}</h1>
-                            <p className="text-sm text-gray-600">{t('expense_page_desc')}</p>
-                        </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <Receipt className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t('lbl_expenses')}</h1>
+                        <p className="text-sm text-gray-500">{t('expense_page_desc')}</p>
                     </div>
                 </div>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:from-red-600 hover:to-rose-700 hover:shadow-xl"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
-                    <Plus className="h-5 w-5" />
+                    <Plus className="h-4 w-4" />
                     {t('btn_add_expense')}
                 </button>
             </div>
 
             {/* Filters */}
-            <div className="panel">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <ExpenseFilter onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
             </div>
 
             {/* Table */}
-            <div className="panel">
-                <ExpensesTable
+            <ExpensesTable
                     expenses={expenses}
                     isLoading={isLoading}
                     pagination={{
@@ -171,7 +168,6 @@ const ExpenseListPage = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
-            </div>
 
             {/* Modals */}
             <ViewExpenseModal expense={selectedExpense} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />

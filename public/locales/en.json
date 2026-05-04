@@ -192,7 +192,18 @@
     "contact": {
         "page_title": "Get Started with AndgatePOS",
         "page_subtitle": "Fill out the form below and our team will get in touch to set up your POS — no complicated process, we'll walk you through it.",
+        "hero": {
+            "badge": "Get in Touch",
+            "title_highlight": "Your Business",
+            "benefits": [
+                "Response within 24 hours",
+                "Free setup consultation",
+                "Dedicated onboarding support"
+            ]
+        },
         "form": {
+            "title": "Send us a message",
+            "subtitle": "Fill in the details below and we'll be in touch shortly.",
             "name": "Full Name *",
             "email": "Email Address *",
             "phone": "Phone Number *",
@@ -215,7 +226,19 @@
             "submit_button": "Send Message",
             "submitting": "Sending...",
             "privacy_policy": "Privacy Policy",
-            "terms_of_service": "Terms of Service"
+            "terms_of_service": "Terms of Service",
+            "select_plan": "Select a plan",
+            "per_month": "/month",
+            "privacy_text": "By submitting, you agree to our",
+            "privacy_and": "and",
+            "placeholders": {
+                "name": "Your full name",
+                "email": "your@email.com",
+                "phone": "+880 1234 567890",
+                "business_name": "Your business name",
+                "business_location": "Dhaka, Bangladesh",
+                "store_size": "Number of stores"
+            }
         },
         "contact_info": {
             "title": "Get in Touch",
@@ -711,7 +734,11 @@
             "intermediate": "Intermediate",
             "advanced": "Advanced"
         },
-        "tutorials_available": "tutorials available"
+        "tutorials_available": "tutorials available",
+        "hero_badge": "Learning Center",
+        "stat_video_tutorials": "video tutorials",
+        "stat_topic_categories": "topic categories",
+        "stat_levels": "Beginner to Advanced"
     },
     "register-page": {
         "title": "Store Sign Up",
@@ -1593,6 +1620,8 @@
     "lbl_product": "Product",
     "lbl_order": "Order",
     "lbl_purchase": "Purchase",
+    "lbl_selling": "Selling",
+    "lbl_price_range": "Price Range",
     "lbl_sale": "Sale",
     "lbl_return": "Return",
     "lbl_adjustment": "Adjustment",

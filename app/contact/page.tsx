@@ -1,7 +1,9 @@
 'use client';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
+import { useGetPlansQuery } from '@/store/features/plans/plansApi';
 import {
     ArrowLeft,
     Building,
@@ -19,8 +21,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 export default function ContactPage() {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const { formatNumber } = useCurrency();
     const [createLead] = useCreateLeadMutation();
+    const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
+    const activePlans = plansData?.data?.filter((p) => p.status) ?? [];
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -60,9 +65,9 @@ export default function ContactPage() {
     };
 
     const benefits = [
-        { icon: <Clock className="h-5 w-5" />, text: 'Response within 24 hours' },
-        { icon: <Zap className="h-5 w-5" />, text: 'Free setup consultation' },
-        { icon: <MessageCircle className="h-5 w-5" />, text: 'Dedicated onboarding support' },
+        { icon: <Clock className="h-5 w-5" />, text: t('contact.hero.benefits.0') },
+        { icon: <Zap className="h-5 w-5" />, text: t('contact.hero.benefits.1') },
+        { icon: <MessageCircle className="h-5 w-5" />, text: t('contact.hero.benefits.2') },
     ];
 
     return (
@@ -82,12 +87,12 @@ export default function ContactPage() {
                         <span className="flex h-2 w-2 rounded-full bg-blue-400">
                             <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-blue-400 opacity-75" />
                         </span>
-                        Get in Touch
+                        {t('contact.hero.badge')}
                     </div>
                     <h1 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
                         {t('contact.page_title') || "Let's Talk About"}
                         <span className="block bg-gradient-to-r from-[#5bb8e8] to-[#e8f4fb] bg-clip-text text-transparent">
-                            Your Business
+                            {t('contact.hero.title_highlight')}
                         </span>
                     </h1>
                     <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-400">
@@ -112,8 +117,8 @@ export default function ContactPage() {
 
                         {/* Contact Form */}
                         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-                            <h2 className="mb-1 text-xl font-bold text-gray-900">Send us a message</h2>
-                            <p className="mb-8 text-sm text-gray-500">Fill in the details below and we'll be in touch shortly.</p>
+                            <h2 className="mb-1 text-xl font-bold text-gray-900">{t('contact.form.title')}</h2>
+                            <p className="mb-8 text-sm text-gray-500">{t('contact.form.subtitle')}</p>
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div className="grid gap-5 md:grid-cols-2">
                                     <div>
@@ -130,7 +135,7 @@ export default function ContactPage() {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
-                                                placeholder="Your full name"
+                                                placeholder={t('contact.form.placeholders.name')}
                                             />
                                         </div>
                                     </div>
@@ -148,7 +153,7 @@ export default function ContactPage() {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
-                                                placeholder="your@email.com"
+                                                placeholder={t('contact.form.placeholders.email')}
                                             />
                                         </div>
                                     </div>
@@ -169,7 +174,7 @@ export default function ContactPage() {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
-                                                placeholder="+880 1234 567890"
+                                                placeholder={t('contact.form.placeholders.phone')}
                                             />
                                         </div>
                                     </div>
@@ -187,7 +192,7 @@ export default function ContactPage() {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
-                                                placeholder="Your business name"
+                                                placeholder={t('contact.form.placeholders.business_name')}
                                             />
                                         </div>
                                     </div>
@@ -208,7 +213,7 @@ export default function ContactPage() {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
-                                                placeholder="Dhaka, Bangladesh"
+                                                placeholder={t('contact.form.placeholders.business_location')}
                                             />
                                         </div>
                                     </div>
@@ -224,7 +229,7 @@ export default function ContactPage() {
                                             required
                                             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                         >
-                                            <option value="">Number of stores</option>
+                                            <option value="">{t('contact.form.placeholders.store_size')}</option>
                                             <option value="1">{t('contact.form.store_options.1')}</option>
                                             <option value="2">{t('contact.form.store_options.2')}</option>
                                             <option value="5">{t('contact.form.store_options.5')}</option>
@@ -243,13 +248,21 @@ export default function ContactPage() {
                                         value={formData.package}
                                         onChange={handleChange}
                                         required
-                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
+                                        disabled={plansLoading}
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#046ca9] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
-                                        <option value="">Select a plan</option>
-                                        <option value="starter">{t('contact.form.package_options.starter')}</option>
-                                        <option value="professional">{t('contact.form.package_options.professional')}</option>
-                                        <option value="premium">{t('contact.form.package_options.premium')}</option>
-                                        <option value="enterprise">{t('contact.form.package_options.enterprise')}</option>
+                                        <option value="">
+                                            {plansLoading ? t('lbl_loading') : t('contact.form.select_plan')}
+                                        </option>
+                                        {activePlans.map((plan) => {
+                                            const name = i18n.language === 'bn' ? plan.name_bn : plan.name_en;
+                                            const price = formatNumber(Math.round(parseFloat(plan.monthly_price)), 0);
+                                            return (
+                                                <option key={plan.id} value={String(plan.id)}>
+                                                    {name} — ৳{price}{t('contact.form.per_month')}
+                                                </option>
+                                            );
+                                        })}
                                     </select>
                                 </div>
 
@@ -272,10 +285,10 @@ export default function ContactPage() {
                                 </button>
 
                                 <p className="text-center text-xs text-gray-400">
-                                    By submitting, you agree to our{' '}
-                                    <Link href="/privacy-policy" className="text-[#046ca9] hover:underline">Privacy Policy</Link>{' '}
-                                    and{' '}
-                                    <Link href="/terms-of-service" className="text-[#046ca9] hover:underline">Terms of Service</Link>.
+                                    {t('contact.form.privacy_text')}{' '}
+                                    <Link href="/privacy-policy" className="text-[#046ca9] hover:underline">{t('contact.form.privacy_policy')}</Link>{' '}
+                                    {t('contact.form.privacy_and')}{' '}
+                                    <Link href="/terms-of-service" className="text-[#046ca9] hover:underline">{t('contact.form.terms_of_service')}</Link>.
                                 </p>
                             </form>
                         </div>

@@ -5,6 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetAllOrdersQuery, useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
 import { getTranslation } from '@/i18n';
+import { ShoppingBag } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import PosInvoicePreview from '../pos/PosInvoicePreview';
@@ -171,49 +172,37 @@ const Orders = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
-            <div className="mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">{t('order_page_title')}</h1>
-                                    <p className="text-sm text-gray-500">{t('order_page_desc')}</p>
-                                </div>
-                            </div>
-                        </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <ShoppingBag className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t('order_page_title')}</h1>
+                        <p className="text-sm text-gray-500">{t('order_page_desc')}</p>
                     </div>
                 </div>
+            </div>
 
-                {/* Stats */}
-                <OrderStats
-                    totalOrders={stats.totalOrders}
-                    totalRevenue={stats.totalRevenue}
-                    paidOrders={stats.paidOrders}
-                    partialOrders={stats.partialOrders}
-                    dueOrders={stats.dueOrders}
-                    pendingOrders={stats.pendingOrders}
-                />
+            {/* Stats */}
+            <OrderStats
+                totalOrders={stats.totalOrders}
+                totalRevenue={stats.totalRevenue}
+                paidOrders={stats.paidOrders}
+                partialOrders={stats.partialOrders}
+                dueOrders={stats.dueOrders}
+                pendingOrders={stats.pendingOrders}
+            />
 
-                {/* Filters */}
-                <div className="mb-6">
-                    <OrderFilter onFilterChange={handleFilterChange} />
-                </div>
+            {/* Filters */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <OrderFilter onFilterChange={handleFilterChange} />
+            </div>
 
-                {/* Orders Table */}
-                <OrdersTable
+            {/* Orders Table */}
+            <OrdersTable
                     orders={orders}
                     isLoading={isLoading}
                     pagination={{
@@ -296,7 +285,6 @@ const Orders = () => {
                         </div>
                     </div>
                 )}
-            </div>
         </div>
     );
 };

@@ -68,7 +68,7 @@ interface ColorfulCardProps {
 }
 
 const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCurrency = true, isPercentage = false, showMinus = false }: ColorfulCardProps) => {
-    const { symbol } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { t } = getTranslation();
 
     return (
@@ -78,9 +78,15 @@ const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCu
                     <p className="mb-1 text-xs font-medium uppercase tracking-wider text-white/70">{title}</p>
                     <p className="text-xl font-bold text-white">
                         {showMinus && <span className="text-base font-semibold text-white/80">− </span>}
-                        {isCurrency && <span className="text-base font-semibold text-white/80">{symbol}</span>}
-                        <CountUp end={numericValue} duration={1.5} decimals={isCurrency ? 2 : isPercentage ? 2 : 0} separator="," />
-                        {isPercentage && <span className="text-base font-semibold text-white/80">%</span>}
+                        <CountUp
+                            end={numericValue}
+                            duration={1.5}
+                            formattingFn={(n) =>
+                                isCurrency ? formatCurrency(n) :
+                                isPercentage ? formatNumber(n, 2) + '%' :
+                                formatNumber(Math.round(n), 0)
+                            }
+                        />
                     </p>
                 </div>
                 <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/20 transition-transform duration-200 group-hover:scale-110">
@@ -110,7 +116,7 @@ interface WhiteCardProps {
 }
 
 const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, isCurrency = true, isPercentage = false }: WhiteCardProps) => {
-    const { symbol } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { t } = getTranslation();
 
     return (
@@ -119,9 +125,15 @@ const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, 
                 <div>
                     <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-400">{title}</p>
                     <p className="text-xl font-bold text-gray-900">
-                        {isCurrency && <span className="text-base font-semibold text-gray-500">{symbol}</span>}
-                        <CountUp end={numericValue} duration={1.5} decimals={isCurrency ? 2 : isPercentage ? 2 : 0} separator="," />
-                        {isPercentage && <span className="text-base font-semibold text-gray-500">%</span>}
+                        <CountUp
+                            end={numericValue}
+                            duration={1.5}
+                            formattingFn={(n) =>
+                                isCurrency ? formatCurrency(n) :
+                                isPercentage ? formatNumber(n, 2) + '%' :
+                                formatNumber(Math.round(n), 0)
+                            }
+                        />
                     </p>
                 </div>
                 <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${iconBg} transition-transform duration-200 group-hover:scale-110`}>

@@ -318,83 +318,87 @@ const ProductTable = () => {
     const outOfStockProducts = summaryMeta?.out_of_stock ?? summaryMeta?.outOfStock ?? fallbackStats.outOfStock;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
-            <div className="">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 shadow-md">
-                                    <Package className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">{t('product_page_title')}</h1>
-                                    <p className="text-sm text-gray-500">{t('product_page_desc')}</p>
-                                </div>
-                            </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <Package className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t('product_page_title')}</h1>
+                        <p className="text-sm text-gray-500">{t('product_page_desc')}</p>
+                    </div>
+                </div>
+                <Link
+                    href="/products/create"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+                >
+                    <Package className="h-4 w-4" />
+                    {t('product_add')}
+                </Link>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">{t('product_page_title')}</p>
+                            <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
                         </div>
+                        <Package className="h-8 w-8 text-blue-500" />
                     </div>
                 </div>
 
-                {/* Enhanced Stats Cards */}
-                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
-                    <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">{t('product_page_title')}</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
-                            </div>
-                            <Package className="h-8 w-8 text-blue-500" />
+                <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">{t('product_available')}</p>
+                            <p className="text-2xl font-bold text-green-600">{availableProducts}</p>
                         </div>
-                    </div>
-
-                    <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">{t('product_available')}</p>
-                                <p className="text-2xl font-bold text-green-600">{availableProducts}</p>
-                            </div>
-                            <CheckCircle className="h-8 w-8 text-green-500" />
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">{t('product_unavailable')}</p>
-                                <p className="text-2xl font-bold text-red-600">{unavailableProducts}</p>
-                            </div>
-                            <XCircle className="h-8 w-8 text-red-500" />
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">{t('status_low_stock')}</p>
-                                <p className="text-2xl font-bold text-orange-600">{lowStockProducts}</p>
-                            </div>
-                            <AlertCircle className="h-8 w-8 text-orange-500" />
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">{t('status_out_of_stock')}</p>
-                                <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
-                            </div>
-                            <XCircle className="h-8 w-8 text-red-400" />
-                        </div>
+                        <CheckCircle className="h-8 w-8 text-green-500" />
                     </div>
                 </div>
 
-                {/* Filter Bar */}
+                <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">{t('product_unavailable')}</p>
+                            <p className="text-2xl font-bold text-red-600">{unavailableProducts}</p>
+                        </div>
+                        <XCircle className="h-8 w-8 text-red-500" />
+                    </div>
+                </div>
+
+                <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">{t('status_low_stock')}</p>
+                            <p className="text-2xl font-bold text-orange-600">{lowStockProducts}</p>
+                        </div>
+                        <AlertCircle className="h-8 w-8 text-orange-500" />
+                    </div>
+                </div>
+
+                <div className="rounded-xl border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">{t('status_out_of_stock')}</p>
+                            <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
+                        </div>
+                        <XCircle className="h-8 w-8 text-red-400" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <ProductFilter key={`product-filter-${currentStoreId}`} onFilterChange={handleFilterChange} />
+            </div>
 
-                {/* Enhanced Table */}
-                <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+            {/* Table */}
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
@@ -580,7 +584,7 @@ const ProductTable = () => {
                                                     {product.stocks && product.stocks.length > 0 && product.stocks[0].is_variant ? (
                                                         // Show price range for variant products
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs text-gray-500">Price Range:</span>
+                                                            <span className="text-xs text-gray-500">{t('lbl_price_range')}:</span>
                                                             <span className="text-sm font-semibold text-green-600">
                                                                 {formatCurrency(Math.min(...product.stocks.map((s: any) => Number(s.price))))} -{' '}
                                                                 {formatCurrency(Math.max(...product.stocks.map((s: any) => Number(s.price))))}
@@ -589,11 +593,11 @@ const ProductTable = () => {
                                                     ) : (
                                                         <>
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-xs text-gray-500">Purchase:</span>
+                                                                <span className="text-xs text-gray-500">{t('lbl_purchase')}:</span>
                                                                 <span className="text-sm font-medium">{formatCurrency(displayPurchasePrice)}</span>
                                                             </div>
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-xs text-gray-500">Selling:</span>
+                                                                <span className="text-xs text-gray-500">{t('lbl_selling')}:</span>
                                                                 <span className="text-sm font-semibold text-green-600">{formatCurrency(displayPrice)}</span>
                                                             </div>
                                                         </>
@@ -721,7 +725,6 @@ const ProductTable = () => {
                         </div>
                     )}
                 </div>
-            </div>
 
             <ImageShowModal isOpen={open} onClose={() => setOpen(false)} product={selectedProduct} />
         </div>

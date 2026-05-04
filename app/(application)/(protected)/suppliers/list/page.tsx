@@ -6,7 +6,7 @@ import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
-import { Plus } from 'lucide-react';
+import { Plus, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import SuppliersTable from '../components/SuppliersTable';
@@ -106,24 +106,28 @@ const SuppliersPage = () => {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{t('supplier_page_title')}</h1>
-                    <p className="mt-1 text-sm text-gray-600">{t('supplier_page_desc')}</p>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <Truck className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t('supplier_page_title')}</h1>
+                        <p className="text-sm text-gray-500">{t('supplier_page_desc')}</p>
+                    </div>
                 </div>
-                <button onClick={handleAddNew} className="btn btn-primary">
-                    <Plus className="mr-2 h-5 w-5" />
+                <button onClick={handleAddNew} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90">
+                    <Plus className="h-4 w-4" />
                     {t('supplier_add')}
                 </button>
             </div>
 
             {/* Filters */}
-            <div className="panel">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <SupplierFilter onFilterChange={handleFilterChange} />
             </div>
 
             {/* Table */}
-            <div className="panel">
-                <SuppliersTable
+            <SuppliersTable
                     suppliers={suppliers}
                     isLoading={isLoading}
                     pagination={{
@@ -146,7 +150,6 @@ const SuppliersPage = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
-            </div>
 
             {/* View Supplier Modal */}
             <ViewSupplierModal supplier={selectedSupplier} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

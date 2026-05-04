@@ -464,73 +464,67 @@ const BrandManagement = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <section className="mb-8">
-                <div className="rounded-2xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:p-6">
-                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 shadow-md sm:h-12 sm:w-12">
-                                <ImageIcon className="h-5 w-5 text-white sm:h-6 sm:w-6" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{t('brand_page_title')}</h1>
-                                <p className="text-xs text-gray-500 sm:text-sm">{t('brand_page_desc')}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-start sm:justify-end">
-                            <button
-                                onClick={() => openModal('create')}
-                                className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-purple-700 hover:to-purple-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:w-auto sm:px-6 sm:py-3"
-                            >
-                                <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110 sm:h-5 sm:w-5" />
-                                <span className="whitespace-nowrap">{t('brand_add')}</span>
-                                <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
-                            </button>
-                        </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <ImageIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t('brand_page_title')}</h1>
+                        <p className="text-sm text-gray-500">{t('brand_page_desc')}</p>
                     </div>
                 </div>
-            </section>
+                <button
+                    onClick={() => openModal('create')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+                >
+                    <Plus className="h-4 w-4" />
+                    {t('brand_add')}
+                </button>
+            </div>
 
             {/* Filter Bar */}
-            <BrandFilter key={`brand-filter-${currentStoreId}`} onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <BrandFilter key={`brand-filter-${currentStoreId}`} onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
+            </div>
 
             {/* Brand Table */}
-            <div className="mt-6">
-                <ReusableTable
-                    data={brands}
-                    columns={columns}
-                    actions={actions}
-                    isLoading={isLoading}
-                    pagination={{
-                        currentPage,
-                        totalPages: paginationMeta?.last_page || 1,
-                        itemsPerPage,
-                        totalItems: paginationMeta?.total || 0,
-                        onPageChange: handlePageChange,
-                        onItemsPerPageChange: handleItemsPerPageChange,
-                    }}
-                    sorting={{
-                        field: sortField,
-                        direction: sortDirection,
-                        onSort: handleSort,
-                    }}
-                    emptyState={{
-                        icon: (
-                            <div className="flex justify-center">
-                                <ImageIcon className="h-16 w-16 text-gray-400" />
-                            </div>
-                        ),
-                        title: t('brand_no_data'),
-                        description: t('brand_no_data_desc'),
-                        action: (
-                            <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">
-                                <Plus className="h-4 w-4" />
-                                {t('brand_create_first')}
-                            </button>
-                        ),
-                    }}
-                />
-            </div>
+            <ReusableTable
+                data={brands}
+                columns={columns}
+                actions={actions}
+                isLoading={isLoading}
+                pagination={{
+                    currentPage,
+                    totalPages: paginationMeta?.last_page || 1,
+                    itemsPerPage,
+                    totalItems: paginationMeta?.total || 0,
+                    onPageChange: handlePageChange,
+                    onItemsPerPageChange: handleItemsPerPageChange,
+                }}
+                sorting={{
+                    field: sortField,
+                    direction: sortDirection,
+                    onSort: handleSort,
+                }}
+                emptyState={{
+                    icon: (
+                        <div className="flex justify-center">
+                            <ImageIcon className="h-16 w-16 text-gray-400" />
+                        </div>
+                    ),
+                    title: t('brand_no_data'),
+                    description: t('brand_no_data_desc'),
+                    action: (
+                        <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                            <Plus className="h-4 w-4" />
+                            {t('brand_create_first')}
+                        </button>
+                    ),
+                }}
+            />
 
             {/* Brand Modal */}
             <BrandModal showModal={showModal} modalType={modalType} selectedBrand={selectedBrand} onClose={closeModal} onSubmit={handleSubmit} loading={loading} />

@@ -56,7 +56,18 @@
     "contact": {
         "page_title": "AndgatePOS এর সঙ্গে শুরু করুন",
         "page_subtitle": "নিচের ফর্মটি পূরণ করুন। আমরা যোগাযোগ করে আপনার জন্য সব সেটআপ করে দেব।",
+        "hero": {
+            "badge": "যোগাযোগ করুন",
+            "title_highlight": "আপনার ব্যবসা",
+            "benefits": [
+                "২৪ ঘণ্টার মধ্যে সাড়া",
+                "বিনামূল্যে সেটআপ পরামর্শ",
+                "ডেডিকেটেড অনবোর্ডিং সাপোর্ট"
+            ]
+        },
         "form": {
+            "title": "আমাদের একটি বার্তা পাঠান",
+            "subtitle": "নিচের তথ্যগুলো পূরণ করুন এবং আমরা শীঘ্রই যোগাযোগ করব।",
             "name": "পূর্ণ নাম *",
             "email": "ইমেইল ঠিকানা *",
             "phone": "ফোন নম্বর *",
@@ -79,7 +90,19 @@
             "submit_button": "মেসেজ পাঠান",
             "submitting": "পাঠানো হচ্ছে...",
             "privacy_policy": "গোপনীয়তা নীতি",
-            "terms_of_service": "সেবা শর্তাবলী"
+            "terms_of_service": "সেবা শর্তাবলী",
+            "select_plan": "একটি প্যাকেজ বেছে নিন",
+            "per_month": "/মাস",
+            "privacy_text": "জমা দেওয়ার মাধ্যমে আপনি আমাদের সাথে একমত হচ্ছেন",
+            "privacy_and": "এবং",
+            "placeholders": {
+                "name": "আপনার পূর্ণ নাম",
+                "email": "your@email.com",
+                "phone": "+৮৮০ ১২৩৪ ৫৬৭৮৯০",
+                "business_name": "আপনার ব্যবসার নাম",
+                "business_location": "ঢাকা, বাংলাদেশ",
+                "store_size": "দোকানের সংখ্যা"
+            }
         },
         "contact_info": {
             "title": "যোগাযোগ করুন",
@@ -472,7 +495,11 @@
             "intermediate": "মধ্যবর্তী",
             "advanced": "উন্নত"
         },
-        "tutorials_available": "টিউটোরিয়াল উপলব্ধ"
+        "tutorials_available": "টিউটোরিয়াল উপলব্ধ",
+        "hero_badge": "লার্নিং সেন্টার",
+        "stat_video_tutorials": "ভিডিও টিউটোরিয়াল",
+        "stat_topic_categories": "টপিক ক্যাটাগরি",
+        "stat_levels": "শুরু থেকে উন্নত পর্যায়"
     },
     "register-page": {
         "title": "স্টোর সাইন আপ",
@@ -1467,6 +1494,8 @@
     "lbl_product": "পণ্য",
     "lbl_order": "অর্ডার",
     "lbl_purchase": "ক্রয়",
+    "lbl_selling": "বিক্রয় মূল্য",
+    "lbl_price_range": "মূল্য পরিসর",
     "lbl_sale": "বিক্রয়",
     "lbl_return": "ফেরত",
     "lbl_adjustment": "সমন্বয়",

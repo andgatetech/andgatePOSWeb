@@ -91,7 +91,7 @@ type PaymentTabType = 'sales' | 'refunds' | 'purchases';
 
 export default function SectionFour() {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
     const [activeTab, setActiveTab] = useState<TabType>('sale');
@@ -296,7 +296,7 @@ export default function SectionFour() {
                         ) : (
                             <div className="w-full space-y-4">
                                 {currentPaymentMethods.map((method: any, index: number) => {
-                                    const percentage = ((method.amount / totalAmount) * 100).toFixed(1);
+                                    const percentageRaw = ((method.amount / totalAmount) * 100).toFixed(1);
                                     return (
                                         <motion.div
                                             key={method.method}
@@ -322,13 +322,13 @@ export default function SectionFour() {
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-gray-900 font-bold">{formatCurrency(method.amount)}</p>
-                                                    <p className="text-gray-500 text-xs">{percentage}%</p>
+                                                    <p className="text-gray-500 text-xs">{formatNumber(parseFloat(percentageRaw), 1)}%</p>
                                                 </div>
                                             </div>
                                             <div className="h-2 w-full overflow-hidden rounded-full bg-white/60">
                                                 <motion.div
                                                     initial={{ width: 0 }}
-                                                    whileInView={{ width: `${percentage}%` }}
+                                                    whileInView={{ width: `${percentageRaw}%` }}
                                                     viewport={{ once: true }}
                                                     transition={{ duration: 0.8, delay: index * 0.1 + 0.2 }}
                                                     className={`h-full rounded-full ${getMethodColor(method.method)}`}

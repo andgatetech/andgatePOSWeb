@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardAnalyticsQuery } from '@/store/features/dashboard/dashboad';
 import { ShoppingCart, UserCheck, Users } from 'lucide-react';
@@ -52,33 +53,34 @@ const CustomerOverviewSkeleton = () => (
 );
 
 // Info Card Component
-// Info Card Component
-const InfoCard = ({ title, count, icon: Icon, iconColor, iconBg, cardBg }: any) => (
-    <div className={`flex flex-col items-center justify-center gap-2 rounded-xl p-3 text-center transition-all hover:scale-105 ${cardBg || 'bg-gray-50'}`}>
-        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${iconBg}`}>
-            <Icon className={`h-4 w-4 ${iconColor}`} />
+const InfoCard = ({ title, count, icon: Icon, iconColor, iconBg, cardBg }: any) => {
+    const { formatNumber } = useCurrency();
+    return (
+        <div className={`flex flex-col items-center justify-center gap-2 rounded-xl p-3 text-center transition-all hover:scale-105 ${cardBg || 'bg-gray-50'}`}>
+            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${iconBg}`}>
+                <Icon className={`h-4 w-4 ${iconColor}`} />
+            </div>
+            <div className="min-w-0">
+                <p className="mb-0.5 truncate text-[10px] font-medium uppercase tracking-wide text-gray-500">{title}</p>
+                <p className="truncate text-lg font-bold leading-none text-gray-900">
+                    <CountUp end={count} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
+                </p>
+            </div>
         </div>
-        <div className="min-w-0">
-            <p className="mb-0.5 truncate text-[10px] font-medium uppercase tracking-wide text-gray-500">{title}</p>
-            <p className="truncate text-lg font-bold leading-none text-gray-900">
-                <CountUp end={count} duration={2} separator="," />
-            </p>
-        </div>
-    </div>
-);
+    );
+};
 
 // Custom Tooltip Component
 const CustomTooltip = ({ active, payload, label }: any) => {
+    const { formatNumber } = useCurrency();
     if (active && payload && payload.length) {
-        // Get the original name if available, otherwise use label
         const displayLabel = payload[0]?.payload?.originalName || label;
-
         return (
             <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
                 <p className="mb-2 font-semibold text-gray-900">{displayLabel}</p>
                 {payload.map((entry: any, index: number) => (
                     <p key={index} className="text-sm" style={{ color: entry.color }}>
-                        {entry.name}: <span className="font-semibold">{Number(entry.value).toLocaleString()}</span>
+                        {entry.name}: <span className="font-semibold">{formatNumber(Number(entry.value))}</span>
                     </p>
                 ))}
             </div>
@@ -89,6 +91,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function Analytics() {
     const { t } = getTranslation();
+    const { formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
     const [chartPeriod, setChartPeriod] = useState('weekly');
     const [customerPeriod, setCustomerPeriod] = useState('this_week');
@@ -306,7 +309,7 @@ export default function Analytics() {
                                     </PieChart>
                                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
                                         <p className="text-lg font-bold text-gray-900">
-                                            <CountUp end={customers_overview.total_active} duration={2} />
+                                            <CountUp end={customers_overview.total_active} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
                                         </p>
                                         <p className="text-[10px] text-gray-600">{t('lbl_total')}</p>
                                     </div>
@@ -320,11 +323,11 @@ export default function Analytics() {
                                             <div className="text-left">
                                                 <p className="text-[10px] font-medium text-[#d97706]">{t('lbl_first_time')}</p>
                                                 <p className="text-lg font-bold text-gray-900">
-                                                    <CountUp end={customers_overview.first_time.count} duration={2} separator="," decimals={1} decimal="." />K
+                                                    <CountUp end={customers_overview.first_time.count} duration={2} formattingFn={(n) => formatNumber(n, 1) + 'K'} />
                                                 </p>
                                             </div>
                                             <div className="rounded-md bg-green-100 px-1.5 py-0.5">
-                                                <span className="text-[10px] font-semibold text-green-700">↑ {customers_overview.first_time.percentage}%</span>
+                                                <span className="text-[10px] font-semibold text-green-700">↑ {formatNumber(customers_overview.first_time.percentage)}%</span>
                                             </div>
                                         </div>
                                     </div>
@@ -335,11 +338,11 @@ export default function Analytics() {
                                             <div className="text-left">
                                                 <p className="text-[10px] font-medium text-[#059669]">{t('lbl_return')}</p>
                                                 <p className="text-lg font-bold text-gray-900">
-                                                    <CountUp end={customers_overview.return.count} duration={2} separator="," decimals={1} decimal="." />K
+                                                    <CountUp end={customers_overview.return.count} duration={2} formattingFn={(n) => formatNumber(n, 1) + 'K'} />
                                                 </p>
                                             </div>
                                             <div className="rounded-md bg-green-100 px-1.5 py-0.5">
-                                                <span className="text-[10px] font-semibold text-green-700">↑ {customers_overview.return.percentage}%</span>
+                                                <span className="text-[10px] font-semibold text-green-700">↑ {formatNumber(customers_overview.return.percentage)}%</span>
                                             </div>
                                         </div>
                                     </div>
