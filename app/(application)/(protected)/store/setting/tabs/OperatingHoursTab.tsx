@@ -35,7 +35,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
                     {/* Opening Time */}
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
-                            <Sunrise className="mr-2 h-4 w-4 text-orange-600" />
+                            <Sunrise className="mr-2 h-4 w-4 text-[#e79237]" />
                             {t('lbl_opening_time')}
                         </label>
                         <input
@@ -43,14 +43,14 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
                             name="opening_time"
                             value={formData.opening_time}
                             onChange={handleInputChange}
-                            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-[#e79237] focus:ring-2 focus:ring-[#e79237]/20"
                         />
                     </div>
 
                     {/* Closing Time */}
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
-                            <Sunset className="mr-2 h-4 w-4 text-purple-600" />
+                            <Sunset className="mr-2 h-4 w-4 text-[#034d79]" />
                             {t('lbl_closing_time')}
                         </label>
                         <input
@@ -58,18 +58,18 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
                             name="closing_time"
                             value={formData.closing_time}
                             onChange={handleInputChange}
-                            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-[#034d79] focus:ring-2 focus:ring-[#034d79]/20"
                         />
                     </div>
                 </div>
 
                 {/* Total Hours Display */}
                 {calculateTotalHours() && (
-                    <div className="mt-6 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-4">
+                    <div className="mt-6 rounded-xl bg-gradient-to-r from-[#046ca9]/10 to-[#e79237]/15 p-4">
                         <div className="flex items-center justify-center space-x-3">
-                            <Clock className="h-5 w-5 text-purple-600" />
+                            <Clock className="h-5 w-5 text-[#046ca9]" />
                             <span className="text-sm font-medium text-gray-700">{t('lbl_total_operating_hours')}</span>
-                            <span className="text-lg font-bold text-purple-700">{calculateTotalHours()}</span>
+                            <span className="text-lg font-bold text-[#034d79]">{calculateTotalHours()}</span>
                         </div>
                     </div>
                 )}

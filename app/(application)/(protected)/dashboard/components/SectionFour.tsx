@@ -47,25 +47,38 @@ const SectionSkeleton = () => (
     </div>
 );
 
+const normalizeKey = (value: string) => value?.toLowerCase().replace(/[\s_-]+/g, '_') || '';
+
 const getMethodIcon = (method: string) => {
-    const { t } = getTranslation();
     const icons: Record<string, React.ReactNode> = {
         bkash: <CreditCard className="h-5 w-5" />,
         cash: <Banknote className="h-5 w-5" />,
         due: <Clock className="h-5 w-5" />,
         other: <MoreHorizontal className="h-5 w-5" />,
     };
-    return icons[method] || icons.other;
+    return icons[normalizeKey(method)] || icons.other;
 };
 
 const getMethodColor = (method: string) => {
-    const colors: Record<string, string> = { bkash: 'bg-pink-500', cash: 'bg-emerald-500', due: 'bg-amber-500', other: 'bg-blue-500' };
-    return colors[method] || colors.other;
+    const colors: Record<string, string> = { bkash: 'bg-pink-500', cash: 'bg-[#046ca9]', due: 'bg-[#e79237]', other: 'bg-[#034d79]' };
+    return colors[normalizeKey(method)] || colors.other;
 };
 
 const getMethodBgColor = (method: string) => {
-    const colors: Record<string, string> = { bkash: 'bg-pink-50', cash: 'bg-emerald-50', due: 'bg-amber-50', other: 'bg-blue-50' };
-    return colors[method] || colors.other;
+    const colors: Record<string, string> = { bkash: 'bg-pink-50', cash: 'bg-[#046ca9]/10', due: 'bg-[#e79237]/10', other: 'bg-[#034d79]/10' };
+    return colors[normalizeKey(method)] || colors.other;
+};
+
+const getPaymentMethodLabel = (method: string, t: (key: string) => string) => {
+    const labels: Record<string, string> = {
+        bkash: t('lbl_bkash'),
+        cash: t('lbl_cash'),
+        due: t('lbl_due'),
+        card: t('lbl_card'),
+        bank: t('lbl_bank'),
+        other: t('lbl_other'),
+    };
+    return labels[normalizeKey(method)] || method;
 };
 
 const getStatusBadge = (status: string) => {
@@ -73,16 +86,32 @@ const getStatusBadge = (status: string) => {
         paid: 'bg-emerald-100 text-emerald-700',
         partial: 'bg-amber-100 text-amber-700',
         pending: 'bg-yellow-100 text-yellow-700',
-        ordered: 'bg-warning/[0.1] text-warning',
+        ordered: 'bg-[#e79237]/10 text-[#9b5a18]',
         sent: 'bg-emerald-100 text-emerald-700',
         received: 'bg-primary/[0.1] text-primary',
-        preparing: 'bg-purple-100 text-purple-700',
+        preparing: 'bg-[#034d79]/10 text-[#034d79]',
     };
-    return styles[status] || styles.pending;
+    return styles[normalizeKey(status)] || styles.pending;
+};
+
+const getStatusLabel = (status: string, t: (key: string) => string) => {
+    const labels: Record<string, string> = {
+        paid: t('lbl_paid'),
+        partial: t('lbl_partial'),
+        pending: t('lbl_pending'),
+        due: t('lbl_due'),
+        ordered: t('lbl_ordered'),
+        sent: t('lbl_sent'),
+        received: t('lbl_received'),
+        preparing: t('lbl_preparing'),
+        completed: t('status_completed'),
+        cancelled: t('status_cancelled'),
+    };
+    return labels[normalizeKey(status)] || status;
 };
 
 const getAvatarColor = (name: string) => {
-    const colors = ['bg-primary/20 text-primary', 'bg-emerald-100 text-emerald-700', 'bg-blue-100 text-blue-700', 'bg-purple-100 text-purple-700', 'bg-amber-100 text-amber-700'];
+    const colors = ['bg-[#046ca9]/10 text-[#046ca9]', 'bg-[#034d79]/10 text-[#034d79]', 'bg-[#e79237]/10 text-[#9b5a18]'];
     return colors[name.charCodeAt(0) % colors.length];
 };
 
@@ -204,7 +233,7 @@ export default function SectionFour() {
                         )}`}
                     >
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        {getStatusLabel(item.status, t)}
                     </span>
                 </td>
                 <td className="text-gray-900 px-4 py-3.5 text-right font-semibold">{formatCurrency(item.total)}</td>
@@ -263,7 +292,7 @@ export default function SectionFour() {
                         <button
                             onClick={() => setPaymentTab('sales')}
                             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                paymentTab === 'sales' ? 'bg-success text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
+                                paymentTab === 'sales' ? 'bg-[#046ca9] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
                             }`}
                         >
                             <TrendingUp className="mr-1.5 inline h-4 w-4" />
@@ -281,7 +310,7 @@ export default function SectionFour() {
                         <button
                             onClick={() => setPaymentTab('purchases')}
                             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                paymentTab === 'purchases' ? 'bg-warning text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
+                                paymentTab === 'purchases' ? 'bg-[#e79237] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-100/80'
                             }`}
                         >
                             <ShoppingCart className="mr-1.5 inline h-4 w-4" />
@@ -316,7 +345,7 @@ export default function SectionFour() {
                                                         {getMethodIcon(method.method)}
                                                     </div>
                                                     <div>
-                                                        <p className="text-gray-900 font-semibold capitalize transition-colors duration-300 group-hover:text-gray-900">{method.method}</p>
+                                                        <p className="text-gray-900 font-semibold transition-colors duration-300 group-hover:text-gray-900">{getPaymentMethodLabel(method.method, t)}</p>
                                                         <p className="text-gray-500 text-xs">{method.count} {t('lbl_transactions')}</p>
                                                     </div>
                                                 </div>
@@ -353,7 +382,7 @@ export default function SectionFour() {
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2 text-gray-600">
-                                    <div className="h-2 w-2 rounded-full bg-warning"></div>
+                                    <div className="h-2 w-2 rounded-full bg-[#e79237]"></div>
                                     {t('lbl_total_transactions')}
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">{currentPaymentMethods.reduce((acc: number, m: any) => acc + m.count, 0)}</span>

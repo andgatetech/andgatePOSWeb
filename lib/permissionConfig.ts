@@ -161,24 +161,24 @@ export const CATEGORY_ORDER: string[] = [
 // ─── Category Theme Colors ──────────────────────────────────────────────────
 // Tailwind border + header background color per category.
 export const CATEGORY_COLORS: Record<string, { border: string; bg: string; icon: string; badge: string }> = {
-    stores: { border: 'border-violet-200', bg: 'bg-violet-50', icon: 'text-violet-600', badge: 'bg-violet-100 text-violet-700 border-violet-200' },
-    users: { border: 'border-blue-200', bg: 'bg-blue-50', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-700 border-blue-200' },
-    products: { border: 'border-emerald-200', bg: 'bg-emerald-50', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-    categories: { border: 'border-teal-200', bg: 'bg-teal-50', icon: 'text-teal-600', badge: 'bg-teal-100 text-teal-700 border-teal-200' },
-    brands: { border: 'border-cyan-200', bg: 'bg-cyan-50', icon: 'text-cyan-600', badge: 'bg-cyan-100 text-cyan-700 border-cyan-200' },
-    stock: { border: 'border-orange-200', bg: 'bg-orange-50', icon: 'text-orange-600', badge: 'bg-orange-100 text-orange-700 border-orange-200' },
-    sales: { border: 'border-green-200', bg: 'bg-green-50', icon: 'text-green-600', badge: 'bg-green-100 text-green-700 border-green-200' },
-    orders: { border: 'border-sky-200', bg: 'bg-sky-50', icon: 'text-sky-600', badge: 'bg-sky-100 text-sky-700 border-sky-200' },
-    'purchase-orders': { border: 'border-indigo-200', bg: 'bg-indigo-50', icon: 'text-indigo-600', badge: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-    suppliers: { border: 'border-purple-200', bg: 'bg-purple-50', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700 border-purple-200' },
-    customers: { border: 'border-pink-200', bg: 'bg-pink-50', icon: 'text-pink-600', badge: 'bg-pink-100 text-pink-700 border-pink-200' },
-    ledgers: { border: 'border-amber-200', bg: 'bg-amber-50', icon: 'text-amber-600', badge: 'bg-amber-100 text-amber-700 border-amber-200' },
-    journals: { border: 'border-yellow-200', bg: 'bg-yellow-50', icon: 'text-yellow-700', badge: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+    stores: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    users: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    products: { border: 'border-[#034d79]/20', bg: 'bg-[#034d79]/5', icon: 'text-[#034d79]', badge: 'bg-[#034d79]/10 text-[#034d79] border-[#034d79]/20' },
+    categories: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    brands: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    stock: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    sales: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    orders: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    'purchase-orders': { border: 'border-[#034d79]/20', bg: 'bg-[#034d79]/5', icon: 'text-[#034d79]', badge: 'bg-[#034d79]/10 text-[#034d79] border-[#034d79]/20' },
+    suppliers: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    customers: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    ledgers: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    journals: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
     expenses: { border: 'border-red-200', bg: 'bg-red-50', icon: 'text-red-600', badge: 'bg-red-100 text-red-700 border-red-200' },
     reports: { border: 'border-slate-200', bg: 'bg-slate-50', icon: 'text-slate-600', badge: 'bg-slate-100 text-slate-700 border-slate-200' },
     barcode: { border: 'border-gray-200', bg: 'bg-gray-50', icon: 'text-gray-600', badge: 'bg-gray-100 text-gray-700 border-gray-200' },
     qrcode: { border: 'border-gray-200', bg: 'bg-gray-50', icon: 'text-gray-600', badge: 'bg-gray-100 text-gray-700 border-gray-200' },
-    'payment-methods': { border: 'border-lime-200', bg: 'bg-lime-50', icon: 'text-lime-700', badge: 'bg-lime-100 text-lime-800 border-lime-200' },
+    'payment-methods': { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

@@ -132,18 +132,14 @@ const OrderReturnList = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-amber-600 to-orange-700 shadow-md">
-                                    <RotateCcw className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">{t('report_order_returns_title')}</h1>
-                                    <p className="text-sm text-gray-500">{t('order_page_desc')}</p>
-                                </div>
-                            </div>
+                <div className="mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <RotateCcw className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-900">{t('report_order_returns_title')}</h1>
+                            <p className="text-sm text-gray-500">{t('order_page_desc')}</p>
                         </div>
                     </div>
                 </div>

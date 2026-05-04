@@ -6,7 +6,7 @@ import { RootState } from '@/store';
 import { useGetOrderByIdQuery } from '@/store/features/Order/Order';
 import { clearReturnSession, initReturnSession, selectOrderReturnSession } from '@/store/features/Order/OrderReturnSlice';
 import { getTranslation } from '@/i18n';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -155,23 +155,26 @@ const OrderReturnPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header */}
-            <div className="border-b border-gray-200 bg-white shadow-sm">
+            <div className="bg-transparent">
                 <div className="mx-auto px-4 py-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <Link href="/orders" className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50">
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                                <RotateCcw className="h-5 w-5" />
+                            </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">{t('order_return')}</h1>
-                                <p className="text-sm text-gray-600">
+                                <h1 className="text-xl font-bold text-gray-900">{t('order_return')}</h1>
+                                <p className="text-sm text-gray-500">
                                     {t('lbl_invoice')}: <span className="font-semibold">{order.invoice}</span> | {t('lbl_customer')}:{' '}
                                     <span className="font-semibold">{order.is_walk_in ? t('order_walk_in') : order.customer?.name || t('lbl_na')}</span> | {t('lbl_payment')}:{' '}
                                     <span className="font-semibold capitalize">{order.payment?.payment_method || t('lbl_na')}</span>
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 rounded-lg bg-amber-100 px-3 py-1.5 text-amber-800">
+                        <div className="flex items-center gap-2 rounded-lg border border-[#046ca9]/15 bg-[#046ca9]/5 px-3 py-1.5 text-[#034d79]">
                             <span className="text-sm font-medium">{t('order_return')}</span>
                         </div>
                     </div>

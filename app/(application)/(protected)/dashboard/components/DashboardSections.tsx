@@ -90,7 +90,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
         completed: { bg: 'bg-green-100', text: 'text-green-700', label: t('status_completed') },
         partial: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: t('status_partial') },
-        pending: { bg: 'bg-blue-100', text: 'text-blue-700', label: t('status_pending') },
+        pending: { bg: 'bg-[#046ca9]/10', text: 'text-[#034d79]', label: t('status_pending') },
         cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: t('status_cancelled') },
         onhold: { bg: 'bg-orange-100', text: 'text-orange-700', label: t('status_on_hold') },
     };
@@ -177,7 +177,7 @@ export default function DashboardSections() {
             >
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="flex items-center gap-2 font-semibold text-gray-800 dark:text-white-dark">
-                        <TrendingUp className="h-5 w-5 text-blue-500" />
+                        <TrendingUp className="h-5 w-5 text-[#046ca9]" />
                         {t('dashboard_top_selling_products')}
                     </h3>
                     <select

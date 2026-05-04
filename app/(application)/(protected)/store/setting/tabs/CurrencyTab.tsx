@@ -67,7 +67,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
     const renderActiveToggle = (isActive: boolean, onToggle: () => void, labelId: string) => (
         <label className="relative inline-flex cursor-pointer items-center" htmlFor={labelId}>
             <input id={labelId} type="checkbox" checked={isActive} onChange={onToggle} className="peer sr-only" />
-            <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+            <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
         </label>
     );
 
@@ -97,9 +97,9 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 type="text"
                                 value={newCurrency.currency_code}
                                 onChange={(e) => setNewCurrencyField('currency_code', e.target.value.toUpperCase())}
-                                placeholder="e.g., USD, BDT, EUR"
+                                placeholder={t('placeholder_currency_code_examples')}
                                 maxLength={3}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm uppercase focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm uppercase focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -108,8 +108,8 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 type="text"
                                 value={newCurrency.currency_name}
                                 onChange={(e) => setNewCurrencyField('currency_name', e.target.value)}
-                                placeholder="e.g., US Dollar, Bangladeshi Taka"
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                placeholder={t('placeholder_currency_name_examples')}
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -118,9 +118,9 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 type="text"
                                 value={newCurrency.currency_symbol}
                                 onChange={(e) => setNewCurrencyField('currency_symbol', e.target.value)}
-                                placeholder="e.g., $, ৳, €"
+                                placeholder={t('placeholder_currency_symbol_examples')}
                                 maxLength={5}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                     </div>
@@ -130,7 +130,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                             <select
                                 value={newCurrency.currency_position}
                                 onChange={(e) => setNewCurrencyField('currency_position', e.target.value)}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             >
                                 <option value="before">{t('lbl_before')} ($100)</option>
                                 <option value="after">{t('lbl_after')} (100$)</option>
@@ -144,7 +144,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 onChange={(e) => setNewCurrencyField('decimal_places', parseInt(e.target.value) || 0)}
                                 min={0}
                                 max={4}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -155,7 +155,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 onChange={(e) => setNewCurrencyField('thousand_separator', e.target.value)}
                                 placeholder=","
                                 maxLength={1}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -166,21 +166,21 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                 onChange={(e) => setNewCurrencyField('decimal_separator', e.target.value)}
                                 placeholder="."
                                 maxLength={1}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                     </div>
 
                     <div className="flex items-center justify-between rounded-lg border border-dashed border-gray-300 bg-white p-3">
                         <span className="text-xs text-gray-500">{t('lbl_preview')}:</span>
-                        <span className="text-sm font-medium text-emerald-700">{formatPreview(newCurrency)}</span>
+                        <span className="text-sm font-medium text-[#046ca9]">{formatPreview(newCurrency)}</span>
                     </div>
 
                     <div className="flex justify-end">
                         <button
                             type="button"
                             onClick={handleCreateCurrency}
-                            className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success/90"
+                            className="inline-flex items-center rounded bg-[#046ca9] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#034d79]"
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
                             {t('btn_add_currency')}
@@ -224,7 +224,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                         type="text"
                                                         value={editingCurrency.currency_code}
                                                         onChange={(e) => setEditingCurrencyField('currency_code', e.target.value.toUpperCase())}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm uppercase focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm uppercase focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         maxLength={3}
                                                         autoFocus
                                                     />
@@ -238,7 +238,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                         type="text"
                                                         value={editingCurrency.currency_name}
                                                         onChange={(e) => setEditingCurrencyField('currency_name', e.target.value)}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     />
                                                 ) : (
                                                     <span className="text-sm font-medium text-gray-900">{cur.currency_name}</span>
@@ -250,11 +250,11 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                         type="text"
                                                         value={editingCurrency.currency_symbol}
                                                         onChange={(e) => setEditingCurrencyField('currency_symbol', e.target.value)}
-                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         maxLength={5}
                                                     />
                                                 ) : (
-                                                    <span className="text-lg font-bold text-emerald-600">{cur.currency_symbol}</span>
+                                                    <span className="text-lg font-bold text-[#046ca9]">{cur.currency_symbol}</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 align-top">
@@ -262,7 +262,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                     <select
                                                         value={editingCurrency.currency_position}
                                                         onChange={(e) => setEditingCurrencyField('currency_position', e.target.value)}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     >
                                                         <option value="before">{t('lbl_before')}</option>
                                                         <option value="after">{t('lbl_after')}</option>
@@ -277,7 +277,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                         type="number"
                                                         value={editingCurrency.decimal_places}
                                                         onChange={(e) => setEditingCurrencyField('decimal_places', parseInt(e.target.value) || 0)}
-                                                        className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         min={0}
                                                         max={4}
                                                     />
@@ -301,7 +301,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                         <button
                                                             type="button"
                                                             onClick={() => handleUpdateCurrency(cur.id)}
-                                                            className="rounded bg-success p-1.5 text-white hover:bg-success/90"
+                                                            className="rounded bg-[#046ca9] p-1.5 text-white hover:bg-[#034d79]"
                                                             title={t('btn_save')}
                                                         >
                                                             <Check className="h-4 w-4" />
@@ -322,7 +322,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                                                 <li>
                                                                     <button
                                                                         onClick={() => startEditingCurrency(cur)}
-                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-[#046ca9] hover:bg-[#046ca9]/5"
                                                                     >
                                                                         {t('btn_edit_currency')}
                                                                     </button>
@@ -376,7 +376,7 @@ const CurrencyTab: React.FC<CurrencyTabProps> = ({
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

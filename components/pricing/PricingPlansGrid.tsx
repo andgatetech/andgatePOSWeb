@@ -10,10 +10,10 @@ import {
     getPlanColor,
     useGetPlansQuery,
 } from '@/store/features/plans/plansApi';
-import { Check, Loader2, Minus, Rocket, Shield, ShieldCheck, Star, TrendingUp, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { Check, ChevronLeft, ChevronRight, Loader2, Minus, Rocket, Shield, ShieldCheck, Star, TrendingUp, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-function cn(...classes: string[]) {
+function cn(...classes: Array<string | false | null | undefined>) {
     return classes.filter(Boolean).join(' ');
 }
 
@@ -37,14 +37,18 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
     const { data, isLoading, isError } = useGetPlansQuery();
     const plans = filterActivePlans(data?.data ?? []);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+    const [planSlideIndex, setPlanSlideIndex] = useState(0);
+    const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
+    const displayPrice = (value: string | number) => displayNumber(formatPrice(value));
+    const visiblePlanCount = 5;
+    const maxPlanSlide = Math.max(plans.length - visiblePlanCount, 0);
+    const visiblePlans = plans.slice(planSlideIndex, planSlideIndex + visiblePlanCount);
 
     const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
 
-    const gridCols =
-        plans.length <= 2 ? 'mx-auto max-w-3xl sm:grid-cols-2'
-        : plans.length === 3 ? 'sm:grid-cols-3'
-        : plans.length === 4 ? 'sm:grid-cols-2 lg:grid-cols-4'
-        : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5';
+    useEffect(() => {
+        setPlanSlideIndex((current) => Math.min(current, maxPlanSlide));
+    }, [maxPlanSlide]);
 
     return (
         <>
@@ -76,7 +80,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                         ? 'bg-emerald-500 text-white'
                                         : 'bg-emerald-100 text-emerald-700'
                                 )}>
-                                    -{convertNumberByLanguage(topSavings.toString())}%
+                                    -{displayNumber(topSavings)}%
                                 </span>
                             )}
                         </button>
@@ -97,12 +101,39 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
 
             {/* ── Plan cards ── */}
             {!isLoading && !isError && plans.length > 0 && (
-                <div className={cn('grid grid-cols-1 items-start gap-5', gridCols)}>
-                    {plans.map((plan, index) => {
-                        const colorKey = getPlanColor(index);
+                <>
+                    {plans.length > visiblePlanCount && (
+                        <div className="mb-4 flex items-center justify-end gap-2">
+                            <span className="text-xs font-medium text-gray-500">
+                                {displayNumber(Math.min(planSlideIndex + 1, plans.length))}-{displayNumber(Math.min(planSlideIndex + visiblePlanCount, plans.length))} / {displayNumber(plans.length)}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setPlanSlideIndex((current) => Math.max(current - 1, 0))}
+                                disabled={planSlideIndex === 0}
+                                className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:border-[#046ca9]/40 hover:text-[#046ca9] disabled:cursor-not-allowed disabled:opacity-40"
+                                aria-label="Previous plans"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPlanSlideIndex((current) => Math.min(current + 1, maxPlanSlide))}
+                                disabled={planSlideIndex >= maxPlanSlide}
+                                className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:border-[#046ca9]/40 hover:text-[#046ca9] disabled:cursor-not-allowed disabled:opacity-40"
+                                aria-label="Next plans"
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
+                    )}
+                    <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+                    {visiblePlans.map((plan, index) => {
+                        const actualIndex = planSlideIndex + index;
+                        const colorKey = getPlanColor(actualIndex);
                         const colors = colorClasses[colorKey];
-                        const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
-                        const isMostPopular = index === 1;
+                        const IconComponent = PLAN_ICONS[actualIndex % PLAN_ICONS.length];
+                        const isMostPopular = actualIndex === 1;
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                         const suffix = billingCycle === 'monthly'
                             ? (t('pricing_page.frequency.per_month') || '/mo')
@@ -110,7 +141,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                         const planSavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
                         const hasSetupFee = parseFloat(plan.setup_fee) > 0;
                         const { originalPrice, finalPrice, hasDiscount, discountPct } = applyDiscount(rawPrice, plan.discount);
-                        const planDesc = t(`pricing_page.plan_descriptions.${index}`);
+                        const planDesc = t(`pricing_page.plan_descriptions.${actualIndex}`);
                         const descIsKey = planDesc.startsWith('pricing_page.');
 
                         return (
@@ -156,25 +187,25 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                         <div className="relative">
                                             {hasDiscount && (
                                                 <span className="mb-1 inline-block rounded-full bg-emerald-400/20 px-2.5 py-0.5 text-[11px] font-bold text-emerald-200">
-                                                    {convertNumberByLanguage(discountPct.toString())}% {lang === 'bn' ? 'ছাড়' : 'OFF'}
+                                                    {displayNumber(discountPct)}% {lang === 'bn' ? 'ছাড়' : 'OFF'}
                                                 </span>
                                             )}
                                             <div className="flex flex-wrap items-baseline gap-1.5">
                                                 {hasDiscount && (
-                                                    <span className="text-sm text-white/40 line-through">{originalPrice}</span>
+                                                    <span className="text-sm text-white/40 line-through">{displayNumber(originalPrice)}</span>
                                                 )}
-                                                <span className="text-4xl font-black tracking-tight text-white">{finalPrice}</span>
+                                                <span className="text-4xl font-black tracking-tight text-white">{displayNumber(finalPrice)}</span>
                                                 <span className="text-sm text-white/60">{suffix}</span>
                                             </div>
                                             {billingCycle === 'annually' && planSavings > 0 && (
                                                 <p className="mt-1 text-[12px] font-semibold text-emerald-300">
-                                                    ↓ {t('pricing_page.save_percent')} {convertNumberByLanguage(planSavings.toString())}%
+                                                    ↓ {t('pricing_page.save_percent')} {displayNumber(planSavings)}%
                                                 </p>
                                             )}
                                             <p className="mt-1.5 text-[11px] text-white/50">
                                                 {t('pricing_page.setup_fee')}:{' '}
                                                 <span className="font-bold text-white/80">
-                                                    {hasSetupFee ? formatPrice(plan.setup_fee) : (t('pricing_page.setup_fee_free') || 'Free')}
+                                                    {hasSetupFee ? displayPrice(plan.setup_fee) : (t('pricing_page.setup_fee_free') || 'Free')}
                                                 </span>
                                             </p>
                                         </div>
@@ -200,25 +231,25 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                             <div className="border-b border-gray-50 pb-4">
                                                 {hasDiscount && (
                                                     <span className="mb-1 inline-block rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-500">
-                                                        {convertNumberByLanguage(discountPct.toString())}% {lang === 'bn' ? 'ছাড়' : 'OFF'}
+                                                        {displayNumber(discountPct)}% {lang === 'bn' ? 'ছাড়' : 'OFF'}
                                                     </span>
                                                 )}
                                                 <div className="flex flex-wrap items-baseline gap-1.5">
                                                     {hasDiscount && (
-                                                        <span className="text-sm text-gray-300 line-through">{originalPrice}</span>
+                                                        <span className="text-sm text-gray-300 line-through">{displayNumber(originalPrice)}</span>
                                                     )}
-                                                    <span className="text-3xl font-black text-gray-900">{finalPrice}</span>
+                                                    <span className="text-3xl font-black text-gray-900">{displayNumber(finalPrice)}</span>
                                                     <span className="text-xs text-gray-400">{suffix}</span>
                                                 </div>
                                                 {billingCycle === 'annually' && planSavings > 0 && (
                                                     <p className="mt-0.5 text-[11px] font-semibold text-emerald-600">
-                                                        {t('pricing_page.save_percent')} {convertNumberByLanguage(planSavings.toString())}%
+                                                        {t('pricing_page.save_percent')} {displayNumber(planSavings)}%
                                                     </p>
                                                 )}
                                                 <p className="mt-1 text-[11px] text-gray-400">
                                                     {t('pricing_page.setup_fee')}:{' '}
                                                     <span className="font-semibold text-gray-600">
-                                                        {hasSetupFee ? formatPrice(plan.setup_fee) : (t('pricing_page.setup_fee_free') || 'Free')}
+                                                        {hasSetupFee ? displayPrice(plan.setup_fee) : (t('pricing_page.setup_fee_free') || 'Free')}
                                                     </span>
                                                 </p>
                                             </div>
@@ -271,7 +302,8 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                             </div>
                         );
                     })}
-                </div>
+                    </div>
+                </>
             )}
 
             {/* ── Comparison table ── */}
@@ -340,7 +372,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                     )}
                                                     <div className="mt-1 flex items-baseline gap-0.5">
                                                         <span className={cn('text-xl font-black', isMostPopular ? 'text-white' : 'text-gray-900')}>
-                                                            {finalPrice}
+                                                            {displayNumber(finalPrice)}
                                                         </span>
                                                         <span className={cn('text-[11px]', isMostPopular ? 'text-white/60' : 'text-gray-400')}>
                                                             {suffix}
@@ -381,7 +413,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                 className={cn('px-4 py-3.5 text-center text-sm', isMostPopular ? 'bg-[#eef6fd]' : 'bg-slate-50')}
                                             >
                                                 {hasSetupFee
-                                                    ? <span className="text-gray-700">{formatPrice(plan.setup_fee)}</span>
+                                                    ? <span className="text-gray-700">{displayPrice(plan.setup_fee)}</span>
                                                     : <span className="font-semibold text-emerald-600">{t('pricing_page.setup_fee_free')}</span>
                                                 }
                                             </td>
@@ -418,7 +450,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                                 <span className={cn('text-sm font-semibold', isMostPopular ? 'text-[#046ca9]' : 'text-gray-900')}>
                                                                     {item.value === 'unlimited'
                                                                         ? (t('pricing_page.comparison.unlimited') || '∞')
-                                                                        : convertNumberByLanguage(item.value)}
+                                                                        : displayNumber(item.value)}
                                                                 </span>
                                                             ) : (
                                                                 <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />

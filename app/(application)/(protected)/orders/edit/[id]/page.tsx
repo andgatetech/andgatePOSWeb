@@ -3,7 +3,7 @@
 import Loader from '@/lib/Loader';
 import { useGetOrderByIdQuery, useUpdateOrderMutation } from '@/store/features/Order/Order';
 import { clearItemsRedux, setItemsRedux, setOrderData } from '@/store/features/Order/OrderEditSlice';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -133,16 +133,19 @@ const OrderEditPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header */}
-            <div className="border-b border-gray-200 bg-white shadow-sm">
+            <div className="bg-transparent">
                 <div className="mx-auto  px-4 py-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <Link href="/orders" className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50">
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                                <Pencil className="h-5 w-5" />
+                            </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">{t('order_action_edit')}</h1>
-                                <p className="text-sm text-gray-600">
+                                <h1 className="text-xl font-bold text-gray-900">{t('order_action_edit')}</h1>
+                                <p className="text-sm text-gray-500">
                                     {t('lbl_invoice')}: <span className="font-semibold">{order.invoice}</span> | {t('lbl_customer')}:{' '}
                                     <span className="font-semibold">{order.is_walk_in ? t('order_walk_in') : order.customer?.name || t('lbl_na')}</span>
                                 </p>

@@ -3,7 +3,7 @@
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -60,15 +60,18 @@ const OrderReturnDetailsPage = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <div className="border-b border-gray-200 bg-white">
+            <div className="bg-transparent">
                 <div className="flex items-center justify-between p-6">
                     <div className="flex items-center gap-4">
                         <Link href="/orders/return/list" className="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900">
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <RotateCcw className="h-5 w-5" />
+                        </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{t('order_view_title')}</h1>
-                            <p className="text-sm text-gray-600">Return #{orderReturn.return_number || `#${orderReturn.id}`}</p>
+                            <h1 className="text-xl font-bold text-gray-900">{t('order_view_title')}</h1>
+                            <p className="text-sm text-gray-500">Return #{orderReturn.return_number || `#${orderReturn.id}`}</p>
                         </div>
                     </div>
                 </div>

@@ -263,8 +263,8 @@ export default function SectionsFive() {
         value: brand.total_sold,
     }));
 
-    const categoryColors = ['#046ca9', '#059669', '#d97706'];
-    const brandColors = ['#046ca9', '#059669', '#d97706'];
+    const categoryColors = ['#046ca9', '#034d79', '#e79237'];
+    const brandColors = ['#046ca9', '#034d79', '#e79237'];
 
     return (
         <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -275,7 +275,7 @@ export default function SectionsFive() {
             >
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-                        <Tag className="h-5 w-5 text-warning" />
+                        <Tag className="h-5 w-5 text-[#e79237]" />
                         {t('dashboard_top_categories')}
                     </h2>
                     <select
@@ -334,7 +334,7 @@ export default function SectionsFive() {
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
-                                <div className="h-2 w-2 rounded-full bg-warning"></div>
+                                <div className="h-2 w-2 rounded-full bg-[#e79237]"></div>
                                 {t('lbl_total_revenue')}
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0))}</span>
@@ -409,7 +409,7 @@ export default function SectionsFive() {
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2 text-gray-600">
-                                <div className="h-2 w-2 rounded-full bg-warning"></div>
+                                <div className="h-2 w-2 rounded-full bg-[#e79237]"></div>
                                 {t('lbl_total_revenue')}
                             </div>
                             <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0))}</span>
@@ -425,7 +425,7 @@ export default function SectionsFive() {
             >
                 <div className="mb-3 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-                        <Package className="h-5 w-5 text-success" />
+                        <Package className="h-5 w-5 text-[#046ca9]" />
                         {t('dashboard_top_purchased_products')}
                     </h2>
                     <select

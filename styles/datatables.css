@@ -19,7 +19,13 @@ table tr .mantine-Checkbox-root {
     @apply flex;
 }
 .datatables table thead tr th {
-    @apply !border-b-0 !bg-white-light/30  text-black dark:!bg-[#1a2941] dark:!text-white-dark;
+    @apply !border-b-0 !bg-white-light/30 !text-slate-700 dark:!bg-[#1a2941] dark:!text-white-dark;
+}
+
+.datatables table thead tr th *,
+.mantine-Table-root thead tr th,
+.mantine-Table-root thead tr th * {
+    @apply !text-slate-700 dark:!text-white-dark;
 }
 
 .datatables .table-bordered table thead tr th,

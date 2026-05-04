@@ -157,26 +157,24 @@ const CreateSupplierPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-sm">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                                <User className="h-6 w-6 text-white" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900">{t('supplier_create_title')}</h1>
-                                <p className="text-sm text-gray-500">{currentStore ? `${t('supplier_add')} ${currentStore.store_name}` : t('supplier_add')}</p>
-                            </div>
+                <div className="mb-6 space-y-4">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <User className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-900">{t('supplier_create_title')}</h1>
+                            <p className="text-sm text-gray-500">{currentStore ? `${t('supplier_add')} ${currentStore.store_name}` : t('supplier_add')}</p>
                         </div>
                     </div>
                     {currentStore && (
-                        <div className="rounded-lg bg-blue-50 p-4">
+                        <div className="rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
                             <div className="flex items-center space-x-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-                                    <Store className="h-4 w-4 text-blue-600" />
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#046ca9]/10">
+                                    <Store className="h-4 w-4 text-[#034d79]" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-blue-900">Current Store: {currentStore.store_name}</p>
+                                    <p className="text-sm font-medium text-[#034d79]">{t('lbl_current_store')}: {currentStore.store_name}</p>
                                 </div>
                             </div>
                         </div>

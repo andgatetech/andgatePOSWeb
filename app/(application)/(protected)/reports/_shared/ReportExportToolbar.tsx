@@ -54,7 +54,6 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     reportTitle,
     reportDescription,
     reportIcon,
-    iconBgClass = 'bg-gradient-to-r from-blue-600 to-blue-700',
     data,
     columns,
     summary = [],
@@ -455,16 +454,16 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     }, [generatePdfDocument]);
 
     return (
-        <div className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="mb-6">
             {/* Simplified Header Section */}
-            <div className="bg-gradient-to-r from-gray-50 to-white p-6">
+            <div>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     {/* Left: Report Icon + Title + Description */}
-                    <div className="flex items-center gap-4">
-                        {reportIcon && <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${iconBgClass} shadow-md`}>{reportIcon}</div>}
+                    <div className="flex items-center gap-3">
+                        {reportIcon && <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">{reportIcon}</div>}
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{displayTitle}</h1>
-                            {reportDescription && <p className="mt-0.5 text-sm text-gray-500">{reportDescription}</p>}
+                            <h1 className="text-xl font-bold text-gray-900">{displayTitle}</h1>
+                            {reportDescription && <p className="text-sm text-gray-500">{reportDescription}</p>}
                         </div>
                     </div>
 

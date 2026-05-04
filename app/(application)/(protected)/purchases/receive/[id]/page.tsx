@@ -289,19 +289,19 @@ const ReceiveItemsPage = () => {
     return (
         <div className="space-y-6">
             {/* Header Section */}
-            <section className="mb-8">
-                <div className="rounded-2xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-6">
-                    <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <section className="mb-6">
+                <div>
+                    <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-green-700 shadow-md">
-                                <CheckCircle className="h-6 w-6 text-white" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                                <CheckCircle className="h-5 w-5" />
                             </div>
                             <div>
-                                <Link href="/purchases/list" className="mb-1 inline-flex items-center text-sm text-primary hover:underline">
+                                <Link href="/purchases/list" className="mb-1 inline-flex items-center text-sm text-[#046ca9] hover:underline">
                                     <ArrowLeft className="mr-1 h-4 w-4" />
                                     Back to Purchase Orders
                                 </Link>
-                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Receive Items</h1>
+                                <h1 className="text-xl font-bold text-gray-900">Receive Items</h1>
                                 <p className="text-xs text-gray-500 sm:text-sm">
                                     Order: {purchaseOrder.invoice_number} | Supplier: {purchaseOrder.supplier?.name || 'N/A'}
                                 </p>

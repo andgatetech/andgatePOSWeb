@@ -61,7 +61,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
     const renderActiveToggle = (isActive: boolean, onToggle: () => void, labelId: string) => (
         <label className="relative inline-flex cursor-pointer items-center" htmlFor={labelId}>
             <input id={labelId} type="checkbox" checked={isActive} onChange={onToggle} className="peer sr-only" />
-            <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+            <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
         </label>
     );
 
@@ -83,8 +83,8 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                 type="text"
                                 value={newPaymentMethod.payment_method_name}
                                 onChange={(e) => setNewPaymentMethodField('payment_method_name', e.target.value)}
-                                placeholder="e.g., Cash, Card, Mobile Wallet"
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                placeholder={t('placeholder_payment_method_examples')}
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -93,8 +93,8 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                 type="text"
                                 value={newPaymentMethod.payment_details_number}
                                 onChange={(e) => setNewPaymentMethodField('payment_details_number', e.target.value)}
-                                placeholder="e.g., POS-TERM-002"
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                placeholder={t('placeholder_payment_reference_example')}
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                     </div>
@@ -104,9 +104,9 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                             <textarea
                                 value={newPaymentMethod.description}
                                 onChange={(e) => setNewPaymentMethodField('description', e.target.value)}
-                                placeholder="Where or how this payment method is used"
+                                placeholder={t('placeholder_payment_method_description')}
                                 rows={2}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -114,9 +114,9 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                             <textarea
                                 value={newPaymentMethod.notes}
                                 onChange={(e) => setNewPaymentMethodField('notes', e.target.value)}
-                                placeholder="Special instructions or limitations"
+                                placeholder={t('placeholder_payment_method_notes')}
                                 rows={2}
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                     </div>
@@ -124,7 +124,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                         <button
                             type="button"
                             onClick={handleCreatePaymentMethod}
-                            className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success/90"
+                            className="inline-flex items-center rounded bg-[#046ca9] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#034d79]"
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
                             {t('btn_add_method')}
@@ -167,7 +167,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         type="text"
                                                         value={editingPaymentMethod.payment_method_name}
                                                         onChange={(e) => setEditingPaymentMethodField('payment_method_name', e.target.value)}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         autoFocus
                                                     />
                                                 ) : (
@@ -180,7 +180,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         type="text"
                                                         value={editingPaymentMethod.payment_details_number}
                                                         onChange={(e) => setEditingPaymentMethodField('payment_details_number', e.target.value)}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     />
                                                 ) : (
                                                     <span className="text-sm text-gray-700">{method.payment_details_number}</span>
@@ -192,7 +192,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         value={editingPaymentMethod.description}
                                                         onChange={(e) => setEditingPaymentMethodField('description', e.target.value)}
                                                         rows={2}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     />
                                                 ) : (
                                                     <span className="text-sm text-gray-600">{method.description || '—'}</span>
@@ -204,7 +204,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         value={editingPaymentMethod.notes}
                                                         onChange={(e) => setEditingPaymentMethodField('notes', e.target.value)}
                                                         rows={2}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     />
                                                 ) : (
                                                     <span className="text-sm text-gray-600">{method.notes || '—'}</span>
@@ -226,7 +226,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         <button
                                                             type="button"
                                                             onClick={() => handleUpdatePaymentMethod(method.id)}
-                                                            className="rounded bg-success p-1.5 text-white hover:bg-success/90"
+                                                            className="rounded bg-[#046ca9] p-1.5 text-white hover:bg-[#034d79]"
                                                             title={t('btn_save')}
                                                         >
                                                             <Check className="h-4 w-4" />
@@ -247,7 +247,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                                 <li>
                                                                     <button
                                                                         onClick={() => startEditingPaymentMethod(method)}
-                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-[#046ca9] hover:bg-[#046ca9]/5"
                                                                     >
                                                                         {t('btn_edit_method')}
                                                                     </button>
@@ -301,7 +301,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

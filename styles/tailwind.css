@@ -522,7 +522,7 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
     }
     table thead tr th,
     table tfoot tr th {
-        @apply font-semibold;
+        @apply font-semibold text-slate-700 dark:text-white-dark;
     }
     table tbody tr {
         @apply border-b !border-white-light/40 dark:!border-[#191e3a];

@@ -2,6 +2,7 @@
 
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { getTranslation } from '@/i18n';
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { useCreateWarrantyTypeMutation, useDeleteWarrantyTypeMutation, useUpdateWarrantyTypeMutation } from '@/store/features/warrenty/WarrantyTypeApi';
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
@@ -15,7 +16,8 @@ interface WarrantyTypesTabProps {
 }
 
 const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTypesData, warrantyTypesLoading, setMessage }) => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const displayNumber = (value: string | number) => convertNumberByLanguage(value, i18n.language);
     const [createWarrantyType] = useCreateWarrantyTypeMutation();
     const [updateWarrantyType] = useUpdateWarrantyTypeMutation();
     const [deleteWarrantyType] = useDeleteWarrantyTypeMutation();
@@ -212,20 +214,20 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
 
         if (months && months > 0) {
             if (months < 12) {
-                parts.push(`${months} Month${months !== 1 ? 's' : ''}`);
+                parts.push(`${displayNumber(months)} ${months === 1 ? t('lbl_month') : t('lbl_months')}`);
             } else {
                 const years = Math.floor(months / 12);
                 const remainingMonths = months % 12;
                 if (remainingMonths === 0) {
-                    parts.push(`${years} Year${years !== 1 ? 's' : ''}`);
+                    parts.push(`${displayNumber(years)} ${years === 1 ? t('lbl_year') : t('lbl_years')}`);
                 } else {
-                    parts.push(`${years}y ${remainingMonths}m`);
+                    parts.push(`${displayNumber(years)} ${t('lbl_year_short')} ${displayNumber(remainingMonths)} ${t('lbl_month_short')}`);
                 }
             }
         }
 
         if (days && days > 0) {
-            parts.push(`${days} Day${days !== 1 ? 's' : ''}`);
+            parts.push(`${displayNumber(days)} ${days === 1 ? t('lbl_day') : t('lbl_days')}`);
         }
 
         return parts.length > 0 ? parts.join(' + ') : '-';
@@ -243,7 +245,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         value={warrantyName}
                         onChange={(e) => setWarrantyName(e.target.value)}
                         placeholder={t('placeholder_warranty_name')}
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                     />
                     <input
                         type="number"
@@ -257,7 +259,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         placeholder={t('placeholder_months_optional')}
                         min="0"
                         disabled={!!warrantyDurationDays}
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                     />
                     <input
                         type="number"
@@ -271,19 +273,19 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                         placeholder={t('placeholder_days_optional')}
                         min="0"
                         disabled={!!warrantyDurationMonths}
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                     />
                     <input
                         type="text"
                         value={warrantyDescription}
                         onChange={(e) => setWarrantyDescription(e.target.value)}
                         placeholder={t('placeholder_description_optional')}
-                        className="rounded border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                     />
                     <button
                         type="button"
                         onClick={handleCreateWarranty}
-                        className="inline-flex items-center justify-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90"
+                        className="inline-flex items-center justify-center rounded bg-[#046ca9] px-4 py-2 text-sm font-medium text-white hover:bg-[#034d79]"
                     >
                         <Plus className="mr-1 h-4 w-4" />
                         {t('btn_add_warranty')}
@@ -322,7 +324,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                     type="text"
                                                     value={editingWarrantyData.name}
                                                     onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, name: e.target.value })}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                 />
                                             ) : (
                                                 <span className="text-sm font-medium text-gray-900">{warranty.name}</span>
@@ -340,9 +342,9 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                                 duration_months: e.target.value,
                                                             });
                                                         }}
-                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         min="0"
-                                                        placeholder="Months"
+                                                        placeholder={t('placeholder_months')}
                                                     />
                                                     <input
                                                         type="number"
@@ -353,9 +355,9 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                                 duration_days: e.target.value,
                                                             });
                                                         }}
-                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         min="0"
-                                                        placeholder="Days"
+                                                        placeholder={t('placeholder_days')}
                                                     />
                                                 </div>
                                             ) : (
@@ -368,7 +370,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                     type="text"
                                                     value={editingWarrantyData.description}
                                                     onChange={(e) => setEditingWarrantyData({ ...editingWarrantyData, description: e.target.value })}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                 />
                                             ) : (
                                                 <span className="text-sm text-gray-600">{warranty.description || '-'}</span>
@@ -382,7 +384,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                     onChange={() => handleToggleWarrantyActive(warranty.id, !warranty.is_active)}
                                                     className="peer sr-only"
                                                 />
-                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
                                             </label>
                                         </td>
                                         {/* Actions */}
@@ -392,7 +394,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                     <button
                                                         type="button"
                                                         onClick={() => handleUpdateWarranty(warranty.id)}
-                                                        className="rounded bg-success p-1.5 text-white hover:bg-success/90"
+                                                        className="rounded bg-[#046ca9] p-1.5 text-white hover:bg-[#034d79]"
                                                         title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -412,7 +414,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                                         <li>
                                                             <button
                                                                 onClick={() => startEditingWarranty(warranty.id, warranty.name, warranty.duration_months, warranty.duration_days, warranty.description)}
-                                                                className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                                className="w-full cursor-pointer px-4 py-2 text-left font-medium text-[#046ca9] hover:bg-[#046ca9]/5"
                                                             >
                                                                 {t('btn_edit_warranty')}
                                                             </button>
@@ -464,7 +466,7 @@ const WarrantyTypesTab: React.FC<WarrantyTypesTabProps> = ({ storeId, warrantyTy
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

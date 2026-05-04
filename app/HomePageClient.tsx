@@ -31,6 +31,8 @@ import {
     TrendingUp,
     Truck,
     Users,
+    Volume2,
+    VolumeX,
     Zap,
 } from 'lucide-react';
 
@@ -44,7 +46,24 @@ import Footer from './terms-of-service/Footer';
 // Heavy sections loaded lazily — keeps initial JS bundle small
 const OverViewSection = dynamic(
     () => import('./(application)/(public)/pos-overview/OverViewSection'),
-    { ssr: false, loading: () => <div className="h-[700px] animate-pulse rounded-2xl bg-gray-100" /> }
+    {
+        ssr: false,
+        loading: () => (
+            <div className="mx-auto my-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="rounded-2xl border border-[#046ca9]/10 bg-white p-6 shadow-sm">
+                    <div className="h-5 w-40 animate-pulse rounded bg-[#046ca9]/10" />
+                    <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                        <div className="h-72 animate-pulse rounded-xl bg-slate-100" />
+                        <div className="space-y-3">
+                            <div className="h-20 animate-pulse rounded-xl bg-slate-100" />
+                            <div className="h-20 animate-pulse rounded-xl bg-slate-100" />
+                            <div className="h-20 animate-pulse rounded-xl bg-slate-100" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ),
+    }
 );
 
 const TestimonialsSection = dynamic(
@@ -53,12 +72,22 @@ const TestimonialsSection = dynamic(
 
 const PriceSection = dynamic(
     () => import('./(application)/(public)/price/PriceSection'),
-    { loading: () => <div className="h-[500px] animate-pulse bg-gray-50" /> }
+    {
+        loading: () => (
+            <div className="bg-gray-50 py-16">
+                <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-80 animate-pulse rounded-2xl border border-gray-100 bg-white shadow-sm" />
+                    ))}
+                </div>
+            </div>
+        ),
+    }
 );
 
 const BangladeshMap = dynamic(
     () => import('@/components/map/BangladeshMap'),
-    { ssr: false, loading: () => <div className="h-[560px] animate-pulse rounded-2xl bg-blue-50" /> }
+    { ssr: false, loading: () => <div className="h-[560px] animate-pulse rounded-2xl border border-[#046ca9]/10 bg-[#046ca9]/5" /> }
 );
 
 export default function HomePageClient() {
@@ -66,6 +95,7 @@ export default function HomePageClient() {
 
     const videoRef = useRef<HTMLIFrameElement>(null);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [isMuted, setIsMuted] = useState(true);
     const [flashIcon, setFlashIcon] = useState(false);
 
     const toggleVideo = useCallback(() => {
@@ -80,6 +110,17 @@ export default function HomePageClient() {
         setFlashIcon(true);
         setTimeout(() => setFlashIcon(false), 700);
     }, [isPlaying]);
+
+    const toggleMute = useCallback(() => {
+        const iframe = videoRef.current;
+        if (!iframe) return;
+        const cmd = isMuted ? 'unMute' : 'mute';
+        iframe.contentWindow?.postMessage(
+            JSON.stringify({ event: 'command', func: cmd, args: [] }),
+            '*'
+        );
+        setIsMuted((m) => !m);
+    }, [isMuted]);
 
     const stats = [
         { number: '100+', label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
@@ -164,125 +205,144 @@ export default function HomePageClient() {
         <MainLayout>
 
             {/* ── Hero ── */}
-            <section className="relative overflow-hidden bg-white pt-16">
-                {/* 3-px brand accent bar across the very top */}
-                <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#046ca9] via-[#0586cb] to-[#046ca9]" />
-                {/* Right-column tinted panel */}
-                <div className="absolute inset-y-0 right-0 hidden w-[52%] bg-gradient-to-br from-[#eef6fd] to-[#ddeef9] lg:block" />
-                {/* Subtle concentric rings — top-right decoration */}
-                <div className="pointer-events-none absolute -right-48 -top-48 hidden h-[520px] w-[520px] rounded-full border border-[#046ca9]/10 lg:block" />
-                <div className="pointer-events-none absolute -right-32 -top-32 hidden h-[360px] w-[360px] rounded-full border border-[#046ca9]/7 lg:block" />
+            <section className="relative overflow-hidden bg-[#f6f9fc] pt-16">
+                <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#046ca9] via-[#0586cb] to-[#e79237]" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-white" />
 
-                <div className="relative mx-auto max-w-7xl px-4 pb-0 pt-14 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:items-center lg:gap-14 lg:px-8 lg:pt-20">
-
-                    {/* ── Left: Copy ── */}
-                    <div className="mx-auto max-w-xl pb-12 lg:mx-0 lg:pb-24">
-
-                        {/* Badge */}
-                        <div className="mb-5 inline-flex items-center gap-2 rounded-md border border-[#046ca9]/20 bg-[#046ca9]/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#046ca9]">
-                            🇧🇩 {t('upcoming_feature')}
+                <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 lg:grid lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-12 lg:px-8 lg:pb-16 lg:pt-16">
+                    <div className="mx-auto max-w-2xl pb-10 lg:mx-0 lg:pb-0">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#046ca9]/15 bg-white px-3 py-1.5 text-xs font-bold text-[#034d79] shadow-sm">
+                            <span className="flex h-2 w-2 rounded-full bg-[#e79237]" />
+                            {t('upcoming_feature')}
                         </div>
 
-                        {/* Headline */}
-                        <h1 className="mb-3 text-[2.6rem] font-black leading-[1.07] tracking-tight text-gray-900 xl:text-5xl">
+                        <h1 className="mb-4 text-4xl font-black leading-tight text-gray-950 sm:text-5xl lg:text-[3.35rem]">
                             {t('hero_title')}
                         </h1>
 
-                        {/* Product name with left-rule accent */}
-                        <div className="mb-5 flex items-center gap-3">
-                            <span className="h-[3px] w-8 flex-shrink-0 rounded-full bg-[#046ca9]" />
-                            <span className="text-2xl font-black text-[#046ca9] xl:text-3xl">AndgatePOS</span>
-                        </div>
-
-                        {/* Tagline */}
-                        <p className="mb-3 text-base font-semibold leading-snug text-gray-800 sm:text-lg">
+                        <p className="mb-3 text-lg font-bold text-[#034d79] sm:text-xl">
                             {t('hero_subtitle')}
                         </p>
-
-                        {/* Description */}
-                        <p className="mb-8 text-sm leading-relaxed text-gray-500">
+                        <p className="mb-8 max-w-xl text-base leading-relaxed text-gray-600">
                             {t('hero_description')}
                         </p>
 
-                        {/* CTA buttons */}
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                             <Link
                                 href="/register"
-                                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-[#046ca9] px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-[#046ca9]/20 transition-all duration-200 hover:bg-[#035887] hover:shadow-lg hover:shadow-[#046ca9]/25 active:scale-[0.98]"
+                                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#046ca9]/25 transition-all hover:brightness-105 active:scale-[0.98]"
                             >
                                 {t('get_started')}
-                                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </Link>
                             <Link
-                                href="/training"
-                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-[#046ca9]/30 hover:bg-[#eef6fd] hover:text-[#046ca9]"
+                                href="/pricing"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:border-[#046ca9]/30 hover:text-[#046ca9]"
                             >
-                                <Play className="h-4 w-4 fill-[#046ca9] text-[#046ca9]" />
-                                {t('watch_demo')}
+                                {t('free_package')}
                             </Link>
                         </div>
 
-                        {/* Trust strip */}
-                        <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 border-t border-gray-100 pt-6">
+                        <div className="mt-7 grid gap-3 sm:grid-cols-3">
                             {[t('no_payment'), t('free_package'), t('cancel_anytime')].map((text, i) => (
-                                <span key={i} className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
-                                    <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-emerald-500" />
-                                    {text}
-                                </span>
+                                <div key={i} className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-sm">
+                                    <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />
+                                    <span>{text}</span>
+                                </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* ── Right: Video ── */}
-                    <div className="relative pb-8 lg:pb-20">
-
-                        {/* Floating stat — today's sales */}
-                        <div className="absolute -left-5 top-4 z-10 hidden rounded-xl border border-gray-100 bg-white px-4 py-2.5 shadow-xl sm:block">
-                            <div className="flex items-center gap-2.5">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
-                                    <TrendingUp className="h-4 w-4 text-emerald-600" />
-                                </div>
+                    <div className="rounded-3xl border border-[#046ca9]/10 bg-white p-3 shadow-2xl shadow-[#034d79]/10 sm:p-4">
+                        <div className="rounded-2xl border border-gray-100 bg-[#f8fafc] p-4 sm:p-5">
+                            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <p className="text-[10px] font-medium text-gray-400">{t('hero_floating_sales_label')}</p>
-                                    <p className="text-sm font-black text-gray-900">৳{convertNumberByLanguage('48,250')}</p>
+                                    <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('dashboard')}</p>
+                                    <h2 className="text-xl font-black text-gray-950">AndgatePOS</h2>
+                                </div>
+                                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                    {t('lbl_today')}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Floating stat — active orders */}
-                        <div className="absolute -right-4 bottom-28 z-10 hidden rounded-xl border border-gray-100 bg-white px-4 py-2.5 shadow-xl sm:block">
-                            <div className="flex items-center gap-2.5">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#eef6fd]">
-                                    <ShoppingCart className="h-4 w-4 text-[#046ca9]" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-medium text-gray-400">{t('hero_floating_orders_label')}</p>
-                                    <p className="text-sm font-black text-gray-900">{t('hero_floating_orders_count')}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Video */}
-                        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl shadow-gray-900/10 ring-1 ring-gray-200/60">
-                            <div className="relative aspect-video w-full">
-                                <iframe
-                                    ref={videoRef}
-                                    src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&loop=1&playlist=EwQRFTYUXn0&controls=0&rel=0&modestbranding=1&enablejsapi=1"
-                                    title="AndgatePOS"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    className="absolute inset-0 h-full w-full"
-                                />
-                                <div className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
-                                {flashIcon && (
-                                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
-                                            {isPlaying
-                                                ? <Play className="h-6 w-6 fill-white text-white" />
-                                                : <Pause className="h-6 w-6 fill-white text-white" />
-                                            }
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                {[
+                                    { label: t('dashboard_today_sales'), value: `৳${convertNumberByLanguage('48,250')}`, icon: <TrendingUp className="h-4 w-4" />, color: 'bg-[#046ca9]/10 text-[#046ca9]' },
+                                    { label: t('hero_floating_orders_label'), value: convertNumberByLanguage('128'), icon: <ShoppingCart className="h-4 w-4" />, color: 'bg-[#e79237]/10 text-[#c47920]' },
+                                    { label: t('dashboard_low_stock'), value: convertNumberByLanguage('12'), icon: <Archive className="h-4 w-4" />, color: 'bg-red-50 text-red-600' },
+                                    { label: t('lbl_customer'), value: convertNumberByLanguage('342'), icon: <Users className="h-4 w-4" />, color: 'bg-emerald-50 text-emerald-700' },
+                                ].map((item, i) => (
+                                    <div key={i} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                        <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${item.color}`}>
+                                            {item.icon}
                                         </div>
+                                        <p className="text-xs font-semibold text-gray-500">{item.label}</p>
+                                        <p className="mt-1 text-2xl font-black text-gray-950">{item.value}</p>
                                     </div>
-                                )}
+                                ))}
+                            </div>
+
+                            <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_0.82fr]">
+                                <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                    <div className="mb-4 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-950">{t('quick_step_4')}</p>
+                                            <p className="text-xs text-gray-500">{t('feature_inventory')}</p>
+                                        </div>
+                                        <span className="rounded-full bg-[#046ca9]/10 px-2.5 py-1 text-xs font-bold text-[#046ca9]">{convertNumberByLanguage('76')}%</span>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {[
+                                            { label: t('feature_pos'), width: 'w-[88%]' },
+                                            { label: t('feature_inventory'), width: 'w-[76%]' },
+                                            { label: t('feature_order'), width: 'w-[62%]' },
+                                        ].map((item, i) => (
+                                            <div key={i}>
+                                                <div className="mb-1 flex justify-between text-xs font-semibold text-gray-500">
+                                                    <span>{item.label}</span>
+                                                </div>
+                                                <div className="h-2 rounded-full bg-gray-100">
+                                                    <div className={`h-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#034d79] ${item.width}`} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                                    <div className="relative aspect-video bg-black">
+                                        <iframe
+                                            ref={videoRef}
+                                            src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&loop=1&playlist=EwQRFTYUXn0&controls=0&rel=0&modestbranding=1&enablejsapi=1"
+                                            title="AndgatePOS"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            className="absolute inset-0 h-full w-full"
+                                        />
+                                        <button type="button" aria-label={t('watch_demo')} className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
+                                        <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                                            {t('watch_demo')}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={toggleMute}
+                                            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
+                                            aria-label={isMuted ? 'Unmute demo video' : 'Mute demo video'}
+                                        >
+                                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                                        </button>
+                                        {flashIcon && (
+                                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
+                                                    {isPlaying
+                                                        ? <Play className="h-5 w-5 fill-white text-white" />
+                                                        : <Pause className="h-5 w-5 fill-white text-white" />
+                                                    }
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

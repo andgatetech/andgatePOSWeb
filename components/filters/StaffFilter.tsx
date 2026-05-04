@@ -36,7 +36,7 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
                 <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                 >
                     <option value="all">{t('lbl_all_roles')}</option>
                     <option value="staff">{t('lbl_staff')}</option>

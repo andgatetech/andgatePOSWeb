@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { Building2, Clock, Coins, CreditCard, MapPin, Package, Phone, Settings, Store, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -27,7 +28,8 @@ interface StoresTableProps {
 }
 
 const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination, sorting, onDelete }) => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const displayNumber = (value: string | number) => convertNumberByLanguage(value, i18n.language);
     const router = useRouter();
 
     const columns: TableColumn[] = useMemo(
@@ -115,7 +117,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                         {value && value.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                                 {value.slice(0, 2).map((method: any) => (
-                                    <span key={method.id} className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                    <span key={method.id} className="inline-flex items-center rounded-md bg-[#046ca9]/10 px-2 py-0.5 text-xs font-medium text-[#034d79]">
                                         {method.payment_method_name}
                                     </span>
                                 ))}
@@ -136,7 +138,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                         {value && value.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                                 {value.slice(0, 2).map((unit: any) => (
-                                    <span key={unit.id} className="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700">
+                                    <span key={unit.id} className="inline-flex items-center rounded-md bg-[#e79237]/15 px-2 py-0.5 text-xs font-medium text-[#9a5a14]">
                                         {unit.name}
                                     </span>
                                 ))}
@@ -157,9 +159,9 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                         if (!time) return '';
                         const [hours, minutes] = time.split(':');
                         const hour = parseInt(hours);
-                        const ampm = hour >= 12 ? 'PM' : 'AM';
+                        const ampm = hour >= 12 ? t('lbl_pm') : t('lbl_am');
                         const displayHour = hour % 12 || 12;
-                        return `${displayHour}:${minutes} ${ampm}`;
+                        return `${displayNumber(`${displayHour}:${minutes}`)} ${ampm}`;
                     };
 
                     return (
@@ -168,7 +170,9 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                             {value && row.closing_time ? (
                                 <div className="text-sm text-gray-700">
                                     <div className="font-medium">{formatTime(value)}</div>
-                                    <div className="text-xs text-gray-500">to {formatTime(row.closing_time)}</div>
+                                    <div className="text-xs text-gray-500">
+                                        {t('lbl_to')} {formatTime(row.closing_time)}
+                                    </div>
                                 </div>
                             ) : (
                                 <span className="text-sm text-gray-400">{t('lbl_not_set')}</span>
@@ -184,7 +188,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                 render: (value, row) => {
                     const isActive = (value === true || value === 1 || value === '1') && !row.store_disabled;
                     return (
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive ? 'bg-[#046ca9]/10 text-[#034d79]' : 'bg-red-100 text-red-800'}`}>
                             {isActive ? t('lbl_active') : t('lbl_inactive')}
                         </span>
                     );

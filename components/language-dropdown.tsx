@@ -25,21 +25,21 @@ const LanguageDropdown = ({ className = '', variant = 'light' }: LanguageDropdow
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
 
     return (
-        <div className={`dropdown ${className}`}>
+        <div className={`dropdown shrink-0 ${className}`}>
             {i18n.language && (
                 <Dropdown
                     offset={[0, 8]}
                     placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
                     btnClassName={
                         variant === 'dark'
-                            ? 'flex items-center gap-0 sm:gap-2 rounded-md bg-white/[0.08] p-2 sm:px-3 sm:py-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white'
-                            : 'flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700 transition-all hover:border-blue-600 hover:text-blue-600'
+                            ? 'flex h-[34px] w-[34px] items-center justify-center gap-1.5 rounded-md bg-white/[0.08] p-0 text-white transition-colors hover:bg-white/[0.15] md:w-auto md:px-2.5'
+                            : 'flex h-[34px] w-[34px] items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white p-0 text-gray-700 transition-all hover:border-[#046ca9] hover:text-[#046ca9] md:w-auto md:px-2.5'
                     }
                     button={
                         <>
-                            <Image src={`/assets/images/flags/${flagFor(i18n.language)}.svg`} alt={i18n.language} width={20} height={20} className="rounded-full object-cover" />
-                            <span className="hidden text-sm font-medium uppercase sm:inline">{i18n.language}</span>
-                            <IconCaretDown className="hidden sm:block" />
+                            <Image src={`/assets/images/flags/${flagFor(i18n.language)}.svg`} alt={i18n.language} width={18} height={18} className="h-[18px] w-[18px] rounded-full object-cover" />
+                            <span className="hidden text-sm font-medium uppercase md:inline">{i18n.language}</span>
+                            <IconCaretDown className="hidden md:block" />
                         </>
                     }
                 >
@@ -48,8 +48,8 @@ const LanguageDropdown = ({ className = '', variant = 'light' }: LanguageDropdow
                             <li key={item.code}>
                                 <button
                                     type="button"
-                                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-blue-50 hover:text-blue-600 ${
-                                        i18n.language === item.code ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-[#046ca9]/5 hover:text-[#046ca9] ${
+                                        i18n.language === item.code ? 'bg-[#046ca9]/5 text-[#046ca9]' : 'text-gray-700'
                                     }`}
                                     onClick={() => i18n.changeLanguage(item.code)}
                                 >

@@ -108,9 +108,9 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
                                     action.className?.includes('text-red')
                                         ? 'text-red-600 hover:bg-red-50'
                                         : action.className?.includes('text-green')
-                                        ? 'text-green-700 hover:bg-green-50'
-                                        : action.className?.includes('text-blue')
-                                        ? 'text-blue-700 hover:bg-blue-50'
+                                        ? 'text-[#046ca9] hover:bg-[#046ca9]/5'
+                                        : action.className?.includes('#046ca9') || action.className?.includes('#034d79') || action.className?.includes('text-blue')
+                                        ? 'text-[#046ca9] hover:bg-[#046ca9]/5'
                                         : 'text-gray-700 hover:bg-gray-50'
                                 } ${actionIndex > 0 ? 'border-t border-gray-50' : ''}`}
                             >
@@ -143,7 +143,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
         return (
             <div className="flex h-64 items-center justify-center">
                 <div className="text-center">
-                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#046ca9]/20 border-t-[#046ca9]"></div>
                     <p className="mt-3 text-sm text-gray-500">{t('lbl_loading')}</p>
                 </div>
             </div>
@@ -156,7 +156,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
 
     const getDefaultRowClassName = (_row: any, index: number) =>
         `border-b border-gray-100 transition-colors last:border-0 ${
-            index % 2 === 0 ? 'bg-white hover:bg-primary/5' : 'bg-slate-50/60 hover:bg-primary/5'
+            index % 2 === 0 ? 'bg-white hover:bg-[#046ca9]/5' : 'bg-slate-50/60 hover:bg-[#046ca9]/5'
         }`;
 
     const startRecord = pagination ? (pagination.currentPage - 1) * pagination.itemsPerPage + 1 : 0;
@@ -168,12 +168,12 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="bg-primary">
+                        <tr className="bg-slate-50">
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors ${
-                                        column.sortable ? 'cursor-pointer select-none hover:bg-white/10' : ''
+                                    className={`px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 transition-colors dark:text-white-dark ${
+                                        column.sortable ? 'cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-white/10' : ''
                                     } ${column.className || ''}`}
                                     onClick={column.sortable ? () => handleSort(column.key) : undefined}
                                 >
@@ -181,14 +181,14 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                                         {column.label}
                                         {column.sortable && sorting && sorting.field === column.key && (
                                             sorting.direction === 'asc'
-                                                ? <ChevronUp className="h-3.5 w-3.5 text-white" />
-                                                : <ChevronDown className="h-3.5 w-3.5 text-white" />
+                                                ? <ChevronUp className="h-3.5 w-3.5 text-slate-500 dark:text-white-dark" />
+                                                : <ChevronDown className="h-3.5 w-3.5 text-slate-500 dark:text-white-dark" />
                                         )}
                                     </div>
                                 </th>
                             ))}
                             {actions && actions.length > 0 && (
-                                <th className="w-16 px-4 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-white/90">
+                                <th className="w-16 px-4 py-3.5 text-center text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-white-dark">
                                     {t('lbl_actions')}
                                 </th>
                             )}
@@ -258,7 +258,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                             <select
                                 value={pagination.itemsPerPage}
                                 onChange={(e) => pagination.onItemsPerPageChange(Number(e.target.value))}
-                                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+                                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]/30"
                             >
                                 <option value={10}>10</option>
                                 <option value={20}>20</option>
@@ -273,7 +273,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                         <button
                             onClick={() => pagination.onPageChange(Math.max(1, pagination.currentPage - 1))}
                             disabled={pagination.currentPage === 1}
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-[#046ca9] hover:text-[#046ca9] disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {t('btn_previous')}
                         </button>
@@ -297,8 +297,8 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                                         onClick={() => pagination.onPageChange(pageNum)}
                                         className={`min-w-[32px] rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
                                             pagination.currentPage === pageNum
-                                                ? 'bg-primary text-white shadow-sm'
-                                                : 'border border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                                                ? 'bg-[#046ca9] text-white shadow-sm'
+                                                : 'border border-gray-200 bg-white text-gray-600 hover:border-[#046ca9] hover:text-[#046ca9]'
                                         }`}
                                     >
                                         {pageNum}
@@ -310,7 +310,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                         <button
                             onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.currentPage + 1))}
                             disabled={pagination.currentPage === pagination.totalPages}
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-[#046ca9] hover:text-[#046ca9] disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {t('btn_next')}
                         </button>

@@ -26,13 +26,13 @@ const ComponentsDashboardSales = () => {
             </div>
             {/* Current Store Info */}
             {currentStore && (
-                <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 p-3.5 sm:p-4">
+                <div className="rounded-xl border border-[#046ca9]/20 bg-gradient-to-r from-[#046ca9]/10 to-[#034d79]/5 p-3.5 sm:p-4">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-primary p-2 text-white">
+                        <div className="rounded-lg bg-[#034d79] p-2 text-white">
                             <Store className="h-5 w-5" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-semibold text-primary sm:text-base">{t('dashboard_current_store')}: {currentStore.store_name}</h3>
+                            <h3 className="text-sm font-semibold text-[#034d79] sm:text-base">{t('dashboard_current_store')}: {currentStore.store_name}</h3>
                             <p className="text-xs text-gray-600 dark:text-gray-400">{t('dashboard_store_data_note')}</p>
                         </div>
                     </div>

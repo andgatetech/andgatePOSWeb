@@ -267,10 +267,10 @@ const StaffManagement = () => {
 
     const getRoleBadge = (role: string) => {
         const roleStyles: Record<string, string> = {
-            'store admin': 'bg-purple-100 text-purple-800',
-            manager: 'bg-blue-100 text-blue-800',
-            staff: 'bg-green-100 text-green-800',
-            cashier: 'bg-yellow-100 text-yellow-800',
+            'store admin': 'bg-[#046ca9]/10 text-[#034d79]',
+            manager: 'bg-[#046ca9]/10 text-[#046ca9]',
+            staff: 'bg-[#e79237]/15 text-[#9a5a14]',
+            cashier: 'bg-[#e79237]/15 text-[#c47920]',
         };
 
         return roleStyles[role] || 'bg-gray-100 text-gray-800';
@@ -335,7 +335,7 @@ const StaffManagement = () => {
         {
             label: t('employee_action_edit'),
             icon: <Pencil className="h-4 w-4" />,
-            className: 'text-blue-700',
+            className: 'text-[#046ca9]',
             onClick: (row) => {
                 showMessage(t('msg_employee_edit_coming_soon'), 'info');
             },
@@ -343,7 +343,7 @@ const StaffManagement = () => {
         {
             label: t('employee_permissions'),
             icon: <ShieldCheck className="h-4 w-4" />,
-            className: 'text-emerald-700',
+            className: 'text-[#034d79]',
             onClick: (row) => openPermissionsModal(row),
         },
         {
@@ -393,7 +393,7 @@ const StaffManagement = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                         <Users className="h-5 w-5" />
                     </div>
                     <div>
@@ -403,7 +403,7 @@ const StaffManagement = () => {
                 </div>
                 <button
                     onClick={() => router.push('/employees/create')}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-105"
                 >
                     <Plus className="h-4 w-4" />
                     {t('employee_add')}
@@ -423,34 +423,34 @@ const StaffManagement = () => {
                                 <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_stats_total')}</p>
                                 <p className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{stats.total}</p>
                             </div>
-                            <Users className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
+                            <Users className="h-6 w-6 text-[#046ca9] sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_stats_admins')}</p>
-                                <p className="text-lg font-bold text-purple-600 sm:text-xl md:text-2xl">{stats.admins}</p>
+                                <p className="text-lg font-bold text-[#034d79] sm:text-xl md:text-2xl">{stats.admins}</p>
                             </div>
-                            <Shield className="h-6 w-6 text-purple-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
+                            <Shield className="h-6 w-6 text-[#034d79] sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_page_title')}</p>
-                                <p className="text-lg font-bold text-green-600 sm:text-xl md:text-2xl">{stats.staff}</p>
+                                <p className="text-lg font-bold text-[#e79237] sm:text-xl md:text-2xl">{stats.staff}</p>
                             </div>
-                            <CheckCircle className="h-6 w-6 text-green-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
+                            <CheckCircle className="h-6 w-6 text-[#e79237] sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
                     <div className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 md:p-6">
                         <div className="flex items-center">
                             <div className="flex-1">
                                 <p className="text-xs font-medium text-gray-600 sm:text-sm">{t('employee_stats_managers')}</p>
-                                <p className="text-lg font-bold text-blue-600 sm:text-xl md:text-2xl">{stats.managers}</p>
+                                <p className="text-lg font-bold text-[#046ca9] sm:text-xl md:text-2xl">{stats.managers}</p>
                             </div>
-                            <XCircle className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
+                            <XCircle className="h-6 w-6 text-[#046ca9] sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </div>
                     </div>
                 </div>
@@ -523,7 +523,7 @@ const StaffManagement = () => {
                                     type="button"
                                     onClick={handleSavePermissions}
                                     disabled={isUpdatingPermission || permissionFetchLoading}
-                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:text-sm"
+                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:text-sm"
                                 >
                                     {isUpdatingPermission ? (
                                         <>

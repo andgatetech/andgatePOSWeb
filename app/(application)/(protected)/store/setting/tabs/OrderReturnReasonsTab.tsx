@@ -100,7 +100,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                         onChange={(e) => setOrderReturnReasonName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateOrderReturnReason()}
                         placeholder={t('placeholder_return_reason')}
-                        className="w-full rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-full rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                     />
                     <div className="flex gap-2">
                         <input
@@ -109,12 +109,12 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                             onChange={(e) => setOrderReturnReasonDescription(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleCreateOrderReturnReason()}
                             placeholder={t('placeholder_description_optional')}
-                            className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                         />
                         <button
                             type="button"
                             onClick={handleCreateOrderReturnReason}
-                            className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90"
+                            className="inline-flex items-center rounded bg-[#046ca9] px-4 py-2 text-sm font-medium text-white hover:bg-[#034d79]"
                         >
                             <Plus className="mr-1 h-4 w-4" />
                             {t('btn_add')}
@@ -153,7 +153,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     value={editingReasonName}
                                                     onChange={(e) => setEditingReasonName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && reason.id && saveEditingReason(reason.id)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     placeholder={t('placeholder_return_reason')}
                                                     autoFocus
                                                 />
@@ -168,7 +168,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     value={editingReasonDescription}
                                                     onChange={(e) => setEditingReasonDescription(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && reason.id && saveEditingReason(reason.id)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     placeholder={t('placeholder_description_optional')}
                                                 />
                                             ) : (
@@ -183,7 +183,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     onChange={() => reason.id && handleToggleReturnToStock(reason.id, !(reason.return_to_stock === true || reason.return_to_stock === 1))}
                                                     className="peer sr-only"
                                                 />
-                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
                                             </label>
                                         </td>
                                         <td className="px-4 py-3 text-center">
@@ -194,7 +194,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     onChange={() => reason.id && handleToggleOrderReturnReasonActive(reason.id, !(reason.is_active === true || reason.is_active === 1))}
                                                     className="peer sr-only"
                                                 />
-                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
                                             </label>
                                         </td>
                                         {/* Actions */}
@@ -204,7 +204,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => reason.id && saveEditingReason(reason.id)}
-                                                        className="rounded bg-success p-1.5 text-white hover:bg-success/90"
+                                                        className="rounded bg-[#046ca9] p-1.5 text-white hover:bg-[#034d79]"
                                                         title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -229,7 +229,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                                                             startEditingReason(reason.id, reason.name, reason.description || '');
                                                                         }
                                                                     }}
-                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-[#046ca9] hover:bg-[#046ca9]/5"
                                                                 >
                                                                     {t('btn_edit_reason')}
                                                                 </button>
@@ -286,7 +286,7 @@ const OrderReturnReasonsTab: React.FC<OrderReturnReasonsTabProps> = ({
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

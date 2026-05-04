@@ -1,13 +1,14 @@
 'use client';
 
 import SubscriptionError from '@/components/common/SubscriptionError';
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
 import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
-import { Building, Check, CheckCircle2, Crown, Loader2, Mail, MapPin, Phone, Rocket, Send, Shield, Star, TrendingUp, User, Zap } from 'lucide-react';
+import { Building, Check, CheckCircle2, ChevronLeft, ChevronRight, Crown, Loader2, Mail, MapPin, Phone, Rocket, Send, Shield, Star, TrendingUp, User, Zap } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -15,33 +16,33 @@ import { useSelector } from 'react-redux';
 // ── Colour palette (mirroring PriceSection) ──────────────────────────────────
 const colorClasses = {
     green: {
-        ring: 'ring-2 ring-green-500',
-        button: 'bg-green-600 hover:bg-green-700 text-white',
-        badge: 'bg-green-100 text-green-700',
-        icon: 'text-green-500',
-        selected: 'border-green-500 bg-green-50',
+        ring: 'ring-2 ring-[#046ca9]',
+        button: 'bg-gradient-to-r from-[#046ca9] to-[#034d79] text-white hover:opacity-90',
+        badge: 'bg-[#046ca9]/10 text-[#034d79]',
+        icon: 'text-[#046ca9]',
+        selected: 'border-[#046ca9] bg-[#046ca9]/5',
     },
-    blue: { ring: 'ring-2 ring-blue-500', button: 'bg-blue-600 hover:bg-blue-700 text-white', badge: 'bg-blue-100 text-blue-700', icon: 'text-blue-500', selected: 'border-blue-500 bg-blue-50' },
+    blue: { ring: 'ring-2 ring-[#046ca9]', button: 'bg-gradient-to-r from-[#046ca9] to-[#034d79] text-white hover:opacity-90', badge: 'bg-[#046ca9]/10 text-[#034d79]', icon: 'text-[#046ca9]', selected: 'border-[#046ca9] bg-[#046ca9]/5' },
     purple: {
-        ring: 'ring-2 ring-purple-500',
-        button: 'bg-purple-600 hover:bg-purple-700 text-white',
-        badge: 'bg-purple-100 text-purple-700',
-        icon: 'text-purple-500',
-        selected: 'border-purple-500 bg-purple-50',
+        ring: 'ring-2 ring-[#046ca9]',
+        button: 'bg-gradient-to-r from-[#046ca9] to-[#034d79] text-white hover:opacity-90',
+        badge: 'bg-[#046ca9]/10 text-[#034d79]',
+        icon: 'text-[#046ca9]',
+        selected: 'border-[#046ca9] bg-[#046ca9]/5',
     },
     orange: {
-        ring: 'ring-2 ring-orange-500',
-        button: 'bg-orange-600 hover:bg-orange-700 text-white',
-        badge: 'bg-orange-100 text-orange-700',
-        icon: 'text-orange-500',
-        selected: 'border-orange-500 bg-orange-50',
+        ring: 'ring-2 ring-[#e79237]',
+        button: 'bg-gradient-to-r from-[#e79237] to-[#c47920] text-white hover:opacity-90',
+        badge: 'bg-[#e79237]/10 text-[#9b5a18]',
+        icon: 'text-[#e79237]',
+        selected: 'border-[#e79237] bg-[#e79237]/5',
     },
     slate: {
-        ring: 'ring-2 ring-slate-400',
-        button: 'bg-slate-700 hover:bg-slate-800 text-white',
-        badge: 'bg-slate-100 text-slate-700',
-        icon: 'text-slate-500',
-        selected: 'border-slate-400 bg-slate-50',
+        ring: 'ring-2 ring-[#034d79]',
+        button: 'bg-gradient-to-r from-[#046ca9] to-[#034d79] text-white hover:opacity-90',
+        badge: 'bg-[#034d79]/10 text-[#034d79]',
+        icon: 'text-[#034d79]',
+        selected: 'border-[#034d79] bg-[#034d79]/5',
     },
 };
 const PLAN_ICONS = [Rocket, Star, TrendingUp, Zap, Shield];
@@ -66,7 +67,8 @@ function PlanCard({
     billingCycle: 'monthly' | 'annually';
     onSelect: (plan: Plan) => void;
 }) {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const lang = i18n.language as 'en' | 'bn';
     const colorKey = getPlanColor(index);
     const colors = colorClasses[colorKey];
     const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
@@ -76,31 +78,33 @@ function PlanCard({
     const activePrice = isAnnually ? plan.yearly_price : plan.monthly_price;
     const { finalPrice, originalPrice, hasDiscount, discountPct } = applyDiscount(activePrice, plan.discount);
     const yearlySavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
+    const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
+    const displayPlanName = lang === 'bn' ? plan.name_bn : plan.name_en;
 
     return (
         <div
             onClick={() => !isCurrentPlan && onSelect(plan)}
             className={classNames(
                 'relative flex cursor-pointer flex-col rounded-2xl border-2 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg',
-                isCurrentPlan ? 'cursor-not-allowed border-green-400 bg-green-50 opacity-80' : isSelected ? `${colors.selected} ${colors.ring} shadow-md` : 'border-gray-200 hover:border-gray-300'
+                isCurrentPlan ? 'cursor-not-allowed border-[#046ca9]/30 bg-[#046ca9]/5 opacity-80' : isSelected ? `${colors.selected} ${colors.ring} shadow-md` : 'border-gray-200 hover:border-gray-300'
             )}
         >
             {/* Badges */}
             {isCurrentPlan && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow">
+                    <div className="flex items-center gap-1 rounded-full bg-[#034d79] px-3 py-1 text-xs font-semibold text-white shadow">
                         <Check className="h-3 w-3" /> {t('lbl_current_plan')}
                     </div>
                 </div>
             )}
             {isMostPopular && !isCurrentPlan && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <div className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white shadow">{t('lbl_most_popular')}</div>
+                    <div className="rounded-full bg-[#034d79] px-3 py-1 text-xs font-semibold text-white shadow">{t('lbl_most_popular')}</div>
                 </div>
             )}
             {isSelected && !isCurrentPlan && (
                 <div className="absolute -top-3.5 right-4">
-                    <div className="flex items-center gap-1 rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow">
+                    <div className="flex items-center gap-1 rounded-full bg-[#046ca9] px-3 py-1 text-xs font-semibold text-white shadow">
                         <CheckCircle2 className="h-3 w-3" /> {t('lbl_selected')}
                     </div>
                 </div>
@@ -113,21 +117,21 @@ function PlanCard({
                         <IconComponent className="h-5 w-5" />
                     </div>
                     <div>
-                        <h3 className="text-base font-bold text-gray-900">{plan.name_en}</h3>
-                        {hasDiscount && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">{discountPct}% OFF</span>}
+                        <h3 className="text-base font-bold text-gray-900">{displayPlanName}</h3>
+                        {hasDiscount && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">{displayNumber(discountPct)}% {lang === 'bn' ? 'ছাড়' : 'OFF'}</span>}
                     </div>
                 </div>
 
                 {/* Price */}
                 <div className="mb-1 flex items-baseline gap-1.5">
-                    {hasDiscount && <span className="text-sm text-gray-400 line-through">{originalPrice}</span>}
-                    <span className="text-2xl font-black text-gray-900">{finalPrice}</span>
+                    {hasDiscount && <span className="text-sm text-gray-400 line-through">{displayNumber(originalPrice)}</span>}
+                    <span className="text-2xl font-black text-gray-900">{displayNumber(finalPrice)}</span>
                     <span className="text-xs text-gray-500">/{isAnnually ? t('lbl_yr') : t('lbl_mo')}</span>
                 </div>
                 {isAnnually && yearlySavings > 0 && (
                     <div className="mb-3">
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                            {t('lbl_save')} {yearlySavings}% {t('lbl_vs_monthly')}
+                        <span className="rounded-full bg-[#046ca9]/10 px-2 py-0.5 text-[10px] font-bold text-[#034d79]">
+                            {t('lbl_save')} {displayNumber(yearlySavings)}% {t('lbl_vs_monthly')}
                         </span>
                     </div>
                 )}
@@ -138,11 +142,11 @@ function PlanCard({
                     <ul className="mb-4 space-y-1.5">
                         {plan.items.slice(0, 4).map((item) => (
                             <li key={item.id} className="flex items-start gap-2">
-                                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500" />
-                                <span className="text-xs text-gray-600">{item.title_en}</span>
+                                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#046ca9]" />
+                                <span className="text-xs text-gray-600">{lang === 'bn' ? item.title_bn : item.title_en}</span>
                             </li>
                         ))}
-                        {plan.items.length > 4 && <li className="text-xs text-gray-400">+{plan.items.length - 4} {t('lbl_more_features')}</li>}
+                        {plan.items.length > 4 && <li className="text-xs text-gray-400">+{displayNumber(plan.items.length - 4)} {t('lbl_more_features')}</li>}
                     </ul>
                 )}
 
@@ -156,10 +160,10 @@ function PlanCard({
                     }}
                     className={classNames(
                         'mt-auto w-full rounded-xl py-2.5 text-sm font-semibold transition-all duration-200',
-                        isCurrentPlan ? 'cursor-not-allowed bg-green-100 text-green-700' : isSelected ? `${colors.button} shadow-sm` : `${colors.badge} hover:opacity-90`
+                        isCurrentPlan ? 'cursor-not-allowed bg-[#046ca9]/10 text-[#034d79]' : isSelected ? `${colors.button} shadow-sm` : `${colors.badge} hover:opacity-90`
                     )}
                 >
-                    {isCurrentPlan ? `✓ ${t('lbl_current_plan')}` : isSelected ? `✓ ${t('lbl_selected')}` : `${t('btn_choose')} ${plan.name_en}`}
+                    {isCurrentPlan ? `✓ ${t('lbl_current_plan')}` : isSelected ? `✓ ${t('lbl_selected')}` : `${t('btn_choose')} ${displayPlanName}`}
                 </button>
             </div>
         </div>
@@ -168,7 +172,11 @@ function PlanCard({
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SubscriptionPage() {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const lang = i18n.language as 'en' | 'bn';
+    const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
+    const displayPrice = (value: string | number) => displayNumber(formatPrice(value));
+    const displayPlanName = (plan: Plan) => lang === 'bn' ? plan.name_bn : plan.name_en;
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -192,10 +200,16 @@ export default function SubscriptionPage() {
 
     const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
     const plans = filterActivePlans(plansData?.data ?? []);
+    const isCurrentPlan = (plan: Plan) => currentPlanName?.toLowerCase() === plan.name_en.toLowerCase();
+    const currentPlan = plans.find(isCurrentPlan);
+    const availablePlans = plans.filter((plan) => !isCurrentPlan(plan));
+    const visiblePlanCount = 4;
+    const maxPlanSlide = Math.max(availablePlans.length - visiblePlanCount, 0);
 
     const [createLead] = useCreateLeadMutation();
     const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+    const [planSlideIndex, setPlanSlideIndex] = useState(0);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -228,9 +242,13 @@ export default function SubscriptionPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [plans, searchParams]);
 
+    useEffect(() => {
+        setPlanSlideIndex((current) => Math.min(current, maxPlanSlide));
+    }, [maxPlanSlide]);
+
     const handleSelectPlan = (plan: Plan) => {
         setSelectedPlan(plan);
-        setFormData((prev) => ({ ...prev, package: plan.name_en }));
+        setFormData((prev) => ({ ...prev, package: displayPlanName(plan) }));
         // Scroll to form smoothly
         setTimeout(() => document.getElementById('upgrade-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     };
@@ -261,8 +279,8 @@ export default function SubscriptionPage() {
     };
 
     const contactItems = [
-        { icon: MapPin, label: t('lbl_visit_us'), value: 'House 34, Road 3, Block B, Aftabnagar, Dhaka' },
-        { icon: Phone, label: t('lbl_call_us'), value: '+880 1577303608' },
+        { icon: MapPin, label: t('lbl_visit_us'), value: displayNumber('House 34, Road 3, Block B, Aftabnagar, Dhaka') },
+        { icon: Phone, label: t('lbl_call_us'), value: displayNumber('+880 1577303608') },
         { icon: Mail, label: t('lbl_email_us'), value: 'support@andgatetech.net' },
     ];
 
@@ -271,6 +289,7 @@ export default function SubscriptionPage() {
         { n: 2, title: t('subscription_step2_title'), desc: t('subscription_step2_desc') },
         { n: 3, title: t('subscription_step3_title'), desc: t('subscription_step3_desc') },
     ];
+    const visibleAvailablePlans = availablePlans.slice(planSlideIndex, planSlideIndex + visiblePlanCount);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -280,7 +299,7 @@ export default function SubscriptionPage() {
 
                 {/* ── Page Header ── */}
                 <div className="mb-8 text-center">
-                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-700">
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#046ca9]/10 px-4 py-1.5 text-sm font-semibold text-[#034d79]">
                         <Crown className="h-4 w-4" />
                         {t('lbl_upgrade_subscription')}
                     </div>
@@ -292,7 +311,7 @@ export default function SubscriptionPage() {
                 <div className="mb-10">
                     {plansLoading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#046ca9]" />
                             <span className="ml-3 text-gray-500">{t('msg_loading_plans')}</span>
                         </div>
                     ) : (
@@ -315,30 +334,84 @@ export default function SubscriptionPage() {
                                 </div>
                             </div>
 
-                            <div
-                                className={classNames(
-                                    'grid gap-5 pt-5',
-                                    plans.length <= 2 ? 'mx-auto max-w-2xl sm:grid-cols-2' : plans.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'
-                                )}
-                            >
-                                {plans.map((plan, index) => (
-                                    <PlanCard
-                                        key={plan.id}
-                                        plan={plan}
-                                        index={index}
-                                        isSelected={selectedPlan?.id === plan.id}
-                                        isCurrentPlan={currentPlanName?.toLowerCase() === plan.name_en.toLowerCase()}
-                                        billingCycle={billingCycle}
-                                        onSelect={handleSelectPlan}
-                                    />
-                                ))}
-                            </div>
+                            {currentPlan && (
+                                <div className="mb-5 rounded-2xl border border-[#046ca9]/20 bg-[#046ca9]/5 p-4 shadow-sm sm:p-5">
+                                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                        <div>
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#034d79] px-3 py-1 text-xs font-semibold text-white">
+                                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                                {t('lbl_current_plan')}
+                                            </span>
+                                            <h2 className="mt-2 text-lg font-black text-gray-900">{displayPlanName(currentPlan)}</h2>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-2xl font-black text-[#034d79]">
+                                                {displayPrice(billingCycle === 'monthly' ? currentPlan.monthly_price : currentPlan.yearly_price)}
+                                            </p>
+                                            <p className="text-xs font-semibold text-[#034d79]">/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                                        {currentPlan.items.slice(0, 4).map((item) => (
+                                            <div key={item.id} className="flex items-start gap-2 rounded-xl bg-white/70 px-3 py-2 text-sm text-gray-700">
+                                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#046ca9]" />
+                                                <span>{lang === 'bn' ? item.title_bn : item.title_en}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {availablePlans.length > 0 && (
+                                <div className="mb-1 flex items-center justify-between gap-3">
+                                    <h2 className="text-lg font-black text-gray-900">{t('lbl_upgrade_subscription')}</h2>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium text-gray-500">
+                                            {displayNumber(Math.min(planSlideIndex + 1, availablePlans.length))}-{displayNumber(Math.min(planSlideIndex + visiblePlanCount, availablePlans.length))} / {displayNumber(availablePlans.length)}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPlanSlideIndex((current) => Math.max(current - 1, 0))}
+                                            disabled={planSlideIndex === 0}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:border-[#046ca9]/40 hover:text-[#046ca9] disabled:cursor-not-allowed disabled:opacity-40"
+                                            aria-label="Previous plans"
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPlanSlideIndex((current) => Math.min(current + 1, maxPlanSlide))}
+                                            disabled={planSlideIndex >= maxPlanSlide}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:border-[#046ca9]/40 hover:text-[#046ca9] disabled:cursor-not-allowed disabled:opacity-40"
+                                            aria-label="Next plans"
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {availablePlans.length > 0 && (
+                                <div className="grid gap-4 pt-2 sm:grid-cols-2 lg:grid-cols-4">
+                                    {visibleAvailablePlans.map((plan, index) => (
+                                        <PlanCard
+                                            key={plan.id}
+                                            plan={plan}
+                                            index={planSlideIndex + index}
+                                            isSelected={selectedPlan?.id === plan.id}
+                                            isCurrentPlan={false}
+                                            billingCycle={billingCycle}
+                                            onSelect={handleSelectPlan}
+                                        />
+                                    ))}
+                                </div>
+                            )}
 
                             {/* Step arrow */}
                             {selectedPlan && (
                                 <div className="mt-6 flex flex-col items-center gap-1 text-sm text-gray-400">
                                     <div className="h-6 w-px bg-gray-300" />
-                                    <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-600">{t('subscription_step2_label')}</span>
+                                    <span className="rounded-full bg-[#046ca9]/10 px-3 py-1 text-xs font-semibold text-[#034d79]">{t('subscription_step2_label')}</span>
                                     <div className="h-6 w-px bg-gray-300" />
                                 </div>
                             )}
@@ -352,16 +425,16 @@ export default function SubscriptionPage() {
                     <div className="lg:col-span-3">
                         <div className="rounded-2xl bg-white p-6 shadow-sm">
                             <div className="mb-5 flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
-                                    <Send className="h-4 w-4 text-blue-600" />
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#046ca9]/10">
+                                    <Send className="h-4 w-4 text-[#046ca9]" />
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-bold text-gray-900">{t('subscription_form_title')}</h2>
                                     <p className="text-xs text-gray-500">
                                         {selectedPlan ? (
                                             <span>
-                                                {t('subscription_form_selected')} <strong className="text-blue-700">{selectedPlan.name_en}</strong> —{' '}
-                                                {formatPrice(billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.yearly_price)}/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}
+                                                {t('subscription_form_selected')} <strong className="text-[#034d79]">{displayPlanName(selectedPlan)}</strong> —{' '}
+                                                {displayPrice(billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.yearly_price)}/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}
                                             </span>
                                         ) : (
                                             t('subscription_select_plan_first')
@@ -385,7 +458,7 @@ export default function SubscriptionPage() {
                                                 value={formData.name}
                                                 onChange={handleChange}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-blue-500 focus:bg-white focus:outline-none"
+                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none"
                                                 placeholder={t('placeholder_your_name')}
                                             />
                                         </div>
@@ -403,7 +476,7 @@ export default function SubscriptionPage() {
                                                 value={formData.email}
                                                 onChange={handleChange}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-blue-500 focus:bg-white focus:outline-none"
+                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none"
                                                 placeholder="your@email.com"
                                             />
                                         </div>
@@ -424,8 +497,8 @@ export default function SubscriptionPage() {
                                                 value={formData.phone}
                                                 onChange={handleChange}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-blue-500 focus:bg-white focus:outline-none"
-                                                placeholder="+880 1234 567890"
+                                                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-[#046ca9] focus:bg-white focus:outline-none"
+                                                placeholder={displayNumber('+880 1234 567890')}
                                             />
                                         </div>
                                     </div>
@@ -466,8 +539,8 @@ export default function SubscriptionPage() {
                                             className={classNames(
                                                 'w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm transition-colors focus:outline-none',
                                                 selectedPlan
-                                                    ? 'cursor-not-allowed border-blue-200 bg-blue-50 font-semibold text-blue-700'
-                                                    : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:bg-white'
+                                                    ? 'cursor-not-allowed border-[#046ca9]/20 bg-[#046ca9]/5 font-semibold text-[#034d79]'
+                                                    : 'border-gray-200 bg-gray-50 focus:border-[#046ca9] focus:bg-white'
                                             )}
                                             placeholder={t('placeholder_select_plan_above')}
                                         />
@@ -489,7 +562,7 @@ export default function SubscriptionPage() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || !formData.package}
-                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white shadow-sm transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] py-3 font-semibold text-white shadow-sm transition-all hover:opacity-90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -513,8 +586,8 @@ export default function SubscriptionPage() {
                             <div className="space-y-3">
                                 {contactItems.map(({ icon: Icon, label, value }) => (
                                     <div key={label} className="flex items-start gap-3">
-                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
-                                            <Icon className="h-4 w-4 text-blue-600" />
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#046ca9]/10">
+                                            <Icon className="h-4 w-4 text-[#046ca9]" />
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold text-gray-700">{label}</p>
@@ -531,7 +604,7 @@ export default function SubscriptionPage() {
                             <div className="space-y-3">
                                 {nextSteps.map(({ n, title, desc }) => (
                                     <div key={n} className="flex items-start gap-3">
-                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">{n}</div>
+                                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#046ca9]/10 text-xs font-bold text-[#034d79]">{displayNumber(n)}</div>
                                         <div>
                                             <p className="text-sm font-semibold text-gray-800">{title}</p>
                                             <p className="text-xs text-gray-500">{desc}</p>
@@ -552,8 +625,8 @@ export default function SubscriptionPage() {
                             ✕
                         </button>
                         <div className="mb-5 flex justify-center">
-                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-                                <CheckCircle2 className="h-10 w-10 text-green-600" />
+                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#046ca9]/10">
+                                <CheckCircle2 className="h-10 w-10 text-[#046ca9]" />
                             </div>
                         </div>
                         <div className="text-center">
@@ -561,7 +634,7 @@ export default function SubscriptionPage() {
                             <p className="mb-6 text-gray-500">{t('subscription_thank_you')}</p>
                             <button
                                 onClick={() => router.push('/dashboard')}
-                                className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white hover:from-blue-700 hover:to-indigo-700"
+                                className="w-full rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 font-semibold text-white hover:opacity-90"
                             >
                                 {t('btn_back_to_dashboard')}
                             </button>

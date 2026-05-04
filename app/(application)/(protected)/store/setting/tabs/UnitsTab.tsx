@@ -77,9 +77,9 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                         onChange={(e) => setUnitName(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleCreateUnit()}
                         placeholder={t('placeholder_unit_name')}
-                        className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="flex-1 rounded border border-gray-300 px-3 py-2 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                     />
-                    <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success/90">
+                    <button type="button" onClick={handleCreateUnit} className="inline-flex items-center rounded bg-[#046ca9] px-4 py-2 text-sm font-medium text-white hover:bg-[#034d79]">
                         <Plus className="mr-1 h-4 w-4" />
                         {t('btn_add')}
                     </button>
@@ -114,7 +114,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                     value={editingUnitName}
                                                     onChange={(e) => setEditingUnitName(e.target.value)}
                                                     onKeyPress={(e) => e.key === 'Enter' && unit.id && saveEditingUnit(unit.id)}
-                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     placeholder={t('placeholder_unit_name')}
                                                     autoFocus
                                                 />
@@ -130,7 +130,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                     onChange={() => unit.id && handleToggleUnitActive(unit.id, !(unit.is_active === true || unit.is_active === 1))}
                                                     className="peer sr-only"
                                                 />
-                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+                                                <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
                                             </label>
                                         </td>
                                         {/* Actions */}
@@ -140,7 +140,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                     <button
                                                         type="button"
                                                         onClick={() => unit.id && saveEditingUnit(unit.id)}
-                                                        className="rounded bg-success p-1.5 text-white hover:bg-success/90"
+                                                        className="rounded bg-[#046ca9] p-1.5 text-white hover:bg-[#034d79]"
                                                         title={t('btn_save')}
                                                     >
                                                         <Check className="h-4 w-4" />
@@ -165,7 +165,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                                                             startEditingUnit(unit.id, unit.name);
                                                                         }
                                                                     }}
-                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-[#046ca9] hover:bg-[#046ca9]/5"
                                                                 >
                                                                     {t('btn_edit_unit')}
                                                                 </button>
@@ -222,7 +222,7 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}

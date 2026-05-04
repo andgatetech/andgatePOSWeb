@@ -1345,7 +1345,7 @@ const StoreSetting = () => {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
                 <div className="text-center">
-                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-emerald-600" />
+                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#046ca9]" />
                     <p className="mt-4 text-gray-600">{t('msg_loading_store_settings')}</p>
                 </div>
             </div>
@@ -1355,10 +1355,10 @@ const StoreSetting = () => {
     if (!storeId) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">
-                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-center">
-                    <Store className="mx-auto h-12 w-12 text-yellow-600" />
-                    <h3 className="mt-4 text-lg font-semibold text-yellow-800">{t('msg_no_store_selected')}</h3>
-                    <p className="mt-2 text-yellow-600">{t('msg_select_store_to_manage')}</p>
+                <div className="rounded-lg border border-[#e79237]/30 bg-[#e79237]/10 p-6 text-center">
+                    <Store className="mx-auto h-12 w-12 text-[#c47920]" />
+                    <h3 className="mt-4 text-lg font-semibold text-[#9a5a14]">{t('msg_no_store_selected')}</h3>
+                    <p className="mt-2 text-[#c47920]">{t('msg_select_store_to_manage')}</p>
                 </div>
             </div>
         );
@@ -1526,18 +1526,18 @@ const StoreSetting = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            {/* Header Section */}
-            <div className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 shadow-lg">
-                            <Settings className="h-7 w-7 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{storeData?.data?.store?.store_name || t('lbl_store')} {t('store_settings_title')}</h1>
-                            <p className="text-sm text-gray-500">{t('store_settings_subtitle')}</p>
-                        </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        <Settings className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">
+                            {storeData?.data?.store?.store_name || t('lbl_store')} {t('store_settings_title')}
+                        </h1>
+                        <p className="text-sm text-gray-500">{t('store_settings_subtitle')}</p>
                     </div>
                 </div>
             </div>
@@ -1546,10 +1546,10 @@ const StoreSetting = () => {
             {message.text && (
                 <div
                     className={`mb-6 flex items-center space-x-3 rounded-xl border p-4 shadow-sm ${
-                        message.type === 'success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-800'
+                        message.type === 'success' ? 'border-[#046ca9]/20 bg-[#046ca9]/5 text-[#034d79]' : 'border-red-200 bg-red-50 text-red-800'
                     }`}
                 >
-                    <div className={`rounded-full p-1 ${message.type === 'success' ? 'bg-green-200' : 'bg-red-200'}`}>
+                    <div className={`rounded-full p-1 ${message.type === 'success' ? 'bg-[#046ca9]/15' : 'bg-red-200'}`}>
                         {message.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                     </div>
                     <span className="flex-1 font-medium">{message.text}</span>
@@ -1573,7 +1573,7 @@ const StoreSetting = () => {
                         <button
                             type="submit"
                             disabled={isUpdating}
-                            className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                            className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
                             {isUpdating ? (
                                 <>

@@ -53,7 +53,7 @@ const NotificationDropdown = () => {
                 ref={dropdownRef}
                 offset={[0, 8]}
                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                btnClassName="relative flex items-center rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white"
+                btnClassName="relative flex items-center rounded-md bg-white/[0.08] p-2 text-white transition-colors hover:bg-white/[0.15]"
                 button={
                     <span>
                         <IconBellBing />

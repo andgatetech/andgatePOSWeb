@@ -24,14 +24,14 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                     {/* Upload Section */}
                     <div className="space-y-4">
                         <label className="flex items-center text-sm font-medium text-gray-700">
-                            <Camera className="mr-2 h-4 w-4 text-cyan-600" />
+                            <Camera className="mr-2 h-4 w-4 text-[#046ca9]" />
                             {t('lbl_upload_store_logo')}
                         </label>
                         <div className="relative">
                             <input type="file" id="logo-upload" accept="image/*" onChange={handleLogoChange} className="hidden" />
                             <label
                                 htmlFor="logo-upload"
-                                className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-cyan-400 hover:bg-cyan-50"
+                                className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-[#046ca9] hover:bg-[#046ca9]/5"
                             >
                                 <Upload className="mb-3 h-12 w-12 text-gray-400" />
                                 <p className="mb-2 text-sm font-medium text-gray-700">{t('msg_click_to_upload_logo')}</p>
@@ -40,13 +40,13 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                         </div>
 
                         {logoFile && (
-                            <div className="rounded-xl bg-green-50 p-4">
+                            <div className="rounded-xl bg-[#046ca9]/10 p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-3">
-                                        <ImageIcon className="h-5 w-5 text-green-600" />
+                                        <ImageIcon className="h-5 w-5 text-[#046ca9]" />
                                         <div>
-                                            <p className="text-sm font-medium text-green-900">{t('msg_new_logo_selected')}</p>
-                                            <p className="text-xs text-green-700">{logoFile.name}</p>
+                                            <p className="text-sm font-medium text-[#034d79]">{t('msg_new_logo_selected')}</p>
+                                            <p className="text-xs text-[#046ca9]">{logoFile.name}</p>
                                         </div>
                                     </div>
                                     <button type="button" onClick={clearLogo} className="rounded-lg bg-red-100 p-2 text-red-600 transition-colors hover:bg-red-200">
@@ -60,7 +60,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                     {/* Preview Section */}
                     <div className="space-y-4">
                         <label className="flex items-center text-sm font-medium text-gray-700">
-                            <ImageIcon className="mr-2 h-4 w-4 text-purple-600" />
+                            <ImageIcon className="mr-2 h-4 w-4 text-[#046ca9]" />
                             {t('lbl_logo_preview')}
                         </label>
 
@@ -80,9 +80,9 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                 </div>
 
                 {/* Guidelines */}
-                <div className="mt-6 rounded-xl border border-cyan-200 bg-cyan-50 p-4">
-                    <h4 className="mb-2 text-sm font-semibold text-cyan-900">{t('lbl_logo_guidelines')}</h4>
-                    <ul className="space-y-1 text-xs text-cyan-700">
+                <div className="mt-6 rounded-xl border border-[#046ca9]/20 bg-[#046ca9]/5 p-4">
+                    <h4 className="mb-2 text-sm font-semibold text-[#034d79]">{t('lbl_logo_guidelines')}</h4>
+                    <ul className="space-y-1 text-xs text-[#046ca9]">
                         <li>• {t('msg_logo_guideline_1')}</li>
                         <li>• {t('msg_logo_guideline_2')}</li>
                         <li>• {t('msg_logo_guideline_3')}</li>

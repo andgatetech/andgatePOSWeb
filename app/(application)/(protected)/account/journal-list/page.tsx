@@ -121,22 +121,20 @@ const JournalListPage = () => {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
-                            <BookOpen className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{t('account_journals')}</h1>
-                            <p className="text-sm text-gray-600">{t('account_journals_desc')}</p>
-                        </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t('account_journals')}</h1>
+                        <p className="text-sm text-gray-500">{t('account_journals_desc')}</p>
                     </div>
                 </div>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-105"
                 >
-                    <Plus className="h-5 w-5" />
+                    <Plus className="h-4 w-4" />
                     {t('btn_add_entry')}
                 </button>
             </div>

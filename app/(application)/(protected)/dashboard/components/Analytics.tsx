@@ -250,22 +250,22 @@ export default function Analytics() {
                         <div className="mb-4">
                             <h2 className="mb-3 text-sm font-bold text-gray-900 sm:text-base">{t('dashboard_overall_info')}</h2>
                             <div className="grid grid-cols-3 gap-2">
-                                <InfoCard title={t('supplier_title')} count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-primary" iconBg="bg-blue-100" cardBg="bg-blue-50/50" />
+                                <InfoCard title={t('supplier_title')} count={overall_information?.pos_suppliers?.count ?? 0} icon={Users} iconColor="text-[#046ca9]" iconBg="bg-[#046ca9]/10" cardBg="bg-[#046ca9]/5" />
                                 <InfoCard
                                     title={t('customer_title')}
                                     count={overall_information?.pos_customers?.count ?? 0}
                                     icon={UserCheck}
-                                    iconColor="text-warning"
-                                    iconBg="bg-warning/[0.1]"
-                                    cardBg="bg-warning/[0.05]"
+                                    iconColor="text-[#e79237]"
+                                    iconBg="bg-[#e79237]/10"
+                                    cardBg="bg-[#e79237]/5"
                                 />
                                 <InfoCard
                                     title={t('order_title')}
                                     count={overall_information?.pos_orders?.count ?? 0}
                                     icon={ShoppingCart}
-                                    iconColor="text-success"
-                                    iconBg="bg-success/[0.1]"
-                                    cardBg="bg-success/[0.05]"
+                                    iconColor="text-[#034d79]"
+                                    iconBg="bg-[#034d79]/10"
+                                    cardBg="bg-[#034d79]/5"
                                 />
                             </div>
                         </div>
@@ -323,7 +323,7 @@ export default function Analytics() {
                                             <div className="text-left">
                                                 <p className="text-[10px] font-medium text-[#d97706]">{t('lbl_first_time')}</p>
                                                 <p className="text-lg font-bold text-gray-900">
-                                                    <CountUp end={customers_overview.first_time.count} duration={2} formattingFn={(n) => formatNumber(n, 1) + 'K'} />
+                                                    <CountUp end={customers_overview.first_time.count} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
                                                 </p>
                                             </div>
                                             <div className="rounded-md bg-green-100 px-1.5 py-0.5">
@@ -338,7 +338,7 @@ export default function Analytics() {
                                             <div className="text-left">
                                                 <p className="text-[10px] font-medium text-[#059669]">{t('lbl_return')}</p>
                                                 <p className="text-lg font-bold text-gray-900">
-                                                    <CountUp end={customers_overview.return.count} duration={2} formattingFn={(n) => formatNumber(n, 1) + 'K'} />
+                                                    <CountUp end={customers_overview.return.count} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
                                                 </p>
                                             </div>
                                             <div className="rounded-md bg-green-100 px-1.5 py-0.5">

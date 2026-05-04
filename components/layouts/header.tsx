@@ -123,8 +123,8 @@ const Header = () => {
 
     return (
         <header>
-            <div className="border-b border-white/[0.07] bg-[#1a2d50]">
-                <div className="relative flex w-full items-center bg-[#1a2d50] px-3 py-2.5 sm:px-5">
+            <div className="border-b border-white/[0.07] bg-[#034d79]">
+                <div className="relative flex w-full items-center bg-[#034d79] px-3 py-2.5 sm:px-5">
                     {/* Logo Section — mobile only (sidebar hides on desktop) */}
                     <div className="horizontal-logo mr-2 flex items-center justify-between lg:hidden">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
@@ -133,7 +133,7 @@ const Header = () => {
 
                         <button
                             type="button"
-                            className="collapse-icon ml-2 flex flex-none rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white lg:hidden"
+                            className="collapse-icon ml-2 flex flex-none rounded-md bg-white/[0.08] p-2 text-white transition-colors hover:bg-white/[0.15] lg:hidden"
                             onClick={() => dispatch(toggleSidebar())}
                         >
                             <Menu size={20} color="currentColor" />
@@ -144,7 +144,7 @@ const Header = () => {
                     <div className="flex items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2">
                         <Link
                             href="/pos"
-                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#0580c5] hover:to-[#046ca9] hover:shadow-lg sm:gap-2 sm:px-4"
+                            className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-base font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#0580c5] hover:to-[#046ca9] hover:shadow-lg sm:gap-2 sm:px-4"
                         >
                             <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span className="hidden sm:inline">POS</span>
@@ -161,7 +161,7 @@ const Header = () => {
                         <div className="shrink-0">
                             <button
                                 type="button"
-                                className="flex items-center rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white"
+                                className="flex items-center rounded-md bg-white/[0.08] p-2 text-white transition-colors hover:bg-white/[0.15]"
                                 onClick={toggleFullscreen}
                                 title={isFullscreen ? t('lbl_exit_fullscreen') : t('lbl_enter_fullscreen')}
                             >
@@ -180,7 +180,7 @@ const Header = () => {
                             <Dropdown
                                 offset={[0, 8]}
                                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="relative group flex items-center rounded-md bg-white/[0.08] p-2 text-white/75 transition-colors hover:bg-white/[0.15] hover:text-white"
+                                btnClassName="relative group flex items-center rounded-md bg-white/[0.08] p-2 text-white transition-colors hover:bg-white/[0.15]"
                                 button={<IconUser className="h-[18px] w-[18px]" />}
                             >
                                 <ul className="w-[220px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">

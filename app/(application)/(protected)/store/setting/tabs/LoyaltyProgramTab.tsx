@@ -23,10 +23,10 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
 
                 <div className="space-y-6">
                     {/* Enable/Disable Toggle */}
-                    <div className="rounded-xl bg-gradient-to-r from-yellow-50 to-orange-50 p-6">
+                    <div className="rounded-xl bg-gradient-to-r from-[#046ca9]/10 to-[#e79237]/15 p-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100 text-yellow-600">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#e79237]/20 text-[#c47920]">
                                     <Gift className="h-6 w-6" />
                                 </div>
                                 <div>
@@ -42,7 +42,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                 name="loyalty_points_enabled"
                                 checked={formData.loyalty_points_enabled}
                                 onChange={handleInputChange}
-                                className="h-6 w-6 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                                className="h-6 w-6 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]"
                             />
                         </div>
                     </div>
@@ -51,7 +51,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                     {formData.loyalty_points_enabled && (
                         <div className="space-y-2">
                             <label className="flex items-center text-sm font-medium text-gray-700">
-                                <Star className="mr-2 h-4 w-4 text-yellow-600" />
+                                <Star className="mr-2 h-4 w-4 text-[#e79237]" />
                                 {t('lbl_points_per')} {symbol}1
                             </label>
                             <input
@@ -59,7 +59,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                 name="loyalty_points_rate"
                                 value={formData.loyalty_points_rate}
                                 onChange={handleInputChange}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 md:w-1/2"
+                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20 md:w-1/2"
                                 placeholder={t('placeholder_loyalty_rate')}
                                 min="0"
                                 step="0.01"
@@ -70,8 +70,8 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
 
                     {/* Info Box */}
                     {formData.loyalty_points_enabled && formData.loyalty_points_rate && (
-                        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-                            <p className="text-sm text-yellow-800">
+                        <div className="rounded-xl border border-[#e79237]/25 bg-[#e79237]/10 p-4">
+                            <p className="text-sm text-[#9a5a14]">
                                 <strong>{t('lbl_current_rate')}:</strong> {t('lbl_for_every')} <strong>{formData.loyalty_points_rate}</strong> {t('lbl_points')} {symbol}1 {t('lbl_spent')}.
                             </p>
                         </div>

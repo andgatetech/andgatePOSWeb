@@ -92,7 +92,7 @@ const Sidebar = () => {
     const storeInitial = currentStore?.store_name?.[0]?.toUpperCase() || 'S';
 
     return (
-        <nav className="sidebar fixed bottom-0 top-0 z-50 flex h-full min-h-screen w-[260px] flex-col bg-[#1a2d50] border-r border-white/[0.07] transition-all duration-300">
+        <nav className="sidebar fixed bottom-0 top-0 z-50 flex h-full min-h-screen w-[260px] flex-col bg-[#034d79] border-r border-white/[0.07] transition-all duration-300">
 
             {/* ── Logo ─────────────────────────────────────────────────── */}
             <div className="flex h-[60px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
@@ -105,7 +105,7 @@ const Sidebar = () => {
                     type="button"
                     onClick={() => dispatch(toggleSidebar())}
                     aria-label="Collapse sidebar"
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-white/50 transition-colors hover:bg-white/10 hover:text-white/85"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10"
                 >
                     <IconCaretsDown className="rotate-90 scale-90" />
                 </button>
@@ -124,7 +124,7 @@ const Sidebar = () => {
                         {/* Store avatar */}
                         <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white shadow-lg ${
                             currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore))
-                                ? 'bg-red-500/70' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+                                ? 'bg-red-500/70' : 'bg-gradient-to-br from-[#046ca9] to-[#034d79]'
                         }`}>
                             {isSwitchingStore ? (
                                 <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -135,10 +135,10 @@ const Sidebar = () => {
                         </div>
 
                         <div className="min-w-0 flex-1 text-left">
-                            <p className="truncate text-[13px] font-semibold leading-tight text-white/90">
+                            <p className="truncate text-sm font-semibold leading-tight text-white">
                                 {isSwitchingStore ? t('lbl_switching') : currentStore?.store_name || t('lbl_select_store')}
                             </p>
-                            <p className="text-[10px] leading-tight text-white/55">
+                            <p className="text-xs leading-tight text-white/80">
                                 {currentStore && isStoreInactive(currentStore) ? t('lbl_inactive_store') :
                                  currentStore && isStoreDisabled(currentStore) ? t('lbl_store_disabled') : t('lbl_current_store')}
                             </p>
@@ -169,9 +169,7 @@ const Sidebar = () => {
                                     <button
                                         key={store.id}
                                         onClick={() => handleStoreChange(store)}
-                                        className={`flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-white/[0.05] ${
-                                            currentStore?.id === store.id ? 'text-primary' : 'text-white/75'
-                                        }`}
+                                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-white transition-colors hover:bg-white/[0.05]"
                                     >
                                         <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-[9px] font-bold text-white ${
                                             isStoreInactive(store) ? 'bg-orange-500/60' :
@@ -180,9 +178,9 @@ const Sidebar = () => {
                                         }`}>
                                             {store.store_name[0]?.toUpperCase()}
                                         </div>
-                                        <span className="flex-1 truncate text-[12px] font-medium">{store.store_name}</span>
+                                        <span className="flex-1 truncate text-[13px] font-medium">{store.store_name}</span>
                                         {currentStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && (
-                                            <span className="text-xs text-primary">✓</span>
+                                            <span className="text-xs text-white">✓</span>
                                         )}
                                         {isStoreInactive(store) && (
                                             <span className="flex items-center gap-1 rounded bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-orange-400">
@@ -218,15 +216,15 @@ const Sidebar = () => {
                                         <button
                                             type="button"
                                             onClick={() => toggleMenu(route.label)}
-                                            className={`group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
+                                            className={`group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${
                                                 parentActive
                                                     ? 'bg-primary/[0.15] text-white'
-                                                    : 'text-white/70 hover:bg-white/[0.07] hover:text-white'
+                                                    : 'text-white hover:bg-white/[0.07]'
                                             }`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <span className={`flex-shrink-0 transition-colors [&>svg]:h-4 [&>svg]:w-4 ${
-                                                    parentActive ? 'text-primary' : 'text-white/55 group-hover:text-white/85'
+                                                    parentActive ? 'text-white' : 'text-white'
                                                 }`}>
                                                     {route.icon}
                                                 </span>
@@ -234,7 +232,7 @@ const Sidebar = () => {
                                             </div>
                                             <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${
                                                 isOpen ? 'rotate-180' : ''
-                                            } ${parentActive ? 'text-primary/70' : 'text-white/40'}`} />
+                                            } text-white`} />
                                         </button>
 
                                         {/* Submenu */}
@@ -247,13 +245,13 @@ const Sidebar = () => {
                                                             <Link
                                                                 key={sub.label}
                                                                 href={sub.href}
-                                                                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12.5px] transition-all duration-150 ${
+                                                                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13.5px] font-medium transition-all duration-150 ${
                                                                     active
-                                                                        ? 'bg-primary/[0.13] font-semibold text-primary'
-                                                                        : 'text-white/65 hover:bg-white/[0.07] hover:text-white'
+                                                                        ? 'bg-primary/[0.13] font-semibold text-white'
+                                                                        : 'text-white hover:bg-white/[0.07]'
                                                                 }`}
                                                             >
-                                                                {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-primary" />}
+                                                                {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
                                                                 {t(sub.label)}
                                                             </Link>
                                                         );
@@ -263,11 +261,11 @@ const Sidebar = () => {
                                                     if (sub.subMenu) {
                                                         return (
                                                             <div key={sub.label} className="mt-4 first:mt-1">
-                                                                <div className="mb-1.5 flex items-center gap-2 px-2">
-                                                                    <p className="text-[9px] font-semibold uppercase tracking-widest text-white/55">
+                                                                <div className="mb-1.5 flex items-center gap-2 rounded-md bg-white/[0.12] px-2 py-1">
+                                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#f8d36a]">
                                                                         {t(sub.label)}
                                                                     </p>
-                                                                    <div className="h-px flex-1 bg-white/10" />
+                                                                    <div className="h-px flex-1 bg-[#f8d36a]/40" />
                                                                 </div>
                                                                 {sub.subMenu.map((nested) => {
                                                                     if (!nested.href) return null;
@@ -276,13 +274,13 @@ const Sidebar = () => {
                                                                         <Link
                                                                             key={nested.label}
                                                                             href={nested.href}
-                                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] transition-all duration-150 ${
+                                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150 ${
                                                                                 active
-                                                                                    ? 'bg-primary/[0.13] font-semibold text-primary'
-                                                                                    : 'text-white/65 hover:bg-white/[0.07] hover:text-white'
+                                                                                    ? 'bg-primary/[0.13] font-semibold text-white'
+                                                                                    : 'text-white hover:bg-white/[0.07]'
                                                                             }`}
                                                                         >
-                                                                            {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-primary" />}
+                                                                            {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
                                                                             {t(nested.label)}
                                                                         </Link>
                                                                     );
@@ -300,15 +298,15 @@ const Sidebar = () => {
                                     /* Direct link */
                                     <Link
                                         href={route.href!}
-                                        className={`group flex items-center justify-between rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
+                                        className={`group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${
                                             directActive
                                                 ? 'bg-primary/[0.15] text-white'
-                                                : 'text-white/70 hover:bg-white/[0.07] hover:text-white'
+                                                : 'text-white hover:bg-white/[0.07]'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <span className={`flex-shrink-0 transition-colors [&>svg]:h-4 [&>svg]:w-4 ${
-                                                directActive ? 'text-primary' : 'text-white/55 group-hover:text-white/85'
+                                                directActive ? 'text-white' : 'text-white'
                                             }`}>
                                                 {route.icon}
                                             </span>
@@ -349,12 +347,12 @@ const Sidebar = () => {
                                     <Crown className={`h-3 w-3 flex-shrink-0 ${
                                         isExpired ? 'text-red-400' : isExpiring ? 'text-orange-400' : 'text-yellow-400'
                                     }`} />
-                                    <p className="truncate text-[12px] font-semibold text-white/75">
+                                    <p className="truncate text-[13px] font-semibold text-white">
                                         {user.subscription_user.plan_name_en}
                                     </p>
                                 </div>
                                 <p className={`mt-0.5 text-[10px] ${
-                                    isExpired ? 'text-red-400' : isExpiring ? 'text-orange-400' : 'text-white/50'
+                                    isExpired ? 'text-red-400' : isExpiring ? 'text-orange-400' : 'text-white/80'
                                 }`}>
                                     {isExpired ? t('msg_subscription_expired') : `${daysLeft} ${t('lbl_days')} ${t('lbl_remaining')}`}
                                 </p>
@@ -364,7 +362,7 @@ const Sidebar = () => {
                                 className={`flex-shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
                                     isExpired ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
                                     isExpiring ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30' :
-                                    'bg-white/[0.08] text-white/65 hover:bg-white/[0.14] hover:text-white/90'
+                                    'bg-white/[0.08] text-white hover:bg-white/[0.14]'
                                 }`}
                             >
                                 {t('btn_upgrade')}

@@ -1,4 +1,6 @@
 'use client';
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { AlertTriangle, Clock, Crown, Package, ShieldAlert, Sparkles, Zap } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -78,6 +80,9 @@ const errorConfigs: Record<string, any> = {
 };
 
 const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, message, details }) => {
+    const { i18n } = getTranslation();
+    const lang = i18n.language as 'en' | 'bn';
+    const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
     const config = errorConfigs[errorType] || errorConfigs.subscription_required;
     const IconComponent = config.icon || Zap;
 
@@ -120,7 +125,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                         <div className="flex-1">
                             <h2 className="mb-2 text-2xl font-bold text-gray-900">{config.title}</h2>
                             <p className="mb-4 text-sm text-gray-500">{config.subtitle}</p>
-                            <p className="text-base leading-relaxed text-gray-700">{message}</p>
+                            <p className="text-base leading-relaxed text-gray-700">{displayNumber(message)}</p>
 
                             {/* Display additional details */}
                             {details && (
@@ -164,8 +169,8 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                                                             <div className="mb-2 flex items-end justify-between">
                                                                 <span className="text-sm font-bold uppercase tracking-wider text-gray-600">Current Usage</span>
                                                                 <div className="flex items-baseline gap-1.5">
-                                                                    <span className={`text-4xl font-black ${colorTheme.text}`}>{currentVal}</span>
-                                                                    <span className="text-sm font-medium text-gray-500">/ {details.limit} allowed</span>
+                                                                    <span className={`text-4xl font-black ${colorTheme.text}`}>{displayNumber(currentVal as number)}</span>
+                                                                    <span className="text-sm font-medium text-gray-500">/ {displayNumber(details.limit)} allowed</span>
                                                                 </div>
                                                             </div>
 
@@ -195,7 +200,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-gray-900">Required Features:</p>
-                                                    <p className="mt-1 text-sm text-gray-700">{details.required_features.join(' or ')}</p>
+                                                    <p className="mt-1 text-sm text-gray-700">{displayNumber(details.required_features.join(' or '))}</p>
                                                 </div>
                                             </div>
                                         </div>

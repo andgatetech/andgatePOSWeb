@@ -23,14 +23,18 @@ const bnToEng: Record<string, string> = {
     '৮': '8',
     '৯': '9',
 };
-export function convertNumberByLanguage(input: string | number): string {
+export function convertNumberByLanguage(input: string | number, language?: string): string {
     const val = String(input);
 
     const lang =
-        document?.cookie
+        language ||
+        (typeof document !== 'undefined'
+            ? document.cookie
             ?.split('; ')
             ?.find((x) => x.startsWith('i18nextLng='))
-            ?.split('=')?.[1] || 'en';
+            ?.split('=')?.[1]
+            : undefined) ||
+        'en';
 
     if (lang === 'bn') {
         // English → Bangla

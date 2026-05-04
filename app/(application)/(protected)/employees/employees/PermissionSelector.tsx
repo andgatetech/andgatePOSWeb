@@ -42,8 +42,8 @@ function ToggleSwitch({ checked, onChange, disabled }: { checked: boolean; onCha
             aria-checked={checked}
             disabled={disabled}
             onClick={onChange}
-            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 ${
-                checked ? 'bg-emerald-500' : 'bg-gray-200'
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 ${
+                checked ? 'bg-[#046ca9]' : 'bg-gray-200'
             }`}
         >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
@@ -67,13 +67,13 @@ function PermissionRow({ permission, checked, onToggle, disabled, badgeClass }: 
     const menus = getSidebarMenus(permission.name);
 
     return (
-        <div className={`rounded-lg border p-3 transition-all duration-150 ${checked ? 'border-emerald-200 bg-emerald-50/60' : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'}`}>
+        <div className={`rounded-lg border p-3 transition-all duration-150 ${checked ? 'border-[#046ca9]/25 bg-[#046ca9]/5' : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'}`}>
             <div className="flex items-start gap-3">
                 <ToggleSwitch checked={checked} onChange={onToggle} disabled={disabled} />
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className={`text-sm font-semibold ${checked ? 'text-emerald-800' : 'text-gray-700'}`}>{label}</span>
-                        {checked && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />}
+                        <span className={`text-sm font-semibold ${checked ? 'text-[#034d79]' : 'text-gray-700'}`}>{label}</span>
+                        {checked && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#046ca9]" />}
                     </div>
 
                     {/* Sidebar menu badges */}
@@ -90,7 +90,7 @@ function PermissionRow({ permission, checked, onToggle, disabled, badgeClass }: 
                 </div>
 
                 {/* ON / OFF label */}
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide ${checked ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide ${checked ? 'bg-[#046ca9]/10 text-[#034d79]' : 'bg-gray-100 text-gray-400'}`}>
                     {checked ? getTranslation().t('lbl_on') : getTranslation().t('lbl_off')}
                 </span>
             </div>
@@ -143,7 +143,7 @@ function CategoryCard({
                         {/* Progress pill */}
                         <span
                             className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                                allSelected ? 'bg-emerald-100 text-emerald-700' : someSelected ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
+                                allSelected ? 'bg-[#046ca9]/10 text-[#034d79]' : someSelected ? 'bg-[#e79237]/15 text-[#9a5a14]' : 'bg-gray-100 text-gray-500'
                             }`}
                         >
                             {allSelected ? getTranslation().t('lbl_all_on') : someSelected ? getTranslation().t('lbl_partial') : getTranslation().t('lbl_all_off')}
@@ -155,7 +155,7 @@ function CategoryCard({
                                 type="button"
                                 onClick={() => onCategoryToggle(category, permissions)}
                                 className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                                    allSelected ? 'border-red-200 bg-white text-red-600 hover:bg-red-50' : 'border-blue-200 bg-white text-blue-600 hover:bg-blue-50'
+                                    allSelected ? 'border-red-200 bg-white text-red-600 hover:bg-red-50' : 'border-[#046ca9]/25 bg-white text-[#046ca9] hover:bg-[#046ca9]/5'
                                 }`}
                             >
                                 {allSelected ? getTranslation().t('btn_turn_all_off') : getTranslation().t('btn_turn_all_on')}
@@ -177,7 +177,7 @@ function CategoryCard({
                 {/* Progress bar */}
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200/70">
                     <div
-                        className={`h-full rounded-full transition-all duration-300 ${allSelected ? 'bg-emerald-500' : someSelected ? 'bg-amber-400' : 'bg-gray-300'}`}
+                        className={`h-full rounded-full transition-all duration-300 ${allSelected ? 'bg-[#046ca9]' : someSelected ? 'bg-[#e79237]' : 'bg-gray-300'}`}
                         style={{ width: `${(checkedCount / permissions.length) * 100}%` }}
                     />
                 </div>
@@ -234,7 +234,7 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
         return (
             <div className="flex items-center justify-center py-16">
                 <div className="text-center">
-                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
+                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#046ca9]/20 border-t-[#046ca9]" />
                     <p className="mt-3 text-sm text-gray-500">{t('lbl_loading_permissions')}</p>
                 </div>
             </div>
@@ -253,30 +253,30 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
     return (
         <div className="space-y-5">
             {/* Global Header Bar */}
-            <div className="flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] shadow-sm">
                         <LayoutGrid className="h-4 w-4 text-white" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-blue-900">
+                        <p className="text-sm font-bold text-[#034d79]">
                             {enabledCount} / {totalPermissions} {t('lbl_permissions_enabled')}
                         </p>
-                        <p className="text-xs text-blue-600">{t('permission_toggle_hint')}</p>
+                        <p className="text-xs text-[#046ca9]">{t('permission_toggle_hint')}</p>
                     </div>
                 </div>
 
                 {/* Select All toggle */}
-                <label className="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-blue-200 bg-white px-3 py-2 transition hover:bg-blue-50">
+                <label className="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-[#046ca9]/25 bg-white px-3 py-2 transition hover:bg-[#046ca9]/5">
                     <ToggleSwitch checked={selectAll} onChange={onSelectAll} />
-                    <span className={`text-xs font-bold ${selectAll ? 'text-emerald-700' : 'text-gray-600'}`}>{selectAll ? t('lbl_all_permissions_on') : t('lbl_enable_all_permissions')}</span>
+                    <span className={`text-xs font-bold ${selectAll ? 'text-[#034d79]' : 'text-gray-600'}`}>{selectAll ? t('lbl_all_permissions_on') : t('lbl_enable_all_permissions')}</span>
                 </label>
             </div>
 
             {/* Legend */}
             <div className="flex flex-wrap gap-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1.5">
-                    <span className="inline-block h-3 w-5 rounded-full bg-emerald-500" />
+                    <span className="inline-block h-3 w-5 rounded-full bg-[#046ca9]" />
                     {t('permission_legend_on')}
                 </span>
                 <span className="flex items-center gap-1.5">
@@ -284,7 +284,7 @@ export default function PermissionSelector({ allPermissions, isChecked, onToggle
                     {t('permission_legend_off')}
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <Menu className="h-3 w-3 text-blue-500" />
+                    <Menu className="h-3 w-3 text-[#046ca9]" />
                     {t('permission_legend_badge')}
                 </span>
             </div>

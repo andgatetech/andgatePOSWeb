@@ -21,7 +21,7 @@ const StoreStatusTab: React.FC<StoreStatusTabProps> = ({ formData, handleInputCh
                 <div className="rounded-xl bg-gray-50 p-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                            <div className={`flex h-16 w-16 items-center justify-center rounded-xl ${formData.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                            <div className={`flex h-16 w-16 items-center justify-center rounded-xl ${formData.is_active ? 'bg-[#046ca9]/10 text-[#046ca9]' : 'bg-red-100 text-red-600'}`}>
                                 <Power className="h-8 w-8" />
                             </div>
                             <div>
@@ -38,14 +38,14 @@ const StoreStatusTab: React.FC<StoreStatusTabProps> = ({ formData, handleInputCh
                             name="is_active"
                             checked={formData.is_active}
                             onChange={handleInputChange}
-                            className="h-8 w-8 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                            className="h-8 w-8 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]"
                         />
                     </div>
                 </div>
 
                 {/* Warning Box */}
-                <div className={`mt-6 rounded-xl border p-4 ${formData.is_active ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                    <p className={`text-sm ${formData.is_active ? 'text-green-800' : 'text-red-800'}`}>
+                <div className={`mt-6 rounded-xl border p-4 ${formData.is_active ? 'border-[#046ca9]/20 bg-[#046ca9]/5' : 'border-red-200 bg-red-50'}`}>
+                    <p className={`text-sm ${formData.is_active ? 'text-[#034d79]' : 'text-red-800'}`}>
                         <strong>{t('lbl_note')}:</strong>{' '}
                         {formData.is_active ? t('msg_store_active_note') : t('msg_store_inactive_note')}
                     </p>

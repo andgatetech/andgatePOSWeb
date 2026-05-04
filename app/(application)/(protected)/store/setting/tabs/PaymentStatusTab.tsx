@@ -76,7 +76,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
     const renderActiveToggle = (isActive: boolean, onToggle: () => void, labelId: string) => (
         <label className="relative inline-flex cursor-pointer items-center" htmlFor={labelId}>
             <input id={labelId} type="checkbox" checked={isActive} onChange={onToggle} className="peer sr-only" />
-            <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300"></div>
+            <div className="peer h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#046ca9] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#046ca9]/30"></div>
         </label>
     );
 
@@ -105,8 +105,8 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                 type="text"
                                 value={newPaymentStatus.status_name}
                                 onChange={(e) => setNewPaymentStatusField('status_name', e.target.value)}
-                                placeholder="e.g., Paid, Pending, Partial"
-                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                placeholder={t('placeholder_payment_status_examples')}
+                                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -121,7 +121,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                 <select
                                     value={newPaymentStatus.status_color}
                                     onChange={(e) => setNewPaymentStatusField('status_color', e.target.value)}
-                                    className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                    className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                 >
                                     {predefinedColors.map((color) => (
                                         <option key={color.value} value={color.value}>
@@ -139,7 +139,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                             onChange={(e) => setNewPaymentStatusField('description', e.target.value)}
                             placeholder="Brief description of when this status should be used"
                             rows={2}
-                            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                         />
                     </div>
                     <div className="flex items-center justify-between">
@@ -150,7 +150,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                         <button
                             type="button"
                             onClick={handleCreatePaymentStatus}
-                            className="inline-flex items-center rounded bg-success px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success/90"
+                            className="inline-flex items-center rounded bg-[#046ca9] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#034d79]"
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
                             {t('btn_add_status')}
@@ -194,7 +194,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                         type="text"
                                                         value={editingPaymentStatus.status_name}
                                                         onChange={(e) => setEditingPaymentStatusField('status_name', e.target.value)}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         autoFocus
                                                     />
                                                 ) : (
@@ -213,7 +213,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                         <select
                                                             value={editingPaymentStatus.status_color}
                                                             onChange={(e) => setEditingPaymentStatusField('status_color', e.target.value)}
-                                                            className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                            className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                         >
                                                             {predefinedColors.map((color) => (
                                                                 <option key={color.value} value={color.value}>
@@ -235,7 +235,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                         value={editingPaymentStatus.description}
                                                         onChange={(e) => setEditingPaymentStatusField('description', e.target.value)}
                                                         rows={2}
-                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                        className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                                                     />
                                                 ) : (
                                                     <span className="text-sm text-gray-600">{status.description || '—'}</span>
@@ -243,11 +243,11 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 {defaultValue ? (
-                                                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{t('lbl_default')}</span>
+                                                    <span className="inline-flex items-center rounded-full bg-[#046ca9]/10 px-2 py-0.5 text-xs font-medium text-[#046ca9]">{t('lbl_default')}</span>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleSetDefaultPaymentStatus(status.id)}
-                                                        className="text-xs text-gray-400 transition-colors hover:text-emerald-600"
+                                                        className="text-xs text-gray-400 transition-colors hover:text-[#046ca9]"
                                                         title={t('btn_set')}
                                                     >
                                                         {t('btn_set')}
@@ -270,7 +270,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                         <button
                                                             type="button"
                                                             onClick={() => handleUpdatePaymentStatus(status.id)}
-                                                            className="rounded bg-success p-1.5 text-white hover:bg-success/90"
+                                                            className="rounded bg-[#046ca9] p-1.5 text-white hover:bg-[#034d79]"
                                                             title={t('btn_save')}
                                                         >
                                                             <Check className="h-4 w-4" />
@@ -291,7 +291,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                                 <li>
                                                                     <button
                                                                         onClick={() => startEditingPaymentStatus(status)}
-                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-blue-600 hover:bg-blue-50"
+                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-[#046ca9] hover:bg-[#046ca9]/5"
                                                                     >
                                                                         {t('btn_edit_status')}
                                                                     </button>
@@ -347,7 +347,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`rounded px-3 py-1.5 text-sm font-medium ${
-                                            currentPage === page ? 'bg-success text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
                                         {page}
