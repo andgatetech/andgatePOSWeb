@@ -91,8 +91,8 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                                     <svg className="mb-3 h-12 w-12 text-gray-400 transition-colors group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <p className="mb-1 text-base font-semibold text-gray-700 group-hover:text-gray-600">Click to upload or drag and drop</p>
-                                    <p className="text-sm text-gray-500">PNG, JPG, WebP up to 2MB (Max {maxNumber} images)</p>
+                                    <p className="mb-1 text-base font-semibold text-gray-700 group-hover:text-gray-600">{t('lbl_click_upload_drag_drop')}</p>
+                                    <p className="text-sm text-gray-500">{t('lbl_image_formats_hint')} (Max {maxNumber} images)</p>
                                 </div>
                             </button>
                         </div>

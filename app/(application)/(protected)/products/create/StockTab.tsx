@@ -39,7 +39,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     >
                         <option value="">{t('lbl_unit')}</option>
-                        <option value="Piece">Piece (Default)</option>
+                        <option value="Piece">{t('lbl_piece_default')}</option>
                         {units.map((unit: any) => (
                             <option key={unit.id} value={unit.name}>
                                 {unit.name}
@@ -53,7 +53,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
-                        Add New Unit
+                        {t('btn_add_new_unit')}
                     </a>
                 </div>
 
@@ -89,7 +89,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         placeholder="0"
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
-                    <p className="mt-1 text-xs text-gray-500">Alert when stock reaches this level</p>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_low_stock_alert_hint')}</p>
                 </div>
 
                 {/* Available Status */}

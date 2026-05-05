@@ -19,16 +19,16 @@ interface ProductCreateTabsProps {
 const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreateTabsProps) => {
     const { t } = getTranslation();
     const tabs: Tab[] = [
-        { id: 'basic', label: t('lbl_basic_info'), icon: Info, description: 'Name, description, category' },
-        { id: 'pricing', label: t('lbl_pricing'), icon: DollarSign, description: 'Purchase, selling, wholesale price' },
-        { id: 'stock', label: t('lbl_stock'), icon: Package, description: 'Quantity, unit, availability' },
-        { id: 'attributes', label: t('store_attributes_title'), icon: Tag, description: 'Color, size, variants' },
-        { id: 'variants', label: t('lbl_variant'), icon: Sliders, description: 'Configure variant details' },
-        { id: 'warranty', label: t('lbl_warranty'), icon: Shield, description: 'Warranty terms & period' },
-        { id: 'serial', label: t('lbl_serial'), icon: Hash, description: 'Serial number tracking' },
-        { id: 'tax', label: t('lbl_tax'), icon: Receipt, description: 'Tax rate & inclusion' },
-        { id: 'images', label: t('lbl_images'), icon: ImageIcon, description: 'Product photos' },
-        { id: 'sku', label: t('lbl_sku'), icon: Barcode, description: 'Stock keeping unit' },
+        { id: 'basic', label: t('lbl_basic_info'), icon: Info, description: t('tab_desc_basic') },
+        { id: 'pricing', label: t('lbl_pricing'), icon: DollarSign, description: t('tab_desc_pricing') },
+        { id: 'stock', label: t('lbl_stock'), icon: Package, description: t('tab_desc_stock') },
+        { id: 'attributes', label: t('store_attributes_title'), icon: Tag, description: t('tab_desc_attributes') },
+        { id: 'variants', label: t('lbl_variant'), icon: Sliders, description: t('tab_desc_variants') },
+        { id: 'warranty', label: t('lbl_warranty'), icon: Shield, description: t('tab_desc_warranty') },
+        { id: 'serial', label: t('lbl_serial'), icon: Hash, description: t('tab_desc_serial') },
+        { id: 'tax', label: t('lbl_tax'), icon: Receipt, description: t('tab_desc_tax') },
+        { id: 'images', label: t('lbl_images'), icon: ImageIcon, description: t('tab_desc_images') },
+        { id: 'sku', label: t('lbl_sku'), icon: Barcode, description: t('tab_desc_sku') },
     ];
     // Filter tabs to only show visible ones
     const displayTabs = tabs.filter((tab) => visibleTabs.includes(tab.id));

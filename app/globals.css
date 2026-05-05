@@ -106,3 +106,12 @@
 .leaflet-control-attribution {
     font-size: 10px !important;
 }
+
+/* Hero video fullscreen: iframe fills the container */
+:fullscreen iframe,
+:-webkit-full-screen iframe {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+}

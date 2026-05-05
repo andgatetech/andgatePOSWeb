@@ -761,23 +761,23 @@ const ProductCreateForm = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div className="text-sm text-blue-800">
-                            <p className="mb-1 font-medium">Product Creation Guide:</p>
+                            <p className="mb-1 font-medium">{t('guide_title')}</p>
                             <ul className="space-y-1 text-blue-700">
                                 <li>
-                                    <strong>Simple Product (no variants):</strong>
+                                    <strong>{t('guide_simple_product')}</strong>
                                 </li>
-                                <li className="ml-4">• Basic Info → Pricing → Stock → Tax → Images → SKU</li>
+                                <li className="ml-4">• {t('guide_simple_steps')}</li>
                                 <li className="mt-2">
-                                    <strong>Product with Variants:</strong>
+                                    <strong>{t('guide_variant_product')}</strong>
                                 </li>
-                                <li className="ml-4">• Enable &quot;Has Attributes&quot; in Basic Info</li>
-                                <li className="ml-4">• Go to Attributes tab → Select attributes (e.g., Color, Size)</li>
-                                <li className="ml-4">• Go to Variants tab → Click &quot;Add Variant&quot;</li>
-                                <li className="ml-4">• For each variant: Enter attribute values (Red, Blue, etc.)</li>
-                                <li className="ml-4">• Configure Price, Stock, Tax, Images for each variant</li>
-                                <li className="ml-4">• Go to SKU tab → Set unique SKU for each variant</li>
+                                <li className="ml-4">• {t('guide_step_enable_attributes')}</li>
+                                <li className="ml-4">• {t('guide_step_attributes_tab')}</li>
+                                <li className="ml-4">• {t('guide_step_variants_tab')}</li>
+                                <li className="ml-4">• {t('guide_step_enter_values')}</li>
+                                <li className="ml-4">• {t('guide_step_configure')}</li>
+                                <li className="ml-4">• {t('guide_step_sku_tab')}</li>
                                 <li className="ml-4">
-                                    • <strong>Price/Stock/Tax/Images tabs are hidden</strong> - all data entered in Variants tab!
+                                    • <strong>{t('guide_step_tabs_hidden')}</strong> - {t('guide_step_tabs_hidden_suffix')}
                                 </li>
                             </ul>
                         </div>

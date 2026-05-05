@@ -572,7 +572,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         </div>
                         {serialValue && <span className="text-xs font-medium text-gray-600">✓</span>}
                     </div>
-                    {isActiveRow && <span className="text-xs font-semibold text-purple-600">Scanning</span>}
+                    {isActiveRow && <span className="text-xs font-semibold text-purple-600">{t('lbl_scanning')}</span>}
                 </div>
 
                 {/* Product Name */}
@@ -647,9 +647,9 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         <Hash className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Serial/IMEI Numbers</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">{t('lbl_serial_imei_numbers')}</h3>
                         <p className="text-sm text-gray-600">
-                            Scan or enter Serial/IMEI values for tracking (Total: {displayUnitCount} {hasVariants ? 'units across variants' : 'units'})
+                            {t('serial_scan_or_enter_desc')} {displayUnitCount} {hasVariants ? t('lbl_units_across_variants') : t('lbl_units').toLowerCase()})
                         </p>
                     </div>
                 </div>
@@ -664,16 +664,16 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                             className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
                         />
                         <div>
-                            <span className="block text-sm font-medium text-gray-900 sm:text-base">Use same Serial/IMEI for all products</span>
+                            <span className="block text-sm font-medium text-gray-900 sm:text-base">{t('lbl_same_serial_for_all')}</span>
                             <p className="text-xs text-gray-600 sm:text-sm">
-                                One Serial/IMEI will be applied to all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'}
+                                {t('serial_one_applied_to_all')} {displayUnitCount} {hasVariants ? t('lbl_units_across_variants') : t('lbl_units').toLowerCase()}
                             </p>
                             {hasVariants && (
                                 <p className="text-[11px] text-purple-700 sm:text-xs">
                                     Includes {variantCount} {variantCount === 1 ? 'variant' : 'variants'}
                                 </p>
                             )}
-                            {displayUnitCount === 0 && <p className="text-[11px] text-purple-600 sm:text-xs">Add stock quantities to enable Serial/IMEI assignment.</p>}
+                            {displayUnitCount === 0 && <p className="text-[11px] text-purple-600 sm:text-xs">{t('serial_add_stock_to_enable')}</p>}
                         </div>
                     </label>
                 </div>
@@ -687,11 +687,11 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-purple-800 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
                     >
                         <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="truncate">{entryCount <= 0 ? 'Set quantity to enable scanner' : useSingleSerial ? 'Scan Serial/IMEI' : 'Scan Serial/IMEI'}</span>
+                        <span className="truncate">{entryCount <= 0 ? t('serial_set_qty_to_enable_scanner') : t('serial_scan_imei')}</span>
                     </button>
                 </div>
 
-                {hasVariants && <div className=" p-3 sm:p-4">{entryCount === 0 && <p className="mt-2 text-xs text-blue-700">Add stock quantities above to generate Serial/IMEI slots.</p>}</div>}
+                {hasVariants && <div className=" p-3 sm:p-4">{entryCount === 0 && <p className="mt-2 text-xs text-blue-700">{t('serial_add_stock_above')}</p>}</div>}
 
                 {/* Serial Input Fields */}
                 <div className="space-y-3">
@@ -699,7 +699,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         // Single Serial Input
                         <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                             <div className="mb-2">
-                                <label className="text-xs font-medium text-gray-700 sm:text-sm">Serial/IMEI (for all {displayUnitCount} units)</label>
+                                <label className="text-xs font-medium text-gray-700 sm:text-sm">{t('serial_for_all_units_label')} {displayUnitCount} {t('lbl_units').toLowerCase()})</label>
                             </div>
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
@@ -736,7 +736,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                     ) : // Multiple Serial Inputs
                     entryCount === 0 ? (
                         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-center text-xs text-gray-500">
-                            Set product quantity or variant stock to assign Serial/IMEI values.
+                            {t('serial_set_qty_or_stock')}
                         </div>
                     ) : hasVariants ? (
                         <div className="space-y-4">
@@ -794,8 +794,8 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                 <div className="rounded-xl border border-amber-200 bg-amber-50">
                                     <button type="button" onClick={() => setShowUnassigned((prev) => !prev)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left">
                                         <div>
-                                            <h4 className="text-sm font-semibold text-amber-900 sm:text-base">Unassigned Units</h4>
-                                            <p className="text-xs text-amber-800 sm:text-sm">These units are not linked to a specific variant.</p>
+                                            <h4 className="text-sm font-semibold text-amber-900 sm:text-base">{t('lbl_unassigned_units')}</h4>
+                                            <p className="text-xs text-amber-800 sm:text-sm">{t('lbl_unassigned_units_desc')}</p>
                                         </div>
                                         {showUnassigned ? <ChevronUp className="h-4 w-4 text-amber-700" /> : <ChevronDown className="h-4 w-4 text-amber-700" />}
                                     </button>

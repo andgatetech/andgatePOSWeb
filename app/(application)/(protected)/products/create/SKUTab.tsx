@@ -98,12 +98,12 @@ const SKUTab: React.FC<SKUTabProps> = ({
     // Get variant display name
     const getVariantName = (stock: ProductStock): string => {
         if (!stock.variant_data || Object.keys(stock.variant_data).length === 0) {
-            return 'Variant';
+            return t('lbl_variant');
         }
         const values = Object.values(stock.variant_data)
             .filter((v) => v.trim() !== '')
             .join(' / ');
-        return values || 'Variant';
+        return values || t('lbl_variant');
     };
 
     const isVariantProduct = formData.has_attributes && productStocks.length > 0;
@@ -120,7 +120,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                 <div className="space-y-4">
                     <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
                         <p className="text-sm text-indigo-800">
-                            <span className="font-medium">Variant Product:</span> Each variant has its own SKU. Leave empty for auto-generated SKUs.
+                            <span className="font-medium">{t('lbl_variant')} {t('lbl_product')}:</span> {t('sku_variant_product_banner')}
                         </p>
                     </div>
 
@@ -149,7 +149,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                     title="Scan barcode with camera"
                                 >
                                     <Camera className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Scan</span>
+                                    <span className="hidden sm:inline">{t('lbl_scan')}</span>
                                 </button>
                             </div>
                         </div>
@@ -160,7 +160,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                 <div className="space-y-6">
                     {/* SKU Option Selection */}
                     <div>
-                        <label className="mb-3 block text-sm font-medium text-gray-700">SKU Generation Method</label>
+                        <label className="mb-3 block text-sm font-medium text-gray-700">{t('lbl_sku_generation_method')}</label>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <label
                                 className={`flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-all ${
@@ -176,8 +176,8 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                     className="h-5 w-5 text-gray-600 focus:ring-gray-500"
                                 />
                                 <div className="flex-1">
-                                    <p className="font-medium text-gray-900">Auto-generate</p>
-                                    <p className="text-xs text-gray-500">System will create a unique SKU automatically</p>
+                                    <p className="font-medium text-gray-900">{t('lbl_sku_auto_generate')}</p>
+                                    <p className="text-xs text-gray-500">{t('lbl_sku_auto_generate_desc')}</p>
                                 </div>
                             </label>
 
@@ -195,8 +195,8 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                     className="h-5 w-5 text-gray-600 focus:ring-gray-500"
                                 />
                                 <div className="flex-1">
-                                    <p className="font-medium text-gray-900">Manual input</p>
-                                    <p className="text-xs text-gray-500">Enter your own custom SKU code</p>
+                                    <p className="font-medium text-gray-900">{t('lbl_sku_manual')}</p>
+                                    <p className="text-xs text-gray-500">{t('lbl_sku_manual_desc')}</p>
                                 </div>
                             </label>
                         </div>
@@ -214,7 +214,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                 type="text"
                                 value={formData.sku}
                                 onChange={handleChange}
-                                placeholder={formData.skuOption === 'manual' ? 'Enter SKU code (e.g., PRD-12345)' : 'Will be generated automatically'}
+                                placeholder={formData.skuOption === 'manual' ? t('placeholder_sku_code') : t('placeholder_sku_auto')}
                                 className={`w-full rounded-lg border px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 ${
                                     skuError ? 'border-red-500 bg-red-50 focus:ring-red-500' : 'border-gray-300 bg-gray-50 focus:ring-gray-500'
                                 }`}
@@ -234,7 +234,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                 title={showScanner ? 'Close camera scanner' : 'Scan barcode with camera'}
                             >
                                 <Camera className="h-5 w-5" />
-                                <span className="hidden sm:inline">{showScanner && activeScanIndex === null ? 'Close' : 'Scan'}</span>
+                                <span className="hidden sm:inline">{showScanner && activeScanIndex === null ? t('lbl_close') : t('lbl_scan')}</span>
                             </button>
                         </div>
                         {skuError && (
@@ -268,22 +268,22 @@ const SKUTab: React.FC<SKUTabProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-indigo-800">
-                        <p className="mb-1 font-medium">About SKU (Stock Keeping Unit):</p>
+                        <p className="mb-1 font-medium">{t('sku_about_title')}</p>
                         <ul className="space-y-1 text-indigo-700">
-                            <li>• SKU is a unique identifier for tracking inventory</li>
-                            <li>• Use a consistent naming convention for easy management</li>
+                            <li>• {t('sku_tip_unique_identifier')}</li>
+                            <li>• {t('sku_tip_naming_convention')}</li>
                             {isVariantProduct ? (
                                 <>
-                                    <li>• Each variant should have a unique SKU (e.g., SHIRT-RED-M, SHIRT-BLU-L)</li>
-                                    <li>• Leave empty to let the system auto-generate SKUs</li>
+                                    <li>• {t('sku_tip_variant_unique')}</li>
+                                    <li>• {t('sku_tip_leave_empty')}</li>
                                 </>
                             ) : (
                                 <>
-                                    <li>• Examples: PROD-001, SHIRT-BLU-M, LAPTOP-HP-15</li>
-                                    <li>• Auto-generated SKUs ensure uniqueness across your inventory</li>
+                                    <li>• {t('sku_tip_examples')}</li>
+                                    <li>• {t('sku_tip_auto_unique')}</li>
                                 </>
                             )}
-                            <li>• 📷 Use the Scan button to capture a barcode with your camera</li>
+                            <li>• {t('sku_tip_scan_camera')}</li>
                         </ul>
                     </div>
                 </div>

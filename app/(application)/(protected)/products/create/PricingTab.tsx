@@ -81,7 +81,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                 {/* Wholesale Price */}
                 <div>
                     <label htmlFor="wholesale_price" className="mb-2 block text-sm font-medium text-gray-700">
-                        {t('lbl_price')}
+                        {t('lbl_wholesale_price')}
                     </label>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
@@ -102,7 +102,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">Price for bulk purchases</p>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_wholesale_price_hint')}</p>
                 </div>
             </div>
 

@@ -436,7 +436,16 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     return (
         <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
             <div className="panel">
-                <h2 className="mb-5 text-xl font-bold">{isEditMode ? t('lbl_edit_purchase_draft') : t('lbl_purchase_order_draft')}</h2>
+                {/* Header */}
+                <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <ShoppingCart className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900">{isEditMode ? t('lbl_edit_purchase_draft') : t('lbl_purchase_order_draft')}</h2>
+                        <p className="text-sm text-gray-500">{t('purchase_page_desc')}</p>
+                    </div>
+                </div>
 
                 {/* Purchase Type Selection */}
                 <div className="mb-6">

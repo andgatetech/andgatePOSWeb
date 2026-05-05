@@ -171,7 +171,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">{t('lbl_variant')}</h3>
                             <p className="text-sm text-gray-600">
-                                Product: <span className="font-semibold text-blue-700">{formData.product_name || 'Not Set'}</span>
+                                {t('lbl_product')}: <span className="font-semibold text-blue-700">{formData.product_name || t('lbl_not_set')}</span>
                             </p>
                         </div>
                     </div>
@@ -184,15 +184,15 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                         <span>{t('btn_add_new')}</span>
                     </button>
                 </div>
-                <p className="mt-2 text-xs text-gray-500">Select from suggestions or type custom attribute names</p>
+                <p className="mt-2 text-xs text-gray-500">{t('lbl_attr_select_hint')}</p>
             </div>
 
             {/* Selected Attributes Display */}
             {selectedAttributes.length > 0 && (
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="mb-3 flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-gray-700">Product Attributes ({selectedAttributes.length})</h4>
-                        <p className="text-xs text-blue-700">These attributes will be used for variants</p>
+                        <h4 className="text-sm font-semibold text-gray-700">{t('lbl_product_attributes_count')} ({selectedAttributes.length})</h4>
+                        <p className="text-xs text-blue-700">{t('lbl_attr_used_for_variants')}</p>
                     </div>
                     <div className="space-y-3">
                         {selectedAttributes.map((attr) => (
@@ -212,7 +212,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                         setShowDropdowns({ ...showDropdowns, [attr.id]: false });
                                                     }, 200);
                                                 }}
-                                                placeholder="Select from dropdown or type custom attribute (e.g., Size, Color, Material)"
+                                                placeholder={t('placeholder_attr_input')}
                                                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-gray-500"
                                                 disabled={attr.name !== '' && (attr.isCustom || typeof attr.id === 'number')}
                                             />
@@ -291,21 +291,20 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
-                        <p className="mb-1 font-medium">How Product Attributes Work:</p>
+                        <p className="mb-1 font-medium">{t('attr_guide_title')}</p>
                         <ul className="space-y-1 text-blue-700">
                             <li>
-                                • Click <strong>&quot;+ Add Attribute&quot;</strong> button at the top to add a new field
+                                • {t('attr_guide_step1')} (<strong>+ {t('store_attributes_title')}</strong>)
                             </li>
                             <li>
-                                • <strong>From dropdown:</strong> Select existing attribute (saved in database with ID)
+                                • <strong>{t('attr_guide_step2_prefix')}</strong> {t('attr_guide_step2_suffix')}
                             </li>
                             <li>
-                                • <strong>Custom attribute:</strong> Type name (e.g., &quot;Size&quot;, &quot;GSM&quot;) and click <strong>✓</strong> (NOT saved to database, just attribute name for
-                                this product)
+                                • <strong>{t('attr_guide_step3_prefix')}</strong> {t('attr_guide_step3_suffix')}
                             </li>
-                            <li>• A product can have multiple attributes (Size + Color + Material)</li>
+                            <li>• {t('attr_guide_step4')}</li>
                             <li>
-                                • <strong>Attribute values</strong> (XL, Red, Cotton, etc.) will be added in the Variants tab
+                                • <strong>{t('attr_guide_step5_prefix')}</strong> {t('attr_guide_step5_suffix')}
                             </li>
                         </ul>
                     </div>

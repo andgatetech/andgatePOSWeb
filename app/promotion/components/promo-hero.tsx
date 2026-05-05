@@ -1,10 +1,40 @@
 'use client';
 
 import { trackEvent } from '@/lib/analytics';
-import { ArrowRight, ShieldCheck, Star } from 'lucide-react';
+import { ArrowRight, Maximize2, Minimize2, ShieldCheck, Star, Volume2, VolumeX } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PromoButton from './promo-button';
 
 export default function PromoHero() {
+    const videoContainerRef = useRef<HTMLDivElement>(null);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
+
+    const handleFullscreen = useCallback(() => {
+        const el = videoContainerRef.current;
+        if (!el) return;
+        if (!document.fullscreenElement) {
+            el.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }, []);
+
+    const handleMute = useCallback(() => {
+        const iframe = iframeRef.current;
+        if (!iframe) return;
+        const fn = isMuted ? 'unMute' : 'mute';
+        iframe.contentWindow?.postMessage(`{"event":"command","func":"${fn}","args":""}`, '*');
+        setIsMuted((prev) => !prev);
+    }, [isMuted]);
+
+    useEffect(() => {
+        const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', onChange);
+        return () => document.removeEventListener('fullscreenchange', onChange);
+    }, []);
+
     return (
         <section className="relative overflow-hidden bg-white pb-12 pt-24 sm:pb-16 sm:pt-28">
             {/* Subtle background glow */}
@@ -14,17 +44,35 @@ export default function PromoHero() {
                 <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
 
                     {/* Video — top on mobile */}
-                    <div className="relative order-first mx-auto w-full max-w-sm lg:order-last lg:max-w-none">
+                    <div className="relative order-first mx-auto w-full max-w-sm lg:order-last lg:max-w-[500px]">
                         <div className="absolute -inset-3 rounded-3xl bg-gradient-to-r from-blue-400/30 to-primary/30 opacity-60 blur-2xl" />
                         <div className="relative rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
-                            <div className="overflow-hidden rounded-xl bg-gray-100">
+                            <div ref={videoContainerRef} className="overflow-hidden rounded-xl bg-black">
                                 <iframe
-                                    className="mx-auto block h-[520px] w-full max-w-[300px] rounded-xl"
-                                    src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&loop=1&playlist=gELTWs7hFtc&controls=0&modestbranding=1"
+                                    ref={iframeRef}
+                                    className="block h-[580px] w-full sm:h-[640px] rounded-xl"
+                                    src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&loop=1&playlist=gELTWs7hFtc&controls=0&modestbranding=1&enablejsapi=1"
                                     title="AndgatePOS Demo"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
                                 />
+                            </div>
+                            {/* Control bar — below iframe in normal flow, never covered */}
+                            <div className="mt-2 flex items-center justify-center gap-3 pb-1">
+                                <button
+                                    onClick={handleMute}
+                                    className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
+                                >
+                                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                                    {isMuted ? 'Unmute' : 'Mute'}
+                                </button>
+                                <button
+                                    onClick={handleFullscreen}
+                                    className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-primary/80 active:scale-95"
+                                >
+                                    {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                                    {isFullscreen ? 'Exit' : 'Fullscreen'}
+                                </button>
                             </div>
                         </div>
 

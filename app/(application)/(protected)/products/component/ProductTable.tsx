@@ -17,7 +17,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 const ProductTable = () => {
     const { t } = getTranslation();
     const { currentStoreId, userStores } = useCurrentStore();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -345,7 +345,7 @@ const ProductTable = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">{t('product_page_title')}</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatNumber(totalProducts)}</p>
                         </div>
                         <Package className="h-8 w-8 text-blue-500" />
                     </div>
@@ -355,7 +355,7 @@ const ProductTable = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">{t('product_available')}</p>
-                            <p className="text-2xl font-bold text-green-600">{availableProducts}</p>
+                            <p className="text-2xl font-bold text-green-600">{formatNumber(availableProducts)}</p>
                         </div>
                         <CheckCircle className="h-8 w-8 text-green-500" />
                     </div>
@@ -365,7 +365,7 @@ const ProductTable = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">{t('product_unavailable')}</p>
-                            <p className="text-2xl font-bold text-red-600">{unavailableProducts}</p>
+                            <p className="text-2xl font-bold text-red-600">{formatNumber(unavailableProducts)}</p>
                         </div>
                         <XCircle className="h-8 w-8 text-red-500" />
                     </div>
@@ -375,7 +375,7 @@ const ProductTable = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">{t('status_low_stock')}</p>
-                            <p className="text-2xl font-bold text-orange-600">{lowStockProducts}</p>
+                            <p className="text-2xl font-bold text-orange-600">{formatNumber(lowStockProducts)}</p>
                         </div>
                         <AlertCircle className="h-8 w-8 text-orange-500" />
                     </div>
@@ -385,7 +385,7 @@ const ProductTable = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">{t('status_out_of_stock')}</p>
-                            <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
+                            <p className="text-2xl font-bold text-red-600">{formatNumber(outOfStockProducts)}</p>
                         </div>
                         <XCircle className="h-8 w-8 text-red-400" />
                     </div>
@@ -402,46 +402,46 @@ const ProductTable = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
-                                <tr className="bg-primary">
+                                <tr className="bg-slate-50">
                                     <th
-                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
+                                        className="cursor-pointer select-none px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-100"
                                         onClick={() => handleSort('sku')}
                                     >
                                         <div className="flex items-center gap-1.5">
                                             SKU
-                                            {sortField === 'sku' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
+                                            {sortField === 'sku' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />)}
                                         </div>
                                     </th>
                                     <th
-                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
+                                        className="cursor-pointer select-none px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-100"
                                         onClick={() => handleSort('product_name')}
                                     >
                                         <div className="flex items-center gap-1.5">
                                             {t('lbl_product_name')}
-                                            {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
+                                            {sortField === 'product_name' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />)}
                                         </div>
                                     </th>
                                     <th
-                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
+                                        className="cursor-pointer select-none px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-100"
                                         onClick={() => handleSort('quantity')}
                                     >
                                         <div className="flex items-center gap-1.5">
                                             {t('lbl_stock_level')}
-                                            {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
+                                            {sortField === 'quantity' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_image')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">{t('lbl_image')}</th>
                                     <th
-                                        className="cursor-pointer px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90 transition-colors hover:bg-white/10 select-none"
+                                        className="cursor-pointer select-none px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-100"
                                         onClick={() => handleSort('available')}
                                     >
                                         <div className="flex items-center gap-1.5">
                                             {t('lbl_status')}
-                                            {sortField === 'available' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-white" /> : <ChevronDown className="h-3.5 w-3.5 text-white" />)}
+                                            {sortField === 'available' && (sortDirection === 'asc' ? <ChevronUp className="h-3.5 w-3.5 text-slate-500" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-500" />)}
                                         </div>
                                     </th>
-                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_price')}</th>
-                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_actions')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">{t('lbl_price')}</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-700">{t('lbl_actions')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -467,10 +467,10 @@ const ProductTable = () => {
                                     const stockStatus = getStockStatus(actualQuantity, displayLowStock);
 
                                     return (
-                                        <tr key={product.id} className={`border-b border-gray-100 transition-colors last:border-0 ${index % 2 === 0 ? 'bg-white hover:bg-primary/5' : 'bg-slate-50/60 hover:bg-primary/5'}`}>
+                                        <tr key={product.id} className={`border-b border-gray-100 transition-colors last:border-0 ${index % 2 === 0 ? 'bg-white hover:bg-[#046ca9]/5' : 'bg-slate-50/60 hover:bg-[#046ca9]/5'}`}>
                                             {/* Product Details */}
                                             {/* SKU & Unit */}
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <Tag className="h-4 w-4 text-gray-400" />
@@ -480,7 +480,7 @@ const ProductTable = () => {
                                                                 className="rounded bg-purple-100 px-2 py-1 font-mono text-sm text-purple-700"
                                                                 title={product.stocks.map((s: any) => s.sku).join(', ')}
                                                             >
-                                                                {product.stocks.filter((s: any) => s.sku).length} SKUs
+                                                                {formatNumber(product.stocks.filter((s: any) => s.sku).length)} SKUs
                                                             </span>
                                                         ) : (
                                                             // Simple product - show single SKU
@@ -492,14 +492,14 @@ const ProductTable = () => {
                                                 </div>
                                             </td>
 
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <div className="space-y-1">
                                                     <div className="max-w-[150px] truncate font-semibold text-gray-900">{product.product_name}</div>
                                                 </div>
                                             </td>
 
                                             {/* Stock Level */}
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex flex-col space-y-2">
                                                         <div className="flex items-center gap-2">
@@ -546,7 +546,7 @@ const ProductTable = () => {
                                             </td>
 
                                             {/* Images */}
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <button
                                                     className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 transition-colors hover:bg-blue-200"
                                                     onClick={() => handleImageShow(product)}
@@ -557,7 +557,7 @@ const ProductTable = () => {
                                             </td>
 
                                             {/* Status */}
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <button
                                                     onClick={() => handleAvailabilityToggle(product.id, isAvailable)}
                                                     className={`inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${
@@ -579,7 +579,7 @@ const ProductTable = () => {
                                             </td>
 
                                             {/* Pricing & Tax - Show range for variants, details for simple products */}
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <div className="space-y-2">
                                                     {product.stocks && product.stocks.length > 0 && product.stocks[0].is_variant ? (
                                                         // Show price range for variant products
@@ -606,7 +606,7 @@ const ProductTable = () => {
                                             </td>
 
                                             {/* Actions */}
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3.5 text-sm">
                                                 <Dropdown
                                                     offset={[0, 5]}
                                                     placement="bottom-end"

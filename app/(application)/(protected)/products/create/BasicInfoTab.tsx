@@ -112,7 +112,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     target: { name: 'description', value },
                                 } as any);
                             }}
-                            placeholder="Enter product description"
+                            placeholder={t('placeholder_product_desc_editor')}
                             className="product-description-editor"
                             modules={{
                                 toolbar: [
@@ -127,7 +127,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                             formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'align', 'link']}
                         />
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">{descriptionTextLength}/1000 characters</p>
+                    <p className="mt-1 text-sm text-gray-500">{descriptionTextLength}/1000 {t('lbl_characters')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -169,7 +169,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search categories..."
+                                                    placeholder={t('lbl_search_categories')}
                                                     value={categorySearchTerm}
                                                     onChange={(e) => setCategorySearchTerm(e.target.value)}
                                                     className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pl-9 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-gray-500"
@@ -191,7 +191,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                                 </svg>
-                                                Add New Category
+                                                {t('btn_add_new_category')}
                                             </a>
 
                                             {filteredCategories.length > 0 ? (
@@ -243,7 +243,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                                                         />
                                                     </svg>
-                                                    <p className="mt-2 text-sm text-gray-500">{categorySearchTerm.trim() ? 'No categories found' : 'No categories available'}</p>
+                                                    <p className="mt-2 text-sm text-gray-500">{categorySearchTerm.trim() ? t('msg_no_categories_found') : t('msg_no_categories_available')}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -317,7 +317,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search brands..."
+                                                    placeholder={t('lbl_search_brands')}
                                                     value={brandSearchTerm}
                                                     onChange={(e) => setBrandSearchTerm(e.target.value)}
                                                     className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pl-9 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-gray-500"
@@ -339,7 +339,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                                 </svg>
-                                                Add New Brand
+                                                {t('btn_add_new_brand')}
                                             </a>
 
                                             {filteredBrands.length > 0 ? (
@@ -386,7 +386,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                                         />
                                                     </svg>
-                                                    <p className="mt-2 text-sm text-gray-500">{brandSearchTerm.trim() ? 'No brands found' : 'No brands available'}</p>
+                                                    <p className="mt-2 text-sm text-gray-500">{brandSearchTerm.trim() ? t('msg_no_brands_found') : t('msg_no_brands_available')}</p>
                                                 </div>
                                             )}
                                         </div>
@@ -426,8 +426,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 
             {/* Product Features Selection */}
             <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6">
-                <h4 className="mb-4 text-sm font-semibold text-gray-700">Product Features</h4>
-                <p className="mb-4 text-xs text-gray-500">Select which features apply to this product. This will determine which tabs are available.</p>
+                <h4 className="mb-4 text-sm font-semibold text-gray-700">{t('lbl_product_features')}</h4>
+                <p className="mb-4 text-xs text-gray-500">{t('lbl_product_features_desc')}</p>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {/* Has Attributes */}
@@ -456,9 +456,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                     />
                                 </svg>
-                                <span className="font-semibold text-gray-900">Has Attributes</span>
+                                <span className="font-semibold text-gray-900">{t('lbl_has_attributes')}</span>
                             </div>
-                            <p className="mt-1 text-xs text-gray-500">Product has variants like color, size, etc.</p>
+                            <p className="mt-1 text-xs text-gray-500">{t('lbl_has_attributes_desc')}</p>
                         </div>
                     </label>
 
@@ -488,9 +488,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                     />
                                 </svg>
-                                <span className="font-semibold text-gray-900">Has Warranty</span>
+                                <span className="font-semibold text-gray-900">{t('lbl_has_warranty')}</span>
                             </div>
-                            <p className="mt-1 text-xs text-gray-500">Product includes warranty coverage</p>
+                            <p className="mt-1 text-xs text-gray-500">{t('lbl_has_warranty_desc')}</p>
                         </div>
                     </label>
 
@@ -520,9 +520,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                                     />
                                 </svg>
-                                <span className="font-semibold text-gray-900">Has Serial Number / IMEI</span>
+                                <span className="font-semibold text-gray-900">{t('lbl_has_serial')}</span>
                             </div>
-                            <p className="mt-1 text-xs text-gray-500">Track individual product units by serial /IMEI</p>
+                            <p className="mt-1 text-xs text-gray-500">{t('lbl_has_serial_desc')}</p>
                         </div>
                     </label>
                 </div>

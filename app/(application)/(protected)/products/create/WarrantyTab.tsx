@@ -223,7 +223,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Shield className="h-6 w-6 text-gray-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">Warranty Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('lbl_warranty_information')}</h3>
                 </div>
             </div>
             <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 sm:p-4">
@@ -235,13 +235,13 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                         className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
                     />
                     <div>
-                        <p className="text-sm font-medium text-purple-900 sm:text-base">Use same warranty for all products</p>
+                        <p className="text-sm font-medium text-purple-900 sm:text-base">{t('lbl_same_warranty_for_all')}</p>
                         <p className="text-xs text-purple-700 sm:text-sm">
-                            One warranty will be applied to all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'}
+                            {t('warranty_one_applied_to_all')} {displayUnitCount} {hasVariants ? t('lbl_units_across_variants') : t('lbl_units').toLowerCase()}
                         </p>
                         {hasVariants && (
                             <p className="text-[11px] text-purple-600 sm:text-xs">
-                                Includes {variantCount} {variantCount === 1 ? 'variant' : 'variants'}
+                                {t('warranty_includes')} {variantCount} {t('lbl_variant').toLowerCase()}{variantCount !== 1 ? 's' : ''}
                             </p>
                         )}
                     </div>
@@ -252,9 +252,9 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
             {hasVariants && (
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4">
                     <p className="text-sm font-medium text-gray-700">
-                        This product has <span className="font-bold">{productStocks.length} variants</span>. Each variant can have its own warranty.
+                        {t('warranty_this_product_has')} <span className="font-bold">{productStocks.length} {t('lbl_variant').toLowerCase()}s</span>. {t('warranty_each_variant_own')}
                     </p>
-                    {displayUnitCount > 0 && <p className="text-xs text-blue-700">Total units across variants: {displayUnitCount}</p>}
+                    {displayUnitCount > 0 && <p className="text-xs text-blue-700">{t('lbl_total_units_across_variants')} {displayUnitCount}</p>}
                 </div>
             )}
 
@@ -271,7 +271,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                     <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                         <div className="mb-2">
                             <label className="text-xs font-medium text-gray-700 sm:text-sm">
-                                Warranty (for all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'})
+                                {t('warranty_for_all_label')} {displayUnitCount} {hasVariants ? t('lbl_units_across_variants') : t('lbl_units').toLowerCase()})
                             </label>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -300,7 +300,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                         onBlur={() => {
                                             setTimeout(() => setShowDropdowns({ ...showDropdowns, [0]: false }), 200);
                                         }}
-                                        placeholder="Select from dropdown or type duration in days (e.g., 365, 730)"
+                                        placeholder={t('placeholder_warranty_duration')}
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-2 focus:ring-gray-500"
                                         disabled={
                                             !!(productWarranties[0]?.warranty_type_id > 0 || (productWarranties[0]?.duration_days && productWarranties[0]?.duration_days > 0)) &&
@@ -326,7 +326,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                     <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
                                         {getFilteredWarranties(searchQueries[0] || '', 0).length > 0 ? (
                                             <div className="max-h-60 overflow-y-auto p-1">
-                                                <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{searchQueries[0] ? 'Search Results' : 'Suggestions'}</div>
+                                                <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{searchQueries[0] ? t('lbl_search_results') : t('lbl_suggestions')}</div>
                                                 {getFilteredWarranties(searchQueries[0] || '', 0).map((wt: any) => (
                                                     <button
                                                         key={wt.id}
@@ -354,7 +354,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                             </div>
                                         ) : searchQueries[0] ? (
                                             <div className="p-4 text-center">
-                                                <p className="text-sm font-medium text-gray-700">No matches found for &quot;{searchQueries[0]}&quot;</p>
+                                                <p className="text-sm font-medium text-gray-700">{t('lbl_no_matches_found')} &quot;{searchQueries[0]}&quot;</p>
                                                 <p className="mt-1 text-xs text-gray-500">
                                                     Type duration in days and click the <strong>✓ tick button</strong> to create custom warranty
                                                 </p>
@@ -362,7 +362,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                         ) : (
                                             <div className="p-4 text-center">
                                                 <Shield className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                                                <p className="text-sm text-gray-600">No warranty types available</p>
+                                                <p className="text-sm text-gray-600">{t('lbl_no_warranty_available')}</p>
                                                 <p className="mt-1 text-xs text-gray-500">Type duration in days and click the ✓ button</p>
                                             </div>
                                         )}
@@ -440,7 +440,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                 {getFilteredWarranties(searchQueries[index] || '', index).length > 0 ? (
                                                     <div className="max-h-48 overflow-y-auto p-1">
                                                         <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
-                                                            {searchQueries[index] ? 'Search Results' : 'Suggestions'}
+                                                            {searchQueries[index] ? t('lbl_search_results') : t('lbl_suggestions')}
                                                         </div>
                                                         {getFilteredWarranties(searchQueries[index] || '', index).map((wt: any) => (
                                                             <button
@@ -469,7 +469,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                     </div>
                                                 ) : searchQueries[index] ? (
                                                     <div className="p-3 text-center">
-                                                        <p className="text-xs text-gray-600">No matches found</p>
+                                                        <p className="text-xs text-gray-600">{t('lbl_no_matches_found')}</p>
                                                         <p className="mt-1 text-[10px] text-gray-500">
                                                             Type days and click <strong>✓</strong> to create
                                                         </p>
@@ -477,7 +477,7 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                                                 ) : (
                                                     <div className="p-3 text-center">
                                                         <Shield className="mx-auto mb-1 h-6 w-6 text-gray-400" />
-                                                        <p className="text-xs text-gray-600">No warranties available</p>
+                                                        <p className="text-xs text-gray-600">{t('lbl_no_warranty_available')}</p>
                                                         <p className="mt-1 text-[10px] text-gray-500">Type days and click ✓</p>
                                                     </div>
                                                 )}
@@ -511,14 +511,14 @@ const WarrantyTab: React.FC<WarrantyTabProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
-                        <p className="mb-1 font-medium">About Product Warranty:</p>
+                        <p className="mb-1 font-medium">{t('warranty_about_title')}</p>
                         <ul className="space-y-1 text-blue-700">
-                            <li>• Select warranty type from predefined templates</li>
-                            <li>• Duration (months/days) is automatically set from warranty type</li>
+                            <li>• {t('warranty_tip_select')}</li>
+                            <li>• {t('warranty_tip_duration')}</li>
                             <li>
-                                • Use &quot;same warranty for all&quot; to assign one warranty to all {displayUnitCount} {hasVariants ? 'units across variants' : 'units'}
+                                • {t('warranty_tip_same_for_all')} {displayUnitCount} {hasVariants ? t('lbl_units_across_variants') : t('lbl_units').toLowerCase()}
                             </li>
-                            <li>• Or assign individual warranties to each {hasVariants ? 'variant' : 'product unit'}</li>
+                            <li>• {t('warranty_tip_individual')} {hasVariants ? t('lbl_variant').toLowerCase() : t('lbl_product_unit')}</li>
                         </ul>
                     </div>
                 </div>

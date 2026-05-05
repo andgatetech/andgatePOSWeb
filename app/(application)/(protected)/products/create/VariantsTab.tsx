@@ -152,24 +152,24 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     // Get variant display name
     const getVariantName = (stock: ProductStock): string => {
         if (!stock.variant_data || Object.keys(stock.variant_data).length === 0) {
-            return 'New Variant';
+            return t('lbl_new_variant');
         }
         const values = Object.entries(stock.variant_data)
             .filter(([_, value]) => value.trim() !== '')
             .map(([key, value]) => `${key}: ${value}`)
             .join(' / ');
-        return values || 'New Variant';
+        return values || t('lbl_new_variant');
     };
 
     // Get variant short name
     const getVariantShortName = (stock: ProductStock): string => {
         if (!stock.variant_data || Object.keys(stock.variant_data).length === 0) {
-            return 'Variant';
+            return t('lbl_variant');
         }
         const values = Object.values(stock.variant_data)
             .filter((v) => v.trim() !== '')
             .join(' - ');
-        return values || 'Variant';
+        return values || t('lbl_variant');
     };
 
     return (
@@ -182,12 +182,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                             <Package className="h-5 w-5 text-purple-600" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Product Variants</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">{t('lbl_product_variants')}</h3>
                             <p className="text-sm text-gray-600">
-                                Product: <span className="font-semibold text-purple-700">{formData.product_name || 'Not Set'}</span>
+                                {t('lbl_product')}: <span className="font-semibold text-purple-700">{formData.product_name || t('lbl_not_set')}</span>
                             </p>
                             <p className="text-xs text-gray-500">
-                                {productStocks.length} variant{productStocks.length !== 1 ? 's' : ''} configured
+                                {productStocks.length} {productStocks.length !== 1 ? t('lbl_variants_configured') : t('lbl_variant_configured')}
                             </p>
                         </div>
                     </div>
@@ -204,12 +204,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                 </div>
                 {attributeNames.length === 0 && (
                     <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
-                        ⚠️ Please add attributes in the <strong>Attributes</strong> tab first (e.g., Color, Size)
+                        ⚠️ {t('msg_no_attributes_hint_prefix')} <strong>{t('store_attributes_title')}</strong> {t('msg_no_attributes_hint_suffix')}
                     </div>
                 )}
                 {attributeNames.length > 0 && productStocks.length === 0 && (
                     <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-                        💡 Click <strong>Add Variant</strong> to create your first variant
+                        💡 {t('msg_click_add_variant_hint_prefix')} <strong>{t('lbl_add_variant')}</strong> {t('msg_click_add_variant_hint_suffix')}
                     </div>
                 )}
             </div>
@@ -241,11 +241,11 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                     type="button"
                                     onClick={() => handleDuplicateVariant(index)}
                                     className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100"
-                                    title="Duplicate variant"
+                                    title={t('title_duplicate_variant')}
                                 >
                                     <Copy className="h-4 w-4" />
                                 </button>
-                                <button type="button" onClick={() => handleDeleteVariant(index)} className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100" title="Delete variant">
+                                <button type="button" onClick={() => handleDeleteVariant(index)} className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100" title={t('title_delete_variant')}>
                                     <Trash2 className="h-4 w-4" />
                                 </button>
                             </div>
@@ -257,7 +257,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 {/* Attribute Selection */}
                                 {attributeNames.length > 0 && (
                                     <div className="rounded-lg border-2 border-purple-200 bg-purple-50 p-4">
-                                        <h5 className="mb-3 text-sm font-semibold text-purple-900">Variant Attributes</h5>
+                                        <h5 className="mb-3 text-sm font-semibold text-purple-900">{t('lbl_variant_attributes')}</h5>
                                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                             {attributeNames.map((attributeName) => (
                                                 <div key={attributeName}>
@@ -268,7 +268,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                         type="text"
                                                         value={stock.variant_data[attributeName] || ''}
                                                         onChange={(e) => handleVariantAttributeChange(index, attributeName, e.target.value)}
-                                                        placeholder={`Enter ${attributeName}`}
+                                                        placeholder={`${t('placeholder_enter_attr')} ${attributeName}`}
                                                         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                                     />
                                                 </div>
@@ -279,11 +279,11 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
                                 {/* Pricing Section */}
                                 <div>
-                                    <h5 className="mb-3 text-sm font-semibold text-gray-900">Pricing</h5>
+                                    <h5 className="mb-3 text-sm font-semibold text-gray-900">{t('lbl_pricing_section')}</h5>
                                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                                Selling Price <span className="text-red-500">*</span>
+                                                {t('lbl_selling_price')} <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
@@ -299,7 +299,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                                Purchase Price <span className="text-red-500">*</span>
+                                                {t('lbl_purchase_price')} <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
@@ -314,7 +314,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                         </div>
 
                                         <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">Wholesale Price</label>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_wholesale_price')}</label>
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
                                                 <input
@@ -331,11 +331,11 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
                                 {/* Stock Section */}
                                 <div>
-                                    <h5 className="mb-3 text-sm font-semibold text-gray-900">Stock & Inventory</h5>
+                                    <h5 className="mb-3 text-sm font-semibold text-gray-900">{t('lbl_stock_inventory')}</h5>
                                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                                Quantity <span className="text-red-500">*</span>
+                                                {t('lbl_quantity_required')} <span className="text-red-500">*</span>
                                             </label>
                                             <input
                                                 type="number"
@@ -348,7 +348,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                                Unit <span className="text-red-500">*</span>
+                                                {t('lbl_unit_required')} <span className="text-red-500">*</span>
                                             </label>
                                             <select
                                                 value={stock.unit}
@@ -366,7 +366,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                         </div>
 
                                         <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">Low Stock Alert</label>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_low_stock_alert')}</label>
                                             <input
                                                 type="number"
                                                 value={stock.low_stock_quantity}
@@ -377,18 +377,18 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                         </div>
 
                                         <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">Batch Number</label>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_batch_number')}</label>
                                             <input
                                                 type="text"
                                                 value={stock.batch_no}
                                                 onChange={(e) => handleVariantChange(index, 'batch_no', e.target.value)}
-                                                placeholder="Optional"
+                                                placeholder={t('lbl_optional')}
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
 
                                         <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">Purchase Date</label>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_purchase_date')}</label>
                                             <input
                                                 type="date"
                                                 value={stock.purchase_date}
@@ -404,7 +404,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                     <h5 className="mb-3 text-sm font-semibold text-gray-900">Tax</h5>
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">Tax Rate (%)</label>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_tax_rate_percent')}</label>
                                             <input
                                                 type="number"
                                                 value={stock.tax_rate}
@@ -425,7 +425,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     onChange={(e) => handleVariantChange(index, 'tax_included', e.target.checked)}
                                                     className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
                                                 />
-                                                <span className="text-sm font-medium text-gray-700">Tax Included in Price</span>
+                                                <span className="text-sm font-medium text-gray-700">{t('lbl_tax_included_price')}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -433,7 +433,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
                                 {/* Images Section */}
                                 <div>
-                                    <h5 className="mb-3 text-sm font-semibold text-gray-900">Variant Images</h5>
+                                    <h5 className="mb-3 text-sm font-semibold text-gray-900">{t('lbl_variant_images')}</h5>
                                     <ImageUploading
                                         multiple
                                         value={stock.images}

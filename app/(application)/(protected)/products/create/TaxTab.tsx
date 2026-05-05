@@ -44,7 +44,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">%</span>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">Enter tax percentage (0-100)</p>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_tax_rate_hint')}</p>
                 </div>
 
                 {/* Tax Included */}
@@ -74,7 +74,7 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                             <span className="ml-2 text-sm text-gray-700">{t('lbl_tax')}</span>
                         </label>
                     </div>
-                    <p className="mt-2 text-xs text-gray-500">{formData.tax_included ? 'Price includes tax amount' : 'Tax will be added to the price'}</p>
+                    <p className="mt-2 text-xs text-gray-500">{formData.tax_included ? t('lbl_tax_inclusive_hint') : t('lbl_tax_exclusive_hint')}</p>
                 </div>
             </div>
 
@@ -85,12 +85,12 @@ const TaxTab: React.FC<TaxTabProps> = ({ formData, handleChange, setFormData, on
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-blue-800">
-                        <p className="mb-1 font-medium">Tax Configuration Tips:</p>
+                        <p className="mb-1 font-medium">{t('tax_config_tips_title')}</p>
                         <ul className="space-y-1 text-blue-700">
-                            <li>• Tax Exclusive: Tax will be added on top of the selling price</li>
-                            <li>• Tax Inclusive: Selling price already includes the tax amount</li>
-                            <li>• Standard tax rates vary by region (e.g., VAT, GST, Sales Tax)</li>
-                            <li>• Consult your local tax regulations for correct rates</li>
+                            <li>• {t('tax_tip_exclusive')}</li>
+                            <li>• {t('tax_tip_inclusive')}</li>
+                            <li>• {t('tax_tip_rates')}</li>
+                            <li>• {t('tax_tip_consult')}</li>
                         </ul>
                     </div>
                 </div>
