@@ -475,12 +475,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const checkReturnReasons = async () => {
         if (returnReasons.length === 0) {
             const result = await Swal.fire({
-                title: 'No Return Reasons Found',
-                text: 'Please configure return reasons in store settings first.',
+                title: t('pos_no_return_reasons_title'),
+                text: t('pos_no_return_reasons_text'),
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Go to Settings',
-                cancelButtonText: 'Cancel',
+                confirmButtonText: t('pos_go_to_settings'),
+                cancelButtonText: t('btn_cancel'),
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#d1d5db',
             });
@@ -951,7 +951,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     };
 
     const clearAllItems = async () => {
-        const isConfirmed = await showConfirmDialog('Are you sure?', 'Do you really want to clear all items?', 'Yes, Clear', 'Cancel');
+        const isConfirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('pos_clear_items_confirm'), t('pos_yes_clear'), t('btn_cancel'));
 
         if (isConfirmed && currentStoreId) {
             if (reduxSlice === 'orderReturn') {
@@ -1012,7 +1012,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         // Validation: Customer Check
         // If not walk-in and no customer selected/entered (checking customerId null and name/phone empty)
         if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerPhone.trim())) {
-            showMessage('Please select a Customer or choose Walk-in', 'error');
+            showMessage(t('pos_select_customer_or_walk_in'), 'error');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
@@ -1020,12 +1020,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         // Validation: Manual Customer Details - Name and Phone are required, email is optional
         if (formData.customerId !== 'walk-in' && !formData.customerId) {
             if (!formData.customerName.trim()) {
-                showMessage('Customer name is required', 'error');
+                showMessage(t('msg_customer_name_required'), 'error');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             if (!formData.customerPhone.trim()) {
-                showMessage('Customer phone number is required', 'error');
+                showMessage(t('msg_customer_phone_required'), 'error');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
@@ -1033,7 +1033,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             if (formData.customerEmail.trim()) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(formData.customerEmail)) {
-                    showMessage('Please enter a valid email address', 'error');
+                    showMessage(t('msg_valid_email_required'), 'error');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
@@ -1041,14 +1041,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         if (invoiceItems.length === 0) {
-            showMessage('At least one item is required', 'error');
+            showMessage(t('msg_at_least_one_item_required'), 'error');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
         const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
         if (invalidItems.length > 0) {
-            showMessage('Please select products and set quantities for all items', 'error');
+            showMessage(t('msg_select_products_set_quantities'), 'error');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
@@ -1058,14 +1058,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         // Validation: Cash Payment Amount Received
         if (formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
             if (!formData.amountPaid || formData.amountPaid <= 0) {
-                showMessage('Please enter the Amount Received', 'error');
+                showMessage(t('msg_enter_amount_received'), 'error');
                 // You might want to scroll to the specific section, but top is safe
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             // Optional: Check if amount is enough? usually 'paid' implies full payment
             if (formData.amountPaid < grandTotal) {
-                showMessage('Amount received is less than the total amount', 'error');
+                showMessage(t('msg_amount_received_less_total'), 'error');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
@@ -1074,12 +1074,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         // Validation for partial payment
         if (formData.paymentStatus === 'partial') {
             if (!formData.partialPaymentAmount || formData.partialPaymentAmount <= 0) {
-                showMessage('Please enter partial payment amount', 'error');
+                showMessage(t('msg_enter_partial_payment_amount'), 'error');
                 return;
             }
             if (formData.partialPaymentAmount >= grandTotal) {
                 // Use already calculated grandTotal
-                showMessage('Partial payment amount should be less than total. Use "Paid" status instead.', 'error');
+                showMessage(t('msg_partial_payment_less_than_total'), 'error');
                 return;
             }
         }
@@ -1174,7 +1174,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 orderData.customer_id = createdCustomer.data.id;
                 orderData.is_walk_in = false;
 
-                showMessage('Customer created successfully', 'success');
+                showMessage(t('msg_customer_created_success'), 'success');
             } catch (customerErr: any) {
                 console.error('Failed to create customer:', customerErr);
                 // If customer creation fails, still proceed with order but without customer ID
@@ -1183,7 +1183,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 orderData.customer_name = formData.customerName;
                 orderData.customer_number = formData.customerPhone;
                 orderData.customer_email = formData.customerEmail;
-                showMessage('Customer creation failed, proceeding with order', 'error');
+                showMessage(t('msg_customer_create_failed_order_continue'), 'error');
             }
         }
 
@@ -1195,7 +1195,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             refetch();
             setLoading(false);
-            showMessage('Order created successfully!', 'success');
+            showMessage(t('msg_order_created_success'), 'success');
 
             // Don't clear items yet - we need them for the preview to show variant/warranty data
             // They will be cleared when the preview is closed
@@ -1223,7 +1223,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         } catch (err: any) {
             setLoading(false);
 
-            let errorMessage = 'Failed to create order';
+            let errorMessage = t('msg_failed_create_order');
 
             if (err?.status === 422 && err?.data?.errors) {
                 errorMessage = Object.values(err.data.errors).flat().join('\n');
@@ -1252,13 +1252,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
         // Validate: Must have either exchange items OR return items (or both)
         if (invoiceItems.length === 0 && validReturnItems.length === 0) {
-            showMessage('Please add exchange items or select items to return', 'error');
+            showMessage(t('msg_add_exchange_or_return_items'), 'error');
             return;
         }
 
         // Validate that at least one item is being returned (only if no exchange items)
         if (invoiceItems.length === 0 && validReturnItems.length === 0) {
-            showMessage('Please reduce the quantity of the items you want to return.', 'error');
+            showMessage(t('msg_reduce_return_item_quantity'), 'error');
             return;
         }
 
@@ -1271,20 +1271,20 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (!reasonId) {
             // Show return reason selection modal ONLY if not already set
             const result = await Swal.fire({
-                title: 'Select Return Reason',
+                title: t('pos_select_return_reason'),
                 input: 'select',
                 inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
                     acc[reason.id] = reason.name;
                     return acc;
                 }, {}),
-                inputPlaceholder: 'Select a reason',
+                inputPlaceholder: t('pos_select_reason_placeholder'),
                 showCancelButton: true,
-                confirmButtonText: 'Submit Return',
+                confirmButtonText: t('btn_submit_return'),
                 confirmButtonColor: '#f59e0b',
                 cancelButtonColor: '#6b7280',
                 inputValidator: (value) => {
                     if (!value) {
-                        return 'Please select a return reason';
+                        return t('msg_select_return_reason');
                     }
                     return null;
                 },
@@ -1296,13 +1296,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             // Optional: ask for notes
             const notesResult = await Swal.fire({
-                title: 'Return Notes (Optional)',
+                title: t('pos_return_notes_optional'),
                 input: 'textarea',
-                inputPlaceholder: 'Add any additional notes...',
+                inputPlaceholder: t('pos_return_notes_placeholder'),
                 showCancelButton: true,
-                confirmButtonText: 'Complete Return',
+                confirmButtonText: t('pos_complete_return'),
                 confirmButtonColor: '#10b981',
-                cancelButtonText: 'Skip',
+                cancelButtonText: t('btn_skip'),
             });
 
             notes = notesResult.value || '';
@@ -1345,7 +1345,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             const response = await createOrderReturn(returnData).unwrap();
 
             setLoading(false);
-            showMessage('Return processed successfully!', 'success');
+            showMessage(t('msg_return_processed_success'), 'success');
 
             // Clear return session immediately to prevent API refetch
             if (currentStoreId) {
@@ -1356,7 +1356,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             router.push(`/orders?showReturn=${response.data.id}`);
         } catch (error: any) {
             console.error('Return error:', error);
-            const message = error?.data?.message || 'Failed to process return';
+            const message = error?.data?.message || t('msg_failed_process_return');
             showMessage(message, 'error');
             setLoading(false);
         }
@@ -1364,7 +1364,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const handlePreview = () => {
         if (invoiceItems.length === 0) {
-            showMessage('No items to preview', 'error');
+            showMessage(t('msg_no_items_to_preview'), 'error');
             return;
         }
         setShowPreview(true);

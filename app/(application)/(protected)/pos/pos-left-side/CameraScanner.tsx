@@ -3,6 +3,7 @@
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { Camera, X } from 'lucide-react';
 import React, { useCallback, useEffect, useId, useRef } from 'react';
+import { getTranslation } from '@/i18n';
 
 interface CameraScannerProps {
     /** Whether the scanner is visible / active */
@@ -29,10 +30,11 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
     onScan,
     autoClose = true,
     autoCloseDelay = 500,
-    title = 'Camera Scanner Active',
-    helperText = 'Point camera at barcode or QR code',
-    subHelperText = 'Scanner will automatically detect and add product to cart',
+    title,
+    helperText,
+    subHelperText,
 }) => {
+    const { t } = getTranslation();
     // Generate a unique ID so multiple scanners on the same page won't collide
     const reactId = useId();
     const readerId = `qr-reader-${reactId.replace(/:/g, '')}`;
@@ -179,19 +181,19 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
             } catch (err: any) {
                 console.error('❌ Camera start FAILED:', err);
 
-                let userMessage = 'Failed to start camera scanner.';
+                let userMessage = t('pos_camera_start_failed');
 
                 if (err.name === 'NotAllowedError' || err.message?.includes('permission')) {
-                    userMessage = 'Camera permission denied. Please allow camera access in browser settings.';
+                    userMessage = t('pos_camera_permission_denied');
                 } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
-                    userMessage = 'No camera found on this device.';
+                    userMessage = t('pos_camera_not_found');
                 } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
-                    userMessage = 'Camera is in use by another application. Please close other apps using the camera.';
+                    userMessage = t('pos_camera_in_use');
                 } else if (err.message) {
-                    userMessage = `Camera error: ${err.message}`;
+                    userMessage = `${t('pos_camera_error')}: ${err.message}`;
                 }
 
-                alert(`📷 ${userMessage}\n\nTry:\n• Allowing camera permission\n• Closing other camera apps\n• Refreshing the page\n• Using USB barcode scanner instead`);
+                alert(`📷 ${userMessage}\n\n${t('pos_camera_alert_try')}:\n• ${t('pos_camera_help_permission')}\n• ${t('pos_camera_help_close_apps')}\n• ${t('pos_camera_help_refresh')}\n• ${t('pos_camera_alert_usb')}`);
 
                 scannerRef.current = null;
                 isStartingRef.current = false;
@@ -232,7 +234,7 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                 <div className="flex items-center justify-between border-b bg-blue-500 px-4 py-3">
                     <div className="flex items-center gap-2 text-white">
                         <Camera className="h-5 w-5" />
-                        <span className="font-semibold">{title}</span>
+                        <span className="font-semibold">{title || t('pos_camera_title')}</span>
                         <span className="h-2 w-2 animate-pulse rounded-full bg-white"></span>
                     </div>
                     <button onClick={onClose} className="rounded-full p-1.5 text-white hover:bg-primary">
@@ -245,16 +247,16 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                 </div>
 
                 <div className="bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                    <p className="text-center font-medium">{helperText}</p>
-                    <p className="mt-1 text-center text-xs text-gray-500">{subHelperText}</p>
+                    <p className="text-center font-medium">{helperText || t('pos_camera_helper')}</p>
+                    <p className="mt-1 text-center text-xs text-gray-500">{subHelperText || t('pos_camera_sub_helper')}</p>
 
                     <div className="mt-3 border-t border-gray-200 pt-3">
-                        <p className="mb-2 text-xs font-semibold text-gray-600">📷 Camera not showing?</p>
+                        <p className="mb-2 text-xs font-semibold text-gray-600">📷 {t('pos_camera_help_title')}</p>
                         <ul className="space-y-1 text-xs text-gray-600">
-                            <li>• Allow camera permission when prompted</li>
-                            <li>• Check browser settings (🔒 icon in address bar)</li>
-                            <li>• Close other apps using camera</li>
-                            <li>• Refresh page after allowing permission</li>
+                            <li>• {t('pos_camera_help_permission')}</li>
+                            <li>• {t('pos_camera_help_settings')}</li>
+                            <li>• {t('pos_camera_help_close_apps')}</li>
+                            <li>• {t('pos_camera_help_refresh')}</li>
                         </ul>
                     </div>
                 </div>

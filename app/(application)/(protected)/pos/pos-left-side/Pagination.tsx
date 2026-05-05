@@ -55,7 +55,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                     disabled={currentPage === 1}
                     className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
                 >
-                    Prev
+                    {t('lbl_prev')}
                 </button>
 
                 {/* Mobile "Go To" - Centered Input */}
@@ -78,7 +78,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                     disabled={currentPage === totalPages}
                     className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
                 >
-                    Next
+                    {t('lbl_next')}
                 </button>
             </div>
 
@@ -86,7 +86,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
                     <p className="text-sm text-gray-700">
-                        Showing page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
+                        {t('lbl_showing_page')} <span className="font-medium">{currentPage}</span> {t('lbl_of')} <span className="font-medium">{totalPages}</span>
                     </p>
                 </div>
 
@@ -141,7 +141,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                                 name="page"
                                 id="page-desktop"
                                 className="block w-16 rounded-md border-0 py-1.5 pl-3 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                placeholder="Page"
+                                placeholder={t('lbl_page')}
                                 value={jumpPage}
                                 onChange={(e) => setJumpPage(e.target.value)}
                                 min={1}

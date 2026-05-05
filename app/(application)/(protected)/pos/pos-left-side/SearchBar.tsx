@@ -53,7 +53,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, barcodeEnabled, showC
                         autoFocus
                     />
                     {localSearch && (
-                        <button onClick={handleClear} className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 sm:right-14" title="Clear search">
+                        <button onClick={handleClear} className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 sm:right-14" title={t('btn_clear_search')}>
                             ✕
                         </button>
                     )}
@@ -62,7 +62,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, barcodeEnabled, showC
                 <button
                     onClick={handleSearchClick}
                     className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 sm:px-6 sm:py-3"
-                    title="Search"
+                    title={t('btn_search')}
                 >
                     <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>

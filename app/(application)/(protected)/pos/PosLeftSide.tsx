@@ -380,7 +380,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             // currentPage maintained
         },
-        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
+        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, t]
     );
 
     // Auto-add product when exact match found (for camera/barcode scans)
@@ -435,7 +435,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 .reduce((sum, item) => sum + item.quantity, 0);
 
             if (reduxSlice === 'pos' && currentQuantityInCart + quantity > parseFloat(variant.quantity)) {
-                showMessage('Cannot add more, stock limit reached for this variant!', 'error');
+                showMessage(t('pos_stock_limit_reached'), 'error');
                 return;
             }
 
@@ -480,7 +480,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
             // Dispatch to appropriate Redux slice with storeId
             if (!currentStoreId) {
-                showMessage('No store selected!', 'error');
+                showMessage(t('lbl_select_store'), 'error');
                 return;
             }
 
@@ -517,7 +517,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     break;
             }
 
-            showMessage('Item with variant added successfully!');
+            showMessage(t('msg_variant_added_success'));
 
             // Reset filters and search
             setSearchTerm('');
@@ -525,7 +525,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             // currentPage maintained
         },
-        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId]
+        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, t]
     );
 
     // Handle serial selection from modal
@@ -616,7 +616,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 beepRef.current.play().catch(() => {});
             }
 
-            showMessage(`${selectedSerials.length} item(s) with serial numbers added!`);
+            showMessage(t('msg_serial_items_added').replace('{count}', selectedSerials.length.toString()));
 
             // Reset filters and search
             setSearchTerm('');
@@ -629,7 +629,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSerialProduct(null);
             setSerialStock(null);
         },
-        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId]
+        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId, t]
     );
 
     const handleSearchChange = useCallback(
@@ -681,7 +681,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         setCurrentPage(1);
 
         // Show success toast
-        toast.success(`Scanned: ${data}`, {
+        toast.success(t('pos_scanned_value').replace('{value}', data), {
             duration: 2000,
             position: 'top-center',
             style: {
@@ -706,7 +706,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
         // Close scanner
         setShowCameraScanner(false);
-    }, []);
+    }, [t]);
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
@@ -805,7 +805,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     };
 
     if (isLoading) {
-        return <Loader message="Loading products..." />;
+        return <Loader message={t('pos_loading_products')} />;
     }
 
     // Use products directly from API (already filtered and paginated server-side)

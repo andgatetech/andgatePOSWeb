@@ -377,7 +377,7 @@ export default function Summary() {
             numericValue: cards.total_purchase?.value ?? 0,
             icon: ShoppingCart,
             bgGradient: 'bg-gradient-to-br from-[#6d5dfc] to-[#4338ca]',
-            route: '/reports/purchases',
+            route: '/reports/purchase',
         },
     ];
 
@@ -401,7 +401,7 @@ export default function Summary() {
             numericValue: cards.total_expenses?.value ?? 0,
             icon: Banknote,
             bgGradient: 'bg-gradient-to-br from-[#f43f5e] to-[#be123c]',
-            route: '/reports/expenses',
+            route: '/reports/expense',
             showMinus: true,
         },
         {

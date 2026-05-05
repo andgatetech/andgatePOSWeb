@@ -99,7 +99,7 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                     <input
                                         type="text"
                                         className="form-input h-12 pl-10 pr-10"
-                                        placeholder="Search by name, email, or phone..."
+                                        placeholder={t('placeholder_customer_search')}
                                         value={customerSearch}
                                         onChange={onSearchChange}
                                         onFocus={onFocusResults}
@@ -200,25 +200,25 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                         <div className="space-y-3 sm:space-y-4">
                             <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
                                 <label className="text-sm font-medium sm:w-1/3">
-                                    Name <span className="text-red-500">*</span>
+                                    {t('lbl_name')} <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="customerName"
                                     className="form-input w-full flex-1"
-                                    placeholder="Enter Name"
+                                    placeholder={t('placeholder_enter_name')}
                                     value={formData.customerName}
                                     onChange={onInputChange}
                                     disabled={!!selectedCustomer}
                                 />
                             </div>
                             <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                <label className="text-sm font-medium sm:w-1/3">Email (Optional)</label>
+                                <label className="text-sm font-medium sm:w-1/3">{t('lbl_email')} ({t('lbl_optional')})</label>
                                 <input
                                     type="email"
                                     name="customerEmail"
                                     className="form-input w-full flex-1"
-                                    placeholder="Enter Email"
+                                    placeholder={t('placeholder_enter_email')}
                                     value={formData.customerEmail}
                                     onChange={onInputChange}
                                     disabled={!!selectedCustomer}
@@ -226,13 +226,13 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                             </div>
                             <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
                                 <label className="text-sm font-medium sm:w-1/3">
-                                    Phone Number <span className="text-red-500">*</span>
+                                    {t('lbl_phone')} <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="customerPhone"
                                     className="form-input w-full flex-1"
-                                    placeholder="Enter Phone number"
+                                    placeholder={t('placeholder_enter_phone')}
                                     value={formData.customerPhone}
                                     onChange={onInputChange}
                                     disabled={!!selectedCustomer}

@@ -443,7 +443,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {/* Normal POS Mode - Total Payable */}
             {!isReturnMode && formData.paymentStatus === 'paid' && (
                 <div className="flex justify-between rounded-lg bg-gradient-to-r from-green-100 to-green-50 p-3 text-green-900 shadow-sm">
-                    <span className="text-lg font-bold">Total Payable Now</span>
+                    <span className="text-lg font-bold">{t('lbl_total_payable_now')}</span>
                     <span className="text-2xl font-black">{formatCurrency(totalPayable)}</span>
                 </div>
             )}
