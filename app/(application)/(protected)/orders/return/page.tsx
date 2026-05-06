@@ -99,8 +99,8 @@ const OrderReturnPage = () => {
             error && 'data' in error && error.data && typeof error.data === 'object' && 'message' in error.data
                 ? String(error.data.message)
                 : isOrderNotFound
-                ? 'This order no longer exists or has been fully returned'
-                : 'Failed to load order';
+                ? t('msg_order_missing_or_returned')
+                : t('msg_failed_load_order');
 
         return (
             <div className="flex min-h-screen items-center justify-center bg-gray-50">

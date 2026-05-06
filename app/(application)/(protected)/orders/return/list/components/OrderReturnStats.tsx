@@ -41,7 +41,7 @@ const OrderReturnStats: React.FC<OrderReturnStatsProps> = ({ totalReturns, total
         {
             title: t('lbl_total'),
             value: formatCurrency(Math.abs(netImpact)),
-            subtitle: netImpact > 0 ? 'Positive' : netImpact < 0 ? 'Negative' : 'Neutral',
+            subtitle: netImpact > 0 ? t('status_positive') : netImpact < 0 ? t('status_negative') : t('status_neutral'),
             color: netImpact > 0 ? 'green' : netImpact < 0 ? 'red' : 'gray',
             bgGradient: netImpact > 0 ? 'from-green-500 to-emerald-600' : netImpact < 0 ? 'from-red-500 to-rose-600' : 'from-gray-500 to-slate-600',
         },

@@ -53,7 +53,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 label: t('lbl_customer'),
                 render: (value, row) => (
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{row.is_walk_in ? 'Walk-in Customer' : value?.name || 'N/A'}</span>
+                        <span className="font-medium text-gray-900">{row.is_walk_in ? t('pos_walk_in_customer') : value?.name || t('lbl_na')}</span>
                         {!row.is_walk_in && value?.phone && <span className="text-xs text-gray-500">{value.phone}</span>}
                     </div>
                 ),
@@ -61,7 +61,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             {
                 key: 'store',
                 label: t('lbl_store'),
-                render: (value, row) => <span className="text-sm text-gray-700">{value?.name || row.store?.name || 'N/A'}</span>,
+                render: (value, row) => <span className="text-sm text-gray-700">{value?.name || row.store?.name || t('lbl_na')}</span>,
             },
             {
                 key: 'items_count',
@@ -70,7 +70,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                     const itemCount = value ?? row.items?.length ?? row.order_items?.length ?? 0;
                     return (
                         <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                            {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                            {t('msg_item_count', { count: itemCount })}
                         </span>
                     );
                 },
@@ -110,7 +110,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                         unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_unpaid') },
                         pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
                     };
-                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || 'Unknown' };
+                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || t('lbl_unknown') };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
                 },
             },
@@ -119,7 +119,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 label: t('lbl_payment_method'),
                 render: (value, row) => {
                     const method = row.payment?.method ?? row.payment_method ?? 'cash';
-                    return <span className="text-sm capitalize text-gray-700">{method === 'due' ? 'Due' : method}</span>;
+                    return <span className="text-sm capitalize text-gray-700">{method === 'due' ? t('lbl_due') : method}</span>;
                 },
             },
             {
@@ -152,7 +152,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                             <span className="font-semibold text-red-600">{formatCurrency(totalReturned)}</span>
                             {value?.count > 0 && (
                                 <span className="text-xs text-gray-500">
-                                    {value.count} return{value.count > 1 ? 's' : ''}
+                                    {t('msg_return_count', { count: value.count })}
                                 </span>
                             )}
                         </div>
@@ -179,14 +179,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                     return (
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
-                                <span className="w-12 text-[10px] font-bold uppercase text-emerald-600">Created:</span>
+                                <span className="w-12 text-[10px] font-bold uppercase text-emerald-600">{t('lbl_created')}:</span>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs font-medium text-gray-900">{created.date}</span>
                                     <span className="text-[10px] text-gray-500">{created.time}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="w-12 text-[10px] font-bold uppercase text-amber-600">Updated:</span>
+                                <span className="w-12 text-[10px] font-bold uppercase text-amber-600">{t('lbl_updated')}:</span>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs font-medium text-gray-900">{updated.date}</span>
                                     <span className="text-[10px] text-gray-500">{updated.time}</span>

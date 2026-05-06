@@ -134,16 +134,17 @@ const orderReturnSlice = createSlice({
             session.returnItems =
                 order.items?.map((item: any, index: number) => {
                     const productId = item.product?.id || item.product_id;
+                    const returnableQuantity = Number(item.returnable_quantity ?? item.quantity ?? 0);
                     return {
                         id: -(index + 1),
                         orderItemId: item.id,
                         productId: productId,
                         stockId: item.product_stock_id || undefined,
-                        title: item.product?.name || item.product_name,
+                        title: item.product?.name || item.product_name || item.snapshot?.product_name,
                         sku: item.sku || '',
                         variantName: item.variant_name || null,
                         rate: parseFloat(item.unit_price),
-                        originalQuantity: item.quantity,
+                        originalQuantity: returnableQuantity,
                         returnQuantity: 0, // Start with 0 return quantity
                         amount: 0,
                         unit: item.unit || 'Piece',

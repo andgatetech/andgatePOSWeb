@@ -55,6 +55,7 @@ interface PosInvoicePreviewProps {
 }
 
 const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) => {
+    const { t } = getTranslation();
     const { formatCurrency, currency } = useCurrency();
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
@@ -217,9 +218,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     // Format warranty duration
     const formatWarrantyDuration = (warranty: Warranty | null | undefined) => {
         if (!warranty) return null;
-        if (warranty.duration_months) return `${warranty.duration_months * 30} Day(s)`;
-        if (warranty.duration_days) return `${warranty.duration_days} Day(s)`;
-        return 'Product Life Time';
+        if (warranty.duration_months) return `${warranty.duration_months * 30} ${t('lbl_days')}`;
+        if (warranty.duration_days) return `${warranty.duration_days} ${t('lbl_days')}`;
+        return t('lbl_lifetime');
     };
 
     const getPaymentStatusColor = (status: string) => {
@@ -240,12 +241,21 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         return '#6b7280';
     };
 
+    const getPaymentStatusLabel = (status?: string) => {
+        const normalized = status?.toLowerCase() || 'pending';
+        if (normalized === 'paid') return t('status_paid');
+        if (normalized === 'partial') return t('status_partial');
+        if (normalized === 'due') return t('status_due');
+        if (normalized === 'pending') return t('status_pending');
+        return status || t('status_pending');
+    };
+
     const totalQty = invoiceItems.reduce((sum, item) => sum + item.quantity, 0);
 
     // Generate PDF using pdfmake
     const exportPDF = async () => {
         if (!pdfMake) {
-            alert('PDF library is still loading. Please try again in a moment.');
+            alert(t('msg_pdf_loading'));
             return;
         }
 
@@ -273,13 +283,13 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             // Company info
             headerContent.columns.push({
                 stack: [
-                    { text: currentStore?.store_name || 'Store Name', style: 'companyName' },
-                    { text: currentStore?.store_location || 'Store Address', style: 'companyInfo' },
+                    { text: currentStore?.store_name || 'andgatePOS', style: 'companyName' },
+                    { text: currentStore?.store_location || t('lbl_store_address'), style: 'companyInfo' },
                     {
                         text: [
                             currentStore?.store_email ? `${currentStore.store_email}` : '',
                             currentStore?.store_email && currentStore?.store_contact ? ' | ' : '',
-                            currentStore?.store_contact ? `Phone: ${currentStore.store_contact}` : '',
+                            currentStore?.store_contact ? `${t('lbl_phone')}: ${currentStore.store_contact}` : '',
                         ],
                         style: 'companyInfo',
                     },
@@ -298,7 +308,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             // Invoice title
             content.push({
-                text: isReturn ? 'RETURN RECEIPT' : 'INVOICE',
+                text: isReturn ? t('lbl_return_receipt').toUpperCase() : t('lbl_invoice').toUpperCase(),
                 style: 'invoiceTitle',
                 alignment: 'center',
                 margin: [0, 0, 0, 10],
@@ -308,14 +318,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             const detailsContent: any = {
                 columns: [
                     {
-                        stack: [{ text: [{ text: 'Invoice No.: ', bold: true }, invoice] }, { text: [{ text: 'Date: ', bold: true }, `${currentDate} ${currentTime}`] }],
+                        stack: [{ text: [{ text: `${t('lbl_invoice_no')}: `, bold: true }, invoice] }, { text: [{ text: `${t('lbl_date')}: `, bold: true }, `${currentDate} ${currentTime}`] }],
                         width: '50%',
                     },
                     {
                         stack: [
-                            { text: [{ text: 'To: ', bold: true }, customer.name || 'Walk-in Customer'] },
-                            customer.email ? { text: [{ text: 'Email: ', bold: true }, customer.email] } : {},
-                            customer.phone ? { text: [{ text: 'Contact: ', bold: true }, customer.phone] } : {},
+                            { text: [{ text: `${t('lbl_to')}: `, bold: true }, customer.name || t('pos_walk_in_customer')] },
+                            customer.email ? { text: [{ text: `${t('lbl_email')}: `, bold: true }, customer.email] } : {},
+                            customer.phone ? { text: [{ text: `${t('lbl_contact')}: `, bold: true }, customer.phone] } : {},
                         ],
                         width: '50%',
                     },
@@ -326,14 +336,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             };
 
             if (order_id) {
-                detailsContent.columns[0].stack.push({ text: [{ text: 'Order ID: ', bold: true }, `#${order_id}`] });
+                detailsContent.columns[0].stack.push({ text: [{ text: `${t('lbl_order_id')}: `, bold: true }, `#${order_id}`] });
             }
 
             detailsContent.columns[0].stack.push({
                 text: [
-                    { text: 'Order Status: ', bold: true },
+                    { text: `${t('lbl_order_status')}: `, bold: true },
                     {
-                        text: (displayPaymentStatus || 'Pending').charAt(0).toUpperCase() + (displayPaymentStatus || 'pending').slice(1),
+                        text: getPaymentStatusLabel(displayPaymentStatus),
                         color: getPaymentStatusColor(displayPaymentStatus || 'pending'),
                         bold: true,
                     },
@@ -341,12 +351,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             });
 
             detailsContent.columns[0].stack.push({
-                text: [{ text: 'Payment Method: ', bold: true }, displayPaymentMethod || 'Cash'],
+                text: [{ text: `${t('lbl_payment_method')}: `, bold: true }, displayPaymentMethod || t('lbl_cash')],
             });
 
             if (isReturn && original_order_id) {
                 detailsContent.columns[0].stack.push({
-                    text: [{ text: 'Original Order: ', bold: true }, `#${original_order_id}`],
+                    text: [{ text: `${t('lbl_original_order')}: `, bold: true }, `#${original_order_id}`],
                 });
             }
 
@@ -357,12 +367,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 const tableBody: any[] = [
                     [
                         { text: '#', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Product Name', style: 'tableHeader' },
-                        { text: 'Qty', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
-                        { text: 'Tax/VAT', style: 'tableHeader', alignment: 'right' },
-                        { text: 'Discount', style: 'tableHeader', alignment: 'right' },
-                        { text: 'Amount', style: 'tableHeader', alignment: 'right' },
+                        { text: t('lbl_product_name'), style: 'tableHeader' },
+                        { text: t('lbl_qty'), style: 'tableHeader', alignment: 'center' },
+                        { text: t('lbl_unit_price'), style: 'tableHeader', alignment: 'right' },
+                        { text: `${t('lbl_tax')}/VAT`, style: 'tableHeader', alignment: 'right' },
+                        { text: t('lbl_discount'), style: 'tableHeader', alignment: 'right' },
+                        { text: t('lbl_amount'), style: 'tableHeader', alignment: 'right' },
                     ],
                 ];
 
@@ -370,11 +380,11 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     const productName: any[] = [{ text: product.title, bold: true }];
 
                     if (product.variantName) {
-                        productName.push({ text: `\nVariant: ${product.variantName}`, fontSize: 8, color: '#4338ca' });
+                        productName.push({ text: `\n${t('lbl_variant')}: ${product.variantName}`, fontSize: 8, color: '#4338ca' });
                     }
 
                     if (product.warranty && formatWarrantyDuration(product.warranty)) {
-                        productName.push({ text: `\nWarranty: ${formatWarrantyDuration(product.warranty)}`, fontSize: 8, color: '#6b7280' });
+                        productName.push({ text: `\n${t('lbl_warranty')}: ${formatWarrantyDuration(product.warranty)}`, fontSize: 8, color: '#6b7280' });
                     }
 
                     if (product.serials && product.serials.length > 0) {
@@ -388,7 +398,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     tableBody.push([
                         { text: (index + 1).toString(), alignment: 'center' },
                         { stack: productName },
-                        { text: `${product.quantity.toFixed(2)} ${product.unit || 'Pcs'}`, alignment: 'center' },
+                        { text: `${product.quantity.toFixed(2)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
                         { text: formatCurrencyPDF(product.price), alignment: 'right' },
                         { text: product.tax_rate ? `${product.tax_rate}%` : '-', alignment: 'right' },
                         { text: formatCurrencyPDF(0), alignment: 'right' },
@@ -425,14 +435,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             } else {
                 // Return invoice tables (kept, returned, exchange)
                 if (keptItems.length > 0) {
-                    content.push({ text: 'ITEMS KEPT', style: 'sectionHeader', color: '#059669', margin: [0, 5, 0, 5] });
+                    content.push({ text: t('lbl_items_kept').toUpperCase(), style: 'sectionHeader', color: '#059669', margin: [0, 5, 0, 5] });
                     const keptTableBody: any[] = [
                         [
                             { text: '#', style: 'tableHeader', alignment: 'center' },
-                            { text: 'Product Name', style: 'tableHeader' },
-                            { text: 'Qty', style: 'tableHeader', alignment: 'center' },
-                            { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
-                            { text: 'Amount', style: 'tableHeader', alignment: 'right' },
+                            { text: t('lbl_product_name'), style: 'tableHeader' },
+                            { text: t('lbl_qty'), style: 'tableHeader', alignment: 'center' },
+                            { text: t('lbl_unit_price'), style: 'tableHeader', alignment: 'right' },
+                            { text: t('lbl_amount'), style: 'tableHeader', alignment: 'right' },
                         ],
                     ];
 
@@ -463,14 +473,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 }
 
                 if (returnedItems.length > 0) {
-                    content.push({ text: 'RETURNED ITEMS', style: 'sectionHeader', color: '#dc2626', margin: [0, 5, 0, 5] });
+                    content.push({ text: t('lbl_returned_items').toUpperCase(), style: 'sectionHeader', color: '#dc2626', margin: [0, 5, 0, 5] });
                     const returnedTableBody: any[] = [
                         [
                             { text: '#', style: 'tableHeader', alignment: 'center' },
-                            { text: 'Product Name', style: 'tableHeader' },
-                            { text: 'Qty', style: 'tableHeader', alignment: 'center' },
-                            { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
-                            { text: 'Refund', style: 'tableHeader', alignment: 'right' },
+                            { text: t('lbl_product_name'), style: 'tableHeader' },
+                            { text: t('lbl_qty'), style: 'tableHeader', alignment: 'center' },
+                            { text: t('lbl_unit_price'), style: 'tableHeader', alignment: 'right' },
+                            { text: t('lbl_refund'), style: 'tableHeader', alignment: 'right' },
                         ],
                     ];
 
@@ -501,14 +511,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 }
 
                 if (exchangeItems.length > 0) {
-                    content.push({ text: 'EXCHANGE ITEMS', style: 'sectionHeader', color: '#2563eb', margin: [0, 5, 0, 5] });
+                    content.push({ text: t('lbl_exchange_items').toUpperCase(), style: 'sectionHeader', color: '#2563eb', margin: [0, 5, 0, 5] });
                     const exchangeTableBody: any[] = [
                         [
                             { text: '#', style: 'tableHeader', alignment: 'center' },
-                            { text: 'Product Name', style: 'tableHeader' },
-                            { text: 'Qty', style: 'tableHeader', alignment: 'center' },
-                            { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
-                            { text: 'Amount', style: 'tableHeader', alignment: 'right' },
+                            { text: t('lbl_product_name'), style: 'tableHeader' },
+                            { text: t('lbl_qty'), style: 'tableHeader', alignment: 'center' },
+                            { text: t('lbl_unit_price'), style: 'tableHeader', alignment: 'right' },
+                            { text: t('lbl_amount'), style: 'tableHeader', alignment: 'right' },
                         ],
                     ];
 
@@ -544,43 +554,43 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             if (!isReturn) {
                 totalsContent.push([
-                    { text: 'Total Qty.', bold: true, border: [false, true, false, false] },
-                    { text: `${totalQty.toFixed(2)} ${invoiceItems[0]?.unit || 'Pcs'}`, alignment: 'right', border: [false, true, false, false] },
+                    { text: t('lbl_total_qty'), bold: true, border: [false, true, false, false] },
+                    { text: `${totalQty.toFixed(2)} ${invoiceItems[0]?.unit || t('lbl_pcs')}`, alignment: 'right', border: [false, true, false, false] },
                 ]);
                 totalsContent.push([
-                    { text: 'Subtotal', bold: true, border: [false, false, false, false] },
+                    { text: t('lbl_subtotal'), bold: true, border: [false, false, false, false] },
                     { text: formatCurrencyPDF(subtotal), alignment: 'right', border: [false, false, false, false] },
                 ]);
 
                 if (calculatedTax > 0) {
                     totalsContent.push([
-                        { text: 'Tax', bold: true, border: [false, false, false, false] },
+                        { text: t('lbl_tax'), bold: true, border: [false, false, false, false] },
                         { text: formatCurrencyPDF(calculatedTax), alignment: 'right', border: [false, false, false, false] },
                     ]);
                 }
 
                 if (calculatedDiscount > 0) {
                     totalsContent.push([
-                        { text: 'Discount', bold: true, border: [false, false, false, false], color: '#dc2626' },
+                        { text: t('lbl_discount'), bold: true, border: [false, false, false, false], color: '#dc2626' },
                         { text: `-${formatCurrencyPDF(calculatedDiscount)}`, alignment: 'right', border: [false, false, false, false], color: '#dc2626' },
                     ]);
                 }
 
                 totalsContent.push([
-                    { text: 'Grand Total', bold: true, fontSize: 11, fillColor: '#f3f4f6', border: [false, true, false, true] },
+                    { text: t('lbl_grand_total'), bold: true, fontSize: 11, fillColor: '#f3f4f6', border: [false, true, false, true] },
                     { text: formatCurrencyPDF(grandTotal), alignment: 'right', bold: true, fontSize: 11, fillColor: '#f3f4f6', border: [false, true, false, true] },
                 ]);
 
                 if ((displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountPaid > 0) {
                     totalsContent.push([
-                        { text: 'Amount Paid', bold: true, border: [false, false, false, false], color: '#059669' },
+                        { text: t('lbl_amount_paid'), bold: true, border: [false, false, false, false], color: '#059669' },
                         { text: formatCurrencyPDF(amountPaid), alignment: 'right', border: [false, false, false, false], color: '#059669' },
                     ]);
                 }
 
                 if ((displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0) {
                     totalsContent.push([
-                        { text: 'Total Due', bold: true, fontSize: 11, fillColor: '#fee2e2', border: [false, true, false, true], color: '#dc2626' },
+                        { text: t('lbl_total_due'), bold: true, fontSize: 11, fillColor: '#fee2e2', border: [false, true, false, true], color: '#dc2626' },
                         {
                             text: formatCurrencyPDF(amountDue),
                             alignment: 'right',
@@ -595,21 +605,21 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             } else {
                 if (exchangeTotal > 0) {
                     totalsContent.push([
-                        { text: 'Exchange Total', bold: true, border: [false, true, false, false] },
+                        { text: t('lbl_exchange_total'), bold: true, border: [false, true, false, false] },
                         { text: formatCurrencyPDF(exchangeTotal), alignment: 'right', border: [false, true, false, false] },
                     ]);
                 }
 
                 if (returnTotal > 0) {
                     totalsContent.push([
-                        { text: 'Return Credit', bold: true, border: [false, false, false, false], color: '#dc2626' },
+                        { text: t('lbl_return_credit'), bold: true, border: [false, false, false, false], color: '#dc2626' },
                         { text: `-${formatCurrencyPDF(returnTotal)}`, alignment: 'right', border: [false, false, false, false], color: '#dc2626' },
                     ]);
                 }
 
                 totalsContent.push([
                     {
-                        text: netTransaction >= 0 ? 'Net Payable' : 'Net Refund',
+                        text: netTransaction >= 0 ? t('lbl_net_payable') : t('lbl_net_refund'),
                         bold: true,
                         fontSize: 11,
                         fillColor: '#f3f4f6',
@@ -639,7 +649,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             // Amount in words
             content.push({
-                text: [{ text: 'In Word: ', bold: true }, numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal)],
+                text: [{ text: `${t('lbl_in_word')}: `, bold: true }, numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal)],
                 margin: [0, 5, 0, 15],
                 fontSize: 9,
             });
@@ -650,18 +660,18 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     {
                         stack: [
                             { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                            { text: 'Received By', alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
+                            { text: t('lbl_received_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
                         ],
                         width: '33.33%',
                     },
                     {
-                        stack: [{ canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] }, { text: 'Checked By', alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true }],
+                        stack: [{ canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] }, { text: t('lbl_checked_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true }],
                         width: '33.33%',
                     },
                     {
                         stack: [
                             { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                            { text: 'Authorized By', alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
+                            { text: t('lbl_authorized_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
                         ],
                         width: '33.33%',
                     },
@@ -674,8 +684,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             content.push({
                 stack: [
                     { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5 }], margin: [0, 0, 0, 5] },
-                    { text: `Print Date: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
-                    { text: `Powered by: AndgatePOS | ${invoice} | Page: 1 of 1`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+                    { text: `${t('lbl_print_date')}: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+                    { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: 1 of 1`, alignment: 'center', fontSize: 8, color: '#6b7280' },
                 ],
             });
 
@@ -716,7 +726,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             pdfMake.createPdf(docDefinition).download(`invoice-${invoice || 'preview'}.pdf`);
         } catch (error) {
-            alert('Failed to generate PDF. Please try again.');
+            alert(t('msg_pdf_generate_failed'));
         } finally {
             setIsPrinting(false);
         }
@@ -733,8 +743,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     // Generate receipt HTML for thermal printer
     const generateReceiptHTML = () => {
         const storeName = currentStore?.store_name || 'andgatePOS';
-        const storeLocation = currentStore?.store_location || 'Store Address';
-        const storeContact = currentStore?.store_contact || 'Contact';
+        const storeLocation = currentStore?.store_location || t('lbl_store_address');
+        const storeContact = currentStore?.store_contact || t('lbl_contact');
 
         let itemsHTML = '';
         invoiceItems.forEach((item: InvoiceItem, index: number) => {
@@ -745,14 +755,14 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             let serialInfo = '';
             if (item.has_serial && item.serials && item.serials.length > 0) {
-                serialInfo = `<div class="item-serial">S/N: ${item.serials[0].serial_number}</div>`;
+                serialInfo = `<div class="item-serial">${t('lbl_serial')}: ${item.serials[0].serial_number}</div>`;
             }
 
             let warrantyInfo = '';
             if (item.has_warranty && item.warranty) {
-                const duration = item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : 'Lifetime';
+                const duration = item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : t('lbl_lifetime');
                 const warrantyName = item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : '';
-                warrantyInfo = `<div class="item-warranty">Warranty: ${warrantyName}${duration}</div>`;
+                warrantyInfo = `<div class="item-warranty">${t('lbl_warranty')}: ${warrantyName}${duration}</div>`;
             }
 
             itemsHTML += `
@@ -772,7 +782,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Receipt - ${invoice}</title>
+    <title>${t('lbl_receipt')} - ${invoice}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -839,8 +849,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 </head>
 <body>
     <div class="print-toolbar">
-        <button class="print-btn" onclick="window.print()">🖨️ Print Receipt</button>
-        <button class="close-btn" onclick="window.close()">✕ Close</button>
+        <button class="print-btn" onclick="window.print()">🖨️ ${t('btn_print_receipt')}</button>
+        <button class="close-btn" onclick="window.close()">✕ ${t('btn_close')}</button>
     </div>
     <div class="receipt-container">
         <div class="center">
@@ -850,44 +860,44 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         </div>
         <div class="divider"></div>
         <div class="invoice-info">
-            <div><strong>Receipt:</strong> ${invoice}</div>
-            <div><strong>Date:</strong> ${currentDate} ${currentTime}</div>
-            ${order_id ? `<div><strong>Order:</strong> #${order_id}</div>` : ''}
-            ${customer.name ? `<div><strong>Customer:</strong> ${customer.name}</div>` : ''}
+            <div><strong>${t('lbl_receipt')}:</strong> ${invoice}</div>
+            <div><strong>${t('lbl_date')}:</strong> ${currentDate} ${currentTime}</div>
+            ${order_id ? `<div><strong>${t('lbl_order')}:</strong> #${order_id}</div>` : ''}
+            ${customer.name ? `<div><strong>${t('lbl_customer')}:</strong> ${customer.name}</div>` : ''}
         </div>
         <div class="divider"></div>
         <div class="items-header">
             <div class="item-row">
-                <div class="item-name">ITEM</div>
-                <div class="item-qty">QTY</div>
-                <div class="item-price">AMOUNT</div>
+                <div class="item-name">${t('lbl_item').toUpperCase()}</div>
+                <div class="item-qty">${t('lbl_qty').toUpperCase()}</div>
+                <div class="item-price">${t('lbl_amount').toUpperCase()}</div>
             </div>
         </div>
         ${itemsHTML}
         <div class="totals-section">
             <div class="total-row">
-                <div>Subtotal:</div>
+                <div>${t('lbl_subtotal')}:</div>
                 <div>${formatCurrency(subtotal)}</div>
             </div>
-            ${calculatedTax > 0 ? `<div class="total-row"><div>Tax:</div><div>${formatCurrency(calculatedTax)}</div></div>` : ''}
-            ${calculatedDiscount > 0 ? `<div class="total-row"><div>Discount:</div><div>-${formatCurrency(calculatedDiscount)}</div></div>` : ''}
+            ${calculatedTax > 0 ? `<div class="total-row"><div>${t('lbl_tax')}:</div><div>${formatCurrency(calculatedTax)}</div></div>` : ''}
+            ${calculatedDiscount > 0 ? `<div class="total-row"><div>${t('lbl_discount')}:</div><div>-${formatCurrency(calculatedDiscount)}</div></div>` : ''}
             <div class="total-row grand-total">
-                <div>TOTAL:</div>
+                <div>${t('lbl_total').toUpperCase()}:</div>
                 <div>${formatCurrency(grandTotal)}</div>
             </div>
-            ${amountPaid > 0 ? `<div class="total-row"><div>Amount Paid:</div><div>${formatCurrency(amountPaid)}</div></div>` : ''}
-            ${amountDue > 0 ? `<div class="total-row" style="color: #dc2626;"><div>Amount Due:</div><div>${formatCurrency(amountDue)}</div></div>` : ''}
+            ${amountPaid > 0 ? `<div class="total-row"><div>${t('lbl_amount_paid')}:</div><div>${formatCurrency(amountPaid)}</div></div>` : ''}
+            ${amountDue > 0 ? `<div class="total-row" style="color: #dc2626;"><div>${t('lbl_amount_due')}:</div><div>${formatCurrency(amountDue)}</div></div>` : ''}
         </div>
         <div class="divider"></div>
         <div class="center">
-            <div><strong>Payment Method:</strong> ${displayPaymentMethod || 'Cash'}</div>
-            <div><strong>Status:</strong> ${displayPaymentStatus || 'Pending'}</div>
+            <div><strong>${t('lbl_payment_method')}:</strong> ${displayPaymentMethod || t('lbl_cash')}</div>
+            <div><strong>${t('lbl_status')}:</strong> ${displayPaymentStatus || t('status_pending')}</div>
         </div>
         <div class="divider"></div>
         <div class="footer center">
-            <div class="thank-you">THANK YOU!</div>
-            <div>Please come again</div>
-            <div style="margin-top: 2mm; font-size: 9px;">Powered by: AndgatePOS</div>
+            <div class="thank-you">${t('msg_thank_you').toUpperCase()}</div>
+            <div>${t('msg_please_come_again')}</div>
+            <div style="margin-top: 2mm; font-size: 9px;">${t('lbl_powered_by')}: AndgatePOS</div>
         </div>
     </div>
 </body>
@@ -905,7 +915,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             const printWindow = window.open(blobUrl, '_blank');
 
             if (!printWindow) {
-                alert('Please allow popups to print receipts.');
+                alert(t('msg_allow_popups_print_receipts'));
                 URL.revokeObjectURL(blobUrl);
                 setIsPrinting(false);
                 return;
@@ -916,7 +926,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 setIsPrinting(false);
             }, 2000);
         } catch (error) {
-            alert('Failed to open print window. Please try again.');
+            alert(t('msg_print_window_failed'));
             setIsPrinting(false);
         }
     };
@@ -935,7 +945,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            Close
+                            {t('btn_close')}
                         </button>
                     </div>
                 )}
@@ -948,8 +958,8 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div>
-                                <p className="text-lg font-semibold">Order Created Successfully!</p>
-                                <p className="text-sm text-green-700">Your order has been processed and saved.</p>
+                                <p className="text-lg font-semibold">{t('msg_order_created_successfully')}</p>
+                                <p className="text-sm text-green-700">{t('msg_order_processed_saved')}</p>
                             </div>
                         </div>
                     </div>
@@ -973,7 +983,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                 />
                             </svg>
-                            <span className="relative z-10">Print Preview</span>
+                            <span className="relative z-10">{t('btn_print_preview')}</span>
                         </button>
                         <button
                             onClick={handlePrint}
@@ -989,7 +999,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                                 />
                             </svg>
-                            <span className="relative z-10">Print Invoice</span>
+                            <span className="relative z-10">{t('btn_print_invoice')}</span>
                         </button>
                         <button
                             onClick={printReceipt}
@@ -1005,7 +1015,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                 />
                             </svg>
-                            <span className="relative z-10">{isPrinting ? 'Opening...' : 'Print Receipt'}</span>
+                            <span className="relative z-10">{isPrinting ? t('status_opening') : t('btn_print_receipt')}</span>
                         </button>
                         <button
                             onClick={exportPDF}
@@ -1021,7 +1031,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                 />
                             </svg>
-                            <span className="relative z-10">{isPrinting ? 'Generating...' : !pdfMake ? 'Loading...' : 'Download PDF'}</span>
+                            <span className="relative z-10">{isPrinting ? t('status_generating') : !pdfMake ? t('status_loading') : t('btn_download_pdf')}</span>
                         </button>
                     </div>
                 </div>
@@ -1036,7 +1046,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 <div className="flex-shrink-0">
                                     <Image
                                         src={logoDataUrl}
-                                        alt="Company Logo"
+                                        alt={t('lbl_company_logo')}
                                         width={96}
                                         height={96}
                                         className="object-contain"
@@ -1055,7 +1065,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                                 ? currentStore.logo_path
                                                 : `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${currentStore.logo_path.startsWith('/') ? '' : '/storage/'}${currentStore.logo_path}`
                                         }
-                                        alt="Company Logo"
+                                        alt={t('lbl_company_logo')}
                                         width={96}
                                         height={96}
                                         className="object-contain"
@@ -1069,12 +1079,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
                             {/* Company Info */}
                             <div className="flex-grow">
-                                <h1 className="text-2xl font-bold text-gray-800">{currentStore?.store_name || 'Store Name'}</h1>
-                                <p className="mt-1 text-sm text-gray-600">{currentStore?.store_location || 'Store Address'}</p>
+                                <h1 className="text-2xl font-bold text-gray-800">{currentStore?.store_name || 'andgatePOS'}</h1>
+                                <p className="mt-1 text-sm text-gray-600">{currentStore?.store_location || t('lbl_store_address')}</p>
                                 <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
                                     {currentStore?.store_email && <span>{currentStore.store_email}</span>}
                                     {currentStore?.store_email && currentStore?.store_contact && <span>|</span>}
-                                    {currentStore?.store_contact && <span>Phone: {currentStore.store_contact}</span>}
+                                    {currentStore?.store_contact && <span>{t('lbl_phone')}: {currentStore.store_contact}</span>}
                                 </div>
                             </div>
                         </div>
@@ -1082,7 +1092,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
                     {/* Invoice Title */}
                     <div className="mb-4 text-center">
-                        <h2 className="text-2xl font-bold text-gray-800">{isReturn ? 'Return Receipt' : 'Invoice'}</h2>
+                        <h2 className="text-2xl font-bold text-gray-800">{isReturn ? t('lbl_return_receipt') : t('lbl_invoice')}</h2>
                     </div>
 
                     {/* Invoice Details and Customer Info */}
@@ -1090,28 +1100,28 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                         {/* Left Side - Invoice Details */}
                         <div className="space-y-1 text-sm">
                             <p>
-                                <strong>Invoice No.:</strong> {invoice}
+                                <strong>{t('lbl_invoice_no')}:</strong> {invoice}
                             </p>
                             <p>
-                                <strong>Date:</strong> {currentDate} {currentTime}
+                                <strong>{t('lbl_date')}:</strong> {currentDate} {currentTime}
                             </p>
                             {order_id && (
                                 <p>
-                                    <strong>Order ID:</strong> #{order_id}
+                                    <strong>{t('lbl_order_id')}:</strong> #{order_id}
                                 </p>
                             )}
                             <p>
-                                <strong>Order Status:</strong>{' '}
+                                <strong>{t('lbl_order_status')}:</strong>{' '}
                                 <span className={`font-semibold`} style={{ color: getPaymentStatusColor(displayPaymentStatus || 'pending') }}>
-                                    {(displayPaymentStatus || 'Pending').charAt(0).toUpperCase() + (displayPaymentStatus || 'pending').slice(1)}
+                                    {getPaymentStatusLabel(displayPaymentStatus)}
                                 </span>
                             </p>
                             <p>
-                                <strong>Payment Method:</strong> {displayPaymentMethod || 'Cash'}
+                                <strong>{t('lbl_payment_method')}:</strong> {displayPaymentMethod || t('lbl_cash')}
                             </p>
                             {isReturn && original_order_id && (
                                 <p>
-                                    <strong>Original Order:</strong> #{original_order_id}
+                                    <strong>{t('lbl_original_order')}:</strong> #{original_order_id}
                                 </p>
                             )}
                         </div>
@@ -1119,21 +1129,21 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                         {/* Right Side - Customer Details */}
                         <div className="space-y-1 text-sm">
                             <p>
-                                <strong>To:</strong> {customer.name || 'Walk-in Customer'}
+                                <strong>{t('lbl_to')}:</strong> {customer.name || t('pos_walk_in_customer')}
                             </p>
                             {customer.email && (
                                 <p>
-                                    <strong>Email:</strong> {customer.email}
+                                    <strong>{t('lbl_email')}:</strong> {customer.email}
                                 </p>
                             )}
                             {customer.phone && (
                                 <p>
-                                    <strong>Contact No.:</strong> {customer.phone}
+                                    <strong>{t('lbl_contact_no')}:</strong> {customer.phone}
                                 </p>
                             )}
                             {customer.membership && customer.membership.toLowerCase() !== 'normal' && (
                                 <p>
-                                    <strong>Membership:</strong> <span className="capitalize">{customer.membership}</span>
+                                    <strong>{t('lbl_membership')}:</strong> <span className="capitalize">{customer.membership}</span>
                                 </p>
                             )}
                         </div>
@@ -1146,12 +1156,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 <thead>
                                     <tr className="bg-gray-200">
                                         <th className="w-12 border border-gray-300 px-2 py-2 text-left">#</th>
-                                        <th className="border border-gray-300 px-2 py-2 text-left">Product Name</th>
-                                        <th className="w-16 border border-gray-300 px-2 py-2 text-center">Qty</th>
-                                        <th className="w-24 border border-gray-300 px-2 py-2 text-right">Unit Price</th>
-                                        <th className="w-20 border border-gray-300 px-2 py-2 text-right">Tax/VAT</th>
-                                        <th className="w-20 border border-gray-300 px-2 py-2 text-right">Disc.</th>
-                                        <th className="w-28 border border-gray-300 px-2 py-2 text-right">Amount</th>
+                                        <th className="border border-gray-300 px-2 py-2 text-left">{t('lbl_product_name')}</th>
+                                        <th className="w-16 border border-gray-300 px-2 py-2 text-center">{t('lbl_qty')}</th>
+                                        <th className="w-24 border border-gray-300 px-2 py-2 text-right">{t('lbl_unit_price')}</th>
+                                        <th className="w-20 border border-gray-300 px-2 py-2 text-right">{t('lbl_tax')}/VAT</th>
+                                        <th className="w-20 border border-gray-300 px-2 py-2 text-right">{t('lbl_disc')}</th>
+                                        <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_amount')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1163,12 +1173,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                                     <p className="font-medium">{product.title}</p>
                                                     {product.variantName && (
                                                         <p className="mt-1 text-xs text-blue-600">
-                                                            <strong>Variant:</strong> {product.variantName}
+                                                            <strong>{t('lbl_variant')}:</strong> {product.variantName}
                                                         </p>
                                                     )}
                                                     {product.warranty && formatWarrantyDuration(product.warranty) && (
                                                         <p className="mt-1 text-xs text-gray-600">
-                                                            <strong>Warranty:</strong> {formatWarrantyDuration(product.warranty)}
+                                                            <strong>{t('lbl_warranty')}:</strong> {formatWarrantyDuration(product.warranty)}
                                                         </p>
                                                     )}
                                                     {product.serials && product.serials.length > 0 && (
@@ -1177,7 +1187,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                                 </div>
                                             </td>
                                             <td className="border border-gray-300 px-2 py-2 text-center align-top">
-                                                {product.quantity.toFixed(2)} {product.unit || 'Pcs'}
+                                                {product.quantity.toFixed(2)} {product.unit || t('lbl_pcs')}
                                             </td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top">{formatCurrency(product.price)}</td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top">{product.tax_rate ? `${product.tax_rate}%` : '-'}</td>
@@ -1202,22 +1212,22 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 <>
                                     <div className="flex justify-between border-b border-gray-300 py-1">
                                         <span>
-                                            <strong>Total Qty.</strong>
+                                            <strong>{t('lbl_total_qty')}</strong>
                                         </span>
                                         <span>
-                                            {totalQty.toFixed(2)} {invoiceItems[0]?.unit || 'Pcs'}
+                                            {totalQty.toFixed(2)} {invoiceItems[0]?.unit || t('lbl_pcs')}
                                         </span>
                                     </div>
                                     <div className="flex justify-between border-b border-gray-300 py-1">
                                         <span>
-                                            <strong>Subtotal</strong>
+                                            <strong>{t('lbl_subtotal')}</strong>
                                         </span>
                                         <span>{formatCurrency(subtotal)}</span>
                                     </div>
                                     {calculatedTax > 0 && (
                                         <div className="flex justify-between border-b border-gray-300 py-1">
                                             <span>
-                                                <strong>Tax</strong>
+                                                <strong>{t('lbl_tax')}</strong>
                                             </span>
                                             <span>{formatCurrency(calculatedTax)}</span>
                                         </div>
@@ -1225,26 +1235,26 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     {calculatedDiscount > 0 && (
                                         <div className="flex justify-between border-b border-gray-300 py-1 text-red-600">
                                             <span>
-                                                <strong>Discount</strong>
+                                                <strong>{t('lbl_discount')}</strong>
                                             </span>
                                             <span>-{formatCurrency(calculatedDiscount)}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between bg-gray-100 px-2 py-2 text-base font-bold">
-                                        <span>Grand Total</span>
+                                        <span>{t('lbl_grand_total')}</span>
                                         <span>{formatCurrency(grandTotal)}</span>
                                     </div>
                                     {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountPaid > 0 && (
                                         <div className="flex justify-between border-b border-gray-300 py-1 text-green-600">
                                             <span>
-                                                <strong>Amount Paid</strong>
+                                                <strong>{t('lbl_amount_paid')}</strong>
                                             </span>
                                             <span>{formatCurrency(amountPaid)}</span>
                                         </div>
                                     )}
                                     {(displayPaymentStatus?.toLowerCase() === 'partial' || displayPaymentStatus?.toLowerCase() === 'due') && amountDue > 0 && (
                                         <div className="flex justify-between bg-red-50 px-2 py-2 text-base font-bold text-red-600">
-                                            <span>Total Due</span>
+                                            <span>{t('lbl_total_due')}</span>
                                             <span>{formatCurrency(amountDue)}</span>
                                         </div>
                                     )}
@@ -1254,7 +1264,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     {exchangeTotal > 0 && (
                                         <div className="flex justify-between border-b border-gray-300 py-1">
                                             <span>
-                                                <strong>Exchange Total</strong>
+                                                <strong>{t('lbl_exchange_total')}</strong>
                                             </span>
                                             <span>{formatCurrency(exchangeTotal)}</span>
                                         </div>
@@ -1262,13 +1272,13 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                     {returnTotal > 0 && (
                                         <div className="flex justify-between border-b border-gray-300 py-1 text-red-600">
                                             <span>
-                                                <strong>Return Credit</strong>
+                                                <strong>{t('lbl_return_credit')}</strong>
                                             </span>
                                             <span>-{formatCurrency(returnTotal)}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between bg-gray-100 px-2 py-2 text-base font-bold">
-                                        <span>{netTransaction >= 0 ? 'Net Payable' : 'Net Refund'}</span>
+                                        <span>{netTransaction >= 0 ? t('lbl_net_payable') : t('lbl_net_refund')}</span>
                                         <span className={netTransaction >= 0 ? 'text-green-600' : 'text-red-600'}>{formatCurrency(Math.abs(netTransaction))}</span>
                                     </div>
                                 </>
@@ -1279,29 +1289,29 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     {/* Amount in Words */}
                     <div className="mb-4 text-sm">
                         <p>
-                            <strong>In Word:</strong> {numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal)}
+                            <strong>{t('lbl_in_word')}:</strong> {numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal)}
                         </p>
                     </div>
 
                     {/* Signature Section */}
                     <div className="mb-6 grid grid-cols-3 gap-4 pt-8">
                         <div className="border-t border-gray-400 pt-2 text-center">
-                            <p className="text-sm font-semibold">Received By</p>
+                            <p className="text-sm font-semibold">{t('lbl_received_by')}</p>
                         </div>
                         <div className="border-t border-gray-400 pt-2 text-center">
-                            <p className="text-sm font-semibold">Checked By</p>
+                            <p className="text-sm font-semibold">{t('lbl_checked_by')}</p>
                         </div>
                         <div className="border-t border-gray-400 pt-2 text-center">
-                            <p className="text-sm font-semibold">Authorized By</p>
+                            <p className="text-sm font-semibold">{t('lbl_authorized_by')}</p>
                         </div>
                     </div>
 
                     {/* Footer */}
                     <div className="border-t border-gray-300 pt-2 text-center text-xs text-gray-500">
                         <p>
-                            Print Date: {currentDate} {currentTime}
+                            {t('lbl_print_date')}: {currentDate} {currentTime}
                         </p>
-                        <p>Powered by: AndgatePOS | {invoice} | Page: 1 of 1</p>
+                        <p>{t('lbl_powered_by')}: AndgatePOS | {invoice} | {t('lbl_page')}: 1 of 1</p>
                     </div>
                 </div>
             </div>

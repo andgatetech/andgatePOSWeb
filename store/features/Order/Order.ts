@@ -11,6 +11,14 @@ const OrderApi = baseApi.injectEndpoints({
             invalidatesTags: [{ type: 'Customers', id: 'LIST' }, 'Orders', 'Products', 'Transactions'],
         }),
 
+        quoteOrder: builder.mutation({
+            query: (cart: any) => ({
+                url: '/orders/quote',
+                method: 'POST',
+                body: cart,
+            }),
+        }),
+
         getAllOrders: builder.query({
             query: (filters = {}) => ({
                 url: '/orders',
@@ -68,6 +76,7 @@ const OrderApi = baseApi.injectEndpoints({
 
 export const {
     useCreateOrderMutation,
+    useQuoteOrderMutation,
     useGetAllOrdersQuery,
     useGetOrderByIdQuery,
     useLazyGetOrderByIdQuery,

@@ -665,10 +665,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     console.log('✅ handleBarcodeScan completed successfully');
                 }
             } catch (err: any) {
-                alert(`Scan Handler Error: ${err.message}\n\nPlease refresh the page`);
+                alert(`${t('msg_scan_handler_error')}: ${err.message}\n\n${t('msg_refresh_page')}`);
             }
         },
-        [handleSearchChange]
+        [handleSearchChange, t]
     );
 
     // Camera scan handler — simple like SKU tab: just fill search field and show toast

@@ -101,9 +101,9 @@ const OrderEditPage = () => {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-red-600">Invalid Order ID</h1>
+                    <h1 className="text-2xl font-bold text-red-600">{t('msg_invalid_order_id')}</h1>
                     <Link href="/orders" className="mt-4 inline-block text-blue-600 hover:underline">
-                        ← Back to Orders
+                        {t('btn_back_to_orders')}
                     </Link>
                 </div>
             </div>
@@ -118,10 +118,10 @@ const OrderEditPage = () => {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-red-600">Failed to load order</h1>
-                    <p className="mt-2 text-gray-600">Please try again later</p>
+                    <h1 className="text-2xl font-bold text-red-600">{t('msg_failed_load_order')}</h1>
+                    <p className="mt-2 text-gray-600">{t('msg_try_again_later')}</p>
                     <Link href="/orders" className="mt-4 inline-block rounded-lg bg-primary px-6 py-2 text-white hover:bg-primary/90">
-                        ← Back to Orders
+                        {t('btn_back_to_orders')}
                     </Link>
                 </div>
             </div>

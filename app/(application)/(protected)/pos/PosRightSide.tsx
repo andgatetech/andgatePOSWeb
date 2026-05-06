@@ -6,7 +6,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { useCreateOrderMutation, useCreateOrderReturnMutation } from '@/store/features/Order/Order';
+import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation } from '@/store/features/Order/Order';
 import {
     clearReturnSession,
     removeExchangeItem,
@@ -35,7 +35,7 @@ import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 
 const DEFAULT_PAYMENT_METHOD = {
     id: 0,
-    payment_method_name: 'Cash',
+    payment_method_name: 'cash',
 };
 
 export interface PosRightSideProps {
@@ -94,8 +94,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return [];
     }, [isReturnMode, returnItemsData]);
 
-    const userId = useSelector((state: RootState) => state.auth.user?.id);
-
     const searchInputRef = useRef<HTMLDivElement | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -106,6 +104,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [orderResponse, setOrderResponse] = useState<any>(null);
     const [showPreview, setShowPreview] = useState(false);
     const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
+    const [quotePreview, setQuotePreview] = useState<any>(null);
 
     const [formData, setFormData] = useState<PosFormData>({
         customerId: null,
@@ -131,6 +130,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const showManualCustomerForm = isManualCustomerEntry || !!selectedCustomer;
 
     const [createOrder] = useCreateOrderMutation();
+    const [quoteOrder] = useQuoteOrderMutation();
     const [createOrderReturn] = useCreateOrderReturnMutation();
     const [createCustomer] = useCreateCustomerMutation();
     const [loading, setLoading] = useState(false);
@@ -274,6 +274,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         const key = (membership || 'normal').toLowerCase() as keyof typeof MEMBERSHIP_DISCOUNTS;
         return MEMBERSHIP_DISCOUNTS[key] ?? 0;
     };
+
+    const getDisplayUnit = (unit?: string) => (unit && unit.toLowerCase() !== 'piece' ? unit : t('lbl_piece'));
 
     // Use payment methods from Redux (loaded during login) - no API call needed
     const paymentMethodOptions = useMemo<any[]>(() => {
@@ -601,8 +603,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         console.log('🔄 Toggle wholesale:', {
             itemId,
             title: item.title,
-            currentMode: item.isWholesale ? 'Wholesale' : 'Retail',
-            newMode: newIsWholesale ? 'Wholesale' : 'Retail',
+            currentMode: item.isWholesale ? t('lbl_wholesale') : t('lbl_retail'),
+            newMode: newIsWholesale ? t('lbl_wholesale') : t('lbl_retail'),
             regularPrice: item.regularPrice,
             wholesalePrice: item.wholesalePrice,
             currentRate: item.rate,
@@ -898,17 +900,15 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const calculateBaseTotal = () => calculateSubtotalWithoutTax() + calculateTax() - calculateDiscount() - calculateMembershipDiscount();
 
     const calculatePointsDiscount = () => {
-        if (!formData.usePoints || !selectedCustomer) return 0;
-        return Math.min(formData.pointsToUse * 0.01, calculateBaseTotal());
+        return 0;
     };
 
     const calculateBalanceDiscount = () => {
-        if (!formData.useBalance || !selectedCustomer) return 0;
-        return Math.min(formData.balanceToUse, calculateBaseTotal() - calculatePointsDiscount());
+        return 0;
     };
 
     const calculateTotal = () => {
-        return Math.max(0, calculateBaseTotal() - calculatePointsDiscount() - calculateBalanceDiscount());
+        return Math.max(0, calculateBaseTotal());
     };
 
     useEffect(() => {
@@ -1107,12 +1107,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         const orderData: any = {
-            user_id: userId,
             store_id: currentStoreId,
             payment_method: formData.paymentMethod,
             payment_status: formData.paymentStatus,
             tax: calculateTax(),
-            discount: Number(formData.discount || 0) + (formData.usePoints ? calculatePointsDiscount() : 0) + (formData.useBalance ? calculateBalanceDiscount() : 0),
+            discount: calculateDiscount() + calculateMembershipDiscount(),
             total: calculateSubtotalWithoutTax(),
             grand_total: grandTotal,
             amount_paid: actualAmountPaid,
@@ -1190,6 +1189,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         try {
             setLoading(true);
             const response = await createOrder(orderData).unwrap();
+            setQuotePreview(null);
             setOrderResponse(response);
             setShowPreview(true);
 
@@ -1356,18 +1356,57 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             router.push(`/orders?showReturn=${response.data.id}`);
         } catch (error: any) {
             console.error('Return error:', error);
-            const message = error?.data?.message || t('msg_failed_process_return');
+            const message =
+                error?.status === 422 && error?.data?.errors
+                    ? Object.values(error.data.errors).flat().join('\n')
+                    : error?.data?.message || error?.data?.error || error?.error || t('msg_failed_process_return');
             showMessage(message, 'error');
             setLoading(false);
         }
     };
 
-    const handlePreview = () => {
+    const handlePreview = async () => {
         if (invoiceItems.length === 0) {
             showMessage(t('msg_no_items_to_preview'), 'error');
             return;
         }
-        setShowPreview(true);
+
+        if (isReturnMode) {
+            setShowPreview(true);
+            return;
+        }
+
+        const quotePayload = {
+            store_id: currentStoreId,
+            payment_method: formData.paymentMethod,
+            payment_status: formData.paymentStatus,
+            discount: calculateDiscount() + calculateMembershipDiscount(),
+            amount_paid: formData.paymentStatus === 'paid' ? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : calculateTotal()) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0,
+            items: invoiceItems.map((item) => ({
+                product_id: item.productId,
+                stock_id: item.stockId,
+                quantity: item.quantity,
+                unit_price: item.rate,
+                unit: item.unit || 'piece',
+                discount: 0,
+            })),
+        };
+
+        try {
+            setLoading(true);
+            const response = await quoteOrder(quotePayload).unwrap();
+            setQuotePreview(response.data || response);
+            setOrderResponse(null);
+            setShowPreview(true);
+        } catch (err: any) {
+            const message =
+                err?.status === 422 && err?.data?.errors
+                    ? Object.values(err.data.errors).flat().join('\n')
+                    : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
+            showMessage(message, 'error');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleBackToEdit = () => {
@@ -1411,6 +1450,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         setOrderResponse(null);
+        setQuotePreview(null);
     };
 
     const getPreviewData = () => {
@@ -1440,11 +1480,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     .filter((item: any) => item.originalQuantity - item.returnQuantity > 0)
                     .map((item: any, idx: number) => ({
                         id: idx + 1,
-                        title: item.title || 'Unknown Item',
+                        title: item.title || t('lbl_unknown_item'),
                         quantity: item.originalQuantity - item.returnQuantity, // Items kept
                         price: item.rate,
                         amount: item.rate * (item.originalQuantity - item.returnQuantity),
-                        unit: item.unit || 'piece',
+                        unit: getDisplayUnit(item.unit),
                         isKept: true,
                         variantName: item.variantName,
                         variantData: item.variantData,
@@ -1455,11 +1495,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     .filter((item: any) => item.returnQuantity > 0)
                     .map((item: any, idx: number) => ({
                         id: keptItems.length + idx + 1,
-                        title: item.title || 'Unknown Item',
+                        title: item.title || t('lbl_unknown_item'),
                         quantity: item.returnQuantity,
                         price: item.rate,
                         amount: item.rate * item.returnQuantity,
-                        unit: item.unit || 'piece',
+                        unit: getDisplayUnit(item.unit),
                         isReturned: true,
                         variantName: item.variantName,
                         variantData: item.variantData,
@@ -1468,11 +1508,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 // Get exchange items
                 const exchangeItems = activeExchangeItems.map((item: any, idx: number) => ({
                     id: keptItems.length + returnedItems.length + idx + 1,
-                    title: item.title || 'Unknown Item',
+                    title: item.title || t('lbl_unknown_item'),
                     quantity: item.quantity,
                     price: item.rate,
                     amount: item.amount || item.rate * item.quantity,
-                    unit: item.unit || 'piece',
+                    unit: getDisplayUnit(item.unit),
                     isExchange: true,
                     variantName: item.variantName,
                     variantData: item.variantData,
@@ -1486,11 +1526,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
                 return {
                     customer: {
-                        name: customer?.name || 'Customer',
+                        name: customer?.name || t('lbl_customer'),
                         email: customer?.email || '',
                         phone: customer?.phone || '',
                     },
-                    invoice: orderData.return_number || orderData.invoice_number || `#RTN-${orderData.id || 'N/A'}`,
+                    invoice: orderData.return_number || orderData.invoice_number || `#RTN-${orderData.id || t('lbl_na')}`,
                     order_id: orderData.id || orderData.return_id,
                     original_order_id: orderId,
                     isReturn: true,
@@ -1502,9 +1542,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     exchangeTotal: activeExchangeTotal,
                     netTransaction: activeNetTransaction,
                     keptItemsTotal: keptItemsTotal, // Total value of items kept
-                    return_reason: returnReasons.find((r: any) => r.id === activeReasonId)?.name || 'N/A',
+                    return_reason: returnReasons.find((r: any) => r.id === activeReasonId)?.name || t('lbl_na'),
                     notes: activeNotes || '',
-                    paymentMethod: orderData.payment_method || formData.paymentMethod || 'Cash',
+                    paymentMethod: orderData.payment_method || formData.paymentMethod || t('lbl_cash'),
                     totals: {
                         returnAmount: activeReturnTotal,
                         exchangeAmount: activeExchangeTotal,
@@ -1519,13 +1559,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             return {
                 customer: {
-                    name: orderData.customer?.name || formData.customerName || 'Walk-in Customer',
+                    name: orderData.customer?.name || formData.customerName || t('pos_walk_in_customer'),
                     email: orderData.customer?.email || formData.customerEmail || '',
                     phone: orderData.customer?.phone || formData.customerPhone || '',
                     membership: selectedCustomer?.membership || 'normal',
                     points: Number(selectedCustomer?.points) || 0,
                 },
-                invoice: orderData.invoice || orderData.invoice_number || `#INV-${orderData.order_id || orderData.id || 'N/A'}`,
+                invoice: orderData.invoice || orderData.invoice_number || `#INV-${orderData.order_id || orderData.id || t('lbl_na')}`,
                 order_id: orderData.order_id || orderData.id,
                 items:
                     responseItems.length > 0
@@ -1535,11 +1575,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
                               return {
                                   id: idx + 1,
-                                  title: product.name || product.product_name || originalItem?.title || 'Unknown Item',
+                                  title: product.name || product.product_name || originalItem?.title || t('lbl_unknown_item'),
                                   quantity: product.quantity || originalItem?.quantity || 1,
                                   price: product.unit_price || product.price || originalItem?.rate || 0,
                                   amount: product.subtotal || product.amount || product.quantity * product.unit_price || originalItem?.amount || 0,
-                                  unit: product.unit || originalItem?.unit || 'piece',
+                                  unit: getDisplayUnit(product.unit || originalItem?.unit),
                                   tax_rate: product.tax || originalItem?.tax_rate,
                                   tax_included: product.tax_included || originalItem?.tax_included,
                                   // Include variant data
@@ -1556,11 +1596,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         : // Fallback: if API doesn't return items, use invoiceItems directly
                           invoiceItems.map((item, idx) => ({
                               id: idx + 1,
-                              title: item.title || 'Untitled',
+                              title: item.title || t('lbl_untitled'),
                               quantity: item.quantity,
                               price: item.rate,
                               amount: item.rate * item.quantity,
-                              unit: item.unit || 'piece',
+                              unit: getDisplayUnit(item.unit),
                               tax_rate: item.tax_rate,
                               tax_included: item.tax_included,
                               variantName: item.variantName,
@@ -1591,6 +1631,56 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             };
         }
 
+        if (quotePreview && !isReturnMode) {
+            const quoteItems = quotePreview.items || [];
+            const quoteTotals = quotePreview.totals || {};
+            const quotePayment = quotePreview.payment || {};
+
+            return {
+                customer: {
+                    name: formData.customerName || t('pos_walk_in_customer'),
+                    email: formData.customerEmail,
+                    phone: formData.customerPhone,
+                    membership: selectedCustomer?.membership || 'normal',
+                    points: Number(selectedCustomer?.points) || 0,
+                },
+                items: quoteItems.map((item: any, idx: number) => {
+                    const originalItem = invoiceItems[idx];
+                    return {
+                        id: idx + 1,
+                        title: item.product_name || originalItem?.title || t('lbl_unknown_item'),
+                        quantity: item.quantity || originalItem?.quantity || 1,
+                        price: item.unit_price || originalItem?.rate || 0,
+                        amount: item.subtotal || 0,
+                        tax_rate: item.tax,
+                        tax_included: item.tax_included,
+                        unit: getDisplayUnit(item.unit || originalItem?.unit),
+                        variantName: originalItem?.variantName,
+                        variantData: originalItem?.variantData,
+                        has_serial: originalItem?.has_serial || false,
+                        serials: originalItem?.serials || [],
+                        has_warranty: originalItem?.has_warranty || false,
+                        warranty: originalItem?.warranty || null,
+                    };
+                }),
+                paymentMethod: quotePayment.payment_method || formData.paymentMethod,
+                paymentStatus: quotePayment.payment_status || formData.paymentStatus,
+                amount_paid: quotePayment.amount_paid || 0,
+                due_amount: quotePayment.due_amount || 0,
+                totals: {
+                    subtotal: Number(quoteTotals.total || 0),
+                    tax: Number(quoteTotals.tax || 0),
+                    discount: Number(quoteTotals.discount || 0),
+                    membershipDiscount: calculateMembershipDiscount(),
+                    pointsDiscount: 0,
+                    balanceDiscount: 0,
+                    total: Number(quoteTotals.grand_total || 0),
+                    grand_total: Number(quoteTotals.grand_total || 0),
+                },
+                isOrderCreated: false,
+            };
+        }
+
         return {
             customer: {
                 name: formData.customerName,
@@ -1601,13 +1691,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             },
             items: invoiceItems.map((item, idx) => ({
                 id: idx + 1,
-                title: item.title || 'Untitled',
+                title: item.title || t('lbl_untitled'),
                 quantity: item.quantity,
                 price: item.rate,
                 amount: item.rate * item.quantity,
                 tax_rate: item.tax_rate,
                 tax_included: item.tax_included,
-                unit: item.unit || 'piece',
+                unit: getDisplayUnit(item.unit),
                 // Include variant data
                 variantName: item.variantName,
                 variantData: item.variantData,

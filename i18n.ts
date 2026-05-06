@@ -47,17 +47,30 @@ export const getTranslation = () => {
     const data: any = langObj[lang];
 
     // Translation function that supports both flat and nested keys
-    const t = (key: string): string => {
+    const t = (key: string, options?: Record<string, string | number | null | undefined>): string => {
+        let value: any;
+
         // First try direct access (for flat keys like "hero_title")
         if (key in data) {
-            return data[key];
+            value = data[key];
+        } else {
+            // Then try nested access (for keys like "footer.brand.name")
+            value = getNestedValue(data, key);
         }
 
-        // Then try nested access (for keys like "footer.brand.name")
-        const value = getNestedValue(data, key);
+        if (value === undefined) {
+            return key;
+        }
 
-        // Return the value if found, otherwise return the key itself
-        return value !== undefined ? value : key;
+        if (typeof value !== 'string' || !options) {
+            return value;
+        }
+
+        return value.replace(/\{\{(\w+)\}\}|\{(\w+)\}/g, (match, doubleBraceKey, singleBraceKey) => {
+            const optionKey = doubleBraceKey || singleBraceKey;
+            const optionValue = options[optionKey];
+            return optionValue === null || optionValue === undefined ? match : String(optionValue);
+        });
     };
 
     // i18n object for language management

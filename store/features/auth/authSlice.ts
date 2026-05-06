@@ -7,6 +7,8 @@ export interface Currency {
     currency_symbol: string;
     currency_position: 'before' | 'after';
     decimal_places: number;
+    rounding_mode?: 'half_up' | 'half_down' | 'half_even' | 'half_odd';
+    cash_rounding?: number | null;
     thousand_separator: string;
     decimal_separator: string;
 }
@@ -44,6 +46,11 @@ export interface Store {
     store_contact?: string;
     store_location?: string;
     store_email?: string;
+    country_code?: string;
+    timezone?: string;
+    locale?: string;
+    date_format?: string;
+    time_format?: string;
     is_active?: boolean | number;
     store_disabled?: boolean | number;
     currency?: Currency;

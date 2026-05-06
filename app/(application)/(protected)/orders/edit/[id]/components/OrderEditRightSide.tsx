@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const DEFAULT_PAYMENT_METHOD = {
     id: 0,
-    payment_method_name: 'Cash',
+    payment_method_name: 'cash',
 };
 
 interface OrderEditRightSideProps {
@@ -40,8 +40,6 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     const { currentStoreId, currentStore } = useCurrentStore();
 
     const invoiceItems = useSelector((state: RootState) => (currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : []));
-    const userId = useSelector((state: RootState) => state.auth.user?.id);
-
     const searchInputRef = useRef<HTMLDivElement | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -430,7 +428,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         if (Number.isNaN(newQuantity) || newQuantity < 0) return;
 
         if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(`Maximum available quantity is ${item.PlaceholderQuantity}`, 'error');
+            showMessage(t('msg_max_qty', { qty: item.PlaceholderQuantity }), 'error');
             return;
         }
 
@@ -546,17 +544,15 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     const calculateBaseTotal = () => calculateSubtotalWithoutTax() + calculateTax() - calculateDiscount() - calculateMembershipDiscount();
 
     const calculatePointsDiscount = () => {
-        if (!formData.usePoints || !selectedCustomer) return 0;
-        return Math.min(formData.pointsToUse * 0.01, calculateBaseTotal());
+        return 0;
     };
 
     const calculateBalanceDiscount = () => {
-        if (!formData.useBalance || !selectedCustomer) return 0;
-        return Math.min(formData.balanceToUse, calculateBaseTotal() - calculatePointsDiscount());
+        return 0;
     };
 
     const calculateTotal = () => {
-        return Math.max(0, calculateBaseTotal() - calculatePointsDiscount() - calculateBalanceDiscount());
+        return Math.max(0, calculateBaseTotal());
     };
 
     useEffect(() => {
@@ -740,7 +736,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         const orderData: any = {
             items: allItems,
             tax: calculateTax(),
-            discount: calculateDiscount(),
+            discount: calculateDiscount() + calculateMembershipDiscount(),
             payment_status: formData.paymentStatus,
             payment_method: formData.paymentMethod,
             amount_paid: formData.paymentStatus === 'paid' ? grandTotal : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0,
@@ -784,7 +780,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             // Transform backend response to match preview modal format
             const transformedResponse = {
                 ...response.data,
-                customer: response.data.customer || (response.data.is_walk_in ? { name: 'Walk-in Customer' } : originalOrder.customer),
+                customer: response.data.customer || (response.data.is_walk_in ? { name: t('pos_walk_in_customer') } : originalOrder.customer),
                 items:
                     response.data.items?.map((item: any) => ({
                         id: item.id,
@@ -818,11 +814,10 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         } catch (err: any) {
             setLoading(false);
 
-            let errorMessage = 'Failed to update order';
+            let errorMessage = t('msg_failed_update_order');
 
-            if (err?.status === 422 && err?.data?.data) {
-                // Handle validation errors
-                const errors = err.data.data;
+            if (err?.status === 422 && (err?.data?.errors || err?.data?.data)) {
+                const errors = err.data.errors || err.data.data;
                 const errorMessages = Object.values(errors).flat();
                 errorMessage = errorMessages.join('\n');
             } else if (err?.data?.message) {
@@ -863,7 +858,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     const getPreviewData = () => {
         // Determine customer info
         let customerInfo = {
-            name: 'Walk-in Customer',
+            name: t('pos_walk_in_customer'),
             email: '',
             phone: '',
             membership: 'normal',
@@ -871,7 +866,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         };
 
         if (formData.customerId === 'walk-in') {
-            customerInfo.name = 'Walk-in Customer';
+            customerInfo.name = t('pos_walk_in_customer');
         } else if (selectedCustomer) {
             // Use selected customer from search
             customerInfo = {
@@ -907,7 +902,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             order_id: originalOrder.id,
             items: invoiceItems.map((item, idx) => ({
                 id: idx + 1,
-                title: item.title || 'Untitled',
+                title: item.title || t('lbl_untitled'),
                 quantity: item.quantity,
                 price: item.rate,
                 amount: item.rate * item.quantity,

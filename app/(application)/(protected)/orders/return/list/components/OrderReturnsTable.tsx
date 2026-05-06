@@ -47,7 +47,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{value || `#${row.id}`}</span>
-                        {row.order_invoice && <span className="text-xs text-gray-500">Order: {row.order_invoice}</span>}
+                        {row.order_invoice && <span className="text-xs text-gray-500">{t('lbl_order')}: {row.order_invoice}</span>}
                     </div>
                 ),
             },
@@ -56,7 +56,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 label: t('lbl_customer'),
                 render: (value, row) => (
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{row.is_walk_in ? 'Walk-in Customer' : value?.name || 'N/A'}</span>
+                        <span className="font-medium text-gray-900">{row.is_walk_in ? t('pos_walk_in_customer') : value?.name || t('lbl_na')}</span>
                         {!row.is_walk_in && value?.phone && <span className="text-xs text-gray-500">{value.phone}</span>}
                     </div>
                 ),
@@ -68,7 +68,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                     const isReturn = value === 'return';
                     return (
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isReturn ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                            {isReturn ? 'Return' : 'Exchange'}
+                            {isReturn ? t('lbl_return') : t('lbl_exchange')}
                         </span>
                     );
                 },
@@ -78,14 +78,14 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 label: t('order_items'),
                 render: (value, row) => {
                     const items = row.return_items || [];
-                    if (items.length === 0) return <span className="text-sm text-gray-400">No items</span>;
+                    if (items.length === 0) return <span className="text-sm text-gray-400">{t('lbl_no_items')}</span>;
                     if (items.length === 1) {
                         return <span className="text-sm text-gray-700">{items[0].product_name}</span>;
                     }
                     return (
                         <div className="flex flex-col gap-1">
                             <span className="text-sm text-gray-700">{items[0].product_name}</span>
-                            {items.length > 1 && <span className="text-xs text-gray-500">+{items.length - 1} more</span>}
+                            {items.length > 1 && <span className="text-xs text-gray-500">+{items.length - 1} {t('lbl_more')}</span>}
                         </div>
                     );
                 },
@@ -115,21 +115,21 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                         return (
                             <div className="flex flex-col">
                                 <span className="font-semibold text-emerald-600">{formatCurrency(Math.abs(netAmount))}</span>
-                                <span className="text-xs text-emerald-600">Refund</span>
+                                <span className="text-xs text-emerald-600">{t('lbl_refund')}</span>
                             </div>
                         );
                     } else if (netAmount > 0) {
                         return (
                             <div className="flex flex-col">
                                 <span className="font-semibold text-amber-600">{formatCurrency(netAmount)}</span>
-                                <span className="text-xs text-amber-600">Customer Paid</span>
+                                <span className="text-xs text-amber-600">{t('lbl_customer_paid')}</span>
                             </div>
                         );
                     }
                     return (
                         <div className="flex flex-col">
                             <span className="font-semibold text-gray-600">{formatCurrency(0)}</span>
-                            <span className="text-xs text-gray-500">Even Exchange</span>
+                            <span className="text-xs text-gray-500">{t('lbl_even_exchange')}</span>
                         </div>
                     );
                 },
@@ -137,7 +137,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             {
                 key: 'payment_method',
                 label: t('lbl_payment_method'),
-                render: (value) => <span className="text-sm capitalize text-gray-700">{value || 'Cash'}</span>,
+                render: (value) => <span className="text-sm capitalize text-gray-700">{value || t('lbl_cash')}</span>,
             },
             {
                 key: 'payment_status',
@@ -150,14 +150,14 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                         paid: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
                         pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
                     };
-                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || 'Unknown' };
+                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: value || t('lbl_unknown') };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
                 },
             },
             {
                 key: 'processed_by',
                 label: t('lbl_employee'),
-                render: (value, row) => <span className="text-sm text-gray-700">{value || row.user?.name || 'N/A'}</span>,
+                render: (value, row) => <span className="text-sm text-gray-700">{value || row.user?.name || t('lbl_na')}</span>,
             },
             {
                 key: 'created_at',

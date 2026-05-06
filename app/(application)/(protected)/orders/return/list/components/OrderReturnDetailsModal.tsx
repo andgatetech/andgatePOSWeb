@@ -35,6 +35,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
     const isRefund = netAmount < 0;
     const isPayment = netAmount > 0;
     const isEvenExchange = netAmount === 0;
+    const na = t('lbl_na');
 
     return (
         <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
@@ -44,8 +45,8 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-200 p-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Return Details</h2>
-                        <p className="text-sm text-gray-600">Return #{orderReturn.return_number || orderReturn.id}</p>
+                        <h2 className="text-2xl font-bold text-gray-900">{t('lbl_return_details')}</h2>
+                        <p className="text-sm text-gray-600">{t('lbl_return')} #{orderReturn.return_number || orderReturn.id}</p>
                     </div>
                     <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
                         <X className="h-6 w-6" />
@@ -57,50 +58,50 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                     {/* Basic Info */}
                     <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <p className="text-sm text-gray-600">Original Order</p>
-                            <p className="font-semibold text-gray-900">{orderReturn.order_invoice || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">{t('lbl_original_order')}</p>
+                            <p className="font-semibold text-gray-900">{orderReturn.order_invoice || na}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Customer</p>
-                            <p className="font-semibold text-gray-900">{orderReturn.is_walk_in ? 'Walk-in Customer' : orderReturn.customer?.name || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">{t('lbl_customer')}</p>
+                            <p className="font-semibold text-gray-900">{orderReturn.is_walk_in ? t('pos_walk_in_customer') : orderReturn.customer?.name || na}</p>
                             {!orderReturn.is_walk_in && orderReturn.customer?.phone && <p className="text-sm text-gray-500">{orderReturn.customer.phone}</p>}
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Return Type</p>
+                            <p className="text-sm text-gray-600">{t('lbl_return_type')}</p>
                             <span
                                 className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
                                     orderReturn.return_type === 'return' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
                                 }`}
                             >
-                                {orderReturn.return_type === 'return' ? 'Pure Return' : 'Exchange'}
+                                {orderReturn.return_type === 'return' ? t('lbl_pure_return') : t('lbl_exchange')}
                             </span>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Return Reason</p>
-                            <p className="font-semibold text-gray-900">{orderReturn.return_reason || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">{t('lbl_return_reason')}</p>
+                            <p className="font-semibold text-gray-900">{orderReturn.return_reason || na}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Processed By</p>
-                            <p className="font-semibold text-gray-900">{orderReturn.processed_by || orderReturn.user?.name || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">{t('lbl_processed_by')}</p>
+                            <p className="font-semibold text-gray-900">{orderReturn.processed_by || orderReturn.user?.name || na}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Return Date</p>
-                            <p className="font-semibold text-gray-900">{orderReturn.created_at || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">{t('lbl_return_date')}</p>
+                            <p className="font-semibold text-gray-900">{orderReturn.created_at || na}</p>
                         </div>
                     </div>
 
                     {/* Returned Items */}
                     {orderReturn.return_items && orderReturn.return_items.length > 0 && (
                         <div className="mb-6">
-                            <h3 className="mb-3 text-lg font-semibold text-gray-900">Returned Items</h3>
+                            <h3 className="mb-3 text-lg font-semibold text-gray-900">{t('lbl_returned_items')}</h3>
                             <div className="overflow-hidden rounded-lg border border-gray-200">
                                 <table className="w-full">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
-                                            <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Qty</th>
-                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Unit Price</th>
-                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Subtotal</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_product')}</th>
+                                            <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_qty')}</th>
+                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">{t('lbl_unit_price')}</th>
+                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">{t('lbl_subtotal')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -116,7 +117,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                     <tfoot className="bg-red-50">
                                         <tr>
                                             <td colSpan={3} className="px-4 py-3 text-right text-sm font-semibold text-red-700">
-                                                Total Return Amount:
+                                                {t('lbl_total_return_amount')}:
                                             </td>
                                             <td className="px-4 py-3 text-right text-lg font-bold text-red-700">{formatCurrency(orderReturn.total_return_amount)}</td>
                                         </tr>
@@ -129,15 +130,15 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                     {/* New Items (Exchange) */}
                     {orderReturn.new_items && orderReturn.new_items.length > 0 && (
                         <div className="mb-6">
-                            <h3 className="mb-3 text-lg font-semibold text-gray-900">New Items (Exchange)</h3>
+                            <h3 className="mb-3 text-lg font-semibold text-gray-900">{t('lbl_new_items_exchange')}</h3>
                             <div className="overflow-hidden rounded-lg border border-gray-200">
                                 <table className="w-full">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
-                                            <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Qty</th>
-                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Unit Price</th>
-                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Subtotal</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">{t('lbl_product')}</th>
+                                            <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">{t('lbl_qty')}</th>
+                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">{t('lbl_unit_price')}</th>
+                                            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">{t('lbl_subtotal')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -153,7 +154,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                     <tfoot className="bg-green-50">
                                         <tr>
                                             <td colSpan={3} className="px-4 py-3 text-right text-sm font-semibold text-green-700">
-                                                Total New Items Amount:
+                                                {t('lbl_total_new_items_amount')}:
                                             </td>
                                             <td className="px-4 py-3 text-right text-lg font-bold text-green-700">{formatCurrency(orderReturn.total_new_amount || 0)}</td>
                                         </tr>
@@ -166,7 +167,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                     {/* Net Amount Summary */}
                     <div className={`rounded-lg border-2 p-6 ${isRefund ? 'border-emerald-200 bg-emerald-50' : isPayment ? 'border-amber-200 bg-amber-50' : 'border-gray-200 bg-gray-50'}`}>
                         <div className="mb-4 flex items-center justify-between">
-                            <span className="text-lg font-semibold text-gray-700">Net Transaction:</span>
+                            <span className="text-lg font-semibold text-gray-700">{t('lbl_net_transaction')}:</span>
                             <span className={`text-3xl font-bold ${isRefund ? 'text-emerald-700' : isPayment ? 'text-amber-700' : 'text-gray-700'}`}>{formatCurrency(Math.abs(netAmount))}</span>
                         </div>
 
@@ -175,7 +176,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                 <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="font-medium text-emerald-800">Customer Refunded: {formatCurrency(Math.abs(netAmount))}</span>
+                                <span className="font-medium text-emerald-800">{t('lbl_customer_refunded')}: {formatCurrency(Math.abs(netAmount))}</span>
                             </div>
                         )}
 
@@ -189,7 +190,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </svg>
-                                <span className="font-medium text-amber-800">Customer Paid Extra: {formatCurrency(netAmount)}</span>
+                                <span className="font-medium text-amber-800">{t('lbl_customer_paid_extra')}: {formatCurrency(netAmount)}</span>
                             </div>
                         )}
 
@@ -198,17 +199,17 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                 <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="font-medium text-gray-800">Even Exchange - No Payment Required</span>
+                                <span className="font-medium text-gray-800">{t('msg_even_exchange_no_payment')}</span>
                             </div>
                         )}
 
                         <div className="mt-4 grid grid-cols-2 gap-4 border-t border-gray-300 pt-4">
                             <div>
-                                <p className="text-sm text-gray-600">Payment Method</p>
-                                <p className="font-semibold capitalize text-gray-900">{orderReturn.payment_method || 'Cash'}</p>
+                                <p className="text-sm text-gray-600">{t('lbl_payment_method')}</p>
+                                <p className="font-semibold capitalize text-gray-900">{orderReturn.payment_method || t('lbl_cash')}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Status</p>
+                                <p className="text-sm text-gray-600">{t('lbl_status')}</p>
                                 <span
                                     className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
                                         orderReturn.payment_status === 'refunded'
@@ -218,7 +219,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                             : 'bg-orange-100 text-orange-800'
                                     }`}
                                 >
-                                    {orderReturn.payment_status || 'Pending'}
+                                    {orderReturn.payment_status || t('status_pending')}
                                 </span>
                             </div>
                         </div>
@@ -228,7 +229,7 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                 {/* Footer */}
                 <div className="border-t border-gray-200 bg-gray-50 p-6">
                     <button onClick={onClose} className="w-full rounded-lg bg-gray-900 px-4 py-3 font-semibold text-white transition-colors hover:bg-gray-800">
-                        Close
+                        {t('btn_close')}
                     </button>
                 </div>
             </div>

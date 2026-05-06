@@ -83,6 +83,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     const { formatCurrency, symbol } = useCurrency();
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const displayUnit = (unit?: string) => (unit && unit.toLowerCase() !== 'piece' ? unit : t('lbl_piece'));
 
     const handlePreview = (item: InvoiceItem) => {
         setPreviewItem(item);
@@ -164,7 +165,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     type="button"
                                                     onClick={() => handlePreview(item)}
                                                     className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
-                                                    title="View details"
+                                                    title={t('btn_view_details')}
                                                 >
                                                     <Eye className="h-4 w-4" />
                                                 </button>
@@ -193,7 +194,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                         <div className="mt-1">
                                                             <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">
                                                                 <Hash className="h-3 w-3" />
-                                                                S/N: {item.serials[0].serial_number}
+                                                                {t('lbl_serial')}: {item.serials[0].serial_number}
                                                             </span>
                                                         </div>
                                                     )}
@@ -202,14 +203,14 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                         <div className="mt-1">
                                                             <span
                                                                 className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700"
-                                                                title={`${item.warranty.warranty_type_name} warranty`}
+                                                                title={`${item.warranty.warranty_type_name} ${t('lbl_warranty')}`}
                                                             >
                                                                 <Shield className="h-3 w-3" />
                                                                 {item.warranty.duration_months
                                                                     ? `${item.warranty.duration_months}mo`
                                                                     : item.warranty.duration_days
                                                                     ? `${item.warranty.duration_days}d`
-                                                                    : 'Lifetime'}
+                                                                    : t('lbl_lifetime')}
                                                             </span>
                                                         </div>
                                                     )}
@@ -297,7 +298,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             </div>
                                         </td>
                                         <td className="px-3 py-2.5 text-center text-sm">
-                                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{item.unit || 'piece'}</span>
+                                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
                                         </td>
                                         <td className="px-3 py-2.5 text-right text-sm font-medium">
                                             <div className="flex items-center justify-end gap-2">
@@ -307,7 +308,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
                                                         item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
                                                     }`}
-                                                    title={`Click to switch to ${item.isWholesale ? 'Retail' : 'Wholesale'} price`}
+                                                    title={t('msg_switch_price_mode', { mode: item.isWholesale ? t('lbl_retail') : t('lbl_wholesale') })}
                                                 >
                                                     {item.isWholesale ? t('lbl_wholesale') : t('lbl_retail')}
                                                 </button>
@@ -363,7 +364,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 type="button"
                                                 onClick={() => onRemoveItem(item.id)}
                                                 className="inline-flex items-center justify-center rounded-lg p-1.5 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                                                title="Remove item"
+                                                title={t('btn_remove_item')}
                                             >
                                                 <IconX className="h-4 w-4" />
                                             </button>
@@ -440,7 +441,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                             ? `${item.warranty.duration_months}mo`
                                                             : item.warranty.duration_days
                                                             ? `${item.warranty.duration_days}d`
-                                                            : 'Lifetime'}
+                                                            : t('lbl_lifetime')}
                                                     </span>
                                                 )}
                                             </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 interface SubscriptionErrorData {
-    errorType: 'no_active_subscription' | 'feature_unavailable' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'quota_exhausted' | 'subscription_expired' | null;
+    errorType: 'no_active_subscription' | 'feature_unavailable' | 'feature_not_in_plan' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'quota_exhausted' | 'subscription_expired' | null;
     message: string;
     details?: {
         limit?: number;
@@ -54,7 +54,7 @@ export const useSubscriptionError = (error?: ApiError) => {
         // Check if it's a new middleware subscription-related error (403 status and error_type)
         if (error.status === 403 && error.data?.error_type) {
             const data = error.data;
-            if (['no_subscription', 'subscription_expired', 'quota_exhausted'].includes(data.error_type || '')) {
+            if (['no_subscription', 'subscription_expired', 'quota_exhausted', 'feature_not_in_plan'].includes(data.error_type || '')) {
                 setSubscriptionError({
                     errorType: data.error_type as any,
                     message: data.message || 'Subscription error.',

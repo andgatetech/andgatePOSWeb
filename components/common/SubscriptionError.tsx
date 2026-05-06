@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 interface SubscriptionErrorProps {
-    errorType: 'no_active_subscription' | 'feature_unavailable' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'subscription_expired' | 'quota_exhausted';
+    errorType: 'no_active_subscription' | 'feature_unavailable' | 'feature_not_in_plan' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'subscription_expired' | 'quota_exhausted';
     message: string;
     details?: {
         limit?: number;
@@ -36,6 +36,13 @@ const errorConfigs: Record<string, any> = {
         bgColor: 'bg-red-50',
     },
     feature_unavailable: {
+        icon: Zap,
+        title: 'Feature Not Available',
+        subtitle: 'Upgrade your plan to access this feature',
+        iconColor: 'text-orange-600',
+        bgColor: 'bg-orange-50',
+    },
+    feature_not_in_plan: {
         icon: Zap,
         title: 'Feature Not Available',
         subtitle: 'Upgrade your plan to access this feature',

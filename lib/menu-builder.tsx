@@ -102,12 +102,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'POS',
         icon: React.createElement(ShoppingCart),
-        requiredPermissions: ['sales.create'],
+        requiredPermissions: ['orders.create'],
         subMenu: [
             {
                 label: 'Terminal',
                 href: '/pos',
-                requiredPermissions: ['sales.create'],
+                requiredPermissions: ['orders.create'],
             },
         ],
     },
@@ -281,7 +281,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: 'Notifications',
         icon: React.createElement(Bell),
         href: '/notifications',
-        // No permission required — all authenticated users can see notifications
+        requiredPermissions: ['notifications.index'],
     },
     {
         label: 'Feedback',
@@ -291,10 +291,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Give Feedback',
                 href: '/feedbacks/create-feedback',
+                requiredPermissions: ['feedbacks.create'],
             },
             {
                 label: 'View Feedback',
                 href: '/feedbacks',
+                requiredPermissions: ['feedbacks.index'],
             },
         ],
     },

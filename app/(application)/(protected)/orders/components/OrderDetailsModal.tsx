@@ -26,6 +26,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
     const paymentStatus = order.payment?.status ?? order.payment_status ?? 'paid';
     const statusStyle = paymentStatusConfig[paymentStatus] || { bg: 'bg-gray-100', text: 'text-gray-800' };
+    const na = t('lbl_na');
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -126,7 +127,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                 <div className="text-xs text-gray-500">{order.created_at.split(' ').slice(1).join(' ')}</div>
                                                             </>
                                                         ) : (
-                                                            'N/A'
+                                                            na
                                                         )}
                                                     </div>
                                                 </div>
@@ -139,7 +140,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                 <div className="text-xs text-gray-500">{order.updated_at.split(' ').slice(1).join(' ')}</div>
                                                             </>
                                                         ) : (
-                                                            'N/A'
+                                                            na
                                                         )}
                                                     </div>
                                                 </div>
@@ -177,10 +178,10 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     {/* Product Header */}
                                                     <div className="mb-3 flex items-start justify-between">
                                                         <div className="flex-1">
-                                                            <h4 className="text-lg font-semibold text-gray-900">{item.snapshot?.product_name ?? item.product?.name ?? 'N/A'}</h4>
+                                                            <h4 className="text-lg font-semibold text-gray-900">{item.snapshot?.product_name ?? item.product?.name ?? na}</h4>
                                                             <div className="mt-1 flex flex-wrap gap-2 text-xs">
                                                                 {(item.snapshot?.sku ?? item.product?.sku) && (
-                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">SKU: {item.snapshot?.sku ?? item.product?.sku}</span>
+                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">{t('lbl_sku')}: {item.snapshot?.sku ?? item.product?.sku}</span>
                                                                 )}
                                                                 {item.product?.category && <span className="rounded bg-blue-100 px-2 py-1 text-blue-700">{item.product.category}</span>}
                                                                 {item.product?.brand && <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">{item.product.brand}</span>}
@@ -203,7 +204,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                         : 'bg-gray-100 text-gray-800'
                                                                 }`}
                                                             >
-                                                                {item.return_status === 'full' ? 'Fully Returned' : 'Partially Returned'}
+                                                                {item.return_status === 'full' ? t('status_fully_returned') : t('status_partially_returned')}
                                                             </span>
                                                         )}
                                                     </div>
@@ -213,9 +214,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <div>
                                                             <p className="mb-1 text-xs text-gray-500">{t('lbl_quantity')}</p>
                                                             <p className="font-semibold text-gray-900">
-                                                                {item.quantity ?? 0} {item.unit ?? 'Piece'}
+                                                                {item.quantity ?? 0} {item.unit ?? t('lbl_piece')}
                                                             </p>
-                                                            {item.quantity_returned > 0 && <p className="text-xs text-red-600">Returned: {item.quantity_returned}</p>}
+                                                            {item.quantity_returned > 0 && <p className="text-xs text-red-600">{t('status_returned')}: {item.quantity_returned}</p>}
                                                         </div>
                                                         <div>
                                                             <p className="mb-1 text-xs text-gray-500">{t('lbl_selling_price')}</p>
@@ -255,7 +256,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                 </div>
                                                                 {item.stock.is_low_stock && (
                                                                     <div>
-                                                                        <span className="rounded bg-red-100 px-2 py-0.5 font-semibold text-red-700">Low Stock!</span>
+                                                                        <span className="rounded bg-red-100 px-2 py-0.5 font-semibold text-red-700">{t('status_low_stock')}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -284,32 +285,32 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <div className="rounded-md bg-green-50 p-3">
                                                             <div className="mb-2 flex items-center gap-2">
                                                                 <Shield className="h-4 w-4 text-green-600" />
-                                                                <span className="text-xs font-semibold text-green-900">{t('lbl_variant')}</span>
+                                                                <span className="text-xs font-semibold text-green-900">{t('lbl_warranty')}</span>
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-3 text-xs">
                                                                 <div>
-                                                                    <span className="text-green-700">Type:</span>
+                                                                    <span className="text-green-700">{t('lbl_type')}:</span>
                                                                     <span className="ml-1 font-semibold text-green-900">{item.warranty.warranty_type_name}</span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-green-700">Duration:</span>
+                                                                    <span className="text-green-700">{t('lbl_duration')}:</span>
                                                                     <span className="ml-1 font-semibold text-green-900">
                                                                         {item.warranty.duration_months
-                                                                            ? `${item.warranty.duration_months} months`
+                                                                            ? `${item.warranty.duration_months} ${t('lbl_months')}`
                                                                             : item.warranty.duration_days
-                                                                            ? `${item.warranty.duration_days} days`
-                                                                            : 'Lifetime'}
+                                                                            ? `${item.warranty.duration_days} ${t('lbl_days')}`
+                                                                            : t('lbl_lifetime')}
                                                                     </span>
                                                                 </div>
                                                                 {item.warranty.start_date && (
                                                                     <div>
-                                                                        <span className="text-green-700">Start:</span>
+                                                                        <span className="text-green-700">{t('lbl_start')}:</span>
                                                                         <span className="ml-1 font-semibold text-green-900">{item.warranty.start_date.split(' ')[0]}</span>
                                                                     </div>
                                                                 )}
                                                                 {item.warranty.end_date && (
                                                                     <div>
-                                                                        <span className="text-green-700">End:</span>
+                                                                        <span className="text-green-700">{t('lbl_end')}:</span>
                                                                         <span className="ml-1 font-semibold text-green-900">{item.warranty.end_date.split(' ')[0]}</span>
                                                                     </div>
                                                                 )}
@@ -395,7 +396,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                     </div>
                                                                     <div className="mt-1 flex justify-between text-xs text-gray-600">
                                                                         <span>
-                                                                            {returnItem.items_count} item{returnItem.items_count !== 1 ? 's' : ''}
+                                                                            {t('msg_item_count', { count: returnItem.items_count })}
                                                                         </span>
                                                                         <span>
                                                                             <DateColumn date={returnItem.return_date} />
@@ -424,7 +425,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2">
                                                                     <Hash className="h-4 w-4 text-gray-400" />
-                                                                    <span className="font-semibold text-gray-900">Transaction #{transaction.id}</span>
+                                                                    <span className="font-semibold text-gray-900">{t('lbl_transaction')} #{transaction.id}</span>
                                                                     <span
                                                                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                                                                             transaction.type === 'sale' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -458,7 +459,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                                     <span className="text-gray-400">{transaction.created_at.split(' ').slice(1).join(' ')}</span>
                                                                                 </>
                                                                             ) : (
-                                                                                'N/A'
+                                                                                na
                                                                             )}
                                                                         </span>
                                                                     </div>
@@ -481,7 +482,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 {/* Footer */}
                                 <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
                                     <button onClick={onClose} className="w-full rounded-lg bg-gray-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-gray-700">
-                                        Close
+                                        {t('btn_close')}
                                     </button>
                                 </div>
                             </Dialog.Panel>

@@ -1,4 +1,5 @@
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
 import type { PosFormData } from './types';
 
 interface CashPaymentSectionProps {
@@ -12,6 +13,7 @@ interface CashPaymentSectionProps {
 }
 
 const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInputChange, totalPayable, isWalkInCustomer, isReturnMode = false, returnNetAmount = 0 }) => {
+    const { t } = getTranslation();
     const { formatCurrency, symbol } = useCurrency();
 
     const handleQuickAmount = (amount: number) => {
@@ -53,13 +55,13 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                             d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                     </svg>
-                    Refund Details
+                    {t('lbl_refund_details')}
                 </h4>
 
                 <div className="space-y-3">
                     {/* Refund Amount Display */}
                     <div className="flex flex-col gap-2 rounded-md border-2 border-emerald-300 bg-emerald-100 p-3 sm:flex-row sm:items-center sm:justify-between">
-                        <label className="text-sm font-bold text-emerald-800">Refund Amount:</label>
+                        <label className="text-sm font-bold text-emerald-800">{t('lbl_refund_amount')}:</label>
                         <div className="flex items-center gap-2">
                             <span className="text-2xl font-black text-emerald-700">{formatCurrency(refundAmount)}</span>
                             <svg className="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +75,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                         <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="font-medium">Cash refund will be processed</span>
+                        <span className="font-medium">{t('msg_cash_refund_processed')}</span>
                     </div>
                 </div>
             </div>
@@ -94,19 +96,19 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                             d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
                         />
                     </svg>
-                    Additional Payment
+                    {t('lbl_additional_payment')}
                 </h4>
 
                 <div className="space-y-3">
                     {/* Amount Due */}
                     <div className="flex flex-col gap-2 rounded-md border border-blue-200 bg-blue-100 p-2 sm:flex-row sm:items-center sm:justify-between">
-                        <label className="text-sm font-semibold text-blue-700">Amount Due:</label>
+                        <label className="text-sm font-semibold text-blue-700">{t('lbl_amount_due')}:</label>
                         <span className="text-lg font-bold text-blue-800">{formatCurrency(returnNetAmount)}</span>
                     </div>
 
                     {/* Amount Received Input */}
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <label className="text-sm font-semibold text-blue-700">Amount Received:</label>
+                        <label className="text-sm font-semibold text-blue-700">{t('lbl_amount_received')}:</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-blue-600">{symbol}</span>
                             <input
@@ -125,7 +127,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                     {/* Change Display */}
                     {formData.amountPaid > returnNetAmount && (
                         <div className="flex flex-col gap-2 rounded-md border-2 border-yellow-300 bg-yellow-50 p-3 sm:flex-row sm:items-center sm:justify-between">
-                            <label className="text-sm font-bold text-yellow-800">Change to Return:</label>
+                            <label className="text-sm font-bold text-yellow-800">{t('lbl_change_to_return')}:</label>
                             <div className="flex items-center gap-2">
                                 <span className="text-2xl font-bold text-yellow-900">{formatCurrency(formData.amountPaid - returnNetAmount)}</span>
                             </div>
@@ -138,7 +140,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                             <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
-                            <span className="font-medium">Insufficient amount! Still need: {formatCurrency(returnNetAmount - formData.amountPaid)}</span>
+                            <span className="font-medium">{t('msg_insufficient_amount_need', { amount: formatCurrency(returnNetAmount - formData.amountPaid) })}</span>
                         </div>
                     )}
                 </div>
@@ -165,12 +167,12 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                         d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                 </svg>
-                Cash Payment Details
+                {t('lbl_cash_payment_details')}
             </h4>
 
             <div className="space-y-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <label className="text-sm font-semibold text-green-700">Amount Received:</label>
+                    <label className="text-sm font-semibold text-green-700">{t('lbl_amount_received')}:</label>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-green-600">{symbol}</span>
                         <input
@@ -202,13 +204,13 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                         onClick={() => handleQuickAmount(totalPayable)}
                         className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm transition-all hover:border-blue-400 hover:bg-blue-100 hover:shadow active:scale-95"
                     >
-                        Exact
+                        {t('lbl_exact')}
                     </button>
                 </div>
 
                 {formData.amountPaid > 0 && (
                     <div className="flex flex-col gap-2 rounded-md border-2 border-yellow-300 bg-yellow-50 p-3 sm:flex-row sm:items-center sm:justify-between">
-                        <label className="text-sm font-bold text-yellow-800">Change to Return:</label>
+                        <label className="text-sm font-bold text-yellow-800">{t('lbl_change_to_return')}:</label>
                         <div className="flex items-center gap-2">
                             <span className="text-2xl font-bold text-yellow-900">{formatCurrency(formData.changeAmount)}</span>
                         </div>
@@ -220,7 +222,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                         <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
-                        <span className="font-medium">Insufficient amount! Still need: {formatCurrency(totalPayable - formData.amountPaid)}</span>
+                        <span className="font-medium">{t('msg_insufficient_amount_need', { amount: formatCurrency(totalPayable - formData.amountPaid) })}</span>
                     </div>
                 )}
             </div>

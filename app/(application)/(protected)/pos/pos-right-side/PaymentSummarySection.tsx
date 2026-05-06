@@ -45,14 +45,14 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
-    const canUsePoints = selectedCustomer && Number(selectedCustomer.points) > 0;
-    const canUseBalance = selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
+    // Redemption needs an explicit backend ledger flow; keep balances visible in customer info only for now.
+    const canUsePoints = false;
+    const canUseBalance = false;
 
-    // Default fallback statuses (used if Redux doesn't have statuses)
     const defaultStatuses = [
-        { id: 1, status_name: 'Paid', status_color: '#22c55e', value: 'paid' },
-        { id: 2, status_name: 'Partial', status_color: '#3b82f6', value: 'partial' },
-        { id: 3, status_name: 'Due', status_color: '#ef4444', value: 'due' },
+        { id: 1, status_name: t('status_paid'), status_color: '#22c55e', value: 'paid' },
+        { id: 2, status_name: t('status_partial'), status_color: '#3b82f6', value: 'partial' },
+        { id: 3, status_name: t('status_due'), status_color: '#ef4444', value: 'due' },
     ];
 
     // Determine available payment statuses based on customer type
@@ -194,7 +194,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <option value="">{t('btn_select_all')}</option>
                     {paymentMethodOptions.map((method) => (
                         <option key={method.id} value={method.payment_method_name || ''}>
-                            {method.payment_method_name || t('lbl_unnamed_method')}
+                            {method.payment_method_name?.toLowerCase() === 'cash' ? t('lbl_cash') : method.payment_method_name || t('lbl_unnamed_method')}
                         </option>
                     ))}
                 </select>

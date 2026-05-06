@@ -122,8 +122,8 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/product-serials': ['products.index'],
     '/product-serials/create': ['products.create'],
 
-    // ── POS (no restriction — all authenticated users) ─────────
-    '/pos': [],
+    // ── POS ───────────────────────────────────────────────────
+    '/pos': ['orders.create'],
 
     // ── Orders ─────────────────────────────────────────────────
     '/orders': ['orders.index'],
@@ -183,11 +183,12 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/tax': ['reports.tax'],
 
     // ── Notifications ──────────────────────────────────────────
-    '/notifications': [],
+    '/notifications': ['notifications.index'],
+    '/notifications/send': ['notifications.create'],
 
-    // ── Feedbacks (no restriction — no backend middleware) ──────
-    '/feedbacks': [],
-    '/feedbacks/create-feedback': [],
+    // ── Feedbacks ──────────────────────────────────────────────
+    '/feedbacks': ['feedbacks.index'],
+    '/feedbacks/create-feedback': ['feedbacks.create'],
 };
 
 /**

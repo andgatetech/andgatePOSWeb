@@ -12,13 +12,17 @@ import { useRef } from 'react';
 import { getTranslation } from '@/i18n';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { hasAnyPermission } from '@/lib/permissions';
 
 const NotificationDropdown = () => {
     const { t } = getTranslation();
     const dropdownRef = useRef<any>(null);
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canViewNotifications = hasAnyPermission(user, ['notifications.index']);
 
     const { data: unreadData, isLoading } = useGetUnreadCountQuery(undefined, {
+        skip: !canViewNotifications,
         pollingInterval: 1800000, // 30 minutes
     });
 
@@ -28,6 +32,10 @@ const NotificationDropdown = () => {
     const recentNotifications = unreadData?.recent || [];
 
     const router = useRouter();
+
+    if (!canViewNotifications) {
+        return null;
+    }
 
     const handleMarkAllRead = async (e: React.MouseEvent) => {
         e.stopPropagation();

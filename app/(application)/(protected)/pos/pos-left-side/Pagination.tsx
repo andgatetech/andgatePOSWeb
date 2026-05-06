@@ -92,7 +92,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
                 <div className="flex items-center gap-x-4">
                     {/* Page Numbers */}
-                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label={t('lbl_pagination')}>
                         <button
                             onClick={() => onPageChange(currentPage - 1)}
                             disabled={currentPage === 1}

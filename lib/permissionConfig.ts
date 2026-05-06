@@ -35,9 +35,8 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'stock.summary': [],
     'stock.movement': [],
     'stock.reports': ['Stock Report', 'Adjustments Report'],
-    'sales.create': ['POS Terminal'],
     'orders.index': ['Order List', 'Order Returns List'],
-    'orders.create': [],
+    'orders.create': ['POS Terminal'],
     'orders.edit': [],
     'orders.view': [],
     'orders.return': [],
@@ -83,6 +82,14 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'barcode.generate': ['Print Label'],
     'qrcode.generate': [],
     'payment-methods.manage': [],
+    'notifications.index': ['Notifications'],
+    'notifications.create': ['Send Notification'],
+    'notifications.edit': [],
+    'feedbacks.index': ['View Feedback'],
+    'feedbacks.create': ['Give Feedback'],
+    'feedbacks.edit': [],
+    'feedbacks.delete': [],
+    'feedbacks.view': [],
 };
 
 // ─── Action Labels ────────────────────────────────────────────────────────────
@@ -133,6 +140,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
     barcode: 'Barcode Labels',
     qrcode: 'QR Codes',
     'payment-methods': 'Payment Methods',
+    notifications: 'Notifications',
+    feedbacks: 'Feedback',
 };
 
 // ─── Category Sort Order ──────────────────────────────────────────────────────
@@ -156,6 +165,8 @@ export const CATEGORY_ORDER: string[] = [
     'barcode',
     'qrcode',
     'payment-methods',
+    'notifications',
+    'feedbacks',
 ];
 
 // ─── Category Theme Colors ──────────────────────────────────────────────────
@@ -179,6 +190,8 @@ export const CATEGORY_COLORS: Record<string, { border: string; bg: string; icon:
     barcode: { border: 'border-gray-200', bg: 'bg-gray-50', icon: 'text-gray-600', badge: 'bg-gray-100 text-gray-700 border-gray-200' },
     qrcode: { border: 'border-gray-200', bg: 'bg-gray-50', icon: 'text-gray-600', badge: 'bg-gray-100 text-gray-700 border-gray-200' },
     'payment-methods': { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    notifications: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    feedbacks: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
