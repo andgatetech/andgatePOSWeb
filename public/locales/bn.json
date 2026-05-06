@@ -1689,6 +1689,7 @@
     "order_action_edit": "অর্ডার সম্পাদনা",
     "order_action_return": "ফেরত",
     "order_action_thermal_receipt": "থার্মাল রসিদ প্রিন্ট",
+    "order_action_invoice": "চালান",
     "purchase_page_title": "ক্রয়",
     "purchase_page_desc": "আপনার ক্রয় অর্ডার পরিচালনা করুন",
     "purchase_add": "নতুন ক্রয়",
