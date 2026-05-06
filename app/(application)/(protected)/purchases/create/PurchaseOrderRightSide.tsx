@@ -57,6 +57,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [newProductDescription, setNewProductDescription] = useState('');
     const [newProductQty, setNewProductQty] = useState(1);
     const [newProductUnit, setNewProductUnit] = useState('');
+    const [newProductPurchasePrice, setNewProductPurchasePrice] = useState(0);
+    const [showNewProductDetails, setShowNewProductDetails] = useState(false);
     const [showAddNewProduct, setShowAddNewProduct] = useState(false);
     const [localIsMobileView, setLocalIsMobileView] = useState(false);
     const [itemModalOpen, setItemModalOpen] = useState(false);
@@ -91,6 +93,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         store_id: currentStoreId,
     });
     const units = unitsResponse?.data || [];
+    const defaultNewProductUnit = newProductUnit || units?.[0]?.name || 'piece';
 
     // Mobile view detection (only if not using props)
     useEffect(() => {
@@ -157,13 +160,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             return;
         }
 
-        if (!newProductUnit) {
-            showMessage(t('msg_please_select_unit'), 'error');
+        if (newProductQty <= 0) {
+            showMessage(t('msg_please_enter_valid_quantity'), 'error');
             return;
         }
 
-        if (newProductQty <= 0) {
-            showMessage(t('msg_please_enter_valid_quantity'), 'error');
+        if (newProductPurchasePrice < 0) {
+            showMessage(t('msg_please_enter_valid_amount'), 'error');
             return;
         }
 
@@ -172,12 +175,13 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             id: uniqueId,
             productId: undefined, // No product_id because it doesn't exist yet
             itemType: 'new' as const,
-            title: newProductName,
-            description: newProductDescription,
-            purchasePrice: 0, // Will be set when receiving
+            title: newProductName.trim(),
+            description: newProductDescription.trim(),
+            purchasePrice: newProductPurchasePrice,
             quantity: newProductQty,
-            amount: 0,
-            unit: newProductUnit,
+            amount: newProductQty * newProductPurchasePrice,
+            unit: defaultNewProductUnit,
+            needsProductSetup: true,
             status: 'ordered',
         };
 
@@ -191,6 +195,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         setNewProductDescription('');
         setNewProductQty(1);
         setNewProductUnit('');
+        setNewProductPurchasePrice(0);
+        setShowNewProductDetails(false);
         setShowAddNewProduct(false);
         showMessage(t('msg_new_product_added_to_draft'));
     };
@@ -561,18 +567,63 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
                     {/* Add New Product Form */}
                     {showAddNewProduct && (
-                        <div className="mb-4 rounded-lg border bg-blue-50 p-4">
-                            <h4 className="mb-3 font-semibold">{t('lbl_add_product_not_in_inventory')}</h4>
-                            <div className="grid grid-cols-1 gap-3">
-                                <div className="grid grid-cols-4 gap-3">
-                                    <div className="col-span-2">
-                                        <label className="mb-1 block text-sm font-medium">{t('lbl_product_name')} *</label>
-                                        <input type="text" placeholder={t('placeholder_product_name')} className="form-input" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} />
-                                    </div>
+                        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                            <div className="mb-3">
+                                <h4 className="font-semibold text-gray-900">{t('lbl_add_product_not_in_inventory')}</h4>
+                                <p className="mt-1 text-xs text-gray-600">{t('msg_quick_product_add_hint')}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_120px_auto] lg:items-end">
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">{t('lbl_product_name')} *</label>
+                                    <input
+                                        type="text"
+                                        placeholder={t('placeholder_product_name')}
+                                        className="form-input"
+                                        value={newProductName}
+                                        onChange={(e) => setNewProductName(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleAddNewProduct();
+                                            }
+                                        }}
+                                        autoFocus
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">{t('lbl_ordered_quantity')} *</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        placeholder={t('lbl_qty')}
+                                        className="form-input"
+                                        value={newProductQty === 0 ? '' : newProductQty}
+                                        onChange={(e) => setNewProductQty(e.target.value === '' ? 0 : Number(e.target.value))}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleAddNewProduct();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <button onClick={handleAddNewProduct} className="btn btn-primary h-10 whitespace-nowrap">
+                                    <Plus className="mr-1 h-4 w-4" />
+                                    {t('btn_add_to_order')}
+                                </button>
+                            </div>
+
+                            <button type="button" onClick={() => setShowNewProductDetails((value) => !value)} className="mt-3 text-sm font-medium text-blue-700 hover:text-blue-900">
+                                {showNewProductDetails ? t('lbl_hide_optional_details') : t('lbl_optional_details')}
+                            </button>
+
+                            {showNewProductDetails && (
+                                <div className="mt-3 grid grid-cols-1 gap-3 border-t border-blue-200 pt-3 lg:grid-cols-3">
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium">{t('lbl_unit')} *</label>
-                                        <select className="form-select" value={newProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
-                                            <option value="">{t('placeholder_select_unit')}</option>
+                                        <label className="mb-1 block text-sm font-medium">{t('lbl_unit')}</label>
+                                        <select className="form-select" value={defaultNewProductUnit} onChange={(e) => setNewProductUnit(e.target.value)}>
+                                            {!units.length && <option value="piece">piece</option>}
                                             {units.map((unit: any) => (
                                                 <option key={unit.id} value={unit.name}>
                                                     {unit.name}
@@ -581,33 +632,31 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium">{t('lbl_ordered_quantity')} *</label>
+                                        <label className="mb-1 block text-sm font-medium">{t('lbl_purchase_price')}</label>
                                         <input
                                             type="number"
-                                            min="1"
-                                            placeholder={t('lbl_qty')}
+                                            min="0"
+                                            step="any"
+                                            placeholder="0"
                                             className="form-input"
-                                            value={newProductQty === 0 ? '' : newProductQty}
-                                            onChange={(e) => setNewProductQty(e.target.value === '' ? 0 : Number(e.target.value))}
+                                            value={newProductPurchasePrice === 0 ? '' : newProductPurchasePrice}
+                                            onChange={(e) => setNewProductPurchasePrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">{t('lbl_description')}</label>
+                                        <input
+                                            type="text"
+                                            placeholder={t('placeholder_product_desc')}
+                                            className="form-input"
+                                            value={newProductDescription}
+                                            onChange={(e) => setNewProductDescription(e.target.value)}
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium">{t('lbl_description')}</label>
-                                    <textarea
-                                        placeholder={t('placeholder_product_desc')}
-                                        className="form-textarea"
-                                        rows={2}
-                                        value={newProductDescription}
-                                        onChange={(e) => setNewProductDescription(e.target.value)}
-                                    />
-                                </div>
-                            </div>
+                            )}
+
                             <div className="mt-3 flex gap-2">
-                                <button onClick={handleAddNewProduct} className="btn btn-sm btn-primary">
-                                    <Plus className="mr-1 h-4 w-4" />
-                                    {t('btn_add_to_order')}
-                                </button>
                                 <button
                                     onClick={() => {
                                         setShowAddNewProduct(false);
@@ -615,6 +664,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         setNewProductDescription('');
                                         setNewProductUnit('');
                                         setNewProductQty(1);
+                                        setNewProductPurchasePrice(0);
+                                        setShowNewProductDetails(false);
                                     }}
                                     className="btn btn-sm btn-outline-secondary"
                                 >

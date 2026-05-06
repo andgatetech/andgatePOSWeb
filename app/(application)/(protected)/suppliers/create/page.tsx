@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
-import { Store, User } from 'lucide-react';
+import { ArrowLeft, Plus, Store, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -51,37 +51,37 @@ const CreateSupplierPage = () => {
         const newErrors: Partial<SupplierFormData> = {};
 
         if (!formData.name.trim()) {
-            newErrors.name = 'Supplier name is required';
-            showMessage('Supplier name is required', 'error');
+            newErrors.name = t('msg_supplier_name_required');
+            showMessage(t('msg_supplier_name_required'), 'error');
         } else if (formData.name.trim().length < 2) {
-            newErrors.name = 'Name must be at least 2 characters';
-            showMessage('Name must be at least 2 characters', 'error');
+            newErrors.name = t('msg_name_min_2_chars');
+            showMessage(t('msg_name_min_2_chars'), 'error');
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email.trim()) {
-            newErrors.email = 'Email is required';
-            if (!newErrors.name) showMessage('Email is required', 'error');
+            newErrors.email = t('msg_email_required');
+            if (!newErrors.name) showMessage(t('msg_email_required'), 'error');
         } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address';
-            if (!newErrors.name) showMessage('Please enter a valid email address', 'error');
+            newErrors.email = t('msg_invalid_email');
+            if (!newErrors.name) showMessage(t('msg_invalid_email'), 'error');
         }
 
         const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
         if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-            if (!newErrors.name && !newErrors.email) showMessage('Phone number is required', 'error');
+            newErrors.phone = t('msg_phone_required');
+            if (!newErrors.name && !newErrors.email) showMessage(t('msg_phone_required'), 'error');
         } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Please enter a valid phone number';
-            if (!newErrors.name && !newErrors.email) showMessage('Please enter a valid phone number', 'error');
+            newErrors.phone = t('msg_invalid_phone');
+            if (!newErrors.name && !newErrors.email) showMessage(t('msg_invalid_phone'), 'error');
         }
 
         if (!formData.address.trim()) {
-            newErrors.address = 'Address is required';
-            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage('Address is required', 'error');
+            newErrors.address = t('msg_address_required');
+            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage(t('msg_address_required'), 'error');
         } else if (formData.address.trim().length < 10) {
-            newErrors.address = 'Address must be at least 10 characters';
-            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage('Address must be at least 10 characters', 'error');
+            newErrors.address = t('msg_address_min_10_chars');
+            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage(t('msg_address_min_10_chars'), 'error');
         }
 
         setErrors(newErrors);
@@ -96,7 +96,7 @@ const CreateSupplierPage = () => {
         }
 
         if (!currentStoreId) {
-            showMessage('Please select a store first!', 'error');
+            showMessage(t('msg_select_store_first'), 'error');
             return;
         }
 
@@ -133,127 +133,118 @@ const CreateSupplierPage = () => {
 
     if (!isClient) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-                <div className="mx-auto">
-                    <div className="flex items-center justify-center py-12">
-                        <div className="flex items-center gap-2 text-gray-600">
-                            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                ></path>
-                            </svg>
-                            {t('supplier_loading')}
-                        </div>
-                    </div>
+            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed]">
+                <div className="flex items-center gap-2 text-gray-600">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#046ca9] border-t-transparent" />
+                    {t('supplier_loading')}
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
-                {/* Header */}
-                <div className="mb-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
-                            <User className="h-5 w-5" />
+                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                                <Truck className="h-5 w-5 text-white sm:h-6 sm:w-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('supplier_create_title')}</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('supplier_add')} ${currentStore.store_name}` : t('supplier_add')}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-900">{t('supplier_create_title')}</h1>
-                            <p className="text-sm text-gray-500">{currentStore ? `${t('supplier_add')} ${currentStore.store_name}` : t('supplier_add')}</p>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/suppliers/list')}
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
+                        >
+                            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span>{t('btn_back')}</span>
+                        </button>
                     </div>
                     {currentStore && (
-                        <div className="rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
-                            <div className="flex items-center space-x-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#046ca9]/10">
-                                    <Store className="h-4 w-4 text-[#034d79]" />
+                        <div className="rounded-lg bg-[#046ca9]/5 p-3 sm:p-4">
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
+                                    <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-[#034d79]">{t('lbl_current_store')}: {currentStore.store_name}</p>
-                                </div>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                    {t('lbl_current_store')}: {currentStore.store_name}
+                                </p>
                             </div>
                         </div>
                     )}
                 </div>
 
-                {/* Main Form Card */}
-                <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
-                    <div className="p-8">
-                        <form className="space-y-8" onSubmit={handleSubmit}>
-                            {/* Basic Information Section */}
-                            <div>
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_name')}</h3>
-                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    {/* Supplier Name */}
-                                    <div className="md:col-span-2">
-                                        <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_supplier')} <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            id="name"
-                                            name="name"
-                                            type="text"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            placeholder={t('lbl_name')}
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
-                                                errors.name ? 'border-red-300' : 'border-gray-300'
-                                            }`}
-                                        />
-                                        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-                                    </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                        <div className="p-4 sm:p-6 md:p-8">
+                            <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_basic_information')}</h2>
 
-                                    {/* Email */}
-                                    <div>
-                                        <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_email')} <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            id="email"
-                                            name="email"
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            placeholder={t('lbl_email')}
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
-                                                errors.email ? 'border-red-300' : 'border-gray-300'
-                                            }`}
-                                        />
-                                        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-                                    </div>
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div className="lg:col-span-2">
+                                    <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
+                                        {t('lbl_supplier')} <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="name"
+                                        name="name"
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        placeholder={t('placeholder_enter_name')}
+                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                            errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                        }`}
+                                    />
+                                    {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+                                </div>
 
-                                    {/* Phone */}
-                                    <div>
-                                        <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_phone')} <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            id="phone"
-                                            name="phone"
-                                            type="tel"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            placeholder={t('lbl_phone')}
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
-                                                errors.phone ? 'border-red-300' : 'border-gray-300'
-                                            }`}
-                                        />
-                                        {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
-                                    </div>
+                                <div>
+                                    <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+                                        {t('lbl_email')} <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        placeholder={t('placeholder_email')}
+                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                            errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                        }`}
+                                    />
+                                    {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
+                                        {t('lbl_phone')} <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        placeholder={t('placeholder_phone')}
+                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                            errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                        }`}
+                                    />
+                                    {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
                                 </div>
                             </div>
 
-                            {/* Contact & Status Section */}
-                            <div className="border-t border-gray-200 pt-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_address')}</h3>
-                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    {/* Address */}
-                                    <div className="md:col-span-2">
+                            <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
+                                <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_contact')}</h2>
+
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                    <div className="lg:col-span-2">
                                         <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
                                             {t('lbl_address')} <span className="text-red-500">*</span>
                                         </label>
@@ -262,107 +253,75 @@ const CreateSupplierPage = () => {
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
-                                            placeholder={t('lbl_address')}
+                                            placeholder={t('placeholder_address')}
                                             rows={3}
                                             maxLength={500}
-                                            className={`w-full resize-none rounded-lg border bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary ${
-                                                errors.address ? 'border-red-300' : 'border-gray-300'
+                                            className={`w-full resize-none rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                errors.address ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
                                             }`}
                                         />
-                                        {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
-                                        <p className="mt-1 text-sm text-gray-500">{formData.address.length}/500 characters</p>
+                                        {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address}</p>}
+                                        <p className="mt-1 text-xs text-gray-500">{formData.address.length}/500</p>
                                     </div>
 
-                                    {/* Status */}
                                     <div>
-                                        <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_status')}
-                                        </label>
+                                        <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_status')}</label>
                                         <select
                                             id="status"
                                             name="status"
                                             value={formData.status}
                                             onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
                                         >
                                             <option value="active">{t('status_active')}</option>
                                             <option value="inactive">{t('status_inactive')}</option>
                                         </select>
                                     </div>
 
-                                    {/* Store Info (Read-only) */}
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_store')}</label>
                                         <input
                                             type="text"
-                                            value={currentStore?.store_name || 'Current Store'}
+                                            value={currentStore?.store_name || t('lbl_store')}
                                             disabled
                                             className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600"
                                         />
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Submit Button */}
-                            <div className="border-t border-gray-200 pt-6">
-                                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/protected/suppliers')}
-                                        className="w-full rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:w-auto"
-                                    >
-                                        {t('btn_cancel')}
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={createLoading}
-                                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
-                                    >
-                                        {createLoading ? (
-                                            <>
-                                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path
-                                                        className="opacity-75"
-                                                        fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                    ></path>
-                                                </svg>
-                                                {t('btn_creating')}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                {t('supplier_create_title')}
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
+                        <div className="border-t bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 md:px-8">
+                            <div className="flex flex-col items-center justify-end space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0">
+                                <button
+                                    type="button"
+                                    onClick={() => router.push('/suppliers/list')}
+                                    disabled={createLoading}
+                                    className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                >
+                                    {t('btn_cancel')}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={createLoading}
+                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                >
+                                    {createLoading ? (
+                                        <>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                            {t('btn_creating')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Plus className="mr-2 h-5 w-5" />
+                                            {t('supplier_create_title')}
+                                        </>
+                                    )}
+                                </button>
                             </div>
-                        </form>
-                    </div>
-                </div>
-
-                {/* Tips Card */}
-                <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
-                    <div className="flex items-start gap-3">
-                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="text-sm text-blue-800">
-                            <p className="mb-1 font-medium">Supplier Creation Tips:</p>
-                            <ul className="space-y-1 text-blue-700">
-                                <li>• Ensure email address is valid and unique in the system</li>
-                                <li>• Provide complete address information for better communication</li>
-                                <li>• Phone number should include country code for international suppliers</li>
-                                <li>• Set status to &apos;Active&apos; to enable immediate operations</li>
-                                <li>• Keep supplier information updated for smooth business operations</li>
-                            </ul>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     );

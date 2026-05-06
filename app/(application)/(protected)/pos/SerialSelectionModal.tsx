@@ -69,13 +69,6 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
         if (isOpen) {
             setSelectedSerialIds([]);
             setQuantity(1);
-
-            // Debug logging
-            console.log('📦 SerialSelectionModal opened');
-            console.log('Product:', product?.product_name);
-            console.log('Product serials:', product?.serials);
-            console.log('Selected stock:', selectedStock);
-            console.log('Stock serials:', selectedStock?.serials);
         }
     }, [isOpen, product, selectedStock]);
 
@@ -87,11 +80,9 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
     if (selectedStock && product.serials && Array.isArray(product.serials) && product.serials.length > 0) {
         // Filter serials by product_stock_id matching the selected variant
         availableSerials = product.serials.filter((s: any) => s.status === 'in_stock' && s.product_stock_id === selectedStock.id);
-        console.log(`🔍 Filtered serials for stock ID ${selectedStock.id}:`, availableSerials);
     } else if (selectedStock && selectedStock.serials && Array.isArray(selectedStock.serials)) {
         // Fallback: Use serials directly from the selected stock object
         availableSerials = selectedStock.serials.filter((s: Serial) => s.status === 'in_stock');
-        console.log(`🔍 Using direct stock serials for ID ${selectedStock.id}:`, availableSerials);
     } else if (product.serials && Array.isArray(product.serials)) {
         // For non-variant products, use all available serials
         availableSerials = product.serials.filter((s: Serial) => s.status === 'in_stock');
@@ -103,7 +94,6 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
         if (selectedStock) {
             // Find warranty matching the selected stock's ID
             warranty = product.warranties.find((w: any) => w.product_stock_id === selectedStock.id);
-            console.log(`🛡️ Warranty for stock ID ${selectedStock.id}:`, warranty);
         } else {
             // For non-variant products, use first warranty
             warranty = product.warranties[0];

@@ -14,7 +14,7 @@ interface CashPaymentSectionProps {
 
 const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInputChange, totalPayable, isWalkInCustomer, isReturnMode = false, returnNetAmount = 0 }) => {
     const { t } = getTranslation();
-    const { formatCurrency, symbol } = useCurrency();
+    const { formatCurrency, formatNumber, symbol } = useCurrency();
 
     const handleQuickAmount = (amount: number) => {
         const event = {
@@ -117,7 +117,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                                 step="0.01"
                                 min="0"
                                 className="form-input w-full border-blue-300 pl-8 pr-4 text-lg font-semibold focus:border-primary focus:ring-primary sm:w-48"
-                                placeholder="0.00"
+                                placeholder={formatNumber(0, 2)}
                                 value={formData.amountPaid || ''}
                                 onChange={onInputChange}
                             />
@@ -181,7 +181,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                             step="0.01"
                             min="0"
                             className="form-input w-full border-green-300 pl-8 pr-4 text-lg font-semibold focus:border-green-500 focus:ring-green-500 sm:w-48"
-                            placeholder="0.00"
+                            placeholder={formatNumber(0, 2)}
                             value={formData.amountPaid || ''}
                             onChange={onInputChange}
                         />
@@ -196,7 +196,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                             onClick={() => handleQuickAmount(amount)}
                             className="rounded-md border border-green-200 bg-white px-3 py-1.5 text-xs font-bold text-green-700 shadow-sm transition-all hover:border-green-400 hover:bg-green-50 hover:shadow active:scale-95"
                         >
-                            {amount}
+                            {formatNumber(amount)}
                         </button>
                     ))}
                     <button

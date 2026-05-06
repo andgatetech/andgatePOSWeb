@@ -4,8 +4,10 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetStoreLogoQuery, useGetStoreQuery } from '@/store/features/store/storeApi';
+import { RootState } from '@/store';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 // Dynamic imports for pdfmake to avoid SSR issues
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
@@ -38,6 +40,7 @@ interface InvoiceItem {
     unit?: string;
     price: number;
     amount: number;
+    discount?: number;
     tax_rate?: number;
     tax_included?: boolean;
     serials?: Serial[];
@@ -57,8 +60,11 @@ interface PosInvoicePreviewProps {
 const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber, currency } = useCurrency();
+    const currentUser = useSelector((state: RootState) => state.auth?.user);
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [printMode, setPrintMode] = useState<'invoice' | 'receipt' | null>(null);
+    const [showReceiptPreview, setShowReceiptPreview] = useState(false);
     const [logoDataUrl, setLogoDataUrl] = useState<string>('');
     const [pdfMake, setPdfMake] = useState<any>(null);
 
@@ -95,6 +101,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         payment_method,
         paymentMethod,
         amount_paid,
+        change_amount,
         due_amount,
         partialPaymentAmount,
         dueAmount,
@@ -106,6 +113,12 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         returnTotal = 0,
         exchangeTotal = 0,
         netTransaction = 0,
+        keptItemsTotal = 0,
+        return_reason,
+        notes,
+        cashier,
+        created_by,
+        user,
     } = data || {};
 
     // Use whichever is available
@@ -115,12 +128,16 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     // Calculate payment amounts
     const amountPaid = Number(amount_paid ?? partialPaymentAmount ?? 0);
     const amountDue = Number(due_amount ?? dueAmount ?? 0);
+    const changeAmount = Number(change_amount ?? data?.changeAmount ?? 0);
 
     const invoiceItems = items as InvoiceItem[];
 
     const subtotal = totals.subtotal ?? totals.total ?? invoiceItems.reduce((acc: number, item: InvoiceItem) => acc + Number(item.amount || 0), 0);
     const calculatedTax = totals.tax ?? tax;
     const calculatedDiscount = totals.discount ?? discount;
+    const membershipDiscount = Number(totals.membershipDiscount ?? data?.membershipDiscount ?? 0);
+    const pointsDiscount = Number(totals.pointsDiscount ?? data?.pointsDiscount ?? 0);
+    const balanceDiscount = Number(totals.balanceDiscount ?? data?.balanceDiscount ?? 0);
     const grandTotal = totals.grand_total ?? subtotal + calculatedTax - calculatedDiscount;
 
     const currentDate = new Date().toLocaleDateString('en-GB', {
@@ -226,7 +243,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     const getPaymentStatusColor = (status: string) => {
         // Try to get color from store's payment_statuses first
         if (currentStore?.payment_statuses && status) {
-            const paymentStatus = currentStore.payment_statuses.find((ps) => ps.status_name.toLowerCase() === status.toLowerCase());
+            const paymentStatus = currentStore.payment_statuses.find((ps: { status_name: string; status_color?: string }) => ps.status_name.toLowerCase() === status.toLowerCase());
             if (paymentStatus?.status_color) {
                 return paymentStatus.status_color;
             }
@@ -251,6 +268,72 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     };
 
     const totalQty = invoiceItems.reduce((sum, item) => sum + item.quantity, 0);
+    const cashierName = cashier?.name || created_by?.name || user?.name || data?.user_name || currentUser?.name || t('lbl_na');
+    const customerName = customer.name || t('pos_walk_in_customer');
+    const receiptTitle = isReturn ? t('lbl_return_receipt') : t('lbl_receipt');
+    const receiptKeptItems = keptItems as InvoiceItem[];
+    const receiptExchangeItems = exchangeItems as InvoiceItem[];
+    const receiptReturnedItems = returnedItems as InvoiceItem[];
+
+    const formatReceiptQty = (item: InvoiceItem, prefix = '') => {
+        const unit = item.unit || t('lbl_pcs');
+        return `${prefix}${formatNumber(item.quantity)} ${unit}`;
+    };
+
+    const renderReceiptItems = (receiptItems: InvoiceItem[], sectionTitle?: string, quantityPrefix = '') => {
+        if (!receiptItems.length) return null;
+
+        return (
+            <div className="space-y-1">
+                {sectionTitle && <div className="border-b border-black pb-1 pt-1 text-center text-[9px] font-black">{sectionTitle}</div>}
+                {receiptItems.map((item, index) => (
+                    <div key={`${sectionTitle || 'item'}-${item.id}-${index}`} className="break-inside-avoid border-b border-dotted border-gray-400 pb-1">
+                        <div className="flex gap-1 text-[9px] font-bold">
+                            <div className="w-5 shrink-0">{formatNumber(index + 1)}.</div>
+                            <div className="min-w-0 flex-1 break-words">{item.title}</div>
+                            <div className="w-[18mm] shrink-0 text-right">{formatCurrency(item.amount)}</div>
+                        </div>
+                        <div className="ml-5 flex justify-between gap-1 text-[8px]">
+                            <span>{formatReceiptQty(item, quantityPrefix)} x {formatCurrency(item.price)}</span>
+                            {item.tax_rate ? <span>{t('lbl_tax')}: {formatNumber(item.tax_rate)}%</span> : null}
+                        </div>
+                        {item.variantName && <div className="ml-5 break-words text-[8px]">{t('lbl_variant')}: {item.variantName}</div>}
+                        {item.has_serial && item.serials?.length ? (
+                            <div className="ml-5 break-words text-[8px]">{t('lbl_serial')}: {item.serials.map((serial) => serial.serial_number).join(', ')}</div>
+                        ) : null}
+                        {item.has_warranty && item.warranty ? <div className="ml-5 text-[8px]">{t('lbl_warranty')}: {item.warranty.warranty_type_name || formatWarrantyDuration(item.warranty)}</div> : null}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        const handleAfterPrint = () => {
+            setPrintMode(null);
+            setIsPrinting(false);
+        };
+
+        window.addEventListener('afterprint', handleAfterPrint);
+        return () => window.removeEventListener('afterprint', handleAfterPrint);
+    }, []);
+
+    const printWithMode = (mode: 'invoice' | 'receipt') => {
+        if (isPrinting) return;
+
+        setIsPrinting(true);
+        setPrintMode(mode);
+
+        window.requestAnimationFrame(() => {
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    setPrintMode(null);
+                    setIsPrinting(false);
+                }, 1500);
+            }, 100);
+        });
+    };
 
     // Generate PDF using pdfmake
     const exportPDF = async () => {
@@ -555,7 +638,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
             if (!isReturn) {
                 totalsContent.push([
                     { text: t('lbl_total_qty'), bold: true, border: [false, true, false, false] },
-                    { text: `${totalQty.toFixed(2)} ${invoiceItems[0]?.unit || t('lbl_pcs')}`, alignment: 'right', border: [false, true, false, false] },
+                    { text: `${formatNumber(totalQty, 2)} ${invoiceItems[0]?.unit || t('lbl_pcs')}`, alignment: 'right', border: [false, true, false, false] },
                 ]);
                 totalsContent.push([
                     { text: t('lbl_subtotal'), bold: true, border: [false, false, false, false] },
@@ -685,7 +768,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 stack: [
                     { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5 }], margin: [0, 0, 0, 5] },
                     { text: `${t('lbl_print_date')}: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
-                    { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: 1 of 1`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+                    { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: ${formatNumber(1)} ${t('lbl_of')} ${formatNumber(1)}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
                 ],
             });
 
@@ -733,207 +816,24 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
     };
 
     const handlePrint = () => {
-        window.print();
+        printWithMode('invoice');
     };
 
     const handlePrintPreview = () => {
-        window.print();
-    };
-
-    // Generate receipt HTML for thermal printer
-    const generateReceiptHTML = () => {
-        const storeName = currentStore?.store_name || 'andgatePOS';
-        const storeLocation = currentStore?.store_location || t('lbl_store_address');
-        const storeContact = currentStore?.store_contact || t('lbl_contact');
-
-        let itemsHTML = '';
-        invoiceItems.forEach((item: InvoiceItem, index: number) => {
-            let variantInfo = '';
-            if (item.variantName) {
-                variantInfo = `<div class="item-variant">${item.variantName}</div>`;
-            }
-
-            let serialInfo = '';
-            if (item.has_serial && item.serials && item.serials.length > 0) {
-                serialInfo = `<div class="item-serial">${t('lbl_serial')}: ${item.serials[0].serial_number}</div>`;
-            }
-
-            let warrantyInfo = '';
-            if (item.has_warranty && item.warranty) {
-                const duration = item.warranty.duration_months ? `${formatNumber(item.warranty.duration_months)}mo` : item.warranty.duration_days ? `${formatNumber(item.warranty.duration_days)}d` : t('lbl_lifetime');
-                const warrantyName = item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : '';
-                warrantyInfo = `<div class="item-warranty">${t('lbl_warranty')}: ${warrantyName}${duration}</div>`;
-            }
-
-            itemsHTML += `
-                <div class="item-row">
-                    <div class="item-name">${formatNumber(index + 1)}. ${item.title}</div>
-                    <div class="item-qty">${formatNumber(item.quantity)}</div>
-                    <div class="item-price">${formatCurrency(item.amount)}</div>
-                </div>
-                ${variantInfo}
-                ${serialInfo}
-                ${warrantyInfo}
-                <div class="item-details">${formatNumber(item.quantity)} x ${formatCurrency(item.price)} ${item.unit ? `(${item.unit})` : ''}</div>
-            `;
-        });
-
-        return `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>${t('lbl_receipt')} - ${invoice}</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        @page { size: 58mm auto; margin: 0; }
-        body {
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.3;
-            width: 58mm;
-            margin: 0 auto;
-            padding: 5mm;
-            background: white;
-            color: black;
-        }
-        .center { text-align: center; }
-        .store-name { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
-        .store-info { font-size: 10px; margin-bottom: 2px; }
-        .divider { border-top: 1px dashed #000; margin: 4mm 0; }
-        .invoice-info { margin-bottom: 3mm; font-size: 10px; }
-        .invoice-info div { margin-bottom: 2px; }
-        .items-header { font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 3px; font-size: 10px; }
-        .item-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 10px; }
-        .item-name { flex: 1; padding-right: 5px; }
-        .item-qty { width: 40px; text-align: center; }
-        .item-price { width: 70px; text-align: right; }
-        .item-details { font-size: 9px; color: #666; margin-bottom: 3px; padding-left: 3px; }
-        .item-variant { font-size: 9px; color: #4338ca; padding-left: 3px; margin-bottom: 1px; }
-        .item-serial { font-size: 9px; color: #059669; padding-left: 3px; margin-bottom: 1px; font-weight: bold; }
-        .item-warranty { font-size: 9px; color: #059669; padding-left: 3px; margin-bottom: 2px; }
-        .totals-section { margin-top: 3mm; border-top: 1px solid #000; padding-top: 2mm; font-size: 10px; }
-        .total-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .grand-total { font-weight: bold; font-size: 13px; border-top: 2px solid #000; padding-top: 2mm; margin-top: 2mm; }
-        .footer { margin-top: 4mm; font-size: 10px; }
-        .thank-you { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
-        @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            @page { size: 58mm auto; margin: 0mm; }
-        }
-        @media screen {
-            body { padding-top: 60px; }
-            .print-toolbar {
-                position: fixed; top: 0; left: 0; right: 0;
-                background: #f3f4f6; padding: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                z-index: 1000; display: flex;
-                justify-content: center; gap: 10px; flex-wrap: wrap;
-            }
-            .print-btn, .close-btn {
-                padding: 10px 24px; border: none; border-radius: 6px;
-                font-size: 14px; font-weight: 600; cursor: pointer;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s;
-            }
-            .print-btn { background: #10b981; color: white; }
-            .print-btn:active { transform: scale(0.98); }
-            .close-btn { background: #6b7280; color: white; }
-            .close-btn:active { transform: scale(0.98); }
-        }
-        @media print {
-            .print-toolbar { display: none !important; }
-            body { padding-top: 0; }
-        }
-    </style>
-</head>
-<body>
-    <div class="print-toolbar">
-        <button class="print-btn" onclick="window.print()">🖨️ ${t('btn_print_receipt')}</button>
-        <button class="close-btn" onclick="window.close()">✕ ${t('btn_close')}</button>
-    </div>
-    <div class="receipt-container">
-        <div class="center">
-            <div class="store-name">${storeName}</div>
-            <div class="store-info">${storeLocation}</div>
-            <div class="store-info">${storeContact}</div>
-        </div>
-        <div class="divider"></div>
-        <div class="invoice-info">
-            <div><strong>${t('lbl_receipt')}:</strong> ${invoice}</div>
-            <div><strong>${t('lbl_date')}:</strong> ${currentDate} ${currentTime}</div>
-            ${order_id ? `<div><strong>${t('lbl_order')}:</strong> #${order_id}</div>` : ''}
-            ${customer.name ? `<div><strong>${t('lbl_customer')}:</strong> ${customer.name}</div>` : ''}
-        </div>
-        <div class="divider"></div>
-        <div class="items-header">
-            <div class="item-row">
-                <div class="item-name">${t('lbl_item').toUpperCase()}</div>
-                <div class="item-qty">${t('lbl_qty').toUpperCase()}</div>
-                <div class="item-price">${t('lbl_amount').toUpperCase()}</div>
-            </div>
-        </div>
-        ${itemsHTML}
-        <div class="totals-section">
-            <div class="total-row">
-                <div>${t('lbl_subtotal')}:</div>
-                <div>${formatCurrency(subtotal)}</div>
-            </div>
-            ${calculatedTax > 0 ? `<div class="total-row"><div>${t('lbl_tax')}:</div><div>${formatCurrency(calculatedTax)}</div></div>` : ''}
-            ${calculatedDiscount > 0 ? `<div class="total-row"><div>${t('lbl_discount')}:</div><div>-${formatCurrency(calculatedDiscount)}</div></div>` : ''}
-            <div class="total-row grand-total">
-                <div>${t('lbl_total').toUpperCase()}:</div>
-                <div>${formatCurrency(grandTotal)}</div>
-            </div>
-            ${amountPaid > 0 ? `<div class="total-row"><div>${t('lbl_amount_paid')}:</div><div>${formatCurrency(amountPaid)}</div></div>` : ''}
-            ${amountDue > 0 ? `<div class="total-row" style="color: #dc2626;"><div>${t('lbl_amount_due')}:</div><div>${formatCurrency(amountDue)}</div></div>` : ''}
-        </div>
-        <div class="divider"></div>
-        <div class="center">
-            <div><strong>${t('lbl_payment_method')}:</strong> ${displayPaymentMethod || t('lbl_cash')}</div>
-            <div><strong>${t('lbl_status')}:</strong> ${displayPaymentStatus || t('status_pending')}</div>
-        </div>
-        <div class="divider"></div>
-        <div class="footer center">
-            <div class="thank-you">${t('msg_thank_you').toUpperCase()}</div>
-            <div>${t('msg_please_come_again')}</div>
-            <div style="margin-top: 2mm; font-size: 9px;">${t('lbl_powered_by')}: AndgatePOS</div>
-        </div>
-    </div>
-</body>
-</html>`;
+        printWithMode('invoice');
     };
 
     const printReceipt = () => {
-        if (isPrinting) return;
-        setIsPrinting(true);
+        setShowReceiptPreview(true);
+    };
 
-        try {
-            const receiptHTML = generateReceiptHTML();
-            const blob = new Blob([receiptHTML], { type: 'text/html' });
-            const blobUrl = URL.createObjectURL(blob);
-            const printWindow = window.open(blobUrl, '_blank');
-
-            if (!printWindow) {
-                alert(t('msg_allow_popups_print_receipts'));
-                URL.revokeObjectURL(blobUrl);
-                setIsPrinting(false);
-                return;
-            }
-
-            setTimeout(() => {
-                URL.revokeObjectURL(blobUrl);
-                setIsPrinting(false);
-            }, 2000);
-        } catch (error) {
-            alert(t('msg_print_window_failed'));
-            setIsPrinting(false);
-        }
+    const handleReceiptPrint = () => {
+        printWithMode('receipt');
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-4 print:bg-white print:p-0">
-            <div className="mx-auto max-w-5xl bg-white shadow-lg print:shadow-none">
+        <div className={`min-h-screen bg-gray-100 p-4 print:bg-white print:p-0 ${printMode === 'receipt' ? 'print-mode-receipt' : 'print-mode-invoice'}`}>
+            <div className="invoice-shell mx-auto max-w-5xl bg-white shadow-lg print:shadow-none">
                 {/* Top Close Button */}
                 {onClose && (
                     <div className="flex justify-end border-b border-gray-200 bg-gray-100 p-3 print:hidden">
@@ -1215,7 +1115,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                             <strong>{t('lbl_total_qty')}</strong>
                                         </span>
                                         <span>
-                                            {totalQty.toFixed(2)} {invoiceItems[0]?.unit || t('lbl_pcs')}
+                                            {formatNumber(totalQty, 2)} {invoiceItems[0]?.unit || t('lbl_pcs')}
                                         </span>
                                     </div>
                                     <div className="flex justify-between border-b border-gray-300 py-1">
@@ -1311,7 +1211,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                         <p>
                             {t('lbl_print_date')}: {currentDate} {currentTime}
                         </p>
-                        <p>{t('lbl_powered_by')}: AndgatePOS | {invoice} | {t('lbl_page')}: 1 of 1</p>
+                        <p>{t('lbl_powered_by')}: AndgatePOS | {invoice} | {t('lbl_page')}: {formatNumber(1)} {t('lbl_of')} {formatNumber(1)}</p>
                     </div>
                 </div>
             </div>
@@ -1327,16 +1227,16 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                         height: 297mm !important;
                     }
 
-                    body * {
+                    .print-mode-invoice * {
                         visibility: hidden;
                     }
 
-                    .max-w-5xl,
-                    .max-w-5xl * {
+                    .print-mode-invoice .invoice-shell,
+                    .print-mode-invoice .invoice-shell * {
                         visibility: visible;
                     }
 
-                    .max-w-5xl {
+                    .print-mode-invoice .invoice-shell {
                         position: absolute;
                         left: 0;
                         top: 0;
@@ -1411,21 +1311,280 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                 }
             `}</style>
 
-            {/* Bottom Close Button */}
-            {onClose && (
-                <div className="flex justify-center border-t border-gray-200 bg-gray-100 p-4 print:hidden">
-                    <button
-                        onClick={onClose}
-                        disabled={isPrinting}
-                        className="flex items-center gap-2 rounded-lg bg-gray-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
-                    >
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Close
-                    </button>
+                {/* Bottom Close Button */}
+                {onClose && (
+                    <div className="flex justify-center border-t border-gray-200 bg-gray-100 p-4 print:hidden">
+                        <button
+                            onClick={onClose}
+                            disabled={isPrinting}
+                            className="flex items-center gap-2 rounded-lg bg-gray-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            {t('btn_close')}
+                        </button>
+                    </div>
+                )}
+            {showReceiptPreview && (
+                <div className="receipt-preview-modal fixed inset-0 z-[10000] overflow-y-auto bg-slate-950/70 p-3 print:static print:bg-white print:p-0">
+                    <div className="receipt-preview-controls sticky top-0 z-10 -mx-3 -mt-3 mb-4 border-b border-slate-200 bg-white p-3 shadow print:hidden">
+                        <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 className="text-base font-bold text-gray-900">{t('lbl_thermal_receipt')}</h3>
+                                <p className="mt-1 text-xs text-gray-500">{t('msg_mobile_thermal_print_hint')}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleReceiptPrint}
+                                    disabled={isPrinting}
+                                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
+                                >
+                                    {isPrinting ? t('status_opening') : t('btn_open_print_dialog')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReceiptPreview(false)}
+                                    disabled={isPrinting}
+                                    className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-300 disabled:opacity-50"
+                                >
+                                    {t('btn_close')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="thermal-receipt-print-area mx-auto w-[58mm] bg-white p-[3mm] font-mono text-[10px] leading-tight text-black shadow-2xl print:shadow-none">
+                        <div className="text-center">
+                            <div className="mb-1 break-words text-[15px] font-black uppercase">{currentStore?.store_name || 'andgatePOS'}</div>
+                            {currentStore?.store_location && <div className="break-words text-[8px]">{currentStore.store_location}</div>}
+                            {currentStore?.store_contact && <div className="text-[8px]">{t('lbl_phone')}: {currentStore.store_contact}</div>}
+                            {currentStore?.store_email && <div className="break-words text-[8px]">{currentStore.store_email}</div>}
+                            <div className="mt-1 text-[11px] font-black uppercase">{receiptTitle}</div>
+                        </div>
+
+                        <div className="my-2 border-t border-dashed border-black" />
+
+                        <div className="space-y-1 text-[9px]">
+                            <div className="flex justify-between gap-2">
+                                <span>{t('lbl_invoice_no')}</span>
+                                <span className="break-all text-right font-bold">{invoice}</span>
+                            </div>
+                            {order_id && (
+                                <div className="flex justify-between gap-2">
+                                    <span>{t('lbl_order_id')}</span>
+                                    <span>#{order_id}</span>
+                                </div>
+                            )}
+                            {isReturn && original_order_id && (
+                                <div className="flex justify-between gap-2">
+                                    <span>{t('lbl_original_order')}</span>
+                                    <span>#{original_order_id}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between gap-2">
+                                <span>{t('lbl_date')}</span>
+                                <span className="text-right">{currentDate} {currentTime}</span>
+                            </div>
+                            <div className="flex justify-between gap-2">
+                                <span>{t('lbl_cashier')}</span>
+                                <span className="break-words text-right">{cashierName}</span>
+                            </div>
+                        </div>
+
+                        <div className="my-2 border-t border-dashed border-black" />
+
+                        <div className="space-y-1 text-[9px]">
+                            <div className="flex justify-between gap-2">
+                                <span>{t('lbl_customer')}</span>
+                                <span className="break-words text-right font-bold">{customerName}</span>
+                            </div>
+                            {customer.phone && (
+                                <div className="flex justify-between gap-2">
+                                    <span>{t('lbl_phone')}</span>
+                                    <span className="break-all text-right">{customer.phone}</span>
+                                </div>
+                            )}
+                            {customer.membership && customer.membership.toLowerCase() !== 'normal' && (
+                                <div className="flex justify-between gap-2">
+                                    <span>{t('lbl_membership')}</span>
+                                    <span className="capitalize">{customer.membership}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="my-2 border-t border-dashed border-black" />
+
+                        <div className="mb-1 flex border-b border-black pb-1 text-[9px] font-black">
+                            <div className="flex-1 pr-1">{t('lbl_product_name')}</div>
+                            <div className="w-[18mm] text-right">{t('lbl_amount')}</div>
+                        </div>
+
+                        {isReturn ? (
+                            <>
+                                {renderReceiptItems(receiptKeptItems, t('lbl_items_kept'))}
+                                {renderReceiptItems(receiptExchangeItems, t('lbl_exchange_items'))}
+                                {renderReceiptItems(receiptReturnedItems, t('lbl_returned_items'), '-')}
+                            </>
+                        ) : (
+                            renderReceiptItems(invoiceItems)
+                        )}
+
+                        <div className="my-2 border-t border-black pt-2 text-[9px]">
+                            <div className="flex justify-between">
+                                <span>{t('lbl_subtotal')}:</span>
+                                <span>{formatCurrency(subtotal)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>{t('lbl_total_qty')}:</span>
+                                <span>{formatNumber(totalQty, 2)}</span>
+                            </div>
+                            {calculatedTax > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_tax')}:</span>
+                                    <span>{formatCurrency(calculatedTax)}</span>
+                                </div>
+                            )}
+                            {calculatedDiscount > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_discount')}:</span>
+                                    <span>-{formatCurrency(calculatedDiscount)}</span>
+                                </div>
+                            )}
+                            {membershipDiscount > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_membership')}:</span>
+                                    <span>-{formatCurrency(membershipDiscount)}</span>
+                                </div>
+                            )}
+                            {pointsDiscount > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_points_discount')}:</span>
+                                    <span>-{formatCurrency(pointsDiscount)}</span>
+                                </div>
+                            )}
+                            {balanceDiscount > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_balance_discount')}:</span>
+                                    <span>-{formatCurrency(balanceDiscount)}</span>
+                                </div>
+                            )}
+                            {isReturn && (
+                                <>
+                                    {Number(keptItemsTotal) > 0 && (
+                                        <div className="flex justify-between">
+                                            <span>{t('lbl_items_kept')}:</span>
+                                            <span>{formatCurrency(keptItemsTotal)}</span>
+                                        </div>
+                                    )}
+                                    {Number(returnTotal) > 0 && (
+                                        <div className="flex justify-between">
+                                            <span>{t('lbl_total_return_amount')}:</span>
+                                            <span>{formatCurrency(returnTotal)}</span>
+                                        </div>
+                                    )}
+                                    {Number(exchangeTotal) > 0 && (
+                                        <div className="flex justify-between">
+                                            <span>{t('lbl_total_new_items')}:</span>
+                                            <span>{formatCurrency(exchangeTotal)}</span>
+                                        </div>
+                                    )}
+                                    {Number(netTransaction) !== 0 && (
+                                        <div className="flex justify-between font-bold">
+                                            <span>{Number(netTransaction) > 0 ? t('lbl_customer_paid') : t('lbl_customer_refunded')}:</span>
+                                            <span>{formatCurrency(Math.abs(Number(netTransaction)))}</span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            <div className="mt-1 flex justify-between border-t border-black pt-1 text-[12px] font-black">
+                                <span>{t('lbl_grand_total')}:</span>
+                                <span>{formatCurrency(grandTotal)}</span>
+                            </div>
+                            {amountPaid > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_amount_paid')}:</span>
+                                    <span>{formatCurrency(amountPaid)}</span>
+                                </div>
+                            )}
+                            {changeAmount > 0 && (
+                                <div className="flex justify-between">
+                                    <span>{t('lbl_change')}:</span>
+                                    <span>{formatCurrency(changeAmount)}</span>
+                                </div>
+                            )}
+                            {amountDue > 0 && (
+                                <div className="flex justify-between font-bold">
+                                    <span>{t('lbl_amount_due')}:</span>
+                                    <span>{formatCurrency(amountDue)}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="my-2 border-t border-dashed border-black" />
+
+                        <div className="space-y-1 text-center text-[9px]">
+                            <div><strong>{t('lbl_payment_method')}:</strong> {displayPaymentMethod || t('lbl_cash')}</div>
+                            <div><strong>{t('lbl_status')}:</strong> {getPaymentStatusLabel(displayPaymentStatus)}</div>
+                            {isReturn && return_reason && <div><strong>{t('lbl_reason')}:</strong> {return_reason}</div>}
+                            {notes && <div className="break-words"><strong>{t('lbl_notes')}:</strong> {notes}</div>}
+                        </div>
+
+                        <div className="my-2 border-t border-dashed border-black" />
+
+                        <div className="text-center text-[9px]">
+                            <div className="text-[11px] font-bold">{t('msg_thank_you')}</div>
+                            <div>{t('msg_please_come_again')}</div>
+                            <div className="mt-2 text-[8px]">{t('lbl_powered_by')}: AndgatePOS</div>
+                        </div>
+                    </div>
                 </div>
             )}
+
+            <style jsx global>{`
+                @page thermalReceipt {
+                    size: 58mm auto;
+                    margin: 0;
+                }
+
+                @media print {
+                    .print-mode-receipt .invoice-shell {
+                        display: none !important;
+                    }
+
+                    .print-mode-receipt,
+                    .print-mode-receipt * {
+                        visibility: visible !important;
+                    }
+
+                    .print-mode-receipt .receipt-preview-modal {
+                        position: static !important;
+                        inset: auto !important;
+                        display: block !important;
+                        overflow: visible !important;
+                        background: #fff !important;
+                        padding: 0 !important;
+                    }
+
+                    .print-mode-receipt .receipt-preview-controls {
+                        display: none !important;
+                    }
+
+                    .print-mode-receipt .thermal-receipt-print-area {
+                        page: thermalReceipt;
+                        width: 58mm !important;
+                        min-height: auto !important;
+                        margin: 0 !important;
+                        padding: 3mm !important;
+                        box-shadow: none !important;
+                        color: #000 !important;
+                        background: #fff !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

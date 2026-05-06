@@ -535,9 +535,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         (selectedSerials: any[], warranty: any) => {
             if (!serialProduct || !serialStock) return;
 
-            console.log('🔢 Serials selected:', selectedSerials);
-            console.log('🛡️ Warranty:', warranty);
-
             // Each serial number creates a separate cart item (quantity = 1 per serial)
             const baseTimestamp = Date.now();
             selectedSerials.forEach((serial, index) => {
@@ -573,8 +570,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     has_warranty: serialProduct.has_warranty,
                     warranty: warranty,
                 };
-
-                console.log(`📦 Adding item #${index + 1} with serial: ${serial.serial_number}, ID: ${uniqueId}`);
 
                 // Dispatch to appropriate Redux slice with storeId
                 if (!currentStoreId) return;
@@ -654,7 +649,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     // Barcode scan handler for keyboard scanner (auto-adds immediately from current products)
     const handleBarcodeScan = useCallback(
         (data: string) => {
-            console.log('📥 handleBarcodeScan called with:', data);
             try {
                 if (data) {
                     handleSearchChange(data);
@@ -664,7 +658,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         beepRef.current.currentTime = 0;
                         beepRef.current.play().catch(() => {});
                     }
-                    console.log('✅ handleBarcodeScan completed successfully');
                 }
             } catch (err: any) {
                 alert(`${t('msg_scan_handler_error')}: ${err.message}\n\n${t('msg_refresh_page')}`);
@@ -675,7 +668,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     // Camera scan handler — simple like SKU tab: just fill search field and show toast
     const handleCameraScan = useCallback((data: string) => {
-        console.log('📸 Camera scan received:', data);
         if (!data) return;
 
         // Fill the search input with scanned value

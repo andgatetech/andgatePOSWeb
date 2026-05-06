@@ -2,6 +2,7 @@
 
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showConfirmDialog } from '@/lib/toast';
@@ -48,6 +49,7 @@ export interface PosRightSideProps {
 const EMPTY_ARRAY: any[] = [];
 const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 'pos', orderId, originalOrder }) => {
     const { t } = getTranslation();
+    const { formatNumber } = useCurrency();
     const dispatch = useDispatch();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -601,17 +603,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         const newIsWholesale = !item.isWholesale;
         const newRate = newIsWholesale ? item.wholesalePrice || item.regularPrice || item.rate : item.regularPrice || item.rate;
 
-        console.log('🔄 Toggle wholesale:', {
-            itemId,
-            title: item.title,
-            currentMode: item.isWholesale ? t('lbl_wholesale') : t('lbl_retail'),
-            newMode: newIsWholesale ? t('lbl_wholesale') : t('lbl_retail'),
-            regularPrice: item.regularPrice,
-            wholesalePrice: item.wholesalePrice,
-            currentRate: item.rate,
-            newRate: newRate,
-        });
-
         if (!currentStoreId) return;
         if (reduxSlice === 'orderReturn') {
             dispatch(
@@ -664,7 +655,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (Number.isNaN(newQuantity) || newQuantity < 0) return;
 
         if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(`${t('msg_max_qty')} ${item.PlaceholderQuantity}`, 'error');
+            showMessage(`${t('msg_max_qty')} ${formatNumber(item.PlaceholderQuantity)}`, 'error');
             return;
         }
 
@@ -1561,10 +1552,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             // Items can be under 'items' or 'products' depending on the API response
             const orderData = orderResponse.data || orderResponse;
             const responseItems = orderData.items || orderData.products || [];
-
-            console.log('📋 Invoice Preview - Order Response:', orderResponse);
-            console.log('📋 Invoice Preview - Order Data:', orderData);
-            console.log('📋 Invoice Preview - Response Items:', responseItems);
 
             // For return mode, build special preview data
             if (isReturnMode) {

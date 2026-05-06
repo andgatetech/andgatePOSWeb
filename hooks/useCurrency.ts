@@ -31,7 +31,7 @@ export const useCurrency = () => {
         ...(currentStore?.currency || {}),
     };
     const cookieLang = typeof window !== 'undefined' ? new UniversalCookie().get('i18nextLng') : undefined;
-    const uiLang = (i18n.language || cookieLang || 'bn').replace('_', '-');
+    const uiLang = (i18n.language || cookieLang || 'en').replace('_', '-');
     const locale = getNumberLocale(uiLang);
 
     const formatCurrency = (amount: number | string | null | undefined): string => {

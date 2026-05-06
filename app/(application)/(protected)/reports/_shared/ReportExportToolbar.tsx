@@ -142,7 +142,6 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 const escapedSymbol = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 cleanText = cleanText.replace(new RegExp(escapedSymbol, 'g'), `${code} `);
             }
-            cleanText = cleanText.replace(/৳/g, 'BDT ');
             // Strip any remaining non-ASCII (Bengali text labels etc.)
             return cleanText.replace(/[^\x00-\x7F]/g, '');
         },

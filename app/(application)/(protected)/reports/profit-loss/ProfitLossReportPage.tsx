@@ -33,7 +33,7 @@ type PeriodType = 'today' | 'weekly' | 'monthly' | 'yearly' | 'custom';
 const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 const toLocalDigits = (str: string): string => {
     if (typeof window === 'undefined') return str;
-    const lang = new UniversalCookie().get('i18nextLng') || 'bn';
+    const lang = new UniversalCookie().get('i18nextLng') || 'en';
     if (lang !== 'bn') return str;
     return str.replace(/[0-9]/g, (d) => BN_DIGITS[parseInt(d)]);
 };

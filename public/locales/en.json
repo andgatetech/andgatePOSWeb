@@ -3652,5 +3652,15 @@
     "placeholder_enter_email": "Enter email",
     "placeholder_enter_phone": "Enter phone number",
     "sku_tip_examples": "Examples: PROD-001, SHIRT-BLU-M, LAPTOP-HP-15",
-    "sku_tip_auto_unique": "Auto-generated SKUs ensure uniqueness across your inventory"
+    "sku_tip_auto_unique": "Auto-generated SKUs ensure uniqueness across your inventory",
+    "lbl_thermal_receipt": "Thermal Receipt",
+    "btn_open_print_dialog": "Open Print Dialog",
+    "msg_mobile_thermal_print_hint": "For mobile Bluetooth printers, pair the printer with the phone first, then choose it from the browser print dialog.",
+    "lbl_optional_details": "Optional details",
+    "lbl_hide_optional_details": "Hide optional details",
+    "msg_quick_product_add_hint": "Enter only name and quantity now. Unit and prices can be completed later when receiving stock.",
+    "msg_please_enter_valid_amount": "Please enter a valid amount",
+    "msg_supplier_name_required": "Supplier name is required",
+    "msg_address_required": "Address is required",
+    "msg_address_min_10_chars": "Address must be at least 10 characters"
 }

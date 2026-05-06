@@ -3526,5 +3526,15 @@
     "placeholder_enter_email": "ইমেইল লিখুন",
     "placeholder_enter_phone": "ফোন নম্বর লিখুন",
     "sku_tip_examples": "উদাহরণ: PROD-001, SHIRT-BLU-M, LAPTOP-HP-15",
-    "sku_tip_auto_unique": "স্বয়ংক্রিয়ভাবে তৈরি এসকেইউ আপনার ইনভেন্টরিতে অনন্যতা নিশ্চিত করে"
+    "sku_tip_auto_unique": "স্বয়ংক্রিয়ভাবে তৈরি এসকেইউ আপনার ইনভেন্টরিতে অনন্যতা নিশ্চিত করে",
+    "lbl_thermal_receipt": "থার্মাল রসিদ",
+    "btn_open_print_dialog": "প্রিন্ট ডায়ালগ খুলুন",
+    "msg_mobile_thermal_print_hint": "মোবাইল ব্লুটুথ প্রিন্টারের জন্য আগে প্রিন্টারটি ফোনের সাথে পেয়ার করুন, তারপর ব্রাউজারের প্রিন্ট ডায়ালগ থেকে সেটি নির্বাচন করুন।",
+    "lbl_optional_details": "ঐচ্ছিক বিস্তারিত",
+    "lbl_hide_optional_details": "ঐচ্ছিক বিস্তারিত লুকান",
+    "msg_quick_product_add_hint": "এখন শুধু নাম ও পরিমাণ লিখুন। স্টক রিসিভ করার সময় ইউনিট ও মূল্য সম্পন্ন করা যাবে।",
+    "msg_please_enter_valid_amount": "সঠিক পরিমাণ লিখুন",
+    "msg_supplier_name_required": "সরবরাহকারীর নাম প্রয়োজন",
+    "msg_address_required": "ঠিকানা প্রয়োজন",
+    "msg_address_min_10_chars": "ঠিকানা কমপক্ষে ১০ অক্ষর হতে হবে"
 }

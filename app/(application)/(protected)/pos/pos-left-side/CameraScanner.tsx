@@ -156,7 +156,6 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                         // Record this scan
                         lastScanRef.current = { text: decodedText, time: now };
 
-                        console.log(`✅ CODE SCANNED: "${decodedText}"`);
                         onScanRef.current(decodedText);
 
                         if (autoClose) {
@@ -177,7 +176,6 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                 }
 
                 isStartingRef.current = false;
-                console.log('✅ Camera started successfully');
             } catch (err: any) {
                 console.error('❌ Camera start FAILED:', err);
 
