@@ -1,6 +1,7 @@
 'use client';
 
 import OrderFilter from '@/components/filters/OrderFilter';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetAllOrdersQuery, useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
@@ -8,6 +9,8 @@ import { getTranslation } from '@/i18n';
 import { ShoppingBag } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import PosInvoicePreview from '../pos/PosInvoicePreview';
 import OrderDetailsModal from './components/OrderDetailsModal';
 import OrderStats from './components/OrderStats';
@@ -15,7 +18,9 @@ import OrdersTable from './components/OrdersTable';
 
 const Orders = () => {
     const { t } = getTranslation();
-    const { currentStoreId } = useCurrentStore();
+    const { formatCurrency } = useCurrency();
+    const { currentStoreId, currentStore } = useCurrentStore();
+    const currentUser = useSelector((state: RootState) => state.auth?.user);
     const searchParams = useSearchParams();
     const router = useRouter();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
@@ -152,6 +157,180 @@ const Orders = () => {
         setShowInvoicePreview(true);
     }, []);
 
+    // Handle thermal receipt print (direct print without modal)
+    const handleThermalReceiptPrint = useCallback((order: any) => {
+        setSelectedOrder(order);
+        // Create a temporary element for thermal receipt printing
+        const printContent = document.createElement('div');
+        printContent.innerHTML = `
+            <style>
+                @page {
+                    size: 58mm auto;
+                    margin: 0;
+                }
+                body {
+                    margin: 0;
+                    padding: 3mm;
+                    font-family: monospace;
+                    font-size: 10px;
+                    line-height: 1.2;
+                    color: black;
+                    background: white;
+                }
+                .receipt-header {
+                    text-align: center;
+                    margin-bottom: 8px;
+                }
+                .receipt-title {
+                    font-size: 11px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    margin: 4px 0;
+                }
+                .divider {
+                    border-top: 1px dashed black;
+                    margin: 8px 0;
+                }
+                .receipt-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 2px 0;
+                    font-size: 9px;
+                }
+                .receipt-label {
+                    flex: 1;
+                }
+                .receipt-value {
+                    font-weight: bold;
+                }
+                .items-section {
+                    margin: 8px 0;
+                }
+                .item-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 2px 0;
+                    font-size: 8px;
+                }
+                .item-name {
+                    flex: 1;
+                    word-break: break-word;
+                }
+                .item-details {
+                    text-align: right;
+                }
+                .totals-section {
+                    margin-top: 8px;
+                }
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    font-weight: bold;
+                    margin: 2px 0;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 8px;
+                    font-size: 8px;
+                }
+            </style>
+            <div class="receipt-header">
+                <div style="font-size: 15px; font-weight: bold; text-transform: uppercase; word-break: break-word;">${currentStore?.store_name || 'andgatePOS'}</div>
+                ${currentStore?.store_location ? `<div style="font-size: 8px; word-break: break-word;">${currentStore.store_location}</div>` : ''}
+                ${currentStore?.store_contact ? `<div style="font-size: 8px;">Phone: ${currentStore.store_contact}</div>` : ''}
+                ${currentStore?.store_email ? `<div style="font-size: 8px; word-break: break-word;">${currentStore.store_email}</div>` : ''}
+                <div class="receipt-title">Receipt</div>
+            </div>
+            <div class="divider"></div>
+            <div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Invoice No:</span>
+                    <span class="receipt-value">${order.invoice || `#${order.id}`}</span>
+                </div>
+                ${order.id ? `<div class="receipt-row">
+                    <span class="receipt-label">Order ID:</span>
+                    <span class="receipt-value">#${order.id}</span>
+                </div>` : ''}
+                <div class="receipt-row">
+                    <span class="receipt-label">Date:</span>
+                    <span class="receipt-value">${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Cashier:</span>
+                    <span class="receipt-value">${currentUser?.name || 'Staff'}</span>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Customer:</span>
+                    <span class="receipt-value">${order.is_walk_in ? 'Walk-in Customer' : (order.customer?.name || 'N/A')}</span>
+                </div>
+                ${!order.is_walk_in && order.customer?.phone ? `<div class="receipt-row">
+                    <span class="receipt-label">Phone:</span>
+                    <span class="receipt-value">${order.customer.phone}</span>
+                </div>` : ''}
+            </div>
+            <div class="divider"></div>
+            <div class="items-section">
+                ${(order.items || []).map((item: any) => `
+                    <div class="item-row">
+                        <span class="item-name">${item.snapshot?.product_name ?? item.product?.name ?? item.product_name ?? 'Unknown Product'}</span>
+                        <span class="item-details">${item.quantity}x ${formatCurrency(item.unit_price || item.price)}</span>
+                    </div>
+                    ${item.variant_name || item.variant?.name ? `<div style="font-size: 7px; color: #666; margin-left: 4px;">${item.variant_name || item.variant?.name}</div>` : ''}
+                `).join('')}
+            </div>
+            <div class="divider"></div>
+            <div class="totals-section">
+                <div class="receipt-row">
+                    <span class="receipt-label">Subtotal:</span>
+                    <span class="receipt-value">${formatCurrency(order.financial?.subtotal ?? order.subtotal ?? order.total)}</span>
+                </div>
+                ${(order.financial?.tax ?? order.tax ?? 0) > 0 ? `<div class="receipt-row">
+                    <span class="receipt-label">Tax:</span>
+                    <span class="receipt-value">${formatCurrency(order.financial?.tax ?? order.tax ?? 0)}</span>
+                </div>` : ''}
+                ${(order.financial?.discount ?? order.discount ?? 0) > 0 ? `<div class="receipt-row">
+                    <span class="receipt-label">Discount:</span>
+                    <span class="receipt-value">-${formatCurrency(order.financial?.discount ?? order.discount ?? 0)}</span>
+                </div>` : ''}
+                <div class="total-row">
+                    <span>Total:</span>
+                    <span>${formatCurrency(order.financial?.grand_total ?? order.grand_total ?? order.total)}</span>
+                </div>
+                ${(order.financial?.amount_paid ?? order.amount_paid ?? 0) > 0 ? `<div class="receipt-row">
+                    <span class="receipt-label">Paid:</span>
+                    <span class="receipt-value">${formatCurrency(order.financial?.amount_paid ?? order.amount_paid ?? 0)}</span>
+                </div>` : ''}
+                ${(order.financial?.due_amount ?? order.due_amount ?? 0) > 0 ? `<div class="receipt-row">
+                    <span class="receipt-label">Due:</span>
+                    <span class="receipt-value">${formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0)}</span>
+                </div>` : ''}
+            </div>
+            <div class="divider"></div>
+            <div class="footer">
+                <div>Thank you for your business!</div>
+                <div>Powered by andgatePOS</div>
+            </div>
+        `;
+
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        if (printWindow) {
+            printWindow.document.write('<html><head><title>Thermal Receipt</title></head><body>');
+            printWindow.document.write(printContent.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+
+            // Wait for content to load then print
+            printWindow.onload = () => {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+    }, [currentStore, currentUser, formatCurrency]);
+
     // Close invoice preview
     const handleCloseInvoicePreview = useCallback(() => {
         setShowInvoicePreview(false);
@@ -220,6 +399,7 @@ const Orders = () => {
                     }}
                     onViewDetails={handleViewDetails}
                     onOpenInvoicePreview={handleOpenInvoicePreview}
+                    onThermalReceiptPrint={handleThermalReceiptPrint}
                 />
 
                 {/* Order Details Modal */}

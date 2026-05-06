@@ -1815,6 +1815,7 @@
     "order_action_edit": "Edit Order",
     "order_action_return": "Return",
     "order_action_invoice": "Invoice",
+    "order_action_thermal_receipt": "Print Thermal Receipt",
     "purchase_page_title": "Purchases",
     "purchase_page_desc": "Manage your purchase orders",
     "purchase_add": "New Purchase",

@@ -28,9 +28,10 @@ interface OrdersTableProps {
     };
     onViewDetails: (order: any) => void;
     onOpenInvoicePreview: (order: any) => void;
+    onThermalReceiptPrint: (order: any) => void;
 }
 
-const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview }) => {
+const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint }) => {
     const { t } = getTranslation();
     const router = useRouter();
     const { formatCurrency } = useCurrency();
@@ -239,13 +240,21 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 icon: <Eye className="h-4 w-4" />,
             },
             {
+                label: t('order_action_thermal_receipt'),
+                onClick: onThermalReceiptPrint,
+                className: 'text-purple-600',
+                icon: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>,
+            },
+            {
                 label: t('order_action_invoice'),
                 onClick: onOpenInvoicePreview,
                 className: 'text-green-600',
                 icon: <Download className="h-4 w-4" />,
             },
         ],
-        [t, router, onViewDetails, onOpenInvoicePreview, currentStoreId, dispatch]
+        [t, router, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint, currentStoreId, dispatch]
     );
 
     return (
