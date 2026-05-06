@@ -177,6 +177,7 @@ const Orders = () => {
         }
         html, body {
             width: 100%;
+            height: auto;
             margin: 0;
             padding: 0;
         }
@@ -188,121 +189,139 @@ const Orders = () => {
         body {
             font-family: 'Courier New', monospace;
             font-size: 11px;
-            line-height: 1.4;
+            line-height: 1.2;
             width: 80mm;
             margin: 0;
-            padding: 8px;
+            padding: 4px;
             background: white;
             color: black;
+            display: table;
         }
         .receipt-container {
             width: 100%;
             margin: 0;
             padding: 0;
+            display: table;
         }
         .receipt-header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 2px;
             border-bottom: 1px dashed black;
-            padding-bottom: 8px;
+            padding-bottom: 2px;
         }
         .store-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            margin: 4px 0;
+            margin: 0px 0 1px 0;
             word-wrap: break-word;
+            line-height: 1.2;
         }
         .store-info {
-            font-size: 9px;
-            margin: 2px 0;
+            font-size: 8px;
+            margin: 0px 0;
             word-wrap: break-word;
+            line-height: 1.1;
         }
         .receipt-title {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 1px;
+            margin-bottom: 0;
         }
         .receipt-divider {
             border-top: 1px dashed black;
-            margin: 8px 0;
+            margin: 1px 0;
+            height: 0;
         }
         .receipt-section {
-            margin: 6px 0;
+            margin: 1px 0;
             padding: 0;
         }
         .receipt-row {
             display: table;
             width: 100%;
-            margin: 2px 0;
-            font-size: 10px;
+            margin: 0px 0;
+            font-size: 9px;
             word-wrap: break-word;
+            line-height: 1.1;
         }
         .row-label {
             display: table-cell;
             width: 50%;
             text-align: left;
             padding-right: 4px;
+            padding: 0px 4px 0px 0px;
         }
         .row-value {
             display: table-cell;
             width: 50%;
             text-align: right;
             font-weight: bold;
+            padding: 0;
         }
         .items-section {
-            margin: 8px 0;
+            margin: 1px 0;
+            padding: 0;
         }
         .item-row {
-            margin: 3px 0;
-            font-size: 9px;
+            margin: 0px 0;
+            font-size: 8px;
             word-wrap: break-word;
             padding: 0;
+            line-height: 1.1;
         }
         .item-name {
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 0px;
+            line-height: 1.1;
         }
         .item-details {
-            font-size: 8px;
+            font-size: 7px;
             color: #333;
+            line-height: 1;
         }
         .totals-section {
             border-top: 1px solid black;
             border-bottom: 1px solid black;
-            margin: 8px 0;
-            padding: 6px 0;
+            margin: 1px 0;
+            padding: 1px 0;
         }
         .total-row {
             display: table;
             width: 100%;
-            margin: 3px 0;
-            font-size: 11px;
+            margin: 0px 0;
+            font-size: 10px;
             font-weight: bold;
+            line-height: 1.1;
         }
         .total-label {
             display: table-cell;
             width: 50%;
             text-align: left;
+            padding: 0px 4px 0px 0px;
         }
         .total-value {
             display: table-cell;
             width: 50%;
             text-align: right;
+            padding: 0;
         }
         .footer {
             text-align: center;
-            margin-top: 8px;
-            padding-top: 8px;
+            margin-top: 1px;
+            padding-top: 1px;
             border-top: 1px dashed black;
-            font-size: 9px;
+            font-size: 8px;
+            line-height: 1;
         }
         .footer-text {
-            margin: 2px 0;
+            margin: 0px 0;
+            line-height: 1;
         }
         @media print {
             body {
                 margin: 0;
-                padding: 0;
+                padding: 4px;
             }
             .receipt-container {
                 margin: 0;
@@ -316,7 +335,7 @@ const Orders = () => {
         <div class="receipt-header">
             <div class="store-name">${currentStore?.store_name || 'andgatePOS'}</div>
             ${currentStore?.store_location ? `<div class="store-info">${currentStore.store_location}</div>` : ''}
-            ${currentStore?.store_contact ? `<div class="store-info">Phone: ${currentStore.store_contact}</div>` : ''}
+            ${currentStore?.store_contact ? `<div class="store-info">Ph: ${currentStore.store_contact}</div>` : ''}
             ${currentStore?.store_email ? `<div class="store-info">${currentStore.store_email}</div>` : ''}
             <div class="receipt-title">RECEIPT</div>
         </div>
@@ -332,7 +351,7 @@ const Orders = () => {
             </div>` : ''}
             <div class="receipt-row">
                 <div class="row-label">Date:</div>
-                <div class="row-value">${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</div>
+                <div class="row-value">${new Date().toLocaleDateString()}</div>
             </div>
             <div class="receipt-row">
                 <div class="row-label">Cashier:</div>
@@ -348,7 +367,7 @@ const Orders = () => {
                 <div class="row-value">${order.is_walk_in ? 'Walk-in' : (order.customer?.name || 'N/A')}</div>
             </div>
             ${!order.is_walk_in && order.customer?.phone ? `<div class="receipt-row">
-                <div class="row-label">Phone:</div>
+                <div class="row-label">Ph:</div>
                 <div class="row-value">${order.customer.phone}</div>
             </div>` : ''}
         </div>
@@ -363,8 +382,8 @@ const Orders = () => {
                 return `
                 <div class="item-row">
                     <div class="item-name">${itemName}</div>
-                    <div class="item-details">${itemQty} x ${itemPrice}</div>
-                    ${item.variant_name || item.variant?.name ? `<div class="item-details">Variant: ${item.variant_name || item.variant?.name}</div>` : ''}
+                    <div class="item-details">${itemQty}x${itemPrice}</div>
+                    ${item.variant_name || item.variant?.name ? `<div class="item-details">Var: ${item.variant_name || item.variant?.name}</div>` : ''}
                 </div>
                 `;
             }).join('')}
@@ -385,7 +404,7 @@ const Orders = () => {
                 <div class="total-label">Discount:</div>
                 <div class="total-value">-${formatCurrency(order.financial?.discount ?? order.discount ?? 0)}</div>
             </div>` : ''}
-            <div class="total-row" style="border-top: 1px solid black; padding-top: 4px; margin-top: 4px;">
+            <div class="total-row" style="border-top: 1px solid black; padding-top: 1px; margin-top: 1px;">
                 <div class="total-label">TOTAL:</div>
                 <div class="total-value">${formatCurrency(order.financial?.grand_total ?? order.grand_total ?? order.total)}</div>
             </div>
@@ -400,24 +419,56 @@ const Orders = () => {
         </div>
 
         <div class="footer">
-            <div class="footer-text">Thank you for your business!</div>
-            <div class="footer-text">Powered by andgatePOS</div>
+            <div class="footer-text">Thank you!</div>
+            <div class="footer-text">andgatePOS</div>
         </div>
     </div>
 </body>
 </html>
         `;
 
-        // For Android compatibility, use a simpler approach
+        // For Android compatibility, use a more reliable approach
         if (navigator.userAgent.toLowerCase().includes('android')) {
-            // Android: Create a data URL and open it
+            // Android: Create a data URL and open it with longer delays for Bluetooth printer
             const blob = new Blob([receiptHTML], { type: 'text/html; charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const printWindow = window.open(url, '_blank');
+            const printWindow = window.open(url, '_blank', 'resizable=yes,scrollbars=yes');
+            
             if (printWindow) {
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
+                // Wait for content to fully load before printing
+                let printAttempts = 0;
+                const maxAttempts = 5;
+                const printInterval = setInterval(() => {
+                    printAttempts++;
+                    try {
+                        if (printWindow.document && printWindow.document.readyState === 'complete') {
+                            clearInterval(printInterval);
+                            printWindow.print();
+                            // Keep window open for 3 seconds to ensure print data is sent
+                            setTimeout(() => {
+                                printWindow.close();
+                            }, 3000);
+                        } else if (printAttempts >= maxAttempts) {
+                            clearInterval(printInterval);
+                            printWindow.print();
+                            setTimeout(() => {
+                                printWindow.close();
+                            }, 3000);
+                        }
+                    } catch (e) {
+                        if (printAttempts >= maxAttempts) {
+                            clearInterval(printInterval);
+                            try {
+                                printWindow.print();
+                            } catch (err) {
+                                console.error('Print failed:', err);
+                            }
+                            setTimeout(() => {
+                                printWindow.close();
+                            }, 3000);
+                        }
+                    }
+                }, 300);
             }
         } else {
             // Desktop/iOS: Use the standard approach
@@ -425,9 +476,29 @@ const Orders = () => {
             if (printWindow) {
                 printWindow.document.write(receiptHTML);
                 printWindow.document.close();
-                setTimeout(() => {
+                
+                // Wait for content to load then print
+                printWindow.onload = () => {
                     printWindow.print();
-                }, 100);
+                    // Keep window open for 2 seconds before closing
+                    setTimeout(() => {
+                        printWindow.close();
+                    }, 2000);
+                };
+                
+                // Fallback: print after timeout if onload doesn't trigger
+                setTimeout(() => {
+                    try {
+                        if (printWindow && !printWindow.closed) {
+                            printWindow.print();
+                            setTimeout(() => {
+                                printWindow.close();
+                            }, 2000);
+                        }
+                    } catch (e) {
+                        console.error('Print failed:', e);
+                    }
+                }, 500);
             }
         }
     }, [currentStore, currentUser, formatCurrency]);
