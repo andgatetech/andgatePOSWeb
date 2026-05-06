@@ -6,7 +6,7 @@ import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useRegisterSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { ArrowLeft, Plus, Store, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface SupplierFormData {
     name: string;
@@ -20,8 +20,6 @@ const CreateSupplierPage = () => {
     const { t } = getTranslation();
     const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
-    const [isClient, setIsClient] = useState(false);
-
     const [registerSupplier, { isLoading: createLoading }] = useRegisterSupplierMutation();
 
     const [formData, setFormData] = useState<SupplierFormData>({
@@ -33,10 +31,6 @@ const CreateSupplierPage = () => {
     });
 
     const [errors, setErrors] = useState<Partial<SupplierFormData>>({});
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -130,17 +124,6 @@ const CreateSupplierPage = () => {
             showErrorDialog(t('msg_error'), errorMessage, t('btn_confirm'));
         }
     };
-
-    if (!isClient) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed]">
-                <div className="flex items-center gap-2 text-gray-600">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#046ca9] border-t-transparent" />
-                    {t('supplier_loading')}
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">

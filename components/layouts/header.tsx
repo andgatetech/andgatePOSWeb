@@ -147,7 +147,7 @@ const Header = () => {
                             className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-base font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#0580c5] hover:to-[#046ca9] hover:shadow-lg sm:gap-2 sm:px-4"
                         >
                             <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            <span className="hidden sm:inline">POS</span>
+                            <span className="hidden sm:inline">{t('POS')}</span>
                         </Link>
 
                         <CalculatorButton />

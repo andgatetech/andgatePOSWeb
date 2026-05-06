@@ -1,6 +1,7 @@
 'use client';
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
+import PaymentStatusBadge from '@/components/payment/PaymentStatusBadge';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -102,17 +103,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 label: t('order_payment_status'),
                 sortable: true,
                 render: (value, row) => {
-                    const status = (value?.status ?? row.payment_status)?.toLowerCase() || 'pending';
-                    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
-                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_paid') },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_partial') },
-                        due: { bg: 'bg-red-100', text: 'text-red-800', label: t('lbl_due') },
-                        unpaid: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_unpaid') },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_pending') },
-                    };
-                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || t('lbl_unknown') };
-                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
+                    const status = (value?.status ?? row.payment_status) || 'pending';
+                    return <PaymentStatusBadge status={status} />;
                 },
             },
             {

@@ -9,6 +9,7 @@ import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toa
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { Edit, Eye, Image as ImageIcon, Plus, Save, Store, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // Brand Modal Component
@@ -227,6 +228,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 // Main Brand Management Component
 const BrandManagement = () => {
     const { t } = getTranslation();
+    const router = useRouter();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -477,7 +479,7 @@ const BrandManagement = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => openModal('create')}
+                    onClick={() => router.push('/brand/create')}
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
                     <Plus className="h-4 w-4" />
@@ -518,7 +520,7 @@ const BrandManagement = () => {
                     title: t('brand_no_data'),
                     description: t('brand_no_data_desc'),
                     action: (
-                        <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                        <button onClick={() => router.push('/brand/create')} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
                             <Plus className="h-4 w-4" />
                             {t('brand_create_first')}
                         </button>

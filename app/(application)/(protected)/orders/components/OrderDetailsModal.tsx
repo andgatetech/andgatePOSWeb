@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { getPaymentStatusConfig, normalizePaymentStatus } from '@/lib/paymentConstants';
 import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Calendar, Clock, CreditCard, Hash, Package, Receipt, RotateCcw, Shield, Store, TrendingUp, User, X } from 'lucide-react';
 import { Fragment } from 'react';
@@ -18,14 +19,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     const { t } = getTranslation();
     if (!order) return null;
 
-    const paymentStatusConfig: Record<string, { bg: string; text: string }> = {
-        paid: { bg: 'bg-green-100', text: 'text-green-800' },
-        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-        due: { bg: 'bg-red-100', text: 'text-red-800' },
-    };
-
-    const paymentStatus = order.payment?.status ?? order.payment_status ?? 'paid';
-    const statusStyle = paymentStatusConfig[paymentStatus] || { bg: 'bg-gray-100', text: 'text-gray-800' };
+    const paymentStatus = normalizePaymentStatus(order.payment?.status ?? order.payment_status ?? 'paid');
+    const statusStyle = getPaymentStatusConfig(paymentStatus);
     const na = t('lbl_na');
 
     return (

@@ -27,6 +27,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['stores.view'],
         subMenu: [
             {
+                label: 'Add Store',
+                href: '/store/create',
+                requiredPermissions: ['stores.create'],
+            },
+            {
                 label: 'Store',
                 href: '/store',
                 requiredPermissions: ['stores.view'],
@@ -49,6 +54,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['categories.index'],
         subMenu: [
             {
+                label: 'Add Category',
+                href: '/category/create',
+                requiredPermissions: ['categories.create'],
+            },
+            {
                 label: 'Category List',
                 href: '/category',
                 requiredPermissions: ['categories.index'],
@@ -60,6 +70,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         icon: React.createElement(Tag),
         requiredPermissions: ['brands.index'],
         subMenu: [
+            {
+                label: 'Add Brand',
+                href: '/brand/create',
+                requiredPermissions: ['brands.create'],
+            },
             {
                 label: 'Brand List',
                 href: '/brand',
@@ -168,9 +183,19 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['ledgers.index', 'journals.index'],
         subMenu: [
             {
+                label: 'Add Ledger',
+                href: '/account/ledger-list/create',
+                requiredPermissions: ['ledgers.create'],
+            },
+            {
                 label: 'Ledger List',
                 href: '/account/ledger-list',
                 requiredPermissions: ['ledgers.index'],
+            },
+            {
+                label: 'Add Journal',
+                href: '/account/journal-list/create',
+                requiredPermissions: ['journals.create'],
             },
             {
                 label: 'Journal List',
@@ -184,6 +209,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         icon: React.createElement(Receipt),
         requiredPermissions: ['expenses.index'],
         subMenu: [
+            {
+                label: 'Add Expense',
+                href: '/expenses/create',
+                requiredPermissions: ['expenses.create'],
+            },
             {
                 label: 'Expense List',
                 href: '/expenses/expense-list',

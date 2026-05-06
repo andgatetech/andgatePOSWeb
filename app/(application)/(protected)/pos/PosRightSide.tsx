@@ -1,10 +1,12 @@
 'use client';
 
 import IconEye from '@/components/icon/icon-eye';
+import IconPrinter from '@/components/icon/icon-printer';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { DEFAULT_PAYMENT_METHOD } from '@/lib/paymentConstants';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation } from '@/store/features/Order/Order';
@@ -34,10 +36,6 @@ import PreviewModal from './pos-right-side/PreviewModal';
 import type { Customer, CustomerApiResponse, PosFormData } from './pos-right-side/types';
 import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 
-const DEFAULT_PAYMENT_METHOD = {
-    id: 0,
-    payment_method_name: 'cash',
-};
 
 export interface PosRightSideProps {
     mode?: 'pos' | 'return';
@@ -106,6 +104,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [orderResponse, setOrderResponse] = useState<any>(null);
     const [showPreview, setShowPreview] = useState(false);
+    const [autoPrint, setAutoPrint] = useState<'invoice' | 'receipt' | null>(null);
+    const postActionRef = useRef<'invoice' | 'receipt'>('invoice');
     const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
     const [quotePreview, setQuotePreview] = useState<any>(null);
 
@@ -1295,6 +1295,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             const response = await createOrder(orderData).unwrap();
             setQuotePreview(null);
             setOrderResponse(response);
+            setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
             setShowPreview(true);
 
             refetch();
@@ -1504,6 +1505,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const handleBackToEdit = () => {
         setShowPreview(false);
+        setAutoPrint(null);
 
         // If in return mode, always redirect to orders page
         if (isReturnMode) {
@@ -1822,7 +1824,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         <div className="relative mt-6 w-full sm:mt-6 xl:mt-0 xl:w-full">
             <Toaster />
             <LoadingOverlay isLoading={loading} />
-            <PreviewModal isOpen={showPreview} data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
+            <PreviewModal isOpen={showPreview} data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} autoPrint={autoPrint} />
             <div className="panel ">
                 <CustomerSection
                     formData={formData}
@@ -1897,20 +1899,54 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
                     {isReturnMode ? (
                         <>
-                            <button type="button" className="btn btn-warning flex-1 text-sm sm:text-base" onClick={handleReturnSubmit} disabled={loading}>
-                                {t('btn_submit_return')} <IconSave />
+                            <button
+                                type="button"
+                                onClick={handleReturnSubmit}
+                                disabled={loading}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconSave />
+                                )}
+                                {t('btn_submit_return')}
                             </button>
-                            <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={() => router.push('/orders')}>
+                            <button
+                                type="button"
+                                onClick={() => router.push('/orders')}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 sm:text-base"
+                            >
                                 {t('btn_cancel')}
                             </button>
                         </>
                     ) : (
                         <>
-                            <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading}>
-                                {t('btn_confirm_order')} <IconSave />
+                            <button
+                                type="button"
+                                onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
+                                disabled={loading}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading && postActionRef.current === 'invoice' ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconSave />
+                                )}
+                                {t('lbl_invoice')}
                             </button>
-                            <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
-                                {t('btn_preview')} <IconEye />
+                            <button
+                                type="button"
+                                onClick={() => { postActionRef.current = 'receipt'; handleSubmit(); }}
+                                disabled={loading}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading && postActionRef.current === 'receipt' ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconPrinter />
+                                )}
+                                {t('btn_print_receipt')}
                             </button>
                         </>
                     )}

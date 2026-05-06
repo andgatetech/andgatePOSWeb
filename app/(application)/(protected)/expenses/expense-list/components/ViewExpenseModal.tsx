@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { getPaymentTypeI18nKey } from '@/lib/paymentConstants';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -16,13 +17,6 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
-    const PAYMENT_TYPE_LABELS: Record<string, string> = {
-        cash: t('lbl_cash'),
-        bank_transfer: t('lbl_bank'),
-        card: t('lbl_card'),
-        others: t('lbl_others'),
-        bank: t('lbl_bank'),
-    };
 
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -42,7 +36,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
 
     if (!isOpen || !expense) return null;
 
-    const paymentTypeLabel = PAYMENT_TYPE_LABELS[expense.payment_type?.toLowerCase()] || t('lbl_others');
+    const paymentTypeLabel = t(getPaymentTypeI18nKey(expense.payment_type));
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>

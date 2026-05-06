@@ -10,10 +10,12 @@ import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toa
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
 import { Edit, Eye, ImageIcon, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const CategoryComponent = () => {
     const { t } = getTranslation();
+    const router = useRouter();
     const { currentStoreId, userStores } = useCurrentStore();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -319,7 +321,7 @@ const CategoryComponent = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => openModal('create')}
+                    onClick={() => router.push('/category/create')}
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
                     <Plus className="h-4 w-4" />
@@ -359,7 +361,7 @@ const CategoryComponent = () => {
                         title: t('category_no_data'),
                         description: t('category_no_data_desc'),
                         action: (
-                            <button onClick={() => openModal('create')} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
+                            <button onClick={() => router.push('/category/create')} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                                 <Plus className="h-4 w-4" />
                                 {t('category_create_first')}
                             </button>

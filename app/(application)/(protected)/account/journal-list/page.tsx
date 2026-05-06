@@ -7,14 +7,15 @@ import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteJournalMutation, useGetJournalsQuery } from '@/store/features/journals/journals';
 import { BookOpen, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
-import CreateJournalModal from './components/CreateJournalModal';
 import EditJournalModal from './components/EditJournalModal';
 import JournalsTable from './components/JournalsTable';
 import ViewJournalModal from './components/ViewJournalModal';
 
 const JournalListPage = () => {
     const { t } = getTranslation();
+    const router = useRouter();
     const { currentStoreId } = useCurrentStore();
 
     // Filter and pagination state
@@ -27,7 +28,6 @@ const JournalListPage = () => {
     // Modal states
     const [selectedJournal, setSelectedJournal] = useState<any>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Build query params
@@ -105,10 +105,6 @@ const JournalListPage = () => {
         [deleteJournal]
     );
 
-    const handleCreateSuccess = useCallback(() => {
-        refetch();
-    }, [refetch]);
-
     const handleEditSuccess = useCallback(() => {
         refetch();
     }, [refetch]);
@@ -131,7 +127,7 @@ const JournalListPage = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={() => router.push('/account/journal-list/create')}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-105"
                 >
                     <Plus className="h-4 w-4" />
@@ -173,7 +169,6 @@ const JournalListPage = () => {
 
             {/* Modals */}
             <ViewJournalModal journal={selectedJournal} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
-            <CreateJournalModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
             <EditJournalModal journal={selectedJournal} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
         </div>
     );

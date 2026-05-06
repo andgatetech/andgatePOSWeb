@@ -9,7 +9,7 @@ import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/features/Product/productApi';
-import { Store } from 'lucide-react';
+import { ArrowLeft, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import AttributesTab, { ProductAttribute } from './AttributesTab';
@@ -582,23 +582,39 @@ const ProductCreateForm = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-3">
-                    <div className="rounded-lg bg-white p-4 shadow-sm">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                                    <Store className="h-5 w-5 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-xl font-bold text-gray-900">{t('product_create_title')}</h1>
-                                    <p className="text-sm text-gray-500">{currentStore ? `${t('product_add')} ${currentStore.store_name}` : t('product_add')}</p>
-                                </div>
+                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                                <Store className="h-5 w-5 text-white sm:h-6 sm:w-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('product_create_title')}</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('product_add')} ${currentStore.store_name}` : t('product_add')}</p>
                             </div>
                         </div>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/products')}
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
+                        >
+                            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span>{t('btn_back')}</span>
+                        </button>
                     </div>
+                    {currentStore && (
+                        <div className="rounded-lg bg-[#046ca9]/5 p-3 sm:p-4">
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
+                                    <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
+                                </div>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Tabs - Desktop & Tablet */}

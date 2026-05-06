@@ -3,9 +3,10 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { getTranslation } from '@/i18n';
+import { FALLBACK_PAYMENT_STATUSES, PAYMENT_STATUS_CONFIGS } from '@/lib/paymentConstants';
 import type { RootState } from '@/store';
 import { CreditCard } from 'lucide-react';
-import { getTranslation } from '@/i18n';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
@@ -86,19 +87,17 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
                     <option value="all">{t('lbl_all_payment_status')}</option>
-                    {activePaymentStatuses.length > 0 ? (
-                        activePaymentStatuses.map((status) => (
-                            <option key={status.id} value={status.status_name}>
-                                {status.status_name.charAt(0).toUpperCase() + status.status_name.slice(1)}
-                            </option>
-                        ))
-                    ) : (
-                        <>
-                            <option value="paid">{t('lbl_paid')}</option>
-                            <option value="partial">{t('lbl_partial')}</option>
-                            <option value="pending">{t('lbl_pending')}</option>
-                        </>
-                    )}
+                    {activePaymentStatuses.length > 0
+                        ? activePaymentStatuses.map((status) => (
+                              <option key={status.id} value={status.status_name}>
+                                  {status.status_name.charAt(0).toUpperCase() + status.status_name.slice(1)}
+                              </option>
+                          ))
+                        : FALLBACK_PAYMENT_STATUSES.map((s) => (
+                              <option key={s.value} value={s.value}>
+                                  {t(PAYMENT_STATUS_CONFIGS[s.value].labelKey)}
+                              </option>
+                          ))}
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>

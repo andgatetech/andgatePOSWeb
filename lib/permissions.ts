@@ -146,6 +146,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Expenses ───────────────────────────────────────────────
     '/expenses/expense-list': ['expenses.index'],
+    '/expenses/create': ['expenses.index'],
 
     // ── Customers ──────────────────────────────────────────────
     '/customers': ['customers.index'],

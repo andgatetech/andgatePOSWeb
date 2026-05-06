@@ -7,14 +7,15 @@ import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteLedgerMutation, useGetLedgersQuery } from '@/store/features/ledger/ledger';
 import { BookOpen, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
-import CreateLedgerModal from './components/CreateLedgerModal';
 import EditLedgerModal from './components/EditLedgerModal';
 import LedgersTable from './components/LedgersTable';
 import ViewLedgerModal from './components/ViewLedgerModal';
 
 const LedgerListPage = () => {
     const { t } = getTranslation();
+    const router = useRouter();
     const { currentStoreId } = useCurrentStore();
 
     // Filter and pagination state
@@ -27,7 +28,6 @@ const LedgerListPage = () => {
     // Modal states
     const [selectedLedger, setSelectedLedger] = useState<any>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Build query params
@@ -104,10 +104,6 @@ const LedgerListPage = () => {
         [deleteLedger]
     );
 
-    const handleCreateSuccess = useCallback(() => {
-        refetch();
-    }, [refetch]);
-
     const handleEditSuccess = useCallback(() => {
         refetch();
     }, [refetch]);
@@ -130,7 +126,7 @@ const LedgerListPage = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={() => router.push('/account/ledger-list/create')}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-105"
                 >
                     <Plus className="h-4 w-4" />
@@ -172,7 +168,6 @@ const LedgerListPage = () => {
 
             {/* Modals */}
             <ViewLedgerModal ledger={selectedLedger} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
-            <CreateLedgerModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
             <EditLedgerModal ledger={selectedLedger} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
         </div>
     );

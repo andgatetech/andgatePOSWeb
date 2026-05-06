@@ -4,6 +4,7 @@ import OrderFilter from '@/components/filters/OrderFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
+import { normalizePaymentStatus } from '@/lib/paymentConstants';
 import { useGetAllOrdersQuery, useGetOrderReturnByIdQuery } from '@/store/features/Order/Order';
 import { getTranslation } from '@/i18n';
 import { ShoppingBag } from 'lucide-react';
@@ -96,20 +97,16 @@ const Orders = () => {
         const totalOrders = paginationMeta?.total || 0;
         const totalRevenue = orders.reduce((sum: number, order: any) => sum + Number(order.financial?.grand_total ?? order.grand_total ?? 0), 0);
         const paidOrders = orders.filter((order: any) => {
-            const paymentStatus = order.payment?.status ?? order.payment_status;
-            return paymentStatus === 'paid' || paymentStatus === 'completed';
+            return normalizePaymentStatus(order.payment?.status ?? order.payment_status) === 'paid';
         }).length;
         const partialOrders = orders.filter((order: any) => {
-            const paymentStatus = order.payment?.status ?? order.payment_status;
-            return paymentStatus === 'partial';
+            return normalizePaymentStatus(order.payment?.status ?? order.payment_status) === 'partial';
         }).length;
         const dueOrders = orders.filter((order: any) => {
-            const paymentStatus = order.payment?.status ?? order.payment_status;
-            return paymentStatus === 'due' || paymentStatus === 'unpaid';
+            return normalizePaymentStatus(order.payment?.status ?? order.payment_status) === 'due';
         }).length;
         const pendingOrders = orders.filter((order: any) => {
-            const paymentStatus = order.payment?.status ?? order.payment_status;
-            return paymentStatus === 'pending';
+            return normalizePaymentStatus(order.payment?.status ?? order.payment_status) === 'pending';
         }).length;
 
         return { totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders };

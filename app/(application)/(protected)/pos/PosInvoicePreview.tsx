@@ -55,9 +55,10 @@ interface PosInvoicePreviewProps {
     data: any;
     storeId?: number;
     onClose?: () => void;
+    autoPrint?: 'invoice' | 'receipt' | null;
 }
 
-const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) => {
+const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePreviewProps) => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber, currency } = useCurrency();
     const currentUser = useSelector((state: RootState) => state.auth?.user);
@@ -318,19 +319,118 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
         return () => window.removeEventListener('afterprint', handleAfterPrint);
     }, []);
 
+    const autoTriggered = useRef(false);
+    useEffect(() => {
+        if (!autoPrint || autoTriggered.current) return;
+        autoTriggered.current = true;
+        const timer = setTimeout(() => {
+            if (autoPrint === 'receipt') {
+                setShowReceiptPreview(true);
+                setTimeout(() => printWithMode('receipt'), 450);
+            } else {
+                printWithMode('invoice');
+            }
+        }, 700);
+        return () => clearTimeout(timer);
+        // printWithMode is stable (no deps change) — intentionally omitted
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoPrint]);
+
     const printWithMode = (mode: 'invoice' | 'receipt') => {
         if (isPrinting) return;
-
         setIsPrinting(true);
         setPrintMode(mode);
 
         window.requestAnimationFrame(() => {
             setTimeout(() => {
-                window.print();
-                setTimeout(() => {
+                const selector = mode === 'invoice' ? '.invoice-shell' : '.thermal-receipt-print-area';
+                const sourceEl = document.querySelector(selector) as HTMLElement | null;
+
+                if (!sourceEl) {
                     setPrintMode(null);
                     setIsPrinting(false);
-                }, 1500);
+                    return;
+                }
+
+                // Clone and strip UI-only elements
+                const clone = sourceEl.cloneNode(true) as HTMLElement;
+                clone.querySelectorAll('[class*="print:hidden"]').forEach((el) => el.remove());
+
+                // Gather all stylesheets from the parent document
+                const styleLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                    .map((l) => l.outerHTML)
+                    .join('\n');
+                const inlineStyles = Array.from(document.querySelectorAll('style'))
+                    .map((s) => `<style>${s.innerHTML}</style>`)
+                    .join('\n');
+
+                const printCss =
+                    mode === 'invoice'
+                        ? `<style>
+                            @page { size: A4; margin: 10mm; }
+                            body { margin: 0; padding: 0; background: #fff; }
+                            .invoice-shell { width: 100%; box-shadow: none !important; }
+                          </style>`
+                        : `<style>
+                            @page { size: 58mm auto; margin: 0; }
+                            html, body {
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                height: auto !important;
+                                min-height: 0 !important;
+                                overflow: visible !important;
+                                background: #fff;
+                            }
+                            body { display: block; }
+                            .thermal-receipt-print-area {
+                                width: 58mm !important;
+                                margin: 0 !important;
+                                padding: 3mm !important;
+                                box-shadow: none !important;
+                                break-after: avoid;
+                                page-break-after: avoid;
+                                overflow: visible !important;
+                            }
+                          </style>`;
+
+                // Hidden iframe — mobile browsers print its document, not the parent page
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+                document.body.appendChild(iframe);
+
+                const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (!doc) {
+                    document.body.removeChild(iframe);
+                    setPrintMode(null);
+                    setIsPrinting(false);
+                    return;
+                }
+
+                doc.open();
+                doc.write(`<!DOCTYPE html><html><head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width,initial-scale=1">
+                    ${styleLinks}${inlineStyles}${printCss}
+                </head><body>${clone.outerHTML}</body></html>`);
+                doc.close();
+
+                let cleaned = false;
+                const cleanup = () => {
+                    if (cleaned) return;
+                    cleaned = true;
+                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                    setPrintMode(null);
+                    setIsPrinting(false);
+                };
+
+                iframe.contentWindow?.addEventListener('afterprint', cleanup);
+                // Fallback: some mobile browsers don't fire afterprint
+                setTimeout(cleanup, 3000);
+
+                setTimeout(() => {
+                    iframe.contentWindow?.focus();
+                    iframe.contentWindow?.print();
+                }, 300);
             }, 100);
         });
     };
@@ -1100,8 +1200,104 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                         </div>
                     ) : (
                         <div className="mb-4 space-y-4">
-                            {/* Return tables - same as before */}
-                            {/* I'll skip copying them here to save space, but keep them in your code */}
+                            {keptItems.length > 0 && (
+                                <div>
+                                    <h3 className="mb-2 text-sm font-bold text-green-700">{t('lbl_items_kept')}</h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse border border-gray-300 text-sm">
+                                            <thead>
+                                                <tr className="bg-green-100">
+                                                    <th className="w-12 border border-gray-300 px-2 py-2 text-left">#</th>
+                                                    <th className="border border-gray-300 px-2 py-2 text-left">{t('lbl_product_name')}</th>
+                                                    <th className="w-16 border border-gray-300 px-2 py-2 text-center">{t('lbl_qty')}</th>
+                                                    <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_unit_price')}</th>
+                                                    <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_amount')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {(keptItems as InvoiceItem[]).map((item, index) => (
+                                                    <tr key={`kept-${item.id}-${index}`}>
+                                                        <td className="border border-gray-300 px-2 py-2">{formatNumber(index + 1)}</td>
+                                                        <td className="border border-gray-300 px-2 py-2">
+                                                            <p className="font-medium">{item.title}</p>
+                                                            {item.variantName && <p className="text-xs text-blue-600">{t('lbl_variant')}: {item.variantName}</p>}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-center">{formatNumber(item.quantity, 2)} {item.unit || t('lbl_pcs')}</td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-right">{formatCurrency(item.price)}</td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-right font-semibold">{formatCurrency(item.amount)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {returnedItems.length > 0 && (
+                                <div>
+                                    <h3 className="mb-2 text-sm font-bold text-red-700">{t('lbl_returned_items')}</h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse border border-gray-300 text-sm">
+                                            <thead>
+                                                <tr className="bg-red-100">
+                                                    <th className="w-12 border border-gray-300 px-2 py-2 text-left">#</th>
+                                                    <th className="border border-gray-300 px-2 py-2 text-left">{t('lbl_product_name')}</th>
+                                                    <th className="w-16 border border-gray-300 px-2 py-2 text-center">{t('lbl_qty')}</th>
+                                                    <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_unit_price')}</th>
+                                                    <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_refund')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {(returnedItems as InvoiceItem[]).map((item, index) => (
+                                                    <tr key={`returned-${item.id}-${index}`}>
+                                                        <td className="border border-gray-300 px-2 py-2">{formatNumber(index + 1)}</td>
+                                                        <td className="border border-gray-300 px-2 py-2">
+                                                            <p className="font-medium">{item.title}</p>
+                                                            {item.variantName && <p className="text-xs text-blue-600">{t('lbl_variant')}: {item.variantName}</p>}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-center text-red-600">-{formatNumber(item.quantity, 2)} {item.unit || t('lbl_pcs')}</td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-right">{formatCurrency(item.price)}</td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-right font-semibold text-red-600">-{formatCurrency(item.amount)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {exchangeItems.length > 0 && (
+                                <div>
+                                    <h3 className="mb-2 text-sm font-bold text-blue-700">{t('lbl_exchange_items')}</h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse border border-gray-300 text-sm">
+                                            <thead>
+                                                <tr className="bg-blue-100">
+                                                    <th className="w-12 border border-gray-300 px-2 py-2 text-left">#</th>
+                                                    <th className="border border-gray-300 px-2 py-2 text-left">{t('lbl_product_name')}</th>
+                                                    <th className="w-16 border border-gray-300 px-2 py-2 text-center">{t('lbl_qty')}</th>
+                                                    <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_unit_price')}</th>
+                                                    <th className="w-28 border border-gray-300 px-2 py-2 text-right">{t('lbl_amount')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {(exchangeItems as InvoiceItem[]).map((item, index) => (
+                                                    <tr key={`exchange-${item.id}-${index}`}>
+                                                        <td className="border border-gray-300 px-2 py-2">{formatNumber(index + 1)}</td>
+                                                        <td className="border border-gray-300 px-2 py-2">
+                                                            <p className="font-medium">{item.title}</p>
+                                                            {item.variantName && <p className="text-xs text-blue-600">{t('lbl_variant')}: {item.variantName}</p>}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-center">{formatNumber(item.quantity, 2)} {item.unit || t('lbl_pcs')}</td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-right">{formatCurrency(item.price)}</td>
+                                                        <td className="border border-gray-300 px-2 py-2 text-right font-semibold">{formatCurrency(item.amount)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 

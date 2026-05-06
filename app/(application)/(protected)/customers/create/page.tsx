@@ -5,9 +5,9 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useCreateCustomerMutation } from '@/store/features/customer/customer';
-import { Store, User } from 'lucide-react';
+import { ArrowLeft, Store, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface CustomerFormData {
     name: string;
@@ -25,8 +25,6 @@ const CreateCustomerPage = () => {
     const { symbol } = useCurrency();
     const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
-    const [isClient, setIsClient] = useState(false);
-
     const [createCustomer, { isLoading: createLoading }] = useCreateCustomerMutation();
 
     const [formData, setFormData] = useState<CustomerFormData>({
@@ -41,10 +39,6 @@ const CreateCustomerPage = () => {
     });
 
     const [errors, setErrors] = useState<Partial<CustomerFormData>>({});
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -142,60 +136,47 @@ const CreateCustomerPage = () => {
         }
     };
 
-    if (!isClient) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-                <div className="mx-auto">
-                    <div className="flex items-center justify-center py-12">
-                        <div className="flex items-center gap-2 text-gray-600">
-                            <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                ></path>
-                            </svg>
-                            {t('lbl_loading')}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
-                            <User className="h-5 w-5" />
+                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                    <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                                <User className="h-5 w-5 text-white sm:h-6 sm:w-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('customer_create_title')}</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('customer_add_to_store')} ${currentStore.store_name}` : t('customer_page_desc')}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-900">{t('customer_create_title')}</h1>
-                            <p className="text-sm text-gray-500">{currentStore ? `${t('customer_add_to_store')} ${currentStore.store_name}` : t('customer_page_desc')}</p>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/customers/list')}
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
+                        >
+                            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span>{t('btn_back')}</span>
+                        </button>
                     </div>
                     {currentStore && (
-                        <div className="rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
-                            <div className="flex items-center space-x-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#046ca9]/10">
-                                    <Store className="h-4 w-4 text-[#034d79]" />
+                        <div className="rounded-lg bg-[#046ca9]/5 p-3 sm:p-4">
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
+                                    <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-[#034d79]">{t('lbl_current_store')}: {currentStore.store_name}</p>
-                                </div>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* Main Form Card */}
-                <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
-                    <div className="p-8">
-                        <form className="space-y-8" onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
+                <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                    <div className="p-4 sm:p-6 md:p-8">
+                        <div className="space-y-8">
                             {/* Basic Information Section */}
                             <div>
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_basic_information')}</h3>
@@ -373,47 +354,41 @@ const CreateCustomerPage = () => {
                                 </div>
                             </div>
 
-                            {/* Submit Button */}
-                            <div className="border-t border-gray-200 pt-6">
-                                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/customers/list')}
-                                        className="w-full rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:w-auto"
-                                    >
-                                        {t('btn_cancel')}
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={createLoading}
-                                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
-                                    >
-                                        {createLoading ? (
-                                            <>
-                                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path
-                                                        className="opacity-75"
-                                                        fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                    ></path>
-                                                </svg>
-                                                {t('btn_creating')}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                {t('customer_create_btn')}
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        </div>
+                    </div>
+
+                    {/* Form Footer */}
+                    <div className="border-t bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 md:px-8">
+                        <div className="flex flex-col items-center justify-end space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0">
+                            <button
+                                type="button"
+                                onClick={() => router.push('/customers/list')}
+                                disabled={createLoading}
+                                className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                            >
+                                {t('btn_cancel')}
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={createLoading}
+                                className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                            >
+                                {createLoading ? (
+                                    <>
+                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                        {t('btn_creating')}
+                                    </>
+                                ) : (
+                                    <>
+                                        <User className="mr-2 h-5 w-5" />
+                                        {t('customer_create_btn')}
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
+                </form>
 
                 {/* Tips Card */}
                 <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">

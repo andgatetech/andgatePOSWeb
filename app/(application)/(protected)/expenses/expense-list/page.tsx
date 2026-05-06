@@ -7,14 +7,15 @@ import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteExpenseMutation, useGetExpensesQuery } from '@/store/features/expense/expenseApi';
 import { Plus, Receipt } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
-import CreateExpenseModal from './components/CreateExpenseModal';
 import EditExpenseModal from './components/EditExpenseModal';
 import ExpensesTable from './components/ExpensesTable';
 import ViewExpenseModal from './components/ViewExpenseModal';
 
 const ExpenseListPage = () => {
     const { t } = getTranslation();
+    const router = useRouter();
     const { currentStoreId } = useCurrentStore();
 
     // Filter and pagination state
@@ -27,7 +28,6 @@ const ExpenseListPage = () => {
     // Modal states
     const [selectedExpense, setSelectedExpense] = useState<any>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Build query params
@@ -105,10 +105,6 @@ const ExpenseListPage = () => {
         [deleteExpense]
     );
 
-    const handleCreateSuccess = useCallback(() => {
-        refetch();
-    }, [refetch]);
-
     const handleEditSuccess = useCallback(() => {
         refetch();
     }, [refetch]);
@@ -131,7 +127,7 @@ const ExpenseListPage = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={() => router.push('/expenses/create')}
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
                     <Plus className="h-4 w-4" />
@@ -171,7 +167,6 @@ const ExpenseListPage = () => {
 
             {/* Modals */}
             <ViewExpenseModal expense={selectedExpense} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
-            <CreateExpenseModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={handleCreateSuccess} />
             <EditExpenseModal expense={selectedExpense} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
         </div>
     );

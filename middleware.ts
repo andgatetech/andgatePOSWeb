@@ -110,7 +110,7 @@ export const config = {
         '/reports/:path*',
         '/staff/:path*',
         '/category/:path*',
-        '/brands/:path*',
+        '/brand/:path*',
         '/suppliers/:path*',
         '/pos/:path*',
         '/settings/:path*',

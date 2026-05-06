@@ -1,7 +1,9 @@
+import { getTranslation } from '@/i18n';
 import { Calculator, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function CalculatorButton() {
+    const { t } = getTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [display, setDisplay] = useState('0');
     const [fullHistory, setFullHistory] = useState('');
@@ -148,7 +150,7 @@ export default function CalculatorButton() {
         <>
             <button onClick={() => setIsOpen(true)} className="ml-1 flex items-center gap-1.5 rounded-lg bg-white/[0.08] px-3 py-2 text-base font-semibold text-white transition-colors hover:bg-white/[0.15] sm:gap-2 sm:px-4">
                 <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Calculator</span>
+                <span className="hidden sm:inline">{t('nav_calculator')}</span>
             </button>
 
             {isOpen && (

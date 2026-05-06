@@ -1,5 +1,6 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { FALLBACK_PAYMENT_STATUSES, PAYMENT_STATUS_CONFIGS, getPaymentStatusConfig } from '@/lib/paymentConstants';
 import type { Customer, PosFormData } from './types';
 
 interface PaymentSummarySectionProps {
@@ -48,11 +49,11 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     const canUsePoints = !!selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = !!selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
 
-    const defaultStatuses = [
-        { id: 1, status_name: t('status_paid'), status_color: '#22c55e', value: 'paid' },
-        { id: 2, status_name: t('status_partial'), status_color: '#3b82f6', value: 'partial' },
-        { id: 3, status_name: t('status_due'), status_color: '#ef4444', value: 'due' },
-    ];
+    const defaultStatuses = FALLBACK_PAYMENT_STATUSES.map((s) => ({
+        ...s,
+        status_name: t(PAYMENT_STATUS_CONFIGS[s.value].labelKey),
+        status_color: PAYMENT_STATUS_CONFIGS[s.value].hex,
+    }));
 
     // Determine available payment statuses based on customer type
     const getAvailablePaymentStatuses = () => {
@@ -79,11 +80,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 
     const availablePaymentStatuses = getAvailablePaymentStatuses();
 
-    // Get color for currently selected payment status
-    const getSelectedStatusColor = () => {
-        const selected = availablePaymentStatuses.find((s: any) => s.value === formData.paymentStatus);
-        return selected?.color || '#6b7280';
-    };
+    const getSelectedStatusColor = () => getPaymentStatusConfig(formData.paymentStatus).hex || '#6b7280';
 
     return (
         <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">

@@ -11,6 +11,7 @@ import { MEMBERSHIP_DISCOUNTS } from '@/app/(application)/(protected)/pos/pos-ri
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { DEFAULT_PAYMENT_METHOD } from '@/lib/paymentConstants';
 import { showConfirmDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useUpdateOrderMutation } from '@/store/features/Order/Order';
@@ -23,10 +24,6 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-const DEFAULT_PAYMENT_METHOD = {
-    id: 0,
-    payment_method_name: 'cash',
-};
 
 interface OrderEditRightSideProps {
     orderId: number | null;

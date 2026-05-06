@@ -8,17 +8,15 @@ import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteStoreMutation, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { Plus, Store } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import CreateStoreModal from './components/CreateStoreModal';
 import StoresTable from './components/StoresTable';
 
 const StoreComponent = () => {
     const { t } = getTranslation();
+    const router = useRouter();
     // Get current store from Redux
     const { currentStoreId, userStores } = useCurrentStore();
-
-    // Modal state
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     // Fetch detailed store data from API for the current store only
     const {
@@ -141,7 +139,7 @@ const StoreComponent = () => {
                     </div>
                 </div>
                 <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={() => router.push('/store/create')}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-105"
                 >
                     <Plus className="h-4 w-4" />
@@ -181,8 +179,6 @@ const StoreComponent = () => {
                 }}
             />
 
-            {/* Create Store Modal */}
-            <CreateStoreModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
         </div>
     );
 };

@@ -63,8 +63,9 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                         <button
                             type="button"
                             onClick={onSelectWalkInCustomer}
-                            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 sm:px-4 sm:py-2 sm:text-sm"
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                         >
+                            <IconUser className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             {t('pos_walk_in_customer')}
                         </button>
                     </div>
