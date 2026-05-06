@@ -16,7 +16,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMobileView = false, onAddToCart, onImageShow, mode = 'pos' }) => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     // Calculate total quantity from stocks
     const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
     const isUnavailable = product.available === false || totalQuantity <= 0;
@@ -97,7 +97,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
 
                 <div className="mt-1.5 flex items-center justify-between sm:mt-2">
                     {renderPrice()}
-                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">{t('lbl_stock')}: {totalQuantity}</span>
+                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">{t('lbl_stock')}: {formatNumber(totalQuantity)}</span>
                 </div>
             </div>
         </div>

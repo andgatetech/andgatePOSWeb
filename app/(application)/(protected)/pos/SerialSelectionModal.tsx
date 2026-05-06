@@ -3,6 +3,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Calendar, Package, Shield, X } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
+import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 
 interface Serial {
@@ -60,6 +61,7 @@ interface SerialSelectionModalProps {
 
 const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfirm }: SerialSelectionModalProps) => {
     const { t } = getTranslation();
+    const { formatNumber } = useCurrency();
     const [selectedSerialIds, setSelectedSerialIds] = useState<number[]>([]);
     const [quantity, setQuantity] = useState(1);
 
@@ -137,7 +139,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
 
     const handleConfirm = () => {
         if (selectedSerialIds.length !== quantity) {
-            alert(`${t('msg_select_exactly')} ${quantity} ${t('lbl_serial_numbers')}`);
+            alert(`${t('msg_select_exactly')} ${formatNumber(quantity)} ${t('lbl_serial_numbers')}`);
             return;
         }
 
@@ -148,8 +150,8 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
 
     const getWarrantyDuration = () => {
         if (!warranty) return null;
-        if (warranty.duration_months) return `${warranty.duration_months} ${t('lbl_months')}`;
-        if (warranty.duration_days) return `${warranty.duration_days} ${t('lbl_days')}`;
+        if (warranty.duration_months) return `${formatNumber(warranty.duration_months)} ${t('lbl_months')}`;
+        if (warranty.duration_days) return `${formatNumber(warranty.duration_days)} ${t('lbl_days')}`;
         return t('lbl_lifetime');
     };
 
@@ -244,14 +246,14 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                         >
                                             +
                                         </button>
-                                        <span className="text-sm text-gray-600">{t('lbl_available')}: {availableSerials.length} {t('lbl_serials')}</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_available')}: {formatNumber(availableSerials.length)} {t('lbl_serials')}</span>
                                     </div>
                                 </div>
 
                                 {/* Serial Selection Instructions */}
                                 <div className="mb-4">
                                     <p className="text-sm font-medium text-gray-700">
-                                        {t('lbl_select')} {quantity} {quantity > 1 ? t('lbl_serial_numbers') : t('lbl_serial_number')} ({selectedSerialIds.length}/{quantity} {t('lbl_selected')})
+                                        {t('lbl_select')} {formatNumber(quantity)} {quantity > 1 ? t('lbl_serial_numbers') : t('lbl_serial_number')} ({formatNumber(selectedSerialIds.length)}/{formatNumber(quantity)} {t('lbl_selected')})
                                     </p>
                                 </div>
 
@@ -309,7 +311,7 @@ const SerialSelectionModal = ({ isOpen, onClose, product, selectedStock, onConfi
                                         disabled={selectedSerialIds.length !== quantity}
                                         className="rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
-                                        {t('btn_add_to_cart')} ({selectedSerialIds.length}/{quantity})
+                                        {t('btn_add_to_cart')} ({formatNumber(selectedSerialIds.length)}/{formatNumber(quantity)})
                                     </button>
                                 </div>
                             </Dialog.Panel>

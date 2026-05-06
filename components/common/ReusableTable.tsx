@@ -2,6 +2,7 @@
 import { ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { getTranslation } from '@/i18n';
+import { formatLocalizedNumber } from '@/lib/localized-number';
 
 export interface TableColumn {
     key: string;
@@ -136,7 +137,8 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
     className = '',
     rowClassName,
 }) => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const displayNumber = (value: number | string) => formatLocalizedNumber(value, i18n.language);
     const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
 
     if (isLoading) {
@@ -246,11 +248,11 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>
                             {t('lbl_showing')}{' '}
-                            <span className="font-semibold text-gray-700">{startRecord}</span>
+                            <span className="font-semibold text-gray-700">{displayNumber(startRecord)}</span>
                             {' '}{t('lbl_to')}{' '}
-                            <span className="font-semibold text-gray-700">{endRecord}</span>
+                            <span className="font-semibold text-gray-700">{displayNumber(endRecord)}</span>
                             {' '}{t('lbl_of')}{' '}
-                            <span className="font-semibold text-gray-700">{pagination.totalItems}</span>
+                            <span className="font-semibold text-gray-700">{displayNumber(pagination.totalItems)}</span>
                             {' '}{t('lbl_items')}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -260,10 +262,10 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                                 onChange={(e) => pagination.onItemsPerPageChange(Number(e.target.value))}
                                 className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]/30"
                             >
-                                <option value={10}>10</option>
-                                <option value={20}>20</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
+                                <option value={10}>{displayNumber(10)}</option>
+                                <option value={20}>{displayNumber(20)}</option>
+                                <option value={50}>{displayNumber(50)}</option>
+                                <option value={100}>{displayNumber(100)}</option>
                             </select>
                         </div>
                     </div>
@@ -301,7 +303,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                                                 : 'border border-gray-200 bg-white text-gray-600 hover:border-[#046ca9] hover:text-[#046ca9]'
                                         }`}
                                     >
-                                        {pageNum}
+                                        {displayNumber(pageNum)}
                                     </button>
                                 );
                             })}

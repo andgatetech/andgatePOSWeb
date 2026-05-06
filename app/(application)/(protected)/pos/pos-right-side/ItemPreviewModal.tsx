@@ -50,7 +50,7 @@ interface ItemPreviewModalProps {
 
 const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, item }) => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     if (!isOpen || !item) return null;
 
     const totalAmount = () => {
@@ -143,7 +143,11 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-600">{t('lbl_duration')}:</span>
                                 <span className="text-sm font-semibold text-gray-900">
-                                    {item.warranty.duration_months ? `${item.warranty.duration_months} ${t('lbl_months')}` : item.warranty.duration_days ? `${item.warranty.duration_days} ${t('lbl_days')}` : t('lbl_lifetime')}
+                                    {item.warranty.duration_months
+                                        ? `${formatNumber(item.warranty.duration_months)} ${t('lbl_months')}`
+                                        : item.warranty.duration_days
+                                        ? `${formatNumber(item.warranty.duration_days)} ${t('lbl_days')}`
+                                        : t('lbl_lifetime')}
                                 </span>
                             </div>
                             {item.warranty.start_date && (
@@ -161,7 +165,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                             {item.warranty.remaining_days !== null && (
                                 <div className="flex justify-between">
                                     <span className="text-sm text-gray-600">{t('lbl_remaining')}:</span>
-                                    <span className="text-sm font-semibold text-gray-900">{item.warranty.remaining_days} {t('lbl_days')}</span>
+                                    <span className="text-sm font-semibold text-gray-900">{formatNumber(item.warranty.remaining_days)} {t('lbl_days')}</span>
                                 </div>
                             )}
                             <div className="flex justify-between">
@@ -180,7 +184,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                     <div className="space-y-2">
                         <div className="flex justify-between">
                             <span className="text-sm text-gray-600">{t('lbl_quantity')}:</span>
-                            <span className="text-sm font-semibold text-gray-900">{item.quantity}</span>
+                            <span className="text-sm font-semibold text-gray-900">{formatNumber(item.quantity)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-sm text-gray-600">{t('lbl_unit')}:</span>
@@ -194,7 +198,7 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-600">{t('lbl_tax')}:</span>
                                 <span className="text-sm font-semibold text-gray-900">
-                                    {item.tax_rate}% ({item.tax_included ? t('lbl_included') : t('lbl_excluded')})
+                                    {formatNumber(item.tax_rate)}% ({item.tax_included ? t('lbl_included') : t('lbl_excluded')})
                                 </span>
                             </div>
                         )}

@@ -45,9 +45,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
-    // Redemption needs an explicit backend ledger flow; keep balances visible in customer info only for now.
-    const canUsePoints = false;
-    const canUseBalance = false;
+    const canUsePoints = !!selectedCustomer && Number(selectedCustomer.points) > 0;
+    const canUseBalance = !!selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
 
     const defaultStatuses = [
         { id: 1, status_name: t('status_paid'), status_color: '#22c55e', value: 'paid' },

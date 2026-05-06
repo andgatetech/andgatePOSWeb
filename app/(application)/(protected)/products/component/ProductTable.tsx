@@ -662,11 +662,11 @@ const ProductTable = () => {
                             <div className="flex items-center gap-4 text-sm text-gray-500">
                                 <span>
                                     {t('lbl_showing')}{' '}
-                                    <span className="font-semibold text-gray-700">{startRecord}</span>
+                                    <span className="font-semibold text-gray-700">{formatNumber(startRecord)}</span>
                                     {' '}{t('lbl_to')}{' '}
-                                    <span className="font-semibold text-gray-700">{endRecord}</span>
+                                    <span className="font-semibold text-gray-700">{formatNumber(endRecord)}</span>
                                     {' '}{t('lbl_of')}{' '}
-                                    <span className="font-semibold text-gray-700">{totalRecords}</span>
+                                    <span className="font-semibold text-gray-700">{formatNumber(totalRecords)}</span>
                                     {' '}{t('lbl_items')}
                                 </span>
                                 <div className="flex items-center gap-1.5">
@@ -676,10 +676,10 @@ const ProductTable = () => {
                                         onChange={(e) => { goToPage(1); setItemsPerPage(Number(e.target.value)); }}
                                         className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
                                     >
-                                        <option value={10}>10</option>
-                                        <option value={20}>20</option>
-                                        <option value={30}>30</option>
-                                        <option value={100}>100</option>
+                                        <option value={10}>{formatNumber(10)}</option>
+                                        <option value={20}>{formatNumber(20)}</option>
+                                        <option value={30}>{formatNumber(30)}</option>
+                                        <option value={100}>{formatNumber(100)}</option>
                                     </select>
                                 </div>
                             </div>
@@ -709,7 +709,7 @@ const ProductTable = () => {
                                                     : 'border border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
                                             }`}
                                         >
-                                            {pageNum}
+                                            {formatNumber(pageNum)}
                                         </button>
                                     );
                                 })}

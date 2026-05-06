@@ -6,6 +6,15 @@ Last saved: 2026-05-05
 
 Frontend work is currently secondary to SaaS/POS hardening roadmap. Frontend Phase 2 international readiness remains important after backend Phase 1 hardening.
 
+Latest frontend hardening update:
+
+- Normal POS checkout now requests backend quotes after cart/payment changes.
+- Payment summary and cash/partial validation use backend-owned subtotal, tax, discount, and grand total when quote data is available.
+- Preview and confirm order share the quote payload; confirm refreshes quote immediately before create.
+- Added `msg_select_payment_method_status` to English and Bangla locales.
+- Loyalty/account balance controls are enabled for existing customers with available values.
+- POS quote/create sends explicit `points_to_redeem` and `balance_to_redeem`; summary displays backend quote redemption values.
+
 Recommended next-session start:
 
 1. Finish backend Phase 1 hardening first.

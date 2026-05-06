@@ -56,7 +56,7 @@ interface PosInvoicePreviewProps {
 
 const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) => {
     const { t } = getTranslation();
-    const { formatCurrency, currency } = useCurrency();
+    const { formatCurrency, formatNumber, currency } = useCurrency();
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [logoDataUrl, setLogoDataUrl] = useState<string>('');
@@ -396,11 +396,11 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                     }
 
                     tableBody.push([
-                        { text: (index + 1).toString(), alignment: 'center' },
+                        { text: formatNumber(index + 1), alignment: 'center' },
                         { stack: productName },
-                        { text: `${product.quantity.toFixed(2)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
+                        { text: `${formatNumber(product.quantity, 2)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
                         { text: formatCurrencyPDF(product.price), alignment: 'right' },
-                        { text: product.tax_rate ? `${product.tax_rate}%` : '-', alignment: 'right' },
+                        { text: product.tax_rate ? `${formatNumber(product.tax_rate)}%` : '-', alignment: 'right' },
                         { text: formatCurrencyPDF(0), alignment: 'right' },
                         { text: formatCurrencyPDF(product.amount), alignment: 'right', bold: true },
                     ]);
@@ -448,9 +448,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
                     keptItems.forEach((product: any, index: number) => {
                         keptTableBody.push([
-                            { text: (index + 1).toString(), alignment: 'center' },
+                            { text: formatNumber(index + 1), alignment: 'center' },
                             { text: product.title },
-                            { text: product.quantity.toString(), alignment: 'center' },
+                            { text: formatNumber(product.quantity), alignment: 'center' },
                             { text: formatCurrencyPDF(product.price), alignment: 'right' },
                             { text: formatCurrencyPDF(product.amount), alignment: 'right', bold: true },
                         ]);
@@ -486,9 +486,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
                     returnedItems.forEach((product: any, index: number) => {
                         returnedTableBody.push([
-                            { text: (index + 1).toString(), alignment: 'center' },
+                            { text: formatNumber(index + 1), alignment: 'center' },
                             { text: product.title },
-                            { text: `-${product.quantity}`, alignment: 'center' },
+                            { text: `-${formatNumber(product.quantity)}`, alignment: 'center' },
                             { text: formatCurrencyPDF(product.price), alignment: 'right' },
                             { text: `-${formatCurrencyPDF(product.amount)}`, alignment: 'right', bold: true, color: '#dc2626' },
                         ]);
@@ -524,9 +524,9 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
                     exchangeItems.forEach((product: any, index: number) => {
                         exchangeTableBody.push([
-                            { text: (index + 1).toString(), alignment: 'center' },
+                            { text: formatNumber(index + 1), alignment: 'center' },
                             { text: product.title },
-                            { text: product.quantity.toString(), alignment: 'center' },
+                            { text: formatNumber(product.quantity), alignment: 'center' },
                             { text: formatCurrencyPDF(product.price), alignment: 'right' },
                             { text: formatCurrencyPDF(product.amount), alignment: 'right', bold: true },
                         ]);
@@ -760,21 +760,21 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
 
             let warrantyInfo = '';
             if (item.has_warranty && item.warranty) {
-                const duration = item.warranty.duration_months ? `${item.warranty.duration_months}mo` : item.warranty.duration_days ? `${item.warranty.duration_days}d` : t('lbl_lifetime');
+                const duration = item.warranty.duration_months ? `${formatNumber(item.warranty.duration_months)}mo` : item.warranty.duration_days ? `${formatNumber(item.warranty.duration_days)}d` : t('lbl_lifetime');
                 const warrantyName = item.warranty.warranty_type_name ? `${item.warranty.warranty_type_name} - ` : '';
                 warrantyInfo = `<div class="item-warranty">${t('lbl_warranty')}: ${warrantyName}${duration}</div>`;
             }
 
             itemsHTML += `
                 <div class="item-row">
-                    <div class="item-name">${index + 1}. ${item.title}</div>
-                    <div class="item-qty">${item.quantity}</div>
+                    <div class="item-name">${formatNumber(index + 1)}. ${item.title}</div>
+                    <div class="item-qty">${formatNumber(item.quantity)}</div>
                     <div class="item-price">${formatCurrency(item.amount)}</div>
                 </div>
                 ${variantInfo}
                 ${serialInfo}
                 ${warrantyInfo}
-                <div class="item-details">${item.quantity} x ${formatCurrency(item.price)} ${item.unit ? `(${item.unit})` : ''}</div>
+                <div class="item-details">${formatNumber(item.quantity)} x ${formatCurrency(item.price)} ${item.unit ? `(${item.unit})` : ''}</div>
             `;
         });
 
@@ -1167,7 +1167,7 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                 <tbody>
                                     {invoiceItems.map((product, index) => (
                                         <tr key={product.id}>
-                                            <td className="border border-gray-300 px-2 py-2 align-top">{index + 1}</td>
+                                            <td className="border border-gray-300 px-2 py-2 align-top">{formatNumber(index + 1)}</td>
                                             <td className="border border-gray-300 px-2 py-2">
                                                 <div>
                                                     <p className="font-medium">{product.title}</p>
@@ -1187,10 +1187,10 @@ const PosInvoicePreview = ({ data, storeId, onClose }: PosInvoicePreviewProps) =
                                                 </div>
                                             </td>
                                             <td className="border border-gray-300 px-2 py-2 text-center align-top">
-                                                {product.quantity.toFixed(2)} {product.unit || t('lbl_pcs')}
+                                                {formatNumber(product.quantity, 2)} {product.unit || t('lbl_pcs')}
                                             </td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top">{formatCurrency(product.price)}</td>
-                                            <td className="border border-gray-300 px-2 py-2 text-right align-top">{product.tax_rate ? `${product.tax_rate}%` : '-'}</td>
+                                            <td className="border border-gray-300 px-2 py-2 text-right align-top">{product.tax_rate ? `${formatNumber(product.tax_rate)}%` : '-'}</td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top">{formatCurrency(0)}</td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top font-semibold">{formatCurrency(product.amount)}</td>
                                         </tr>

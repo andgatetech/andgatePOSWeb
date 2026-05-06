@@ -3501,6 +3501,7 @@
     "msg_valid_email_required": "অনুগ্রহ করে সঠিক ইমেইল ঠিকানা লিখুন",
     "msg_at_least_one_item_required": "কমপক্ষে একটি আইটেম আবশ্যক",
     "msg_select_products_set_quantities": "অনুগ্রহ করে সব আইটেমের জন্য পণ্য নির্বাচন ও পরিমাণ সেট করুন",
+    "msg_select_payment_method_status": "অনুগ্রহ করে পেমেন্ট মেথড ও পেমেন্ট স্ট্যাটাস নির্বাচন করুন",
     "msg_enter_amount_received": "অনুগ্রহ করে প্রাপ্ত পরিমাণ লিখুন",
     "msg_amount_received_less_total": "প্রাপ্ত পরিমাণ মোট পরিমাণের চেয়ে কম",
     "msg_enter_partial_payment_amount": "অনুগ্রহ করে আংশিক পেমেন্ট পরিমাণ লিখুন",

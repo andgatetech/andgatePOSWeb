@@ -3,6 +3,7 @@
 import { Check, ChevronLeft, ChevronRight, Loader2, MoreVertical, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { getTranslation } from '@/i18n';
+import { formatLocalizedNumber } from '@/lib/localized-number';
 import Dropdown from './Dropdown';
 
 interface AdjustmentReason {
@@ -41,7 +42,8 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
     handleToggleAdjustmentReasonActive,
     setMessage,
 }) => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
+    const displayNumber = (value: number | string) => formatLocalizedNumber(value, i18n.language);
     const [editingReasonId, setEditingReasonId] = useState<number | null>(null);
     const [editingReasonName, setEditingReasonName] = useState('');
     const [editingReasonDescription, setEditingReasonDescription] = useState('');
@@ -253,8 +255,8 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            {t('lbl_showing')} <span className="font-semibold">{startIndex + 1}</span> {t('lbl_to')} <span className="font-semibold">{Math.min(endIndex, totalItems)}</span>{' '}
-                            <span className="font-semibold">{totalItems}</span> {t('store_adjustment_reasons_title')}
+                            {t('lbl_showing')} <span className="font-semibold">{displayNumber(startIndex + 1)}</span> {t('lbl_to')} <span className="font-semibold">{displayNumber(Math.min(endIndex, totalItems))}</span>{' '}
+                            <span className="font-semibold">{displayNumber(totalItems)}</span> {t('store_adjustment_reasons_title')}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
@@ -274,7 +276,7 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                             currentPage === page ? 'bg-[#046ca9] text-white' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                     >
-                                        {page}
+                                        {displayNumber(page)}
                                     </button>
                                 ))}
                             </div>

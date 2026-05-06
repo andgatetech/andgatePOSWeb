@@ -80,7 +80,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     isReturnMode = false,
 }) => {
     const { t } = getTranslation();
-    const { formatCurrency, symbol } = useCurrency();
+    const { formatCurrency, formatNumber, symbol } = useCurrency();
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const displayUnit = (unit?: string) => (unit && unit.toLowerCase() !== 'piece' ? unit : t('lbl_piece'));
@@ -105,7 +105,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
             <div className="mb-3 flex items-center justify-between sm:mb-4">
                 <h3 className="text-base font-semibold text-gray-800 sm:text-lg">{t('pos_order_details')}</h3>
                 <div className="flex items-center gap-3">
-                    <span className="text-xs sm:text-sm">{t('lbl_items')}: {invoiceItems.length}</span>
+                    <span className="text-xs sm:text-sm">{t('lbl_items')}: {formatNumber(invoiceItems.length)}</span>
                     {!isReturnMode && (
                         <button type="button" onClick={onClearItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
                             {t('btn_clear_all')}
@@ -158,7 +158,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 : 'bg-slate-50/60 hover:bg-primary/5'
                                         }`}
                                     >
-                                        <td className="px-3 py-2.5 text-center text-sm font-bold text-gray-500">{index + 1}</td>
+                                        <td className="px-3 py-2.5 text-center text-sm font-bold text-gray-500">{formatNumber(index + 1)}</td>
                                         <td className="px-3 py-2.5 text-sm font-medium">
                                             <div className="flex items-center gap-2">
                                                 <button
@@ -410,7 +410,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 isFullyReturned ? 'bg-amber-400 text-white' : isPartiallyReturned ? 'bg-orange-400 text-white' : 'bg-primary text-white'
                                             }`}
                                         >
-                                            {index + 1}
+                                            {formatNumber(index + 1)}
                                         </span>
                                         <div className="min-w-0 flex-1">
                                             <h4 className="truncate text-sm font-semibold text-gray-900">{item.title}</h4>

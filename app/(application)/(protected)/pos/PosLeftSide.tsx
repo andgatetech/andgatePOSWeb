@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@/i18n';
 import ImageShowModal from '@/app/(application)/(protected)/products/component/Image Modal/ImageModal2';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import type { RootState } from '@/store';
@@ -44,6 +45,7 @@ interface PosLeftSideProps {
 
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
     const { t } = getTranslation();
+    const { formatNumber } = useCurrency();
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -616,7 +618,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 beepRef.current.play().catch(() => {});
             }
 
-            showMessage(t('msg_serial_items_added').replace('{count}', selectedSerials.length.toString()));
+            showMessage(t('msg_serial_items_added').replace('{count}', formatNumber(selectedSerials.length)));
 
             // Reset filters and search
             setSearchTerm('');
@@ -629,7 +631,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSerialProduct(null);
             setSerialStock(null);
         },
-        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId, t]
+        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId, t, formatNumber]
     );
 
     const handleSearchChange = useCallback(

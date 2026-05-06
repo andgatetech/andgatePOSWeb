@@ -3627,6 +3627,7 @@
     "msg_valid_email_required": "Please enter a valid email address",
     "msg_at_least_one_item_required": "At least one item is required",
     "msg_select_products_set_quantities": "Please select products and set quantities for all items",
+    "msg_select_payment_method_status": "Please select payment method and payment status",
     "msg_enter_amount_received": "Please enter the amount received",
     "msg_amount_received_less_total": "Amount received is less than the total amount",
     "msg_enter_partial_payment_amount": "Please enter partial payment amount",

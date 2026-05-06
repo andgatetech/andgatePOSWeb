@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { getTranslation } from '@/i18n';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface PaginationProps {
     currentPage: number;
@@ -10,7 +11,13 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
     const { t } = getTranslation();
+    const { formatNumber } = useCurrency();
     const [jumpPage, setJumpPage] = useState('');
+
+    const normalizeDigits = (value: string) =>
+        value.replace(/[০-৯]/g, (digit) => String('০১২৩৪৫৬৭৮৯'.indexOf(digit))).replace(/[^\d]/g, '');
+
+    const displayJumpPage = jumpPage ? formatNumber(jumpPage) : '';
 
     useEffect(() => {
         setJumpPage(currentPage.toString());
@@ -62,15 +69,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                 <form onSubmit={handleJumpSubmit} className="flex items-center justify-center space-x-2">
                     <div className="relative rounded-md shadow-sm">
                         <input
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             className="block w-12 rounded-md border-0 py-1.5 text-center text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={jumpPage}
-                            onChange={(e) => setJumpPage(e.target.value)}
-                            min={1}
-                            max={totalPages}
+                            value={displayJumpPage}
+                            onChange={(e) => setJumpPage(normalizeDigits(e.target.value))}
                         />
                     </div>
-                    <span className="text-sm font-medium text-gray-500">/ {totalPages}</span>
+                    <span className="text-sm font-medium text-gray-500">/ {formatNumber(totalPages)}</span>
                 </form>
 
                 <button
@@ -86,7 +92,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
                     <p className="text-sm text-gray-700">
-                        {t('lbl_showing_page')} <span className="font-medium">{currentPage}</span> {t('lbl_of')} <span className="font-medium">{totalPages}</span>
+                        {t('lbl_showing_page')} <span className="font-medium">{formatNumber(currentPage)}</span> {t('lbl_of')} <span className="font-medium">{formatNumber(totalPages)}</span>
                     </p>
                 </div>
 
@@ -116,7 +122,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                                                 : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
                                         }`}
                                     >
-                                        {page}
+                                        {formatNumber(page as number)}
                                     </button>
                                 )}
                             </React.Fragment>
@@ -137,15 +143,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                         <span className="text-sm text-gray-500">{t('lbl_go_to')}</span>
                         <div className="relative rounded-md shadow-sm">
                             <input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
                                 name="page"
                                 id="page-desktop"
                                 className="block w-16 rounded-md border-0 py-1.5 pl-3 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 placeholder={t('lbl_page')}
-                                value={jumpPage}
-                                onChange={(e) => setJumpPage(e.target.value)}
-                                min={1}
-                                max={totalPages}
+                                value={displayJumpPage}
+                                onChange={(e) => setJumpPage(normalizeDigits(e.target.value))}
                             />
                         </div>
                     </form>

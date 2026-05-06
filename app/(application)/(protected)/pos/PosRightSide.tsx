@@ -96,6 +96,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const searchInputRef = useRef<HTMLDivElement | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const quoteRequestSeqRef = useRef(0);
 
     const [customerSearch, setCustomerSearch] = useState('');
     const [searchParams, setSearchParams] = useState('');
@@ -911,16 +912,102 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return Math.max(0, calculateBaseTotal());
     };
 
+    const quotePayload = useMemo(() => {
+        if (isReturnMode || !currentStoreId || invoiceItems.length === 0 || !formData.paymentMethod || !formData.paymentStatus) {
+            return null;
+        }
+
+        return {
+            store_id: currentStoreId,
+            customer_id: typeof formData.customerId === 'number' ? formData.customerId : undefined,
+            payment_method: formData.paymentMethod,
+            payment_status: formData.paymentStatus,
+            discount: calculateDiscount() + calculateMembershipDiscount(),
+            points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
+            balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
+            amount_paid:
+                formData.paymentStatus === 'paid'
+                    ? formData.paymentMethod.toLowerCase() === 'cash'
+                        ? formData.amountPaid
+                        : calculateTotal()
+                    : formData.paymentStatus === 'partial'
+                      ? formData.partialPaymentAmount
+                      : 0,
+            items: invoiceItems.map((item) => ({
+                product_id: item.productId,
+                stock_id: item.stockId,
+                quantity: item.quantity,
+                unit_price: item.rate,
+                unit: item.unit || 'piece',
+                discount: 0,
+                serial_ids: item.has_serial && item.serials?.length ? item.serials.map((serial: any) => serial.id) : undefined,
+            })),
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        currentStoreId,
+        formData.amountPaid,
+        formData.balanceToUse,
+        formData.customerId,
+        formData.discount,
+        formData.membershipDiscount,
+        formData.partialPaymentAmount,
+        formData.paymentMethod,
+        formData.paymentStatus,
+        formData.pointsToUse,
+        formData.useBalance,
+        formData.usePoints,
+        invoiceItems,
+        isReturnMode,
+        selectedCustomer,
+    ]);
+
+    const quoteTotals = !isReturnMode && quotePreview?.totals ? quotePreview.totals : null;
+    const backendSubtotal = Number(quoteTotals?.total ?? calculateSubtotalWithoutTax());
+    const backendTax = Number(quoteTotals?.tax ?? calculateTax());
+    const backendDiscount = Number(quoteTotals?.discount ?? calculateDiscount() + calculateMembershipDiscount());
+    const backendGrandTotal = Number(quoteTotals?.grand_total ?? calculateTotal());
+    const backendPointsDiscount = Number(quoteTotals?.loyalty_points_value ?? (formData.usePoints ? formData.pointsToUse : 0));
+    const backendBalanceDiscount = Number(quoteTotals?.account_balance_redeemed ?? (formData.useBalance ? formData.balanceToUse : 0));
+    const membershipDiscountAmount = calculateMembershipDiscount();
+    const displayedMembershipDiscount = selectedCustomer && formData.membershipDiscount > 0 ? Math.min(membershipDiscountAmount, backendDiscount) : 0;
+    const displayedOrderDiscount = Math.max(0, backendDiscount - displayedMembershipDiscount);
+
+    useEffect(() => {
+        if (!quotePayload) {
+            setQuotePreview(null);
+            return;
+        }
+
+        const requestSeq = quoteRequestSeqRef.current + 1;
+        quoteRequestSeqRef.current = requestSeq;
+
+        const timeout = setTimeout(async () => {
+            try {
+                const response = await quoteOrder(quotePayload).unwrap();
+                if (quoteRequestSeqRef.current === requestSeq) {
+                    setQuotePreview(response.data || response);
+                }
+            } catch {
+                if (quoteRequestSeqRef.current === requestSeq) {
+                    setQuotePreview(null);
+                }
+            }
+        }, 350);
+
+        return () => clearTimeout(timeout);
+    }, [quoteOrder, quotePayload]);
+
     useEffect(() => {
         // Update due amount based on payment status and partial payment
         if (formData.paymentStatus === 'due') {
             setFormData((prev) => ({
                 ...prev,
-                dueAmount: calculateTotal(),
+                dueAmount: backendGrandTotal,
                 partialPaymentAmount: 0,
             }));
         } else if (formData.paymentStatus === 'partial') {
-            const total = calculateTotal();
+            const total = backendGrandTotal;
             const paid = formData.partialPaymentAmount || 0;
             setFormData((prev) => ({
                 ...prev,
@@ -933,17 +1020,17 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             }));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formData.paymentStatus, formData.partialPaymentAmount, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
+    }, [backendGrandTotal, formData.paymentStatus, formData.partialPaymentAmount, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
 
     useEffect(() => {
-        const total = calculateTotal();
+        const total = backendGrandTotal;
         const change = formData.amountPaid - total;
         setFormData((prev) => ({
             ...prev,
             changeAmount: change > 0 ? change : 0,
         }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
+    }, [backendGrandTotal, formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
 
     const handleWholesaleToggle = (checked: boolean) => {
         // Global wholesale toggle removed - now using per-item control
@@ -995,7 +1082,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     ...prev,
                     paymentStatus: value,
                     partialPaymentAmount: 0,
-                    dueAmount: value === 'due' ? calculateTotal() : 0,
+                    dueAmount: value === 'due' ? backendGrandTotal : 0,
                     paymentMethod: value === 'due' ? 'due' : prev.paymentMethod,
                 }));
                 return;
@@ -1053,7 +1140,31 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             return;
         }
 
-        const grandTotal = calculateTotal();
+        let freshQuoteData = quotePreview;
+        try {
+            if (quotePayload) {
+                setLoading(true);
+                const freshQuote = await quoteOrder(quotePayload).unwrap();
+                freshQuoteData = freshQuote?.data || freshQuote;
+                setQuotePreview(freshQuoteData);
+            }
+        } catch (err: any) {
+            const message =
+                err?.status === 422 && err?.data?.errors
+                    ? Object.values(err.data.errors).flat().join('\n')
+                    : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
+            showMessage(message, 'error');
+            setLoading(false);
+            return;
+        }
+
+        const freshTotals = freshQuoteData?.totals || {};
+        const freshPayment = freshQuoteData?.payment || {};
+        const grandTotal = Number(freshTotals.grand_total ?? backendGrandTotal);
+        const orderTax = Number(freshTotals.tax ?? backendTax);
+        const orderDiscount = Number(freshTotals.discount ?? backendDiscount);
+        const orderSubtotal = Number(freshTotals.total ?? backendSubtotal);
+        setLoading(false);
 
         // Validation: Cash Payment Amount Received
         if (formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
@@ -1091,32 +1202,34 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
         if (formData.paymentStatus === 'paid') {
             // For paid status, use amountPaid for cash or full amount for other methods
-            actualAmountPaid = formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal;
-            actualChangeAmount = formData.paymentMethod.toLowerCase() === 'cash' ? formData.changeAmount : 0;
+            actualAmountPaid = Number(freshPayment.amount_paid ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal));
+            actualChangeAmount = Number(freshPayment.change_amount ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.changeAmount : 0));
             dueAmount = 0;
         } else if (formData.paymentStatus === 'partial') {
             // For partial, use the partial payment amount
-            actualAmountPaid = formData.partialPaymentAmount;
+            actualAmountPaid = Number(freshPayment.amount_paid ?? formData.partialPaymentAmount);
             actualChangeAmount = 0;
-            dueAmount = grandTotal - formData.partialPaymentAmount;
+            dueAmount = Number(freshPayment.due_amount ?? grandTotal - formData.partialPaymentAmount);
         } else if (formData.paymentStatus === 'due') {
             // For due, no amount paid
             actualAmountPaid = 0;
             actualChangeAmount = 0;
-            dueAmount = grandTotal;
+            dueAmount = Number(freshPayment.due_amount ?? grandTotal);
         }
 
         const orderData: any = {
             store_id: currentStoreId,
             payment_method: formData.paymentMethod,
             payment_status: formData.paymentStatus,
-            tax: calculateTax(),
-            discount: calculateDiscount() + calculateMembershipDiscount(),
-            total: calculateSubtotalWithoutTax(),
+            tax: orderTax,
+            discount: orderDiscount,
+            total: orderSubtotal,
             grand_total: grandTotal,
             amount_paid: actualAmountPaid,
             change_amount: actualChangeAmount,
             due_amount: dueAmount,
+            points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
+            balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
             items: invoiceItems.map((item) => {
                 const itemBasePrice = item.rate * item.quantity;
                 const itemTax = calculateItemTax(item);
@@ -1376,21 +1489,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             return;
         }
 
-        const quotePayload = {
-            store_id: currentStoreId,
-            payment_method: formData.paymentMethod,
-            payment_status: formData.paymentStatus,
-            discount: calculateDiscount() + calculateMembershipDiscount(),
-            amount_paid: formData.paymentStatus === 'paid' ? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : calculateTotal()) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0,
-            items: invoiceItems.map((item) => ({
-                product_id: item.productId,
-                stock_id: item.stockId,
-                quantity: item.quantity,
-                unit_price: item.rate,
-                unit: item.unit || 'piece',
-                discount: 0,
-            })),
-        };
+        if (!quotePayload) {
+            showMessage(t('msg_select_payment_method_status'), 'error');
+            return;
+        }
 
         try {
             setLoading(true);
@@ -1672,8 +1774,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     tax: Number(quoteTotals.tax || 0),
                     discount: Number(quoteTotals.discount || 0),
                     membershipDiscount: calculateMembershipDiscount(),
-                    pointsDiscount: 0,
-                    balanceDiscount: 0,
+                    pointsDiscount: Number(quoteTotals.loyalty_points_value || 0),
+                    balanceDiscount: Number(quoteTotals.account_balance_redeemed || 0),
                     total: Number(quoteTotals.grand_total || 0),
                     grand_total: Number(quoteTotals.grand_total || 0),
                 },
@@ -1781,13 +1883,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     paymentMethodOptions={paymentMethodOptions}
                     paymentStatusOptions={paymentStatusOptions}
                     onInputChange={handleInputChange}
-                    subtotalWithoutTax={calculateSubtotalWithoutTax()}
-                    taxAmount={calculateTax()}
-                    discountAmount={calculateDiscount()}
-                    membershipDiscountAmount={calculateMembershipDiscount()}
-                    pointsDiscount={calculatePointsDiscount()}
-                    balanceDiscount={calculateBalanceDiscount()}
-                    totalPayable={calculateTotal()}
+                    subtotalWithoutTax={backendSubtotal}
+                    taxAmount={backendTax}
+                    discountAmount={displayedOrderDiscount}
+                    membershipDiscountAmount={displayedMembershipDiscount}
+                    pointsDiscount={backendPointsDiscount}
+                    balanceDiscount={backendBalanceDiscount}
+                    totalPayable={backendGrandTotal}
                     isWalkInCustomer={formData.customerId === 'walk-in'}
                     // Return mode props
                     isReturnMode={isReturnMode}
@@ -1799,7 +1901,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 <CashPaymentSection
                     formData={formData}
                     onInputChange={handleInputChange}
-                    totalPayable={calculateTotal()}
+                    totalPayable={backendGrandTotal}
                     isWalkInCustomer={formData.customerId === 'walk-in'}
                     isReturnMode={isReturnMode}
                     returnNetAmount={returnNetAmount}

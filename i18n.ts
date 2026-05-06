@@ -2,6 +2,7 @@ import UniversalCookie from 'universal-cookie';
 // Import all locales
 import bn from '@/public/locales/bn.json';
 import en from '@/public/locales/en.json';
+import { formatLocalizedNumber } from '@/lib/localized-number';
 
 // Mapping locale codes to JSON data
 const langObj: Record<string, any> = {
@@ -69,7 +70,12 @@ export const getTranslation = () => {
         return value.replace(/\{\{(\w+)\}\}|\{(\w+)\}/g, (match, doubleBraceKey, singleBraceKey) => {
             const optionKey = doubleBraceKey || singleBraceKey;
             const optionValue = options[optionKey];
-            return optionValue === null || optionValue === undefined ? match : String(optionValue);
+            if (optionValue === null || optionValue === undefined) return match;
+            if (typeof optionValue === 'number') return formatLocalizedNumber(optionValue, lang);
+            if (typeof optionValue === 'string' && /^-?\d+(\.\d+)?$/.test(optionValue.trim())) {
+                return formatLocalizedNumber(optionValue, lang);
+            }
+            return String(optionValue);
         });
     };
 
