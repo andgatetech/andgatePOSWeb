@@ -17,6 +17,7 @@ export interface TableAction {
     onClick: (row: any) => void;
     className?: string;
     icon?: ReactNode;
+    hidden?: (row: any) => boolean;
 }
 
 export interface ReusableTableProps {
@@ -61,12 +62,13 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
+    const visibleActions = actions.filter((action) => !action.hidden?.(row));
 
     useEffect(() => {
         if (isOpen && buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
             const dropdownWidth = 192;
-            const dropdownHeight = actions.length * 48;
+            const dropdownHeight = visibleActions.length * 48;
             const viewportWidth = window.innerWidth;
 
             let top = rect.bottom + 5;
@@ -80,7 +82,11 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
 
             setPosition({ top, left });
         }
-    }, [isOpen, actions.length]);
+    }, [isOpen, visibleActions.length]);
+
+    if (visibleActions.length === 0) {
+        return null;
+    }
 
     return (
         <div className="relative flex justify-center">
@@ -101,7 +107,7 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({ actions, row, isOpen,
                         className="fixed z-[101] w-48 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl"
                         style={{ top: `${position.top}px`, left: `${position.left}px` }}
                     >
-                        {actions.map((action, actionIndex) => (
+                        {visibleActions.map((action, actionIndex) => (
                             <button
                                 key={actionIndex}
                                 onClick={() => { action.onClick(row); onClose(); }}

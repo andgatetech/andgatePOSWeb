@@ -314,6 +314,28 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['notifications.index'],
     },
     {
+        label: 'Ecommerce Management',
+        icon: React.createElement(ShoppingBag),
+        requiredPermissions: ['orders.index'],
+        subMenu: [
+            {
+                label: 'Store Ecommerce Status',
+                href: '/ecommerce/stores',
+                requiredPermissions: ['orders.index'],
+            },
+            {
+                label: 'Ecommerce Orders',
+                href: '/ecommerce/orders',
+                requiredPermissions: ['orders.index'],
+            },
+            {
+                label: 'Ecommerce Products',
+                href: '/ecommerce/products',
+                requiredPermissions: ['orders.index'],
+            },
+        ],
+    },
+    {
         label: 'Feedback',
         icon: React.createElement(MessagesSquare),
         
@@ -377,10 +399,8 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined): 
 /**
  * Build menu items based on user permissions
  * @param userPermissions - Array of permission strings from backend
- * @param role - User role (store_admin has full access)
  * @returns Filtered menu items array
  */
 export function buildMenuFromPermissions(userPermissions: string[] | undefined): MenuItem[] {
-    // Always filter by actual permissions — the backend controls what each user can access
     return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions)).filter((item): item is MenuItem => item !== null);
 }

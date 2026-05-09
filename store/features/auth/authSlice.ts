@@ -132,16 +132,14 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.isAuthenticated = true;
 
-            console.log('✅ Login successful - User:', state.user?.name);
-            console.log('✅ Role:', state.user?.role);
-            console.log('✅ Permissions loaded:', permissions.length, 'permissions');
+            
 
             // 👇 Set default store (first store) on login
             if (action.payload.user?.stores?.length > 0) {
                 const defaultStore = action.payload.user.stores[0];
                 state.currentStore = defaultStore;
                 state.currentStoreId = defaultStore.id;
-                console.log('🏪 Default store set:', defaultStore.store_name);
+                
             } else {
                 state.currentStore = null;
                 state.currentStoreId = null;

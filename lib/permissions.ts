@@ -187,6 +187,13 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/notifications': ['notifications.index'],
     '/notifications/send': ['notifications.create'],
 
+    // ── Ecommerce Management ──────────────────────────────────
+    '/ecommerce/stores': ['orders.index'],
+    '/ecommerce/orders': ['orders.index'],
+    '/ecommerce/products': ['orders.index'],
+    '/ecommerce/carts': ['orders.index'],
+    '/ecommerce/wishlists': ['orders.index'],
+
     // ── Feedbacks ──────────────────────────────────────────────
     '/feedbacks': ['feedbacks.index'],
     '/feedbacks/create-feedback': ['feedbacks.create'],

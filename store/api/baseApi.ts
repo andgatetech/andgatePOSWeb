@@ -97,6 +97,7 @@ export const baseApi = createApi({
         'Plans',
         'Permissions',
         'Notifications',
+        'EcommerceManagement',
     ],
     endpoints: () => ({}),
 });

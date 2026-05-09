@@ -105,6 +105,7 @@ export const config = {
         '/products/:path*',
         '/purchase/:path*',
         '/orders/:path*',
+        '/ecommerce/:path*',
         '/account/:path*',
         '/expenses/:path*',
         '/reports/:path*',
