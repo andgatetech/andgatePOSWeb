@@ -10,6 +10,10 @@ const nextConfig = {
     images: {
         // Serve modern formats (WebP/AVIF) automatically
         formats: ['image/avif', 'image/webp'],
+        // Disable image optimization for local dev — backend runs on 127.0.0.1 which
+        // Next.js blocks server-side (private IP restriction). In production, images
+        // come from a real public domain so optimization works fine there.
+        unoptimized: process.env.NODE_ENV === 'development',
         remotePatterns: [
             {
                 protocol: 'http',
@@ -44,15 +48,11 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'api.andgatepos.com',
-                pathname: '/storage/**', // ✅ Allow Laravel storage images
+                pathname: '/storage/**',
             },
         ],
     },
     reactStrictMode: true,
-    swcMinify: true,
-    eslint: {
-        ignoreDuringBuilds: true,
-    },
     typescript: {
         ignoreBuildErrors: true,
     },
@@ -70,13 +70,6 @@ const nextConfig = {
                     { key: 'X-Content-Type-Options', value: 'nosniff' },
                     { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
                     { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(self)' },
-                ],
-            },
-            // Immutable cache for hashed Next.js bundles (1 year)
-            {
-                source: '/_next/static/:path*',
-                headers: [
-                    { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
                 ],
             },
             // Long cache for public static assets (fonts, SVGs, JS/CSS under /assets)
@@ -103,7 +96,6 @@ const nextConfig = {
                 destination: '/dashboard',
                 permanent: true,
             },
-            
         ];
     },
 };

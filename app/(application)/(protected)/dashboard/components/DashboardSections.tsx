@@ -3,6 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { CurrencyDisplay } from '@/lib/CurrencyDisplay';
+import { resolveStorageUrl } from '@/lib/image-url';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
 import { DashboardProduct } from '@/types/dashboard.types';
 import { motion } from 'framer-motion';
@@ -237,7 +238,7 @@ export default function DashboardSections() {
                                 <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                     {product.product_image ? (
                                         <Image
-                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage${product.product_image}`}
+                                            src={resolveStorageUrl(product.product_image)}
                                             alt={product.product_name}
                                             fill
                                             className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
@@ -322,7 +323,7 @@ export default function DashboardSections() {
                                 <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                     {product.product_image ? (
                                         <Image
-                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage${product.product_image}`}
+                                            src={resolveStorageUrl(product.product_image)}
                                             alt={product.product_name}
                                             fill
                                             className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"
@@ -388,7 +389,7 @@ export default function DashboardSections() {
                                 <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                     {sale.primary_product.image ? (
                                         <Image
-                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage${sale.primary_product.image}`}
+                                            src={resolveStorageUrl(sale.primary_product.image)}
                                             alt={sale.primary_product.name}
                                             fill
                                             className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"

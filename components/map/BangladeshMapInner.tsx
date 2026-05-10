@@ -5,8 +5,10 @@
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useEffect } from 'react';
-import { CircleMarker, MapContainer, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet';
+import { LeafletProvider, createLeafletContext } from '@react-leaflet/core';
+import type { CSSProperties, ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { CircleMarker, Popup, TileLayer, ZoomControl, useMap } from 'react-leaflet';
 
 import { BANGLADESH_DIVISIONS, STORE_LOCATIONS, TIER_CONFIG, TOTAL_CITIES, TOTAL_DIVISIONS, TOTAL_STORES } from '@/lib/bangladesh-stores';
 import MapLegend from './MapLegend';
@@ -22,6 +24,72 @@ const BD_BOUNDS: L.LatLngBoundsExpression = [
     [26.8, 92.9], // NE
 ];
 const BD_CENTER: L.LatLngExpression = [23.685, 90.3563];
+
+
+type SafeMapContainerProps = L.MapOptions & {
+    center: L.LatLngExpression;
+    zoom: number;
+    children: ReactNode;
+    className?: string;
+    id?: string;
+    style?: CSSProperties;
+};
+
+type LeafletContainer = HTMLDivElement & {
+    _leaflet_id?: number | null;
+};
+
+function SafeMapContainer({ center, children, className, id, style, zoom, ...options }: SafeMapContainerProps) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const mapRef = useRef<L.Map | null>(null);
+    const mapOptionsRef = useRef(options);
+    const [context, setContext] = useState<ReturnType<typeof createLeafletContext> | null>(null);
+
+    const resetContainer = useCallback((container: HTMLDivElement) => {
+        const leafletContainer = container as LeafletContainer;
+        leafletContainer._leaflet_id = null;
+        container.replaceChildren();
+    }, []);
+
+    const removeMap = useCallback(() => {
+        if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
+        }
+        setContext(null);
+
+        const container = containerRef.current;
+        if (container) {
+            resetContainer(container);
+        }
+    }, [resetContainer]);
+
+    const bindContainer = useCallback((node: HTMLDivElement | null) => {
+        if (node === null) {
+            removeMap();
+        }
+        containerRef.current = node;
+    }, [removeMap]);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container || mapRef.current) return; // Prevent double initialization
+
+        resetContainer(container);
+        const map = L.map(container, mapOptionsRef.current);
+        map.setView(center, zoom);
+        mapRef.current = map;
+        setContext(createLeafletContext(map));
+
+        return removeMap;
+    }, [center, removeMap, zoom]);
+
+    return (
+        <div ref={bindContainer} className={className} id={id} style={style}>
+            {context ? <LeafletProvider value={context}>{children}</LeafletProvider> : null}
+        </div>
+    );
+}
 
 // ─── Auto-fit to Bangladesh on mount ─────────────────────────────────────────
 function BoundsFitter() {
@@ -67,11 +135,9 @@ function DivisionLabels() {
     return null;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 export default function BangladeshMapInner() {
     return (
         <div className="relative h-[560px] w-full overflow-hidden rounded-2xl shadow-2xl">
-            {/* ── Floating legend (pointer-events-auto so it's clickable) ── */}
             <div className="pointer-events-none absolute bottom-4 left-4 z-[1000]">
                 <MapLegend />
             </div>
@@ -93,7 +159,7 @@ export default function BangladeshMapInner() {
             </div>
 
             {/* ── Leaflet map ── */}
-            <MapContainer center={BD_CENTER} zoom={7} minZoom={6} maxZoom={13} maxBounds={BD_BOUNDS} maxBoundsViscosity={0.85} zoomControl={false} style={{ height: '100%', width: '100%' }}>
+            <SafeMapContainer center={BD_CENTER} zoom={7} minZoom={6} maxZoom={13} maxBounds={BD_BOUNDS} maxBoundsViscosity={0.85} zoomControl={false} style={{ height: '100%', width: '100%' }}>
                 {/* Light, clean tile layer — no API key required */}
                 <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
 
@@ -131,7 +197,7 @@ export default function BangladeshMapInner() {
                         </CircleMarker>
                     );
                 })}
-            </MapContainer>
+            </SafeMapContainer>
         </div>
     );
 }

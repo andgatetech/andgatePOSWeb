@@ -98,7 +98,15 @@ const Sidebar = () => {
             <div className="flex h-[60px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
                 <Link href="/dashboard" className="flex items-center gap-2.5">
                     <div className="overflow-hidden rounded-lg">
-                        <Image src="/images/andgatePOS.jpeg" alt="AndGate POS" width={110} height={28} className="h-7 w-auto object-contain" priority />
+                        <Image
+                            src="/images/andgatePOS.jpeg"
+                            alt="AndGate POS"
+                            width={110}
+                            height={37}
+                            className="h-7 w-auto object-contain"
+                            style={{ width: 'auto' }}
+                            priority
+                        />
                     </div>
                 </Link>
                 <button

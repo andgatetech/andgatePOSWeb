@@ -41,7 +41,12 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
     const displayImages =
         selectedVariantIndex !== null && product.stocks && product.stocks[selectedVariantIndex]
             ? product.stocks[selectedVariantIndex].images || []
-            : product.stocks?.flatMap((stock: any) => stock.images || []) || [];
+            : [
+                  ...(Array.isArray(product.images) ? product.images : []),
+                  product.image,
+                  product.product_image,
+                  ...(Array.isArray(product.stocks) ? product.stocks.flatMap((stock: any) => stock.images || []) : []),
+              ].filter((image) => Boolean(resolveProductImageUrl(image)));
     const hasRichDescription = /<[^>]+>/.test(product.description || '');
 
     return (
@@ -122,6 +127,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                         src={imageSrc}
                                                                         alt={product.product_name}
                                                                         fill
+                                                                        unoptimized
                                                                         className="object-contain p-4"
                                                                     />
                                                                 </div>
@@ -235,17 +241,27 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         </div>
 
                                         {/* Attributes */}
-                                        {product.attributes && product.attributes.length > 0 && (
+                                        {product.attributes && Object.keys(product.attributes).length > 0 && (
                                             <div className="space-y-3">
                                                 <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Attributes</h3>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {product.attributes.map((attr: any, index: number) => (
-                                                        <div key={index} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5">
-                                                            <Tag className="h-3.5 w-3.5 text-gray-500" />
-                                                            <span className="text-xs font-medium capitalize text-gray-600">{attr.attribute_name}:</span>
-                                                            <span className="text-xs font-semibold capitalize text-gray-900">{attr.value}</span>
-                                                        </div>
-                                                    ))}
+                                                    {Array.isArray(product.attributes)
+                                                        ? product.attributes.map((attr: any, index: number) => (
+                                                              <div key={index} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                                                                  <Tag className="h-3.5 w-3.5 text-gray-500" />
+                                                                  <span className="text-xs font-medium capitalize text-gray-600">{attr.attribute_name}:</span>
+                                                                  <span className="text-xs font-semibold capitalize text-gray-900">{attr.value}</span>
+                                                              </div>
+                                                          ))
+                                                        : Object.entries(product.attributes).map(([name, values]: [string, any]) => (
+                                                              <div key={name} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                                                                  <Tag className="h-3.5 w-3.5 text-gray-500" />
+                                                                  <span className="text-xs font-medium capitalize text-gray-600">{name}:</span>
+                                                                  <span className="text-xs font-semibold capitalize text-gray-900">
+                                                                      {Array.isArray(values) ? values.join(', ') : values}
+                                                                  </span>
+                                                              </div>
+                                                          ))}
                                                 </div>
                                             </div>
                                         )}

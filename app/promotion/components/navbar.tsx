@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import PromoButton from './promo-button';
-import AndGate from '/public/images/andgatePOS.jpeg';
+
+const AndGate = '/images/andgatePOS.jpeg';
 
 export default function Navbar() {
     return (
         <nav className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-white/95 px-4 shadow-sm backdrop-blur-md sm:px-6">
             <Link href="/" className="flex items-center">
-                <Image src={AndGate} alt="AndgatePOS Logo" width={150} height={30} priority />
+                <Image src={AndGate} alt="AndgatePOS Logo" width={150} height={50} priority />
             </Link>
             <div className="flex items-center gap-3">
                 <a

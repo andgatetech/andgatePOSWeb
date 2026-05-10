@@ -8,9 +8,11 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
+import { resolveProductImageUrl } from '@/lib/image-url';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Tag, XCircle } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -457,6 +459,14 @@ const ProductTable = () => {
                                     const displayPrice = primaryStock?.price || product.price || 0;
                                     const displayPurchasePrice = primaryStock?.purchase_price || product.purchase_price || 0;
                                     const displayLowStock = primaryStock?.low_stock_quantity || product.low_stock_quantity || 10;
+                                    const productImages = [
+                                        ...(Array.isArray(product.images) ? product.images : []),
+                                        product.image,
+                                        product.product_image,
+                                        ...(Array.isArray(product.stocks) ? product.stocks.flatMap((stock: any) => stock.images || []) : []),
+                                    ].filter((image) => Boolean(resolveProductImageUrl(image)));
+                                    const productImageUrl = resolveProductImageUrl(productImages[0]);
+                                    const productImageCount = productImages.length;
 
                                     // Calculate available status - check if any stock is available
                                     const isAvailable =
@@ -548,11 +558,23 @@ const ProductTable = () => {
                                             {/* Images */}
                                             <td className="px-4 py-3.5 text-sm">
                                                 <button
-                                                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 transition-colors hover:bg-blue-200"
+                                                    className="group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-100 transition-colors hover:border-blue-300 hover:bg-blue-50"
                                                     onClick={() => handleImageShow(product)}
                                                     title="View Images"
                                                 >
-                                                    <IconEye className="text-blue-600" />
+                                                    {productImageUrl ? (
+                                                        <Image src={productImageUrl} alt={product.product_name} fill className="object-cover transition-transform group-hover:scale-105" />
+                                                    ) : (
+                                                        <Package className="h-5 w-5 text-gray-400" />
+                                                    )}
+                                                    <span className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/35">
+                                                        <IconEye className="h-4 w-4 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                                                    </span>
+                                                    {productImageCount > 1 && (
+                                                        <span className="absolute bottom-0.5 right-0.5 rounded bg-black/70 px-1 text-[10px] font-semibold leading-4 text-white">
+                                                            {formatNumber(productImageCount)}
+                                                        </span>
+                                                    )}
                                                 </button>
                                             </td>
 

@@ -1,7 +1,6 @@
 import ProviderComponent from '@/components/layouts/provider-component';
 import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
-import { Nunito } from 'next/font/google';
 import Script from 'next/script';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -72,13 +71,6 @@ export const metadata: Metadata = {
     },
     category: 'technology',
 };
-
-const nunito = Nunito({
-    weight: ['400', '500', '600', '700', '800'],
-    subsets: ['latin'],
-    display: 'swap',
-    variable: '--font-nunito',
-});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const softwareJsonLd = {
@@ -204,7 +196,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 />
                 </noscript> */}
             </head>
-            <body className={nunito.variable}>
+            <body suppressHydrationWarning>
                 {/* GTM noscript fallback — required by Google, goes right after <body> */}
                 {process.env.NEXT_PUBLIC_GTM_ID && (
                     <noscript>

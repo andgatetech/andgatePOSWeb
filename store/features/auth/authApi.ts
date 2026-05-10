@@ -1,5 +1,5 @@
-import { baseApi } from '@/store/api/baseApi';
 import { getLoginTokenExpiresAt } from '@/lib/auth-session';
+import { baseApi } from '@/store/api/baseApi';
 import { login, logout } from './authSlice';
 
 export const authApi = baseApi.injectEndpoints({
@@ -79,8 +79,6 @@ export const authApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['User'],
         }),
-
-       
 
         getAllPermissions: builder.query({
             query: () => ({

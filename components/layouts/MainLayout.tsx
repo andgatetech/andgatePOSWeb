@@ -7,7 +7,8 @@ import { useState } from 'react';
 import LanguageDropdown from '../language-dropdown';
 import WhatsAppFloat from '../whatsapp-float';
 import Footer from '@/app/terms-of-service/Footer';
-import AndGate from '/public/images/andgatePOS.jpeg';
+
+const AndGate = '/images/andgatePOS.jpeg';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -33,7 +34,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <Image src={AndGate} alt="AndgatePOS" width={150} height={30} priority />
+                            <Image src={AndGate} alt="AndgatePOS" width={150} height={50} priority />
                         </Link>
 
                         {/* Desktop Nav */}

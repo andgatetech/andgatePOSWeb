@@ -3,6 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { resolveStorageUrl } from '@/lib/image-url';
 import { useGetDashboardSectionsFiveQuery } from '@/store/features/dashboard/dashboad';
 import { motion } from 'framer-motion';
 import { Package, ShoppingBag, Tag } from 'lucide-react';
@@ -486,7 +487,7 @@ export default function SectionsFive() {
                                 <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                                     {product.product_image ? (
                                         <Image
-                                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage${product.product_image}`}
+                                            src={resolveStorageUrl(product.product_image)}
                                             alt={product.product_name}
                                             fill
                                             className="object-contain p-1 transition-transform duration-500 group-hover:scale-110"

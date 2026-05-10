@@ -1,3 +1,7 @@
+:root {
+    --font-nunito: Nunito, "Segoe UI", Arial, sans-serif;
+}
+
 /* Custom Dashboard Animations */
 
 @keyframes fadeInUp {

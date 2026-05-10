@@ -29,7 +29,7 @@ const PUBLIC_PATHS = [
 const isPublicPath = (path: string) =>
     PUBLIC_PATHS.some(p => path === p || (p !== '/' && path.startsWith(p + '/')));
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {

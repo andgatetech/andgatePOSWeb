@@ -128,7 +128,14 @@ const Header = () => {
                     {/* Logo Section — mobile only (sidebar hides on desktop) */}
                     <div className="horizontal-logo mr-2 flex items-center justify-between lg:hidden">
                         <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
-                            <Image src="/images/andgatePOS.jpeg" alt="logo icon" width={120} height={32} className="h-6 w-auto object-contain sm:h-8 sm:w-auto md:h-10" />
+                            <Image
+                                src="/images/andgatePOS.jpeg"
+                                alt="logo icon"
+                                width={120}
+                                height={40}
+                                className="h-6 w-auto object-contain sm:h-8 sm:w-auto md:h-10"
+                                style={{ width: 'auto' }}
+                            />
                         </Link>
 
                         <button

@@ -23,15 +23,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMo
     const isUnavailable = product.available === false || totalQuantity <= 0;
 
     const renderProductImage = () => {
-        // Get first stock with images
         const stockWithImage = product.stocks?.find((s: any) => s.images && s.images.length > 0);
+        const imgSrc = resolveProductImageUrl(stockWithImage?.images?.[0] || (product as any).images?.[0] || (product as any).image || (product as any).product_image);
 
-        if (stockWithImage && stockWithImage.images && stockWithImage.images.length > 0) {
-            const img = stockWithImage.images[0];
-            const imgSrc = resolveProductImageUrl(img);
-            if (imgSrc) {
-                return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
-            }
+        if (imgSrc) {
+            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
         }
 
         // No images - show placeholder

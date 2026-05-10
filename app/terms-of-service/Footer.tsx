@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import AndGate from '/public/images/andgatePOS.jpeg';
+
+const AndGate = '/images/andgatePOS.jpeg';
 
 const Footer = () => {
     const { t, data } = getTranslation();
@@ -84,8 +85,9 @@ const Footer = () => {
                                     src={AndGate}
                                     alt="AndgatePOS"
                                     width={150}
-                                    height={30}
+                                    height={50}
                                     className="block h-8 w-auto object-contain"
+                                    style={{ width: 'auto' }}
                                 />
                             </div>
                         </Link>
