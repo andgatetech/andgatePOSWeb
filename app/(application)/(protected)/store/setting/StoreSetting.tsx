@@ -244,12 +244,12 @@ const StoreSetting = () => {
                 store_name: storeInfo.store_name || '',
                 store_location: storeInfo.store_location || '',
                 store_contact: storeInfo.store_contact || '',
-                max_discount: storeInfo.max_discount || '',
+                max_discount: storeInfo.max_discount ?? '',
                 opening_time: storeInfo.opening_time ? storeInfo.opening_time.slice(0, 5) : '',
                 closing_time: storeInfo.closing_time ? storeInfo.closing_time.slice(0, 5) : '',
-                loyalty_points_enabled: storeInfo.loyalty_points_enabled === 1,
-                loyalty_points_rate: storeInfo.loyalty_points_rate || '',
-                is_active: storeInfo.is_active === 1,
+                loyalty_points_enabled: parseIsActive(storeInfo.loyalty_points_enabled),
+                loyalty_points_rate: storeInfo.loyalty_points_rate ?? '',
+                is_active: parseIsActive(storeInfo.is_active),
                 units: Array.isArray(storeInfo.units)
                     ? storeInfo.units.map((unit: any) => (typeof unit === 'string' ? { name: unit, is_active: 1 } : { name: unit.name || unit, is_active: unit.is_active ?? 1 }))
                     : [],
@@ -285,7 +285,7 @@ const StoreSetting = () => {
             ];
 
             await updateStore({
-                updateData: { pos_units: unitsToSend },
+                updateData: { pos_units: unitsToSend, sync_units: true },
                 storeId: storeId,
             }).unwrap();
 
@@ -318,7 +318,7 @@ const StoreSetting = () => {
             }));
 
             await updateStore({
-                updateData: { pos_units: unitsToSend },
+                updateData: { pos_units: unitsToSend, sync_units: true },
                 storeId: storeId,
             }).unwrap();
 
@@ -346,7 +346,7 @@ const StoreSetting = () => {
             const unitsToSend = currentUnits.filter((u: any) => u.id !== id).map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active }));
 
             await updateStore({
-                updateData: { pos_units: unitsToSend },
+                updateData: { pos_units: unitsToSend, sync_units: true },
                 storeId: storeId,
             }).unwrap();
 
@@ -374,7 +374,7 @@ const StoreSetting = () => {
             }));
 
             await updateStore({
-                updateData: { pos_units: unitsToSend },
+                updateData: { pos_units: unitsToSend, sync_units: true },
                 storeId: storeId,
             }).unwrap();
 
@@ -1277,25 +1277,35 @@ const StoreSetting = () => {
                 return;
             }
         }
+        const formatComparableTime = (value: any) => {
+            if (!value) return '';
+            return formatTimeToHi(String(value));
+        };
+        const normalizeBoolean = (value: any) => (value === true || value === 1 || value === '1' || value === 'true' ? '1' : '0');
+        const normalizeString = (value: any) => String(value ?? '').trim();
+        const normalizeNumber = (value: any) => (value === undefined || value === null || value === '' ? '' : String(Number(value)));
 
-        // Units validation - filter out empty units
-        const validUnits = formData.units.filter((unit) => unit.name && unit.name.trim()).map((unit) => ({ name: unit.name.trim() }));
+        const storeInfo = storeData?.data?.store || {};
+        const fieldNormalizers: Record<string, (value: any) => string> = {
+            store_name: normalizeString,
+            store_location: normalizeString,
+            store_contact: normalizeString,
+            max_discount: normalizeNumber,
+            opening_time: formatComparableTime,
+            closing_time: formatComparableTime,
+            loyalty_points_enabled: normalizeBoolean,
+            loyalty_points_rate: normalizeNumber,
+            is_active: normalizeBoolean,
+        };
 
-        // Prepare update data
-        const updateData: any = { ...formData };
-        updateData.units = validUnits;
+        const updateData: any = {};
+        Object.keys(fieldNormalizers).forEach((field) => {
+            const currentValue = field === 'opening_time' || field === 'closing_time' ? formatTimeToHi((formData as any)[field]) : (formData as any)[field];
+            const currentComparable = fieldNormalizers[field](currentValue);
+            const originalComparable = fieldNormalizers[field]((storeInfo as any)[field]);
 
-        if (updateData.opening_time) {
-            updateData.opening_time = formatTimeToHi(updateData.opening_time);
-        }
-        if (updateData.closing_time) {
-            updateData.closing_time = formatTimeToHi(updateData.closing_time);
-        }
-
-        // Clean empty fields
-        Object.keys(updateData).forEach((key) => {
-            if (key !== 'units' && (updateData[key] === '' || updateData[key] === null)) {
-                delete updateData[key];
+            if (currentComparable !== originalComparable) {
+                updateData[field] = currentValue;
             }
         });
 
@@ -1303,6 +1313,10 @@ const StoreSetting = () => {
             updateData.logo = logoFile;
         }
 
+        if (Object.keys(updateData).length === 0) {
+            showSuccessDialog(t('msg_success'), t('msg_updated'));
+            return;
+        }
         try {
             const response = await updateStore({
                 updateData,

@@ -5,9 +5,20 @@ const CategoryApi = baseApi.injectEndpoints({
         // Create category
         createCategory: builder.mutation({
             query: (newCategory: any) => {
+                const isFormData = typeof FormData !== 'undefined' && newCategory instanceof FormData;
+                const looksLikeFormData = newCategory && typeof newCategory.append === 'function' && typeof newCategory.get === 'function';
+
+                if (isFormData || looksLikeFormData) {
+                    return {
+                        url: '/categories',
+                        method: 'POST',
+                        body: newCategory,
+                    };
+                }
+
                 const formData = new FormData();
-                formData.append('name', newCategory.name || '');
-                formData.append('description', newCategory.description || '');
+                formData.append('name', String(newCategory.name || '').trim());
+                formData.append('description', String(newCategory.description || '').trim());
                 if (newCategory.image) {
                     formData.append('image', newCategory.image);
                 }

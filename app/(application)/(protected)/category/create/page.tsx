@@ -40,16 +40,18 @@ const CreateCategoryPage = () => {
         if (!formData.name.trim()) newErrors.name = t('msg_name_required');
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) return;
-        if (!currentStoreId) { showErrorDialog(t('msg_error'), t('msg_select_store_first')); return; }
+        if (!currentStoreId) {
+            showErrorDialog(t('msg_error'), t('msg_select_store_first'));
+            return;
+        }
 
         try {
-            const categoryFormData = new FormData();
-            categoryFormData.append('store_id', currentStoreId.toString());
-            categoryFormData.append('name', formData.name.trim());
-            categoryFormData.append('description', formData.description.trim());
-            if (formData.image) categoryFormData.append('image', formData.image);
-
-            await createCategory(categoryFormData).unwrap();
+            await createCategory({
+                store_id: currentStoreId,
+                name: formData.name.trim(),
+                description: formData.description.trim(),
+                image: formData.image,
+            }).unwrap();
             showSuccessDialog(t('msg_success'), t('category_created'));
             router.push('/category');
         } catch (error: any) {

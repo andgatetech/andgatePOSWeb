@@ -8,18 +8,35 @@ const StoreApi = baseApi.injectEndpoints({
         updateStore: builder.mutation({
             query: ({ updateData, storeId }: { updateData: any; storeId?: number }) => {
                 const formData = new FormData();
+                const appendIfPresent = (key: string, value: any) => {
+                    if (value !== undefined && value !== null) {
+                        formData.append(key, value instanceof File ? value : String(value));
+                    }
+                };
 
-                if (updateData.store_name) formData.append('store_name', updateData.store_name);
-                if (updateData.store_location) formData.append('store_location', updateData.store_location);
-                if (updateData.store_contact) formData.append('store_contact', updateData.store_contact);
-                if (updateData.max_discount) formData.append('max_discount', updateData.max_discount);
-                if (updateData.opening_time) formData.append('opening_time', updateData.opening_time);
-                if (updateData.closing_time) formData.append('closing_time', updateData.closing_time);
-                if (updateData.loyalty_points_enabled !== undefined) formData.append('loyalty_points_enabled', updateData.loyalty_points_enabled);
-                if (updateData.loyalty_points_rate) formData.append('loyalty_points_rate', updateData.loyalty_points_rate);
-                if (updateData.is_active !== undefined) formData.append('is_active', updateData.is_active);
-                if (updateData.logo) formData.append('logo', updateData.logo);
-
+                appendIfPresent('store_name', updateData.store_name);
+                appendIfPresent('store_location', updateData.store_location);
+                appendIfPresent('store_contact', updateData.store_contact);
+                appendIfPresent('country_code', updateData.country_code);
+                appendIfPresent('timezone', updateData.timezone);
+                appendIfPresent('locale', updateData.locale);
+                appendIfPresent('date_format', updateData.date_format);
+                appendIfPresent('time_format', updateData.time_format);
+                appendIfPresent('invoice_prefix', updateData.invoice_prefix);
+                appendIfPresent('invoice_footer', updateData.invoice_footer);
+                appendIfPresent('tax_type', updateData.tax_type);
+                appendIfPresent('tax_label', updateData.tax_label);
+                appendIfPresent('tax_registration_number', updateData.tax_registration_number);
+                appendIfPresent('default_tax_rate', updateData.default_tax_rate);
+                appendIfPresent('prices_include_tax', updateData.prices_include_tax);
+                appendIfPresent('max_discount', updateData.max_discount);
+                appendIfPresent('opening_time', updateData.opening_time);
+                appendIfPresent('closing_time', updateData.closing_time);
+                appendIfPresent('loyalty_points_enabled', updateData.loyalty_points_enabled);
+                appendIfPresent('loyalty_points_rate', updateData.loyalty_points_rate);
+                appendIfPresent('is_active', updateData.is_active);
+                appendIfPresent('logo', updateData.logo);
+                appendIfPresent('sync_units', updateData.sync_units);
                 //Append pos_units (backend expects pos_units, not units)
                 if (updateData.pos_units && Array.isArray(updateData.pos_units)) {
                     updateData.pos_units.forEach((unit: any, index: number) => {
@@ -39,11 +56,11 @@ const StoreApi = baseApi.injectEndpoints({
                     formData.append('store_id', storeId.toString());
                 }
 
-                formData.append('_method', 'PUT'); // Laravel PUT via POST
+                formData.append('_method', 'PATCH'); // Laravel PATCH via POST
 
                 return {
                     url: `/store`,
-                    method: 'POST', // POST + _method=PUT
+                    method: 'POST', // POST + _method=PATCH
                     body: formData,
                 };
             },
