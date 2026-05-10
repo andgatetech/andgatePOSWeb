@@ -5,6 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
+import { resolveProductImageUrl } from '@/lib/image-url';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleProductQuery, useGetUnitsQuery, useUpdateProductMutation } from '@/store/features/Product/productApi';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
@@ -177,7 +178,7 @@ const ProductEditForm = () => {
             // For variant products, images are handled in VariantsTab
             if (!product.has_attributes && firstStock?.images && firstStock.images.length > 0) {
                 const loadedImages = firstStock.images.map((img: any) => ({
-                    dataURL: img.url ? `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${img.url.startsWith('/') ? img.url.substring(1) : img.url}` : '',
+                    dataURL: resolveProductImageUrl(img),
                     id: img.id, // Preserve the image ID for existing images
                 }));
                 setImages(loadedImages);
@@ -219,7 +220,7 @@ const ProductEditForm = () => {
                     // Transform stock images to ImageUploading format
                     const transformedImages =
                         stock.images?.map((img: any) => ({
-                            data_url: img.url ? `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${img.url.startsWith('/') ? img.url.substring(1) : img.url}` : '',
+                            data_url: resolveProductImageUrl(img),
                             id: img.id, // Preserve image ID
                         })) || [];
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import { resolveStorageUrl } from '@/lib/image-url';
 import Image from 'next/image';
 import React from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
@@ -53,17 +54,7 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
 
         // If it's an existing server image
         if (image.dataURL) {
-            const url = image.dataURL;
-            // If URL already has /storage or is a full URL, use as is
-            if (url.startsWith('http') || url.startsWith('data:')) {
-                return url;
-            }
-            // Add storage prefix if needed
-            if (url.startsWith('/storage')) {
-                return `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${url}`;
-            }
-            // Add /storage prefix if not present
-            return `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/storage${url.startsWith('/') ? url : '/' + url}`;
+            return resolveStorageUrl(image.dataURL);
         }
 
         return '';

@@ -2,6 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { resolveProductImageUrl } from '@/lib/image-url';
 import { Dialog, Transition } from '@headlessui/react';
 import { Check, Package, ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
@@ -102,6 +103,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                             const isSelected = selectedVariantIndex === index;
                                             // In POS mode, check both available and quantity. In other modes, allow all variants.
                                             const isAvailable = mode === 'pos' ? stock.available === 'yes' && stock.quantity > 0 : true;
+                                            const imageSrc = resolveProductImageUrl(stock.images?.[0]);
 
                                             // Find warranty for this variant
                                             const variantWarranty = product.warranties?.find((w: any) => w.product_stock_id === stock.id);
@@ -120,13 +122,11 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     }`}
                                                 >
                                                     {/* Variant Image */}
-                                                    {stock.images && stock.images.length > 0 && (
+                                                    {imageSrc && (
                                                         <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
                                                             <div className="relative h-40 w-full">
                                                                 <Image
-                                                                    src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/storage/${
-                                                                        stock.images[0].url.startsWith('/') ? stock.images[0].url.substring(1) : stock.images[0].url
-                                                                    }`}
+                                                                    src={imageSrc}
                                                                     alt={stock.variant_name}
                                                                     fill
                                                                     className="object-cover transition-transform duration-200 group-hover:scale-105"

@@ -2,6 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { resolveProductImageUrl } from '@/lib/image-url';
 import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Archive, Package, Tag, X } from 'lucide-react';
 import Image from 'next/image';
@@ -111,17 +112,14 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                             <div className="overflow-hidden rounded-lg border border-gray-200">
                                                 <Swiper navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full bg-gray-50">
                                                     {displayImages.map((img: any, index: number) => {
-                                                        const imagePath = img?.url || img?.path || '';
-                                                        if (!imagePath) return null;
-
-                                                        // Clean the path - remove leading slash if present
-                                                        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+                                                        const imageSrc = resolveProductImageUrl(img);
+                                                        if (!imageSrc) return null;
 
                                                         return (
                                                             <SwiperSlide key={index} className="flex h-full items-center justify-center">
                                                                 <div className="relative h-full w-full">
                                                                     <Image
-                                                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/storage/${cleanPath}`}
+                                                                        src={imageSrc}
                                                                         alt={product.product_name}
                                                                         fill
                                                                         className="object-contain p-4"
