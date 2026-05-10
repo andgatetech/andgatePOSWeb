@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { login } from '@/store/features/auth/authSlice';
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
@@ -53,8 +54,15 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             const result = await loginApi(credentials).unwrap();
 
             const { user, token, permissions } = result.data;
+            const tokenExpiresAt = getLoginTokenExpiresAt(result.data);
 
-            const maxAge = 60 * 60 * 24;
+            if (isTokenExpired(tokenExpiresAt)) {
+                toast.error('Login token expired. Please login again.');
+                return;
+            }
+            const validTokenExpiresAt = tokenExpiresAt as string;
+
+            const maxAge = getCookieMaxAgeFromExpiry(validTokenExpiresAt);
             const encodedPermissions = (() => {
                 try {
                     return btoa(JSON.stringify(permissions ?? []));
@@ -64,12 +72,15 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             })();
 
             // Save token + role in cookies
-            document.cookie = `token=${token}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
-            document.cookie = `role=${user.role}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
-            document.cookie = `permissions=${encodedPermissions}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
+            setAuthCookie('token', token, maxAge);
+            setAuthCookie('role', user.role, maxAge);
+            setAuthCookie('permissions', encodedPermissions, maxAge);
+            setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
+
+            localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
 
             // Save **full user details + permissions** in Redux
-            dispatch(login({ user, token, permissions }));
+            dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             router.push('/dashboard');
         } catch (error: any) {

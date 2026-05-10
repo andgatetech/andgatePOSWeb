@@ -1,4 +1,5 @@
 // src/store/features/auth/authSlice.ts
+import { isTokenExpired } from '@/lib/auth-session';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Currency {
@@ -97,6 +98,7 @@ export interface User {
 interface AuthState {
     user: User | null;
     token: string | null;
+    tokenExpiresAt: string | null;
     isAuthenticated: boolean;
     currentStore: Store | null;
     currentStoreId: number | null;
@@ -105,6 +107,7 @@ interface AuthState {
 const initialState: AuthState = {
     user: null,
     token: null,
+    tokenExpiresAt: null,
     isAuthenticated: false,
     currentStore: null,
     currentStoreId: null,
@@ -114,10 +117,20 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        login(state, action: PayloadAction<{ user: User; token: string; permissions?: string[] }>) {
+        login(state, action: PayloadAction<{ user: User; token: string; tokenExpiresAt?: string | null; permissions?: string[] }>) {
             // Validate that user object exists (ignore persist rehydration calls)
             if (!action.payload?.user) {
                 // Silently ignore - this happens during Redux persist rehydration
+                return;
+            }
+
+            if (!action.payload.token || isTokenExpired(action.payload.tokenExpiresAt)) {
+                state.user = null;
+                state.token = null;
+                state.tokenExpiresAt = null;
+                state.isAuthenticated = false;
+                state.currentStore = null;
+                state.currentStoreId = null;
                 return;
             }
 
@@ -130,6 +143,7 @@ const authSlice = createSlice({
                 permissions: permissions,
             };
             state.token = action.payload.token;
+            state.tokenExpiresAt = action.payload.tokenExpiresAt || null;
             state.isAuthenticated = true;
 
             
@@ -148,6 +162,7 @@ const authSlice = createSlice({
         logout(state) {
             state.user = null;
             state.token = null;
+            state.tokenExpiresAt = null;
             state.isAuthenticated = false;
             state.currentStore = null;
             state.currentStoreId = null;

@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired } from './lib/auth-session';
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 
 const decodePermissionsCookie = (value?: string): string[] => {
     if (!value) return [];
     try {
-        const decoded = JSON.parse(atob(value));
+        const decoded = JSON.parse(atob(decodeAuthCookieValue(value) ?? value));
         return Array.isArray(decoded) ? decoded : [];
     } catch {
         return [];
     }
+};
+
+const clearAuthCookies = (response: NextResponse) => {
+    ['token', 'role', 'permissions', AUTH_TOKEN_EXPIRES_AT_COOKIE].forEach((name) => {
+        response.cookies.delete(name);
+    });
+
+    return response;
 };
 
 // Public pages that do not require authentication
@@ -57,15 +66,25 @@ export function middleware(request: NextRequest) {
 
     // ── Auth enforcement ────────────────────────────────────────────────────
     const token = request.cookies.get('token')?.value;
+    const tokenExpiresAt = decodeAuthCookieValue(request.cookies.get(AUTH_TOKEN_EXPIRES_AT_COOKIE)?.value);
+    const hasValidToken = Boolean(token) && !isTokenExpired(tokenExpiresAt);
     const normalizedPath = normalizeRoutePath(pathname);
 
+    if (token && !hasValidToken) {
+        if (isPublicPath(normalizedPath)) {
+            return clearAuthCookies(response);
+        }
+
+        return clearAuthCookies(NextResponse.redirect(new URL('/login', request.url)));
+    }
+
     // Logged-in users don't need the login page
-    if (token && normalizedPath === '/login') {
+    if (hasValidToken && normalizedPath === '/login') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
     // Unauthenticated users can only access public paths
-    if (!token && !isPublicPath(normalizedPath)) {
+    if (!hasValidToken && !isPublicPath(normalizedPath)) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 

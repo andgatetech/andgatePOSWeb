@@ -1,4 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
+import { getLoginTokenExpiresAt } from '@/lib/auth-session';
 import { login, logout } from './authSlice';
 
 export const authApi = baseApi.injectEndpoints({
@@ -13,9 +14,11 @@ export const authApi = baseApi.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
 
-                    const { user, token } = data;
+                    const payload = data?.data ?? data;
+                    const { user, token } = payload;
+                    const tokenExpiresAt = getLoginTokenExpiresAt(payload);
 
-                    dispatch(login({ user, token }));
+                    dispatch(login({ user, token, tokenExpiresAt }));
                 } catch (error) {
                     console.error('Login failed:', error);
                 }
@@ -31,9 +34,11 @@ export const authApi = baseApi.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
 
-                    const { user, token } = data;
+                    const payload = data?.data ?? data;
+                    const { user, token } = payload;
+                    const tokenExpiresAt = getLoginTokenExpiresAt(payload);
 
-                    dispatch(login({ user, token }));
+                    dispatch(login({ user, token, tokenExpiresAt }));
                 } catch (error) {
                     console.error('Registration failed:', error);
                 }

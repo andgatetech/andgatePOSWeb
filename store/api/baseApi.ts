@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { RootState } from '..';
 
 const rawBaseQuery = fetchBaseQuery({
@@ -8,9 +9,9 @@ const rawBaseQuery = fetchBaseQuery({
     // mode: 'cors',
     // credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
-        const token = (getState() as RootState).auth.token;
+        const { token, tokenExpiresAt } = (getState() as RootState).auth;
 
-        if (token) {
+        if (token && !isTokenExpired(tokenExpiresAt)) {
             headers.set('authorization', `Bearer ${token}`);
         }
 
@@ -35,6 +36,16 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
     const result = await rawBaseQuery(args, api, extraOptions);
     const data = result.error?.data as Record<string, any> | undefined;
     const errorType = data?.error_type;
+
+    if (typeof window !== 'undefined' && result.error?.status === 401) {
+        api.dispatch({ type: 'auth/logout' });
+        clearAuthCookies();
+        clearAuthLocalStorage();
+
+        if (!window.location.pathname.includes('/login')) {
+            window.location.assign('/login');
+        }
+    }
 
     if (typeof window !== 'undefined' && result.error?.status === 403 && typeof errorType === 'string' && subscriptionErrorTypes.has(errorType) && !window.location.pathname.includes('/subscription')) {
         const params = new URLSearchParams();

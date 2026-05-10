@@ -53,9 +53,8 @@ export const findMatchingRouteKey = (route: string): string | null => {
 };
 
 const hasRoutePermissionFromContext = (context: PermissionContext, route: string): boolean => {
-    const permissions = context.permissions ?? [];
-    if (permissions.length === 0) {
-        return false;
+    if (isStoreAdmin(context.role)) {
+        return true;
     }
 
     const requiredPermissions = ROUTE_PERMISSIONS[route];
@@ -64,10 +63,19 @@ const hasRoutePermissionFromContext = (context: PermissionContext, route: string
         return true;
     }
 
+    const permissions = context.permissions ?? [];
+    if (permissions.length === 0) {
+        return false;
+    }
+
     return requiredPermissions.some((permission) => permissions.includes(permission));
 };
 
 const hasAnyPermissionFromContext = (context: PermissionContext, permissions: string[]): boolean => {
+    if (isStoreAdmin(context.role)) {
+        return true;
+    }
+
     const userPermissions = context.permissions ?? [];
     if (userPermissions.length === 0) {
         return false;
@@ -77,6 +85,10 @@ const hasAnyPermissionFromContext = (context: PermissionContext, permissions: st
 };
 
 const hasAllPermissionsFromContext = (context: PermissionContext, permissions: string[]): boolean => {
+    if (isStoreAdmin(context.role)) {
+        return true;
+    }
+
     const userPermissions = context.permissions ?? [];
     if (userPermissions.length === 0) {
         return false;

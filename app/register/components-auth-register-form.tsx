@@ -1,6 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
@@ -45,8 +46,15 @@ const ComponentsAuthRegisterForm = () => {
         try {
             const result = await registerApi(credentials).unwrap();
             const { user, token, permissions } = result.data; // user already has store & subscription_user
+            const tokenExpiresAt = getLoginTokenExpiresAt(result.data);
 
-            const maxAge = 60 * 60 * 24;
+            if (isTokenExpired(tokenExpiresAt)) {
+                toast.error('Registration token expired. Please login again.');
+                return;
+            }
+            const validTokenExpiresAt = tokenExpiresAt as string;
+
+            const maxAge = getCookieMaxAgeFromExpiry(validTokenExpiresAt);
             const encodedPermissions = (() => {
                 try {
                     return btoa(JSON.stringify(permissions ?? []));
@@ -57,12 +65,15 @@ const ComponentsAuthRegisterForm = () => {
             })();
 
             // Save token + role in cookies
-            document.cookie = `token=${token}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
-            document.cookie = `role=${user.role}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
-            document.cookie = `permissions=${encodedPermissions}; path=/; max-age=${maxAge}; Secure; SameSite=Strict`;
+            setAuthCookie('token', token, maxAge);
+            setAuthCookie('role', user.role, maxAge);
+            setAuthCookie('permissions', encodedPermissions, maxAge);
+            setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
+
+            localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
 
             // Save full user data + permissions in Redux
-            dispatch(login({ user, token, permissions }));
+            dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             toast.success('Registration successful! Redirecting to dashboard...');
             setTimeout(() => router.push('/dashboard'), 800);

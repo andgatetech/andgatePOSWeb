@@ -1,8 +1,9 @@
 'use client';
+import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { RootState, persistor } from '@/store';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StoreDisabledScreen from './StoreDisabledScreen';
 import StoreInactiveScreen from './StoreInactiveScreen';
@@ -14,22 +15,26 @@ interface StatusGuardProps {
     children: React.ReactNode;
 }
 
-const hasTokenCookie = () => /(?:^|;\s*)token=/.test(document.cookie);
-
 export default function StatusGuard({ children }: StatusGuardProps) {
     const router = useRouter();
     const dispatch = useDispatch();
-    const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const { user, token, tokenExpiresAt, isAuthenticated } = useSelector((state: RootState) => state.auth);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const [isChecking, setIsChecking] = useState(true);
 
-    // Force logout if the token cookie has expired while the tab was open
+    const clearExpiredSession = useCallback(() => {
+        dispatch(logoutAction());
+        persistor.purge();
+        clearAuthCookies();
+        clearAuthLocalStorage();
+        router.replace('/login');
+    }, [dispatch, router]);
+
+    // Force logout if the saved token expiry is missing or expired while the tab is open.
     useEffect(() => {
         const forceLogoutIfExpired = () => {
-            if (isAuthenticated && !hasTokenCookie()) {
-                dispatch(logoutAction());
-                persistor.purge();
-                router.replace('/login');
+            if (isAuthenticated && (!token || isTokenExpired(tokenExpiresAt))) {
+                clearExpiredSession();
             }
         };
 
@@ -42,10 +47,15 @@ export default function StatusGuard({ children }: StatusGuardProps) {
             clearInterval(interval);
             document.removeEventListener('visibilitychange', forceLogoutIfExpired);
         };
-    }, [isAuthenticated, dispatch, router]);
+    }, [isAuthenticated, token, tokenExpiresAt, clearExpiredSession]);
 
     useEffect(() => {
         // If not authenticated, redirect to login
+        if (isAuthenticated && (!token || isTokenExpired(tokenExpiresAt))) {
+            clearExpiredSession();
+            return;
+        }
+
         if (!isAuthenticated || !user) {
             router.push('/login');
             return;
@@ -53,7 +63,7 @@ export default function StatusGuard({ children }: StatusGuardProps) {
 
         // Finished checking
         setIsChecking(false);
-    }, [isAuthenticated, user, router]);
+    }, [isAuthenticated, user, token, tokenExpiresAt, router, clearExpiredSession]);
 
     // If not authenticated, don't render anything (will redirect)
     if (!isAuthenticated || !user) {
