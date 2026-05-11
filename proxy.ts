@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired } from './lib/auth-session';
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 
+const LANGUAGE_COOKIE = 'i18nextLng';
+const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
+
 const decodePermissionsCookie = (value?: string): string[] => {
     if (!value) return [];
     try {
@@ -39,13 +42,13 @@ export function proxy(request: NextRequest) {
     // ── Language detection ──────────────────────────────────────────────────
     // Priority: existing cookie > geo detection > default 'bn'
     // Never override the user's saved preference.
-    const currentLang = request.cookies.get('i18nextLng')?.value;
+    const currentLang = request.cookies.get(LANGUAGE_COOKIE)?.value;
     let resolvedLang: string;
     if (currentLang) {
         resolvedLang = currentLang;
     } else {
         // request.geo is only populated on Vercel; undefined locally → default 'bn'
-        const country = request.geo?.country;
+        const country = (request as NextRequest & { geo?: { country?: string } }).geo?.country;
         resolvedLang = country === 'BD' ? 'bn' : country ? 'en' : 'bn';
     }
 
@@ -58,9 +61,10 @@ export function proxy(request: NextRequest) {
 
     // Persist in cookie only on first visit
     if (!currentLang) {
-        response.cookies.set('i18nextLng', resolvedLang, {
+        response.cookies.set(LANGUAGE_COOKIE, resolvedLang, {
             path: '/',
-            maxAge: 60 * 60 * 24 * 365,
+            maxAge: LANGUAGE_MAX_AGE,
+            sameSite: 'lax',
         });
     }
 

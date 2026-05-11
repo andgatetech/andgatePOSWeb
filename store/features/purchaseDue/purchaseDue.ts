@@ -1,4 +1,5 @@
 import { baseApi } from '@/store/api/baseApi';
+export { useClearFullDueMutation, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 
 const PurchaseDueApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -31,33 +32,6 @@ const PurchaseDueApi = baseApi.injectEndpoints({
             providesTags: ['PurchaseDues'],
         }),
 
-        // Make partial payment
-        makePartialPayment: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/purchase-order/${id}/payment`,
-                method: 'POST',
-                body: {
-                    payment_amount: data.amount,
-                    payment_method: data.payment_method || 'cash',
-                    payment_notes: data.notes || '',
-                },
-            }),
-            invalidatesTags: (result, error, { id }) => ['PurchaseDues', { type: 'PurchaseDues', id }, 'PurchaseOrders'],
-        }),
-
-        // Clear full due
-        clearFullDue: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/purchase-order/${id}/clear`,
-                method: 'POST',
-                body: {
-                    payment_method: data.payment_method || 'cash',
-                    payment_notes: data.notes || '',
-                },
-            }),
-            invalidatesTags: (result, error, { id }) => ['PurchaseDues', { type: 'PurchaseDues', id }, 'PurchaseOrders'],
-        }),
-
         // Delete purchase due
         deletePurchaseDue: builder.mutation({
             query: (id) => ({
@@ -74,7 +48,5 @@ export const {
     useGetPurchaseDuesQuery,
 
     // Mutations
-    useMakePartialPaymentMutation,
-    useClearFullDueMutation,
     useDeletePurchaseDueMutation,
 } = PurchaseDueApi;

@@ -1,10 +1,10 @@
 import { Box, Package } from 'lucide-react';
-import { getTranslation } from '@/i18n';
+import { getServerTranslation } from '@/i18n';
 import PosLeftSide from '../../../pos/PosLeftSide';
 import StockAdjustment from './component/StockAdjustment';
 
-const page = () => {
-    const { t } = getTranslation();
+const page = async () => {
+    const { t } = await getServerTranslation();
     return (
         <PosLeftSide
             disableSerialSelection={true}

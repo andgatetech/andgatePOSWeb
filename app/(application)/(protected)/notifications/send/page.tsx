@@ -1,16 +1,12 @@
 'use client';
 
+import RichTextEditor from '@/components/common/RichTextEditor';
 import { useSendAnnouncementMutation } from '@/store/features/notification/notificationApi';
 import type { SendAnnouncementPayload } from '@/store/features/notification/notificationTypes';
 import { AlertCircle, AlertTriangle, ArrowLeft, CheckCircle, Info, Send } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getTranslation } from '@/i18n';
-import 'react-quill/dist/quill.snow.css';
-
-// Load ReactQuill dynamically to prevent Next.js SSR document not defined errors
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function SendNotificationPage() {
     const { t } = getTranslation();
@@ -161,8 +157,7 @@ export default function SendNotificationPage() {
                             {t('lbl_message')}
                         </label>
                         <div className="h-64">
-                            <ReactQuill
-                                theme="snow"
+                            <RichTextEditor
                                 value={formData.message}
                                 onChange={(value) => setFormData({ ...formData, message: value })}
                                 className="h-48"

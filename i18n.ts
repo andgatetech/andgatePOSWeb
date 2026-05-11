@@ -10,20 +10,45 @@ const langObj: Record<string, any> = {
     bn,
 };
 
+const DEFAULT_LANG = 'bn';
+const LANGUAGE_COOKIE = 'i18nextLng';
+const LANGUAGE_STORAGE_KEY = 'i18nextLng';
+const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
+
 // Get current language (server or client)
 const getLang = (): string => {
     if (typeof window === 'undefined') {
         // Server-side: cookie takes priority, then the x-lang header injected by
         // middleware (ensures SSR and client hydration use the same language).
         const { cookies, headers } = require('next/headers');
-        const langCookie = cookies().get('i18nextLng');
+        const cookieStore = cookies();
+        const headerStore = headers();
+
+        if (typeof cookieStore?.then === 'function' || typeof headerStore?.then === 'function') {
+            return DEFAULT_LANG;
+        }
+
+        const langCookie = cookieStore.get(LANGUAGE_COOKIE);
         if (langCookie?.value) return langCookie.value;
-        const headerLang = headers().get('x-lang');
-        return headerLang || 'bn';
+        const headerLang = headerStore.get('x-lang');
+        return headerLang || DEFAULT_LANG;
     } else {
         // Client-side
         const cookies = new UniversalCookie();
-        return cookies.get('i18nextLng') || 'bn';
+        const cookieLang = cookies.get(LANGUAGE_COOKIE);
+        if (cookieLang) return cookieLang;
+
+        const storedLang = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+        if (storedLang) {
+            cookies.set(LANGUAGE_COOKIE, storedLang, {
+                path: '/',
+                maxAge: LANGUAGE_MAX_AGE,
+                sameSite: 'lax',
+            });
+            return storedLang;
+        }
+
+        return DEFAULT_LANG;
     }
 };
 
@@ -43,10 +68,8 @@ const getNestedValue = (obj: any, path: string): any => {
     return current;
 };
 
-export const getTranslation = () => {
-    const lang = getLang();
-    const data: any = langObj[lang];
-
+const createTranslation = (lang: string) => {
+    const data: any = langObj[lang] || langObj[DEFAULT_LANG];
     // Translation function that supports both flat and nested keys
     const t = (key: string, options?: Record<string, string | number | null | undefined>): string => {
         let value: any;
@@ -85,11 +108,16 @@ export const getTranslation = () => {
         changeLanguage: (newLang: string) => {
             if (typeof window !== 'undefined') {
                 const cookies = new UniversalCookie();
-                const currentLang = cookies.get('i18nextLng');
+                const currentLang = cookies.get(LANGUAGE_COOKIE) || window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
                 // Only update and reload if the language actually changed
                 if (currentLang !== newLang) {
-                    cookies.set('i18nextLng', newLang, { path: '/' });
+                    cookies.set(LANGUAGE_COOKIE, newLang, {
+                        path: '/',
+                        maxAge: LANGUAGE_MAX_AGE,
+                        sameSite: 'lax',
+                    });
+                    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
                     window.location.reload();
                 }
             }
@@ -102,4 +130,20 @@ export const getTranslation = () => {
     };
 
     return { t, i18n, initLocale, data };
+};
+
+export const getTranslation = () => createTranslation(getLang());
+
+export const getServerTranslation = async () => {
+    if (typeof window !== 'undefined') {
+        return getTranslation();
+    }
+
+    const { cookies, headers } = await import('next/headers');
+    const cookieStore = await cookies();
+    const headerStore = await headers();
+    const langCookie = cookieStore.get(LANGUAGE_COOKIE);
+    const lang = langCookie?.value || headerStore.get('x-lang') || DEFAULT_LANG;
+
+    return createTranslation(lang);
 };

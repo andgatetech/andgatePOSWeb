@@ -1,12 +1,9 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import RichTextEditor from '@/components/common/RichTextEditor';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import React from 'react';
-import 'react-quill/dist/quill.snow.css';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 interface BasicInfoTabProps {
     formData: {
@@ -99,8 +96,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         {t('lbl_description')}
                     </label>
                     <div className="rounded-lg bg-white">
-                        <ReactQuill
-                            theme="snow"
+                        <RichTextEditor
                             value={formData.description}
                             onChange={(value) => {
                                 if (setFormData) {
@@ -124,10 +120,10 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     ['clean'],
                                 ],
                             }}
-                            formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'align', 'link']}
+                            formats={['header', 'bold', 'italic', 'underline', 'strike', 'list', 'align', 'link']}
                         />
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">{descriptionTextLength}/1000 {t('lbl_characters')}</p>
+                    <p className="mt-1 text-sm text-gray-500">{descriptionTextLength} {t('lbl_characters')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

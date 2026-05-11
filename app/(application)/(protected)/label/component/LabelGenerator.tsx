@@ -5,6 +5,7 @@ import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
+import type { GeneratedLabel, LabelItem } from '@/store/features/Label/labelSlice';
 import { clearGeneratedLabels, clearLabelItems, removeLabelItem, setGeneratedLabels } from '@/store/features/Label/labelSlice';
 import { useGenerateBarCodesMutation, useGenerateQRCodesMutation } from '@/store/features/Product/productApi';
 import { Box, FileDown, Minus, Plus, Printer, ScanLine, Settings2, Trash2 } from 'lucide-react';
@@ -13,6 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import EmptyLabelState from './EmptyLabelState';
 
 // NOTE: Ensure 'jspdf' is installed: npm install jspdf
+
+const EMPTY_LABEL_ITEMS: LabelItem[] = [];
+const EMPTY_GENERATED_LABELS: GeneratedLabel[] = [];
 
 type LabelType = 'barcode' | 'qrcode';
 
@@ -51,12 +55,14 @@ const LabelGenerator = () => {
     const { t } = getTranslation();
     const dispatch = useDispatch();
     const { currentStore, currentStoreId } = useCurrentStore();
-    const cartItems = useSelector((state: RootState) => (currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || [] : []));
+    const cartItems = useSelector((state: RootState) => (currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || EMPTY_LABEL_ITEMS : EMPTY_LABEL_ITEMS));
     const [generateBarcodes, { isLoading: isGeneratingBarcode }] = useGenerateBarCodesMutation();
     const [generateQRCodes, { isLoading: isGeneratingQR }] = useGenerateQRCodesMutation();
 
     const [labelType, setLabelType] = useState<LabelType>('barcode');
-    const generatedLabels = useSelector((state: RootState) => (currentStoreId && state.label.generatedLabelsByStore ? state.label.generatedLabelsByStore[currentStoreId] || [] : []));
+    const generatedLabels = useSelector((state: RootState) =>
+        currentStoreId && state.label.generatedLabelsByStore ? state.label.generatedLabelsByStore[currentStoreId] || EMPTY_GENERATED_LABELS : EMPTY_GENERATED_LABELS
+    );
 
     // --- State (initialize with defaults to avoid hydration mismatch) ---
     const [paperSize, setPaperSize] = useState('thermal_40mm');
@@ -77,11 +83,15 @@ const LabelGenerator = () => {
     useEffect(() => {
         const currentItemIds = new Set(cartItems.map((item) => item.id));
         setProductQuantities((prev) => {
+            let changed = false;
             const newMap = new Map(prev);
             Array.from(newMap.keys()).forEach((itemId) => {
-                if (!currentItemIds.has(itemId)) newMap.delete(itemId);
+                if (!currentItemIds.has(itemId)) {
+                    newMap.delete(itemId);
+                    changed = true;
+                }
             });
-            return newMap;
+            return changed ? newMap : prev;
         });
     }, [cartItems]);
 
