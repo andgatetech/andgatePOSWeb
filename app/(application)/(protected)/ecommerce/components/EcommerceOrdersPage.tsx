@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { EcommerceOrdersFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
 import { StatusBadge } from './EcommerceBadges';
-import { formatApiError, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
+import { formatApiError, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
 
 const EcommerceOrdersPage = () => {
     const { t } = getTranslation();
@@ -137,6 +137,11 @@ const EcommerceOrdersPage = () => {
                         </div>
                     );
                 },
+            },
+            {
+                key: 'source',
+                label: t('ecommerce_source'),
+                render: (value) => <span className="text-sm font-medium text-gray-700">{getEcommerceSourceLabel(value)}</span>,
             },
             {
                 key: 'latest_payment_method',

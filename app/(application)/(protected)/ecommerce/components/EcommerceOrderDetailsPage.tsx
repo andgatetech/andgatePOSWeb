@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, CreditCard, Download, FileText, Globe2, Loader2, MapPin, Package, Phone, Printer, ReceiptText, ShoppingBag, Truck, User } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, CreditCard, Download, FileText, Globe2, Loader2, MapPin, Package, Phone, Printer, ReceiptText, RotateCcw, ShoppingBag, Truck, User } from 'lucide-react';
 
 import Loader from '@/lib/Loader';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,16 @@ import { useGetStoreLogoQuery } from '@/store/features/store/storeApi';
 import { useParams, useRouter } from 'next/navigation';
 import { generateOrderInvoicePDF } from './generate-order-invoice-pdf';
 import { StatusBadge } from './EcommerceBadges';
-import { ECOMMERCE_ORDER_STATUSES, formatApiError, getEcommerceFallbackText, getEcommercePaymentMethodLabel, getEcommerceStatusLabel } from './ecommerceUtils';
+import {
+    ECOMMERCE_ORDER_STATUSES,
+    ECOMMERCE_ORDER_TIMESTAMPS,
+    formatApiError,
+    getEcommerceFallbackText,
+    getEcommercePaymentMethodLabel,
+    getEcommerceSourceLabel,
+    getEcommerceStatusLabel,
+    normalizeEcommerceOrderStatus,
+} from './ecommerceUtils';
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -20,7 +29,7 @@ import { ECOMMERCE_ORDER_STATUSES, formatApiError, getEcommerceFallbackText, get
 
 type OrderStatus = (typeof ECOMMERCE_ORDER_STATUSES)[number];
 
-const STEPPER_FLOW: OrderStatus[] = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+const STEPPER_FLOW: OrderStatus[] = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'returned'];
 
 /* ------------------------------------------------------------------ */
 /*  Atoms                                                              */
@@ -92,13 +101,22 @@ const formatVariantText = (value: unknown) => {
     if (!value) return '';
     if (typeof value === 'string') return value;
     if (Array.isArray(value)) return value.filter(Boolean).join(', ');
-    if (typeof value === 'object') return Object.values(value as Record<string, unknown>).filter(Boolean).map(String).join(', ');
+    if (typeof value === 'object')
+        return Object.values(value as Record<string, unknown>)
+            .filter(Boolean)
+            .map(String)
+            .join(', ');
     return String(value);
 };
 
 const getStoreLabel = (stores: any[]) => {
     if (!Array.isArray(stores) || stores.length === 0) return getEcommerceFallbackText();
-    return stores.map((store) => store?.store_name || store?.name).filter(Boolean).join(', ') || getEcommerceFallbackText();
+    return (
+        stores
+            .map((store) => store?.store_name || store?.name)
+            .filter(Boolean)
+            .join(', ') || getEcommerceFallbackText()
+    );
 };
 
 /* ------------------------------------------------------------------ */
@@ -112,10 +130,11 @@ function OrderStatusStepper({ status }: { status: OrderStatus }) {
     const stepIcons: Record<OrderStatus, ElementType> = {
         pending: Circle,
         confirmed: CheckCircle2,
-        processing: Package,
+        packed: Package,
         shipped: Truck,
         delivered: ShoppingBag,
         cancelled: Circle,
+        returned: RotateCcw,
     };
 
     if (cancelled) {
@@ -123,42 +142,39 @@ function OrderStatusStepper({ status }: { status: OrderStatus }) {
     }
 
     return (
-        <div className="relative">
-            <div className="absolute left-5 right-5 top-5 h-0.5 bg-slate-200" aria-hidden="true" />
-            <div
-                className="absolute left-5 top-5 h-0.5 bg-primary transition-all"
-                style={{ width: currentIdx <= 0 ? '0%' : `${(currentIdx / (STEPPER_FLOW.length - 1)) * 100}%` }}
-                aria-hidden="true"
-            />
-            <ol className="relative grid grid-cols-5 gap-3">
-                {STEPPER_FLOW.map((step, idx) => {
-                    const completed = idx < currentIdx;
-                    const active = idx === currentIdx;
-                    const Icon = stepIcons[step];
-                    return (
-                        <li key={step} className="flex flex-col items-center text-center">
-                            <div
-                                className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-white transition-colors',
-                                    completed && 'border-primary bg-primary/10 text-primary shadow-sm',
-                                    active && 'border-primary bg-white text-primary shadow-sm ring-4 ring-primary/25',
-                                    !completed && !active && 'border-slate-200 text-slate-400'
-                                )}
-                            >
-                                <Icon className="h-5 w-5 text-current" />
-                            </div>
-                            <span
-                                className={cn(
-                                    'mt-2 max-w-[88px] text-center text-xs font-medium leading-4',
-                                    completed || active ? 'text-slate-900' : 'text-slate-400'
-                                )}
-                            >
-                                {getEcommerceStatusLabel(step)}
-                            </span>
-                        </li>
-                    );
-                })}
-            </ol>
+        <div className="overflow-x-auto pb-1">
+            <div className="relative min-w-[620px]">
+                <div className="absolute left-5 right-5 top-5 h-0.5 bg-slate-200" aria-hidden="true" />
+                <div
+                    className="absolute left-5 top-5 h-0.5 bg-primary transition-all"
+                    style={{ width: currentIdx <= 0 ? '0%' : `${(currentIdx / (STEPPER_FLOW.length - 1)) * 100}%` }}
+                    aria-hidden="true"
+                />
+                <ol className="relative grid grid-cols-6 gap-3">
+                    {STEPPER_FLOW.map((step, idx) => {
+                        const completed = idx < currentIdx;
+                        const active = idx === currentIdx;
+                        const Icon = stepIcons[step];
+                        return (
+                            <li key={step} className="flex flex-col items-center text-center">
+                                <div
+                                    className={cn(
+                                        'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-white transition-colors',
+                                        completed && 'border-primary bg-primary/10 text-primary shadow-sm',
+                                        active && 'border-primary bg-white text-primary shadow-sm ring-4 ring-primary/25',
+                                        !completed && !active && 'border-slate-200 text-slate-400'
+                                    )}
+                                >
+                                    <Icon className="h-5 w-5 text-current" />
+                                </div>
+                                <span className={cn('mt-2 max-w-[88px] text-center text-xs font-medium leading-4', completed || active ? 'text-slate-900' : 'text-slate-400')}>
+                                    {getEcommerceStatusLabel(step)}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ol>
+            </div>
         </div>
     );
 }
@@ -204,10 +220,8 @@ const EcommerceOrderDetailsPage = () => {
     const { data: logoData } = useGetStoreLogoQuery(invoiceStoreId, { skip: !invoiceStoreId });
 
     useEffect(() => {
-        const nextStatus = String(order?.status || '').toLowerCase();
-        if (ECOMMERCE_ORDER_STATUSES.includes(nextStatus as OrderStatus)) {
-            setStatus(nextStatus as OrderStatus);
-        }
+        const nextStatus = normalizeEcommerceOrderStatus(order?.status);
+        if (nextStatus) setStatus(nextStatus);
     }, [order?.status]);
 
     const handleStatusUpdate = async () => {
@@ -381,10 +395,10 @@ const EcommerceOrderDetailsPage = () => {
                                 label="Phone"
                                 value={
                                     customer?.mobile_number || customer?.phone ? (
-                                    <span className="inline-flex items-center gap-1.5">
-                                        <Phone className="h-3.5 w-3.5 text-slate-400" />
-                                        {customer?.mobile_number || customer?.phone}
-                                    </span>
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <Phone className="h-3.5 w-3.5 text-slate-400" />
+                                            {customer?.mobile_number || customer?.phone}
+                                        </span>
                                     ) : (
                                         ''
                                     )
@@ -405,14 +419,16 @@ const EcommerceOrderDetailsPage = () => {
                             <InfoLine label="Recipient" value={shipping?.name} />
                             <InfoLine
                                 label="Address"
-                                value={shipping?.address_line || shipping?.area || shipping?.zone || shipping?.city || shipping?.postal_code ? (
-                                    <div className="space-y-0.5 leading-snug">
-                                        <div>{shipping?.address_line}</div>
-                                        <div className="text-slate-600">{[shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ')}</div>
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
+                                value={
+                                    shipping?.address_line || shipping?.area || shipping?.zone || shipping?.city || shipping?.postal_code ? (
+                                        <div className="space-y-0.5 leading-snug">
+                                            <div>{shipping?.address_line}</div>
+                                            <div className="text-slate-600">{[shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ')}</div>
+                                        </div>
+                                    ) : (
+                                        ''
+                                    )
+                                }
                             />
                             <div className="flex flex-wrap gap-2 pt-1">
                                 {shipping?.label && (
@@ -438,6 +454,7 @@ const EcommerceOrderDetailsPage = () => {
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <InfoLine label="Store / Shop" value={getStoreLabel(stores)} />
+                            <InfoLine label="Source" value={getEcommerceSourceLabel(order?.source)} />
                             <SummaryRow label="Store Items Subtotal" value={formatCurrency(storeItemsSubtotal)} />
                             <Separator />
                             <SummaryRow label="Store Total" value={formatCurrency(storeTotal)} labelClass="font-semibold text-slate-900" valueClass="text-base font-semibold text-slate-900" />
@@ -451,6 +468,24 @@ const EcommerceOrderDetailsPage = () => {
                         </CardContent>
                     </Card>
                 </div>
+
+                {ECOMMERCE_ORDER_TIMESTAMPS.some(({ key }) => order?.[key]) && (
+                    <Card className="border-gray-200">
+                        <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <Package className="h-4 w-4" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">Stock Timeline</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                {ECOMMERCE_ORDER_TIMESTAMPS.map(({ key, label }) => (
+                                    <InfoLine key={key} label={label} value={order?.[key]} />
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Items */}
                 <Card className="border-gray-200">
