@@ -364,11 +364,22 @@ const EcommerceOrderDetailsPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-100">
-            <div className="mx-auto max-w-[1800px] space-y-5 p-4 sm:p-6 lg:p-8">
-                <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex min-w-0 items-start gap-4">
+        <div className="min-h-screen bg-slate-50">
+            <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        <Globe2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">Ecommerce Order Details</h1>
+                        <p className="text-sm text-gray-500">Review assigned-store items, payment state, and update order status.</p>
+                    </div>
+                </div>
+
+                {/* Sticky toolbar */}
+                <div className="sticky top-0 z-10 -mx-4 rounded-xl border border-slate-200 bg-white/95 px-4 py-4 shadow-sm backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
                             <button
                                 type="button"
                                 aria-label="Back to orders"

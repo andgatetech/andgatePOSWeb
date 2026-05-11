@@ -2,11 +2,14 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { getPaymentStatusConfig, normalizePaymentStatus } from '@/lib/paymentConstants';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { useSendOrderInvoiceMutation } from '@/store/features/Order/orderApi';
 import { Dialog, Transition } from '@headlessui/react';
-import { AlertCircle, Calendar, Clock, CreditCard, Hash, Package, Receipt, RotateCcw, Shield, Store, TrendingUp, User, X } from 'lucide-react';
-import { Fragment } from 'react';
+import { AlertCircle, Calendar, Clock, CreditCard, Hash, Mail, Package, Receipt, RotateCcw, Send, Shield, Store, TrendingUp, User, X } from 'lucide-react';
+import { Fragment, useState } from 'react';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -17,7 +20,28 @@ interface OrderDetailsModalProps {
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order }) => {
     const { formatCurrency } = useCurrency();
     const { t } = getTranslation();
+    const { currentStoreId } = useCurrentStore();
+    const [sendEmailOpen, setSendEmailOpen] = useState(false);
+    const [sendEmail, setSendEmail] = useState('');
+    const [sendOrderInvoice, { isLoading: isSending }] = useSendOrderInvoiceMutation();
     if (!order) return null;
+
+    const handleSendInvoice = async () => {
+        if (!currentStoreId) return;
+        const emailToSend = sendEmail.trim() || order.customer?.email || '';
+        if (!emailToSend) {
+            showErrorDialog(t('order_send_invoice_email_required_title'), t('order_send_invoice_email_required_desc'));
+            return;
+        }
+        try {
+            await sendOrderInvoice({ orderId: order.id, store_id: currentStoreId, email: emailToSend }).unwrap();
+            showSuccessDialog(t('order_send_invoice_success_title'), t('order_send_invoice_success_desc'));
+            setSendEmailOpen(false);
+            setSendEmail('');
+        } catch {
+            showErrorDialog(t('order_send_invoice_failed_title'), t('order_send_invoice_failed_desc'));
+        }
+    };
 
     const paymentStatus = normalizePaymentStatus(order.payment?.status ?? order.payment_status ?? 'paid');
     const statusStyle = getPaymentStatusConfig(paymentStatus);
@@ -475,10 +499,43 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 </div>
 
                                 {/* Footer */}
-                                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
-                                    <button onClick={onClose} className="w-full rounded-lg bg-gray-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-gray-700">
-                                        {t('btn_close')}
-                                    </button>
+                                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 space-y-3">
+                                    {sendEmailOpen && (
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="email"
+                                                value={sendEmail}
+                                                onChange={(e) => setSendEmail(e.target.value)}
+                                                placeholder={order.customer?.email || t('order_send_invoice_email_placeholder')}
+                                                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleSendInvoice}
+                                                disabled={isSending}
+                                                className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+                                            >
+                                                {isSending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Send className="h-4 w-4" />}
+                                                {t('btn_send')}
+                                            </button>
+                                            <button type="button" onClick={() => setSendEmailOpen(false)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    <div className="flex gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => { setSendEmail(''); setSendEmailOpen((v) => !v); }}
+                                            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                                        >
+                                            <Mail className="h-4 w-4" />
+                                            {t('order_send_invoice')}
+                                        </button>
+                                        <button onClick={onClose} className="flex-1 rounded-lg bg-gray-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-gray-700">
+                                            {t('btn_close')}
+                                        </button>
+                                    </div>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>

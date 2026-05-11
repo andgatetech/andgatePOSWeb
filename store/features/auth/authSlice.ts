@@ -200,6 +200,11 @@ const authSlice = createSlice({
                 };
             }
         },
+        setPermissions(state, action: PayloadAction<string[]>) {
+            if (state.user) {
+                state.user = { ...state.user, permissions: action.payload };
+            }
+        },
         updateCurrentStoreData(state, action: PayloadAction<Partial<Store>>) {
             // Update current store with new data (e.g., payment methods, payment statuses)
             if (state.currentStore) {
@@ -223,5 +228,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile, updateCurrentStoreData } = authSlice.actions;
+export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile, updateCurrentStoreData, setPermissions } = authSlice.actions;
 export default authSlice.reducer;

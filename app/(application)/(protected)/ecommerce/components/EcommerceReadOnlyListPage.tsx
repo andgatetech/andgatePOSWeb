@@ -138,13 +138,15 @@ const EcommerceReadOnlyListPage = ({ kind }: { kind: ReadOnlyKind }) => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
-                    {isCarts ? <ShoppingCart className="h-5 w-5" /> : <Heart className="h-5 w-5" />}
-                </div>
-                <div>
-                    <h1 className="text-xl font-bold text-gray-900">{t(isCarts ? 'ecommerce_carts_title' : 'ecommerce_wishlists_title')}</h1>
-                    <p className="text-sm text-gray-500">{t(isCarts ? 'ecommerce_carts_desc' : 'ecommerce_wishlists_desc')}</p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        {isCarts ? <ShoppingCart className="h-5 w-5" /> : <Heart className="h-5 w-5" />}
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900">{t(isCarts ? 'ecommerce_carts_title' : 'ecommerce_wishlists_title')}</h1>
+                        <p className="text-sm text-gray-500">{t(isCarts ? 'ecommerce_carts_desc' : 'ecommerce_wishlists_desc')}</p>
+                    </div>
                 </div>
             </div>
 

@@ -109,6 +109,10 @@ export const baseApi = createApi({
         'Permissions',
         'Notifications',
         'EcommerceManagement',
+        'Roles',
+        'AuditLogs',
+        'Company',
+        'ExportJobs',
     ],
     endpoints: () => ({}),
 });

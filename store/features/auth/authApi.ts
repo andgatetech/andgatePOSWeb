@@ -124,6 +124,13 @@ export const authApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+        getStorePermissions: builder.query({
+            query: (storeId: number) => ({
+                url: '/auth/permissions',
+                params: { store_id: storeId },
+            }),
+            providesTags: ['Permissions'],
+        }),
     }),
     overrideExisting: true,
 });
@@ -141,4 +148,6 @@ export const {
     useForgotPasswordMutation,
     useResetPasswordMutation,
     useChangePasswordMutation,
+    useGetStorePermissionsQuery,
+    useLazyGetStorePermissionsQuery,
 } = authApi;

@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, Bell, FileText, Home, Layers, MessagesSquare, Package, Receipt, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { Activity, BarChart, Bell, Building2, Database, FileText, Home, Layers, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -7,7 +7,8 @@ export interface MenuItem {
     icon?: React.ReactNode;
     href?: string;
     subMenu?: MenuItem[];
-    requiredPermissions?: string[]; // Permissions needed to access this menu item
+    requiredPermissions?: string[];
+    ownerOnly?: boolean; // true = only visible to subscription owner (store_admin role)
 }
 
 /**
@@ -40,11 +41,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Settings',
                 href: '/store/setting',
                 requiredPermissions: ['stores.edit'],
-            },
-            {
-                label: 'Employees Management',
-                href: '/employees',
-                requiredPermissions: ['users.view'],
             },
         ],
     },
@@ -338,7 +334,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Feedback',
         icon: React.createElement(MessagesSquare),
-        
+
         subMenu: [
             {
                 label: 'Give Feedback',
@@ -349,6 +345,38 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'View Feedback',
                 href: '/feedbacks',
                 requiredPermissions: ['feedbacks.index'],
+            },
+        ],
+    },
+    {
+        label: 'Administration',
+        icon: React.createElement(Shield),
+        requiredPermissions: ['users.view', 'stores.view'],
+        subMenu: [
+            {
+                label: 'Employees Management',
+                href: '/employees',
+                ownerOnly: true,
+            },
+            {
+                label: 'Roles',
+                href: '/roles',
+                requiredPermissions: ['users.view'],
+            },
+            {
+                label: 'Audit Logs',
+                href: '/audit-logs',
+                requiredPermissions: ['stores.view'],
+            },
+            {
+                label: 'Company',
+                href: '/company',
+                requiredPermissions: ['stores.view'],
+            },
+            {
+                label: 'Data Export',
+                href: '/data-export',
+                requiredPermissions: ['stores.view'],
             },
         ],
     },
@@ -370,17 +398,24 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
 }
 
 /**
- * Recursively filter menu items based on user permissions
+ * Recursively filter menu items based on user permissions and role
  */
-function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined): MenuItem | null {
+function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, userRole: string | undefined): MenuItem | null {
+    // ownerOnly items require store_admin role
+    if (item.ownerOnly && userRole !== 'store_admin') {
+        return null;
+    }
+
     // Check if user has permission for this menu item
-    if (!hasAnyPermission(userPermissions, item.requiredPermissions)) {
+    if (!item.ownerOnly && !hasAnyPermission(userPermissions, item.requiredPermissions)) {
         return null;
     }
 
     // If this item has a submenu, filter it recursively
     if (item.subMenu && item.subMenu.length > 0) {
-        const filteredSubMenu = item.subMenu.map((subItem) => filterMenuItem(subItem, userPermissions)).filter((subItem): subItem is MenuItem => subItem !== null);
+        const filteredSubMenu = item.subMenu
+            .map((subItem) => filterMenuItem(subItem, userPermissions, userRole))
+            .filter((subItem): subItem is MenuItem => subItem !== null);
 
         // If no submenu items remain after filtering, hide the parent
         if (filteredSubMenu.length === 0) {
@@ -397,10 +432,11 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined): 
 }
 
 /**
- * Build menu items based on user permissions
+ * Build menu items based on user permissions and role
  * @param userPermissions - Array of permission strings from backend
+ * @param userRole - User role string (e.g. 'store_admin')
  * @returns Filtered menu items array
  */
-export function buildMenuFromPermissions(userPermissions: string[] | undefined): MenuItem[] {
-    return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions)).filter((item): item is MenuItem => item !== null);
+export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string): MenuItem[] {
+    return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions, userRole)).filter((item): item is MenuItem => item !== null);
 }

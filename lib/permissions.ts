@@ -209,6 +209,22 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Feedbacks ──────────────────────────────────────────────
     '/feedbacks': ['feedbacks.index'],
     '/feedbacks/create-feedback': ['feedbacks.create'],
+
+    // ── Employees Management (subscription owner / store_admin only) ───
+    '/employees': ['subscription.owner'],
+    '/employees/edit': ['subscription.owner'],
+
+    // ── Roles Management ───────────────────────────────────────
+    '/roles': ['users.view'],
+
+    // ── Audit Logs ─────────────────────────────────────────────
+    '/audit-logs': ['stores.view'],
+
+    // ── Company Management ─────────────────────────────────────
+    '/company': ['stores.view'],
+
+    // ── Data Export ────────────────────────────────────────────
+    '/data-export': ['stores.view'],
 };
 
 /**

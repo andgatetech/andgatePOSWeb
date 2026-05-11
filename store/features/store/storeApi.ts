@@ -165,6 +165,16 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
+        //  Update a staff member
+        staffUpdate: builder.mutation({
+            query: ({ userId, ...data }: { userId: number; store_id: number; name?: string; phone?: string; address?: string; role_in_store?: string; password?: string; password_confirmation?: string }) => ({
+                url: `/staff/${userId}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['User'],
+        }),
+
         //  Delete store
         deleteStore: builder.mutation({
             query: (storeId: number) => ({
@@ -313,6 +323,7 @@ export const {
     useGetWhoLoginQuery,
     useGetStaffMemberQuery,
     useStaffRegisterMutation,
+    useStaffUpdateMutation,
     useDeleteStoreMutation,
 
     useCreateStoreMutation, // ← New hook for store registration

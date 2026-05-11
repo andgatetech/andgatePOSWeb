@@ -27,6 +27,7 @@ export const getTokenExpiryTime = (expiresAt?: string | null): number | null => 
 };
 
 export const isTokenExpired = (expiresAt?: string | null, now = Date.now()): boolean => {
+    if (!expiresAt) return false; // no expiry info = assume valid; 401 handler will force logout if needed
     const expiryTime = getTokenExpiryTime(expiresAt);
     return !expiryTime || expiryTime <= now;
 };

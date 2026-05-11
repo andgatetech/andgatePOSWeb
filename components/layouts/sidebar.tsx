@@ -10,7 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTranslation } from '@/i18n';
 import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
 import { RootState } from '@/store';
-import { setCurrentStore } from '@/store/features/auth/authSlice';
+import { setCurrentStore, setPermissions } from '@/store/features/auth/authSlice';
+import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 
@@ -27,6 +28,7 @@ const Sidebar = () => {
     const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
     const [storeWarning, setStoreWarning] = useState<string | null>(null);
     const [isSwitchingStore, setIsSwitchingStore] = useState(false);
+    const [fetchStorePermissions] = useLazyGetStorePermissionsQuery();
 
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const user = useSelector((state: RootState) => state.auth.user);
@@ -56,7 +58,7 @@ const Sidebar = () => {
         });
     };
 
-    const menuRoutes = useMemo(() => buildMenuFromPermissions(user?.permissions || []), [user]);
+    const menuRoutes = useMemo(() => buildMenuFromPermissions(user?.permissions || [], user?.role), [user]);
 
     // Auto-open parent that contains the active route on navigation
     useEffect(() => {
@@ -76,7 +78,7 @@ const Sidebar = () => {
 
     const toggleMenu = (label: string) => setCurrentMenu((prev) => (prev === label ? '' : label));
 
-    const handleStoreChange = (store: any) => {
+    const handleStoreChange = async (store: any) => {
         if (currentStore?.id === store.id) { setIsStoreDropdownOpen(false); return; }
         setStoreWarning(null);
         setIsSwitchingStore(true);
@@ -87,6 +89,14 @@ const Sidebar = () => {
         if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
         if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');
         if (pathname?.match(/^\/purchases\/receive\/(\d+)$/)) router.push('/purchases/receive');
+        // Refresh permissions for the new store (Pure RBAC)
+        try {
+            const result = await fetchStorePermissions(store.id).unwrap();
+            const perms: string[] = result?.data?.permissions ?? result?.permissions ?? [];
+            dispatch(setPermissions(perms));
+        } catch {
+            // Non-fatal — user keeps previous permissions until next login
+        }
     };
 
     const storeInitial = currentStore?.store_name?.[0]?.toUpperCase() || 'S';

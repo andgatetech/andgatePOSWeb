@@ -1,18 +1,15 @@
 'use client';
-import PermissionSelector from '@/app/(application)/(protected)/employees/employees/PermissionSelector';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showMessage } from '@/lib/toast';
-import { RootState } from '@/store';
-import { useGetUserPermissionsQuery, useUpdateUserPermissionMutation } from '@/store/features/auth/authApi';
+import { useAssignRoleMutation, useGetRolesQuery, useUnassignRoleMutation } from '@/store/features/roles/rolesApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
-import { CheckCircle, Loader2, Mail, Pencil, Plus, Shield, ShieldCheck, Trash2, User, Users, XCircle } from 'lucide-react';
+import { CheckCircle, Loader2, Mail, Pencil, Plus, Shield, Trash2, User, Users, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 interface StaffMember {
     id: number;
@@ -21,23 +18,16 @@ interface StaffMember {
     phone?: string;
     address?: string;
     role_in_store: string;
-}
-
-interface Permission {
-    id: number;
-    name: string;
+    role_id?: number;
+    role_name?: string;
 }
 
 const StaffManagement = () => {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, userStores } = useCurrentStore();
-    const adminUser = useSelector((state: RootState) => state.auth?.user);
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
-    const [permissionModalOpen, setPermissionModalOpen] = useState(false);
-    const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
-    const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-    const [selectAllPermissions, setSelectAllPermissions] = useState(false);
+
 
     // Pagination & Sorting State
     const [currentPage, setCurrentPage] = useState(1);
@@ -96,174 +86,40 @@ const StaffManagement = () => {
         userStores.map((s) => ({ id: s.id, name: s.store_name }))
     );
 
-    const {
-        data: userPermissionsResponse,
-        isFetching: userPermissionsLoading,
-        refetch: refetchUserPermissions,
-    } = useGetUserPermissionsQuery(selectedStaff?.id ?? 0, {
-        skip: !selectedStaff?.id,
-    });
+    // Role assignment
+    const { data: rolesResponse } = useGetRolesQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const availableRoles = useMemo(() => {
+        const d = rolesResponse as any;
+        if (Array.isArray(d?.data?.data)) return d.data.data as { id: number; name: string }[];
+        if (Array.isArray(d?.data)) return d.data as { id: number; name: string }[];
+        return [] as { id: number; name: string }[];
+    }, [rolesResponse]);
+    const [assignRole] = useAssignRoleMutation();
+    const [unassignRole] = useUnassignRoleMutation();
+    const [assigningRole, setAssigningRole] = useState<Record<number, boolean>>({});
 
-    // Fetch all available permissions using the admin's own account
-    const { data: allPermissionsResponse, isFetching: allPermissionsLoading } = useGetUserPermissionsQuery(adminUser?.id ?? 0, {
-        skip: !adminUser?.id,
-    });
-
-    const allPermissions = useMemo<Permission[]>(() => allPermissionsResponse?.data?.permissions || [], [allPermissionsResponse]);
-    const permissionsLoading = userPermissionsLoading || allPermissionsLoading;
-    const groupedPermissions = useMemo(() => {
-        const groups: Record<string, Permission[]> = {};
-
-        allPermissions.forEach((permission) => {
-            const [category] = permission.name.split('.');
-            const key = category || 'general';
-            if (!groups[key]) {
-                groups[key] = [];
+    const handleRoleChange = useCallback(
+        async (staffId: number, newRoleId: string, currentRoleId?: number) => {
+            setAssigningRole((prev) => ({ ...prev, [staffId]: true }));
+            try {
+                if (newRoleId === '') {
+                    if (currentRoleId) {
+                        await unassignRole({ roleId: currentRoleId, user_id: staffId }).unwrap();
+                        showMessage(t('msg_role_unassigned'));
+                    }
+                } else {
+                    await assignRole({ roleId: Number(newRoleId), user_id: staffId }).unwrap();
+                    showMessage(t('msg_role_assigned'));
+                }
+                refetchStaffMembers();
+            } catch (error: any) {
+                showMessage(error?.data?.message || t('msg_failed_assign_role'), 'error');
+            } finally {
+                setAssigningRole((prev) => ({ ...prev, [staffId]: false }));
             }
-            groups[key].push(permission);
-        });
-
-        return groups;
-    }, [allPermissions]);
-
-    const permissionFetchLoading = permissionsLoading || (permissionModalOpen && userPermissionsLoading);
-    const [updateUserPermission, { isLoading: isUpdatingPermission }] = useUpdateUserPermissionMutation();
-
-    // Reset filters when store changes
-    useEffect(() => {
-        setApiParams({});
-    }, [currentStoreId]);
-
-    // Load user permissions when modal opens
-    useEffect(() => {
-        if (!selectedStaff) {
-            setSelectedPermissions([]);
-            setSelectAllPermissions(false);
-            return;
-        }
-
-        const apiPermissions =
-            userPermissionsResponse?.data?.permissions ??
-            userPermissionsResponse?.permissions ??
-            userPermissionsResponse?.data ??
-            (Array.isArray(userPermissionsResponse) ? userPermissionsResponse : undefined);
-
-        if (!apiPermissions) {
-            setSelectedPermissions([]);
-            setSelectAllPermissions(false);
-            return;
-        }
-
-        if (apiPermissions === 'all') {
-            setSelectAllPermissions(true);
-            setSelectedPermissions(allPermissions.map((permission) => permission.name));
-            return;
-        }
-
-        let derivedNames: string[] = [];
-
-        if (Array.isArray(apiPermissions)) {
-            if (apiPermissions.length === 0) {
-                derivedNames = [];
-            } else if (typeof apiPermissions[0] === 'string') {
-                derivedNames = apiPermissions as string[];
-            } else if (typeof apiPermissions[0] === 'number' && allPermissions.length) {
-                const idSet = new Set(apiPermissions as number[]);
-                derivedNames = allPermissions.filter((permission) => idSet.has(permission.id)).map((permission) => permission.name);
-            }
-        } else if (typeof apiPermissions === 'object') {
-            const permissionsObj = apiPermissions as { ids?: number[]; names?: string[] };
-            if (Array.isArray(permissionsObj.names) && permissionsObj.names.length > 0) {
-                derivedNames = permissionsObj.names;
-            } else if (Array.isArray(permissionsObj.ids) && permissionsObj.ids.length > 0 && allPermissions.length) {
-                const idSet = new Set(permissionsObj.ids);
-                derivedNames = allPermissions.filter((permission) => idSet.has(permission.id)).map((permission) => permission.name);
-            }
-        }
-
-        const uniqueNames = Array.from(new Set(derivedNames));
-        const hasAllPermissions = uniqueNames.length > 0 && uniqueNames.length === allPermissions.length;
-
-        setSelectAllPermissions(hasAllPermissions);
-        setSelectedPermissions(hasAllPermissions ? allPermissions.map((permission) => permission.name) : uniqueNames);
-    }, [selectedStaff, userPermissionsResponse, allPermissions]);
-
-    useEffect(() => {
-        if (permissionModalOpen && selectedStaff?.id) {
-            refetchUserPermissions();
-        }
-    }, [permissionModalOpen, selectedStaff?.id, refetchUserPermissions]);
-
-    const handlePermissionToggle = (permissionName: string) => {
-        setSelectedPermissions((prev) => {
-            if (prev.includes(permissionName)) {
-                return prev.filter((name) => name !== permissionName);
-            }
-            return [...prev, permissionName];
-        });
-        setSelectAllPermissions(false);
-    };
-
-    const handleCategoryToggle = (category: string, permissions: Permission[]) => {
-        const categoryPermissionNames = permissions.map((p) => p.name);
-        if (categoryPermissionNames.length === 0) return;
-
-        const allSelected = categoryPermissionNames.every((name) => selectedPermissions.includes(name));
-        setSelectedPermissions((prev) => {
-            if (allSelected) {
-                return prev.filter((name) => !categoryPermissionNames.includes(name));
-            }
-            return Array.from(new Set([...prev, ...categoryPermissionNames]));
-        });
-        setSelectAllPermissions(false);
-    };
-
-    const handleSelectAllToggle = () => {
-        if (selectAllPermissions) {
-            setSelectAllPermissions(false);
-            setSelectedPermissions([]);
-            return;
-        }
-
-        setSelectAllPermissions(true);
-        setSelectedPermissions(allPermissions.map((permission) => permission.name));
-    };
-
-    const openPermissionsModal = (staff: StaffMember) => {
-        setSelectedStaff(staff);
-        setPermissionModalOpen(true);
-    };
-
-    const closePermissionsModal = () => {
-        setPermissionModalOpen(false);
-        setSelectedStaff(null);
-        setSelectedPermissions([]);
-        setSelectAllPermissions(false);
-    };
-
-    const handleSavePermissions = async () => {
-        if (!selectedStaff) return;
-
-        try {
-            const selectedPermissionIds = allPermissions.filter((permission) => selectedPermissions.includes(permission.name)).map((permission) => permission.id);
-
-            const payload = selectAllPermissions ? 'all' : selectedPermissionIds;
-
-            await updateUserPermission({ userId: selectedStaff.id, permissionData: { permissions: payload } }).unwrap();
-            refetchStaffMembers();
-            showMessage(t('msg_permissions_updated'));
-            closePermissionsModal();
-        } catch (error: any) {
-            console.error('Permission update failed:', error);
-            showMessage(error?.data?.message || t('msg_failed_update_permissions'), 'error');
-        }
-    };
-
-    const handlePlaceholderAction = (message: string) => {
-        showMessage(message, 'info');
-    };
-
-    const selectedPermissionsCount = selectAllPermissions ? allPermissions.length : selectedPermissions.length;
+        },
+        [assignRole, unassignRole, refetchStaffMembers, t]
+    );
 
     const getRoleBadge = (role: string) => {
         const roleStyles: Record<string, string> = {
@@ -328,6 +184,28 @@ const StaffManagement = () => {
                 </div>
             ),
         },
+        {
+            key: 'role_name',
+            label: t('lbl_custom_role'),
+            sortable: false,
+            render: (_value, row) =>
+                assigningRole[row.id] ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-[#046ca9]" />
+                ) : (
+                    <select
+                        value={row.role_id ?? ''}
+                        onChange={(e) => handleRoleChange(row.id, e.target.value, row.role_id)}
+                        className="rounded border border-gray-200 px-2 py-1 text-xs text-gray-700 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
+                    >
+                        <option value="">{t('lbl_no_role')}</option>
+                        {availableRoles.map((role) => (
+                            <option key={role.id} value={role.id}>
+                                {role.name}
+                            </option>
+                        ))}
+                    </select>
+                ),
+        },
     ];
 
     // Define table actions
@@ -337,14 +215,16 @@ const StaffManagement = () => {
             icon: <Pencil className="h-4 w-4" />,
             className: 'text-[#046ca9]',
             onClick: (row) => {
-                showMessage(t('msg_employee_edit_coming_soon'), 'info');
+                const params = new URLSearchParams({
+                    name: row.name || '',
+                    phone: row.phone || '',
+                    address: row.address || '',
+                    role: row.role_in_store || 'staff',
+                    store_id: String(currentStoreId || ''),
+                    role_id: String(row.role_id || ''),
+                });
+                router.push(`/employees/edit/${row.id}?${params.toString()}`);
             },
-        },
-        {
-            label: t('employee_permissions'),
-            icon: <ShieldCheck className="h-4 w-4" />,
-            className: 'text-[#034d79]',
-            onClick: (row) => openPermissionsModal(row),
         },
         {
             label: t('btn_delete'),
@@ -481,64 +361,6 @@ const StaffManagement = () => {
                     }}
                 />
 
-            {/* Permission Modal */}
-            {permissionModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4">
-                    <div className="absolute inset-0" onClick={closePermissionsModal} />
-                    <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-2xl">
-                        <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4">
-                            <div>
-                                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{t('employee_edit_permissions')}{selectedStaff ? ` • ${selectedStaff.name}` : ''}</h3>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{t('employee_permissions_subtitle')}</p>
-                            </div>
-                            <button type="button" onClick={closePermissionsModal} className="rounded-full p-1 text-gray-400 transition hover:text-gray-600">
-                                <XCircle className="h-5 w-5" />
-                            </button>
-                        </div>
-                        <div className="max-h-[80vh] overflow-y-auto px-4 py-4 sm:max-h-[75vh] sm:px-6 sm:py-6">
-                            <PermissionSelector
-                                allPermissions={allPermissions}
-                                isChecked={(p) => selectedPermissions.includes(p.name)}
-                                onToggle={(p) => handlePermissionToggle(p.name)}
-                                onCategoryToggle={handleCategoryToggle}
-                                onSelectAll={handleSelectAllToggle}
-                                selectAll={selectAllPermissions}
-                                selectedCount={selectedPermissions.length}
-                                loading={permissionFetchLoading}
-                            />
-                        </div>
-                        <div className="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4">
-                            <p className="text-center text-xs text-gray-500 sm:text-left sm:text-sm">
-                                {selectAllPermissions ? t('msg_all_permissions_selected') : `${selectedPermissionsCount} ${selectedPermissionsCount === 1 ? t('msg_permission_selected') : t('msg_permissions_selected')}`}
-                            </p>
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <button
-                                    type="button"
-                                    onClick={closePermissionsModal}
-                                    className="flex-1 rounded-lg border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50 sm:flex-none sm:text-sm"
-                                >
-                                    {t('btn_cancel')}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleSavePermissions}
-                                    disabled={isUpdatingPermission || permissionFetchLoading}
-                                    className="inline-flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:text-sm"
-                                >
-                                    {isUpdatingPermission ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            {t('btn_saving')}
-                                        </>
-                                    ) : (
-                                        t('btn_save_changes')
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
