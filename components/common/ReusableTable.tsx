@@ -46,6 +46,7 @@ export interface ReusableTableProps {
     };
     className?: string;
     rowClassName?: (row: any, index: number) => string;
+    onRowClick?: (row: any) => void;
 }
 
 // Actions Dropdown Component
@@ -142,6 +143,7 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
     sorting,
     className = '',
     rowClassName,
+    onRowClick,
 }) => {
     const { t, i18n } = getTranslation();
     const displayNumber = (value: number | string) => formatLocalizedNumber(value, i18n.language);
@@ -209,14 +211,18 @@ const ReusableTable: React.FC<ReusableTableProps> = ({
                             const isDropdownOpen = openDropdownId === rowId;
 
                             return (
-                                <tr key={rowId} className={finalRowClassName}>
+                                <tr
+                                    key={rowId}
+                                    className={`${finalRowClassName} ${onRowClick ? 'cursor-pointer' : ''}`}
+                                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                                >
                                     {columns.map((column) => (
                                         <td key={column.key} className={`px-4 py-3.5 text-sm ${column.className || ''}`}>
                                             {column.render ? column.render(row[column.key], row) : row[column.key]}
                                         </td>
                                     ))}
                                     {actions && actions.length > 0 && (
-                                        <td className="px-4 py-3.5 text-center">
+                                        <td className="px-4 py-3.5 text-center" onClick={(event) => event.stopPropagation()}>
                                             <ActionsDropdown
                                                 actions={actions}
                                                 row={row}

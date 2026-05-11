@@ -22,7 +22,7 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
 
         getEcommerceOrders: builder.query({
             query: (params = {}) => ({
-                url: '/ecommerce/management/orders',
+                url: '/ecommerce/management/store-orders',
                 method: 'GET',
                 params,
             }),
@@ -31,7 +31,7 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
 
         getEcommerceOrder: builder.query({
             query: (id: number) => ({
-                url: `/ecommerce/management/orders/${id}`,
+                url: `/ecommerce/management/store-orders/${id}`,
                 method: 'GET',
             }),
             providesTags: (result, error, id) => [{ type: 'EcommerceManagement', id: `ORDER-${id}` }],
@@ -39,9 +39,33 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
 
         updateEcommerceOrderStatus: builder.mutation({
             query: ({ id, status }: { id: number; status: string }) => ({
-                url: `/ecommerce/management/orders/${id}/status`,
+                url: `/ecommerce/management/store-orders/${id}/status`,
                 method: 'PATCH',
                 body: { status },
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'EcommerceManagement', id: 'ORDERS' },
+                { type: 'EcommerceManagement', id: `ORDER-${id}` },
+            ],
+        }),
+
+        updateEcommerceOrderPayment: builder.mutation({
+            query: ({
+                id,
+                payment_status,
+                payment_method,
+                amount,
+                payment_note,
+            }: {
+                id: number;
+                payment_status: string;
+                payment_method?: string;
+                amount?: number | string;
+                payment_note?: string;
+            }) => ({
+                url: `/ecommerce/management/store-orders/${id}/payment`,
+                method: 'PATCH',
+                body: { payment_status, payment_method, amount, payment_note },
             }),
             invalidatesTags: (result, error, { id }) => [
                 { type: 'EcommerceManagement', id: 'ORDERS' },
@@ -102,6 +126,7 @@ export const {
     useGetEcommerceOrdersQuery,
     useGetEcommerceOrderQuery,
     useUpdateEcommerceOrderStatusMutation,
+    useUpdateEcommerceOrderPaymentMutation,
     useGetEcommerceProductsQuery,
     useUpdateEcommerceProductVisibilityMutation,
     useBulkUpdateEcommerceProductVisibilityMutation,

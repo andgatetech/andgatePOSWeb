@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetEcommerceOrderQuery, useUpdateEcommerceOrderStatusMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
+import { useGetEcommerceOrderQuery, useUpdateEcommerceOrderPaymentMutation, useUpdateEcommerceOrderStatusMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { useGetStoreLogoQuery } from '@/store/features/store/storeApi';
 import { useParams, useRouter } from 'next/navigation';
 import { generateOrderInvoicePDF } from './generate-order-invoice-pdf';
@@ -15,6 +15,8 @@ import { StatusBadge } from './EcommerceBadges';
 import {
     ECOMMERCE_ORDER_STATUSES,
     ECOMMERCE_ORDER_TIMESTAMPS,
+    ECOMMERCE_PAYMENT_METHODS,
+    ECOMMERCE_PAYMENT_STATUSES,
     formatApiError,
     getEcommerceFallbackText,
     getEcommercePaymentMethodLabel,
@@ -28,6 +30,7 @@ import {
 /* ------------------------------------------------------------------ */
 
 type OrderStatus = (typeof ECOMMERCE_ORDER_STATUSES)[number];
+type PaymentStatus = (typeof ECOMMERCE_PAYMENT_STATUSES)[number];
 
 const STEPPER_FLOW: OrderStatus[] = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'returned'];
 
@@ -62,8 +65,6 @@ const Badge = ({ className, variant = 'secondary', ...props }: BadgeProps) => (
         {...props}
     />
 );
-
-const Separator = ({ className, ...props }: CardProps) => <div className={cn('h-px w-full bg-slate-200', className)} {...props} />;
 
 const Button = ({ className, children, variant = 'default', type = 'button', ...props }: ButtonProps) => {
     const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
@@ -119,6 +120,23 @@ const getStoreLabel = (stores: any[]) => {
     );
 };
 
+const resolveStoreOrder = (response: any) => {
+    const data = response?.data;
+    return data?.store_order || data?.order || data?.data?.store_order || data?.data?.order || response?.store_order || response?.order || data || null;
+};
+
+const resolveStoreOrderItems = (storeOrder: any) => {
+    if (Array.isArray(storeOrder?.items)) return storeOrder.items;
+    if (Array.isArray(storeOrder?.order_items)) return storeOrder.order_items;
+    if (Array.isArray(storeOrder?.store_items)) return storeOrder.store_items;
+    return [];
+};
+
+const normalizePaymentStatus = (value?: string): PaymentStatus => {
+    const status = String(value || '').toLowerCase();
+    return ECOMMERCE_PAYMENT_STATUSES.includes(status as PaymentStatus) ? (status as PaymentStatus) : 'pending';
+};
+
 /* ------------------------------------------------------------------ */
 /*  Status Stepper                                                     */
 /* ------------------------------------------------------------------ */
@@ -138,7 +156,7 @@ function OrderStatusStepper({ status }: { status: OrderStatus }) {
     };
 
     if (cancelled) {
-        return <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700">This order has been cancelled.</div>;
+        return <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700">This store order has been cancelled.</div>;
     }
 
     return (
@@ -192,26 +210,36 @@ const EcommerceOrderDetailsPage = () => {
     const { formatCurrency, currency } = useCurrency();
     const { currentStore, currentStoreId, userStores } = useCurrentStore();
     const [status, setStatus] = useState<OrderStatus>('pending');
+    const [paymentStatusForm, setPaymentStatusForm] = useState<PaymentStatus>('pending');
+    const [paymentMethodForm, setPaymentMethodForm] = useState('cod');
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [paymentNote, setPaymentNote] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
     const { data, isLoading, error } = useGetEcommerceOrderQuery(orderId, {
         skip: !hasValidOrderId,
         refetchOnMountOrArgChange: 30,
     });
     const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateEcommerceOrderStatusMutation();
+    const [updateOrderPayment, { isLoading: isUpdatingPayment }] = useUpdateEcommerceOrderPaymentMutation();
 
-    const order = data?.data?.order || data?.order || null;
-    const items = useMemo(() => (Array.isArray(order?.items) ? order.items : []), [order]);
+    const order = resolveStoreOrder(data);
+    const parentOrder = order?.parent_order || order?.ecommerce_order || order?.order || {};
+    const items = useMemo(() => resolveStoreOrderItems(order), [order]);
     const transactions = useMemo(() => (Array.isArray(order?.transactions) ? order.transactions : []), [order]);
-    const stores = useMemo(() => (Array.isArray(order?.stores) ? order.stores : []), [order]);
+    const stores = useMemo(() => {
+        if (Array.isArray(order?.stores)) return order.stores;
+        if (order?.store) return [order.store];
+        return [];
+    }, [order]);
     const primaryTransaction = transactions[0] || null;
-    const customer = order?.customer || {};
-    const shipping = order?.shipping_address || {};
+    const customer = order?.customer || order?.ecommerce_customer || parentOrder?.customer || parentOrder?.ecommerce_customer || {};
+    const shipping = order?.shipping_address || parentOrder?.shipping_address || {};
     const itemsSubtotal = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.subtotal || 0), 0), [items]);
-    const storeItemsSubtotal = Number(order?.store_items_subtotal ?? itemsSubtotal ?? 0);
-    const storeTotal = Number(order?.store_total ?? storeItemsSubtotal ?? 0);
+    const storeItemsSubtotal = Number(order?.store_items_subtotal ?? order?.subtotal ?? itemsSubtotal ?? 0);
+    const storeTotal = Number(order?.store_total ?? order?.total ?? storeItemsSubtotal ?? 0);
     const totalQty = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.quantity || 0), 0), [items]);
-    const paymentMethod = order?.latest_payment_method || primaryTransaction?.payment_method;
-    const paymentStatus = order?.latest_payment_status || primaryTransaction?.payment_status;
+    const paymentMethod = order?.payment_method || order?.latest_payment_method || primaryTransaction?.payment_method;
+    const paymentStatus = order?.payment_status || order?.latest_payment_status || primaryTransaction?.payment_status;
     const matchedStore = useMemo(() => {
         if (stores.length === 0) return currentStore || null;
         return userStores.find((store) => Number(store.id) === Number(stores[0]?.id)) || currentStore || stores[0];
@@ -224,12 +252,36 @@ const EcommerceOrderDetailsPage = () => {
         if (nextStatus) setStatus(nextStatus);
     }, [order?.status]);
 
+    useEffect(() => {
+        setPaymentStatusForm(normalizePaymentStatus(paymentStatus));
+        setPaymentMethodForm(paymentMethod || 'cod');
+        setPaymentAmount(String(order?.payment_amount ?? order?.amount_paid ?? order?.paid_amount ?? storeTotal ?? ''));
+        setPaymentNote(order?.payment_note || primaryTransaction?.payment_note || primaryTransaction?.notes || '');
+    }, [order?.amount_paid, order?.paid_amount, order?.payment_amount, order?.payment_note, paymentMethod, paymentStatus, primaryTransaction?.notes, primaryTransaction?.payment_note, storeTotal]);
+
     const handleStatusUpdate = async () => {
         if (!order?.id) return;
 
         try {
             await updateOrderStatus({ id: order.id, status }).unwrap();
-            showSuccessDialog('Success', `Order status updated to ${getEcommerceStatusLabel(status)}.`);
+            showSuccessDialog('Success', `Store order status updated to ${getEcommerceStatusLabel(status)}.`);
+        } catch (updateError) {
+            showErrorDialog('Error', formatApiError(updateError));
+        }
+    };
+
+    const handlePaymentUpdate = async () => {
+        if (!order?.id) return;
+
+        try {
+            await updateOrderPayment({
+                id: order.id,
+                payment_status: paymentStatusForm,
+                payment_method: paymentMethodForm,
+                amount: paymentAmount === '' ? 0 : Number(paymentAmount),
+                payment_note: paymentNote,
+            }).unwrap();
+            showSuccessDialog('Success', `Store order payment updated to ${getEcommerceStatusLabel(paymentStatusForm)}.`);
         } catch (updateError) {
             showErrorDialog('Error', formatApiError(updateError));
         }
@@ -239,7 +291,7 @@ const EcommerceOrderDetailsPage = () => {
         try {
             setIsDownloading(true);
             await generateOrderInvoicePDF({
-                invoice: order?.order_number || `ORDER-${order?.id || orderId}`,
+                invoice: order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`,
                 order_id: order.id,
                 order_status: order.status,
                 customer: {
@@ -248,7 +300,7 @@ const EcommerceOrderDetailsPage = () => {
                     phone: customer?.mobile_number || customer?.phone,
                 },
                 items: items.map((item: any) => ({
-                    title: item.product_name || getEcommerceFallbackText(),
+                    title: item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText(),
                     variantName: formatVariantText(item.variant_data),
                     quantity: Number(item.quantity || 0),
                     unit: 'Pcs',
@@ -312,160 +364,275 @@ const EcommerceOrderDetailsPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
-                        <Globe2 className="h-5 w-5" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold text-gray-900">Ecommerce Order Details</h1>
-                        <p className="text-sm text-gray-500">Review assigned-store items, payment state, and update order status.</p>
-                    </div>
-                </div>
-
-                {/* Sticky toolbar */}
-                <div className="sticky top-0 z-10 -mx-4 rounded-xl border border-slate-200 bg-white/95 px-4 py-4 shadow-sm backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-3">
+        <div className="min-h-screen bg-slate-100">
+            <div className="mx-auto max-w-[1800px] space-y-5 p-4 sm:p-6 lg:p-8">
+                <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex min-w-0 items-start gap-4">
                             <button
                                 type="button"
                                 aria-label="Back to orders"
-                                className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                                className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                                 onClick={() => router.push('/ecommerce/orders')}
                             >
                                 <ArrowLeft className="h-4 w-4" />
                             </button>
                             <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h1 className="text-balance text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{order.order_number}</h1>
+                                    <span className="inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+                                        <Globe2 className="h-3.5 w-3.5" />
+                                        Store order
+                                    </span>
                                     <StatusBadge status={order.status} />
+                                    <StatusBadge status={paymentStatus} />
                                 </div>
-                                <p className="mt-0.5 text-sm text-slate-500">
-                                    Placed on {order.created_at || getEcommerceFallbackText()} · {items.length} item{items.length !== 1 ? 's' : ''}
+                                <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-slate-950 lg:text-3xl">{order.order_number || parentOrder?.order_number}</h1>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    Placed on {order.created_at || getEcommerceFallbackText()} · {items.length} item{items.length !== 1 ? 's' : ''} · {totalQty} units
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2">
-                            <select
-                                value={status}
-                                onChange={(event) => setStatus(event.target.value as OrderStatus)}
-                                className="h-10 w-[160px] rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                            >
-                                {ECOMMERCE_ORDER_STATUSES.map((item) => (
-                                    <option key={item} value={item}>
-                                        {getEcommerceStatusLabel(item)}
-                                    </option>
-                                ))}
-                            </select>
-                            <Button onClick={handleStatusUpdate} disabled={isUpdating} className="h-10">
-                                {isUpdating ? (
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[560px]">
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Store Total</p>
+                                <p className="mt-1 text-lg font-semibold text-slate-950">{formatCurrency(storeTotal)}</p>
+                            </div>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Items</p>
+                                <p className="mt-1 text-lg font-semibold text-slate-950">{items.length}</p>
+                            </div>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Payment</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-950">{getEcommercePaymentMethodLabel(paymentMethod)}</p>
+                            </div>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Store</p>
+                                <p className="mt-1 truncate text-sm font-semibold text-slate-950">{getStoreLabel(stores)}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(420px,0.65fr)]">
+                    <Card className="border-slate-200">
+                        <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 pb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <Package className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-base font-semibold">Fulfillment Status</CardTitle>
+                                    <p className="mt-0.5 text-xs text-slate-500">Delivery controls stock behavior only.</p>
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <select
+                                    value={status}
+                                    onChange={(event) => setStatus(event.target.value as OrderStatus)}
+                                    className="h-10 w-[170px] rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                                >
+                                    {ECOMMERCE_ORDER_STATUSES.map((item) => (
+                                        <option key={item} value={item}>
+                                            {getEcommerceStatusLabel(item)}
+                                        </option>
+                                    ))}
+                                </select>
+                                <Button onClick={handleStatusUpdate} disabled={isUpdating} className="h-10">
+                                    {isUpdating ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Updating
+                                        </>
+                                    ) : (
+                                        'Update status'
+                                    )}
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-2">
+                            <OrderStatusStepper status={status} />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-slate-200">
+                        <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <CreditCard className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-base font-semibold">Payment Collection</CardTitle>
+                                <p className="mt-0.5 text-xs text-slate-500">Payment creates the ecommerce sales journal.</p>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <label className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Status</span>
+                                <select
+                                    value={paymentStatusForm}
+                                    onChange={(event) => setPaymentStatusForm(event.target.value as PaymentStatus)}
+                                    className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                                >
+                                    {ECOMMERCE_PAYMENT_STATUSES.map((item) => (
+                                        <option key={item} value={item}>
+                                            {getEcommerceStatusLabel(item)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Method</span>
+                                <select
+                                    value={paymentMethodForm}
+                                    onChange={(event) => setPaymentMethodForm(event.target.value)}
+                                    className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                                >
+                                    {ECOMMERCE_PAYMENT_METHODS.map((item) => (
+                                        <option key={item} value={item}>
+                                            {getEcommercePaymentMethodLabel(item)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Amount</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={paymentAmount}
+                                    onChange={(event) => setPaymentAmount(event.target.value)}
+                                    className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                                />
+                            </label>
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Current</span>
+                                <div className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3">
+                                    <span className="truncate text-sm font-medium text-slate-700">{getEcommercePaymentMethodLabel(paymentMethod)}</span>
+                                    <StatusBadge status={paymentStatus} />
+                                </div>
+                            </div>
+                            <label className="flex flex-col gap-1.5 sm:col-span-2">
+                                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Payment Note</span>
+                                <input
+                                    type="text"
+                                    value={paymentNote}
+                                    onChange={(event) => setPaymentNote(event.target.value)}
+                                    placeholder="Courier office collected cash"
+                                    className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                                />
+                            </label>
+                            <Button onClick={handlePaymentUpdate} disabled={isUpdatingPayment} className="h-10 sm:col-span-2">
+                                {isUpdatingPayment ? (
                                     <>
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         Updating
                                     </>
                                 ) : (
-                                    'Update status'
+                                    'Update payment'
                                 )}
                             </Button>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* Status stepper */}
-                <Card className="border-slate-200">
-                    <CardContent className="p-6">
-                        <OrderStatusStepper status={status} />
-                    </CardContent>
-                </Card>
-
                 {/* Info grid */}
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                    <Card className="border-gray-200">
-                        <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <User className="h-4 w-4" />
-                            </div>
-                            <CardTitle className="text-base font-semibold">Customer</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <InfoLine label="Name" value={customer?.name} />
-                            <InfoLine
-                                label="Phone"
-                                value={
-                                    customer?.mobile_number || customer?.phone ? (
-                                        <span className="inline-flex items-center gap-1.5">
-                                            <Phone className="h-3.5 w-3.5 text-slate-400" />
-                                            {customer?.mobile_number || customer?.phone}
-                                        </span>
-                                    ) : (
-                                        ''
-                                    )
-                                }
-                            />
-                            <InfoLine label="Email" value={customer?.email} />
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+                    <Card className="overflow-hidden border-gray-200">
+                        <div className="grid grid-cols-1 divide-y divide-slate-100 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+                            <section>
+                                <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <User className="h-4 w-4" />
+                                    </div>
+                                    <CardTitle className="text-base font-semibold">Customer</CardTitle>
+                                </div>
+                                <div className="divide-y divide-slate-100">
+                                    <CompactInfoRow label="Name" value={customer?.name} />
+                                    <CompactInfoRow
+                                        label="Phone"
+                                        value={
+                                            customer?.mobile_number || customer?.phone ? (
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <Phone className="h-3.5 w-3.5 text-slate-400" />
+                                                    {customer?.mobile_number || customer?.phone}
+                                                </span>
+                                            ) : (
+                                                ''
+                                            )
+                                        }
+                                    />
+                                    <CompactInfoRow label="Email" value={customer?.email} />
+                                </div>
+                            </section>
 
-                    <Card className="border-gray-200">
-                        <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <MapPin className="h-4 w-4" />
-                            </div>
-                            <CardTitle className="text-base font-semibold">Shipping</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <InfoLine label="Recipient" value={shipping?.name} />
-                            <InfoLine
-                                label="Address"
-                                value={
-                                    shipping?.address_line || shipping?.area || shipping?.zone || shipping?.city || shipping?.postal_code ? (
-                                        <div className="space-y-0.5 leading-snug">
-                                            <div>{shipping?.address_line}</div>
-                                            <div className="text-slate-600">{[shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ')}</div>
+                            <section>
+                                <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <MapPin className="h-4 w-4" />
+                                    </div>
+                                    <CardTitle className="text-base font-semibold">Shipping</CardTitle>
+                                </div>
+                                <div className="divide-y divide-slate-100">
+                                    <CompactInfoRow label="Recipient" value={shipping?.name} />
+                                    <CompactInfoRow
+                                        label="Address"
+                                        value={
+                                            shipping?.address_line || shipping?.area || shipping?.zone || shipping?.city || shipping?.postal_code ? (
+                                                <span className="text-right leading-snug">
+                                                    <span className="block">{shipping?.address_line}</span>
+                                                    <span className="block text-slate-600">{[shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ')}</span>
+                                                </span>
+                                            ) : (
+                                                ''
+                                            )
+                                        }
+                                    />
+                                    {(shipping?.label || shipping?.type) && (
+                                        <div className="flex items-center justify-between gap-4 px-5 py-3">
+                                            <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Type</span>
+                                            <div className="flex flex-wrap justify-end gap-2">
+                                                {shipping?.label && (
+                                                    <Badge variant="secondary" className="font-normal">
+                                                        {shipping.label}
+                                                    </Badge>
+                                                )}
+                                                {shipping?.type && (
+                                                    <Badge variant="outline" className="font-normal">
+                                                        {shipping.type}
+                                                    </Badge>
+                                                )}
+                                            </div>
                                         </div>
-                                    ) : (
-                                        ''
-                                    )
-                                }
-                            />
-                            <div className="flex flex-wrap gap-2 pt-1">
-                                {shipping?.label && (
-                                    <Badge variant="secondary" className="font-normal">
-                                        {shipping.label}
-                                    </Badge>
-                                )}
-                                {shipping?.type && (
-                                    <Badge variant="outline" className="font-normal">
-                                        {shipping.type}
-                                    </Badge>
-                                )}
-                            </div>
-                        </CardContent>
+                                    )}
+                                </div>
+                            </section>
+                        </div>
                     </Card>
 
-                    <Card className="border-gray-200">
-                        <CardHeader className="flex-row items-center gap-2 space-y-0 pb-3">
+                    <Card className="overflow-hidden border-gray-200">
+                        <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-3">
                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                 <ReceiptText className="h-4 w-4" />
                             </div>
                             <CardTitle className="text-base font-semibold">Order Summary</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 text-sm">
-                            <InfoLine label="Store / Shop" value={getStoreLabel(stores)} />
-                            <InfoLine label="Source" value={getEcommerceSourceLabel(order?.source)} />
-                            <SummaryRow label="Store Items Subtotal" value={formatCurrency(storeItemsSubtotal)} />
-                            <Separator />
-                            <SummaryRow label="Store Total" value={formatCurrency(storeTotal)} labelClass="font-semibold text-slate-900" valueClass="text-base font-semibold text-slate-900" />
-                            <div className="flex items-center justify-between pt-1">
-                                <span className="text-xs uppercase tracking-wider text-slate-500">Payment</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-slate-700">{getEcommercePaymentMethodLabel(paymentMethod)}</span>
+                        </div>
+                        <div className="divide-y divide-slate-100 text-sm">
+                            <CompactInfoRow label="Store / Shop" value={getStoreLabel(stores)} />
+                            <CompactInfoRow label="Source" value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} />
+                            <CompactInfoRow label="Subtotal" value={formatCurrency(storeItemsSubtotal)} />
+                            <div className="flex items-center justify-between gap-4 bg-slate-50 px-5 py-3">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">Store Total</span>
+                                <span className="text-xl font-bold text-slate-950">{formatCurrency(storeTotal)}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4 px-5 py-3">
+                                <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Payment</span>
+                                <div className="flex min-w-0 items-center gap-2 text-right">
+                                    <span className="truncate text-sm font-semibold text-slate-800">{getEcommercePaymentMethodLabel(paymentMethod)}</span>
                                     <StatusBadge status={paymentStatus} />
                                 </div>
                             </div>
-                        </CardContent>
+                        </div>
                     </Card>
                 </div>
 
@@ -512,11 +679,11 @@ const EcommerceOrderDetailsPage = () => {
                                     {items.map((item: any) => (
                                         <tr key={item.id} className="transition-colors hover:bg-slate-50/60">
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-slate-900">{item.product_name}</div>
+                                                <div className="font-medium text-slate-900">{item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}</div>
                                                 {formatVariantText(item.variant_data) && <div className="mt-0.5 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="font-mono text-xs text-slate-600">{item.sku || getEcommerceFallbackText()}</span>
+                                                <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
                                             </td>
                                             <td className="px-6 py-4 text-center font-medium text-slate-900">{item.quantity}</td>
                                             <td className="px-6 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
@@ -601,7 +768,7 @@ const EcommerceOrderDetailsPage = () => {
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold tracking-tight">Invoice ready to download</h2>
-                                <p className="mt-1 text-sm text-slate-500">A PDF invoice for {order.order_number} including store items and payment status.</p>
+                                <p className="mt-1 text-sm text-slate-500">A PDF invoice for {order.order_number || parentOrder?.order_number} including store items and payment status.</p>
                             </div>
                         </div>
                         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
@@ -634,15 +801,12 @@ const EcommerceOrderDetailsPage = () => {
 
 export default EcommerceOrderDetailsPage;
 
-/* ------------------------------------------------------------------ */
-/*  Tiny helper                                                        */
-/* ------------------------------------------------------------------ */
-
-function SummaryRow({ label, value, labelClass, valueClass }: { label: string; value: ReactNode; labelClass?: string; valueClass?: string }) {
+function CompactInfoRow({ label, value }: { label: string; value: ReactNode }) {
+    const isEmpty = value === null || value === undefined || value === '';
     return (
-        <div className="flex items-center justify-between">
-            <span className={cn('text-slate-600', labelClass)}>{label}</span>
-            <span className={cn('font-medium text-slate-900', valueClass)}>{value}</span>
+        <div className="flex items-center justify-between gap-4 px-5 py-3">
+            <span className="flex-shrink-0 text-xs font-medium uppercase tracking-wider text-slate-500">{label}</span>
+            <span className="min-w-0 text-right text-sm font-semibold text-slate-900">{isEmpty ? <span className="text-slate-400">--</span> : value}</span>
         </div>
     );
 }

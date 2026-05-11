@@ -7,7 +7,15 @@ import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { CreditCard, Package, Tag } from 'lucide-react';
 import React from 'react';
-import { buildEcommerceFilterParams, ECOMMERCE_ORDER_STATUSES, getEcommercePaymentMethodLabel, getEcommerceStatusLabel, visibilityLabel } from './ecommerceUtils';
+import {
+    buildEcommerceFilterParams,
+    ECOMMERCE_ORDER_STATUSES,
+    ECOMMERCE_PAYMENT_METHODS,
+    ECOMMERCE_PAYMENT_STATUSES,
+    getEcommercePaymentMethodLabel,
+    getEcommerceStatusLabel,
+    visibilityLabel,
+} from './ecommerceUtils';
 
 interface FilterProps {
     onFilterChange: (apiParams: Record<string, any>) => void;
@@ -67,22 +75,21 @@ export const EcommerceOrdersFilter = ({ onFilterChange }: FilterProps) => {
                     <SelectWrapper icon={<CreditCard className="h-5 w-5" />}>
                         <select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value)} className={baseSelectClass}>
                             <option value="all">{t('ecommerce_all_payment_statuses')}</option>
-                            <option value="pending">{getEcommerceStatusLabel('pending')}</option>
-                            <option value="paid">{getEcommerceStatusLabel('paid')}</option>
-                            <option value="completed">{getEcommerceStatusLabel('completed')}</option>
-                            <option value="failed">{getEcommerceStatusLabel('failed')}</option>
-                            <option value="cancelled">{getEcommerceStatusLabel('cancelled')}</option>
+                            {ECOMMERCE_PAYMENT_STATUSES.map((item) => (
+                                <option key={item} value={item}>
+                                    {getEcommerceStatusLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </SelectWrapper>
                     <SelectWrapper icon={<CreditCard className="h-5 w-5" />}>
                         <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className={baseSelectClass}>
                             <option value="all">{t('ecommerce_all_payment_methods')}</option>
-                            <option value="cash_on_delivery">{getEcommercePaymentMethodLabel('cash_on_delivery')}</option>
-                            <option value="bkash">{getEcommercePaymentMethodLabel('bkash')}</option>
-                            <option value="nagad">{getEcommercePaymentMethodLabel('nagad')}</option>
-                            <option value="sslcommerz">{getEcommercePaymentMethodLabel('sslcommerz')}</option>
-                            <option value="card">{getEcommercePaymentMethodLabel('card')}</option>
-                            <option value="cash">{getEcommercePaymentMethodLabel('cash')}</option>
+                            {ECOMMERCE_PAYMENT_METHODS.map((item) => (
+                                <option key={item} value={item}>
+                                    {getEcommercePaymentMethodLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </SelectWrapper>
                 </>
@@ -152,21 +159,21 @@ export const EcommerceTransactionsFilter = ({ onFilterChange }: FilterProps) => 
                     <SelectWrapper icon={<CreditCard className="h-5 w-5" />}>
                         <select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value)} className={baseSelectClass}>
                             <option value="all">{t('ecommerce_all_payment_statuses')}</option>
-                            <option value="pending">{getEcommerceStatusLabel('pending')}</option>
-                            <option value="paid">{getEcommerceStatusLabel('paid')}</option>
-                            <option value="completed">{getEcommerceStatusLabel('completed')}</option>
-                            <option value="failed">{getEcommerceStatusLabel('failed')}</option>
+                            {ECOMMERCE_PAYMENT_STATUSES.map((item) => (
+                                <option key={item} value={item}>
+                                    {getEcommerceStatusLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </SelectWrapper>
                     <SelectWrapper icon={<CreditCard className="h-5 w-5" />}>
                         <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className={baseSelectClass}>
                             <option value="all">{t('ecommerce_all_payment_methods')}</option>
-                            <option value="cash">{getEcommercePaymentMethodLabel('cash')}</option>
-                            <option value="cod">{t('ecommerce_payment_method_cod')}</option>
-                            <option value="card">{getEcommercePaymentMethodLabel('card')}</option>
-                            <option value="bkash">{getEcommercePaymentMethodLabel('bkash')}</option>
-                            <option value="nagad">{getEcommercePaymentMethodLabel('nagad')}</option>
-                            <option value="sslcommerz">{getEcommercePaymentMethodLabel('sslcommerz')}</option>
+                            {ECOMMERCE_PAYMENT_METHODS.map((item) => (
+                                <option key={item} value={item}>
+                                    {getEcommercePaymentMethodLabel(item)}
+                                </option>
+                            ))}
                         </select>
                     </SelectWrapper>
                 </>

@@ -4,6 +4,11 @@ import type { FilterOptions } from '@/components/common/UniversalFilter';
 export const ECOMMERCE_ORDER_STATUSES = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled', 'returned'] as const;
 export type EcommerceOrderStatus = (typeof ECOMMERCE_ORDER_STATUSES)[number];
 
+export const ECOMMERCE_PAYMENT_STATUSES = ['pending', 'partial', 'paid', 'refunded', 'failed'] as const;
+export type EcommercePaymentStatus = (typeof ECOMMERCE_PAYMENT_STATUSES)[number];
+
+export const ECOMMERCE_PAYMENT_METHODS = ['cod', 'cash_on_delivery', 'cash', 'card', 'bkash', 'nagad', 'sslcommerz'] as const;
+
 export const ECOMMERCE_ONE_STORE_CHECKOUT_MESSAGE = 'Please checkout products from one store at a time.';
 
 export const ECOMMERCE_ORDER_TIMESTAMPS = [
@@ -114,7 +119,9 @@ export const getEcommerceStatusLabel = (status?: string) => {
         delivered: t('ecommerce_status_delivered'),
         cancelled: t('ecommerce_status_cancelled'),
         returned: t('ecommerce_status_returned'),
+        partial: t('ecommerce_status_partial'),
         paid: t('ecommerce_status_paid'),
+        refunded: t('ecommerce_status_refunded'),
         completed: t('ecommerce_status_completed'),
         failed: t('ecommerce_status_failed'),
         active: t('ecommerce_status_enabled'),
@@ -131,6 +138,7 @@ export const getEcommercePaymentMethodLabel = (value?: string) => {
     const method = String(value || '').toLowerCase();
 
     const methodMap: Record<string, string> = {
+        cod: t('ecommerce_payment_method_cod'),
         cash_on_delivery: t('ecommerce_payment_method_cash_on_delivery'),
         bkash: t('ecommerce_payment_method_bkash'),
         nagad: t('ecommerce_payment_method_nagad'),
@@ -158,7 +166,7 @@ export const getProductName = (row: any) => row?.product_name || row?.name || ro
 export const getSku = (row: any) => row?.sku || row?.stock?.sku || row?.product?.sku || row?.stock?.product?.sku || row?.barcode || 'N/A';
 
 export const getCustomerLabel = (row: any) => {
-    const customer = row?.customer || row?.ecommerce_customer || row?.order?.customer || row?.order?.ecommerce_customer;
+    const customer = row?.customer || row?.ecommerce_customer || row?.parent_order?.customer || row?.parent_order?.ecommerce_customer || row?.order?.customer || row?.order?.ecommerce_customer;
     const name = customer?.name || customer?.customer_name || row?.customer_name || 'N/A';
     const phone = customer?.phone || customer?.mobile || customer?.mobile_number || row?.customer_phone;
     const email = customer?.email || row?.customer_email;

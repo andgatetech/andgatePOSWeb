@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { EcommerceOrdersFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
 import { StatusBadge } from './EcommerceBadges';
-import { formatApiError, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
+import { formatApiError, getCustomerLabel, getEcommercePaymentMethodLabel, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
 
 const EcommerceOrdersPage = () => {
     const { t } = getTranslation();
@@ -71,6 +71,13 @@ const EcommerceOrdersPage = () => {
         [sortField]
     );
 
+    const handleOpenOrder = useCallback(
+        (order: any) => {
+            if (order?.id) router.push(`/ecommerce/orders/${order.id}`);
+        },
+        [router]
+    );
+
     const renderDateTime = useCallback(
         (value?: string) => {
             if (!value) return <span className="text-sm text-gray-700">{fallbackText}</span>;
@@ -88,29 +95,13 @@ const EcommerceOrdersPage = () => {
         [fallbackText]
     );
 
-    const getPaymentMethodLabel = useCallback(
-        (value?: string) => {
-            const methodMap: Record<string, string> = {
-                cash_on_delivery: t('ecommerce_payment_method_cash_on_delivery'),
-                bkash: t('ecommerce_payment_method_bkash'),
-                nagad: t('ecommerce_payment_method_nagad'),
-                sslcommerz: t('ecommerce_payment_method_sslcommerz'),
-                card: t('ecommerce_payment_method_card'),
-                cash: t('ecommerce_payment_method_cash'),
-            };
-
-            return methodMap[String(value || '').toLowerCase()] || value || fallbackText;
-        },
-        [fallbackText, t]
-    );
-
     const columns: TableColumn[] = useMemo(
         () => [
             {
                 key: 'order_number',
                 label: t('ecommerce_order_number'),
                 sortable: true,
-                render: (value) => <span className="font-semibold text-gray-900">{value || fallbackText}</span>,
+                render: (value, row) => <span className="font-semibold text-gray-900">{value || row?.parent_order?.order_number || row?.order?.order_number || fallbackText}</span>,
             },
             {
                 key: 'status',
@@ -119,10 +110,10 @@ const EcommerceOrdersPage = () => {
                 render: (value) => <StatusBadge status={value} />,
             },
             {
-                key: 'stores',
+                key: 'store',
                 label: t('ecommerce_store_shop'),
-                render: (value) => {
-                    const stores = Array.isArray(value) ? value : [];
+                render: (value, row) => {
+                    const stores = Array.isArray(row?.stores) ? row.stores : value ? [value] : row?.store ? [row.store] : [];
                     return (
                         <div className="flex flex-col">
                             {stores.length > 0 ? (
@@ -139,36 +130,49 @@ const EcommerceOrdersPage = () => {
                 },
             },
             {
+                key: 'customer',
+                label: t('lbl_customer'),
+                render: (_value, row) => {
+                    const customer = getCustomerLabel(row);
+                    return (
+                        <div className="flex min-w-[160px] flex-col">
+                            <span className="text-sm font-medium text-gray-900">{customer.name}</span>
+                            {customer.phone && <span className="text-xs text-gray-500">{customer.phone}</span>}
+                        </div>
+                    );
+                },
+            },
+            {
                 key: 'source',
                 label: t('ecommerce_source'),
-                render: (value) => <span className="text-sm font-medium text-gray-700">{getEcommerceSourceLabel(value)}</span>,
+                render: (value, row) => <span className="text-sm font-medium text-gray-700">{getEcommerceSourceLabel(value || row?.parent_order?.source || row?.order?.source)}</span>,
             },
             {
-                key: 'latest_payment_method',
+                key: 'payment_method',
                 label: t('lbl_payment_method'),
-                render: (value) => <span className="text-sm text-gray-700">{getPaymentMethodLabel(value)}</span>,
+                render: (value, row) => <span className="text-sm text-gray-700">{getEcommercePaymentMethodLabel(value || row?.latest_payment_method)}</span>,
             },
             {
-                key: 'latest_payment_status',
+                key: 'payment_status',
                 label: t('lbl_payment_status'),
-                render: (value) => <StatusBadge status={value} />,
+                render: (value, row) => <StatusBadge status={value || row?.latest_payment_status} />,
             },
             {
                 key: 'store_items_count',
                 label: t('ecommerce_store_items'),
-                render: (value) => <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{value ?? 0}</span>,
+                render: (value, row) => <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{value ?? row?.items_count ?? row?.items?.length ?? 0}</span>,
             },
             {
                 key: 'store_items_subtotal',
                 label: t('ecommerce_store_items_subtotal'),
                 sortable: true,
-                render: (value) => <span className="font-semibold text-gray-900">{formatCurrency(value ?? 0)}</span>,
+                render: (value, row) => <span className="font-semibold text-gray-900">{formatCurrency(value ?? row?.subtotal ?? 0)}</span>,
             },
             {
                 key: 'store_total',
                 label: t('ecommerce_store_total'),
                 sortable: true,
-                render: (value) => <span className="font-semibold text-gray-900">{formatCurrency(value ?? 0)}</span>,
+                render: (value, row) => <span className="font-semibold text-gray-900">{formatCurrency(value ?? row?.total ?? 0)}</span>,
             },
             {
                 key: 'created_at',
@@ -183,7 +187,7 @@ const EcommerceOrdersPage = () => {
                 render: (value) => renderDateTime(value),
             },
         ],
-        [fallbackText, formatCurrency, getPaymentMethodLabel, renderDateTime, t]
+        [fallbackText, formatCurrency, renderDateTime, t]
     );
 
     const actions: TableAction[] = useMemo(
@@ -192,10 +196,10 @@ const EcommerceOrdersPage = () => {
                 label: t('btn_view'),
                 icon: <Eye className="h-4 w-4" />,
                 className: 'text-blue-600',
-                onClick: (order) => router.push(`/ecommerce/orders/${order.id}`),
+                onClick: handleOpenOrder,
             },
         ],
-        [router, t]
+        [handleOpenOrder, t]
     );
 
     if (storesLoading || isLoading) return <Loader message={t('ecommerce_loading_orders')} />;
@@ -225,6 +229,12 @@ const EcommerceOrdersPage = () => {
                         data={orders}
                         columns={columns}
                         actions={actions}
+                        onRowClick={handleOpenOrder}
+                        rowClassName={(_row, index) =>
+                            `border-b border-gray-100 transition-colors last:border-0 ${
+                                index % 2 === 0 ? 'bg-white hover:bg-[#046ca9]/5' : 'bg-slate-50/60 hover:bg-[#046ca9]/5'
+                            }`
+                        }
                         pagination={{
                             currentPage,
                             totalPages,
