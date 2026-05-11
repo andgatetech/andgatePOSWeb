@@ -105,25 +105,24 @@ const Sidebar = () => {
         <nav className="sidebar fixed bottom-0 top-0 z-50 flex h-full min-h-screen w-[260px] flex-col bg-[#034d79] border-r border-white/[0.07] transition-all duration-300">
 
             {/* ── Logo ─────────────────────────────────────────────────── */}
-            <div className="flex h-[60px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
-                <Link href="/dashboard" className="flex items-center gap-2.5">
-                    <div className="overflow-hidden rounded-lg">
-                        <Image
-                            src="/images/andgatePOS.jpeg"
-                            alt="AndGate POS"
-                            width={110}
-                            height={37}
-                            className="h-7 w-auto object-contain"
-                            style={{ width: 'auto' }}
-                            priority
-                        />
-                    </div>
+            <div className="relative flex h-[68px] flex-shrink-0 items-center justify-center border-b border-white/[0.06] px-4">
+                <Link href="/dashboard" className="flex items-center justify-center">
+                    <Image
+                        src="/images/andgatePOS.jpeg"
+                        alt="AndGate POS"
+                        width={160}
+                        height={54}
+                        className="h-10 w-auto object-contain"
+                        style={{ width: 'auto' }}
+                        priority
+                        unoptimized
+                    />
                 </Link>
                 <button
                     type="button"
                     onClick={() => dispatch(toggleSidebar())}
                     aria-label="Collapse sidebar"
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10"
+                    className="absolute right-3 flex h-7 w-7 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10"
                 >
                     <IconCaretsDown className="rotate-90 scale-90" />
                 </button>

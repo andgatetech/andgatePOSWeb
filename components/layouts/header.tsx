@@ -135,6 +135,7 @@ const Header = () => {
                                 height={40}
                                 className="h-6 w-auto object-contain sm:h-8 sm:w-auto md:h-10"
                                 style={{ width: 'auto' }}
+                                unoptimized
                             />
                         </Link>
 
