@@ -10,10 +10,14 @@ import {
     Barcode,
     Bell,
     CheckCircle,
+    ChevronDown,
     ClipboardList,
     Clock,
     ExternalLink,
+    FileText,
+    Gift,
     Globe,
+    Heart,
     Layers,
     LayoutDashboard,
     Package,
@@ -21,9 +25,11 @@ import {
     Play,
     Receipt,
     RefreshCw,
+    RotateCcw,
     Settings,
     Shield,
     ShoppingCart,
+    Signal,
     Star,
     Store,
     Tag,
@@ -33,6 +39,8 @@ import {
     Users,
     Volume2,
     VolumeX,
+    Wifi,
+    WifiOff,
     Zap,
 } from 'lucide-react';
 
@@ -97,6 +105,7 @@ export default function HomePageClient() {
     const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(true);
     const [flashIcon, setFlashIcon] = useState(false);
+    const [openFaq, setOpenFaq] = useState<number | null>(null);
 
     const toggleVideo = useCallback(() => {
         const iframe = videoRef.current;
@@ -179,6 +188,46 @@ export default function HomePageClient() {
         { icon: <Barcode        className="h-5 w-5" />, title: t('feature_barcode'),         description: t('feature_barcode_desc'),         color: 'bg-yellow-100 text-yellow-700' },
         { icon: <Store          className="h-5 w-5" />, title: t('feature_multistore'),      description: t('feature_multistore_desc'),      color: 'bg-[#046ca9]/10 text-[#046ca9]' },
         { icon: <Bell           className="h-5 w-5" />, title: t('feature_notifications'),   description: t('feature_notifications_desc'),   color: 'bg-amber-100 text-amber-700' },
+        { icon: <RotateCcw      className="h-5 w-5" />, title: t('feature_returns'),          description: t('feature_returns_desc'),         color: 'bg-rose-100 text-rose-700' },
+        { icon: <Heart          className="h-5 w-5" />, title: t('feature_loyalty'),          description: t('feature_loyalty_desc'),         color: 'bg-pink-100 text-pink-700' },
+        { icon: <WifiOff        className="h-5 w-5" />, title: t('feature_offline'),          description: t('feature_offline_desc'),         color: 'bg-slate-100 text-slate-700' },
+        { icon: <FileText       className="h-5 w-5" />, title: t('feature_vat'),              description: t('feature_vat_desc'),             color: 'bg-teal-100 text-teal-700' },
+    ];
+
+    const whyUs = [
+        { icon: <WifiOff  className="h-6 w-6" />, title: t('why_us_1_title'), desc: t('why_us_1_desc'), color: 'bg-slate-100 text-slate-700',   border: 'border-slate-200' },
+        { icon: <Signal   className="h-6 w-6" />, title: t('why_us_2_title'), desc: t('why_us_2_desc'), color: 'bg-[#046ca9]/10 text-[#046ca9]', border: 'border-[#046ca9]/20' },
+        { icon: <Globe    className="h-6 w-6" />, title: t('why_us_3_title'), desc: t('why_us_3_desc'), color: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-200' },
+        { icon: <BarChart3 className="h-6 w-6" />, title: t('why_us_4_title'), desc: t('why_us_4_desc'), color: 'bg-amber-100 text-amber-700',  border: 'border-amber-200' },
+        { icon: <Store    className="h-6 w-6" />, title: t('why_us_5_title'), desc: t('why_us_5_desc'), color: 'bg-purple-100 text-purple-700',  border: 'border-purple-200' },
+    ];
+
+    const bdPayments = [
+        { label: t('bd_payments_cash'),  emoji: '💵', color: 'bg-emerald-50 border-emerald-200 text-emerald-800' },
+        { label: 'bKash',                emoji: '📱', color: 'bg-pink-50 border-pink-200 text-pink-800' },
+        { label: 'Nagad',                emoji: '📲', color: 'bg-orange-50 border-orange-200 text-orange-800' },
+        { label: 'Rocket',               emoji: '🚀', color: 'bg-purple-50 border-purple-200 text-purple-800' },
+        { label: 'Upay',                 emoji: '💳', color: 'bg-blue-50 border-blue-200 text-blue-800' },
+        { label: t('bd_payments_card'),  emoji: '💳', color: 'bg-[#046ca9]/5 border-[#046ca9]/20 text-[#046ca9]' },
+        { label: t('bd_payments_bank'),  emoji: '🏦', color: 'bg-gray-50 border-gray-200 text-gray-700' },
+    ];
+
+    const reportTypes = [
+        t('report_type_sales'), t('report_type_purchase'), t('report_type_inventory'),
+        t('report_type_lowstock'), t('report_type_expense'), t('report_type_pl'),
+        t('report_type_vat'), t('report_type_supplier'), t('report_type_customer'),
+        t('report_type_invoice'), t('report_type_returns'), t('report_type_threshold'),
+    ];
+
+    const faqs = [
+        { q: t('faq_q1'), a: t('faq_a1') },
+        { q: t('faq_q2'), a: t('faq_a2') },
+        { q: t('faq_q3'), a: t('faq_a3') },
+        { q: t('faq_q4'), a: t('faq_a4') },
+        { q: t('faq_q5'), a: t('faq_a5') },
+        { q: t('faq_q6'), a: t('faq_a6') },
+        { q: t('faq_q7'), a: t('faq_a7') },
+        { q: t('faq_q8'), a: t('faq_a8') },
     ];
 
     const quickStartSteps = [
@@ -243,10 +292,13 @@ export default function HomePageClient() {
                             </Link>
                         </div>
 
-                        <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                            {[t('no_payment'), t('free_package'), t('cancel_anytime')].map((text, i) => (
+                        <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            {[t('no_payment'), t('free_package'), t('cancel_anytime'), t('hero_offline_badge')].map((text, i) => (
                                 <div key={i} className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-sm">
-                                    <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />
+                                    {i === 3
+                                        ? <WifiOff className="h-4 w-4 flex-shrink-0 text-slate-500" />
+                                        : <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />
+                                    }
                                     <span>{text}</span>
                                 </div>
                             ))}
@@ -368,6 +420,31 @@ export default function HomePageClient() {
                 </div>
             </section>
 
+            {/* ── Why Us ── */}
+            <section className="bg-white py-24">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-14 text-center">
+                        <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
+                            {t('why_us_badge')}
+                        </span>
+                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('why_us_heading')}</h2>
+                        <p className="mx-auto max-w-2xl text-base text-gray-500">{t('why_us_subtitle')}</p>
+                    </div>
+
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+                        {whyUs.map((item, i) => (
+                            <div key={i} className={`rounded-2xl border ${item.border} bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md`}>
+                                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${item.color}`}>
+                                    {item.icon}
+                                </div>
+                                <h3 className="mb-2 font-bold text-gray-900">{item.title}</h3>
+                                <p className="text-sm leading-relaxed text-gray-500">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* ── Business Types — "Is this for my shop?" ── */}
             <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] py-24">
                 <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
@@ -449,6 +526,57 @@ export default function HomePageClient() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── BD Payments ── */}
+            <section className="bg-gray-50 py-20">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-10 text-center">
+                        <span className="mb-4 inline-block rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
+                            {t('bd_payments_badge')}
+                        </span>
+                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('bd_payments_heading')}</h2>
+                        <p className="mx-auto max-w-2xl text-base text-gray-500">{t('bd_payments_subtitle')}</p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-4">
+                        {bdPayments.map((pm, i) => (
+                            <div key={i} className={`flex items-center gap-3 rounded-2xl border px-6 py-4 text-sm font-bold shadow-sm ${pm.color}`}>
+                                <span className="text-2xl">{pm.emoji}</span>
+                                <span>{pm.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Reports Deep-Dive ── */}
+            <section className="bg-white py-24">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="lg:grid lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-16">
+                        <div className="mb-12 lg:mb-0">
+                            <span className="mb-4 inline-block rounded-full border border-[#e79237]/30 bg-[#e79237]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#c47920]">
+                                {t('reports_badge')}
+                            </span>
+                            <h2 className="mb-4 text-3xl font-black leading-tight text-gray-900 sm:text-4xl">{t('reports_heading')}</h2>
+                            <p className="mb-8 text-base leading-relaxed text-gray-500">{t('reports_subtitle')}</p>
+                            <Link
+                                href="/features/reports"
+                                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-[#046ca9]/20 transition-all hover:brightness-105"
+                            >
+                                {t('reports_cta')}
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {reportTypes.map((name, i) => (
+                                <div key={i} className="flex items-center gap-2.5 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 shadow-sm">
+                                    <div className="h-2 w-2 flex-shrink-0 rounded-full bg-gradient-to-br from-[#046ca9] to-[#e79237]" />
+                                    <span className="text-sm font-semibold text-gray-700">{name}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -700,6 +828,35 @@ export default function HomePageClient() {
 
             {/* ── Pricing ── */}
             <PriceSection id="pricing" />
+
+            {/* ── FAQ ── */}
+            <section className="bg-white py-24">
+                <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-14 text-center">
+                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('faq_heading')}</h2>
+                        <p className="text-base text-gray-500">{t('faq_subtitle')}</p>
+                    </div>
+                    <div className="space-y-3">
+                        {faqs.map((faq, i) => (
+                            <div key={i} className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                                >
+                                    <span className="font-bold text-gray-900">{faq.q}</span>
+                                    <ChevronDown className={`h-5 w-5 flex-shrink-0 text-[#046ca9] transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                                </button>
+                                {openFaq === i && (
+                                    <div className="border-t border-gray-100 px-6 pb-5 pt-4">
+                                        <p className="text-sm leading-relaxed text-gray-600">{faq.a}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
             {/* ── Final CTA ── */}
             <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] py-28">

@@ -168,6 +168,19 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
+        // 14b. Create reorder draft from selected low-stock products
+        createReorderDraft: builder.mutation<
+            { data: { draft_id: number; draft_reference: string; item_count: number; estimated_total: number; redirect_url: string } },
+            { store_id: number; product_ids: number[] }
+        >({
+            query: (data) => ({
+                url: '/reports/low-stock/draft-reorder',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['PurchaseDrafts'],
+        }),
+
         // 15. Idle Product Report
         getIdleProductReport: builder.mutation({
             query: (data: ReportFilters) => ({
@@ -248,6 +261,7 @@ export const {
     // Inventory
     useGetStockReportMutation,
     useGetLowStockReportMutation,
+    useCreateReorderDraftMutation,
     useGetIdleProductReportMutation,
     useGetStockAdjustmentReportMutation,
     useGetProductReportMutation,

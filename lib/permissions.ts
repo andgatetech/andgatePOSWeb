@@ -118,6 +118,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/products/create': ['products.create'],
     '/products/edit': ['products.edit'],
     '/products/stock/adjustments': ['stock.adjustments'],
+    '/products/thresholds': ['products.index'],
     '/create-adjustment': ['stock.adjustments'],
     '/products/qr-code': ['qrcode.generate'],
     '/label': ['barcode.generate'],
@@ -195,6 +196,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Reports: Inventory & Stock ──────────────────────────────
     '/reports/stock': ['stock.reports'],
     '/reports/low-stock': ['reports.low-stock'],
+    '/reports/threshold-intelligence': ['reports.low-stock'],
     '/reports/idle-product': ['reports.inventory'],
     '/reports/adjustment': ['stock.reports'],
     '/products/stock/stock-adjustment-list': ['stock.reports'],

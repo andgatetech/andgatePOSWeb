@@ -7,7 +7,7 @@ import { resolveStorageUrl } from '@/lib/image-url';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
 import { DashboardProduct } from '@/types/dashboard.types';
 import { motion } from 'framer-motion';
-import { Calendar, Package, TrendingUp } from 'lucide-react';
+import { Calendar, Package, Phone, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -105,12 +105,14 @@ const StatusBadge = ({ status }: { status: string }) => {
 const StockStatusBadge = ({ status, quantity }: { status: string; quantity: number }) => {
     const { t } = getTranslation();
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+        out_of_stock: { bg: 'bg-gray-100', text: 'text-gray-700', label: t('lbl_out_of_stock') },
         critical: { bg: 'bg-red-100', text: 'text-red-700', label: t('lbl_critical') },
+        high: { bg: 'bg-rose-100', text: 'text-rose-700', label: t('lbl_high') },
+        medium: { bg: 'bg-amber-100', text: 'text-amber-700', label: t('lbl_medium') },
         low: { bg: 'bg-orange-100', text: 'text-orange-700', label: t('status_low_stock') },
-        instock: { bg: 'bg-green-100', text: 'text-green-700', label: t('status_in_stock') },
     };
 
-    const config = statusConfig[status.toLowerCase()] || statusConfig.instock;
+    const config = statusConfig[status?.toLowerCase()] ?? statusConfig.low;
 
     return (
         <div className="text-right">
@@ -337,6 +339,12 @@ export default function DashboardSections() {
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary dark:text-white">{product.product_name}</p>
                                     <p className="text-xs text-gray-600">{t('lbl_sku')}: {product.sku}</p>
+                                    {product.supplier?.name && (
+                                        <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-blue-600">
+                                            <Phone className="h-3 w-3 flex-shrink-0" />
+                                            <span className="truncate">{product.supplier.name}{product.supplier.phone ? ` · ${product.supplier.phone}` : ''}</span>
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="transform transition-transform group-hover:scale-105">
                                     <StockStatusBadge status={product.stock_status} quantity={product.stock_quantity} />

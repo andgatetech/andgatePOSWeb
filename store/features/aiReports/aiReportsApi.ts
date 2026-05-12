@@ -23,6 +23,11 @@ const aiReportsApi = baseApi.injectEndpoints({
             query: (params) => ({ url: '/reports/summary/weekly', params }),
             providesTags: ['AiReports'],
         }),
+
+        getThresholdIntelligence: builder.query<any, { store_id: number; lead_days?: number }>({
+            query: (params) => ({ url: '/reports/threshold-intelligence', params }),
+            providesTags: ['AiReports'],
+        }),
     }),
 });
 
@@ -32,4 +37,5 @@ export const {
     useGetDemandForecastQuery,
     useGetDailySummaryQuery,
     useGetWeeklySummaryQuery,
+    useGetThresholdIntelligenceQuery,
 } = aiReportsApi;

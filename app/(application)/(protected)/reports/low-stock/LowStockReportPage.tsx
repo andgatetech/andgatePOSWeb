@@ -7,22 +7,27 @@ import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetLowStockReportMutation } from '@/store/features/reports/reportApi';
-import { AlertCircle, AlertTriangle, Box, FileText, Package, Tag, TrendingDown } from 'lucide-react';
+import { useGetLowStockReportMutation, useCreateReorderDraftMutation } from '@/store/features/reports/reportApi';
+import { AlertCircle, AlertTriangle, Box, FileText, Package, Phone, ShoppingCart, Tag, TrendingDown } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const LowStockReportPage = () => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
+    const router = useRouter();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('quantity');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [reorderLoading, setReorderLoading] = useState<number | null>(null);
 
     const [getLowStockReport, { data: reportData, isLoading }] = useGetLowStockReportMutation();
     const [getLowStockReportForExport] = useGetLowStockReportMutation();
+    const [createReorderDraft, { isLoading: isDraftLoading }] = useCreateReorderDraftMutation();
 
     const lastQueryParams = useRef<string>('');
 
@@ -70,6 +75,39 @@ const LowStockReportPage = () => {
         setItemsPerPage(i);
         setCurrentPage(1);
     }, []);
+
+    const toggleSelect = useCallback((id: number) => {
+        setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+    }, []);
+
+    const toggleSelectAll = useCallback(() => {
+        const allIds = stocks.map((s: any) => s.product_id);
+        setSelectedIds((prev) => prev.length === allIds.length ? [] : allIds);
+    }, [stocks]);
+
+    const handleQuickReorder = useCallback(async (productId: number) => {
+        if (!currentStoreId) return;
+        setReorderLoading(productId);
+        try {
+            const result = await createReorderDraft({ store_id: currentStoreId, product_ids: [productId] }).unwrap();
+            router.push(result.data.redirect_url);
+        } catch {
+            alert('Failed to create reorder draft. Please try again.');
+        } finally {
+            setReorderLoading(null);
+        }
+    }, [currentStoreId, createReorderDraft, router]);
+
+    const handleBatchReorder = useCallback(async () => {
+        if (!currentStoreId || selectedIds.length === 0) return;
+        try {
+            const result = await createReorderDraft({ store_id: currentStoreId, product_ids: selectedIds }).unwrap();
+            setSelectedIds([]);
+            router.push(result.data.redirect_url);
+        } catch {
+            alert('Failed to create reorder draft. Please try again.');
+        }
+    }, [currentStoreId, selectedIds, createReorderDraft, router]);
 
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
         const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };
@@ -156,8 +194,30 @@ const LowStockReportPage = () => {
         [summary]
     );
 
+    const allSelected = stocks.length > 0 && selectedIds.length === stocks.length;
+
     const columns = useMemo(
         () => [
+            {
+                key: '_select',
+                label: (
+                    <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleSelectAll}
+                        className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary"
+                        title="Select all"
+                    />
+                ),
+                render: (_: any, r: any) => (
+                    <input
+                        type="checkbox"
+                        checked={selectedIds.includes(r.product_id)}
+                        onChange={() => toggleSelect(r.product_id)}
+                        className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary"
+                    />
+                ),
+            },
             {
                 key: 'product_name',
                 label: t('product_title'),
@@ -179,6 +239,12 @@ const LowStockReportPage = () => {
                                 </div>
                             )}
                         </div>
+                        {r.supplier?.name && (
+                            <div className="mt-1 flex items-center gap-1 text-[10px] text-blue-600">
+                                <Phone className="h-2.5 w-2.5" />
+                                <span>{r.supplier.name}{r.supplier.phone ? ` · ${r.supplier.phone}` : ''}</span>
+                            </div>
+                        )}
                     </div>
                 ),
             },
@@ -210,6 +276,7 @@ const LowStockReportPage = () => {
                 render: (v: any) => {
                     const u = v?.toLowerCase();
                     const c: any = {
+                        critical: { bg: 'bg-red-100 border-red-200', text: 'text-red-700', icon: AlertCircle },
                         high: { bg: 'bg-rose-100 border-rose-200', text: 'text-rose-700', icon: AlertCircle },
                         medium: { bg: 'bg-orange-100 border-orange-200', text: 'text-orange-700', icon: AlertTriangle },
                         low: { bg: 'bg-amber-100 border-amber-200', text: 'text-amber-700', icon: Tag },
@@ -234,8 +301,23 @@ const LowStockReportPage = () => {
                     </div>
                 ),
             },
+            {
+                key: '_reorder',
+                label: '',
+                render: (_: any, r: any) => (
+                    <button
+                        onClick={() => handleQuickReorder(r.product_id)}
+                        disabled={reorderLoading === r.product_id || isDraftLoading}
+                        className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                        title="Quick Reorder"
+                    >
+                        <ShoppingCart className="h-3 w-3" />
+                        {reorderLoading === r.product_id ? '...' : 'Reorder'}
+                    </button>
+                ),
+            },
         ],
-        [t, formatCurrency]
+        [t, formatCurrency, selectedIds, allSelected, reorderLoading, isDraftLoading, toggleSelect, toggleSelectAll, handleQuickReorder]
     );
 
     return (
@@ -254,8 +336,20 @@ const LowStockReportPage = () => {
                     fetchAllData={fetchAllDataForExport}
                 />
                 <ReportSummaryCard items={summaryItems} />
-                <div className="mb-6">
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search product name, SKU..." />
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                    <div className="flex-1">
+                        <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search product name, SKU..." />
+                    </div>
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={handleBatchReorder}
+                            disabled={isDraftLoading}
+                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:opacity-60"
+                        >
+                            <ShoppingCart className="h-4 w-4" />
+                            {isDraftLoading ? 'Creating...' : `Reorder ${selectedIds.length} Selected`}
+                        </button>
+                    )}
                 </div>
                 <ReusableTable
                     data={stocks}

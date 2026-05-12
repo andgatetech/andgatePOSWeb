@@ -105,6 +105,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['products.bulk-upload'],
             },
             {
+                label: 'Stock Thresholds',
+                href: '/products/thresholds',
+                requiredPermissions: ['products.index'],
+            },
+            {
                 label: 'Print Label',
                 href: '/label',
                 requiredPermissions: ['barcode.generate'],
@@ -308,6 +313,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 subMenu: [
                     { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'] },
                     { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'] },
+                    { label: 'Threshold Intelligence', href: '/reports/threshold-intelligence', requiredPermissions: ['reports.low-stock'] },
                     { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'] },
                     { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.reports'] },
                     { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'] },

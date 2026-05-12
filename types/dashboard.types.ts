@@ -10,7 +10,10 @@ export interface DashboardProduct {
     trend?: 'positive' | 'negative';
     percentage_change?: number;
     stock_quantity?: number;
-    stock_status?: 'critical' | 'low' | 'instock';
+    stock_status?: 'out_of_stock' | 'critical' | 'high' | 'medium' | 'low' | 'instock';
+    low_stock_quantity?: number;
+    velocity_30d?: number;
+    supplier?: { name: string; phone: string | null } | null;
 }
 
 export interface TopSellingProducts {
