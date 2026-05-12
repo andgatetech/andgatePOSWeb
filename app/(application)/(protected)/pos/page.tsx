@@ -1,4 +1,5 @@
 import { commonMetadata, generateMetadata } from '@/lib/seo';
+import OfflineSyncManager from '@/components/pos/OfflineSyncManager';
 import PosLeftSide from './PosLeftSide';
 import PosRightSide from './PosRightSide';
 
@@ -9,9 +10,12 @@ export const metadata = generateMetadata({
 
 const PosPage = () => {
     return (
-        <PosLeftSide>
-            <PosRightSide />
-        </PosLeftSide>
+        <>
+            <OfflineSyncManager />
+            <PosLeftSide>
+                <PosRightSide />
+            </PosLeftSide>
+        </>
     );
 };
 

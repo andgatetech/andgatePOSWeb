@@ -1,0 +1,171 @@
+'use client';
+
+import { getTranslation } from '@/i18n';
+import { useCreateOrderMutation } from '@/store/features/Order/Order';
+import {
+    clearSyncedOrders,
+    markOrderFailed,
+    markOrderSynced,
+    markOrderSyncing,
+    retryFailedOrders,
+    setIsSyncing,
+    setLastSyncAt,
+} from '@/store/features/offline/offlineOrdersSlice';
+import type { RootState } from '@/store';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+export default function OfflineSyncManager() {
+    const { t } = getTranslation();
+    const dispatch = useDispatch();
+    const isOnline = useOnlineStatus();
+    const [createOrder] = useCreateOrderMutation();
+
+    const { queue, isSyncing, lastSyncAt } = useSelector(
+        (state: RootState) => state.offlineOrders
+    );
+
+    const pendingOrders = queue.filter((o) => o.status === 'pending');
+    const failedOrders = queue.filter((o) => o.status === 'failed');
+    const syncingOrders = queue.filter((o) => o.status === 'syncing');
+    const totalQueued = pendingOrders.length + failedOrders.length + syncingOrders.length;
+
+    const [showSyncedFlash, setShowSyncedFlash] = useState(false);
+    const prevOnlineRef = useRef(isOnline);
+    const isSyncingRef = useRef(false);
+
+    // Auto-sync when coming back online
+    useEffect(() => {
+        const wasOffline = !prevOnlineRef.current;
+        prevOnlineRef.current = isOnline;
+
+        if (isOnline && wasOffline && pendingOrders.length > 0) {
+            syncAll();
+        }
+    }, [isOnline]);
+
+    // Also sync on mount if online and there are pending orders
+    useEffect(() => {
+        if (isOnline && pendingOrders.length > 0 && !isSyncingRef.current) {
+            syncAll();
+        }
+    }, []);
+
+    const syncAll = async () => {
+        if (isSyncingRef.current) return;
+        const ordersToSync = queue.filter((o) => o.status === 'pending' || o.status === 'failed');
+        if (ordersToSync.length === 0) return;
+
+        isSyncingRef.current = true;
+        dispatch(setIsSyncing(true));
+
+        for (const order of ordersToSync) {
+            dispatch(markOrderSyncing(order.localId));
+            try {
+                await createOrder(order.payload).unwrap();
+                dispatch(markOrderSynced(order.localId));
+            } catch (err: any) {
+                const msg =
+                    err?.data?.message || err?.data?.error || err?.error || 'Sync failed';
+                dispatch(markOrderFailed({ localId: order.localId, error: msg }));
+            }
+        }
+
+        dispatch(setLastSyncAt(new Date().toISOString()));
+        dispatch(clearSyncedOrders());
+        dispatch(setIsSyncing(false));
+        isSyncingRef.current = false;
+
+        const stillFailed = queue.filter((o) => o.status === 'failed').length;
+        if (stillFailed === 0) {
+            setShowSyncedFlash(true);
+            setTimeout(() => setShowSyncedFlash(false), 3000);
+        }
+    };
+
+    const handleRetry = () => {
+        dispatch(retryFailedOrders());
+        syncAll();
+    };
+
+    // Nothing to show when online, no queue, no flash
+    if (isOnline && totalQueued === 0 && failedOrders.length === 0 && !showSyncedFlash) {
+        return null;
+    }
+
+    return (
+        <div className="fixed left-0 right-0 top-0 z-[200] flex flex-col gap-0.5">
+            {/* Offline banner */}
+            {!isOnline && (
+                <div className="flex items-center justify-between bg-red-600 px-4 py-2 text-white shadow-lg">
+                    <div className="flex items-center gap-2">
+                        <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-white" />
+                        <span className="text-sm font-semibold">{t('pos_offline_mode')}</span>
+                        <span className="hidden text-xs text-white/80 sm:inline">
+                            — {t('pos_offline_banner_msg')}
+                        </span>
+                    </div>
+                    {totalQueued > 0 && (
+                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold">
+                            {totalQueued} {t('pos_queued')}
+                        </span>
+                    )}
+                </div>
+            )}
+
+            {/* Syncing banner */}
+            {isOnline && isSyncing && (
+                <div className="flex items-center gap-2 bg-amber-500 px-4 py-2 text-white shadow-lg">
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span className="text-sm font-semibold">
+                        {t('pos_syncing_orders')} ({syncingOrders.length + pendingOrders.length}{' '}
+                        {t('pos_remaining')})
+                    </span>
+                </div>
+            )}
+
+            {/* Pending queue reminder (online, not yet syncing) */}
+            {isOnline && !isSyncing && totalQueued > 0 && failedOrders.length === 0 && (
+                <div className="flex items-center justify-between bg-primary px-4 py-2 text-white shadow-lg">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">
+                            {totalQueued} {t('pos_offline_queued_orders')}
+                        </span>
+                    </div>
+                    <button
+                        onClick={syncAll}
+                        className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
+                    >
+                        {t('btn_sync_now')}
+                    </button>
+                </div>
+            )}
+
+            {/* Failed orders */}
+            {isOnline && failedOrders.length > 0 && (
+                <div className="flex items-center justify-between bg-danger px-4 py-2 text-white shadow-lg">
+                    <span className="text-sm font-semibold">
+                        {failedOrders.length} {t('pos_sync_failed')}
+                    </span>
+                    <button
+                        onClick={handleRetry}
+                        className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
+                    >
+                        {t('btn_retry')}
+                    </button>
+                </div>
+            )}
+
+            {/* Synced flash */}
+            {showSyncedFlash && (
+                <div className="flex items-center gap-2 bg-success px-4 py-2 text-white shadow-lg">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm font-semibold">{t('pos_orders_synced')}</span>
+                </div>
+            )}
+        </div>
+    );
+}

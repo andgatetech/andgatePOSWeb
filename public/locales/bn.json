@@ -4031,5 +4031,18 @@
   "msg_failed_assign_role": "ভূমিকা নির্ধারণ ব্যর্থ হয়েছে",
   "ecommerce_status_partial": "আংশিক",
   "ecommerce_status_refunded": "ফেরত দেওয়া হয়েছে",
-  "msg_customer_name_required": "গ্রাহকের নাম আবশ্যক"
+  "msg_customer_name_required": "গ্রাহকের নাম আবশ্যক",
+  "msg_order_queued_offline": "অর্ডার অফলাইনে সংরক্ষিত হয়েছে। সংযোগ পুনরুদ্ধার হলে সিঙ্ক হবে।",
+  "pos_offline_mode": "অফলাইন মোড",
+  "pos_offline_banner_msg": "অর্ডার সংরক্ষিত হবে এবং সংযোগ পুনরুদ্ধার হলে সিঙ্ক হবে",
+  "pos_offline_queued_orders": "টি অফলাইন অর্ডার কিউতে আছে",
+  "pos_syncing_orders": "অফলাইন অর্ডার সিঙ্ক হচ্ছে",
+  "pos_orders_synced": "সকল অফলাইন অর্ডার সফলভাবে সিঙ্ক হয়েছে",
+  "pos_sync_failed": "টি অর্ডার সিঙ্ক ব্যর্থ হয়েছে",
+  "pos_queued": "টি কিউতে",
+  "pos_remaining": "টি বাকি",
+  "btn_sync_now": "এখন সিঙ্ক করুন",
+  "btn_retry": "আবার চেষ্টা করুন",
+  "lbl_feedback": "ফিডব্যাক",
+  "msg_feedback_help_us_improve": "AndgatePOS উন্নত করতে আমাদের সাহায্য করুন"
 }

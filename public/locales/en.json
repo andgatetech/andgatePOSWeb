@@ -4031,5 +4031,18 @@
   "msg_failed_assign_role": "Failed to assign role",
   "ecommerce_status_partial": "Partial",
   "ecommerce_status_refunded": "Refunded",
-  "msg_customer_name_required": "Customer name is required"
+  "msg_customer_name_required": "Customer name is required",
+  "msg_order_queued_offline": "Order saved offline. Will sync when connection is restored.",
+  "pos_offline_mode": "Offline Mode",
+  "pos_offline_banner_msg": "Orders will be saved and synced when you reconnect",
+  "pos_offline_queued_orders": "offline orders queued",
+  "pos_syncing_orders": "Syncing offline orders",
+  "pos_orders_synced": "All offline orders synced successfully",
+  "pos_sync_failed": "orders failed to sync",
+  "pos_queued": "queued",
+  "pos_remaining": "remaining",
+  "btn_sync_now": "Sync Now",
+  "btn_retry": "Retry",
+  "lbl_feedback": "Feedback",
+  "msg_feedback_help_us_improve": "Help us improve AndgatePOS"
 }

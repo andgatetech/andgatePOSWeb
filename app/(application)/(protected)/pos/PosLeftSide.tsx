@@ -12,9 +12,12 @@ import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
 import { addItemRedux as addOrderReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
-import { useGetAllProductsQuery } from '@/store/features/Product/productApi';
+import { useGetAllProductsQuery, useLazyGetAllProductsQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { setProductCache } from '@/store/features/offline/cachedProductsSlice';
 
 import { GripVertical } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -85,6 +88,42 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     // Get current store from hook
     const { currentStoreId, currentStore } = useCurrentStore();
 
+    const isOnline = useOnlineStatus();
+    const cachedProductsState = useSelector((state: RootState) => state.cachedProducts);
+
+    // Background prefetch: fetch all store products when online, cache for offline use
+    const [triggerPrefetch] = useLazyGetAllProductsQuery();
+    useEffect(() => {
+        if (!isOnline || !currentStoreId) return;
+        const prefetch = async () => {
+            try {
+                const result = await triggerPrefetch({
+                    store_id: currentStoreId,
+                    per_page: 1000,
+                    page: 1,
+                    sort_field: 'product_name',
+                    sort_direction: 'asc',
+                    available: 'yes',
+                });
+                const data = result.data;
+                let allProducts: any[] = [];
+                let total = 0;
+                if (data?.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
+                    const obj = data.data as Record<string, any>;
+                    allProducts = Array.isArray(obj.items) ? obj.items : [];
+                    total = obj.pagination?.total ?? allProducts.length;
+                } else if (data?.data && Array.isArray(data.data)) {
+                    allProducts = data.data;
+                    total = allProducts.length;
+                }
+                if (allProducts.length > 0) {
+                    dispatch(setProductCache({ storeId: currentStoreId, products: allProducts, total }));
+                }
+            } catch {}
+        };
+        prefetch();
+    }, [currentStoreId, isOnline]);
+
     // Build query parameters for current store only - with pagination and sorting support
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
@@ -127,11 +166,41 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         return currentStoreId ? { store_id: currentStoreId } : {};
     }, [currentStoreId]);
 
-    // Fetch products for current store only
-    const { data: productsData, isLoading, isError, error } = useGetAllProductsQuery(queryParams, { refetchOnMountOrArgChange: 60 });
+    // Fetch products for current store only (skip when offline)
+    const { data: productsData, isLoading: isLoadingOnline, isError, error } = useGetAllProductsQuery(queryParams, {
+        refetchOnMountOrArgChange: 60,
+        skip: !isOnline,
+    });
+
+    const isLoading = isOnline ? isLoadingOnline : false;
 
     // Handle both success and 404 "not found" responses - NEW API FORMAT
     const products = useMemo(() => {
+        // Offline: serve from Redux cache
+        if (!isOnline && currentStoreId) {
+            const cached = cachedProductsState.byStoreId[currentStoreId];
+            if (cached?.products?.length) {
+                // Apply client-side search filter on cached products
+                let filtered = cached.products;
+                if (searchTerm) {
+                    const q = searchTerm.toLowerCase();
+                    filtered = filtered.filter((p: any) =>
+                        p.product_name?.toLowerCase().includes(q) ||
+                        p.sku?.toLowerCase().includes(q) ||
+                        p.barcode?.toLowerCase().includes(q)
+                    );
+                }
+                if (selectedCategory) {
+                    filtered = filtered.filter((p: any) => p.category_id === selectedCategory);
+                }
+                if (selectedBrand) {
+                    filtered = filtered.filter((p: any) => p.brand_id === selectedBrand);
+                }
+                return filtered;
+            }
+            return [];
+        }
+
         // NEW API FORMAT: Check if productsData.data is an object with items array
         if (productsData?.data && typeof productsData.data === 'object' && !Array.isArray(productsData.data)) {
             const dataObj = productsData.data as Record<string, any>;
@@ -147,7 +216,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
         // If 404 or no products found, return empty array (don't show error)
         return [];
-    }, [productsData]);
+    }, [productsData, isOnline, currentStoreId, cachedProductsState, searchTerm, selectedCategory, selectedBrand]);
 
     // Extract pagination metadata
     const paginationMeta = useMemo(() => {

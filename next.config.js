@@ -1,3 +1,37 @@
+const withPWA = require('@ducanh2912/next-pwa').default({
+    dest: 'public',
+    disable: process.env.NODE_ENV === 'development',
+    register: true,
+    skipWaiting: true,
+    cacheOnFrontEndNav: true,
+    aggressiveFrontEndNavCaching: true,
+    reloadOnOnline: false,
+    workboxOptions: {
+        disableDevLogs: true,
+        runtimeCaching: [
+            {
+                // Network-first for API — falls through to offline queue on fail
+                urlPattern: /^https?:\/\/.*\/api\/.*/i,
+                handler: 'NetworkFirst',
+                options: {
+                    cacheName: 'api-cache',
+                    networkTimeoutSeconds: 10,
+                    expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
+                },
+            },
+            {
+                // Cache-first for static assets
+                urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff2?)$/i,
+                handler: 'CacheFirst',
+                options: {
+                    cacheName: 'static-assets',
+                    expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+                },
+            },
+        ],
+    },
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     compiler: {
@@ -100,4 +134,4 @@ const nextConfig = {
     },
 };
 
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);

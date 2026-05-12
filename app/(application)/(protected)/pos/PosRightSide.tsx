@@ -1,14 +1,17 @@
 'use client';
 
 import IconEye from '@/components/icon/icon-eye';
+import IconPrinter from '@/components/icon/icon-printer';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { getTranslation } from '@/i18n';
 import { DEFAULT_PAYMENT_METHOD, getAllowedStatusesForMethod } from '@/lib/paymentConstants';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation } from '@/store/features/Order/Order';
+import { queueOfflineOrder } from '@/store/features/offline/offlineOrdersSlice';
 import {
     clearReturnSession,
     removeExchangeItem,
@@ -50,6 +53,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const dispatch = useDispatch();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
+    const isOnline = useOnlineStatus();
 
     const isReturnMode = mode === 'return';
 
@@ -104,6 +108,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [orderResponse, setOrderResponse] = useState<any>(null);
     const [showPreview, setShowPreview] = useState(false);
     const [autoPrint, setAutoPrint] = useState<'invoice' | 'receipt' | null>(null);
+    const postActionRef = useRef<'invoice' | 'receipt'>('invoice');
     const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
     const [quotePreview, setQuotePreview] = useState<any>(null);
 
@@ -302,6 +307,21 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         const hasCash = activeMethods.some((m: any) => m.payment_method_name?.toLowerCase() === 'cash');
         return hasCash ? activeMethods : [DEFAULT_PAYMENT_METHOD, ...activeMethods];
     }, [currentStore?.payment_methods]);
+
+    // When going offline, lock payment method to Cash + status to paid
+    useEffect(() => {
+        if (!isOnline) {
+            const cashMethod = paymentMethodOptions.find(
+                (m: any) => m.payment_method_name?.toLowerCase() === 'cash'
+            );
+            const cashName = cashMethod?.payment_method_name || DEFAULT_PAYMENT_METHOD.payment_method_name;
+            setFormData((prev) => ({
+                ...prev,
+                paymentMethod: cashName,
+                paymentStatus: 'paid',
+            }));
+        }
+    }, [isOnline, paymentMethodOptions]);
 
     // Payment statuses from Redux (can be used for payment status dropdown)
     const paymentStatusOptions = useMemo(() => {
@@ -1141,21 +1161,26 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         let freshQuoteData = quotePreview;
-        try {
-            if (quotePayload) {
-                setLoading(true);
-                const freshQuote = await quoteOrder(quotePayload).unwrap();
-                freshQuoteData = freshQuote?.data || freshQuote;
-                setQuotePreview(freshQuoteData);
+        if (!isOnline) {
+            // Offline: skip quote API, use local computed totals
+            freshQuoteData = null;
+        } else {
+            try {
+                if (quotePayload) {
+                    setLoading(true);
+                    const freshQuote = await quoteOrder(quotePayload).unwrap();
+                    freshQuoteData = freshQuote?.data || freshQuote;
+                    setQuotePreview(freshQuoteData);
+                }
+            } catch (err: any) {
+                const message =
+                    err?.status === 422 && err?.data?.errors
+                        ? Object.values(err.data.errors).flat().join('\n')
+                        : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
+                showMessage(message, 'error');
+                setLoading(false);
+                return;
             }
-        } catch (err: any) {
-            const message =
-                err?.status === 422 && err?.data?.errors
-                    ? Object.values(err.data.errors).flat().join('\n')
-                    : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
-            showMessage(message, 'error');
-            setLoading(false);
-            return;
         }
 
         const freshTotals = freshQuoteData?.totals || {};
@@ -1299,12 +1324,47 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             }
         }
 
+        if (!isOnline) {
+            // Offline path: queue the order locally
+            const localId = `OFFLINE-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+            dispatch(
+                queueOfflineOrder({
+                    localId,
+                    storeId: currentStoreId!,
+                    payload: orderData,
+                    queuedAt: new Date().toISOString(),
+                    status: 'pending',
+                    retryCount: 0,
+                    totalAmount: grandTotal,
+                    itemCount: invoiceItems.length,
+                })
+            );
+            showMessage(t('msg_order_queued_offline'), 'success');
+            if (currentStoreId) dispatch(clearItemsRedux(currentStoreId));
+            clearCustomerSelection();
+            setFormData((prev) => ({
+                ...prev,
+                discount: 0,
+                membershipDiscount: 0,
+                usePoints: false,
+                useBalance: false,
+                pointsToUse: 0,
+                balanceToUse: 0,
+                useWholesale: false,
+                amountPaid: 0,
+                changeAmount: 0,
+                partialPaymentAmount: 0,
+                dueAmount: 0,
+            }));
+            return;
+        }
+
         try {
             setLoading(true);
             const response = await createOrder(orderData).unwrap();
             setQuotePreview(null);
             setOrderResponse(response);
-            setAutoPrint(null);
+            setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
             setShowPreview(true);
 
             refetch();

@@ -5,6 +5,8 @@ import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import { baseApi } from '@/store/api/baseApi';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
+import cachedProductsReducer from '@/store/features/offline/cachedProductsSlice';
+import offlineOrdersReducer from '@/store/features/offline/offlineOrdersSlice';
 import orderEditReducer from '@/store/features/Order/OrderEditSlice';
 import orderReturnReducer from '@/store/features/Order/OrderReturnSlice';
 import invoiceReducer from '@/store/features/Order/OrderSlice';
@@ -26,7 +28,7 @@ const storage = typeof window !== 'undefined' ? createWebStorage('local') : crea
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn',], // slices to persist
+    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn', 'offlineOrders', 'cachedProducts'], // slices to persist
     blacklist: [baseApi.reducerPath], // do not persist API cache
 };
 
@@ -41,6 +43,8 @@ const rootReducer = combineReducers({
     purchaseOrder: purchaseOrderReducer,
     stockAdjustment: stockAdjustmentReducer,
     label: labelReducer,
+    offlineOrders: offlineOrdersReducer,
+    cachedProducts: cachedProductsReducer,
     [baseApi.reducerPath]: baseApi.reducer,
 });
 
