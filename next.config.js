@@ -37,6 +37,7 @@ const nextConfig = {
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production'
     },
+    turbopack: {},
     experimental: {
         // Tree-shake lucide-react so only imported icons are bundled
         optimizePackageImports: ['lucide-react'],

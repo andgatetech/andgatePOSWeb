@@ -113,6 +113,11 @@ export const baseApi = createApi({
         'AuditLogs',
         'Company',
         'ExportJobs',
+        'AccountingCOA',
+        'AccountingJournals',
+        'AccountingCashBook',
+        'AccountingIncome',
+        'AccountingReports',
     ],
     endpoints: () => ({}),
 });

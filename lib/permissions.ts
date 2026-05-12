@@ -152,9 +152,18 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/suppliers/list': ['suppliers.index'],
     '/suppliers/edit': ['suppliers.edit'],
 
-    // ── Accounting ─────────────────────────────────────────────
+    // ── Accounting (legacy) ────────────────────────────────────
     '/account/ledger-list': ['ledgers.index'],
     '/account/journal-list': ['journals.index'],
+
+    // ── Accounting (new module) ────────────────────────────────
+    '/accounting/cash-book': ['accounting.cash-book.index'],
+    '/accounting/journals': ['accounting.journals.index'],
+    '/accounting/chart-of-accounts': ['accounting.accounts.index'],
+    '/accounting/income': ['accounting.income.index'],
+    '/accounting/profit-loss': ['accounting.reports.view'],
+    '/accounting/balance-sheet': ['accounting.reports.view'],
+    '/accounting/trial-balance': ['accounting.reports.view'],
 
     // ── Expenses ───────────────────────────────────────────────
     '/expenses/expense-list': ['expenses.index'],

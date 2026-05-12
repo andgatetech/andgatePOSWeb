@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { Activity, BarChart, Bell, Building2, Database, FileText, Home, Layers, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { Activity, BarChart, Bell, BookOpen, Building2, Database, FileText, Home, Layers, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -174,29 +174,50 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
     },
     {
-        label: 'Account',
-        icon: React.createElement(Wallet),
-        requiredPermissions: ['ledgers.index', 'journals.index'],
+        label: 'Accounting',
+        icon: React.createElement(BookOpen),
+        requiredPermissions: [
+            'accounting.accounts.index',
+            'accounting.journals.index',
+            'accounting.cash-book.index',
+            'accounting.income.index',
+            'accounting.reports.view',
+        ],
         subMenu: [
             {
-                label: 'Add Ledger',
-                href: '/account/ledger-list/create',
-                requiredPermissions: ['ledgers.create'],
+                label: 'Cash Book',
+                href: '/accounting/cash-book',
+                requiredPermissions: ['accounting.cash-book.index'],
             },
             {
-                label: 'Ledger List',
-                href: '/account/ledger-list',
-                requiredPermissions: ['ledgers.index'],
+                label: 'Income',
+                href: '/accounting/income',
+                requiredPermissions: ['accounting.income.index'],
             },
             {
-                label: 'Add Journal',
-                href: '/account/journal-list/create',
-                requiredPermissions: ['journals.create'],
+                label: 'Journal Ledger',
+                href: '/accounting/journals',
+                requiredPermissions: ['accounting.journals.index'],
             },
             {
-                label: 'Journal List',
-                href: '/account/journal-list',
-                requiredPermissions: ['journals.index'],
+                label: 'Profit & Loss',
+                href: '/accounting/profit-loss',
+                requiredPermissions: ['accounting.reports.view'],
+            },
+            {
+                label: 'Balance Sheet',
+                href: '/accounting/balance-sheet',
+                requiredPermissions: ['accounting.reports.view'],
+            },
+            {
+                label: 'Trial Balance',
+                href: '/accounting/trial-balance',
+                requiredPermissions: ['accounting.reports.view'],
+            },
+            {
+                label: 'Chart of Accounts',
+                href: '/accounting/chart-of-accounts',
+                requiredPermissions: ['accounting.accounts.index'],
             },
         ],
     },
