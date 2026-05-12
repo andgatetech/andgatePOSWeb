@@ -1,5 +1,6 @@
 'use client';
 
+import RichTextEditor from '@/components/common/RichTextEditor';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetBrandQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
@@ -147,12 +148,13 @@ export default function BrandEditPage() {
                         {/* Description */}
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                            <textarea
+                            <RichTextEditor
                                 value={formDescription}
-                                onChange={(e) => setFormDescription(e.target.value)}
-                                rows={3}
+                                onChange={setFormDescription}
                                 placeholder={t('brand_desc_placeholder')}
-                                className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-sm transition-all focus:border-transparent focus:bg-white focus:ring-2 focus:ring-[#046ca9]"
+                                className="brand-description-editor"
+                                modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                formats={['bold', 'italic', 'underline', 'list', 'link']}
                             />
                         </div>
                     </div>

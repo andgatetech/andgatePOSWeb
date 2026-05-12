@@ -73,10 +73,12 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({ expense, isOpen, on
                                 <span className="text-gray-500">{t('lbl_expense_id')}</span>
                                 <span className="font-medium">#{expense.id}</span>
                             </div>
-                            <div className="flex justify-between border-b border-gray-200 py-1.5">
-                                <span className="text-gray-500">{t('lbl_ledger')}</span>
-                                <span className="font-medium">{expense.ledger_title || 'N/A'}</span>
-                            </div>
+                            {expense.coa_account_name && (
+                                <div className="flex justify-between border-b border-gray-200 py-1.5">
+                                    <span className="text-gray-500">{t('lbl_coa_account')}</span>
+                                    <span className="font-medium">{expense.coa_account_code} — {expense.coa_account_name}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between border-b border-gray-200 py-1.5">
                                 <span className="text-gray-500">{t('lbl_notes')}</span>
                                 <span>{expense.notes || t('lbl_no_notes')}</span>

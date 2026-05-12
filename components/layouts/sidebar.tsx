@@ -15,7 +15,7 @@ import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 
-import { AlertTriangle, Ban, ChevronDown, Crown, MessagesSquare } from 'lucide-react';
+import { AlertTriangle, Ban, ChevronDown, Crown } from 'lucide-react';
 import Image from 'next/image';
 import IconCaretsDown from '../icon/icon-carets-down';
 
@@ -61,8 +61,6 @@ const Sidebar = () => {
     const allMenuRoutes = useMemo(() => buildMenuFromPermissions(user?.permissions || [], user?.role), [user]);
     const menuRoutes = useMemo(() => allMenuRoutes.filter((r) => r.label !== 'Feedback'), [allMenuRoutes]);
 
-    const canGiveFeedback = user?.permissions?.includes('feedbacks.create');
-    const canViewFeedback = user?.permissions?.includes('feedbacks.index');
 
     // Auto-open parent that contains the active route on navigation
     useEffect(() => {
@@ -231,6 +229,9 @@ const Sidebar = () => {
 
                         return (
                             <div key={route.label} className="mb-0.5">
+                                {route.sectionBreak && (
+                                    <div className="mx-3 mb-3 mt-4 h-px bg-white/[0.08]" />
+                                )}
                                 {route.subMenu ? (
                                     <>
                                         {/* Parent with submenu */}
@@ -350,53 +351,6 @@ const Sidebar = () => {
                     })}
                 </div>
             </PerfectScrollbar>
-
-            {/* ── Feedback — visually separate, not a functional nav item ── */}
-            {(canGiveFeedback || canViewFeedback) && (
-                <div className="flex-shrink-0 border-t border-white/[0.06] px-3 py-3">
-                    <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-3">
-                        <div className="mb-2 flex items-center gap-2">
-                            <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-amber-400/15">
-                                <MessagesSquare className="h-3.5 w-3.5 text-amber-400" />
-                            </div>
-                            <p className="text-[11px] font-semibold uppercase tracking-widest text-amber-400/80">
-                                {t('lbl_feedback')}
-                            </p>
-                        </div>
-                        <p className="mb-2.5 text-[11px] leading-relaxed text-white/45">
-                            {t('msg_feedback_help_us_improve')}
-                        </p>
-                        <div className="flex flex-col gap-1.5">
-                            {canGiveFeedback && (
-                                <Link
-                                    href="/feedbacks/create-feedback"
-                                    className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors ${
-                                        isActiveRoute('/feedbacks/create-feedback')
-                                            ? 'bg-amber-400/15 text-amber-300'
-                                            : 'text-white/60 hover:bg-white/[0.06] hover:text-white/90'
-                                    }`}
-                                >
-                                    <span className="h-1 w-1 flex-shrink-0 rounded-full bg-amber-400/50" />
-                                    {t('Give Feedback')}
-                                </Link>
-                            )}
-                            {canViewFeedback && (
-                                <Link
-                                    href="/feedbacks"
-                                    className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors ${
-                                        isActiveRoute('/feedbacks')
-                                            ? 'bg-amber-400/15 text-amber-300'
-                                            : 'text-white/60 hover:bg-white/[0.06] hover:text-white/90'
-                                    }`}
-                                >
-                                    <span className="h-1 w-1 flex-shrink-0 rounded-full bg-amber-400/50" />
-                                    {t('View Feedback')}
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* ── Subscription Footer ───────────────────────────────────── */}
             {user?.subscription_user && (() => {

@@ -118,6 +118,7 @@ export const baseApi = createApi({
         'AccountingCashBook',
         'AccountingIncome',
         'AccountingReports',
+        'AiReports',
     ],
     endpoints: () => ({}),
 });

@@ -1,5 +1,6 @@
 'use client';
 import DateColumn from '@/components/common/DateColumn';
+import RichTextEditor from '@/components/common/RichTextEditor';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import BrandFilter from '@/components/filters/BrandFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -98,7 +99,11 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                <p className="text-sm text-gray-900 sm:text-base">{selectedBrand?.description || t('lbl_no_description')}</p>
+                                {selectedBrand?.description ? (
+                                    <div className="quill-content text-sm text-gray-900 sm:text-base" dangerouslySetInnerHTML={{ __html: selectedBrand.description }} />
+                                ) : (
+                                    <p className="text-sm text-gray-500 sm:text-base">{t('lbl_no_description')}</p>
+                                )}
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_store')}</label>
@@ -174,12 +179,13 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                             {/* Description */}
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                <textarea
+                                <RichTextEditor
                                     value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    rows={3}
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:text-base"
+                                    onChange={(value) => setFormData({ ...formData, description: value })}
                                     placeholder={t('brand_desc_placeholder')}
+                                    className="brand-description-editor"
+                                    modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                    formats={['bold', 'italic', 'underline', 'list', 'link']}
                                 />
                             </div>
 
@@ -399,8 +405,8 @@ const BrandManagement = () => {
                 key: 'description',
                 label: t('lbl_description'),
                 render: (value) => (
-                    <div className="max-w-xs truncate text-sm text-gray-600" title={value}>
-                        {value || t('lbl_no_description')}
+                    <div className="max-w-xs truncate text-sm text-gray-600" title={value?.replace(/<[^>]*>/g, '')}>
+                        {value?.replace(/<[^>]*>/g, '') || t('lbl_no_description')}
                     </div>
                 ),
             },

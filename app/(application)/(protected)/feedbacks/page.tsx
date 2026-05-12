@@ -344,10 +344,8 @@ const FeedbackManagementPage = () => {
                                             </div>
 
                                             {/* Message */}
-                                            <p className={`text-sm leading-relaxed text-gray-600 ${isExpanded ? '' : 'line-clamp-2'}`}>
-                                                {feedback.message}
-                                            </p>
-                                            {feedback.message?.length > 150 && (
+                                            <div className={`quill-content text-sm leading-relaxed text-gray-600 ${isExpanded ? '' : 'line-clamp-2'}`} dangerouslySetInnerHTML={{ __html: feedback.message }} />
+                                            {feedback.message?.replace(/<[^>]*>/g, '').length > 150 && (
                                                 <button
                                                     onClick={() => setExpandedFeedback(isExpanded ? null : feedback.id)}
                                                     className="mt-1.5 text-xs font-medium text-violet-600 hover:text-violet-800"

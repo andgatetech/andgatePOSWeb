@@ -1,5 +1,6 @@
 'use client';
 import DateColumn from '@/components/common/DateColumn';
+import RichTextEditor from '@/components/common/RichTextEditor';
 import ReusableTable, { TableColumn } from '@/components/common/ReusableTable';
 import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
@@ -212,7 +213,7 @@ const CategoryComponent = () => {
             {
                 key: 'description',
                 label: t('lbl_description'),
-                render: (value) => <span className="line-clamp-2 text-sm text-gray-600">{value}</span>,
+                render: (value) => <span className="line-clamp-2 text-sm text-gray-600">{value?.replace(/<[^>]*>/g, '')}</span>,
                 className: 'max-w-md',
             },
             {
@@ -406,7 +407,9 @@ const CategoryComponent = () => {
                                     </div>
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                        <p className="text-gray-900">{selectedCategory?.description}</p>
+                                        {selectedCategory?.description ? (
+                                            <div className="quill-content text-gray-900" dangerouslySetInnerHTML={{ __html: selectedCategory.description }} />
+                                        ) : null}
                                     </div>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
@@ -472,12 +475,13 @@ const CategoryComponent = () => {
                                     {/* Description */}
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                        <textarea
+                                        <RichTextEditor
                                             value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            rows={3}
-                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-primary"
+                                            onChange={(value) => setFormData({ ...formData, description: value })}
                                             placeholder={t('category_desc_placeholder')}
+                                            className="category-description-editor"
+                                            modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                            formats={['bold', 'italic', 'underline', 'list', 'link']}
                                         />
                                     </div>
 

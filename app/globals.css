@@ -119,3 +119,24 @@
     max-width: 100% !important;
     border-radius: 0 !important;
 }
+
+/* Quill rich text rendered output */
+.quill-content p { margin-bottom: 0.5rem; }
+.quill-content p:last-child { margin-bottom: 0; }
+.quill-content strong { font-weight: 600; }
+.quill-content em { font-style: italic; }
+.quill-content u { text-decoration: underline; }
+.quill-content ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
+.quill-content ol { list-style: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
+.quill-content li { margin-bottom: 0.125rem; }
+.quill-content a { color: #046ca9; text-decoration: underline; }
+.quill-content a:hover { color: #034d79; }
+
+/* Quill editor container sizing for brand/category/feedback */
+.brand-description-editor .ql-container,
+.category-description-editor .ql-container,
+.feedback-message-editor .ql-container { min-height: 120px; }
+
+.feedback-message-editor .ql-container { min-height: 160px; }
+
+.expense-notes-editor .ql-container { min-height: 120px; }

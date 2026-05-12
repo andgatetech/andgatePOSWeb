@@ -1,5 +1,6 @@
 'use client';
 
+import RichTextEditor from '@/components/common/RichTextEditor';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useCreateFeedbackMutation } from '@/store/features/feedback/feedbackApi';
@@ -388,18 +389,16 @@ const FeedbackPage = () => {
                                 <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-gray-500">
                                     {t('lbl_your_detailed_feedback')} <span className="text-rose-500">*</span>
                                 </label>
-                                <textarea
-                                    id="message"
-                                    name="message"
+                                <RichTextEditor
                                     value={formData.message}
-                                    onChange={handleInputChange}
-                                    rows={5}
-                                    className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 transition focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100"
+                                    onChange={(value) => setFormData((prev) => ({ ...prev, message: value }))}
                                     placeholder={t('placeholder_feedback_desc')}
-                                    required
+                                    className="feedback-message-editor"
+                                    modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                    formats={['bold', 'italic', 'underline', 'list', 'link']}
                                 />
                                 <div className="mt-1.5 flex items-center justify-between text-xs text-gray-400">
-                                    <span>{formData.message.length} characters</span>
+                                    <span>{formData.message.replace(/<[^>]*>/g, '').length} characters</span>
                                     <span>{t('feedback_min_chars')}</span>
                                 </div>
                             </div>

@@ -5,6 +5,7 @@ import Dropdown from '@/components/dropdown';
 import LanguageDropdown from '@/components/language-dropdown';
 import IconLogout from '@/components/icon/icon-logout';
 import IconUser from '@/components/icon/icon-user';
+import { MessagesSquare, ClipboardList } from 'lucide-react';
 
 import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
@@ -120,6 +121,9 @@ const Header = () => {
     }, [pathname]);
 
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
+    const userPerms = useSelector((state: RootState) => state.auth.user?.permissions ?? []);
+    const canGiveFeedback = userPerms.includes('feedbacks.create');
+    const canViewFeedback = userPerms.includes('feedbacks.index');
 
     return (
         <header>
@@ -198,6 +202,31 @@ const Header = () => {
                                             {t('lbl_profile')}
                                         </Link>
                                     </li>
+                                    {(canGiveFeedback || canViewFeedback) && (
+                                        <>
+                                            <li className="border-t border-white-light dark:border-white-light/10">
+                                                <p className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white-dark/60 dark:text-white-dark/40">
+                                                    {t('lbl_feedback')}
+                                                </p>
+                                            </li>
+                                            {canGiveFeedback && (
+                                                <li>
+                                                    <Link href="/feedbacks/create-feedback" className="dark:hover:text-white">
+                                                        <MessagesSquare className="h-4 w-4 shrink-0 ltr:mr-2 rtl:ml-2" />
+                                                        {t('Give Feedback')}
+                                                    </Link>
+                                                </li>
+                                            )}
+                                            {canViewFeedback && (
+                                                <li>
+                                                    <Link href="/feedbacks" className="dark:hover:text-white">
+                                                        <ClipboardList className="h-4 w-4 shrink-0 ltr:mr-2 rtl:ml-2" />
+                                                        {t('View Feedback')}
+                                                    </Link>
+                                                </li>
+                                            )}
+                                        </>
+                                    )}
                                     <li className="border-t border-white-light dark:border-white-light/10">
                                         <button onClick={handleLogout} className="flex w-full items-center !py-3 text-danger">
                                             <IconLogout className="h-4 w-4 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />

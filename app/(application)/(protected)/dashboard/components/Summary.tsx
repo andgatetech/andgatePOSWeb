@@ -65,9 +65,11 @@ interface ColorfulCardProps {
     isCurrency?: boolean;
     isPercentage?: boolean;
     showMinus?: boolean;
+    change?: number;
+    trend?: 'positive' | 'negative' | 'neutral';
 }
 
-const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCurrency = true, isPercentage = false, showMinus = false }: ColorfulCardProps) => {
+const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCurrency = true, isPercentage = false, showMinus = false, change, trend }: ColorfulCardProps) => {
     const { formatCurrency, formatNumber } = useCurrency();
     const { t } = getTranslation();
 
@@ -88,6 +90,15 @@ const ColorfulCard = ({ title, numericValue, icon: Icon, bgGradient, route, isCu
                             }
                         />
                     </p>
+                    {change !== undefined && change !== 0 && (
+                        <span className={`mt-1 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
+                            trend === 'positive' ? 'bg-white/25 text-white' :
+                            trend === 'negative' ? 'bg-black/20 text-white/80' :
+                            'bg-white/10 text-white/60'
+                        }`}>
+                            {change > 0 ? '↑' : '↓'} {Math.abs(change)}%
+                        </span>
+                    )}
                 </div>
                 <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/20 transition-transform duration-200 group-hover:scale-110">
                     <Icon className="h-4 w-4 text-white" />
@@ -113,9 +124,11 @@ interface WhiteCardProps {
     route: string;
     isCurrency?: boolean;
     isPercentage?: boolean;
+    change?: number;
+    trend?: 'positive' | 'negative' | 'neutral';
 }
 
-const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, isCurrency = true, isPercentage = false }: WhiteCardProps) => {
+const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, isCurrency = true, isPercentage = false, change, trend }: WhiteCardProps) => {
     const { formatCurrency, formatNumber } = useCurrency();
     const { t } = getTranslation();
 
@@ -135,6 +148,15 @@ const WhiteCard = ({ title, numericValue, icon: Icon, iconBg, iconColor, route, 
                             }
                         />
                     </p>
+                    {change !== undefined && change !== 0 && (
+                        <span className={`mt-1 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
+                            trend === 'positive' ? 'bg-green-50 text-green-600' :
+                            trend === 'negative' ? 'bg-red-50 text-red-600' :
+                            'bg-gray-50 text-gray-500'
+                        }`}>
+                            {change > 0 ? '↑' : '↓'} {Math.abs(change)}%
+                        </span>
+                    )}
                 </div>
                 <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${iconBg} transition-transform duration-200 group-hover:scale-110`}>
                     <Icon className={`h-4 w-4 ${iconColor}`} />
@@ -354,6 +376,8 @@ export default function Summary() {
             icon: FileText,
             bgGradient: 'bg-gradient-to-br from-[#046ca9] to-[#034d79]',
             route: '/reports/sales',
+            change: cards.total_sales?.change,
+            trend: cards.total_sales?.trend,
         },
         {
             title: t('lbl_profit_margin'),
@@ -363,6 +387,8 @@ export default function Summary() {
             route: '/reports/profit-loss',
             isCurrency: false,
             isPercentage: true,
+            change: cards.profit_margin?.change,
+            trend: cards.profit_margin?.trend,
         },
         {
             title: t('lbl_sales_receivable'),
@@ -371,6 +397,8 @@ export default function Summary() {
             bgGradient: 'bg-gradient-to-br from-[#e79237] to-[#b45309]',
             route: '/reports/sales',
             showMinus: true,
+            change: cards.sales_receivable?.change,
+            trend: cards.sales_receivable?.trend,
         },
         {
             title: t('lbl_total_purchase'),
@@ -378,6 +406,8 @@ export default function Summary() {
             icon: ShoppingCart,
             bgGradient: 'bg-gradient-to-br from-[#6d5dfc] to-[#4338ca]',
             route: '/reports/purchase',
+            change: cards.total_purchase?.change,
+            trend: cards.total_purchase?.trend,
         },
     ];
 
@@ -388,6 +418,8 @@ export default function Summary() {
             icon: RefreshCw,
             bgGradient: 'bg-gradient-to-br from-[#ef4444] to-[#b91c1c]',
             route: '/reports/order-returns',
+            change: cards.total_sales_return?.change,
+            trend: cards.total_sales_return?.trend,
         },
         {
             title: t('lbl_business_profit'),
@@ -395,6 +427,8 @@ export default function Summary() {
             icon: Wallet,
             bgGradient: 'bg-gradient-to-br from-[#10b981] to-[#047857]',
             route: '/reports/profit-loss',
+            change: cards.business_profit?.change,
+            trend: cards.business_profit?.trend,
         },
         {
             title: t('lbl_total_expenses'),
@@ -403,6 +437,8 @@ export default function Summary() {
             bgGradient: 'bg-gradient-to-br from-[#f43f5e] to-[#be123c]',
             route: '/reports/expense',
             showMinus: true,
+            change: cards.total_expenses?.change,
+            trend: cards.total_expenses?.trend,
         },
         {
             title: t('lbl_product_profit'),
@@ -410,6 +446,8 @@ export default function Summary() {
             icon: TrendingUp,
             bgGradient: 'bg-gradient-to-br from-[#0891b2] to-[#0e7490]',
             route: '/reports/profit-loss',
+            change: cards.product_profit?.change,
+            trend: cards.product_profit?.trend,
         },
     ];
 
@@ -423,6 +461,8 @@ export default function Summary() {
             iconBg: 'bg-[#e79237]/10',
             iconColor: 'text-[#e79237]',
             route: '/reports/sales',
+            change: cards.total_discount?.change,
+            trend: cards.total_discount?.trend,
         },
         {
             title: t('lbl_total_tax'),
@@ -431,6 +471,8 @@ export default function Summary() {
             iconBg: 'bg-[#046ca9]/10',
             iconColor: 'text-[#046ca9]',
             route: '/reports/sales',
+            change: cards.total_tax?.change,
+            trend: cards.total_tax?.trend,
         },
         {
             title: t('lbl_total_orders'),
@@ -440,6 +482,8 @@ export default function Summary() {
             iconColor: 'text-[#4338ca]',
             route: '/orders',
             isCurrency: false,
+            change: cards.total_orders?.change,
+            trend: cards.total_orders?.trend,
         },
         {
             title: t('lbl_total_items_sold'),
@@ -449,6 +493,8 @@ export default function Summary() {
             iconColor: 'text-[#047857]',
             route: '/reports/sales',
             isCurrency: false,
+            change: cards.total_items_sold?.change,
+            trend: cards.total_items_sold?.trend,
         },
     ];
 

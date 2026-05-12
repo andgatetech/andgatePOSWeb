@@ -1,5 +1,6 @@
 'use client';
 
+import RichTextEditor from '@/components/common/RichTextEditor';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -162,12 +163,13 @@ const CreateCategoryPage = () => {
                                 {/* Description */}
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                    <textarea
+                                    <RichTextEditor
                                         value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        onChange={(value) => setFormData({ ...formData, description: value })}
                                         placeholder={t('placeholder_description')}
-                                        rows={3}
-                                        className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        className="category-description-editor"
+                                        modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                        formats={['bold', 'italic', 'underline', 'list', 'link']}
                                     />
                                 </div>
                             </div>

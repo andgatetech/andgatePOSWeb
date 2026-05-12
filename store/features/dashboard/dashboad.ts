@@ -106,6 +106,30 @@ const DashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ['Dashboard'],
         }),
+        getDashboardAlerts: builder.query({
+            query: (params) => ({
+                url: `/dashboard/alerts${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
+        getDashboardProfitTrend: builder.query({
+            query: (params) => ({
+                url: `/dashboard/profit-trend${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
+        getDashboardTopCustomers: builder.query({
+            query: (params) => {
+                const q = new URLSearchParams();
+                if (params?.store_id) q.append('store_id', params.store_id);
+                if (params?.period) q.append('period', params.period);
+                const qs = q.toString();
+                return { url: `/dashboard/top-customers${qs ? `?${qs}` : ''}`, method: 'GET' };
+            },
+            providesTags: ['Dashboard'],
+        }),
         // Get dashboard sections five (Top Categories, Top Brands, Top Purchased Products)
         getDashboardSectionsFive: builder.query({
             query: (params) => {
@@ -145,10 +169,12 @@ const DashboardApi = baseApi.injectEndpoints({
 });
 
 export const {
-    // Queries
     useGetDashboardSummaryQuery,
     useGetDashboardAnalyticsQuery,
     useGetDashboardSectionsQuery,
     useGetDashboardSectionsFourQuery,
     useGetDashboardSectionsFiveQuery,
+    useGetDashboardAlertsQuery,
+    useGetDashboardProfitTrendQuery,
+    useGetDashboardTopCustomersQuery,
 } = DashboardApi;

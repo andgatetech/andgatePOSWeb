@@ -2018,21 +2018,34 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             </span>
                             <span className="font-bold text-primary">{formatCurrency(backendGrandTotal)}</span>
                         </div>
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={loading || invoiceItems.length === 0}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                            {loading ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            ) : (
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
-                            {t('btn_confirm_order')}
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
+                                disabled={loading || invoiceItems.length === 0}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading && postActionRef.current === 'invoice' ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconSave />
+                                )}
+                                {t('lbl_invoice')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { postActionRef.current = 'receipt'; handleSubmit(); }}
+                                disabled={loading || invoiceItems.length === 0}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading && postActionRef.current === 'receipt' ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconPrinter />
+                                )}
+                                {t('btn_print_receipt')}
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

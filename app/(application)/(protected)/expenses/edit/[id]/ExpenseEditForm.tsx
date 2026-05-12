@@ -4,22 +4,30 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
+import { useGetSingleExpenseQuery, useUpdateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetAccountsQuery } from '@/store/features/accounting/accountingApi';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { ArrowLeft, Receipt, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Loader from '@/lib/Loader';
 
-const CreateExpensePage = () => {
+interface Props {
+    id: number;
+}
+
+const ExpenseEditForm = ({ id }: Props) => {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStore, currentStoreId } = useCurrentStore();
-    const [createExpense, { isLoading }] = useCreateExpenseMutation();
+    const [updateExpense, { isLoading: isSaving }] = useUpdateExpenseMutation();
 
     const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
     const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
+
+    const { data: expenseData, isLoading: isLoadingExpense } = useGetSingleExpenseQuery(id, { skip: !id });
+    const expense = expenseData?.data || expenseData;
 
     const { data: accountsResponse } = useGetAccountsQuery(
         { store_id: currentStoreId },
@@ -37,6 +45,17 @@ const CreateExpensePage = () => {
         notes: '',
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (!expense) return;
+        setFormData({
+            title: expense.title || '',
+            coa_account_id: expense.coa_account_id ? String(expense.coa_account_id) : '',
+            debit: expense.debit ? String(expense.debit) : '',
+            payment_type: expense.payment_type || '',
+            notes: expense.notes || '',
+        });
+    }, [expense]);
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -59,30 +78,32 @@ const CreateExpensePage = () => {
                 debit: parseFloat(formData.debit),
                 payment_type: formData.payment_type,
                 notes: formData.notes.trim(),
+                coa_account_id: formData.coa_account_id ? parseInt(formData.coa_account_id) : null,
             };
-            if (formData.coa_account_id) payload.coa_account_id = parseInt(formData.coa_account_id);
 
-            await createExpense(payload).unwrap();
-            showMessage(t('msg_expense_created'), 'success');
+            await updateExpense({ expenseId: id, data: payload }).unwrap();
+            showMessage(t('msg_expense_updated'), 'success');
             router.push('/expenses/expense-list');
         } catch (error: any) {
-            showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_create_expense'));
+            showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_update_expense'));
         }
     };
+
+    if (isLoadingExpense) return <Loader message={t('expense_loading')} />;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
                                 <Receipt className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('lbl_create_expense')}</h1>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('expense_add_to_store')} ${currentStore.store_name}` : t('expense_title')}</p>
+                                <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('lbl_edit_expense')}</h1>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{expense?.title || `#${id}`}</p>
                             </div>
                         </div>
                         <button
@@ -214,25 +235,25 @@ const CreateExpensePage = () => {
                                 <button
                                     type="button"
                                     onClick={() => router.push('/expenses/expense-list')}
-                                    disabled={isLoading}
+                                    disabled={isSaving}
                                     className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isLoading}
+                                    disabled={isSaving}
                                     className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
-                                    {isLoading ? (
+                                    {isSaving ? (
                                         <>
                                             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                            {t('lbl_creating')}
+                                            {t('lbl_saving')}
                                         </>
                                     ) : (
                                         <>
                                             <Receipt className="mr-2 h-5 w-5" />
-                                            {t('lbl_create_expense')}
+                                            {t('lbl_save_changes')}
                                         </>
                                     )}
                                 </button>
@@ -245,4 +266,4 @@ const CreateExpensePage = () => {
     );
 };
 
-export default CreateExpensePage;
+export default ExpenseEditForm;

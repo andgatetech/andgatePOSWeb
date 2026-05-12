@@ -168,6 +168,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Expenses ───────────────────────────────────────────────
     '/expenses/expense-list': ['expenses.index'],
     '/expenses/create': ['expenses.index'],
+    '/expenses/edit': ['expenses.index'],
 
     // ── Customers ──────────────────────────────────────────────
     '/customers': ['customers.index'],
@@ -198,6 +199,12 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/adjustment': ['stock.reports'],
     '/products/stock/stock-adjustment-list': ['stock.reports'],
     '/reports/product': ['reports.inventory'],
+
+    // ── Reports: AI Insights ────────────────────────────────────
+    '/reports/reorder-suggestions': ['reports.sales'],
+    '/reports/anomalies': ['reports.sales'],
+    '/reports/demand-forecast': ['reports.sales'],
+    '/reports/smart-summary': ['reports.sales'],
 
     // ── Reports: Financial ──────────────────────────────────────
     '/reports/profit-loss': ['reports.profit-loss'],

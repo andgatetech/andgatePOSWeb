@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { Activity, BarChart, Bell, BookOpen, Building2, Database, FileText, Home, Layers, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { Activity, BarChart, Bell, BookOpen, BrainCircuit, Building2, Database, FileText, Home, Layers, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -9,6 +9,7 @@ export interface MenuItem {
     subMenu?: MenuItem[];
     requiredPermissions?: string[];
     ownerOnly?: boolean; // true = only visible to subscription owner (business_admin role)
+    sectionBreak?: boolean; // true = render a visual divider above this item
 }
 
 /**
@@ -322,6 +323,18 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Tax Report', href: '/reports/tax', requiredPermissions: ['reports.tax'] },
                 ],
             },
+            // AI Insights
+            {
+                label: 'AI Insights',
+                icon: React.createElement(BrainCircuit),
+                requiredPermissions: ['reports.sales'],
+                subMenu: [
+                    { label: 'Reorder Suggestions', href: '/reports/reorder-suggestions', requiredPermissions: ['reports.sales'] },
+                    { label: 'Anomaly Detection', href: '/reports/anomalies', requiredPermissions: ['reports.sales'] },
+                    { label: 'Demand Forecast', href: '/reports/demand-forecast', requiredPermissions: ['reports.sales'] },
+                    { label: 'Smart Summary', href: '/reports/smart-summary', requiredPermissions: ['reports.sales'] },
+                ],
+            },
         ],
     },
     {
@@ -333,6 +346,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Ecommerce Management',
         icon: React.createElement(ShoppingBag),
+        sectionBreak: true,
         requiredPermissions: ['orders.index'],
         subMenu: [
             {
@@ -372,6 +386,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Administration',
         icon: React.createElement(Shield),
+        sectionBreak: true,
         requiredPermissions: ['users.view', 'stores.view'],
         subMenu: [
             {
