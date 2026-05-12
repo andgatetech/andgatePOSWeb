@@ -2,25 +2,17 @@
 
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { Camera, X } from 'lucide-react';
-import React, { useCallback, useEffect, useId, useRef } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { getTranslation } from '@/i18n';
 
 interface CameraScannerProps {
-    /** Whether the scanner is visible / active */
     isOpen: boolean;
-    /** Called when the user closes the scanner */
     onClose: () => void;
-    /** Called with the decoded text when a barcode / QR code is scanned */
     onScan: (decodedText: string) => void;
-    /** If true, automatically close the scanner after a successful scan (default: true) */
     autoClose?: boolean;
-    /** Delay (ms) before auto-closing after a scan (default: 500) */
     autoCloseDelay?: number;
-    /** Scanner title text (default: "Camera Scanner Active") */
     title?: string;
-    /** Helper text shown below the camera feed */
     helperText?: string;
-    /** Sub-helper text shown below the main helper */
     subHelperText?: string;
 }
 
@@ -32,27 +24,26 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
     autoCloseDelay = 500,
     title,
     helperText,
-    subHelperText,
 }) => {
     const { t } = getTranslation();
-    // Generate a unique ID so multiple scanners on the same page won't collide
     const reactId = useId();
     const readerId = `qr-reader-${reactId.replace(/:/g, '')}`;
 
     const scannerRef = useRef<Html5Qrcode | null>(null);
     const isStartingRef = useRef(false);
     const isStoppingRef = useRef(false);
-
-    // Cooldown: prevent the same barcode from firing multiple times
     const lastScanRef = useRef<{ text: string; time: number }>({ text: '', time: 0 });
-    const SCAN_COOLDOWN_MS = 3000; // 3 second cooldown for same barcode
 
-    // Stable refs for callbacks to avoid re-triggering the effect
+    // 1 second cooldown — same barcode won't fire twice per second
+    const SCAN_COOLDOWN_MS = 1000;
+
     const onScanRef = useRef(onScan);
     onScanRef.current = onScan;
-
     const onCloseRef = useRef(onClose);
     onCloseRef.current = onClose;
+
+    const [scanCount, setScanCount] = useState(0);
+    const [scanSuccess, setScanSuccess] = useState(false);
 
     const stopScanner = useCallback(async () => {
         const scanner = scannerRef.current;
@@ -60,27 +51,15 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
             isStartingRef.current = false;
             return;
         }
-
-        // Prevent concurrent stop calls
         if (isStoppingRef.current) return;
         isStoppingRef.current = true;
 
         try {
-            // Check if scanner is actually running before trying to stop
-            // Html5QrcodeScannerState: NOT_STARTED=0, SCANNING=2, PAUSED=3
             const state = scanner.getState();
-            if (state === 2 || state === 3) {
-                await scanner.stop();
-            }
-        } catch {
-            // Scanner may already be stopped or mid-transition — safe to ignore
-        }
+            if (state === 2 || state === 3) await scanner.stop();
+        } catch { /* already stopped */ }
 
-        try {
-            scanner.clear();
-        } catch {
-            // Element may already be cleared — safe to ignore
-        }
+        try { scanner.clear(); } catch { /* already cleared */ }
 
         scannerRef.current = null;
         isStartingRef.current = false;
@@ -90,16 +69,15 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
     useEffect(() => {
         if (!isOpen) {
             stopScanner();
+            setScanCount(0);
             return;
         }
 
-        // Guard against double init (React Strict Mode) or concurrent stop
         if (isStartingRef.current || scannerRef.current || isStoppingRef.current) return;
         isStartingRef.current = true;
 
         let cancelled = false;
 
-        // Slightly longer delay to let Strict Mode cleanup finish
         const timer = setTimeout(async () => {
             const element = document.getElementById(readerId);
             if (!element || cancelled) {
@@ -123,53 +101,46 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
 
                 const html5QrCode = new Html5Qrcode(readerId, { formatsToSupport, verbose: false });
 
-                // If cleanup happened while we were waiting, bail out
                 if (cancelled) {
-                    try {
-                        html5QrCode.clear();
-                    } catch {
-                        /* ignore */
-                    }
+                    try { html5QrCode.clear(); } catch { /* ignore */ }
                     isStartingRef.current = false;
                     return;
                 }
 
                 scannerRef.current = html5QrCode;
 
-                const config = {
-                    fps: 15,
-                    qrbox: { width: 300, height: 120 },
-                };
-
                 await html5QrCode.start(
                     { facingMode: 'environment' },
-                    config,
+                    {
+                        // 25 fps — faster frame analysis vs original 15
+                        fps: 25,
+                        // Balanced box: good for barcodes (wide) and QR codes (square-ish)
+                        qrbox: { width: 280, height: 200 },
+                    },
                     (decodedText: string) => {
                         const now = Date.now();
                         const last = lastScanRef.current;
 
-                        // Skip if same barcode scanned within cooldown period
-                        if (last.text === decodedText && now - last.time < SCAN_COOLDOWN_MS) {
-                            return;
-                        }
-
-                        // Record this scan
+                        if (last.text === decodedText && now - last.time < SCAN_COOLDOWN_MS) return;
                         lastScanRef.current = { text: decodedText, time: now };
+
+                        // Visual + haptic feedback
+                        setScanSuccess(true);
+                        setScanCount((c) => c + 1);
+                        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                            navigator.vibrate(60);
+                        }
+                        setTimeout(() => setScanSuccess(false), 700);
 
                         onScanRef.current(decodedText);
 
                         if (autoClose) {
-                            setTimeout(() => {
-                                onCloseRef.current();
-                            }, autoCloseDelay);
+                            setTimeout(() => onCloseRef.current(), autoCloseDelay);
                         }
                     },
-                    () => {
-                        // Silent – scanner constantly tries to read
-                    }
+                    () => { /* continuous decode attempts — silent */ }
                 );
 
-                // If cleanup fired while we were awaiting start()
                 if (cancelled) {
                     await stopScanner();
                     return;
@@ -177,22 +148,12 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
 
                 isStartingRef.current = false;
             } catch (err: any) {
-                console.error('❌ Camera start FAILED:', err);
+                let msg = t('pos_camera_start_failed');
+                if (err.name === 'NotAllowedError' || err.message?.includes('permission')) msg = t('pos_camera_permission_denied');
+                else if (err.name === 'NotFoundError') msg = t('pos_camera_not_found');
+                else if (err.name === 'NotReadableError') msg = t('pos_camera_in_use');
 
-                let userMessage = t('pos_camera_start_failed');
-
-                if (err.name === 'NotAllowedError' || err.message?.includes('permission')) {
-                    userMessage = t('pos_camera_permission_denied');
-                } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
-                    userMessage = t('pos_camera_not_found');
-                } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
-                    userMessage = t('pos_camera_in_use');
-                } else if (err.message) {
-                    userMessage = `${t('pos_camera_error')}: ${err.message}`;
-                }
-
-                alert(`📷 ${userMessage}\n\n${t('pos_camera_alert_try')}:\n• ${t('pos_camera_help_permission')}\n• ${t('pos_camera_help_close_apps')}\n• ${t('pos_camera_help_refresh')}\n• ${t('pos_camera_alert_usb')}`);
-
+                alert(`📷 ${msg}\n\n${t('pos_camera_alert_try')}:\n• ${t('pos_camera_help_permission')}\n• ${t('pos_camera_help_close_apps')}\n• ${t('pos_camera_help_refresh')}`);
                 scannerRef.current = null;
                 isStartingRef.current = false;
                 onCloseRef.current();
@@ -211,52 +172,54 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
 
     return (
         <>
-            {/* Scoped styles for this scanner instance */}
             <style jsx global>{`
-                #${readerId} {
-                    border: none !important;
-                }
-                #${readerId}__dashboard_section {
-                    display: none !important;
-                }
-                #${readerId}__camera_selection {
-                    margin: 10px auto;
-                    text-align: center;
-                }
-                #${readerId} video {
-                    border-radius: 8px;
-                }
+                #${readerId} { border: none !important; background: transparent !important; }
+                #${readerId}__dashboard_section { display: none !important; }
+                #${readerId} video { border-radius: 0 !important; width: 100% !important; }
+                #${readerId} img { display: none !important; }
             `}</style>
 
-            <div className="mb-4 overflow-hidden rounded-lg border-2 border-blue-500 bg-white shadow-lg">
-                <div className="flex items-center justify-between border-b bg-blue-500 px-4 py-3">
-                    <div className="flex items-center gap-2 text-white">
-                        <Camera className="h-5 w-5" />
-                        <span className="font-semibold">{title || t('pos_camera_title')}</span>
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-white"></span>
+            <div className="mb-3 overflow-hidden rounded-xl border border-gray-700 bg-gray-950 shadow-2xl">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-gray-700 bg-gray-900 px-3 py-2.5">
+                    <div className="flex items-center gap-2.5">
+                        <Camera className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-semibold text-white">{title || t('pos_camera_title')}</span>
+                        <span className="flex h-2 w-2 animate-pulse rounded-full bg-green-400" />
+                        {scanCount > 0 && (
+                            <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">
+                                {scanCount}
+                            </span>
+                        )}
                     </div>
-                    <button onClick={onClose} className="rounded-full p-1.5 text-white hover:bg-primary">
-                        <X className="h-5 w-5" />
+                    <button
+                        onClick={onClose}
+                        className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+                    >
+                        <X className="h-4 w-4" />
                     </button>
                 </div>
 
-                <div className="relative bg-gray-900">
-                    <div id={readerId} style={{ border: 'none' }}></div>
+                {/* Camera feed with success flash */}
+                <div
+                    className={`relative bg-gray-950 transition-all duration-200 ${
+                        scanSuccess ? 'ring-4 ring-inset ring-green-400' : ''
+                    }`}
+                >
+                    <div id={readerId} style={{ border: 'none' }} />
+
+                    {/* Success overlay flash */}
+                    {scanSuccess && (
+                        <div className="pointer-events-none absolute inset-0 animate-ping bg-green-400/20" />
+                    )}
                 </div>
 
-                <div className="bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                    <p className="text-center font-medium">{helperText || t('pos_camera_helper')}</p>
-                    <p className="mt-1 text-center text-xs text-gray-500">{subHelperText || t('pos_camera_sub_helper')}</p>
-
-                    <div className="mt-3 border-t border-gray-200 pt-3">
-                        <p className="mb-2 text-xs font-semibold text-gray-600">📷 {t('pos_camera_help_title')}</p>
-                        <ul className="space-y-1 text-xs text-gray-600">
-                            <li>• {t('pos_camera_help_permission')}</li>
-                            <li>• {t('pos_camera_help_settings')}</li>
-                            <li>• {t('pos_camera_help_close_apps')}</li>
-                            <li>• {t('pos_camera_help_refresh')}</li>
-                        </ul>
-                    </div>
+                {/* Footer hint */}
+                <div className="flex items-center justify-center gap-2 border-t border-gray-700 bg-gray-900 px-3 py-2">
+                    <svg className="h-3.5 w-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h1M4 10h1M4 14h1M4 18h1M8 4v16M12 4v16M16 6h1M16 10h1M16 14h1M16 18h1M20 4v16" />
+                    </svg>
+                    <p className="text-xs text-gray-400">{helperText || t('pos_camera_helper')}</p>
                 </div>
             </div>
         </>

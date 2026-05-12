@@ -435,7 +435,7 @@ const BrandManagement = () => {
             },
             {
                 label: t('brand_action_edit'),
-                onClick: (brand) => openModal('edit', brand),
+                onClick: (brand) => router.push(`/brand/edit/${brand.id}`),
                 icon: <Edit className="h-4 w-4" />,
                 className: 'text-blue-600 hover:bg-blue-50',
             },

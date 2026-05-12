@@ -42,7 +42,7 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
                     <option value="staff">{t('lbl_staff')}</option>
                     <option value="manager">{t('lbl_manager')}</option>
                     <option value="cashier">{t('lbl_cashier')}</option>
-                    <option value="store_admin">{t('lbl_store_admin')}</option>
+                    <option value="business_admin">{t('lbl_store_admin')}</option>
                 </select>
                 <Users className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>

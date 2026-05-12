@@ -23,13 +23,13 @@ const EmployeeEditPage = () => {
         name: searchParams.get('name') || '',
         phone: searchParams.get('phone') || '',
         address: searchParams.get('address') || '',
-        role_in_store: searchParams.get('role') || 'staff',
         password: '',
         password_confirmation: '',
     });
 
     const storeId = Number(searchParams.get('store_id')) || currentStoreId;
     const initialRoleId = searchParams.get('role_id') ? Number(searchParams.get('role_id')) : null;
+    const isBusinessAdmin = searchParams.get('role_in_store') === 'business_admin';
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -42,6 +42,7 @@ const EmployeeEditPage = () => {
     const { data: rolesResponse } = useGetRolesQuery({ store_id: storeId }, { skip: !storeId });
     const availableRoles = useMemo(() => {
         const d = rolesResponse as any;
+        if (Array.isArray(d?.data?.roles)) return d.data.roles as { id: number; name: string }[];
         if (Array.isArray(d?.data?.data)) return d.data.data as { id: number; name: string }[];
         if (Array.isArray(d?.data)) return d.data as { id: number; name: string }[];
         return [] as { id: number; name: string }[];
@@ -97,7 +98,6 @@ const EmployeeEditPage = () => {
                 name: formData.name.trim(),
                 phone: formData.phone,
                 address: formData.address,
-                role_in_store: formData.role_in_store,
             };
             if (formData.password) {
                 payload.password = formData.password;
@@ -246,38 +246,32 @@ const EmployeeEditPage = () => {
 
                                     {/* Role */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_role')} <span className="text-red-500">*</span>
-                                        </label>
-                                        <select
-                                            name="role_in_store"
-                                            value={formData.role_in_store}
-                                            onChange={handleInputChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
-                                        >
-                                            <option value="staff">{t('role_staff')}</option>
-                                            <option value="cashier">{t('role_cashier')}</option>
-                                            <option value="manager">{t('role_manager')}</option>
-                                        </select>
-                                    </div>
-
-                                    {/* Custom Role */}
-                                    <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_custom_role')}</label>
-                                        <select
-                                            value={selectedRoleId ?? ''}
-                                            onChange={(e) => handleRoleAssign(e.target.value)}
-                                            disabled={isAssigningRole}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9] disabled:cursor-not-allowed disabled:opacity-60"
-                                        >
-                                            <option value="">{t('lbl_no_role')}</option>
-                                            {availableRoles.map((role) => (
-                                                <option key={role.id} value={role.id}>
-                                                    {role.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {isAssigningRole && <p className="mt-1 text-xs text-[#046ca9]">{t('lbl_saving')}…</p>}
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_role')}</label>
+                                        {isBusinessAdmin ? (
+                                            <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                                                <span className="inline-flex items-center rounded-full bg-[#034d79]/10 px-2.5 py-0.5 text-xs font-medium text-[#034d79]">
+                                                    {t('role_store_owner')}
+                                                </span>
+                                                <span className="text-xs text-gray-400">{t('employee_business_admin_role_locked')}</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <select
+                                                    value={selectedRoleId ?? ''}
+                                                    onChange={(e) => handleRoleAssign(e.target.value)}
+                                                    disabled={isAssigningRole}
+                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9] disabled:cursor-not-allowed disabled:opacity-60"
+                                                >
+                                                    <option value="">{t('lbl_no_role')}</option>
+                                                    {availableRoles.map((role) => (
+                                                        <option key={role.id} value={role.id}>
+                                                            {role.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {isAssigningRole && <p className="mt-1 text-xs text-[#046ca9]">{t('lbl_saving')}…</p>}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>

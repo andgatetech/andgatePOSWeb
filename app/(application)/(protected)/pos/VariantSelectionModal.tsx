@@ -71,7 +71,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4">
+                    <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -81,22 +81,23 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+                            <Dialog.Panel className="relative w-full max-w-4xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all sm:rounded-2xl">
                                 {/* Header */}
-                                <div className="flex items-start justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+                                <div className="flex items-start justify-between border-b border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-white p-4 sm:p-6">
                                     <div className="flex-1">
-                                        <Dialog.Title className="text-2xl font-bold text-gray-900">{product.product_name}</Dialog.Title>
+                                        <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-primary/70">{t('lbl_select_variant')}</p>
+                                        <Dialog.Title className="text-xl font-bold text-gray-900">{product.product_name}</Dialog.Title>
                                     </div>
                                     <button
                                         onClick={onClose}
-                                        className="ml-4 rounded-full bg-white p-2 text-gray-400 shadow-sm transition-all hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary"
+                                        className="ml-4 rounded-full bg-white/80 p-2 text-gray-400 shadow-sm transition-all hover:bg-primary/10 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                     >
                                         <X className="h-5 w-5" />
                                     </button>
                                 </div>
 
                                 {/* Variants List */}
-                                <div className="max-h-[50vh] overflow-y-auto bg-gray-50 p-6">
+                                <div className="max-h-[45vh] overflow-y-auto bg-gray-50 p-3 sm:p-6">
                                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                         {product.stocks?.map((stock: any, index: number) => {
                                             const price = useWholesale ? stock.wholesale_price : stock.price;
@@ -115,16 +116,16 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     disabled={mode === 'pos' ? !isAvailable : false}
                                                     className={`group relative overflow-hidden rounded-xl border-2 p-4 text-left transition-all duration-200 ${
                                                         isSelected
-                                                            ? 'scale-[1.02] border-blue-500 bg-blue-50 shadow-lg ring-2 ring-blue-200'
+                                                            ? 'scale-[1.02] border-primary bg-primary/5 shadow-lg ring-2 ring-primary/20'
                                                             : mode !== 'pos' || isAvailable
-                                                            ? 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
+                                                            ? 'border-gray-200 bg-white hover:border-primary/40 hover:shadow-md'
                                                             : 'cursor-not-allowed border-gray-200 bg-gray-100 opacity-60'
                                                     }`}
                                                 >
                                                     {/* Variant Image */}
                                                     {imageSrc && (
                                                         <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
-                                                            <div className="relative h-40 w-full">
+                                                            <div className="relative h-32 w-full sm:h-40">
                                                                 <Image
                                                                     src={imageSrc}
                                                                     alt={stock.variant_name}
@@ -136,13 +137,13 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     )}
 
                                                     {/* Variant Name */}
-                                                    <h4 className="mb-2 line-clamp-2 font-semibold text-gray-900">{stock.variant_name}</h4>
+                                                    <h4 className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900">{stock.variant_name}</h4>
 
                                                     {/* Variant Attributes */}
                                                     {stock.variant_data && (
                                                         <div className="mb-3 flex flex-wrap gap-1.5">
                                                             {Object.entries(stock.variant_data).map(([key, value]: [string, any]) => (
-                                                                <span key={key} className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+                                                                <span key={key} className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                                                                     {key}: {value}
                                                                 </span>
                                                             ))}
@@ -152,8 +153,8 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     {/* Price */}
                                                     <div className="mb-3">
                                                         <div className="flex items-baseline gap-2">
-                                                            <span className="text-xl font-bold text-green-600">{formatCurrency(price)}</span>
-                                                            {useWholesale && <span className="text-sm text-gray-500 line-through">{formatCurrency(stock.price)}</span>}
+                                                            <span className="text-base font-bold text-success">{formatCurrency(price)}</span>
+                                                            {useWholesale && <span className="text-xs text-gray-400 line-through">{formatCurrency(stock.price)}</span>}
                                                         </div>
                                                     </div>
 
@@ -196,30 +197,58 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                 </div>
 
                                 {/* Footer */}
-                                <div className="flex items-center justify-between gap-4 bg-gray-50 p-6">
-                                    <button
-                                        onClick={onClose}
-                                        className="rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                                    >
-                                        {t('btn_cancel')}
-                                    </button>
-                                    <button
-                                        onClick={handleAddToCart}
-                                        disabled={selectedVariantIndex === null || isAdding}
-                                        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 disabled:opacity-50"
-                                    >
-                                        {isAdding ? (
-                                            <>
-                                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                                {t('msg_adding')}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ShoppingCart className="h-5 w-5" />
-                                                {t('btn_add')}
-                                            </>
-                                        )}
-                                    </button>
+                                <div className="border-t border-primary/10 bg-gradient-to-r from-primary/5 to-white p-4 sm:p-6">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        {/* Quantity stepper */}
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-gray-600">{t('lbl_qty')}:</span>
+                                            <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                                                <button
+                                                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                                                    disabled={quantity <= 1}
+                                                    className="px-3 py-2 text-gray-500 transition hover:bg-primary/10 hover:text-primary disabled:opacity-40"
+                                                >
+                                                    −
+                                                </button>
+                                                <span className="min-w-[2rem] px-2 text-center text-sm font-bold text-gray-900">{quantity}</span>
+                                                <button
+                                                    onClick={() => setQuantity((q) => q + 1)}
+                                                    disabled={mode === 'pos' && selectedVariantIndex !== null && quantity >= product.stocks[selectedVariantIndex]?.quantity}
+                                                    className="px-3 py-2 text-gray-500 transition hover:bg-primary/10 hover:text-primary disabled:opacity-40"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 sm:justify-end">
+                                            <button
+                                                onClick={onClose}
+                                                className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 focus:outline-none"
+                                            >
+                                                {t('btn_cancel')}
+                                            </button>
+                                            <button
+                                                onClick={handleAddToCart}
+                                                disabled={selectedVariantIndex === null || isAdding}
+                                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:px-7"
+                                            >
+                                                {isAdding ? (
+                                                    <>
+                                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                        {t('msg_adding')}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <ShoppingCart className="h-4 w-4" />
+                                                        {selectedVariantIndex !== null && totalPrice > 0
+                                                            ? formatCurrency(totalPrice)
+                                                            : t('btn_add')}
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>

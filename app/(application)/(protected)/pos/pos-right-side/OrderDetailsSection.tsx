@@ -102,16 +102,19 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     return (
         <div>
             <ItemPreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} item={previewItem} />
-            <div className="mb-3 flex items-center justify-between sm:mb-4">
-                <h3 className="text-base font-semibold text-gray-800 sm:text-lg">{t('pos_order_details')}</h3>
-                <div className="flex items-center gap-3">
-                    <span className="text-xs sm:text-sm">{t('lbl_items')}: {formatNumber(invoiceItems.length)}</span>
-                    {!isReturnMode && (
-                        <button type="button" onClick={onClearItems} className="text-xs text-red-600 hover:text-red-800 sm:text-sm">
-                            {t('btn_clear_all')}
-                        </button>
-                    )}
+            <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                        <IconShoppingCart className="h-4 w-4 text-primary" />
+                    </div>
+                    <h3 className="text-sm font-bold uppercase tracking-wide text-gray-600">{t('pos_order_details')}</h3>
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{formatNumber(invoiceItems.length)}</span>
                 </div>
+                {!isReturnMode && invoiceItems.length > 0 && (
+                    <button type="button" onClick={onClearItems} className="text-xs font-medium text-red-400 hover:text-red-600">
+                        {t('btn_clear_all')}
+                    </button>
+                )}
             </div>
 
             <div className="hidden overflow-hidden rounded-xl border border-gray-200 shadow-sm md:block">

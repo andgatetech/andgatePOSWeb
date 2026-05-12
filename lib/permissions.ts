@@ -17,7 +17,7 @@ const toContext = (user: User | null): PermissionContext => ({
     permissions: user?.permissions ?? [],
 });
 
-const isStoreAdmin = (role?: string | null): boolean => role === 'store_admin';
+const isStoreAdmin = (role?: string | null): boolean => role === 'business_admin';
 
 export const normalizeRoutePath = (route: string): string => {
     if (!route) {
@@ -210,7 +210,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/feedbacks': ['feedbacks.index'],
     '/feedbacks/create-feedback': ['feedbacks.create'],
 
-    // ── Employees Management (subscription owner / store_admin only) ───
+    // ── Employees Management (subscription owner / business_admin only) ───
     '/employees': ['subscription.owner'],
     '/employees/edit': ['subscription.owner'],
 

@@ -1,12 +1,11 @@
 'use client';
 
 import IconEye from '@/components/icon/icon-eye';
-import IconPrinter from '@/components/icon/icon-printer';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { DEFAULT_PAYMENT_METHOD } from '@/lib/paymentConstants';
+import { DEFAULT_PAYMENT_METHOD, getAllowedStatusesForMethod } from '@/lib/paymentConstants';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation } from '@/store/features/Order/Order';
@@ -47,7 +46,7 @@ export interface PosRightSideProps {
 const EMPTY_ARRAY: any[] = [];
 const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 'pos', orderId, originalOrder }) => {
     const { t } = getTranslation();
-    const { formatNumber } = useCurrency();
+    const { formatNumber, formatCurrency } = useCurrency();
     const dispatch = useDispatch();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -105,7 +104,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [orderResponse, setOrderResponse] = useState<any>(null);
     const [showPreview, setShowPreview] = useState(false);
     const [autoPrint, setAutoPrint] = useState<'invoice' | 'receipt' | null>(null);
-    const postActionRef = useRef<'invoice' | 'receipt'>('invoice');
     const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
     const [quotePreview, setQuotePreview] = useState<any>(null);
 
@@ -300,7 +298,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             return [DEFAULT_PAYMENT_METHOD];
         }
 
-        return activeMethods;
+        // Cash must always be available regardless of store configuration
+        const hasCash = activeMethods.some((m: any) => m.payment_method_name?.toLowerCase() === 'cash');
+        return hasCash ? activeMethods : [DEFAULT_PAYMENT_METHOD, ...activeMethods];
     }, [currentStore?.payment_methods]);
 
     // Payment statuses from Redux (can be used for payment status dropdown)
@@ -1066,15 +1066,24 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 processedValue = Number(value) || 0;
             } else if (name === 'partialPaymentAmount') {
                 processedValue = Number(value) || 0;
+            } else if (name === 'paymentMethod') {
+                // When method changes, auto-reset status if it's no longer valid
+                const allowedStatuses = getAllowedStatusesForMethod(value);
+                setFormData((prev) => ({
+                    ...prev,
+                    paymentMethod: value,
+                    paymentStatus: allowedStatuses.includes(prev.paymentStatus) ? prev.paymentStatus : allowedStatuses[0] ?? '',
+                    partialPaymentAmount: 0,
+                    dueAmount: 0,
+                }));
+                return;
             } else if (name === 'paymentStatus') {
                 // Reset partial payment amount when changing status
-                // Set payment method to "due" when due is selected
                 setFormData((prev) => ({
                     ...prev,
                     paymentStatus: value,
                     partialPaymentAmount: 0,
                     dueAmount: value === 'due' ? backendGrandTotal : 0,
-                    paymentMethod: value === 'due' ? 'due' : prev.paymentMethod,
                 }));
                 return;
             }
@@ -1295,7 +1304,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             const response = await createOrder(orderData).unwrap();
             setQuotePreview(null);
             setOrderResponse(response);
-            setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
+            setAutoPrint(null);
             setShowPreview(true);
 
             refetch();
@@ -1820,12 +1829,38 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         };
     };
 
+    const now = new Date();
+    const currentDate = now.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+    const currentTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
     return (
-        <div className="relative mt-6 w-full sm:mt-6 xl:mt-0 xl:w-full">
+        <div className="relative mt-4 w-full xl:mt-0 xl:w-full">
             <Toaster />
             <LoadingOverlay isLoading={loading} />
             <PreviewModal isOpen={showPreview} data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} autoPrint={autoPrint} />
-            <div className="panel ">
+
+            {/* Store Branding Header */}
+            {!isReturnMode && (
+                <div className="mb-3 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-base font-bold text-white shadow-sm">
+                            {currentStore?.store_name?.charAt(0)?.toUpperCase() || 'P'}
+                        </div>
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-bold text-gray-800">{currentStore?.store_name || 'POS Terminal'}</p>
+                            {currentStore?.store_location && (
+                                <p className="truncate text-xs text-gray-400">{currentStore.store_location}</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                        <p className="text-xs text-gray-400">{currentDate}</p>
+                        <p className="text-xs font-semibold text-primary">{currentTime}</p>
+                    </div>
+                </div>
+            )}
+
+            <div className="panel">
                 <CustomerSection
                     formData={formData}
                     selectedCustomer={selectedCustomer}
@@ -1851,7 +1886,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 />
             </div>
 
-            <div className="panel">
+            <div className="panel mt-3">
                 <OrderDetailsSection
                     invoiceItems={invoiceItems}
                     formData={formData}
@@ -1896,61 +1931,50 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     returnNetAmount={returnNetAmount}
                 />
 
-                <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
-                    {isReturnMode ? (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handleReturnSubmit}
-                                disabled={loading}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
-                            >
-                                {loading ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconSave />
-                                )}
-                                {t('btn_submit_return')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => router.push('/orders')}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 sm:text-base"
-                            >
-                                {t('btn_cancel')}
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button
-                                type="button"
-                                onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
-                                disabled={loading}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
-                            >
-                                {loading && postActionRef.current === 'invoice' ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconSave />
-                                )}
-                                {t('lbl_invoice')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => { postActionRef.current = 'receipt'; handleSubmit(); }}
-                                disabled={loading}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
-                            >
-                                {loading && postActionRef.current === 'receipt' ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconPrinter />
-                                )}
-                                {t('btn_print_receipt')}
-                            </button>
-                        </>
-                    )}
-                </div>
+                {isReturnMode ? (
+                    <div className="mt-4 flex gap-3 pb-16 sm:pb-0">
+                        <button
+                            type="button"
+                            onClick={handleReturnSubmit}
+                            disabled={loading}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-amber-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <IconSave />}
+                            {t('btn_submit_return')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/orders')}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm transition-colors hover:bg-gray-50"
+                        >
+                            {t('btn_cancel')}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-4 pb-20 sm:pb-4">
+                        <div className="mb-3 flex items-center justify-between text-sm">
+                            <span className="font-medium text-gray-500">
+                                {invoiceItems.length} {invoiceItems.length === 1 ? t('lbl_item') : t('lbl_items')}
+                            </span>
+                            <span className="font-bold text-primary">{formatCurrency(backendGrandTotal)}</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={loading || invoiceItems.length === 0}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            {loading ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : (
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
+                            {t('btn_confirm_order')}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

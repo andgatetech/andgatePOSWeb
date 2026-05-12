@@ -65,7 +65,6 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [printMode, setPrintMode] = useState<'invoice' | 'receipt' | null>(null);
-    const [showReceiptPreview, setShowReceiptPreview] = useState(false);
     const [logoDataUrl, setLogoDataUrl] = useState<string>('');
     const [pdfMake, setPdfMake] = useState<any>(null);
 
@@ -140,6 +139,11 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
     const pointsDiscount = Number(totals.pointsDiscount ?? data?.pointsDiscount ?? 0);
     const balanceDiscount = Number(totals.balanceDiscount ?? data?.balanceDiscount ?? 0);
     const grandTotal = totals.grand_total ?? subtotal + calculatedTax - calculatedDiscount;
+
+    // Tax label & registration number from store settings
+    const taxLabel = currentStore?.tax_label || t('lbl_tax');
+    const registrationNumber = currentStore?.tax_registration_number;
+    const registrationLabel = currentStore?.tax_type === 'vat' ? 'BIN' : currentStore?.tax_type === 'gst' ? 'GST Reg.' : t('lbl_tax_registration_number');
 
     const currentDate = new Date().toLocaleDateString('en-GB', {
         day: '2-digit',
@@ -309,15 +313,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         );
     };
 
-    useEffect(() => {
-        const handleAfterPrint = () => {
-            setPrintMode(null);
-            setIsPrinting(false);
-        };
-
-        window.addEventListener('afterprint', handleAfterPrint);
-        return () => window.removeEventListener('afterprint', handleAfterPrint);
-    }, []);
+    // afterprint is now handled inside printInWindow via the onDone callback — no main-window listener needed
 
     const autoTriggered = useRef(false);
     useEffect(() => {
@@ -325,7 +321,6 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         autoTriggered.current = true;
         const timer = setTimeout(() => {
             if (autoPrint === 'receipt') {
-                setShowReceiptPreview(true);
                 setTimeout(() => printWithMode('receipt'), 450);
             } else {
                 printWithMode('invoice');
@@ -352,11 +347,11 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                     return;
                 }
 
-                // Clone and strip UI-only elements
+                // Clone and strip UI-only nav/button elements
                 const clone = sourceEl.cloneNode(true) as HTMLElement;
                 clone.querySelectorAll('[class*="print:hidden"]').forEach((el) => el.remove());
 
-                // Gather all stylesheets from the parent document
+                // Carry over page stylesheets so Tailwind classes render correctly
                 const styleLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
                     .map((l) => l.outerHTML)
                     .join('\n');
@@ -393,44 +388,20 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                             }
                           </style>`;
 
-                // Hidden iframe — mobile browsers print its document, not the parent page
-                const iframe = document.createElement('iframe');
-                iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-                document.body.appendChild(iframe);
-
-                const doc = iframe.contentDocument || iframe.contentWindow?.document;
-                if (!doc) {
-                    document.body.removeChild(iframe);
-                    setPrintMode(null);
-                    setIsPrinting(false);
-                    return;
-                }
-
-                doc.open();
-                doc.write(`<!DOCTYPE html><html><head>
+                const html = `<!DOCTYPE html><html><head>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width,initial-scale=1">
                     ${styleLinks}${inlineStyles}${printCss}
-                </head><body>${clone.outerHTML}</body></html>`);
-                doc.close();
+                </head><body>${clone.outerHTML}</body></html>`;
 
-                let cleaned = false;
-                const cleanup = () => {
-                    if (cleaned) return;
-                    cleaned = true;
-                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
-                    setPrintMode(null);
-                    setIsPrinting(false);
-                };
-
-                iframe.contentWindow?.addEventListener('afterprint', cleanup);
-                // Fallback: some mobile browsers don't fire afterprint
-                setTimeout(cleanup, 3000);
-
-                setTimeout(() => {
-                    iframe.contentWindow?.focus();
-                    iframe.contentWindow?.print();
-                }, 300);
+                // Open receipt in an isolated window — guaranteed single print call,
+                // works with Bluetooth POS printers paired as a system printer.
+                import('@/lib/printUtil').then(({ printInWindow }) => {
+                    printInWindow(html, () => {
+                        setPrintMode(null);
+                        setIsPrinting(false);
+                    });
+                });
             }, 100);
         });
     };
@@ -464,19 +435,23 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             }
 
             // Company info
+            const companyInfoStack: any[] = [
+                { text: currentStore?.store_name || 'andgatePOS', style: 'companyName' },
+                { text: currentStore?.store_location || t('lbl_store_address'), style: 'companyInfo' },
+                {
+                    text: [
+                        currentStore?.store_email ? `${currentStore.store_email}` : '',
+                        currentStore?.store_email && currentStore?.store_contact ? ' | ' : '',
+                        currentStore?.store_contact ? `${t('lbl_phone')}: ${currentStore.store_contact}` : '',
+                    ],
+                    style: 'companyInfo',
+                },
+            ];
+            if (registrationNumber) {
+                companyInfoStack.push({ text: `${registrationLabel}: ${registrationNumber}`, style: 'companyInfo', bold: true });
+            }
             headerContent.columns.push({
-                stack: [
-                    { text: currentStore?.store_name || 'andgatePOS', style: 'companyName' },
-                    { text: currentStore?.store_location || t('lbl_store_address'), style: 'companyInfo' },
-                    {
-                        text: [
-                            currentStore?.store_email ? `${currentStore.store_email}` : '',
-                            currentStore?.store_email && currentStore?.store_contact ? ' | ' : '',
-                            currentStore?.store_contact ? `${t('lbl_phone')}: ${currentStore.store_contact}` : '',
-                        ],
-                        style: 'companyInfo',
-                    },
-                ],
+                stack: companyInfoStack,
                 width: '*',
                 alignment: 'left',
             });
@@ -741,13 +716,13 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                     { text: `${formatNumber(totalQty, 2)} ${invoiceItems[0]?.unit || t('lbl_pcs')}`, alignment: 'right', border: [false, true, false, false] },
                 ]);
                 totalsContent.push([
-                    { text: t('lbl_subtotal'), bold: true, border: [false, false, false, false] },
+                    { text: calculatedTax > 0 ? t('lbl_subtotal_no_tax') : t('lbl_subtotal'), bold: true, border: [false, false, false, false] },
                     { text: formatCurrencyPDF(subtotal), alignment: 'right', border: [false, false, false, false] },
                 ]);
 
                 if (calculatedTax > 0) {
                     totalsContent.push([
-                        { text: t('lbl_tax'), bold: true, border: [false, false, false, false] },
+                        { text: taxLabel, bold: true, border: [false, false, false, false] },
                         { text: formatCurrencyPDF(calculatedTax), alignment: 'right', border: [false, false, false, false] },
                     ]);
                 }
@@ -864,13 +839,17 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             });
 
             // Footer
-            content.push({
-                stack: [
-                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5 }], margin: [0, 0, 0, 5] },
-                    { text: `${t('lbl_print_date')}: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
-                    { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: ${formatNumber(1)} ${t('lbl_of')} ${formatNumber(1)}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
-                ],
-            });
+            const footerStack: any[] = [
+                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5 }], margin: [0, 0, 0, 5] },
+            ];
+            if (currentStore?.invoice_footer) {
+                footerStack.push({ text: currentStore.invoice_footer, alignment: 'center', fontSize: 9, color: '#374151', margin: [0, 0, 0, 4] });
+            }
+            footerStack.push(
+                { text: `${t('lbl_print_date')}: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+                { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: ${formatNumber(1)} ${t('lbl_of')} ${formatNumber(1)}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+            );
+            content.push({ stack: footerStack });
 
             const docDefinition: TDocumentDefinitions = {
                 content: content,
@@ -919,36 +898,57 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         printWithMode('invoice');
     };
 
-    const handlePrintPreview = () => {
-        printWithMode('invoice');
-    };
-
-    const printReceipt = () => {
-        setShowReceiptPreview(true);
-    };
-
-    const handleReceiptPrint = () => {
-        printWithMode('receipt');
-    };
-
     return (
-        <div className={`min-h-screen bg-gray-100 p-4 print:bg-white print:p-0 ${printMode === 'receipt' ? 'print-mode-receipt' : 'print-mode-invoice'}`}>
+        <div className="min-h-screen bg-gray-100 print:bg-white print:p-0">
             <div className="invoice-shell mx-auto max-w-5xl bg-white shadow-lg print:shadow-none">
-                {/* Top Close Button */}
-                {onClose && (
-                    <div className="flex justify-end border-b border-gray-200 bg-gray-100 p-3 print:hidden">
+                {/* Compact Action Bar */}
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-gray-200 bg-white px-4 py-2 shadow-sm print:hidden">
+                    {onClose ? (
                         <button
                             onClick={onClose}
-                            disabled={isPrinting}
-                            className="flex items-center gap-2 rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
                         >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                             {t('btn_close')}
                         </button>
+                    ) : (
+                        <div />
+                    )}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handlePrint}
+                            disabled={isPrinting}
+                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            <span>{isPrinting && printMode === 'invoice' ? t('status_opening') : t('btn_print_invoice')}</span>
+                        </button>
+                        <button
+                            onClick={() => printWithMode('receipt')}
+                            disabled={isPrinting}
+                            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                        >
+                            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>{isPrinting && printMode === 'receipt' ? t('status_opening') : t('btn_print_receipt')}</span>
+                        </button>
+                        <button
+                            onClick={exportPDF}
+                            disabled={isPrinting || !pdfMake}
+                            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                        >
+                            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>{isPrinting && !printMode ? t('status_generating') : !pdfMake ? t('status_loading') : t('btn_download_pdf')}</span>
+                        </button>
                     </div>
-                )}
+                </div>
 
                 {/* Success Message - Only show when order is just created */}
                 {isOrderCreated && (
@@ -965,76 +965,6 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                     </div>
                 )}
 
-                {/* Action Buttons - Always show */}
-                <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 print:hidden">
-                    <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-4">
-                        <button
-                            onClick={handlePrintPreview}
-                            disabled={isPrinting}
-                            className="group relative flex min-w-[160px] items-center justify-center gap-3 overflow-hidden rounded-xl border-2 border-blue-200 bg-white px-6 py-3.5 font-semibold text-blue-700 shadow-lg transition-all duration-300 hover:scale-105 hover:border-blue-400 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                            <svg className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                            </svg>
-                            <span className="relative z-10">{t('btn_print_preview')}</span>
-                        </button>
-                        <button
-                            onClick={handlePrint}
-                            disabled={isPrinting}
-                            className="group relative flex min-w-[160px] items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3.5 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-green-700 hover:to-emerald-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                            <div className="absolute inset-0 bg-white opacity-0 transition-opacity duration-300 group-hover:opacity-10"></div>
-                            <svg className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                                />
-                            </svg>
-                            <span className="relative z-10">{t('btn_print_invoice')}</span>
-                        </button>
-                        <button
-                            onClick={printReceipt}
-                            disabled={isPrinting}
-                            className="group relative flex min-w-[160px] items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 px-6 py-3.5 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-violet-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                            <div className="absolute inset-0 bg-white opacity-0 transition-opacity duration-300 group-hover:opacity-10"></div>
-                            <svg className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                />
-                            </svg>
-                            <span className="relative z-10">{isPrinting ? t('status_opening') : t('btn_print_receipt')}</span>
-                        </button>
-                        <button
-                            onClick={exportPDF}
-                            disabled={isPrinting || !pdfMake}
-                            className="group relative flex min-w-[160px] items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3.5 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                            <div className="absolute inset-0 bg-white opacity-0 transition-opacity duration-300 group-hover:opacity-10"></div>
-                            <svg className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                />
-                            </svg>
-                            <span className="relative z-10">{isPrinting ? t('status_generating') : !pdfMake ? t('status_loading') : t('btn_download_pdf')}</span>
-                        </button>
-                    </div>
-                </div>
 
                 {/* Invoice Content - SAME AS BEFORE, keeping the rest of the JSX */}
                 <div className="p-6 print:p-4" ref={invoiceRef}>
@@ -1086,6 +1016,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                     {currentStore?.store_email && currentStore?.store_contact && <span>|</span>}
                                     {currentStore?.store_contact && <span>{t('lbl_phone')}: {currentStore.store_contact}</span>}
                                 </div>
+                                {registrationNumber && (
+                                    <p className="mt-1 text-sm font-semibold text-gray-700">{registrationLabel}: {registrationNumber}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -1316,14 +1249,14 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                     </div>
                                     <div className="flex justify-between border-b border-gray-300 py-1">
                                         <span>
-                                            <strong>{t('lbl_subtotal')}</strong>
+                                            <strong>{calculatedTax > 0 ? t('lbl_subtotal_no_tax') : t('lbl_subtotal')}</strong>
                                         </span>
                                         <span>{formatCurrency(subtotal)}</span>
                                     </div>
                                     {calculatedTax > 0 && (
                                         <div className="flex justify-between border-b border-gray-300 py-1">
                                             <span>
-                                                <strong>{t('lbl_tax')}</strong>
+                                                <strong>{taxLabel}</strong>
                                             </span>
                                             <span>{formatCurrency(calculatedTax)}</span>
                                         </div>
@@ -1404,6 +1337,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
                     {/* Footer */}
                     <div className="border-t border-gray-300 pt-2 text-center text-xs text-gray-500">
+                        {currentStore?.invoice_footer && (
+                            <p className="mb-1 text-sm font-medium text-gray-600">{currentStore.invoice_footer}</p>
+                        )}
                         <p>
                             {t('lbl_print_date')}: {currentDate} {currentTime}
                         </p>
@@ -1507,56 +1443,17 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 }
             `}</style>
 
-                {/* Bottom Close Button */}
-                {onClose && (
-                    <div className="flex justify-center border-t border-gray-200 bg-gray-100 p-4 print:hidden">
-                        <button
-                            onClick={onClose}
-                            disabled={isPrinting}
-                            className="flex items-center gap-2 rounded-lg bg-gray-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
-                        >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            {t('btn_close')}
-                        </button>
-                    </div>
-                )}
-            {showReceiptPreview && (
-                <div className="receipt-preview-modal fixed inset-0 z-[10000] overflow-y-auto bg-slate-950/70 p-3 print:static print:bg-white print:p-0">
-                    <div className="receipt-preview-controls sticky top-0 z-10 -mx-3 -mt-3 mb-4 border-b border-slate-200 bg-white p-3 shadow print:hidden">
-                        <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <h3 className="text-base font-bold text-gray-900">{t('lbl_thermal_receipt')}</h3>
-                                <p className="mt-1 text-xs text-gray-500">{t('msg_mobile_thermal_print_hint')}</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    type="button"
-                                    onClick={handleReceiptPrint}
-                                    disabled={isPrinting}
-                                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
-                                >
-                                    {isPrinting ? t('status_opening') : t('btn_open_print_dialog')}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowReceiptPreview(false)}
-                                    disabled={isPrinting}
-                                    className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-300 disabled:opacity-50"
-                                >
-                                    {t('btn_close')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="thermal-receipt-print-area mx-auto w-[58mm] bg-white p-[3mm] font-mono text-[10px] leading-tight text-black shadow-2xl print:shadow-none">
+            {/* Hidden thermal receipt — cloned by printWithMode('receipt') for isolated-window printing */}
+            <div aria-hidden className="hidden">
+                <div className="thermal-receipt-print-area mx-auto w-[58mm] bg-white p-[3mm] font-mono text-[10px] leading-tight text-black">
                         <div className="text-center">
                             <div className="mb-1 break-words text-[15px] font-black uppercase">{currentStore?.store_name || 'andgatePOS'}</div>
                             {currentStore?.store_location && <div className="break-words text-[8px]">{currentStore.store_location}</div>}
                             {currentStore?.store_contact && <div className="text-[8px]">{t('lbl_phone')}: {currentStore.store_contact}</div>}
                             {currentStore?.store_email && <div className="break-words text-[8px]">{currentStore.store_email}</div>}
+                            {registrationNumber && (
+                                <div className="mt-0.5 text-[8px] font-bold">{registrationLabel}: {registrationNumber}</div>
+                            )}
                             <div className="mt-1 text-[11px] font-black uppercase">{receiptTitle}</div>
                         </div>
 
@@ -1629,7 +1526,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
                         <div className="my-2 border-t border-black pt-2 text-[9px]">
                             <div className="flex justify-between">
-                                <span>{t('lbl_subtotal')}:</span>
+                                <span>{calculatedTax > 0 ? t('lbl_subtotal_no_tax') : t('lbl_subtotal')}:</span>
                                 <span>{formatCurrency(subtotal)}</span>
                             </div>
                             <div className="flex justify-between">
@@ -1638,7 +1535,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                             </div>
                             {calculatedTax > 0 && (
                                 <div className="flex justify-between">
-                                    <span>{t('lbl_tax')}:</span>
+                                    <span>{taxLabel}:</span>
                                     <span>{formatCurrency(calculatedTax)}</span>
                                 </div>
                             )}
@@ -1732,57 +1629,17 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         <div className="text-center text-[9px]">
                             <div className="text-[11px] font-bold">{t('msg_thank_you')}</div>
                             <div>{t('msg_please_come_again')}</div>
+                            {currentStore?.invoice_footer && (
+                                <div className="mt-1 break-words text-[9px] font-medium">{currentStore.invoice_footer}</div>
+                            )}
                             <div className="mt-2 text-[8px]">{t('lbl_powered_by')}: AndgatePOS</div>
                         </div>
                     </div>
                 </div>
-            )}
-
-            <style jsx global>{`
-                @page thermalReceipt {
-                    size: 58mm auto;
-                    margin: 0;
-                }
-
-                @media print {
-                    .print-mode-receipt .invoice-shell {
-                        display: none !important;
-                    }
-
-                    .print-mode-receipt,
-                    .print-mode-receipt * {
-                        visibility: visible !important;
-                    }
-
-                    .print-mode-receipt .receipt-preview-modal {
-                        position: static !important;
-                        inset: auto !important;
-                        display: block !important;
-                        overflow: visible !important;
-                        background: #fff !important;
-                        padding: 0 !important;
-                    }
-
-                    .print-mode-receipt .receipt-preview-controls {
-                        display: none !important;
-                    }
-
-                    .print-mode-receipt .thermal-receipt-print-area {
-                        page: thermalReceipt;
-                        width: 58mm !important;
-                        min-height: auto !important;
-                        margin: 0 !important;
-                        padding: 3mm !important;
-                        box-shadow: none !important;
-                        color: #000 !important;
-                        background: #fff !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                }
-            `}</style>
-        </div>
+            </div>
     );
 };
+
+
 
 export default PosInvoicePreview;

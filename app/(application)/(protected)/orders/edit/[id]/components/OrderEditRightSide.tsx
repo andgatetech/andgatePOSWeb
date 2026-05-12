@@ -11,7 +11,8 @@ import { MEMBERSHIP_DISCOUNTS } from '@/app/(application)/(protected)/pos/pos-ri
 import IconEye from '@/components/icon/icon-eye';
 import IconSave from '@/components/icon/icon-save';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { DEFAULT_PAYMENT_METHOD } from '@/lib/paymentConstants';
+import { DEFAULT_PAYMENT_METHOD, getAllowedStatusesForMethod } from '@/lib/paymentConstants';
+import { useCurrency } from '@/hooks/useCurrency';
 import { showConfirmDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useUpdateOrderMutation } from '@/store/features/Order/Order';
@@ -32,6 +33,7 @@ interface OrderEditRightSideProps {
 
 const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, originalOrder }) => {
     const { t } = getTranslation();
+    const { formatCurrency } = useCurrency();
     const dispatch = useDispatch();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
@@ -624,13 +626,28 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             } else if (name === 'partialPaymentAmount') {
                 processedValue = Number(value) || 0;
             } else if (name === 'paymentStatus') {
-                setFormData((prev) => ({
-                    ...prev,
-                    paymentStatus: value,
-                    partialPaymentAmount: 0,
-                    dueAmount: value === 'due' ? calculateTotal() : 0,
-                    paymentMethod: value === 'due' ? 'due' : prev.paymentMethod,
-                }));
+                setFormData((prev) => {
+                    const allowed = getAllowedStatusesForMethod(prev.paymentMethod);
+                    const statusStillValid = allowed.includes(value);
+                    return {
+                        ...prev,
+                        paymentStatus: value,
+                        partialPaymentAmount: 0,
+                        dueAmount: value === 'due' ? calculateTotal() : 0,
+                        paymentMethod: statusStillValid ? prev.paymentMethod : '',
+                    };
+                });
+                return;
+            } else if (name === 'paymentMethod') {
+                setFormData((prev) => {
+                    const allowed = getAllowedStatusesForMethod(value);
+                    const statusStillValid = allowed.includes(prev.paymentStatus);
+                    return {
+                        ...prev,
+                        paymentMethod: value,
+                        paymentStatus: statusStillValid ? prev.paymentStatus : (allowed[0] ?? ''),
+                    };
+                });
                 return;
             }
 
@@ -741,33 +758,6 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             due_amount: formData.dueAmount,
         };
 
-        // Log what we're sending to backend
-        console.log('=== ORDER UPDATE REQUEST ===');
-        console.log('Order ID:', orderId);
-        console.log('Order Data:', JSON.stringify(orderData, null, 2));
-        console.log('Items with actions:', allItems);
-        console.log('\n--- DETAILED ITEM INSPECTION ---');
-        invoiceItems.forEach((item, index) => {
-            console.log(`Item ${index + 1}:`, {
-                productId: item.productId,
-                stockId: item.stockId,
-                hasStockId: !!item.stockId,
-                title: item.title,
-                quantity: item.quantity,
-            });
-        });
-        console.log('--- Items sent to backend ---');
-        allItems.forEach((item, index) => {
-            console.log(`Backend Item ${index + 1}:`, {
-                action: item.action,
-                product_id: item.product_id,
-                product_stock_id: item.product_stock_id,
-                hasStockId: !!item.product_stock_id,
-                id: item.id,
-            });
-        });
-        console.log('===========================');
-
         try {
             setLoading(true);
             const response = await updateOrder({ id: orderId, ...orderData }).unwrap();
@@ -825,7 +815,6 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                 errorMessage = err.error;
             }
 
-            console.error('Failed to update order:', errorMessage);
             showMessage(errorMessage, 'error');
         }
     };
@@ -936,7 +925,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     };
 
     return (
-        <div className="relative mt-6 w-full sm:mt-6 xl:mt-0 xl:w-full">
+        <div className="relative mt-4 w-full xl:mt-0 xl:w-full">
             <LoadingOverlay isLoading={loading} />
             <PreviewModal isOpen={showPreview} data={orderResponse || getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} />
 
@@ -966,7 +955,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                 />
             </div>
 
-            <div className="panel">
+            <div className="panel mt-3">
                 <OrderDetailsSection
                     invoiceItems={invoiceItems}
                     formData={formData}
@@ -998,13 +987,36 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
                 <CashPaymentSection formData={formData} onInputChange={handleInputChange} totalPayable={calculateTotal()} isWalkInCustomer={formData.customerId === 'walk-in'} />
 
-                <div className="mt-4 flex flex-col gap-2 pb-16 sm:mt-6 sm:flex-row sm:gap-4 sm:pb-0 lg:pb-0">
-                    <button type="button" className="btn btn-primary flex-1 text-sm sm:text-base" onClick={handleSubmit} disabled={loading || invoiceItems.length === 0 || isLoadingCustomer}>
-                        {isLoadingCustomer ? t('btn_loading') : t('btn_update')} <IconSave />
-                    </button>
-                    <button type="button" className="btn btn-secondary flex-1 text-sm sm:text-base" onClick={handlePreview}>
-                        {t('btn_view')} <IconEye />
-                    </button>
+                <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-4 pb-20 sm:pb-4">
+                    <div className="mb-3 flex items-center justify-between text-sm">
+                        <span className="font-medium text-gray-500">
+                            {invoiceItems.length} {invoiceItems.length === 1 ? t('lbl_item') : t('lbl_items')}
+                        </span>
+                        <span className="font-bold text-primary">{formatCurrency(calculateTotal())}</span>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={handlePreview}
+                            className="flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium text-gray-600 shadow-sm hover:bg-gray-50"
+                        >
+                            <IconEye className="h-4 w-4" />
+                            {t('btn_view')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={loading || invoiceItems.length === 0 || isLoadingCustomer}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-white shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            {loading ? (
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : (
+                                <IconSave className="h-4 w-4" />
+                            )}
+                            {isLoadingCustomer ? t('btn_loading') : t('btn_update_order')}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

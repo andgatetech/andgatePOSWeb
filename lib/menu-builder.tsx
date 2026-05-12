@@ -8,7 +8,7 @@ export interface MenuItem {
     href?: string;
     subMenu?: MenuItem[];
     requiredPermissions?: string[];
-    ownerOnly?: boolean; // true = only visible to subscription owner (store_admin role)
+    ownerOnly?: boolean; // true = only visible to subscription owner (business_admin role)
 }
 
 /**
@@ -401,8 +401,8 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
  * Recursively filter menu items based on user permissions and role
  */
 function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, userRole: string | undefined): MenuItem | null {
-    // ownerOnly items require store_admin role
-    if (item.ownerOnly && userRole !== 'store_admin') {
+    // ownerOnly items require business_admin role
+    if (item.ownerOnly && userRole !== 'business_admin') {
         return null;
     }
 
@@ -434,7 +434,7 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
 /**
  * Build menu items based on user permissions and role
  * @param userPermissions - Array of permission strings from backend
- * @param userRole - User role string (e.g. 'store_admin')
+ * @param userRole - User role string (e.g. 'business_admin')
  * @returns Filtered menu items array
  */
 export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string): MenuItem[] {

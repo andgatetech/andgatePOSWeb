@@ -1,3 +1,4 @@
+'use client';
 import IconSearch from '@/components/icon/icon-search';
 import IconUser from '@/components/icon/icon-user';
 import IconX from '@/components/icon/icon-x';
@@ -15,7 +16,7 @@ interface CustomerSectionProps {
     isSearching: boolean;
     showSearchResults: boolean;
     searchParams: string;
-    searchInputRef: React.RefObject<HTMLDivElement>;
+    searchInputRef: React.RefObject<HTMLDivElement | null>;
     error: unknown;
     onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onFocusResults: () => void;
@@ -33,7 +34,6 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
     formData,
     selectedCustomer,
     isManualCustomerEntry,
-    showManualCustomerForm,
     customerSearch,
     customers,
     isSearching,
@@ -54,196 +54,245 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
 }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
-    return (
-        <div className="mt-4 px-3 sm:mt-8 sm:px-4">
-            <div className="flex flex-col justify-between lg:flex-row">
-                <div className="mb-4 w-full sm:mb-6 lg:w-full">
-                    <div className="mb-3 mt-6 flex items-center justify-between sm:mb-4 sm:mt-[1.625rem]">
-                        <div className="text-base font-semibold text-gray-800 sm:text-lg ">{t('pos_bill_to')}</div>
-                        <button
-                            type="button"
-                            onClick={onSelectWalkInCustomer}
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
-                        >
-                            <IconUser className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            {t('pos_walk_in_customer')}
-                        </button>
-                    </div>
 
-                    {formData.customerId === 'walk-in' && (
-                        <div className="mb-4 rounded-lg border border-orange-200 bg-orange-100 p-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500">
-                                        <IconUser className="h-5 w-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-orange-900">{t('pos_walk_in_customer')}</p>
-                                        <p className="text-sm text-orange-700">{t('pos_walk_in_no_details')}</p>
-                                    </div>
+    const isWalkIn = formData.customerId === 'walk-in';
+    const hasCustomer = !!selectedCustomer;
+    const isSearchMode = !isWalkIn && !isManualCustomerEntry;
+
+    return (
+        <div>
+            {/* Section header */}
+            <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                    <svg className="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-600">{t('pos_bill_to')}</h3>
+            </div>
+
+            {/* ── Walk-in selected state ── */}
+            {isWalkIn && (
+                <div className="flex items-center gap-3 rounded-xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-3 shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500 shadow-sm">
+                        <IconUser className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-bold text-orange-900">{t('pos_walk_in_customer')}</p>
+                        <p className="text-xs text-orange-600">{t('pos_walk_in_no_details')}</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClearWalkInCustomer}
+                        className="shrink-0 rounded-lg p-1.5 text-orange-400 transition-colors hover:bg-orange-100 hover:text-orange-700"
+                    >
+                        <IconX className="h-4 w-4" />
+                    </button>
+                </div>
+            )}
+
+            {/* ── Search + selection area ── */}
+            {!isWalkIn && (
+                <div className="space-y-3">
+                    {/* Walk-in prominent option (only when no customer chosen yet) */}
+                    {!hasCustomer && !isManualCustomerEntry && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={onSelectWalkInCustomer}
+                                className="flex w-full items-center gap-3 rounded-xl border-2 border-orange-200 bg-orange-50 px-4 py-3 text-left transition-all hover:border-orange-300 hover:bg-orange-100 active:scale-[0.99]"
+                            >
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-500 shadow-sm">
+                                    <IconUser className="h-5 w-5 text-white" />
                                 </div>
-                                <button onClick={onClearWalkInCustomer} className="text-orange-600 hover:text-orange-800">
-                                    <IconX className="h-5 w-5" />
-                                </button>
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-semibold text-orange-900">{t('pos_walk_in_customer')}</p>
+                                    <p className="text-xs text-orange-600">{t('pos_walk_in_no_details')}</p>
+                                </div>
+                                <svg className="h-4 w-4 shrink-0 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+
+                            {/* Divider */}
+                            <div className="flex items-center gap-2">
+                                <div className="h-px flex-1 bg-gray-200" />
+                                <span className="text-xs font-medium text-gray-400">or</span>
+                                <div className="h-px flex-1 bg-gray-200" />
                             </div>
-                        </div>
+                        </>
                     )}
 
-                    {formData.customerId !== 'walk-in' && (
-                        <div className="mb-6">
-                            <label className="mb-2 block text-sm font-medium">{t('pos_customer_search')}</label>
-                            <div className="flex flex-col gap-2 sm:flex-row">
-                                <div className="relative flex-1 sm:w-[70%] sm:flex-none" ref={searchInputRef}>
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <IconSearch className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        className="form-input h-12 pl-10 pr-10"
-                                        placeholder={t('placeholder_customer_search')}
-                                        value={customerSearch}
-                                        onChange={onSearchChange}
-                                        onFocus={onFocusResults}
-                                    />
-                                    {selectedCustomer && (
-                                        <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={onClearCustomer}>
-                                            <IconX className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                                        </button>
-                                    )}
-                                    {isSearching && searchParams && (
-                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                                        </div>
-                                    )}
-
-                                    {showSearchResults && searchParams && (
-                                        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
-                                            {error ? (
-                                                <div className="px-4 py-3 text-center text-red-500">
-                                                    <div className="text-sm">{t('msg_error_loading_customers')}</div>
-                                                </div>
-                                            ) : customers.length > 0 ? (
-                                                customers.map((customer) => (
-                                                    <div
-                                                        key={customer.id}
-                                                        className="cursor-pointer border-b border-gray-100 px-4 py-3 last:border-b-0 hover:bg-gray-50"
-                                                        onClick={() => onCustomerSelect(customer)}
-                                                    >
-                                                        <div className="flex items-center justify-between">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className="flex-shrink-0">
-                                                                    <IconUser className="h-8 w-8 rounded-full bg-gray-100 p-1 text-gray-400" />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                                                                    <div className="text-sm text-gray-500">{customer.email}</div>
-                                                                    <div className="text-xs text-gray-400">{customer.phone}</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <div className={`rounded-full px-2 py-1 text-xs font-medium ${getBadgeClass(customer.membership)}`}>
-                                                                    {String(customer.membership || 'normal').toUpperCase()}
-                                                                </div>
-                                                                <div className="mt-1 text-xs text-gray-500">{t('lbl_points')}: {customer.points}</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            ) : !isSearching ? (
-                                                <div className="px-4 py-3 text-center text-gray-500">
-                                                    <IconUser className="mx-auto mb-2 h-12 w-12 text-gray-300" />
-                                                    <div className="text-sm">{t('msg_no_customers_found')}</div>
-                                                    <div className="text-xs">{t('msg_try_different_search')}</div>
-                                                </div>
-                                            ) : null}
-                                        </div>
-                                    )}
+                    {/* Selected customer card */}
+                    {hasCustomer && (
+                        <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary font-bold text-white shadow-sm">
+                                    {selectedCustomer.name?.charAt(0)?.toUpperCase() || '?'}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate font-bold text-gray-800">{selectedCustomer.name}</p>
+                                    <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+                                </div>
+                                <div className="shrink-0 text-right">
+                                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeClass(selectedCustomer.membership)}`}>
+                                        {String(selectedCustomer.membership || 'normal').toUpperCase()}
+                                    </span>
+                                    <p className="mt-1 text-xs text-gray-400">{Number(selectedCustomer.points) || 0} pts</p>
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={onToggleManualEntry}
-                                    className={`flex h-12 w-full items-center justify-center rounded-lg border-2 px-4 text-sm font-semibold transition-colors sm:w-[30%] sm:flex-none ${
-                                        isManualCustomerEntry ? 'border-primary bg-primary text-white shadow-sm' : 'border-primary text-primary hover:bg-primary hover:text-white'
-                                    }`}
+                                    onClick={onClearCustomer}
+                                    className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                                 >
-                                    {isManualCustomerEntry ? t('pos_cancel_new_customer') : t('pos_add_new_customer')}
+                                    <IconX className="h-4 w-4" />
                                 </button>
                             </div>
+                            {/* Loyalty & balance info */}
+                            {(Number(selectedCustomer.balance) > 0 || getMembershipDiscount(selectedCustomer.membership) > 0) && (
+                                <div className="mt-2 flex gap-2 border-t border-primary/10 pt-2">
+                                    {getMembershipDiscount(selectedCustomer.membership) > 0 && (
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                            {getMembershipDiscount(selectedCustomer.membership)}% off
+                                        </span>
+                                    )}
+                                    {Number(selectedCustomer.balance) > 0 && (
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700">
+                                            {formatCurrency(Number(selectedCustomer.balance))} balance
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {selectedCustomer && (
-                        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                            <div className="mb-2 flex items-center justify-between">
-                                <h4 className="text-sm font-medium text-blue-900">{t('pos_selected_customer')}</h4>
-                                <div className={`rounded-full px-2 py-1 text-xs font-medium ${getBadgeClass(selectedCustomer.membership)}`}>
-                                    {String(selectedCustomer.membership || 'normal').toUpperCase()} - {getMembershipDiscount(selectedCustomer.membership)}% OFF
+                    {/* Search box */}
+                    {isSearchMode && (
+                        <div className="flex gap-2">
+                            <div className="relative flex-1" ref={searchInputRef}>
+                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    {isSearching && searchParams ? (
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                    ) : (
+                                        <IconSearch className="h-4 w-4 text-gray-400" />
+                                    )}
                                 </div>
+                                <input
+                                    type="text"
+                                    className="form-input h-11 pl-10 pr-9 text-sm"
+                                    placeholder={t('placeholder_customer_search')}
+                                    value={customerSearch}
+                                    onChange={onSearchChange}
+                                    onFocus={onFocusResults}
+                                />
+                                {selectedCustomer && (
+                                    <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={onClearCustomer}>
+                                        <IconX className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                                    </button>
+                                )}
+
+                                {/* Search results dropdown */}
+                                {showSearchResults && searchParams && (
+                                    <div className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-xl">
+                                        {error ? (
+                                            <div className="px-4 py-3 text-center text-sm text-red-500">{t('msg_error_loading_customers')}</div>
+                                        ) : customers.length > 0 ? (
+                                            customers.map((customer) => (
+                                                <div
+                                                    key={customer.id}
+                                                    className="flex cursor-pointer items-center gap-3 border-b border-gray-50 px-3 py-2.5 last:border-0 hover:bg-primary/5"
+                                                    onClick={() => onCustomerSelect(customer)}
+                                                >
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                                                        {customer.name?.charAt(0)?.toUpperCase() || '?'}
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="truncate text-sm font-semibold text-gray-800">{customer.name}</p>
+                                                        <p className="text-xs text-gray-500">{customer.phone}</p>
+                                                    </div>
+                                                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeClass(customer.membership)}`}>
+                                                        {String(customer.membership || 'normal').toUpperCase()}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        ) : !isSearching ? (
+                                            <div className="px-4 py-6 text-center">
+                                                <IconUser className="mx-auto mb-2 h-10 w-10 text-gray-200" />
+                                                <p className="text-sm text-gray-500">{t('msg_no_customers_found')}</p>
+                                                <p className="text-xs text-gray-400">{t('msg_try_different_search')}</p>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                )}
                             </div>
-                            <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
-                                <div>
-                                    <span className="font-medium text-blue-700">{t('lbl_loyalty_points')}:</span>
-                                    <div className="font-semibold text-blue-900">{Number(selectedCustomer.points) || 0}</div>
-                                </div>
-                                <div>
-                                    <span className="font-medium text-blue-700">{t('lbl_balance')}:</span>
-                                    <div className="font-semibold text-blue-900">{formatCurrency(Number(selectedCustomer.balance) || 0)}</div>
-                                </div>
-                                <div>
-                                    <span className="font-medium text-blue-700">{t('lbl_status')}:</span>
-                                    <div className={`font-semibold ${selectedCustomer.is_active ? 'text-green-600' : 'text-red-600'}`}>{selectedCustomer.is_active ? t('status_active') : t('status_inactive')}</div>
-                                </div>
-                            </div>
+
+                            {/* New customer toggle */}
+                            <button
+                                type="button"
+                                onClick={onToggleManualEntry}
+                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-primary text-primary transition-colors hover:bg-primary hover:text-white"
+                                title={t('pos_add_new_customer')}
+                            >
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
                         </div>
                     )}
 
-                    {showManualCustomerForm && formData.customerId !== 'walk-in' && (
-                        <div className="space-y-3 sm:space-y-4">
-                            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                <label className="text-sm font-medium sm:w-1/3">
-                                    {t('lbl_name')} <span className="text-red-500">*</span>
+                    {/* Manual new-customer form */}
+                    {isManualCustomerEntry && !selectedCustomer && (
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 space-y-2.5">
+                            <div className="flex items-center justify-between mb-1">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t('pos_add_new_customer')}</p>
+                                <button type="button" onClick={onToggleManualEntry} className="rounded-lg p-1 text-gray-400 hover:text-gray-600">
+                                    <IconX className="h-4 w-4" />
+                                </button>
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-gray-600">
+                                    {t('lbl_name')} <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="customerName"
-                                    className="form-input w-full flex-1"
+                                    className="form-input h-10 text-sm"
                                     placeholder={t('placeholder_enter_name')}
                                     value={formData.customerName}
                                     onChange={onInputChange}
-                                    disabled={!!selectedCustomer}
                                 />
                             </div>
-                            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                <label className="text-sm font-medium sm:w-1/3">{t('lbl_email')} ({t('lbl_optional')})</label>
-                                <input
-                                    type="email"
-                                    name="customerEmail"
-                                    className="form-input w-full flex-1"
-                                    placeholder={t('placeholder_enter_email')}
-                                    value={formData.customerEmail}
-                                    onChange={onInputChange}
-                                    disabled={!!selectedCustomer}
-                                />
-                            </div>
-                            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-0">
-                                <label className="text-sm font-medium sm:w-1/3">
-                                    {t('lbl_phone')} <span className="text-red-500">*</span>
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-gray-600">
+                                    {t('lbl_phone')} <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="customerPhone"
-                                    className="form-input w-full flex-1"
+                                    className="form-input h-10 text-sm"
                                     placeholder={t('placeholder_enter_phone')}
                                     value={formData.customerPhone}
                                     onChange={onInputChange}
-                                    disabled={!!selectedCustomer}
-                                    required={!selectedCustomer}
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-gray-600">
+                                    {t('lbl_email')} <span className="text-gray-400 text-xs font-normal">({t('lbl_optional')})</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    name="customerEmail"
+                                    className="form-input h-10 text-sm"
+                                    placeholder={t('placeholder_enter_email')}
+                                    value={formData.customerEmail}
+                                    onChange={onInputChange}
                                 />
                             </div>
                         </div>
                     )}
                 </div>
-            </div>
+            )}
         </div>
     );
 };

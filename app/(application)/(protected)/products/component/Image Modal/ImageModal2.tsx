@@ -57,7 +57,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4">
+                    <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -67,18 +67,22 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="relative w-full max-w-5xl rounded-xl bg-white shadow-2xl">
-                                {/* Header with Close Button and Status */}
-                                <div className="flex items-start justify-between gap-4 p-6 pb-0">
-                                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                        {isAvailable ? 'Available' : 'Unavailable'}
-                                    </span>
-                                    <button onClick={onClose} className="rounded-full bg-gray-100 p-2 transition-colors hover:bg-gray-200">
-                                        <X className="h-5 w-5 text-gray-600" />
+                            <Dialog.Panel className="relative w-full max-w-5xl overflow-hidden rounded-xl bg-white shadow-2xl sm:rounded-2xl">
+                                {/* Header */}
+                                <div className="flex items-center justify-between border-b border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-white px-4 py-3 sm:px-6 sm:py-4">
+                                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                                        <Package className="h-4 w-4 flex-shrink-0 text-primary sm:h-5 sm:w-5" />
+                                        <span className="truncate text-sm font-bold text-gray-900 sm:text-base">{product.product_name}</span>
+                                        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {isAvailable ? 'Available' : 'Unavailable'}
+                                        </span>
+                                    </div>
+                                    <button onClick={onClose} className="rounded-full bg-white/80 p-2 text-gray-400 shadow-sm transition-all hover:bg-primary/10 hover:text-primary">
+                                        <X className="h-5 w-5" />
                                     </button>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-6 p-6 pt-4 lg:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 p-4 pt-3 sm:gap-6 sm:p-6 sm:pt-4 lg:grid-cols-2">
                                     {/* Left Column - Images */}
                                     <div className="space-y-4">
                                         {/* Variant Selector - Show if product has variants */}
@@ -90,8 +94,8 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                         onClick={() => setSelectedVariantIndex(null)}
                                                         className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition-all ${
                                                             selectedVariantIndex === null
-                                                                ? 'border-purple-500 bg-purple-50 text-purple-700'
-                                                                : 'border-gray-300 bg-white text-gray-700 hover:border-purple-300'
+                                                                ? 'border-primary bg-primary/10 text-primary'
+                                                                : 'border-gray-300 bg-white text-gray-700 hover:border-primary/40'
                                                         }`}
                                                     >
                                                         All Images
@@ -102,8 +106,8 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                             onClick={() => setSelectedVariantIndex(index)}
                                                             className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition-all ${
                                                                 selectedVariantIndex === index
-                                                                    ? 'border-purple-500 bg-purple-50 text-purple-700'
-                                                                    : 'border-gray-300 bg-white text-gray-700 hover:border-purple-300'
+                                                                    ? 'border-primary bg-primary/10 text-primary'
+                                                                    : 'border-gray-300 bg-white text-gray-700 hover:border-primary/40'
                                                             }`}
                                                         >
                                                             {stock.variant_name || `Variant ${index + 1}`}
@@ -115,7 +119,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
                                         {displayImages && displayImages.length > 0 ? (
                                             <div className="overflow-hidden rounded-lg border border-gray-200">
-                                                <Swiper navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-96 w-full bg-gray-50">
+                                                <Swiper navigation pagination={{ clickable: true }} slidesPerView={1} loop className="h-52 w-full bg-gray-50 sm:h-80 lg:h-96">
                                                     {displayImages.map((img: any, index: number) => {
                                                         const imageSrc = resolveProductImageUrl(img);
                                                         if (!imageSrc) return null;
@@ -137,7 +141,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                 </Swiper>
                                             </div>
                                         ) : (
-                                            <div className="flex h-96 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
+                                            <div className="flex h-52 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 sm:h-80 lg:h-96">
                                                 <div className="text-center">
                                                     <Package className="mx-auto mb-2 h-16 w-16 text-gray-400" />
                                                     <p className="text-gray-500">No images available</p>
@@ -157,7 +161,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                     <div className="space-y-6">
                                         {/* Header */}
                                         <div>
-                                            <h2 className="mb-2 text-2xl font-bold text-gray-900">{product.product_name}</h2>
+                                            <h2 className="mb-2 text-lg font-bold text-gray-900">{product.product_name}</h2>
                                             {hasRichDescription ? (
                                                 <div className="quill-content text-sm leading-relaxed text-gray-600" dangerouslySetInnerHTML={{ __html: product.description }} />
                                             ) : (
@@ -166,44 +170,42 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         </div>
 
                                         {/* Pricing Section */}
-                                        <div className="rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+                                        <div className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/8 to-primary/3 p-4">
                                             {hasVariants ? (
                                                 <div className="space-y-3">
-                                                    <div className="mb-2 flex items-center justify-between">
-                                                        <span className="text-sm font-semibold text-purple-600">{product.stocks.length} Variants Available</span>
-                                                    </div>
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">{product.stocks.length} Variants Available</p>
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div>
-                                                            <p className="mb-1 text-xs text-gray-600">Price Range</p>
-                                                            <p className="text-lg font-bold text-gray-900">
-                                                                {formatCurrency(Math.min(...product.stocks.map((s: any) => Number(s.price))))} -{' '}
+                                                            <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Price Range</p>
+                                                            <p className="text-base font-bold text-gray-900">
+                                                                {formatCurrency(Math.min(...product.stocks.map((s: any) => Number(s.price))))} –{' '}
                                                                 {formatCurrency(Math.max(...product.stocks.map((s: any) => Number(s.price))))}
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            <p className="mb-1 text-xs text-gray-600">Total Stock</p>
-                                                            <p className="text-lg font-semibold text-gray-700">{totalStock} units</p>
+                                                            <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Total Stock</p>
+                                                            <p className="text-base font-semibold text-gray-700">{totalStock} units</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className="grid grid-cols-3 gap-4">
+                                                <div className="grid grid-cols-3 gap-3">
                                                     <div>
-                                                        <p className="mb-1 text-xs text-gray-600">Retail Price</p>
-                                                        <p className="text-xl font-bold text-gray-900">{formatCurrency(Number(primaryStock?.price || 0))}</p>
+                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Retail</p>
+                                                        <p className="text-base font-bold text-gray-900">{formatCurrency(Number(primaryStock?.price || 0))}</p>
                                                     </div>
                                                     <div>
-                                                        <p className="mb-1 text-xs text-gray-600">Wholesale</p>
-                                                        <p className="text-lg font-semibold text-gray-700">{formatCurrency(Number(primaryStock?.wholesale_price || 0))}</p>
+                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Wholesale</p>
+                                                        <p className="text-sm font-semibold text-gray-600">{formatCurrency(Number(primaryStock?.wholesale_price || 0))}</p>
                                                     </div>
                                                     <div>
-                                                        <p className="mb-1 text-xs text-gray-600">Purchase</p>
-                                                        <p className="text-lg font-semibold text-gray-700">{formatCurrency(Number(primaryStock?.purchase_price || 0))}</p>
+                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Purchase</p>
+                                                        <p className="text-sm font-semibold text-gray-600">{formatCurrency(Number(primaryStock?.purchase_price || 0))}</p>
                                                     </div>
                                                 </div>
                                             )}
                                             {primaryStock?.tax_rate && Number(primaryStock.tax_rate) > 0 && (
-                                                <div className="mt-3 border-t border-blue-200 pt-3">
+                                                <div className="mt-3 border-t border-primary/20 pt-3">
                                                     <p className="text-xs text-gray-600">
                                                         Tax: {primaryStock.tax_rate}% {primaryStock.tax_included ? '(included)' : '(excluded)'}
                                                     </p>
@@ -213,28 +215,28 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
                                         {/* Product Information */}
                                         <div className="space-y-3">
-                                            <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Product Information</h3>
+                                            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Product Information</h3>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-1 text-xs text-gray-500">SKU</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">SKU</p>
                                                     {hasVariants ? (
-                                                        <p className="font-mono text-sm font-medium text-purple-700">{product.stocks.filter((s: any) => s.sku).length} SKUs</p>
+                                                        <p className="font-mono text-sm font-medium text-primary">{product.stocks.filter((s: any) => s.sku).length} SKUs</p>
                                                     ) : (
                                                         <p className="font-mono text-sm font-medium text-gray-900">{primaryStock?.sku || (product.stocks && product.stocks[0]?.sku) || 'N/A'}</p>
                                                     )}
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-1 text-xs text-gray-500">Unit</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Unit</p>
                                                     <p className="text-sm font-medium capitalize text-gray-900">{primaryStock?.unit || product.unit || 'N/A'}</p>
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-1 text-xs text-gray-500">Total Stock</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Total Stock</p>
                                                     <p className="text-sm font-medium text-gray-900">
                                                         {totalStock} {primaryStock?.unit || product.unit || 'unit'}(s)
                                                     </p>
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-1 text-xs text-gray-500">Low Stock Alert</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Low Stock Alert</p>
                                                     <p className="text-sm font-medium text-gray-900">{displayLowStock}</p>
                                                 </div>
                                             </div>
@@ -243,7 +245,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {/* Attributes */}
                                         {product.attributes && Object.keys(product.attributes).length > 0 && (
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Attributes</h3>
+                                                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Attributes</h3>
                                                 <div className="flex flex-wrap gap-2">
                                                     {Array.isArray(product.attributes)
                                                         ? product.attributes.map((attr: any, index: number) => (
@@ -269,8 +271,8 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {/* Stock Details Table - Show Variants */}
                                         {product.stocks && product.stocks.length > 0 && (
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">{hasVariants ? 'Variant Details' : 'Stock Details'}</h3>
-                                                <div className="overflow-hidden rounded-lg border border-gray-200">
+                                                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{hasVariants ? 'Variant Details' : 'Stock Details'}</h3>
+                                                <div className="overflow-x-auto rounded-lg border border-gray-200">
                                                     <table className="min-w-full divide-y divide-gray-200">
                                                         <thead className="bg-gray-50">
                                                             <tr>
@@ -291,7 +293,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                             {stock.variant_data && (
                                                                                 <div className="mt-1 flex flex-wrap gap-1">
                                                                                     {Object.entries(stock.variant_data).map(([key, value]: [string, any]) => (
-                                                                                        <span key={key} className="inline-block rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-700">
+                                                                                        <span key={key} className="inline-block rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
                                                                                             {key}: {value}
                                                                                         </span>
                                                                                     ))}
@@ -308,7 +310,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                     {hasVariants && (
                                                                         <td className="px-4 py-3 text-sm text-gray-700">
                                                                             {stock.images && stock.images.length > 0 ? (
-                                                                                <span className="text-xs text-blue-600">{stock.images.length} image(s)</span>
+                                                                                <span className="text-xs font-medium text-primary">{stock.images.length} image(s)</span>
                                                                             ) : (
                                                                                 <span className="text-xs text-gray-400">No images</span>
                                                                             )}

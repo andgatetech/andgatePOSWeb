@@ -261,7 +261,7 @@ const CategoryComponent = () => {
                                 </li>
                                 <li className="border-t">
                                     <button
-                                        onClick={() => openModal('edit', category)}
+                                        onClick={() => router.push(`/category/edit/${category.id}`)}
                                         className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-green-600 transition-colors hover:bg-green-50"
                                     >
                                         <Edit className="h-4 w-4" />

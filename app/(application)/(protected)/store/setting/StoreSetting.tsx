@@ -97,7 +97,21 @@ const StoreSetting = () => {
         store_name: '',
         store_location: '',
         store_contact: '',
+        store_email: '',
+        store_address: '',
+        district: '',
+        postal_code: '',
+        facebook_page: '',
+        whatsapp_no: '',
+        manager_name: '',
+        manager_phone: '',
+        receipt_header: '',
         max_discount: '',
+        tax_type: 'none',
+        tax_label: '',
+        tax_registration_number: '',
+        invoice_prefix: '',
+        invoice_footer: '',
         opening_time: '',
         closing_time: '',
         loyalty_points_enabled: false,
@@ -244,7 +258,21 @@ const StoreSetting = () => {
                 store_name: storeInfo.store_name || '',
                 store_location: storeInfo.store_location || '',
                 store_contact: storeInfo.store_contact || '',
+                store_email: storeInfo.store_email || '',
+                store_address: storeInfo.store_address || '',
+                district: storeInfo.district || '',
+                postal_code: storeInfo.postal_code || '',
+                facebook_page: storeInfo.facebook_page || '',
+                whatsapp_no: storeInfo.whatsapp_no || '',
+                manager_name: storeInfo.manager_name || '',
+                manager_phone: storeInfo.manager_phone || '',
+                receipt_header: storeInfo.receipt_header || '',
                 max_discount: storeInfo.max_discount ?? '',
+                tax_type: storeInfo.tax_type || 'none',
+                tax_label: storeInfo.tax_label || '',
+                tax_registration_number: storeInfo.tax_registration_number || '',
+                invoice_prefix: storeInfo.invoice_prefix || '',
+                invoice_footer: storeInfo.invoice_footer || '',
                 opening_time: storeInfo.opening_time ? storeInfo.opening_time.slice(0, 5) : '',
                 closing_time: storeInfo.closing_time ? storeInfo.closing_time.slice(0, 5) : '',
                 loyalty_points_enabled: parseIsActive(storeInfo.loyalty_points_enabled),
@@ -259,10 +287,17 @@ const StoreSetting = () => {
 
     const handleInputChange = (e: any) => {
         const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
+        setFormData((prev) => {
+            const next: any = { [name]: type === 'checkbox' ? checked : value };
+            if (name === 'tax_type') {
+                const autoLabel: Record<string, string> = { vat: 'VAT', gst: 'GST', tax: 'Tax', sales_tax: 'Sales Tax', none: '' };
+                const knownLabels = Object.values(autoLabel);
+                if (!prev.tax_label || knownLabels.includes(prev.tax_label)) {
+                    next.tax_label = autoLabel[value] ?? '';
+                }
+            }
+            return { ...prev, ...next };
+        });
     };
 
     // Units management functions
@@ -1290,7 +1325,21 @@ const StoreSetting = () => {
             store_name: normalizeString,
             store_location: normalizeString,
             store_contact: normalizeString,
+            store_email: normalizeString,
+            store_address: normalizeString,
+            district: normalizeString,
+            postal_code: normalizeString,
+            facebook_page: normalizeString,
+            whatsapp_no: normalizeString,
+            manager_name: normalizeString,
+            manager_phone: normalizeString,
+            receipt_header: normalizeString,
             max_discount: normalizeNumber,
+            tax_type: normalizeString,
+            tax_label: normalizeString,
+            tax_registration_number: normalizeString,
+            invoice_prefix: normalizeString,
+            invoice_footer: normalizeString,
             opening_time: formatComparableTime,
             closing_time: formatComparableTime,
             loyalty_points_enabled: normalizeBoolean,

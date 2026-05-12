@@ -1,9 +1,10 @@
+'use client';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { resolveProductImageUrl } from '@/lib/image-url';
-import { Eye, Package } from 'lucide-react';
+import { Eye, Package, Plus } from 'lucide-react';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import type { Product } from './types';
 
 interface ProductCardProps {
@@ -15,85 +16,147 @@ interface ProductCardProps {
     mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, leftWidth = 50, isMobileView = false, onAddToCart, onImageShow, mode = 'pos' }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+    product,
+    isMobileView = false,
+    onAddToCart,
+    onImageShow,
+    mode = 'pos',
+}) => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
-    // Calculate total quantity from stocks
-    const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
-    const isUnavailable = product.available === false || totalQuantity <= 0;
+    const [adding, setAdding] = useState(false);
 
-    const renderProductImage = () => {
+    const totalQuantity =
+        product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+    const isUnavailable = product.available === false || (mode === 'pos' && totalQuantity <= 0);
+
+    const renderImage = () => {
         const stockWithImage = product.stocks?.find((s: any) => s.images && s.images.length > 0);
-        const imgSrc = resolveProductImageUrl(stockWithImage?.images?.[0] || (product as any).images?.[0] || (product as any).image || (product as any).product_image);
+        const imgSrc = resolveProductImageUrl(
+            stockWithImage?.images?.[0] ||
+                (product as any).images?.[0] ||
+                (product as any).image ||
+                (product as any).product_image
+        );
 
         if (imgSrc) {
-            return <Image src={imgSrc} alt={product.product_name} fill className="object-cover" sizes="(max-width: 640px) 140px, (max-width: 1024px) 180px, 200px" />;
+            return (
+                <Image
+                    src={imgSrc}
+                    alt={product.product_name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 140px, 200px"
+                />
+            );
         }
 
-        // No images - show placeholder
         return (
-            <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-400">
-                <Package className="mb-1 h-8 w-8 sm:mb-2 sm:h-10 sm:w-10 md:h-12 md:w-12" />
-                <span className="text-xs font-medium sm:text-sm">{t('lbl_image')}</span>
+            <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-300">
+                <Package className="h-10 w-10" />
             </div>
         );
     };
 
     const renderPrice = () => {
-        // Check if product has variants
-        const hasVariants = product.stocks && product.stocks.some((s: any) => s.is_variant);
+        const hasVariants = product.stocks?.some((s: any) => s.is_variant);
         if (hasVariants) {
             const prices = product.stocks!.filter((s: any) => s.is_variant).map((s: any) => parseFloat(s.price as string));
             const minPrice = Math.min(...prices);
             const maxPrice = Math.max(...prices);
             return (
-                <span className="text-xs font-semibold text-green-600 sm:text-sm">
-                    {formatCurrency(minPrice)} - {formatCurrency(maxPrice)}
+                <span className="font-bold text-primary">
+                    {formatCurrency(minPrice)}{minPrice !== maxPrice ? ` – ${formatCurrency(maxPrice)}` : ''}
                 </span>
             );
         }
-        // Simple product - show regular price
         const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
         const price = parseFloat((primaryStock?.price || product.price || 0) as string);
-        return <span className="text-xs font-semibold text-green-600 sm:text-sm">{formatCurrency(price)}</span>;
+        return <span className="font-bold text-primary">{formatCurrency(price)}</span>;
+    };
+
+    const handleClick = () => {
+        if (isUnavailable) return;
+        setAdding(true);
+        onAddToCart(product);
+        setTimeout(() => setAdding(false), 600);
     };
 
     return (
         <div
-            className={`relative rounded-lg border-2 border-gray-800 bg-white shadow-md transition-all duration-200 ${
-                isUnavailable && mode === 'pos' ? 'cursor-not-allowed border-gray-400 opacity-60' : 'cursor-pointer hover:scale-[1.02] hover:border-blue-600 hover:shadow-xl'
+            onClick={handleClick}
+            className={`group relative flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-200 ${
+                isUnavailable
+                    ? 'cursor-not-allowed border-gray-200 opacity-55'
+                    : adding
+                    ? 'scale-[0.97] border-primary/60 shadow-md'
+                    : 'cursor-pointer border-gray-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
             }`}
-            onClick={() => !(isUnavailable && mode === 'pos') && onAddToCart(product)}
         >
-            {/* Product Image */}
-            <div className="relative h-32 overflow-hidden rounded-t-lg bg-gray-100 sm:h-40 md:h-44">
-                {renderProductImage()}
+            {/* Product image */}
+            <div className="relative h-32 shrink-0 overflow-hidden bg-gray-100 sm:h-36">
+                {renderImage()}
 
-                {/* Open modal */}
+                {/* Out of stock overlay */}
+                {isUnavailable && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50">
+                        <span className="rounded-full bg-gray-900/80 px-2 py-1 text-xs font-bold text-white">
+                            {t('status_out_of_stock')}
+                        </span>
+                    </div>
+                )}
+
+                {/* Add to cart flash */}
+                {adding && (
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-primary/20">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary shadow-lg">
+                            <Plus className="h-5 w-5 text-white" />
+                        </div>
+                    </div>
+                )}
+
+                {/* View image button */}
                 <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onImageShow(product);
-                    }}
-                    className="absolute right-1.5 top-1.5 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70 sm:right-2 sm:top-2 sm:p-2"
+                    onClick={(e) => { e.stopPropagation(); onImageShow(product); }}
+                    className="absolute right-1.5 top-1.5 rounded-full bg-black/40 p-1.5 text-white opacity-0 transition-all hover:bg-black/70 group-hover:opacity-100"
                 >
-                    <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <Eye className="h-3 w-3" />
                 </button>
+
+                {/* Hover add indicator */}
+                {!isUnavailable && !adding && (
+                    <div className="absolute bottom-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-primary opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                        <Plus className="h-4 w-4 text-white" />
+                    </div>
+                )}
             </div>
 
             {/* Info */}
-            <div className="p-2 sm:p-3">
-                <h3 className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm">{product.product_name}</h3>
+            <div className="flex flex-1 flex-col p-2.5">
+                <h3 className="mb-1 line-clamp-2 text-xs font-semibold leading-snug text-gray-800 sm:text-sm">
+                    {product.product_name}
+                </h3>
 
-                {/* SKU - Now from first stock */}
-                {product.stocks && product.stocks.length > 0 && product.stocks[0].sku && <div className="mb-0.5 text-[10px] text-gray-400 sm:mb-1 sm:text-xs">{t('lbl_sku')}: {product.stocks[0].sku}</div>}
+                {/* SKU */}
+                {product.stocks?.[0]?.sku && (
+                    <p className="mb-1 text-[10px] text-gray-400">{product.stocks[0].sku}</p>
+                )}
 
-                {/* Unit */}
-                <div className="mb-1 text-[10px] font-medium text-blue-600 sm:text-xs">{t('lbl_unit')}: {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : t('lbl_na'))}</div>
-
-                <div className="mt-1.5 flex items-center justify-between sm:mt-2">
-                    {renderPrice()}
-                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500 sm:px-2 sm:text-xs">{t('lbl_stock')}: {formatNumber(totalQuantity)}</span>
+                {/* Price + stock row */}
+                <div className="mt-auto flex items-center justify-between pt-1">
+                    <div className="text-sm">{renderPrice()}</div>
+                    <span
+                        className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                            totalQuantity > 10
+                                ? 'bg-green-50 text-green-600'
+                                : totalQuantity > 0
+                                ? 'bg-amber-50 text-amber-600'
+                                : 'bg-red-50 text-red-500'
+                        }`}
+                    >
+                        {formatNumber(totalQuantity)}
+                    </span>
                 </div>
             </div>
         </div>

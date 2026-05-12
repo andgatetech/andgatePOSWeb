@@ -1,21 +1,13 @@
 'use client';
 
-import PermissionSelector from '@/app/(application)/(protected)/employees/employees/PermissionSelector';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { RootState } from '@/store';
-import { useGetUserPermissionsQuery } from '@/store/features/auth/authApi';
+import { useAssignRoleMutation, useGetRolesQuery } from '@/store/features/roles/rolesApi';
 import { useStaffRegisterMutation } from '@/store/features/store/storeApi';
-import { ArrowLeft, Eye, EyeOff, Shield, Store, Users } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Store, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-
-interface Permission {
-    id: number;
-    name: string;
-}
 
 interface FormData {
     name: string;
@@ -24,8 +16,6 @@ interface FormData {
     password_confirmation: string;
     phone: string;
     address: string;
-    role_in_store: string;
-    permissions: number[]; // Store permission IDs
 }
 
 interface FormErrors {
@@ -33,22 +23,23 @@ interface FormErrors {
     email?: string;
     password?: string;
     password_confirmation?: string;
-    phone?: string;
-    address?: string;
 }
 
 const EmployeeCreateForm = () => {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
-    const user = useSelector((state: RootState) => state.auth?.user);
     const [staffRegister, { isLoading: isSubmitting }] = useStaffRegisterMutation();
-    const { data: permissionsResponse, isLoading: permissionsLoading } = useGetUserPermissionsQuery(user?.id ?? 0, { skip: !user?.id });
+    const [assignRole] = useAssignRoleMutation();
 
-    // Extract permissions array from response
-    const allPermissions = useMemo(() => {
-        return permissionsResponse?.data?.permissions || [];
-    }, [permissionsResponse]);
+    const { data: rolesResponse } = useGetRolesQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const availableRoles = useMemo(() => {
+        const d = rolesResponse as any;
+        if (Array.isArray(d?.data?.roles)) return d.data.roles as { id: number; name: string }[];
+        if (Array.isArray(d?.data?.data)) return d.data.data as { id: number; name: string }[];
+        if (Array.isArray(d?.data)) return d.data as { id: number; name: string }[];
+        return [] as { id: number; name: string }[];
+    }, [rolesResponse]);
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -57,25 +48,17 @@ const EmployeeCreateForm = () => {
         password_confirmation: '',
         phone: '',
         address: '',
-        role_in_store: 'staff',
-        permissions: [],
     });
 
+    const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
     const [formErrors, setFormErrors] = useState<FormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [selectAll, setSelectAll] = useState(false);
 
-    // Group permissions by category (no longer needed by this component — handled inside PermissionSelector)
-    // Kept as reference; the selector does its own grouping.
-
-    // Validate form
     const validateForm = () => {
         const errors: FormErrors = {};
 
-        if (!formData.name.trim()) {
-            errors.name = t('msg_name_required');
-        }
+        if (!formData.name.trim()) errors.name = t('msg_name_required');
 
         if (!formData.email.trim()) {
             errors.email = t('msg_email_required');
@@ -99,25 +82,24 @@ const EmployeeCreateForm = () => {
         return Object.keys(errors).length === 0;
     };
 
-    // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         try {
-            // Prepare the data with required fields
-            const staffData = {
+            const result = await staffRegister({
                 ...formData,
                 store_id: currentStoreId,
-                role: formData.role_in_store,
+                role: 'staff',
+            }).unwrap();
 
-                permissions: formData.permissions,
-            };
-
-            await staffRegister(staffData).unwrap();
+            // Assign RBAC role if selected
+            if (selectedRoleId) {
+                const newUserId = (result as any)?.data?.id || (result as any)?.data?.user?.id;
+                if (newUserId) {
+                    await assignRole({ roleId: selectedRoleId, user_id: newUserId }).unwrap();
+                }
+            }
 
             await Swal.fire({
                 title: t('msg_success'),
@@ -136,10 +118,7 @@ const EmployeeCreateForm = () => {
 
             router.push('/employees');
         } catch (error: any) {
-            console.error('Registration failed:', error);
-
             const errorMessage = error?.data?.message || t('msg_failed_register_employee');
-
             await Swal.fire({
                 title: t('msg_error'),
                 text: errorMessage,
@@ -157,75 +136,17 @@ const EmployeeCreateForm = () => {
         }
     };
 
-    // Handle input change
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-
-        // Clear specific error when user starts typing
         if (formErrors[name as keyof FormErrors]) {
             setFormErrors((prev) => ({ ...prev, [name]: '' }));
         }
     };
 
-    // Handle permission toggle
-    const handlePermissionToggle = (permissionId: number) => {
-        setFormData((prev) => {
-            const permissions = prev.permissions.includes(permissionId) ? prev.permissions.filter((id) => id !== permissionId) : [...prev.permissions, permissionId];
-
-            return { ...prev, permissions };
-        });
-        setSelectAll(false); // Uncheck "Select All" when individual permissions are toggled
-    };
-
-    // Handle select all toggle
-    const handleSelectAllToggle = () => {
-        if (selectAll) {
-            // Deselect all
-            setSelectAll(false);
-            setFormData((prev) => ({ ...prev, permissions: [] }));
-        } else {
-            // Select all
-            setSelectAll(true);
-            setFormData((prev) => ({ ...prev, permissions: allPermissions.map((p: Permission) => p.id) }));
-        }
-    };
-
-    // Handle category toggle (select/deselect all permissions in a category)
-    const handleCategoryToggle = (category: string, permissions: Permission[]) => {
-        const categoryPermissionIds = permissions.map((p) => p.id);
-        const allSelected = categoryPermissionIds.every((id) => formData.permissions.includes(id));
-
-        if (allSelected) {
-            // Deselect all in category
-            setFormData((prev) => ({
-                ...prev,
-                permissions: prev.permissions.filter((id) => !categoryPermissionIds.includes(id)),
-            }));
-        } else {
-            // Select all in category
-            setFormData((prev) => ({
-                ...prev,
-                permissions: [...new Set([...prev.permissions, ...categoryPermissionIds])],
-            }));
-        }
-        setSelectAll(false);
-    };
-
-    if (permissionsLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="mx-auto h-16 w-16 animate-spin rounded-full border-b-2 border-[#046ca9]"></div>
-                    <p className="mt-4 text-gray-600">{t('lbl_loading_permissions')}</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
-            <div className="mx-auto ">
+            <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
@@ -235,7 +156,9 @@ const EmployeeCreateForm = () => {
                             </div>
                             <div>
                                 <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('lbl_create_new_employee')}</h1>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('employee_add_to_store')} ${currentStore.store_name}` : t('employee_add_to_team')}</p>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
+                                    {currentStore ? `${t('employee_add_to_store')} ${currentStore.store_name}` : t('employee_add_to_team')}
+                                </p>
                             </div>
                         </div>
                         <button
@@ -253,9 +176,9 @@ const EmployeeCreateForm = () => {
                                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
                                     <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
                                 </div>
-                                <div>
-                                    <p className="text-xs font-medium text-[#034d79] sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
-                                </div>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                    {t('lbl_current_store')}: {currentStore.store_name}
+                                </p>
                             </div>
                         </div>
                     )}
@@ -322,11 +245,7 @@ const EmployeeCreateForm = () => {
                                                 }`}
                                                 placeholder={t('placeholder_password')}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                            >
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
                                                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                             </button>
                                         </div>
@@ -351,11 +270,7 @@ const EmployeeCreateForm = () => {
                                                 }`}
                                                 placeholder={t('placeholder_confirm_password')}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                            >
+                                            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
                                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                             </button>
                                         </div>
@@ -393,43 +308,22 @@ const EmployeeCreateForm = () => {
 
                                     {/* Role */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_role')} <span className="text-red-500">*</span>
-                                        </label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_role')}</label>
                                         <select
-                                            name="role_in_store"
-                                            value={formData.role_in_store}
-                                            onChange={handleInputChange}
+                                            value={selectedRoleId ?? ''}
+                                            onChange={(e) => setSelectedRoleId(e.target.value === '' ? null : Number(e.target.value))}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
                                         >
-                                            <option value="staff">{t('role_staff')}</option>
-                                            <option value="cashier">{t('role_cashier')}</option>
-                                            <option value="manager">{t('role_manager')}</option>
-                                            <option value="store admin">{t('role_store_admin')}</option>
+                                            <option value="">{t('lbl_no_role')}</option>
+                                            {availableRoles.map((role) => (
+                                                <option key={role.id} value={role.id}>
+                                                    {role.name}
+                                                </option>
+                                            ))}
                                         </select>
+                                        <p className="mt-1 text-xs text-gray-400">{t('employee_role_desc')}</p>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Permissions Section */}
-                            <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
-                                <div className="mb-4 flex items-center gap-3">
-                                    <Shield className="h-5 w-5 text-[#046ca9]" />
-                                    <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">{t('lbl_permissions')}</h2>
-                                        <p className="text-xs text-gray-500">{t('employee_permissions_desc')}</p>
-                                    </div>
-                                </div>
-
-                                <PermissionSelector
-                                    allPermissions={allPermissions}
-                                    isChecked={(p) => formData.permissions.includes(p.id) || selectAll}
-                                    onToggle={(p) => handlePermissionToggle(p.id)}
-                                    onCategoryToggle={handleCategoryToggle}
-                                    onSelectAll={handleSelectAllToggle}
-                                    selectAll={selectAll}
-                                    selectedCount={formData.permissions.length}
-                                />
                             </div>
                         </div>
 

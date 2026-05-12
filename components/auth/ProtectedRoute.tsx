@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children, requiredPermissions = [], red
 
     useEffect(() => {
         // Admin always has access
-        if (user?.role === 'store_admin') {
+        if (user?.role === 'business_admin') {
             setIsAuthorized(true);
             setIsLoading(false);
             return;

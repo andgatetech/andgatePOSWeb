@@ -324,8 +324,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 quantity: 1,
                 amount: regularPrice,
                 PlaceholderQuantity: totalQuantity,
-                tax_rate: primaryStock?.tax_rate ? parseFloat(primaryStock.tax_rate) : 0,
-                tax_included: primaryStock?.tax_included === true,
+                tax_rate: primaryStock?.tax_rate ? parseFloat(primaryStock.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
+                tax_included: primaryStock?.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                 unit: primaryStock?.unit || product.unit || 'piece',
                 isWholesale: false,
                 // Serial & Warranty support
@@ -470,8 +470,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 quantity: quantity,
                 amount: price * quantity,
                 PlaceholderQuantity: parseFloat(variant.quantity),
-                tax_rate: variant.tax_rate ? parseFloat(variant.tax_rate) : 0,
-                tax_included: variant.tax_included === true,
+                tax_rate: variant.tax_rate ? parseFloat(variant.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
+                tax_included: variant.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                 unit: variant.unit || 'piece',
                 isWholesale: useWholesale,
                 // Serial & Warranty support - use variant-specific warranty
@@ -560,8 +560,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     quantity: 1, // Always 1 for serialized items
                     amount: regularPrice,
                     PlaceholderQuantity: 1, // Each serial is unique
-                    tax_rate: serialStock.tax_rate ? parseFloat(serialStock.tax_rate) : 0,
-                    tax_included: serialStock.tax_included === true,
+                    tax_rate: serialStock.tax_rate ? parseFloat(serialStock.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
+                    tax_included: serialStock.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                     unit: serialStock.unit || 'piece',
                     isWholesale: false,
                     // Serial & Warranty data
@@ -666,41 +666,19 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         [handleSearchChange, t]
     );
 
-    // Camera scan handler — simple like SKU tab: just fill search field and show toast
+    // Camera scan handler — sets search term (auto-add useEffect picks it up).
+    // Scanner stays OPEN so user can scan multiple products in sequence.
     const handleCameraScan = useCallback((data: string) => {
         if (!data) return;
 
-        // Fill the search input with scanned value
         setSearchTerm(data);
         setCurrentPage(1);
 
-        // Show success toast
-        toast.success(t('pos_scanned_value').replace('{value}', data), {
-            duration: 2000,
-            position: 'top-center',
-            style: {
-                background: '#10b981',
-                color: '#fff',
-                padding: '16px',
-                borderRadius: '8px',
-                fontWeight: '500',
-                fontSize: '14px',
-            },
-            iconTheme: {
-                primary: '#fff',
-                secondary: '#10b981',
-            },
-        });
-
-        // Play beep sound
         if (beepRef.current) {
             beepRef.current.currentTime = 0;
             beepRef.current.play().catch(() => {});
         }
-
-        // Close scanner
-        setShowCameraScanner(false);
-    }, [t]);
+    }, []);
 
     const handleBarcodeError = (err: any) => {
         console.error('Barcode scan error:', err);
@@ -843,10 +821,30 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     className={`flex flex-col overflow-hidden ${isMobileView ? 'w-full' : ''} ${isMobileView && showMobileCart ? 'hidden' : ''}`}
                     style={!isMobileView ? { width: `${leftWidth}%` } : {}}
                 >
-                    <div className="panel flex-1 overflow-auto px-3 py-4 sm:px-6 sm:py-6">
-                        <div className="mb-4 sm:mb-6">
-                            <h1 className="mb-1 text-xl font-bold text-gray-900 sm:text-2xl">{t('pos_select_products')}</h1>
-                            <p className="text-xs text-gray-600 sm:text-sm">{t('pos_select_products_hint')}</p>
+                    <div className="panel flex-1 overflow-auto px-3 py-4 sm:px-5 sm:py-5">
+                        {/* Compact header */}
+                        <div className="mb-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                                    <svg className="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 className="text-sm font-bold text-gray-800">{t('pos_select_products')}</h2>
+                                    {paginationMeta && (
+                                        <p className="text-xs text-gray-400">{paginationMeta.total} {t('lbl_items')}</p>
+                                    )}
+                                </div>
+                            </div>
+                            {reduxItems.length > 0 && (
+                                <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1">
+                                    <svg className="h-3.5 w-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <span className="text-xs font-bold text-primary">{reduxItems.length}</span>
+                                </div>
+                            )}
                         </div>
 
                         <FilterButtons

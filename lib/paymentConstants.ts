@@ -57,3 +57,17 @@ export const DEFAULT_PAYMENT_METHOD = {
     id: 0,
     payment_method_name: 'cash',
 } as const;
+
+// Methods where payment is collected immediately — "due" status is not valid.
+// Matched by substring so "Cash on Delivery", "bKash", "Nagad" etc. are covered.
+const IMMEDIATE_METHOD_KEYWORDS = ['cash', 'bkash', 'nagad', 'rocket', 'upay', 'card', 'tap', 'gpay', 'paytm'];
+
+/**
+ * Returns the payment statuses that are valid for a given payment method.
+ * Cash-like (immediate) methods cannot be "due" — money is received on the spot.
+ */
+export function getAllowedStatusesForMethod(method: string): readonly string[] {
+    const lower = (method || '').toLowerCase();
+    const isImmediate = IMMEDIATE_METHOD_KEYWORDS.some((kw) => lower.includes(kw));
+    return isImmediate ? ['paid', 'partial'] : ['paid', 'partial', 'due'];
+}

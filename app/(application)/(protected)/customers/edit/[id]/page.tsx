@@ -5,7 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleCustomerQuery, useUpdateCustomerMutation } from '@/store/features/customer/customer';
-import { Store, User } from 'lucide-react';
+import { ArrowLeft, Store, User } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -175,6 +175,13 @@ const EditCustomerPage = () => {
                 {/* Header */}
                 <div className="mb-6 space-y-4">
                     <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => router.push('/customers/list')}
+                            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                        </button>
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                             <User className="h-5 w-5" />
                         </div>

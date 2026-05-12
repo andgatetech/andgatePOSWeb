@@ -16,7 +16,7 @@ const NotificationsPage = () => {
         <div>
             <div className="mb-5 flex items-center justify-between">
                 <h5 className="text-lg font-semibold dark:text-white-light">{t('lbl_notifications')}</h5>
-                {user?.role === 'store_admin' && (
+                {user?.role === 'business_admin' && (
                     <button type="button" className="btn btn-primary flex items-center gap-2" onClick={() => router.push('/notifications/send')}>
                         <Plus className="h-4 w-4" />
                         {t('btn_send_announcement')}

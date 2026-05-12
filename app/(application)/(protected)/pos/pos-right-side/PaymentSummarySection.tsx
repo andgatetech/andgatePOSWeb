@@ -1,13 +1,15 @@
+'use client';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { FALLBACK_PAYMENT_STATUSES, PAYMENT_STATUS_CONFIGS, getPaymentStatusConfig } from '@/lib/paymentConstants';
+import { FALLBACK_PAYMENT_STATUSES, PAYMENT_STATUS_CONFIGS, getAllowedStatusesForMethod, getPaymentStatusConfig } from '@/lib/paymentConstants';
 import type { Customer, PosFormData } from './types';
 
 interface PaymentSummarySectionProps {
     formData: PosFormData;
     selectedCustomer: Customer | null;
     paymentMethodOptions: any[];
-    paymentStatusOptions: any[]; // Payment statuses from Redux with colors
+    paymentStatusOptions: any[];
     onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     subtotalWithoutTax: number;
     taxAmount: number;
@@ -17,12 +19,46 @@ interface PaymentSummarySectionProps {
     balanceDiscount: number;
     totalPayable: number;
     isWalkInCustomer: boolean;
-    // Return mode props
     isReturnMode?: boolean;
     returnTotal?: number;
     newItemsTotal?: number;
     returnNetAmount?: number;
 }
+
+// Synthetic event helper so pill buttons can share onInputChange
+const makeEvent = (name: string, value: string) =>
+    ({ target: { name, value, type: 'select-one' } } as React.ChangeEvent<HTMLSelectElement>);
+
+// Icon for each payment method keyword
+const MethodIcon = ({ name }: { name: string }) => {
+    const lower = name.toLowerCase();
+    if (lower.includes('cash')) return (
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+    );
+    if (lower.includes('card')) return (
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+    );
+    if (lower.includes('bank') || lower.includes('transfer')) return (
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+        </svg>
+    );
+    // Mobile banking (bKash, Nagad, Rocket etc.)
+    if (lower.includes('bkash') || lower.includes('nagad') || lower.includes('rocket') || lower.includes('mobile') || lower.includes('upay')) return (
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+    );
+    return (
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    );
+};
 
 const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     formData,
@@ -38,7 +74,6 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     balanceDiscount,
     totalPayable,
     isWalkInCustomer,
-    // Return mode props
     isReturnMode = false,
     returnTotal = 0,
     newItemsTotal = 0,
@@ -46,8 +81,12 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
+    const { currentStore } = useCurrentStore();
+    const taxLabel = currentStore?.tax_label || t('lbl_tax');
     const canUsePoints = !!selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = !!selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
+
+    const emit = (name: string, value: string) => onInputChange(makeEvent(name, value));
 
     const defaultStatuses = FALLBACK_PAYMENT_STATUSES.map((s) => ({
         ...s,
@@ -55,392 +94,325 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
         status_color: PAYMENT_STATUS_CONFIGS[s.value].hex,
     }));
 
-    // Determine available payment statuses based on customer type
     const getAvailablePaymentStatuses = () => {
-        // Use Redux data if available, otherwise fallback
         const baseStatuses = paymentStatusOptions.length > 0 ? paymentStatusOptions : defaultStatuses;
-
-        // Map statuses to include value (lowercase status_name for form submission)
         const mappedStatuses = baseStatuses.map((s: any) => ({
             ...s,
             value: s.value || s.status_name?.toLowerCase(),
             label: s.status_name || s.label,
             color: s.status_color || '#6b7280',
         }));
-
         if (isWalkInCustomer) {
-            // Walk-in customers can only pay fully
             const paidStatus = mappedStatuses.find((s: any) => s.value === 'paid');
             return paidStatus ? [paidStatus] : [{ value: 'paid', label: t('status_paid'), color: '#22c55e' }];
         }
-
-        // For both existing customers and new manual entry customers - allow paid, partial, or due payments
-        return mappedStatuses.filter((s: any) => ['paid', 'partial', 'due'].includes(s.value));
+        const allowedByMethod = getAllowedStatusesForMethod(formData.paymentMethod);
+        return mappedStatuses.filter((s: any) =>
+            ['paid', 'partial', 'due'].includes(s.value) && allowedByMethod.includes(s.value)
+        );
     };
 
     const availablePaymentStatuses = getAvailablePaymentStatuses();
-
     const getSelectedStatusColor = () => getPaymentStatusConfig(formData.paymentStatus).hex || '#6b7280';
 
+    const methodLabel = (name: string) => {
+        const lower = name.toLowerCase();
+        if (lower === 'cash') return t('lbl_cash');
+        if (lower === 'card') return t('lbl_card');
+        if (lower === 'bank' || lower === 'bank_transfer') return t('lbl_bank_transfer');
+        return name;
+    };
+
     return (
-        <div className="mt-4 flex flex-col gap-2 sm:mt-6 sm:gap-3">
-            {selectedCustomer && formData.membershipDiscount > 0 && (
-                <div className="flex justify-between rounded bg-green-50 p-2">
-                    <label className="text-sm font-semibold text-green-700 sm:text-base">{t('pos_membership_discount')} ({selectedCustomer.membership})</label>
-                    <span className="text-sm font-semibold text-green-700 sm:text-base">{formData.membershipDiscount}%</span>
-                </div>
-            )}
+        <div className="mt-4 space-y-4 border-t border-gray-100 pt-4">
 
+            {/* ── Loyalty Points ── */}
             {canUsePoints && (
-                <div className="rounded border border-orange-200 bg-orange-50 p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                        <label className="flex items-center">
-                            <input type="checkbox" name="usePoints" className="mr-2" checked={formData.usePoints} onChange={onInputChange} />
-                            <span className="font-semibold text-orange-700">{t('lbl_use_loyalty_points')}</span>
-                        </label>
-                        <span className="text-sm text-orange-600">{t('lbl_available')}: {Number(selectedCustomer.points) || 0} {t('lbl_points')}</span>
-                    </div>
+                <div className="rounded-xl border border-orange-200 bg-orange-50 p-3">
+                    <label className="flex items-center justify-between cursor-pointer">
+                        <span className="flex items-center gap-2 text-sm font-semibold text-orange-700">
+                            <input type="checkbox" name="usePoints" className="rounded" checked={formData.usePoints} onChange={onInputChange} />
+                            {t('lbl_use_loyalty_points')}
+                        </span>
+                        <span className="text-xs text-orange-600">{Number(selectedCustomer!.points) || 0} {t('lbl_points')}</span>
+                    </label>
                     {formData.usePoints && (
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-orange-600">{t('lbl_points_to_use')}:</span>
-                            <input
-                                type="number"
-                                name="pointsToUse"
-                                className="form-input w-24"
-                                min={0}
-                                max={Number(selectedCustomer.points) || 0}
-                                value={formData.pointsToUse}
-                                onChange={onInputChange}
-                            />
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                            <span className="text-xs text-orange-600">{t('lbl_points_to_use')}:</span>
+                            <input type="number" name="pointsToUse" className="form-input w-24 py-1 text-sm"
+                                min={0} max={Number(selectedCustomer!.points) || 0}
+                                value={formData.pointsToUse} onChange={onInputChange} />
                         </div>
                     )}
-                    {formData.usePoints && formData.pointsToUse > 0 && <div className="mt-2 text-sm text-orange-600">{t('lbl_points_discount')}: -{formatCurrency(pointsDiscount)}</div>}
+                    {formData.usePoints && formData.pointsToUse > 0 && (
+                        <p className="mt-1 text-right text-xs text-orange-600">−{formatCurrency(pointsDiscount)}</p>
+                    )}
                 </div>
             )}
 
+            {/* ── Account Balance ── */}
             {canUseBalance && (
-                <div className="rounded border border-teal-200 bg-teal-50 p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                        <label className="flex items-center">
-                            <input type="checkbox" name="useBalance" className="mr-2" checked={formData.useBalance} onChange={onInputChange} />
-                            <span className="font-semibold text-teal-700">{t('lbl_use_account_balance')}</span>
-                        </label>
-                        <span className="text-sm text-teal-600">{t('lbl_available')}: {formatCurrency(selectedCustomer?.balance)}</span>
-                    </div>
+                <div className="rounded-xl border border-teal-200 bg-teal-50 p-3">
+                    <label className="flex items-center justify-between cursor-pointer">
+                        <span className="flex items-center gap-2 text-sm font-semibold text-teal-700">
+                            <input type="checkbox" name="useBalance" className="rounded" checked={formData.useBalance} onChange={onInputChange} />
+                            {t('lbl_use_account_balance')}
+                        </span>
+                        <span className="text-xs text-teal-600">{formatCurrency(selectedCustomer!.balance)}</span>
+                    </label>
                     {formData.useBalance && (
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-teal-600">{t('lbl_balance_to_use')}:</span>
-                            <input
-                                type="number"
-                                name="balanceToUse"
-                                className="form-input w-24"
-                                min={0}
-                                max={parseFloat(String(selectedCustomer?.balance ?? '0'))}
-                                step={0.01}
-                                value={formData.balanceToUse}
-                                onChange={onInputChange}
-                            />
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                            <span className="text-xs text-teal-600">{t('lbl_balance_to_use')}:</span>
+                            <input type="number" name="balanceToUse" className="form-input w-24 py-1 text-sm"
+                                min={0} max={parseFloat(String(selectedCustomer!.balance ?? '0'))} step={0.01}
+                                value={formData.balanceToUse} onChange={onInputChange} />
                         </div>
                     )}
-                    {formData.useBalance && formData.balanceToUse > 0 && <div className="mt-2 text-sm text-teal-600">{t('lbl_balance_discount')}: -{formatCurrency(balanceDiscount)}</div>}
+                    {formData.useBalance && formData.balanceToUse > 0 && (
+                        <p className="mt-1 text-right text-xs text-teal-600">−{formatCurrency(balanceDiscount)}</p>
+                    )}
                 </div>
             )}
 
-            <div className="flex justify-between border-t border-gray-300 pt-3 text-sm font-semibold sm:pt-4 sm:text-lg">
-                <span>{t('lbl_subtotal_no_tax')}</span>
-                <span>{formatCurrency(subtotalWithoutTax)}</span>
-            </div>
-            <div className="flex justify-between text-sm sm:text-base">
-                <span>{t('lbl_tax')}</span>
-                <span>{formatCurrency(taxAmount)}</span>
-            </div>
-            <div className="flex justify-between text-sm sm:text-base">
-                <span>{t('lbl_discount')}</span>
-                <span>-{formatCurrency(discountAmount)}</span>
-            </div>
-            {selectedCustomer && formData.membershipDiscount > 0 && (
-                <div className="flex justify-between text-sm text-green-600 sm:text-base">
-                    <span>{t('pos_membership_discount')}</span>
-                    <span>-{formatCurrency(membershipDiscountAmount)}</span>
+            {/* ── Order Totals ── */}
+            {!isReturnMode && (
+                <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-3 space-y-1.5">
+                    {taxAmount > 0 && (
+                        <div className="flex justify-between text-sm text-gray-500">
+                            <span>{t('lbl_subtotal_no_tax')}</span>
+                            <span className="font-medium text-gray-700">{formatCurrency(subtotalWithoutTax)}</span>
+                        </div>
+                    )}
+                    {taxAmount > 0 && (
+                        <div className="flex justify-between text-sm text-gray-500">
+                            <span>{taxLabel}</span>
+                            <span className="font-medium text-gray-700">{formatCurrency(taxAmount)}</span>
+                        </div>
+                    )}
+                    {discountAmount > 0 && (
+                        <div className="flex justify-between text-sm text-red-500">
+                            <span>{t('lbl_discount')}</span>
+                            <span className="font-medium">−{formatCurrency(discountAmount)}</span>
+                        </div>
+                    )}
+                    {selectedCustomer && membershipDiscountAmount > 0 && (
+                        <div className="flex justify-between text-sm text-green-600">
+                            <span>{t('pos_membership_discount')} ({selectedCustomer.membership})</span>
+                            <span className="font-medium">−{formatCurrency(membershipDiscountAmount)}</span>
+                        </div>
+                    )}
+                    {selectedCustomer && formData.usePoints && pointsDiscount > 0 && (
+                        <div className="flex justify-between text-sm text-orange-500">
+                            <span>{t('pos_points_payment', { pts: formData.pointsToUse })}</span>
+                            <span className="font-medium">−{formatCurrency(pointsDiscount)}</span>
+                        </div>
+                    )}
+                    {selectedCustomer && formData.useBalance && balanceDiscount > 0 && (
+                        <div className="flex justify-between text-sm text-teal-600">
+                            <span>{t('pos_balance_payment')}</span>
+                            <span className="font-medium">−{formatCurrency(balanceDiscount)}</span>
+                        </div>
+                    )}
+                    {/* Grand Total bar */}
+                    <div className="mt-2 flex items-center justify-between rounded-lg bg-primary px-3 py-2.5">
+                        <span className="text-sm font-semibold text-white/80">{t('lbl_grand_total')}</span>
+                        <span className="text-xl font-black tracking-tight text-white">{formatCurrency(totalPayable)}</span>
+                    </div>
                 </div>
             )}
-            {selectedCustomer && formData.usePoints && formData.pointsToUse > 0 && (
-                <div className="flex justify-between text-sm text-orange-600 sm:text-base">
-                    <span>{t('pos_points_payment', { pts: formData.pointsToUse })}</span>
-                    <span>-{formatCurrency(pointsDiscount)}</span>
+
+            {/* ── Payment Method ── */}
+            {!isReturnMode && (
+                <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        {t('lbl_payment_method')} <span className="text-red-400">*</span>
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {paymentMethodOptions.map((method: any) => {
+                            const name = method.payment_method_name || '';
+                            const selected = formData.paymentMethod === name;
+                            return (
+                                <button
+                                    key={method.id ?? name}
+                                    type="button"
+                                    onClick={() => emit('paymentMethod', name)}
+                                    className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                        selected
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'border border-gray-200 bg-white text-gray-600 hover:border-primary/40 hover:bg-primary/5 hover:text-primary'
+                                    }`}
+                                >
+                                    <MethodIcon name={name} />
+                                    <span>{methodLabel(name)}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
-            {selectedCustomer && formData.useBalance && formData.balanceToUse > 0 && (
-                <div className="flex justify-between text-sm text-teal-600 sm:text-base">
-                    <span>{t('pos_balance_payment')}</span>
-                    <span>-{formatCurrency(balanceDiscount)}</span>
+
+            {/* ── Payment Status ── */}
+            {!isReturnMode && (
+                <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        {t('lbl_payment_status')} <span className="text-red-400">*</span>
+                    </p>
+                    {isWalkInCustomer ? (
+                        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2">
+                            <span className="h-2 w-2 rounded-full bg-green-500" />
+                            <span className="text-sm font-semibold text-green-700">{t('status_paid')}</span>
+                            <span className="text-xs text-green-500">· {t('pos_walk_in_customer')}</span>
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap gap-2">
+                            {availablePaymentStatuses.map((status: any) => {
+                                const selected = formData.paymentStatus === status.value;
+                                return (
+                                    <button
+                                        key={status.value}
+                                        type="button"
+                                        onClick={() => emit('paymentStatus', status.value)}
+                                        style={selected ? { backgroundColor: status.color, borderColor: status.color } : { borderColor: status.color + '60' }}
+                                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
+                                            selected ? 'text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <span
+                                            className="h-2 w-2 rounded-full"
+                                            style={{ backgroundColor: selected ? 'rgba(255,255,255,0.6)' : status.color }}
+                                        />
+                                        {status.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
-            <div className="flex justify-between border-t border-gray-300 pt-3 text-lg font-bold sm:pt-4 sm:text-xl">
-                <span>{t('lbl_grand_total')}</span>
-                <span>{formatCurrency(totalPayable)}</span>
-            </div>
 
-            {/* Payment Method and Payment Status - Moved after Grand Total */}
-            <div className="mt-4 flex flex-col justify-between gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:items-center">
-                <label className="text-sm font-semibold sm:text-base">
-                    {t('lbl_payment_method')} <span className="text-red-500">*</span>
-                </label>
-                <select name="paymentMethod" className="form-select w-full sm:w-40" value={formData.paymentMethod} onChange={onInputChange} required>
-                    <option value="">{t('btn_select_all')}</option>
-                    {paymentMethodOptions.map((method) => (
-                        <option key={method.id} value={method.payment_method_name || ''}>
-                            {method.payment_method_name?.toLowerCase() === 'cash' ? t('lbl_cash') : method.payment_method_name || t('lbl_unnamed_method')}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-                <label className="text-sm font-semibold sm:text-base">
-                    {t('lbl_payment_status')} <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                    {/* Color indicator for selected status */}
-                    {formData.paymentStatus && <span className="absolute left-3 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full" style={{ backgroundColor: getSelectedStatusColor() }} />}
-                    <select
-                        name="paymentStatus"
-                        className="form-select w-full pl-8 sm:w-44"
-                        value={formData.paymentStatus}
-                        onChange={onInputChange}
-                        required
-                        disabled={isWalkInCustomer}
-                        style={{
-                            borderColor: formData.paymentStatus ? getSelectedStatusColor() : undefined,
-                            borderWidth: formData.paymentStatus ? '2px' : undefined,
-                        }}
-                    >
-                        <option value="">{t('lbl_all_statuses')}</option>
-                        {availablePaymentStatuses.map((status: any) => (
-                            <option key={status.value} value={status.value}>
-                                {status.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            {/* Show partial payment input for partial status */}
-            {formData.paymentStatus === 'partial' && !isWalkInCustomer && (
-                <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
+            {/* ── Partial Payment Input ── */}
+            {!isReturnMode && formData.paymentStatus === 'partial' && !isWalkInCustomer && (
+                <div className="rounded-xl border-2 border-blue-200 bg-blue-50 p-3">
                     <div className="mb-2 flex items-center justify-between">
-                        <label className="text-sm font-semibold text-blue-700">{t('lbl_partial_payment_amount')}:</label>
-                        <span className="text-xs text-blue-600">{t('lbl_grand_total')}: {formatCurrency(totalPayable)}</span>
+                        <label className="text-sm font-semibold text-blue-700">{t('lbl_partial_payment_amount')}</label>
+                        <span className="text-xs text-blue-500">{t('lbl_grand_total')}: {formatCurrency(totalPayable)}</span>
                     </div>
-                    <div className="relative">
-                        <input
-                            type="number"
-                            name="partialPaymentAmount"
-                            step="0.01"
-                            min="0"
-                            max={totalPayable}
-                            className="form-input w-full border-blue-300 pl-4 pr-4 text-lg font-semibold focus:border-primary focus:ring-primary"
-                            placeholder={t('lbl_enter_amount')}
-                            value={formData.partialPaymentAmount || ''}
-                            onChange={onInputChange}
-                        />
-                    </div>
+                    <input
+                        type="number" name="partialPaymentAmount" step="0.01" min="0" max={totalPayable}
+                        className="form-input w-full border-blue-300 text-base font-semibold focus:border-primary focus:ring-primary"
+                        placeholder={t('lbl_enter_amount')}
+                        value={formData.partialPaymentAmount || ''}
+                        onChange={onInputChange}
+                    />
                     {formData.partialPaymentAmount > 0 && formData.partialPaymentAmount < totalPayable && (
-                        <div className="mt-2 flex justify-between text-sm">
+                        <div className="mt-2 flex justify-between text-xs">
                             <span className="text-blue-600">{t('lbl_remaining_due')}:</span>
-                            <span className="font-semibold text-red-600">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
+                            <span className="font-bold text-red-600">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
                         </div>
                     )}
-                    {formData.partialPaymentAmount >= totalPayable && <div className="mt-2 text-sm text-amber-600">⚠️ {t('msg_amount_exceeds_total')}</div>}
+                    {formData.partialPaymentAmount >= totalPayable && (
+                        <p className="mt-1 text-xs text-amber-600">⚠ {t('msg_amount_exceeds_total')}</p>
+                    )}
                 </div>
             )}
 
-            {/* Show due amount info for due status */}
-            {formData.paymentStatus === 'due' && selectedCustomer && (
-                <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
-                    <div className="flex items-center gap-2">
-                        <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm font-semibold text-red-700">{t('lbl_full_amount_due')}</span>
+            {/* ── Due Info ── */}
+            {!isReturnMode && formData.paymentStatus === 'due' && selectedCustomer && (
+                <div className="flex items-center justify-between rounded-xl border-2 border-red-200 bg-red-50 px-4 py-3">
+                    <div>
+                        <p className="text-sm font-semibold text-red-700">{t('lbl_full_amount_due')}</p>
+                        <p className="text-xs text-red-500">{selectedCustomer.name}</p>
                     </div>
-                    <div className="mt-2 flex justify-between border-t border-red-200 pt-2">
-                        <span className="text-sm text-red-600">{t('lbl_total_due_amount')}:</span>
-                        <span className="text-lg font-bold text-red-700">{formatCurrency(totalPayable)}</span>
-                    </div>
-                    <div className="mt-2 text-xs text-red-600">{t('msg_amount_recorded_due_customer')}: {selectedCustomer.name}</div>
+                    <span className="text-lg font-black text-red-700 sm:text-xl">{formatCurrency(totalPayable)}</span>
                 </div>
             )}
 
-            {/* Payment Breakdown Summary for Partial/Due */}
-            {formData.paymentStatus === 'partial' && formData.partialPaymentAmount > 0 && (
-                <>
-                    <div className="mt-3 rounded-lg border-2 border-blue-300 bg-blue-50 p-3">
-                        <div className="mb-2 text-center text-sm font-semibold text-blue-800">{t('lbl_payment_breakdown')}</div>
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-green-700">{t('lbl_amount_paying_now')}:</span>
-                                <span className="font-semibold text-green-800">{formatCurrency(formData.partialPaymentAmount)}</span>
-                            </div>
-                            <div className="flex justify-between border-t border-blue-200 pt-1 text-sm">
-                                <span className="text-red-700">{t('lbl_amount_due_later')}:</span>
-                                <span className="font-bold text-red-800">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
-                            </div>
-                        </div>
+            {/* ── Partial Breakdown ── */}
+            {!isReturnMode && formData.paymentStatus === 'partial' && formData.partialPaymentAmount > 0 && (
+                <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5">
+                    <div className="flex justify-between text-sm">
+                        <span className="text-green-700">{t('lbl_amount_paying_now')}</span>
+                        <span className="font-bold text-green-800">{formatCurrency(formData.partialPaymentAmount)}</span>
                     </div>
-                    <div className="flex justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-50 p-3 text-blue-900 shadow-sm">
-                        <span className="text-lg font-bold">{t('lbl_total_payable_now')}</span>
-                        <span className="text-2xl font-black">{formatCurrency(formData.partialPaymentAmount)}</span>
+                    <div className="mt-1 flex justify-between text-sm">
+                        <span className="text-red-600">{t('lbl_amount_due_later')}</span>
+                        <span className="font-bold text-red-700">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
                     </div>
-                </>
+                </div>
             )}
 
-            {formData.paymentStatus === 'due' && selectedCustomer && (
-                <>
-                    <div className="mt-3 rounded-lg border-2 border-red-300 bg-red-50 p-3">
-                        <div className="mb-2 text-center text-sm font-semibold text-red-800">{t('lbl_payment_summary')}</div>
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-700">{t('lbl_amount_paying_now')}:</span>
-                                <span className="font-semibold text-gray-800">{formatCurrency(0)}</span>
-                            </div>
-                            <div className="flex justify-between border-t border-red-200 pt-1">
-                                <span className="text-red-700">{t('lbl_full_amount_due')}:</span>
-                                <span className="text-lg font-bold text-red-800">{formatCurrency(totalPayable)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex justify-between rounded-lg bg-gradient-to-r from-red-100 to-red-50 p-3 text-red-900 shadow-sm">
-                        <span className="text-lg font-bold">{t('lbl_total_payable_now')}</span>
-                        <span className="text-2xl font-black">{formatCurrency(0)}</span>
-                    </div>
-                </>
-            )}
-
-            {/* Return Mode Summary - Clean POS Design */}
+            {/* ── Return Mode Summary ── */}
             {isReturnMode && (
-                <div className="mt-4 space-y-3">
-                    {/* Header Badge */}
-                    <div className="flex items-center justify-center">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm">
+                <div className="space-y-3">
+                    <div className="flex justify-center">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-semibold text-white shadow-sm">
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                             </svg>
                             {t('pos_return_mode')}
-                        </div>
+                        </span>
                     </div>
 
-                    {/* Transaction Lines */}
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
-                        {/* Return Amount Row */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-0">
                         <div className="flex items-center justify-between py-2">
-                            <span className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <span className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-600">
+                                    <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5" />
                                     </svg>
                                 </span>
                                 {t('pos_returned_items')}
                             </span>
-                            <span className="text-lg font-bold text-red-600 dark:text-red-400">−{formatCurrency(returnTotal)}</span>
+                            <span className="font-bold text-red-600">−{formatCurrency(returnTotal)}</span>
                         </div>
 
-                        {/* Exchange Amount Row */}
                         {newItemsTotal > 0 && (
-                            <div className="flex items-center justify-between border-t border-slate-200 py-2 dark:border-slate-700">
-                                <span className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <div className="flex items-center justify-between border-t border-slate-200 py-2">
+                                <span className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                                        <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
                                     </span>
                                     {t('pos_exchange_items')}
                                 </span>
-                                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(newItemsTotal)}</span>
+                                <span className="font-bold text-emerald-600">+{formatCurrency(newItemsTotal)}</span>
                             </div>
                         )}
 
-                        {/* Net Amount Row */}
-                        <div className="flex items-center justify-between border-t-2 border-slate-300 pt-2 dark:border-slate-600">
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('lbl_net_amount')}</span>
-                            <span
-                                className={`text-lg font-bold ${
-                                    returnNetAmount < 0 ? 'text-emerald-600 dark:text-emerald-400' : returnNetAmount > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'
-                                }`}
-                            >
+                        <div className="flex items-center justify-between border-t-2 border-slate-300 pt-2">
+                            <span className="text-sm font-bold text-slate-700">{t('lbl_net_amount')}</span>
+                            <span className={`text-lg font-black ${returnNetAmount < 0 ? 'text-emerald-600' : returnNetAmount > 0 ? 'text-primary' : 'text-slate-600'}`}>
                                 {formatCurrency(returnNetAmount)}
                             </span>
                         </div>
                     </div>
 
-                    {/* Action Card */}
                     {returnNetAmount < 0 ? (
-                        /* Refund */
-                        <div className="rounded-lg bg-success p-4 shadow-md">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-white">{t('pos_refund_customer')}</p>
-                                        <p className="text-xs text-white/70">{t('pos_cash_card_refund')}</p>
-                                    </div>
-                                </div>
-                                <p className="text-2xl font-black text-white">{formatCurrency(Math.abs(returnNetAmount))}</p>
+                        <div className="flex items-center justify-between rounded-xl bg-success p-4 shadow-sm">
+                            <div>
+                                <p className="font-bold text-white">{t('pos_refund_customer')}</p>
+                                <p className="text-xs text-white/70">{t('pos_cash_card_refund')}</p>
                             </div>
+                            <p className="text-xl font-black text-white sm:text-2xl">{formatCurrency(Math.abs(returnNetAmount))}</p>
                         </div>
                     ) : returnNetAmount > 0 ? (
-                        /* Customer Pays */
-                        <div className="rounded-lg bg-primary p-4 shadow-md">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-white">{t('pos_collect_payment')}</p>
-                                        <p className="text-xs text-white/70">{t('pos_additional_amount')}</p>
-                                    </div>
-                                </div>
-                                <p className="text-2xl font-black text-white">{formatCurrency(returnNetAmount)}</p>
+                        <div className="flex items-center justify-between rounded-xl bg-primary p-4 shadow-sm">
+                            <div>
+                                <p className="font-bold text-white">{t('pos_collect_payment')}</p>
+                                <p className="text-xs text-white/70">{t('pos_additional_amount')}</p>
                             </div>
+                            <p className="text-xl font-black text-white sm:text-2xl">{formatCurrency(returnNetAmount)}</p>
                         </div>
                     ) : (
-                        /* Even Exchange */
-                        <div className="rounded-lg bg-slate-500 p-4 shadow-md">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-white">{t('pos_even_exchange')}</p>
-                                        <p className="text-xs text-white/70">{t('pos_no_payment_needed')}</p>
-                                    </div>
-                                </div>
-                                <p className="text-2xl font-black text-white">{formatCurrency(0)}</p>
+                        <div className="flex items-center justify-between rounded-xl bg-slate-500 p-4 shadow-sm">
+                            <div>
+                                <p className="font-bold text-white">{t('pos_even_exchange')}</p>
+                                <p className="text-xs text-white/70">{t('pos_no_payment_needed')}</p>
                             </div>
+                            <p className="text-xl font-black text-white sm:text-2xl">{formatCurrency(0)}</p>
                         </div>
                     )}
-                </div>
-            )}
-
-            {/* Normal POS Mode - Total Payable */}
-            {!isReturnMode && formData.paymentStatus === 'paid' && (
-                <div className="flex justify-between rounded-lg bg-gradient-to-r from-green-100 to-green-50 p-3 text-green-900 shadow-sm">
-                    <span className="text-lg font-bold">{t('lbl_total_payable_now')}</span>
-                    <span className="text-2xl font-black">{formatCurrency(totalPayable)}</span>
                 </div>
             )}
         </div>

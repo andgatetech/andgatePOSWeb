@@ -1,6 +1,7 @@
+'use client';
 import { getTranslation } from '@/i18n';
-import { Camera, Search } from 'lucide-react';
-import React, { useState } from 'react';
+import { Camera, Search, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface SearchBarProps {
     searchTerm: string;
@@ -11,88 +12,129 @@ interface SearchBarProps {
     onToggleCameraScanner: () => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, barcodeEnabled, showCameraScanner, onSearchChange, onToggleBarcodeScanner, onToggleCameraScanner }) => {
+const SearchBar: React.FC<SearchBarProps> = ({
+    searchTerm,
+    barcodeEnabled,
+    showCameraScanner,
+    onSearchChange,
+    onToggleBarcodeScanner,
+    onToggleCameraScanner,
+}) => {
     const { t } = getTranslation();
     const [localSearch, setLocalSearch] = useState(searchTerm);
+    // Prevent debounce firing when parent resets searchTerm externally (e.g. after scan auto-add)
+    const skipNextDebounce = useRef(false);
 
-    const handleSearchClick = () => {
-        onSearchChange(localSearch);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handleSearchClick();
+    // Sync when parent clears searchTerm (scan auto-add, clear filters, etc.)
+    useEffect(() => {
+        if (searchTerm !== localSearch) {
+            skipNextDebounce.current = true;
+            setLocalSearch(searchTerm);
         }
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchTerm]);
 
-    const handleInputChange = (value: string) => {
-        setLocalSearch(value);
-        // Auto-trigger for SKU scanning (instant add)
-        if (value.toLowerCase().startsWith('sku-') && value.length > 10) {
-            onSearchChange(value);
+    // Debounced auto-search — fires 500ms after user stops typing
+    useEffect(() => {
+        if (skipNextDebounce.current) {
+            skipNextDebounce.current = false;
+            return;
         }
-    };
+        if (localSearch === '') {
+            onSearchChange('');
+            return;
+        }
+        const timer = setTimeout(() => {
+            onSearchChange(localSearch);
+        }, 500);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localSearch]);
 
     const handleClear = () => {
         setLocalSearch('');
         onSearchChange('');
     };
 
+    // Enter key triggers immediate search (no debounce wait)
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            skipNextDebounce.current = true;
+            onSearchChange(localSearch);
+        }
+    };
+
+    const isActive = barcodeEnabled || showCameraScanner;
+
     return (
-        <div className="relative mb-4 sm:mb-6">
+        <div className="mb-4">
+            {/* Search row */}
             <div className="flex gap-2">
                 <div className="relative flex-1">
-                    <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:left-3 sm:h-5 sm:w-5" />
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder={t('pos_scan_barcode')}
-                        className="form-input w-full rounded-lg border border-gray-300 py-2 pl-8 pr-20 text-sm focus:border-transparent focus:ring-2 focus:ring-primary sm:py-3 sm:pl-10 sm:pr-24 sm:text-base"
+                        className="form-input h-11 w-full rounded-xl border border-gray-200 pl-9 pr-9 text-sm shadow-sm focus:border-primary focus:ring-primary"
                         value={localSearch}
-                        onChange={(e) => handleInputChange(e.target.value)}
+                        onChange={(e) => setLocalSearch(e.target.value)}
                         onKeyDown={handleKeyDown}
                         autoFocus
                     />
                     {localSearch && (
-                        <button onClick={handleClear} className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 sm:right-14" title={t('btn_clear_search')}>
-                            ✕
+                        <button
+                            onClick={handleClear}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-gray-400 hover:text-gray-600"
+                        >
+                            <X className="h-3.5 w-3.5" />
                         </button>
                     )}
                 </div>
-                {/* Search Button */}
-                <button
-                    onClick={handleSearchClick}
-                    className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 sm:px-6 sm:py-3"
-                    title={t('btn_search')}
-                >
-                    <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-                </button>
-                {/* Keyboard Scanner Button */}
+
+                {/* Keyboard barcode scanner toggle */}
                 <button
                     onClick={onToggleBarcodeScanner}
-                    className={`flex items-center justify-center rounded-lg px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
-                        barcodeEnabled ? 'bg-purple-500 text-white hover:bg-purple-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    title={barcodeEnabled ? t('status_active') : t('pos_enable_barcode_scanner')}
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-all ${
+                        barcodeEnabled
+                            ? 'border-purple-500 bg-purple-500 text-white shadow-sm'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-purple-300 hover:text-purple-600'
                     }`}
-                    title={barcodeEnabled ? t('status_active') : t('btn_search')}
                 >
-                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h1M4 10h1M4 14h1M4 18h1M8 4v16M12 4v16M16 6h1M16 10h1M16 14h1M16 18h1M20 4v16" />
                     </svg>
                 </button>
-                {/* Camera Scanner Button */}
+
+                {/* Camera scanner toggle */}
                 <button
                     onClick={onToggleCameraScanner}
-                    className={`flex items-center justify-center rounded-lg px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
-                        showCameraScanner ? 'bg-green-500 text-white hover:bg-green-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
                     title={showCameraScanner ? t('btn_close') : t('pos_scan_barcode')}
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-all ${
+                        showCameraScanner
+                            ? 'border-green-500 bg-green-500 text-white shadow-sm'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-green-300 hover:text-green-600'
+                    }`}
                 >
-                    <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <Camera className="h-5 w-5" />
                 </button>
             </div>
-            {barcodeEnabled && (
-                <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
-                    {t('pos_scan_barcode')}
+
+            {/* Active scanner indicators */}
+            {isActive && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                    {barcodeEnabled && (
+                        <div className="flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-500" />
+                            {t('pos_scan_barcode')}
+                        </div>
+                    )}
+                    {showCameraScanner && (
+                        <div className="flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
+                            {t('pos_camera_title')}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

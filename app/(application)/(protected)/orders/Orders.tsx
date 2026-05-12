@@ -424,80 +424,10 @@ const Orders = () => {
 </html>
         `;
 
-        // For Android compatibility, use a more reliable approach
-        if (navigator.userAgent.toLowerCase().includes('android')) {
-            // Android: Create a data URL and open it with longer delays for Bluetooth printer
-            const blob = new Blob([receiptHTML], { type: 'text/html; charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const printWindow = window.open(url, '_blank', 'resizable=yes,scrollbars=yes');
-            
-            if (printWindow) {
-                // Wait for content to fully load before printing
-                let printAttempts = 0;
-                const maxAttempts = 5;
-                const printInterval = setInterval(() => {
-                    printAttempts++;
-                    try {
-                        if (printWindow.document && printWindow.document.readyState === 'complete') {
-                            clearInterval(printInterval);
-                            printWindow.print();
-                            // Keep window open for 3 seconds to ensure print data is sent
-                            setTimeout(() => {
-                                printWindow.close();
-                            }, 3000);
-                        } else if (printAttempts >= maxAttempts) {
-                            clearInterval(printInterval);
-                            printWindow.print();
-                            setTimeout(() => {
-                                printWindow.close();
-                            }, 3000);
-                        }
-                    } catch (e) {
-                        if (printAttempts >= maxAttempts) {
-                            clearInterval(printInterval);
-                            try {
-                                printWindow.print();
-                            } catch (err) {
-                                console.error('Print failed:', err);
-                            }
-                            setTimeout(() => {
-                                printWindow.close();
-                            }, 3000);
-                        }
-                    }
-                }, 300);
-            }
-        } else {
-            // Desktop/iOS: Use the standard approach
-            const printWindow = window.open('', '_blank');
-            if (printWindow) {
-                printWindow.document.write(receiptHTML);
-                printWindow.document.close();
-                
-                // Wait for content to load then print
-                printWindow.onload = () => {
-                    printWindow.print();
-                    // Keep window open for 2 seconds before closing
-                    setTimeout(() => {
-                        printWindow.close();
-                    }, 2000);
-                };
-                
-                // Fallback: print after timeout if onload doesn't trigger
-                setTimeout(() => {
-                    try {
-                        if (printWindow && !printWindow.closed) {
-                            printWindow.print();
-                            setTimeout(() => {
-                                printWindow.close();
-                            }, 2000);
-                        }
-                    } catch (e) {
-                        console.error('Print failed:', e);
-                    }
-                }, 500);
-            }
-        }
+        // Isolated window print — single print() call, works with Bluetooth POS printers
+        import('@/lib/printUtil').then(({ printInWindow }) => {
+            printInWindow(receiptHTML);
+        });
     }, [currentStore, currentUser, formatCurrency]);
 
     // Close invoice preview

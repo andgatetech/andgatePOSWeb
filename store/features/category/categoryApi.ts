@@ -73,7 +73,13 @@ const CategoryApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Categories'],
         }),
+
+        // Get single category
+        getCategoryById: builder.query({
+            query: (id: number) => `/categories/${id}`,
+            providesTags: (_result, _error, id) => [{ type: 'Categories', id }],
+        }),
     }),
 });
 
-export const { useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery } = CategoryApi;
+export const { useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useGetCategoryByIdQuery } = CategoryApi;
