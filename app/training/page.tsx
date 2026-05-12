@@ -2,152 +2,600 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import {
+    ArrowRight,
     BarChart3,
     BookOpen,
+    Calculator,
+    CheckCircle,
     CreditCard,
     Download,
     ExternalLink,
+    Globe,
     Lightbulb,
     Package,
     Play,
+    RotateCcw,
+    Settings,
+    ShoppingBag,
     Store,
+    Truck,
     Users,
     X,
     Zap,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
+const PLACEHOLDER_VID = 'EwQRFTYUXn0';
+const vid = (_i: number) => PLACEHOLDER_VID;
+
 export default function TrainingPage() {
     const { t } = getTranslation();
-    const [playingVideo, setPlayingVideo] = useState<string | null>(null);
+    const [playing, setPlaying] = useState<string | null>(null);
 
-    const trainingCategories = [
+    // ── Curriculum data — full business journey ──────────────────────
+    const modules = [
+        // ── 01: Getting Started ──────────────────────────────────────
         {
+            num: '01',
             id: 'getting-started',
             title: t('training.category_getting_started'),
-            description: t('training.category_getting_started_desc'),
-            icon: <Zap className="h-6 w-6" />,
-            color: 'from-[#046ca9] to-[#034d79]',
-            bgColor: 'bg-[#046ca9]/5',
-            textColor: 'text-[#046ca9]',
-            borderColor: 'border-[#046ca9]/15',
-            videos: [
-                { title: t('training.video_complete_setup'), duration: '15:30', description: t('training.video_complete_setup_desc'), youtubeId: 'Vn0QWdiWLqk', difficulty: 'Beginner' },
-                { title: t('training.video_dashboard_overview'), duration: '8:45', description: t('training.video_dashboard_overview_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
-                { title: t('training.video_user_roles'), duration: '12:20', description: t('training.video_user_roles_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
+            desc: t('training.category_getting_started_desc'),
+            icon: <Zap className="h-5 w-5" />,
+            gradient: 'from-[#046ca9] to-[#034d79]',
+            accent: '#046ca9',
+            accentLight: 'bg-[#046ca9]/8',
+            accentBorder: 'border-[#046ca9]/15',
+            accentText: 'text-[#046ca9]',
+            isStartHere: true,
+            lessons: [
+                {
+                    title: t('training.video_dashboard_overview'),
+                    duration: '4:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_dashboard_overview_desc'),
+                    points: [t('training.kp_dashboard_1'), t('training.kp_dashboard_2'), t('training.kp_dashboard_3')],
+                },
+                {
+                    title: t('training.video_store_profile'),
+                    duration: '4:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_store_profile_desc'),
+                    points: [t('training.kp_storeprofile_1'), t('training.kp_storeprofile_2'), t('training.kp_storeprofile_3')],
+                },
+                {
+                    title: t('training.video_user_roles'),
+                    duration: '6:20',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_user_roles_desc'),
+                    points: [t('training.kp_roles_1'), t('training.kp_roles_2'), t('training.kp_roles_3')],
+                },
             ],
         },
+        // ── 02: Store Configuration ──────────────────────────────────
         {
-            id: 'pos-operations',
-            title: t('training.category_pos_operations'),
-            description: t('training.category_pos_operations_desc'),
-            icon: <CreditCard className="h-6 w-6" />,
-            color: 'from-[#046ca9] to-[#0586cb]',
-            bgColor: 'bg-[#046ca9]/5',
-            textColor: 'text-[#046ca9]',
-            borderColor: 'border-[#046ca9]/15',
-            videos: [
-                { title: t('training.video_processing_sales'), duration: '10:15', description: t('training.video_processing_sales_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
-                { title: t('training.video_payment_methods'), duration: '7:30', description: t('training.video_payment_methods_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
-                { title: t('training.video_refunds'), duration: '9:45', description: t('training.video_refunds_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
-                { title: t('training.video_discounts'), duration: '11:20', description: t('training.video_discounts_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+            num: '02',
+            id: 'store-config',
+            title: t('training.category_store_config'),
+            desc: t('training.category_store_config_desc'),
+            icon: <Settings className="h-5 w-5" />,
+            gradient: 'from-slate-500 to-slate-700',
+            accent: '#475569',
+            accentLight: 'bg-slate-50',
+            accentBorder: 'border-slate-200',
+            accentText: 'text-slate-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_payment_settings'),
+                    duration: '5:00',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_payment_settings_desc'),
+                    points: [t('training.kp_paymentsettings_1'), t('training.kp_paymentsettings_2'), t('training.kp_paymentsettings_3')],
+                },
+                {
+                    title: t('training.video_store_defaults'),
+                    duration: '3:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_store_defaults_desc'),
+                    points: [t('training.kp_storedefaults_1'), t('training.kp_storedefaults_2'), t('training.kp_storedefaults_3')],
+                },
+                {
+                    title: t('training.video_return_policies'),
+                    duration: '3:45',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_return_policies_desc'),
+                    points: [t('training.kp_returnpolicies_1'), t('training.kp_returnpolicies_2'), t('training.kp_returnpolicies_3')],
+                },
+                {
+                    title: t('training.video_invoice_customize'),
+                    duration: '4:15',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_invoice_customize_desc'),
+                    points: [t('training.kp_invoicecustom_1'), t('training.kp_invoicecustom_2'), t('training.kp_invoicecustom_3')],
+                },
             ],
         },
+        // ── 03: Product Catalogue ────────────────────────────────────
         {
+            num: '03',
             id: 'inventory',
             title: t('training.category_inventory'),
-            description: t('training.category_inventory_desc'),
-            icon: <Package className="h-6 w-6" />,
-            color: 'from-[#046ca9] to-[#034d79]',
-            bgColor: 'bg-[#046ca9]/5',
-            textColor: 'text-[#046ca9]',
-            borderColor: 'border-[#046ca9]/15',
-            videos: [
-                { title: t('training.video_add_products'), duration: '13:15', description: t('training.video_add_products_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
-                { title: t('training.video_stock_management'), duration: '16:40', description: t('training.video_stock_management_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
-                { title: t('training.video_bulk_import'), duration: '12:30', description: t('training.video_bulk_import_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
-                { title: t('training.video_categories'), duration: '14:25', description: t('training.video_categories_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+            desc: t('training.category_inventory_desc'),
+            icon: <Package className="h-5 w-5" />,
+            gradient: 'from-emerald-600 to-emerald-700',
+            accent: '#059669',
+            accentLight: 'bg-emerald-50',
+            accentBorder: 'border-emerald-200',
+            accentText: 'text-emerald-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_categories'),
+                    duration: '3:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_categories_desc'),
+                    points: [t('training.kp_cat_1'), t('training.kp_cat_2'), t('training.kp_cat_3')],
+                },
+                {
+                    title: t('training.video_brands'),
+                    duration: '3:00',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_brands_desc'),
+                    points: [t('training.kp_brand_1'), t('training.kp_brand_2'), t('training.kp_brand_3')],
+                },
+                {
+                    title: t('training.video_add_products'),
+                    duration: '5:15',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_add_products_desc'),
+                    points: [t('training.kp_products_1'), t('training.kp_products_2'), t('training.kp_products_3')],
+                },
+                {
+                    title: t('training.video_product_variants'),
+                    duration: '4:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_product_variants_desc'),
+                    points: [t('training.kp_variants_1'), t('training.kp_variants_2'), t('training.kp_variants_3')],
+                },
+                {
+                    title: t('training.video_label_print'),
+                    duration: '3:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_label_print_desc'),
+                    points: [t('training.kp_labelprint_1'), t('training.kp_labelprint_2'), t('training.kp_labelprint_3')],
+                },
+                {
+                    title: t('training.video_stock_management'),
+                    duration: '5:40',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_stock_management_desc'),
+                    points: [t('training.kp_stock_1'), t('training.kp_stock_2'), t('training.kp_stock_3')],
+                },
+                {
+                    title: t('training.video_stock_adjustment'),
+                    duration: '4:00',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_stock_adjustment_desc'),
+                    points: [t('training.kp_stockadj_1'), t('training.kp_stockadj_2'), t('training.kp_stockadj_3')],
+                },
+                {
+                    title: t('training.video_low_stock_alerts'),
+                    duration: '3:30',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_low_stock_alerts_desc'),
+                    points: [t('training.kp_lowstock_1'), t('training.kp_lowstock_2'), t('training.kp_lowstock_3')],
+                },
+                {
+                    title: t('training.video_bulk_import'),
+                    duration: '6:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_bulk_import_desc'),
+                    points: [t('training.kp_bulk_1'), t('training.kp_bulk_2'), t('training.kp_bulk_3')],
+                },
             ],
         },
+        // ── 04: Suppliers & Purchasing ───────────────────────────────
         {
+            num: '04',
+            id: 'purchases',
+            title: t('training.category_purchases'),
+            desc: t('training.category_purchases_desc'),
+            icon: <Truck className="h-5 w-5" />,
+            gradient: 'from-purple-600 to-purple-800',
+            accent: '#7c3aed',
+            accentLight: 'bg-purple-50',
+            accentBorder: 'border-purple-200',
+            accentText: 'text-purple-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_add_supplier'),
+                    duration: '4:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_add_supplier_desc'),
+                    points: [t('training.kp_supplier_1'), t('training.kp_supplier_2'), t('training.kp_supplier_3')],
+                },
+                {
+                    title: t('training.video_purchase_order'),
+                    duration: '7:00',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_purchase_order_desc'),
+                    points: [t('training.kp_purchase_1'), t('training.kp_purchase_2'), t('training.kp_purchase_3')],
+                },
+                {
+                    title: t('training.video_receive_goods'),
+                    duration: '4:15',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_receive_goods_desc'),
+                    points: [t('training.kp_grn_1'), t('training.kp_grn_2'), t('training.kp_grn_3')],
+                },
+                {
+                    title: t('training.video_supplier_dues'),
+                    duration: '4:30',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_supplier_dues_desc'),
+                    points: [t('training.kp_supplierdues_1'), t('training.kp_supplierdues_2'), t('training.kp_supplierdues_3')],
+                },
+            ],
+        },
+        // ── 05: Daily POS Operations ─────────────────────────────────
+        {
+            num: '05',
+            id: 'pos-operations',
+            title: t('training.category_pos_operations'),
+            desc: t('training.category_pos_operations_desc'),
+            icon: <CreditCard className="h-5 w-5" />,
+            gradient: 'from-[#046ca9] to-[#0586cb]',
+            accent: '#046ca9',
+            accentLight: 'bg-[#046ca9]/8',
+            accentBorder: 'border-[#046ca9]/15',
+            accentText: 'text-[#046ca9]',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_barcode_scanner'),
+                    duration: '3:00',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_barcode_scanner_desc'),
+                    points: [t('training.kp_scanner_1'), t('training.kp_scanner_2'), t('training.kp_scanner_3')],
+                },
+                {
+                    title: t('training.video_processing_sales'),
+                    duration: '4:15',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_processing_sales_desc'),
+                    points: [t('training.kp_sale_1'), t('training.kp_sale_2'), t('training.kp_sale_3')],
+                },
+                {
+                    title: t('training.video_payment_methods'),
+                    duration: '5:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_payment_methods_desc'),
+                    points: [t('training.kp_payment_1'), t('training.kp_payment_2'), t('training.kp_payment_3')],
+                },
+                {
+                    title: t('training.video_discounts'),
+                    duration: '3:20',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_discounts_desc'),
+                    points: [t('training.kp_discount_1'), t('training.kp_discount_2'), t('training.kp_discount_3')],
+                },
+                {
+                    title: t('training.video_refunds'),
+                    duration: '4:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_refunds_desc'),
+                    points: [t('training.kp_refund_1'), t('training.kp_refund_2'), t('training.kp_refund_3')],
+                },
+                {
+                    title: t('training.video_end_of_day'),
+                    duration: '4:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_end_of_day_desc'),
+                    points: [t('training.kp_eod_1'), t('training.kp_eod_2'), t('training.kp_eod_3')],
+                },
+            ],
+        },
+        // ── 06: Customer Management ──────────────────────────────────
+        {
+            num: '06',
             id: 'customers',
             title: t('training.category_customers'),
-            description: t('training.category_customers_desc'),
-            icon: <Users className="h-6 w-6" />,
-            color: 'from-[#e79237] to-[#c47920]',
-            bgColor: 'bg-[#e79237]/5',
-            textColor: 'text-[#e79237]',
-            borderColor: 'border-[#e79237]/15',
-            videos: [
-                { title: t('training.video_customer_profiles'), duration: '9:30', description: t('training.video_customer_profiles_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
-                { title: t('training.video_loyalty'), duration: '15:45', description: t('training.video_loyalty_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
-                { title: t('training.video_customer_analytics'), duration: '11:15', description: t('training.video_customer_analytics_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+            desc: t('training.category_customers_desc'),
+            icon: <Users className="h-5 w-5" />,
+            gradient: 'from-[#e79237] to-[#c47920]',
+            accent: '#e79237',
+            accentLight: 'bg-amber-50',
+            accentBorder: 'border-amber-200',
+            accentText: 'text-amber-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_customer_profiles'),
+                    duration: '4:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_customer_profiles_desc'),
+                    points: [t('training.kp_custprofile_1'), t('training.kp_custprofile_2'), t('training.kp_custprofile_3')],
+                },
+                {
+                    title: t('training.video_customer_dues'),
+                    duration: '5:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_customer_dues_desc'),
+                    points: [t('training.kp_custdues_1'), t('training.kp_custdues_2'), t('training.kp_custdues_3')],
+                },
+                {
+                    title: t('training.video_loyalty'),
+                    duration: '5:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_loyalty_desc'),
+                    points: [t('training.kp_loyalty_1'), t('training.kp_loyalty_2'), t('training.kp_loyalty_3')],
+                },
+                {
+                    title: t('training.video_customer_analytics'),
+                    duration: '4:15',
+                    youtubeId: vid(1),
+                    difficulty: 'Advanced',
+                    desc: t('training.video_customer_analytics_desc'),
+                    points: [t('training.kp_custanalytics_1'), t('training.kp_custanalytics_2'), t('training.kp_custanalytics_3')],
+                },
             ],
         },
+        // ── 07: Expenses & Accounting ────────────────────────────────
         {
+            num: '07',
+            id: 'expenses-accounting',
+            title: t('training.category_expenses_accounting'),
+            desc: t('training.category_expenses_accounting_desc'),
+            icon: <Calculator className="h-5 w-5" />,
+            gradient: 'from-rose-500 to-rose-700',
+            accent: '#e11d48',
+            accentLight: 'bg-rose-50',
+            accentBorder: 'border-rose-200',
+            accentText: 'text-rose-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_expenses'),
+                    duration: '4:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_expenses_desc'),
+                    points: [t('training.kp_expenses_1'), t('training.kp_expenses_2'), t('training.kp_expenses_3')],
+                },
+                {
+                    title: t('training.video_accounting'),
+                    duration: '6:00',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_accounting_desc'),
+                    points: [t('training.kp_accounting_1'), t('training.kp_accounting_2'), t('training.kp_accounting_3')],
+                },
+                {
+                    title: t('training.video_profit_loss'),
+                    duration: '5:15',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_profit_loss_desc'),
+                    points: [t('training.kp_pnl_1'), t('training.kp_pnl_2'), t('training.kp_pnl_3')],
+                },
+                {
+                    title: t('training.video_ledger'),
+                    duration: '4:30',
+                    youtubeId: vid(2),
+                    difficulty: 'Advanced',
+                    desc: t('training.video_ledger_desc'),
+                    points: [t('training.kp_ledger_1'), t('training.kp_ledger_2'), t('training.kp_ledger_3')],
+                },
+            ],
+        },
+        // ── 08: Reports & Analytics ──────────────────────────────────
+        {
+            num: '08',
             id: 'reports',
             title: t('training.category_reports'),
-            description: t('training.category_reports_desc'),
-            icon: <BarChart3 className="h-6 w-6" />,
-            color: 'from-[#035887] to-[#046ca9]',
-            bgColor: 'bg-[#046ca9]/5',
-            textColor: 'text-[#046ca9]',
-            borderColor: 'border-[#046ca9]/15',
-            videos: [
-                { title: t('training.video_sales_reports'), duration: '13:20', description: t('training.video_sales_reports_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Beginner' },
-                { title: t('training.video_inventory_reports'), duration: '10:50', description: t('training.video_inventory_reports_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
-                { title: t('training.video_financial_reports'), duration: '17:30', description: t('training.video_financial_reports_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
-                { title: t('training.video_custom_reports'), duration: '14:15', description: t('training.video_custom_reports_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
+            desc: t('training.category_reports_desc'),
+            icon: <BarChart3 className="h-5 w-5" />,
+            gradient: 'from-[#035887] to-[#046ca9]',
+            accent: '#046ca9',
+            accentLight: 'bg-[#046ca9]/8',
+            accentBorder: 'border-[#046ca9]/15',
+            accentText: 'text-[#046ca9]',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_sales_reports'),
+                    duration: '4:20',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_sales_reports_desc'),
+                    points: [t('training.kp_salesreport_1'), t('training.kp_salesreport_2'), t('training.kp_salesreport_3')],
+                },
+                {
+                    title: t('training.video_inventory_reports'),
+                    duration: '4:50',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_inventory_reports_desc'),
+                    points: [t('training.kp_stockreport_1'), t('training.kp_stockreport_2'), t('training.kp_stockreport_3')],
+                },
+                {
+                    title: t('training.video_financial_reports'),
+                    duration: '5:30',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_financial_reports_desc'),
+                    points: [t('training.kp_financialreport_1'), t('training.kp_financialreport_2'), t('training.kp_financialreport_3')],
+                },
+                {
+                    title: t('training.video_custom_reports'),
+                    duration: '4:15',
+                    youtubeId: vid(0),
+                    difficulty: 'Advanced',
+                    desc: t('training.video_custom_reports_desc'),
+                    points: [t('training.kp_customreport_1'), t('training.kp_customreport_2'), t('training.kp_customreport_3')],
+                },
+                {
+                    title: t('training.video_vat_report'),
+                    duration: '3:45',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_vat_report_desc'),
+                    points: [t('training.kp_vatreport_1'), t('training.kp_vatreport_2'), t('training.kp_vatreport_3')],
+                },
             ],
         },
+        // ── 09: Multi-Store Management ───────────────────────────────
         {
+            num: '09',
             id: 'multi-store',
             title: t('training.category_multi_store'),
-            description: t('training.category_multi_store_desc'),
-            icon: <Store className="h-6 w-6" />,
-            color: 'from-[#034d79] to-[#035887]',
-            bgColor: 'bg-[#046ca9]/5',
-            textColor: 'text-[#046ca9]',
-            borderColor: 'border-[#046ca9]/15',
-            videos: [
-                { title: t('training.video_store_setup'), duration: '12:40', description: t('training.video_store_setup_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
-                { title: t('training.video_inventory_sync'), duration: '16:20', description: t('training.video_inventory_sync_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Advanced' },
-                { title: t('training.video_store_performance'), duration: '11:30', description: t('training.video_store_performance_desc'), youtubeId: 'EngW7tLk6R8', difficulty: 'Intermediate' },
+            desc: t('training.category_multi_store_desc'),
+            icon: <Store className="h-5 w-5" />,
+            gradient: 'from-slate-600 to-slate-800',
+            accent: '#475569',
+            accentLight: 'bg-slate-50',
+            accentBorder: 'border-slate-200',
+            accentText: 'text-slate-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_store_setup'),
+                    duration: '3:40',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_store_setup_desc'),
+                    points: [t('training.kp_storeadd_1'), t('training.kp_storeadd_2'), t('training.kp_storeadd_3')],
+                },
+                {
+                    title: t('training.video_inventory_sync'),
+                    duration: '5:20',
+                    youtubeId: vid(2),
+                    difficulty: 'Advanced',
+                    desc: t('training.video_inventory_sync_desc'),
+                    points: [t('training.kp_stocksync_1'), t('training.kp_stocksync_2'), t('training.kp_stocksync_3')],
+                },
+                {
+                    title: t('training.video_store_performance'),
+                    duration: '4:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_store_performance_desc'),
+                    points: [t('training.kp_storeperf_1'), t('training.kp_storeperf_2'), t('training.kp_storeperf_3')],
+                },
+            ],
+        },
+        // ── 10: Online Store ─────────────────────────────────────────
+        {
+            num: '10',
+            id: 'online-store',
+            title: t('training.category_online_store'),
+            desc: t('training.category_online_store_desc'),
+            icon: <Globe className="h-5 w-5" />,
+            gradient: 'from-emerald-500 to-teal-600',
+            accent: '#0d9488',
+            accentLight: 'bg-teal-50',
+            accentBorder: 'border-teal-200',
+            accentText: 'text-teal-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_online_overview'),
+                    duration: '3:00',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_online_overview_desc'),
+                    points: [t('training.kp_online_1'), t('training.kp_online_2'), t('training.kp_online_3')],
+                },
+                {
+                    title: t('training.video_online_branding'),
+                    duration: '4:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_online_branding_desc'),
+                    points: [t('training.kp_onlinebranding_1'), t('training.kp_onlinebranding_2'), t('training.kp_onlinebranding_3')],
+                },
+                {
+                    title: t('training.video_online_sync'),
+                    duration: '4:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_online_sync_desc'),
+                    points: [t('training.kp_onlinesync_1'), t('training.kp_onlinesync_2'), t('training.kp_onlinesync_3')],
+                },
+                {
+                    title: t('training.video_online_orders'),
+                    duration: '4:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_online_orders_desc'),
+                    points: [t('training.kp_onlineorders_1'), t('training.kp_onlineorders_2'), t('training.kp_onlineorders_3')],
+                },
             ],
         },
     ];
 
-    const difficultyConfig: Record<string, { bg: string; text: string; label: string }> = {
-        Beginner: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: t('training.difficulty.beginner') },
-        Intermediate: { bg: 'bg-amber-100', text: 'text-amber-700', label: t('training.difficulty.intermediate') },
-        Advanced: { bg: 'bg-rose-100', text: 'text-rose-700', label: t('training.difficulty.advanced') },
+    const diffConfig: Record<string, { bg: string; text: string; label: string }> = {
+        Beginner:     { bg: 'bg-emerald-100', text: 'text-emerald-700', label: t('training.difficulty.beginner') },
+        Intermediate: { bg: 'bg-amber-100',   text: 'text-amber-700',   label: t('training.difficulty.intermediate') },
+        Advanced:     { bg: 'bg-rose-100',    text: 'text-rose-700',    label: t('training.difficulty.advanced') },
     };
 
-    const totalVideos = trainingCategories.reduce((sum, c) => sum + c.videos.length, 0);
+    const totalLessons = modules.reduce((s, m) => s + m.lessons.length, 0);
 
     const resources = [
         {
-            icon: <Download className="h-10 w-10" />,
+            icon: <Download className="h-9 w-9" />,
             title: t('training.resource_manual'),
-            description: t('training.resource_manual_desc'),
+            desc: t('training.resource_manual_desc'),
             action: t('training.resource_manual_action'),
             href: '/resources/andgatePOS-user-manual.pdf',
         },
         {
-            icon: <Lightbulb className="h-10 w-10" />,
+            icon: <Lightbulb className="h-9 w-9" />,
             title: t('training.resource_best_practices'),
-            description: t('training.resource_best_practices_desc'),
+            desc: t('training.resource_best_practices_desc'),
             action: t('training.resource_best_practices_action'),
             href: '/resources/best-practices',
         },
         {
-            icon: <Users className="h-10 w-10" />,
+            icon: <Users className="h-9 w-9" />,
             title: t('training.resource_support'),
-            description: t('training.resource_support_desc'),
+            desc: t('training.resource_support_desc'),
             action: t('training.resource_support_action'),
             href: '/contact',
         },
@@ -155,15 +603,12 @@ export default function TrainingPage() {
 
     return (
         <MainLayout>
+
             {/* ── Hero ── */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] pb-20 pt-32">
+            <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] pb-24 pt-32">
                 <div className="absolute -left-40 -top-20 h-[500px] w-[500px] rounded-full bg-white/10 blur-[100px]" />
                 <div className="absolute -right-20 top-1/3 h-[400px] w-[400px] rounded-full bg-white/10 blur-[100px]" />
-                <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.05]"
-                    style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}
-                />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
                 <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
                     <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#046ca9]/30 bg-[#046ca9]/15 px-4 py-2 text-sm font-medium text-[#5bb8e8] backdrop-blur-sm">
@@ -171,156 +616,284 @@ export default function TrainingPage() {
                         {t('training.hero_badge')}
                     </div>
                     <h1 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
-                        {t('training.page_title') || 'Master'}
+                        {t('training.page_title')}
                         <span className="block bg-gradient-to-r from-[#5bb8e8] to-[#e8f4fb] bg-clip-text text-transparent">
                             AndgatePOS
                         </span>
                     </h1>
                     <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-400">
-                        {t('training.page_subtitle') || 'Step-by-step video guides to get the most out of your POS system.'}
+                        {t('training.page_subtitle')}
                     </p>
-
-                    {/* Stats chips */}
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         {[
-                            { icon: <Play className="h-4 w-4" />, label: `${totalVideos} ${t('training.stat_video_tutorials')}` },
-                            { icon: <BookOpen className="h-4 w-4" />, label: `${trainingCategories.length} ${t('training.stat_topic_categories')}` },
+                            { icon: <Play className="h-4 w-4" />, label: `${totalLessons} ${t('training.stat_video_tutorials')}` },
+                            { icon: <BookOpen className="h-4 w-4" />, label: `${modules.length} ${t('training.stat_topic_categories')}` },
                             { icon: <Zap className="h-4 w-4" />, label: t('training.stat_levels') },
                         ].map((chip, i) => (
-                            <div
-                                key={i}
-                                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 backdrop-blur-sm"
-                            >
+                            <div key={i} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 backdrop-blur-sm">
                                 <span className="text-[#5bb8e8]">{chip.icon}</span>
                                 {chip.label}
                             </div>
                         ))}
                     </div>
                 </div>
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-50 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-50 to-transparent" />
             </section>
 
-            {/* ── Tutorial Categories ── */}
-            <section className="bg-slate-50 py-20">
+            {/* ── Curriculum Overview ── */}
+            <section className="bg-gray-50 py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    {trainingCategories.map((category) => (
-                        <div key={category.id} className="mb-16 last:mb-0">
-                            {/* Category Header */}
-                            <div className={`mb-8 flex items-start gap-5 rounded-2xl border ${category.borderColor} ${category.bgColor} p-6`}>
-                                <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-r ${category.color} text-white shadow-md`}>
-                                    {category.icon}
+                    <div className="mb-12 text-center">
+                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('training.curriculum_title')}</h2>
+                        <p className="mx-auto max-w-2xl text-base text-gray-500">{t('training.curriculum_subtitle')}</p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        {modules.map((mod, i) => (
+                            <a
+                                key={mod.id}
+                                href={`#${mod.id}`}
+                                className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                            >
+                                {mod.isStartHere && (
+                                    <div className="absolute right-3 top-3 rounded-full bg-[#e79237] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
+                                        {t('training.start_here')}
+                                    </div>
+                                )}
+                                <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} text-white shadow-sm`}>
+                                    {mod.icon}
                                 </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
-                                    <p className="mt-1 text-sm text-gray-600">{category.description}</p>
-                                    <span className={`mt-2 inline-block text-xs font-semibold ${category.textColor}`}>
-                                        {category.videos.length} {t('training.tutorials_available')}
-                                    </span>
+                                <div className="mb-1 flex items-baseline gap-2">
+                                    <span className="text-3xl font-black text-gray-100">{mod.num}</span>
+                                    <span className={`text-xs font-black uppercase tracking-wide ${mod.accentText}`}>{t('training.module_label')}</span>
+                                </div>
+                                <h3 className="mb-1 text-sm font-bold text-gray-900 leading-tight">{mod.title}</h3>
+                                <p className="text-xs text-gray-400">{mod.lessons.length} {t('training.stat_video_tutorials')}</p>
+                                <div className={`absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r ${mod.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
+                            </a>
+                        ))}
+                    </div>
+
+                    {/* Path arrows */}
+                    <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-400">
+                        {modules.map((mod, i) => (
+                            <span key={mod.id} className="flex items-center gap-2">
+                                <span className={`font-bold ${mod.accentText}`}>{mod.num}</span>
+                                {i < modules.length - 1 && <ArrowRight className="h-3.5 w-3.5 text-gray-300" />}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Module Sections ── */}
+            {modules.map((mod) => {
+                const totalMins = mod.lessons.reduce((s, l) => {
+                    const [m, sec] = l.duration.split(':').map(Number);
+                    return s + m + Math.ceil(sec / 60);
+                }, 0);
+
+                return (
+                    <section key={mod.id} id={mod.id} className="border-t border-gray-100 bg-white py-20">
+                        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+
+                            {/* Module header */}
+                            <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center gap-5">
+                                    <div className="relative flex-shrink-0">
+                                        <div className="text-7xl font-black leading-none text-gray-100">{mod.num}</div>
+                                        <div className={`absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} text-white shadow-md`}>
+                                            {mod.icon}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {mod.isStartHere && (
+                                            <span className="mb-1.5 inline-block rounded-full bg-[#e79237] px-3 py-0.5 text-[11px] font-black uppercase tracking-wide text-white">
+                                                {t('training.start_here')}
+                                            </span>
+                                        )}
+                                        <h2 className="text-2xl font-black text-gray-900 sm:text-3xl">{mod.title}</h2>
+                                        <p className="mt-1 text-sm text-gray-500">{mod.desc}</p>
+                                    </div>
+                                </div>
+                                <div className={`flex flex-shrink-0 items-center gap-3 rounded-2xl border ${mod.accentBorder} ${mod.accentLight} px-5 py-3`}>
+                                    <div className="text-center">
+                                        <div className={`text-2xl font-black ${mod.accentText}`}>{mod.lessons.length}</div>
+                                        <div className="text-xs text-gray-500">{t('training.stat_video_tutorials')}</div>
+                                    </div>
+                                    <div className="h-8 w-px bg-gray-200" />
+                                    <div className="text-center">
+                                        <div className={`text-2xl font-black ${mod.accentText}`}>{totalMins}</div>
+                                        <div className="text-xs text-gray-500">{t('training.min_total')}</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Video Cards Grid */}
-                            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                {category.videos.map((video) => {
-                                    const thumbnailUrl = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
-                                    const diff = difficultyConfig[video.difficulty] ?? difficultyConfig.Beginner;
+                            {/* Lessons */}
+                            <div className="space-y-0">
+                                {mod.lessons.map((lesson, li) => {
+                                    const key = `${mod.id}-${li}`;
+                                    const isPlaying = playing === key;
+                                    const diff = diffConfig[lesson.difficulty] ?? diffConfig.Beginner;
+                                    const thumbnail = `https://img.youtube.com/vi/${lesson.youtubeId}/hqdefault.jpg`;
+
                                     return (
-                                        <div
-                                            key={`${video.youtubeId}-${video.title}`}
-                                            className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl"
-                                        >
-                                            <div className="relative overflow-hidden">
-                                                {playingVideo === `${category.id}-${video.youtubeId}` ? (
-                                                    <>
-                                                        <ReactPlayer
-                                                            url={`https://www.youtube.com/watch?v=${video.youtubeId}`}
-                                                            playing
-                                                            controls
-                                                            width="100%"
-                                                            height="200px"
-                                                        />
-                                                        <button
-                                                            className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
-                                                            onClick={() => setPlayingVideo(null)}
-                                                        >
-                                                            <X className="h-4 w-4" />
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Image
-                                                            src={thumbnailUrl}
-                                                            alt={video.title}
-                                                            width={400}
-                                                            height={225}
-                                                            className="h-44 w-full cursor-pointer object-cover transition-transform duration-500 group-hover:scale-105"
-                                                            onClick={() => setPlayingVideo(`${category.id}-${video.youtubeId}`)}
-                                                        />
-                                                        <div
-                                                            className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                                                            onClick={() => setPlayingVideo(`${category.id}-${video.youtubeId}`)}
-                                                        >
-                                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg">
-                                                                <Play className={`h-5 w-5 ${category.textColor}`} />
+                                        <div key={key}>
+                                            {/* Lesson card */}
+                                            <div className={`group relative overflow-hidden rounded-2xl border ${isPlaying ? mod.accentBorder : 'border-gray-100'} bg-white shadow-sm transition-all hover:shadow-md`}>
+                                                {/* Lesson number stripe */}
+                                                <div className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${mod.gradient} opacity-0 transition-opacity group-hover:opacity-100 ${isPlaying ? 'opacity-100' : ''}`} />
+
+                                                <div className="flex flex-col gap-0 lg:flex-row">
+                                                    {/* Thumbnail */}
+                                                    <div className="relative w-full flex-shrink-0 overflow-hidden lg:w-72 xl:w-80">
+                                                        {isPlaying ? (
+                                                            <>
+                                                                <ReactPlayer
+                                                                    url={`https://www.youtube.com/watch?v=${lesson.youtubeId}`}
+                                                                    playing
+                                                                    controls
+                                                                    width="100%"
+                                                                    height="204px"
+                                                                />
+                                                                <button
+                                                                    className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
+                                                                    onClick={() => setPlaying(null)}
+                                                                >
+                                                                    <X className="h-3.5 w-3.5" />
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <div
+                                                                className="relative cursor-pointer"
+                                                                onClick={() => setPlaying(key)}
+                                                            >
+                                                                <Image
+                                                                    src={thumbnail}
+                                                                    alt={lesson.title}
+                                                                    width={320}
+                                                                    height={204}
+                                                                    className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105 lg:h-full lg:min-h-[12rem]"
+                                                                />
+                                                                {/* Dark overlay + play */}
+                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
+                                                                    <div className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${mod.gradient} shadow-xl`}>
+                                                                        <Play className="h-5 w-5 fill-white text-white" />
+                                                                    </div>
+                                                                </div>
+                                                                {/* Duration badge */}
+                                                                <div className="absolute bottom-2.5 right-2.5 rounded-md bg-black/75 px-2 py-0.5 text-xs font-semibold text-white">
+                                                                    {lesson.duration}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Content */}
+                                                    <div className="flex flex-1 flex-col justify-between gap-4 p-6">
+                                                        <div>
+                                                            {/* Lesson number + title */}
+                                                            <div className="mb-3 flex items-center gap-3">
+                                                                <div className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${mod.gradient} text-xs font-black text-white shadow-sm`}>
+                                                                    {li + 1}
+                                                                </div>
+                                                                <span className={`text-xs font-bold uppercase tracking-widest ${mod.accentText}`}>
+                                                                    {t('training.lesson_label')} {li + 1}
+                                                                </span>
+                                                            </div>
+                                                            <h3 className="mb-1.5 text-lg font-bold text-gray-900">{lesson.title}</h3>
+                                                            <p className="mb-4 text-sm leading-relaxed text-gray-500">{lesson.desc}</p>
+
+                                                            {/* Key takeaways */}
+                                                            <div>
+                                                                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">{t('training.key_takeaways')}</p>
+                                                                <ul className="space-y-1.5">
+                                                                    {lesson.points.map((pt, pi) => (
+                                                                        <li key={pi} className="flex items-start gap-2">
+                                                                            <CheckCircle className={`mt-0.5 h-3.5 w-3.5 flex-shrink-0 ${mod.accentText}`} />
+                                                                            <span className="text-sm text-gray-600">{pt}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
                                                             </div>
                                                         </div>
-                                                        <div className="absolute bottom-2.5 right-2.5 rounded-md bg-black/75 px-2 py-0.5 text-xs font-semibold text-white">
-                                                            {video.duration}
+
+                                                        {/* Footer: difficulty + watch button */}
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${diff.bg} ${diff.text}`}>
+                                                                    {diff.label}
+                                                                </span>
+                                                                <span className="text-xs text-gray-400">{lesson.duration}</span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setPlaying(isPlaying ? null : key)}
+                                                                className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-95 bg-gradient-to-r ${mod.gradient}`}
+                                                            >
+                                                                <Play className="h-3.5 w-3.5 fill-white" />
+                                                                {t('training.watch_lesson')}
+                                                            </button>
                                                         </div>
-                                                    </>
-                                                )}
-                                            </div>
-                                            <div className="p-5">
-                                                <h4 className={`mb-2 text-sm font-bold text-gray-900 transition-colors group-hover:${category.textColor}`}>
-                                                    {video.title}
-                                                </h4>
-                                                <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500">{video.description}</p>
-                                                <div className="flex items-center justify-between">
-                                                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${diff.bg} ${diff.text}`}>
-                                                        {diff.label}
-                                                    </span>
-                                                    <span className="text-xs text-gray-400">{video.duration}</span>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            {/* Connector between lessons */}
+                                            {li < mod.lessons.length - 1 && (
+                                                <div className="flex items-center gap-3 py-3 pl-8">
+                                                    <div className={`h-6 w-px border-l-2 border-dashed border-gray-200`} />
+                                                    <span className="text-xs text-gray-300">{t('training.lesson_label')} {li + 2}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
                             </div>
+
+                            {/* Next module CTA */}
+                            <div className="mt-10 flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                    <RotateCcw className="h-4 w-4 text-gray-400" />
+                                    <span className="text-sm font-semibold text-gray-600">
+                                        {mod.num} / {modules.length} — {mod.title}
+                                    </span>
+                                </div>
+                                {mod.num !== modules[modules.length - 1].num && (
+                                    <a
+                                        href={`#${modules[parseInt(mod.num, 10)]?.id}`}
+                                        className={`inline-flex items-center gap-2 rounded-xl bg-gradient-to-r ${mod.gradient} px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105`}
+                                    >
+                                        {t('training.module_label')} {String(parseInt(mod.num, 10) + 1).padStart(2, '0')}
+                                        <ArrowRight className="h-4 w-4" />
+                                    </a>
+                                )}
+                            </div>
                         </div>
-                    ))}
-                </div>
-            </section>
+                    </section>
+                );
+            })}
 
             {/* ── Resources ── */}
             <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] py-24">
                 <div className="absolute left-1/4 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
-                <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                    style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }}
-                />
+                <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-14 text-center">
-                        <h2 className="mb-4 text-3xl font-black text-white sm:text-4xl">{t('training.resources_title') || 'Learning Resources'}</h2>
-                        <p className="mx-auto max-w-2xl text-lg text-slate-400">{t('training.resources_subtitle') || 'Everything you need to succeed with AndgatePOS.'}</p>
+                        <h2 className="mb-4 text-3xl font-black text-white sm:text-4xl">{t('training.resources_title')}</h2>
+                        <p className="mx-auto max-w-2xl text-lg text-slate-400">{t('training.resources_subtitle')}</p>
                     </div>
-
                     <div className="grid gap-6 md:grid-cols-3">
-                        {resources.map((resource, index) => (
-                            <div
-                                key={index}
-                                className="group flex flex-col rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm transition-all duration-300 hover:border-[#046ca9]/30 hover:bg-white/10"
-                            >
-                                <div className="mb-5 text-[#5bb8e8] transition-transform duration-300 group-hover:scale-110">
-                                    {resource.icon}
-                                </div>
-                                <h3 className="mb-3 text-lg font-bold text-white">{resource.title}</h3>
-                                <p className="mb-6 flex-1 text-sm leading-relaxed text-slate-400">{resource.description}</p>
+                        {resources.map((res, i) => (
+                            <div key={i} className="group flex flex-col rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm transition-all hover:border-[#046ca9]/30 hover:bg-white/10">
+                                <div className="mb-5 text-[#5bb8e8] transition-transform group-hover:scale-110">{res.icon}</div>
+                                <h3 className="mb-3 text-lg font-bold text-white">{res.title}</h3>
+                                <p className="mb-6 flex-1 text-sm leading-relaxed text-slate-400">{res.desc}</p>
                                 <a
-                                    href={resource.href}
+                                    href={res.href}
                                     className="inline-flex items-center gap-2 self-start rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white hover:text-[#046ca9]"
                                 >
-                                    {resource.action}
+                                    {res.action}
                                     <ExternalLink className="h-3.5 w-3.5" />
                                 </a>
                             </div>
@@ -328,6 +901,7 @@ export default function TrainingPage() {
                     </div>
                 </div>
             </section>
+
         </MainLayout>
     );
 }
