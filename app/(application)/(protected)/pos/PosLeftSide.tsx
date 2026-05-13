@@ -17,9 +17,12 @@ import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { setProductCache } from '@/store/features/offline/cachedProductsSlice';
+import { usePOSMasterDataSync } from '@/hooks/usePOSMasterDataSync';
+import { getProductCache, saveProductCache } from '@/lib/offline/offlineDb';
+import { hydrateProductCaches, setProductCache } from '@/store/features/offline/cachedProductsSlice';
 
-import { GripVertical } from 'lucide-react';
+import OfflineReadinessPanel from '@/components/pos/OfflineReadinessPanel';
+import { GripVertical, Wifi, WifiOff } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
 import toast from 'react-hot-toast';
@@ -81,6 +84,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const [isMobileView, setIsMobileView] = useState(false);
     const [barcodeEnabled, setBarcodeEnabled] = useState(false);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
+    const [showReadinessPanel, setShowReadinessPanel] = useState(false);
 
     const dispatch = useDispatch();
     const [itemsPerPage, setItemsPerPage] = useState(12); // Items per page for POS
@@ -90,6 +94,23 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     const isOnline = useOnlineStatus();
     const cachedProductsState = useSelector((state: RootState) => state.cachedProducts);
+    const masterData = usePOSMasterDataSync(currentStoreId ?? undefined, isOnline);
+
+    useEffect(() => {
+        if (!currentStoreId) return;
+        let cancelled = false;
+
+        getProductCache(currentStoreId)
+            .then((cached) => {
+                if (cancelled || !cached?.products?.length) return;
+                dispatch(hydrateProductCaches([cached]));
+            })
+            .catch(() => {});
+
+        return () => {
+            cancelled = true;
+        };
+    }, [currentStoreId, dispatch]);
 
     // Background prefetch: fetch all store products when online, cache for offline use
     const [triggerPrefetch] = useLazyGetAllProductsQuery();
@@ -118,6 +139,12 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 }
                 if (allProducts.length > 0) {
                     dispatch(setProductCache({ storeId: currentStoreId, products: allProducts, total }));
+                    saveProductCache({
+                        storeId: currentStoreId,
+                        products: allProducts,
+                        total,
+                        cachedAt: new Date().toISOString(),
+                    }).catch(() => {});
                 }
             } catch {}
         };
@@ -233,23 +260,31 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const totalRecords = paginationMeta?.total ?? products.length;
     const totalPages = paginationMeta?.last_page ?? Math.max(1, Math.ceil(totalRecords / itemsPerPage));
 
-    // Fetch categories for current store
-    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(filterQueryParams);
+    // Fetch categories for current store (online) — masterData hook caches + serves offline
+    const { data: categoriesResponse, isLoading: catLoading } = useGetCategoryQuery(
+        filterQueryParams,
+        { skip: !isOnline }
+    );
     const categories = useMemo(() => {
+        if (!isOnline) return masterData.categories;
         if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
             return categoriesResponse.data.items;
         }
-        return categoriesResponse?.data || [];
-    }, [categoriesResponse]);
+        return categoriesResponse?.data || masterData.categories;
+    }, [isOnline, categoriesResponse, masterData.categories]);
 
-    // Fetch brands for current store
-    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(filterQueryParams);
+    // Fetch brands for current store (online) — masterData hook caches + serves offline
+    const { data: brandsResponse, isLoading: brandLoading } = useGetBrandsQuery(
+        filterQueryParams,
+        { skip: !isOnline }
+    );
     const brands = useMemo(() => {
+        if (!isOnline) return masterData.brands;
         if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
             return brandsResponse.data.items;
         }
-        return brandsResponse?.data || [];
-    }, [brandsResponse]);
+        return brandsResponse?.data || masterData.brands;
+    }, [isOnline, brandsResponse, masterData.brands]);
 
     // Select Redux items based on the slice prop and current store
     const reduxItems = useSelector((state: RootState) => {
@@ -906,14 +941,43 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                     )}
                                 </div>
                             </div>
-                            {reduxItems.length > 0 && (
-                                <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1">
-                                    <svg className="h-3.5 w-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    <span className="text-xs font-bold text-primary">{reduxItems.length}</span>
+                            <div className="flex items-center gap-2">
+                                {/* Offline readiness indicator */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setShowReadinessPanel((v) => !v)}
+                                        title={t('pos_offline_status')}
+                                        className={`flex h-7 w-7 items-center justify-center rounded-full transition ${
+                                            isOnline ? 'bg-green-100 text-success hover:bg-green-200' : 'bg-red-100 text-danger hover:bg-red-200'
+                                        }`}
+                                    >
+                                        {isOnline
+                                            ? <Wifi className="h-3.5 w-3.5" />
+                                            : <WifiOff className="h-3.5 w-3.5" />
+                                        }
+                                    </button>
+                                    {showReadinessPanel && (
+                                        <div className="absolute right-0 top-9 z-[300]">
+                                            <OfflineReadinessPanel
+                                                productCount={cachedProductsState.byStoreId[currentStoreId ?? 0]?.products?.length ?? 0}
+                                                categoryCount={masterData.categories.length}
+                                                brandCount={masterData.brands.length}
+                                                paymentMethodCount={masterData.paymentMethods.length}
+                                                lastSyncedAt={masterData.lastSyncedAt}
+                                                onClose={() => setShowReadinessPanel(false)}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+                                {reduxItems.length > 0 && (
+                                    <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1">
+                                        <svg className="h-3.5 w-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        <span className="text-xs font-bold text-primary">{reduxItems.length}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <FilterButtons

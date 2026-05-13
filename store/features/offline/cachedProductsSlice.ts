@@ -52,13 +52,26 @@ const cachedProductsSlice = createSlice({
             };
         },
 
+        hydrateProductCaches(
+            state,
+            action: PayloadAction<Array<{ storeId: number; products: any[]; total: number; cachedAt: string }>>
+        ) {
+            action.payload.forEach(({ storeId, products, total, cachedAt }) => {
+                state.byStoreId[storeId] = {
+                    products,
+                    total,
+                    cachedAt,
+                };
+            });
+        },
+
         clearAllProductCaches(state) {
             state.byStoreId = {};
         },
     },
 });
 
-export const { cacheProductPage, setProductCache, clearProductCache, clearAllProductCaches } =
+export const { cacheProductPage, setProductCache, hydrateProductCaches, clearProductCache, clearAllProductCaches } =
     cachedProductsSlice.actions;
 
 export default cachedProductsSlice.reducer;

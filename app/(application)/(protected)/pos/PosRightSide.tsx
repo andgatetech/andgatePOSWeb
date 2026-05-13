@@ -7,6 +7,8 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { getTranslation } from '@/i18n';
+import { saveOfflineOrder } from '@/lib/offline/offlineDb';
+import { generateLocalInvoiceNumber, getDeviceId } from '@/lib/offline/offlineHelpers';
 import { DEFAULT_PAYMENT_METHOD, getAllowedStatusesForMethod } from '@/lib/paymentConstants';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
@@ -1327,18 +1329,27 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (!isOnline) {
             // Offline path: queue the order locally
             const localId = `OFFLINE-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-            dispatch(
-                queueOfflineOrder({
-                    localId,
-                    storeId: currentStoreId!,
-                    payload: orderData,
-                    queuedAt: new Date().toISOString(),
-                    status: 'pending',
-                    retryCount: 0,
-                    totalAmount: grandTotal,
-                    itemCount: invoiceItems.length,
-                })
-            );
+            const localInvoice = generateLocalInvoiceNumber();
+            const deviceId = getDeviceId();
+            const offlineOrder = {
+                localId,
+                storeId: currentStoreId!,
+                localInvoice,
+                payload: {
+                    ...orderData,
+                    local_order_id: localId,
+                    idempotency_key: localId,
+                    device_id: deviceId,
+                    offline_created_at: new Date().toISOString(),
+                },
+                queuedAt: new Date().toISOString(),
+                status: 'pending' as const,
+                retryCount: 0,
+                totalAmount: grandTotal,
+                itemCount: invoiceItems.length,
+            };
+            await saveOfflineOrder(offlineOrder);
+            dispatch(queueOfflineOrder(offlineOrder));
             showMessage(t('msg_order_queued_offline'), 'success');
             if (currentStoreId) dispatch(clearItemsRedux(currentStoreId));
             clearCustomerSelection();

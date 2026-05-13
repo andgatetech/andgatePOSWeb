@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface OfflineOrder {
     localId: string;
     storeId: number;
+    localInvoice?: string;
     payload: any;
     queuedAt: string;
     status: 'pending' | 'syncing' | 'failed' | 'synced';
@@ -28,8 +29,17 @@ const offlineOrdersSlice = createSlice({
     name: 'offlineOrders',
     initialState,
     reducers: {
+        setOfflineOrders(state, action: PayloadAction<OfflineOrder[]>) {
+            state.queue = action.payload;
+        },
+
         queueOfflineOrder(state, action: PayloadAction<OfflineOrder>) {
-            state.queue.push(action.payload);
+            const existingIndex = state.queue.findIndex((order) => order.localId === action.payload.localId);
+            if (existingIndex >= 0) {
+                state.queue[existingIndex] = action.payload;
+            } else {
+                state.queue.push(action.payload);
+            }
         },
 
         markOrderSyncing(state, action: PayloadAction<string>) {
@@ -79,6 +89,7 @@ const offlineOrdersSlice = createSlice({
 });
 
 export const {
+    setOfflineOrders,
     queueOfflineOrder,
     markOrderSyncing,
     markOrderSynced,

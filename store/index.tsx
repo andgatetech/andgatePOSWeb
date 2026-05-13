@@ -28,7 +28,7 @@ const storage = typeof window !== 'undefined' ? createWebStorage('local') : crea
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn', 'offlineOrders', 'cachedProducts'], // slices to persist
+    whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn'], // durable offline POS data is stored in IndexedDB
     blacklist: [baseApi.reducerPath], // do not persist API cache
 };
 
