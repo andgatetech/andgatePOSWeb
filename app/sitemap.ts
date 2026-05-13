@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { landingPages } from '@/lib/landing-pages';
+import { highIntentPages } from '@/lib/high-intent-pages';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andgatepos.com';
@@ -44,6 +45,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: now,
             changeFrequency: 'weekly' as const,
             priority: page.slug === 'pos-software-bangladesh' ? 0.95 : 0.86,
+        })),
+        ...highIntentPages.map((page) => ({
+            url: `${baseUrl}${page.path}`,
+            lastModified: now,
+            changeFrequency: 'weekly' as const,
+            priority: page.path === '/best-pos-software-bangladesh' || page.path === '/free-pos-software-bangladesh' ? 0.92 : 0.88,
         })),
         {
             url: `${baseUrl}/login`,

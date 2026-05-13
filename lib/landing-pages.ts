@@ -54,8 +54,11 @@ export const landingPages: LandingPage[] = [
             'best POS software in Bangladesh',
             'point of sale software Bangladesh',
             'billing software Bangladesh',
+            'POS software price in Bangladesh',
+            'POS software for small business Bangladesh',
             'shop management software Bangladesh',
             'পিওএস সফটওয়্যার বাংলাদেশ',
+            'দোকানের পস সফটওয়্যার',
         ],
         audience: 'Retail shops, grocery stores, pharmacies, fashion shops, restaurants, electronics stores and multi-branch businesses.',
         image: '/assets/LandingImage/pos.png',
@@ -103,7 +106,7 @@ export const landingPages: LandingPage[] = [
         banglaIntro:
             'রিটেইল দোকানের বিল, স্টক, কর্মচারী, কাস্টমার বাকি আর রিপোর্ট সহজভাবে ম্যানেজ করার জন্য AndgatePOS তৈরি।',
         primaryKeyword: 'retail POS software Bangladesh',
-        secondaryKeywords: ['retail software Bangladesh', 'shop billing software Bangladesh', 'shop management software Bangladesh'],
+        secondaryKeywords: ['retail software Bangladesh', 'retail billing software Bangladesh', 'shop billing software Bangladesh', 'shop management software Bangladesh', 'clothing store POS Bangladesh'],
         audience: 'Clothing stores, electronics shops, cosmetics shops, superstores, footwear shops and lifestyle retailers.',
         image: '/assets/LandingImage/all-products.png',
         highlights: ['Variant-wise stock', 'Barcode labels', 'Customer loyalty and dues', 'Branch-wise reports'],
@@ -128,7 +131,7 @@ export const landingPages: LandingPage[] = [
         banglaIntro:
             'ক্যাফে, বেকারি বা খাবারের দোকানে দ্রুত বিল, পেমেন্ট, খরচ আর দৈনিক বিক্রির রিপোর্ট দেখতে AndgatePOS ব্যবহার করতে পারেন।',
         primaryKeyword: 'restaurant POS software Bangladesh',
-        secondaryKeywords: ['restaurant billing software Bangladesh', 'cafe POS Bangladesh', 'food shop POS Bangladesh'],
+        secondaryKeywords: ['restaurant billing software Bangladesh', 'restaurant POS system Bangladesh', 'cafe POS Bangladesh', 'food shop POS Bangladesh', 'restaurant management software Bangladesh'],
         audience: 'Restaurants, cafes, bakeries, fast food shops, juice bars and small food counters.',
         image: '/assets/LandingImage/orders.png',
         highlights: ['Fast checkout', 'Daily cash and expense tracking', 'Sales reports', 'Multiple payment methods'],
@@ -153,7 +156,7 @@ export const landingPages: LandingPage[] = [
         banglaIntro:
             'ফার্মেসির ওষুধের স্টক, বিল, সরবরাহকারী ক্রয় আর কম স্টকের অ্যালার্ট সহজভাবে সামলাতে AndgatePOS সাহায্য করে।',
         primaryKeyword: 'pharmacy POS software Bangladesh',
-        secondaryKeywords: ['pharmacy software Bangladesh', 'medicine shop software Bangladesh', 'pharmacy billing software Bangladesh'],
+        secondaryKeywords: ['pharmacy software Bangladesh', 'medicine shop software Bangladesh', 'pharmacy billing software Bangladesh', 'medicine inventory software Bangladesh'],
         audience: 'Pharmacies, medicine shops, healthcare retail counters and multi-branch pharmacy businesses.',
         image: '/assets/LandingImage/stock-report.png',
         highlights: ['Low-stock alerts', 'Supplier purchase tracking', 'Customer history', 'Inventory reports'],
@@ -178,7 +181,7 @@ export const landingPages: LandingPage[] = [
         banglaIntro:
             'মুদি দোকান বা সুপারশপে দ্রুত বারকোড বিল, স্টক আপডেট, সাপ্লায়ার হিসাব আর দৈনিক বিক্রির রিপোর্ট একসাথে পাবেন।',
         primaryKeyword: 'grocery POS software Bangladesh',
-        secondaryKeywords: ['supermarket software Bangladesh', 'grocery billing software Bangladesh', 'barcode POS software Bangladesh'],
+        secondaryKeywords: ['supermarket software Bangladesh', 'grocery billing software Bangladesh', 'barcode POS software Bangladesh', 'mini mart POS software Bangladesh', 'barcode billing software Bangladesh'],
         audience: 'Grocery stores, mini marts, super shops and neighborhood retail counters.',
         image: '/assets/LandingImage/automatic barcode scan.png',
         highlights: ['Barcode checkout', 'Bulk product import', 'Supplier dues', 'Low-stock reorder alerts'],
@@ -203,7 +206,7 @@ export const landingPages: LandingPage[] = [
         banglaIntro:
             'কোন পণ্য আছে, কোনটা শেষ হচ্ছে, কোনটা বেশি বিক্রি হচ্ছে আর কোন শাখায় কত স্টক আছে — সব পরিষ্কারভাবে দেখুন।',
         primaryKeyword: 'inventory management software Bangladesh',
-        secondaryKeywords: ['stock management software Bangladesh', 'inventory software Bangladesh', 'warehouse stock software Bangladesh'],
+        secondaryKeywords: ['stock management software Bangladesh', 'inventory software Bangladesh', 'warehouse stock software Bangladesh', 'inventory and billing software Bangladesh'],
         audience: 'Retailers, wholesalers, multi-branch stores, electronics shops, pharmacies and product-heavy businesses.',
         image: '/assets/LandingImage/products-create.png',
         highlights: ['Real-time stock', 'Purchase orders', 'Barcode labels', 'Stock valuation reports'],
@@ -228,7 +231,7 @@ export const landingPages: LandingPage[] = [
         banglaIntro:
             'দোকানের বিল দ্রুত তৈরি করুন, ডিসকাউন্ট দিন, পেমেন্ট রেকর্ড করুন, রসিদ প্রিন্ট করুন আর সব বিক্রির হিসাব সংরক্ষণ করুন।',
         primaryKeyword: 'billing software Bangladesh',
-        secondaryKeywords: ['shop billing software Bangladesh', 'invoice software Bangladesh', 'POS billing software Bangladesh'],
+        secondaryKeywords: ['shop billing software Bangladesh', 'invoice software Bangladesh', 'POS billing software Bangladesh', 'retail billing software Bangladesh', 'barcode billing software Bangladesh'],
         audience: 'Retail counters, service shops, pharmacies, grocery stores, fashion stores and electronics shops.',
         image: '/assets/LandingImage/sales-reporrt.png',
         highlights: ['Instant invoices', 'Receipt printing', 'Payment status tracking', 'VAT and tax reports'],

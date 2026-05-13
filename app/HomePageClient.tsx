@@ -49,6 +49,7 @@ import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
+import { highIntentPages } from '@/lib/high-intent-pages';
 import { landingPages } from '@/lib/landing-pages';
 import Footer from './terms-of-service/Footer';
 
@@ -843,10 +844,10 @@ export default function HomePageClient() {
                         </p>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        {landingPages.slice(0, 8).map((page) => (
+                        {[...landingPages.slice(0, 4), ...highIntentPages].map((page) => (
                             <Link
-                                key={page.slug}
-                                href={`/landing/${page.slug}`}
+                                key={'slug' in page ? page.slug : page.path}
+                                href={'slug' in page ? `/landing/${page.slug}` : page.path}
                                 className="rounded-2xl border border-gray-100 bg-gray-50 p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-[#046ca9]/20 hover:bg-white hover:shadow-md"
                             >
                                 <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{page.eyebrow}</p>
