@@ -33,7 +33,7 @@ const Sidebar = () => {
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const user = useSelector((state: RootState) => state.auth.user);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
-    const userStores = user?.stores || [];
+    const userStores = (user?.stores || []).filter((store, idx, arr) => arr.findIndex(s => s.id === store.id) === idx);
 
     const { data: unreadData } = useGetUnreadCountQuery(undefined, {
         pollingInterval: 300000, // 5 minutes

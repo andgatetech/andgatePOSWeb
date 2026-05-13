@@ -39,15 +39,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
     return (
         <div
-            className="grid gap-2.5 sm:gap-3"
+            className="grid gap-2 sm:gap-3"
             style={{
                 gridTemplateColumns: isMobileView
-                    ? 'repeat(auto-fill, minmax(130px, 1fr))'
+                    ? 'repeat(auto-fill, minmax(140px, 1fr))'
                     : leftWidth > 60
                     ? 'repeat(auto-fill, minmax(190px, 1fr))'
                     : leftWidth > 45
                     ? 'repeat(auto-fill, minmax(165px, 1fr))'
-                    : 'repeat(auto-fill, minmax(145px, 1fr))',
+                    : 'repeat(auto-fill, minmax(148px, 1fr))',
             }}
         >
             {products.map((product) => (

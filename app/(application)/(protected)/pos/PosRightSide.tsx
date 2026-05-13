@@ -13,6 +13,8 @@ import { DEFAULT_PAYMENT_METHOD, getAllowedStatusesForMethod } from '@/lib/payme
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation } from '@/store/features/Order/Order';
+import { useQuoteOrderReturnMutation } from '@/store/features/Order/orderApi';
+import type { QuoteOrderReturnResult } from '@/store/features/Order/orderApi';
 import { queueOfflineOrder } from '@/store/features/offline/offlineOrdersSlice';
 import {
     clearReturnSession,
@@ -39,6 +41,7 @@ import PaymentSummarySection from './pos-right-side/PaymentSummarySection';
 import PreviewModal from './pos-right-side/PreviewModal';
 import type { Customer, CustomerApiResponse, PosFormData } from './pos-right-side/types';
 import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
+import ReturnQuotePreviewModal from '@/components/pos/ReturnQuotePreviewModal';
 
 
 export interface PosRightSideProps {
@@ -140,8 +143,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [createOrder] = useCreateOrderMutation();
     const [quoteOrder] = useQuoteOrderMutation();
     const [createOrderReturn] = useCreateOrderReturnMutation();
+    const [quoteOrderReturn] = useQuoteOrderReturnMutation();
     const [createCustomer] = useCreateCustomerMutation();
     const [loading, setLoading] = useState(false);
+    const [returnQuotePreview, setReturnQuotePreview] = useState<QuoteOrderReturnResult | null>(null);
+    const [pendingReturnData, setPendingReturnData] = useState<any>(null);
+    const [showReturnQuoteModal, setShowReturnQuoteModal] = useState(false);
 
     // Return reasons from store settings (for return mode)
     const returnReasons = useMemo(() => {
@@ -1514,17 +1521,31 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             })),
         };
 
-        // Capture snapshot for preview (persist against redux resets)
-        const previewSnapshot = {
-            returnItems: returnItemsData.filter((item) => item.returnQuantity > 0),
-            exchangeItems: exchangeItemsData,
-            returnTotal,
-            exchangeTotal: newItemsTotal,
-            netTransaction: returnNetAmount,
-            returnReasonId: reasonId,
-            notes: notes,
-        };
+        // Quote first — show preview before committing
+        try {
+            setLoading(true);
+            const quoteResult = await quoteOrderReturn({
+                order_id: orderId!,
+                store_id: currentStoreId!,
+                return_items: validReturnItems,
+                new_items: exchangeItemsData.map((item) => ({
+                    product_id: item.productId,
+                    quantity: item.quantity,
+                    unit_price: item.rate,
+                })),
+            }).unwrap();
+            setLoading(false);
+            setPendingReturnData(returnData);
+            setReturnQuotePreview(quoteResult);
+            setShowReturnQuoteModal(true);
+        } catch (error: any) {
+            setLoading(false);
+            // If quote endpoint fails, fall through directly to submit
+            await submitReturnDirectly(returnData);
+        }
+    };
 
+    const submitReturnDirectly = async (returnData: any) => {
         try {
             setLoading(true);
             const response = await createOrderReturn(returnData).unwrap();
@@ -1532,12 +1553,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             setLoading(false);
             showMessage(t('msg_return_processed_success'), 'success');
 
-            // Clear return session immediately to prevent API refetch
             if (currentStoreId) {
                 dispatch(clearReturnSession(currentStoreId));
             }
 
-            // Redirect to orders page with return data to show invoice there
             router.push(`/orders?showReturn=${response.data.id}`);
         } catch (error: any) {
             console.error('Return error:', error);
@@ -1548,6 +1567,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             showMessage(message, 'error');
             setLoading(false);
         }
+    };
+
+    const handleConfirmReturn = async () => {
+        if (!pendingReturnData) return;
+        setShowReturnQuoteModal(false);
+        setReturnQuotePreview(null);
+        await submitReturnDirectly(pendingReturnData);
+        setPendingReturnData(null);
     };
 
     const handlePreview = async () => {
@@ -1909,6 +1936,18 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             <Toaster />
             <LoadingOverlay isLoading={loading} />
             <PreviewModal isOpen={showPreview} data={getPreviewData()} storeId={currentStoreId || undefined} onClose={handleBackToEdit} autoPrint={autoPrint} />
+            {showReturnQuoteModal && returnQuotePreview && (
+                <ReturnQuotePreviewModal
+                    quote={returnQuotePreview}
+                    onConfirm={handleConfirmReturn}
+                    onCancel={() => {
+                        setShowReturnQuoteModal(false);
+                        setReturnQuotePreview(null);
+                        setPendingReturnData(null);
+                    }}
+                    isLoading={loading}
+                />
+            )}
 
             {/* Store Branding Header */}
             {!isReturnMode && (
@@ -2029,34 +2068,19 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             </span>
                             <span className="font-bold text-primary">{formatCurrency(backendGrandTotal)}</span>
                         </div>
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
-                                disabled={loading || invoiceItems.length === 0}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
-                            >
-                                {loading && postActionRef.current === 'invoice' ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconSave />
-                                )}
-                                {t('lbl_invoice')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => { postActionRef.current = 'receipt'; handleSubmit(); }}
-                                disabled={loading || invoiceItems.length === 0}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
-                            >
-                                {loading && postActionRef.current === 'receipt' ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconPrinter />
-                                )}
-                                {t('btn_print_receipt')}
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
+                            disabled={loading || invoiceItems.length === 0}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                        >
+                            {loading ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            ) : (
+                                <IconSave />
+                            )}
+                            {t('btn_confirm_order')}
+                        </button>
                     </div>
                 )}
             </div>

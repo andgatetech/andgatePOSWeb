@@ -52,7 +52,7 @@ const PRESETS = [
 ];
 
 const LabelGenerator = () => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
     const dispatch = useDispatch();
     const { currentStore, currentStoreId } = useCurrentStore();
     const cartItems = useSelector((state: RootState) => (currentStoreId && state.label.itemsByStore ? state.label.itemsByStore[currentStoreId] || EMPTY_LABEL_ITEMS : EMPTY_LABEL_ITEMS));
@@ -265,6 +265,32 @@ const LabelGenerator = () => {
                 format: [pdfWidth, pdfHeight],
             });
 
+            // Load Bengali font when app is in Bangla mode
+            let useBnFont = false;
+            if (i18n.language === 'bn') {
+                try {
+                    const toBase64 = (buf: ArrayBuffer) => {
+                        const bytes = new Uint8Array(buf);
+                        let b = '';
+                        for (let k = 0; k < bytes.byteLength; k++) b += String.fromCharCode(bytes[k]);
+                        return btoa(b);
+                    };
+                    const [rResp, bResp] = await Promise.all([
+                        fetch('/fonts/NotoSansBengali-Regular.ttf'),
+                        fetch('/fonts/NotoSansBengali-Bold.ttf'),
+                    ]);
+                    if (rResp.ok && bResp.ok) {
+                        const [rBuf, bBuf] = await Promise.all([rResp.arrayBuffer(), bResp.arrayBuffer()]);
+                        doc.addFileToVFS('NotoSansBengali-Regular.ttf', toBase64(rBuf));
+                        doc.addFileToVFS('NotoSansBengali-Bold.ttf', toBase64(bBuf));
+                        doc.addFont('NotoSansBengali-Regular.ttf', 'NotoSansBengali', 'normal');
+                        doc.addFont('NotoSansBengali-Bold.ttf', 'NotoSansBengali', 'bold');
+                        useBnFont = true;
+                    }
+                } catch { /* fall back to helvetica */ }
+            }
+            const fontName = useBnFont ? 'NotoSansBengali' : 'helvetica';
+
             const margin = isSheet ? 5 : 0;
             const gap = 2;
             const cols = isSheet ? Math.floor((pdfWidth - margin * 2) / (labelSize.width + gap)) : 1;
@@ -314,19 +340,19 @@ const LabelGenerator = () => {
                 let currentY = yPos + 3;
 
                 doc.setFontSize(8);
-                doc.setFont('helvetica', 'bold');
+                doc.setFont(fontName, 'bold');
                 doc.text((label.product_name || 'Product').substring(0, 35), centerX, currentY, { align: 'center', maxWidth: labelSize.width - 2 });
                 currentY += 3;
 
                 if (label.variant_name) {
                     doc.setFontSize(6);
-                    doc.setFont('helvetica', 'normal');
+                    doc.setFont(fontName, 'normal');
                     doc.text(label.variant_name, centerX, currentY, { align: 'center' });
                     currentY += 2.5;
                 }
 
                 doc.setFontSize(6);
-                doc.setFont('helvetica', 'bold');
+                doc.setFont(fontName, 'bold');
                 doc.text(label.sku || 'N/A', centerX, currentY, { align: 'center' });
 
                 const imgData = convertedImages[i];

@@ -9,9 +9,39 @@ import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FileSpreadsheet, FileText, Loader2, Printer } from 'lucide-react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import * as XLSX from 'xlsx';
+
+// Module-level Bengali font cache — loaded once per browser session
+const bnFont = { regular: '', bold: '', loaded: false };
+let bnFontPromise: Promise<void> | null = null;
+
+const loadBengaliFonts = (): Promise<void> => {
+    if (bnFont.loaded) return Promise.resolve();
+    if (bnFontPromise) return bnFontPromise;
+
+    const toBase64 = (buf: ArrayBuffer): string => {
+        const bytes = new Uint8Array(buf);
+        let b = '';
+        for (let i = 0; i < bytes.byteLength; i++) b += String.fromCharCode(bytes[i]);
+        return btoa(b);
+    };
+
+    bnFontPromise = Promise.all([
+        fetch('/fonts/NotoSansBengali-Regular.ttf'),
+        fetch('/fonts/NotoSansBengali-Bold.ttf'),
+    ])
+        .then(([r, b]) => (r.ok && b.ok ? Promise.all([r.arrayBuffer(), b.arrayBuffer()]) : Promise.reject()))
+        .then(([rBuf, bBuf]) => {
+            bnFont.regular = toBase64(rBuf);
+            bnFont.bold = toBase64(bBuf);
+            bnFont.loaded = true;
+        })
+        .catch(() => { bnFontPromise = null; });
+
+    return bnFontPromise;
+};
 
 // Extend jsPDF type for autoTable
 declare module 'jspdf' {
@@ -61,14 +91,25 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     fileName,
     fetchAllData,
 }) => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
     const { currentStore } = useCurrentStore();
     const { code, symbol } = useCurrency();
     const user = useSelector((state: RootState) => state.auth?.user);
     const [isExporting, setIsExporting] = useState(false);
+    const fontReadyRef = useRef(bnFont.loaded);
 
-    // Always use English for PDF — jsPDF built-in fonts don't support Bengali Unicode
-    const tPdf = (key: string): string => (enLocale as Record<string, string>)[key] || key;
+    // Preload Bengali fonts on mount so they're ready when user clicks PDF
+    useEffect(() => {
+        loadBengaliFonts().then(() => { fontReadyRef.current = bnFont.loaded; });
+    }, []);
+
+    const isBn = i18n.language === 'bn';
+
+    // Use current-language translation in PDF when Bengali font is loaded; English fallback otherwise
+    const tPdf = (key: string): string => {
+        if (isBn && fontReadyRef.current) return t(key);
+        return (enLocale as Record<string, string>)[key] || key;
+    };
 
     // Store details from Redux
     const storeDetails = useMemo(
@@ -130,22 +171,27 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
         return reportTitle;
     }, [reportTitle, dateDisplayText, filterSummary?.customFilters, t]);
 
-    // Helper to sanitize text for PDF (replace unsupported Unicode)
+    // Sanitize text for PDF rendering
     const sanitizeForPdf = useCallback(
         (text: string): string => {
             if (!text) return '';
             let cleanText = String(text);
-            // Convert Bengali digits to ASCII digits first (Bengali digits are used by formatCurrency/formatNumber)
+
+            // When Bengali font is loaded, pass text through as-is (font handles Unicode)
+            if (isBn && fontReadyRef.current) return cleanText;
+
+            // English mode: normalize to ASCII
+            // Bengali digits → ASCII digits
             cleanText = cleanText.replace(/[০-৯]/g, (d) => String('০১২৩৪৫৬৭৮৯'.indexOf(d)));
-            // Replace currency symbol with code
+            // Currency symbol → code
             if (symbol) {
                 const escapedSymbol = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 cleanText = cleanText.replace(new RegExp(escapedSymbol, 'g'), `${code} `);
             }
-            // Strip any remaining non-ASCII (Bengali text labels etc.)
+            // Strip remaining non-ASCII
             return cleanText.replace(/[^\x00-\x7F]/g, '');
         },
-        [symbol, code]
+        [isBn, symbol, code]
     );
 
     // Get export data (all rows)
@@ -233,10 +279,26 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     // Generate PDF/Print content
     const generatePdfDocument = useCallback(
         async (forPrint: boolean = false) => {
+            // Ensure Bengali font is ready before generating (no-op if already loaded)
+            if (isBn) await loadBengaliFonts();
+
             const exportData = await getExportData();
-            // Force landscape if many columns (e.g. > 6)
             const isLandscape = columns.length > 6;
             const doc = new jsPDF({ orientation: isLandscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+
+            // Register Bengali font with jsPDF if loaded
+            const useBnFont = isBn && bnFont.loaded;
+            if (useBnFont) {
+                doc.addFileToVFS('NotoSansBengali-Regular.ttf', bnFont.regular);
+                doc.addFileToVFS('NotoSansBengali-Bold.ttf', bnFont.bold);
+                doc.addFont('NotoSansBengali-Regular.ttf', 'NotoSansBengali', 'normal');
+                doc.addFont('NotoSansBengali-Bold.ttf', 'NotoSansBengali', 'bold');
+            }
+
+            // Font helpers — switch between Bengali and Helvetica transparently
+            const fontName = useBnFont ? 'NotoSansBengali' : 'helvetica';
+            const setNormal = () => doc.setFont(fontName, 'normal');
+            const setBold   = () => doc.setFont(fontName, 'bold');
 
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
@@ -244,7 +306,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const tableWidth = pageWidth - margin * 2;
             let yPos = 12;
 
-            // Compute English date label for PDF (tPdf always returns English)
+            // Date label (uses tPdf which respects language when font is ready)
             const pdfDateText = (() => {
                 if (!filterSummary?.dateRange) return tPdf('lbl_all_time');
                 const { type, startDate, endDate } = filterSummary.dateRange;
@@ -265,13 +327,13 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             // === HEADER SECTION ===
             // Left side: Store Details
             doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
+            setBold();
             doc.setTextColor(30);
             doc.text(sanitizeForPdf(storeDetails.name), margin, yPos);
             yPos += 5;
 
             doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
+            setNormal();
             doc.setTextColor(100);
             if (storeDetails.contact) {
                 doc.text(`${tPdf('lbl_phone')}: ${sanitizeForPdf(storeDetails.contact)}`, margin, yPos);
@@ -285,12 +347,12 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             // Right side: Report Info (at same height as store name)
             const rightX = pageWidth - margin;
             doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
+            setBold();
             doc.setTextColor(59, 130, 246);
             doc.text(sanitizeForPdf(reportTitle), rightX, 12, { align: 'right' });
 
             doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
+            setNormal();
             doc.setTextColor(100);
             doc.text(`${tPdf('lbl_period')}: ${pdfDateText}`, rightX, 17, { align: 'right' });
             doc.text(`${tPdf('lbl_store')}: ${sanitizeForPdf(storeDisplayText)}`, rightX, 21, { align: 'right' });
@@ -315,10 +377,10 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             // Summary section
             if (summary.length > 0) {
                 doc.setFontSize(9);
+                setNormal();
                 doc.setTextColor(60);
                 const summaryText = summary.map((s) => `${tPdf(String(s.label))}: ${sanitizeForPdf(String(s.value))}`).join('   |   ');
 
-                // Wrap text if too long
                 const splitTitle = doc.splitTextToSize(summaryText, tableWidth);
                 doc.text(splitTitle, margin, yPos);
                 yPos += splitTitle.length * 4 + 4;
@@ -379,30 +441,27 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                     valign: 'middle',
                     lineWidth: 0.1,
                     lineColor: [230, 230, 230],
+                    ...(useBnFont ? { font: 'NotoSansBengali', fontStyle: 'normal' } : {}),
                 },
                 headStyles: {
                     fillColor: [59, 130, 246],
                     textColor: 255,
                     fontStyle: 'bold',
-                    halign: 'center', // Headers centered looks better usually
+                    halign: 'center',
                     lineWidth: 0,
+                    ...(useBnFont ? { font: 'NotoSansBengali' } : {}),
                 },
                 alternateRowStyles: { fillColor: [248, 250, 252] },
                 margin: { left: margin, right: margin },
-                tableWidth: 'auto', // We set specific col widths so auto is fine, or set strict tableWidth
+                tableWidth: 'auto',
                 columnStyles: columnStyles,
                 didParseCell: (data) => {
-                    // Style the totals row
                     if (tableData.length > 0 && data.row.index === tableData.length - 1) {
-                        const isTotalRow =
-                            data.cell.raw === 'TOTAL' ||
-                            Object.values(totals).some((v) => data.cell.text.includes(v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
-
-                        // Double check it's the last row
                         data.cell.styles.fontStyle = 'bold';
-                        data.cell.styles.fillColor = [220, 230, 245]; // Darker blue-gray
+                        data.cell.styles.fillColor = [220, 230, 245];
                         data.cell.styles.textColor = [0, 0, 0];
-                        data.cell.styles.fontSize = fontSize + 1; // Slightly larger
+                        data.cell.styles.fontSize = fontSize + 1;
+                        if (useBnFont) data.cell.styles.font = 'NotoSansBengali';
                     }
                 },
             });
@@ -412,6 +471,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
+                setNormal();
                 doc.setTextColor(150);
                 doc.text(`${tPdf('lbl_page')} ${i} ${tPdf('lbl_of')} ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
                 doc.text(`${sanitizeForPdf(storeDetails.name)} - ${sanitizeForPdf(reportTitle)}`, margin, pageHeight - 10);
@@ -419,7 +479,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
             return doc;
         },
-        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf]
+        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf, isBn, tPdf]
     );
 
     // PDF Export

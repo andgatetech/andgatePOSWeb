@@ -43,6 +43,7 @@ interface InvoiceItem {
     discount?: number;
     tax_rate?: number;
     tax_included?: boolean;
+    tax?: number;
     serials?: Serial[];
     warranty?: Warranty | null;
     has_serial?: boolean;
@@ -58,15 +59,95 @@ interface PosInvoicePreviewProps {
     autoPrint?: 'invoice' | 'receipt' | null;
 }
 
+// --- Module-level PDF font cache (singleton, survives component unmount/remount) ---
+const _pdfCache: {
+    vfs: Record<string, string>;
+    fonts: Record<string, any>;
+    bnLoaded: boolean;
+    pdfMake: any;
+} = {
+    vfs: {},
+    fonts: {
+        Roboto: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-MediumItalic.ttf',
+        },
+    },
+    bnLoaded: false,
+    pdfMake: null,
+};
+let _pdfLoadPromise: Promise<void> | null = null;
+
+const _ensurePdfFonts = (): Promise<void> => {
+    if (_pdfCache.bnLoaded && _pdfCache.pdfMake) return Promise.resolve();
+    if (_pdfLoadPromise) return _pdfLoadPromise;
+    _pdfLoadPromise = (async () => {
+        try {
+            const [pdfMakeModule, pdfFontsModule] = await Promise.all([
+                import('pdfmake/build/pdfmake') as any,
+                import('pdfmake/build/vfs_fonts') as any,
+            ]);
+            const instance = pdfMakeModule.default || pdfMakeModule;
+            const vfsFonts =
+                pdfFontsModule.default?.pdfMake?.vfs ||
+                pdfFontsModule.pdfMake?.vfs ||
+                pdfFontsModule.default?.vfs ||
+                pdfFontsModule.vfs ||
+                pdfFontsModule.default;
+            if (instance) _pdfCache.pdfMake = instance;
+            if (vfsFonts) _pdfCache.vfs = { ...vfsFonts };
+
+            const blobToBase64 = (blob: Blob): Promise<string> =>
+                new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+
+            const [regResp, boldResp] = await Promise.all([
+                fetch('/fonts/NotoSansBengali-Regular.ttf'),
+                fetch('/fonts/NotoSansBengali-Bold.ttf'),
+            ]);
+
+            if (regResp.ok && boldResp.ok) {
+                const [regB64, boldB64] = await Promise.all([
+                    regResp.blob().then(blobToBase64),
+                    boldResp.blob().then(blobToBase64),
+                ]);
+                _pdfCache.vfs = {
+                    ..._pdfCache.vfs,
+                    'NotoSansBengali-Regular.ttf': regB64,
+                    'NotoSansBengali-Bold.ttf': boldB64,
+                };
+                _pdfCache.fonts = {
+                    ..._pdfCache.fonts,
+                    NotoSansBengali: {
+                        normal: 'NotoSansBengali-Regular.ttf',
+                        bold: 'NotoSansBengali-Bold.ttf',
+                        italics: 'NotoSansBengali-Regular.ttf',
+                        bolditalics: 'NotoSansBengali-Bold.ttf',
+                    },
+                };
+                _pdfCache.bnLoaded = true;
+            }
+        } catch {
+            _pdfLoadPromise = null; // allow retry on next click
+        }
+    })();
+    return _pdfLoadPromise;
+};
+
 const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePreviewProps) => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
     const { formatCurrency, formatNumber, currency } = useCurrency();
     const currentUser = useSelector((state: RootState) => state.auth?.user);
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [printMode, setPrintMode] = useState<'invoice' | 'receipt' | null>(null);
     const [logoDataUrl, setLogoDataUrl] = useState<string>('');
-    const [pdfMake, setPdfMake] = useState<any>(null);
 
     // Get current store from hook
     const { currentStore: hookStore } = useCurrentStore();
@@ -174,28 +255,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         return currency.currency_position === 'before' ? `${pdfSafeSymbol} ${finalNumber}` : `${finalNumber} ${pdfSafeSymbol}`;
     };
 
-    // Load pdfMake dynamically
+    // Preload PDF fonts on mount so they're ready before user clicks Download
     useEffect(() => {
-        const loadPdfMake = async () => {
-            try {
-                // Dynamic import for client-side only
-                const pdfMakeModule: any = await import('pdfmake/build/pdfmake');
-                const pdfFontsModule: any = await import('pdfmake/build/vfs_fonts');
-
-                // Handle different module export formats (varies by bundler)
-                const pdfMakeInstance = pdfMakeModule.default || pdfMakeModule;
-                const vfsFonts = pdfFontsModule.default?.pdfMake?.vfs || pdfFontsModule.pdfMake?.vfs || pdfFontsModule.default?.vfs || pdfFontsModule.vfs || pdfFontsModule.default;
-
-                if (pdfMakeInstance && vfsFonts) {
-                    pdfMakeInstance.vfs = vfsFonts;
-                    setPdfMake(pdfMakeInstance);
-                }
-            } catch (error) {
-                // pdfMake loading failed
-            }
-        };
-
-        loadPdfMake();
+        _ensurePdfFonts();
     }, []);
 
     // Load logo from dedicated endpoint only
@@ -206,9 +268,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         }
     }, [logoData]);
 
-    // Convert number to words
-    const numberToWords = (num: number): string => {
-        if (num === 0) return 'Zero';
+    // Convert number to words — English
+    const numberToWordsEn = (num: number): string => {
+        if (num === 0) return 'Zero Taka Only';
 
         const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
         const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
@@ -236,6 +298,45 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
         return convertThousands(Math.floor(num)) + ' Taka Only';
     };
+
+    // Convert number to words — Bengali
+    const numberToWordsBn = (num: number): string => {
+        if (num === 0) return 'শূন্য টাকা মাত্র';
+
+        const ones = ['', 'এক', 'দুই', 'তিন', 'চার', 'পাঁচ', 'ছয়', 'সাত', 'আট', 'নয়'];
+        const tens = ['', '', 'বিশ', 'ত্রিশ', 'চল্লিশ', 'পঞ্চাশ', 'ষাট', 'সত্তর', 'আশি', 'নব্বই'];
+        const teens = ['দশ', 'এগারো', 'বারো', 'তেরো', 'চৌদ্দ', 'পনেরো', 'ষোলো', 'সতেরো', 'আঠারো', 'উনিশ'];
+
+        const convertLessThanThousand = (n: number): string => {
+            if (n === 0) return '';
+            if (n < 10) return ones[n];
+            if (n < 20) return teens[n - 10];
+            if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+            return ones[Math.floor(n / 100)] + ' শত' + (n % 100 !== 0 ? ' ' + convertLessThanThousand(n % 100) : '');
+        };
+
+        const convertThousands = (n: number): string => {
+            if (n < 1000) return convertLessThanThousand(n);
+            if (n < 100000) {
+                const thousands = Math.floor(n / 1000);
+                const remainder = n % 1000;
+                return convertLessThanThousand(thousands) + ' হাজার' + (remainder !== 0 ? ' ' + convertLessThanThousand(remainder) : '');
+            }
+            if (n < 10000000) {
+                const lakhs = Math.floor(n / 100000);
+                const remainder = n % 100000;
+                return convertLessThanThousand(lakhs) + ' লক্ষ' + (remainder !== 0 ? ' ' + convertThousands(remainder) : '');
+            }
+            const crores = Math.floor(n / 10000000);
+            const remainder = n % 10000000;
+            return convertLessThanThousand(crores) + ' কোটি' + (remainder !== 0 ? ' ' + convertThousands(remainder) : '');
+        };
+
+        return convertThousands(Math.floor(num)) + ' টাকা মাত্র';
+    };
+
+    const numberToWords = (num: number): string =>
+        i18n.language === 'bn' ? numberToWordsBn(num) : numberToWordsEn(num);
 
     // Format warranty duration
     const formatWarrantyDuration = (warranty: Warranty | null | undefined) => {
@@ -276,6 +377,19 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
     const cashierName = cashier?.name || created_by?.name || user?.name || data?.user_name || currentUser?.name || t('lbl_na');
     const customerName = customer.name || t('pos_walk_in_customer');
     const receiptTitle = isReturn ? t('lbl_return_receipt') : t('lbl_receipt');
+
+    // Calculate actual VAT amount for a single item
+    const itemTaxAmount = (item: InvoiceItem): number => {
+        if (!item.tax_rate) return 0;
+        // Backend may send pre-calculated tax per item
+        if (typeof item.tax === 'number' && item.tax > 0) return item.tax;
+        const base = item.price * item.quantity;
+        if (item.tax_included) {
+            // Tax is embedded in price: extract it
+            return base * item.tax_rate / (100 + item.tax_rate);
+        }
+        return base * item.tax_rate / 100;
+    };
     const receiptKeptItems = keptItems as InvoiceItem[];
     const receiptExchangeItems = exchangeItems as InvoiceItem[];
     const receiptReturnedItems = returnedItems as InvoiceItem[];
@@ -300,7 +414,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         </div>
                         <div className="ml-5 flex justify-between gap-1 text-[8px]">
                             <span>{formatReceiptQty(item, quantityPrefix)} x {formatCurrency(item.price)}</span>
-                            {item.tax_rate ? <span>{t('lbl_tax')}: {formatNumber(item.tax_rate)}%</span> : null}
+                            {item.tax_rate ? <span>{taxLabel}: {formatCurrency(itemTaxAmount(item))} ({formatNumber(item.tax_rate)}%)</span> : null}
                         </div>
                         {item.variantName && <div className="ml-5 break-words text-[8px]">{t('lbl_variant')}: {item.variantName}</div>}
                         {item.has_serial && item.serials?.length ? (
@@ -408,12 +522,16 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
     // Generate PDF using pdfmake
     const exportPDF = async () => {
-        if (!pdfMake) {
+        setIsPrinting(true);
+
+        // Await fonts — resolves immediately if already cached, waits if still loading
+        await _ensurePdfFonts();
+
+        if (!_pdfCache.pdfMake) {
             alert(t('msg_pdf_loading'));
+            setIsPrinting(false);
             return;
         }
-
-        setIsPrinting(true);
 
         try {
             const content: Content = [];
@@ -558,7 +676,12 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         { stack: productName },
                         { text: `${formatNumber(product.quantity, 2)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
                         { text: formatCurrencyPDF(product.price), alignment: 'right' },
-                        { text: product.tax_rate ? `${formatNumber(product.tax_rate)}%` : '-', alignment: 'right' },
+                        {
+                            text: product.tax_rate
+                                ? `${formatCurrencyPDF(itemTaxAmount(product))}\n(${formatNumber(product.tax_rate)}%)`
+                                : '-',
+                            alignment: 'right',
+                        },
                         { text: formatCurrencyPDF(0), alignment: 'right' },
                         { text: formatCurrencyPDF(product.amount), alignment: 'right', bold: true },
                     ]);
@@ -883,11 +1006,14 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 },
                 defaultStyle: {
                     fontSize: 9,
+                    font: (i18n.language === 'bn' && _pdfCache.bnLoaded) ? 'NotoSansBengali' : 'Roboto',
                 },
             };
 
-            pdfMake.createPdf(docDefinition).download(`invoice-${invoice || 'preview'}.pdf`);
+            // Pass fonts + VFS directly — bypasses pdfMake module-level state
+            _pdfCache.pdfMake.createPdf(docDefinition, undefined, _pdfCache.fonts, _pdfCache.vfs).download(`invoice-${invoice || 'preview'}.pdf`);
         } catch (error) {
+            console.error('[PDF] generation failed:', error);
             alert(t('msg_pdf_generate_failed'));
         } finally {
             setIsPrinting(false);
@@ -939,13 +1065,13 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         </button>
                         <button
                             onClick={exportPDF}
-                            disabled={isPrinting || !pdfMake}
+                            disabled={isPrinting}
                             className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                         >
                             <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <span>{isPrinting && !printMode ? t('status_generating') : !pdfMake ? t('status_loading') : t('btn_download_pdf')}</span>
+                            <span>{isPrinting && !printMode ? t('status_generating') : t('btn_download_pdf')}</span>
                         </button>
                     </div>
                 </div>
@@ -1123,7 +1249,11 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                                 {formatNumber(product.quantity, 2)} {product.unit || t('lbl_pcs')}
                                             </td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top">{formatCurrency(product.price)}</td>
-                                            <td className="border border-gray-300 px-2 py-2 text-right align-top">{product.tax_rate ? `${formatNumber(product.tax_rate)}%` : '-'}</td>
+                                            <td className="border border-gray-300 px-2 py-2 text-right align-top">
+                                                {product.tax_rate
+                                                    ? <><span className="block">{formatCurrency(itemTaxAmount(product))}</span><span className="text-xs text-gray-400">({formatNumber(product.tax_rate)}%)</span></>
+                                                    : '-'}
+                                            </td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top">{formatCurrency(0)}</td>
                                             <td className="border border-gray-300 px-2 py-2 text-right align-top font-semibold">{formatCurrency(product.amount)}</td>
                                         </tr>

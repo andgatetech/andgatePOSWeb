@@ -126,13 +126,71 @@ const formatWarranty = (warranty?: InvoiceItem['warranty']) => {
     return null;
 };
 
+const blobToBase64 = (blob: Blob): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+
+const ROBOTO_FONTS = {
+    Roboto: {
+        normal: 'Roboto-Regular.ttf',
+        bold: 'Roboto-Medium.ttf',
+        italics: 'Roboto-Italic.ttf',
+        bolditalics: 'Roboto-MediumItalic.ttf',
+    },
+};
+
 export async function generateOrderInvoicePDF(payload: InvoicePayload) {
     // Dynamic import — pdfmake is browser-only
     const pdfMakeModule: any = await import('pdfmake/build/pdfmake');
     const pdfFontsModule: any = await import('pdfmake/build/vfs_fonts');
     const pdfMake = pdfMakeModule.default || pdfMakeModule;
-    const vfs = pdfFontsModule.default?.pdfMake?.vfs || pdfFontsModule.pdfMake?.vfs || pdfFontsModule.default?.vfs || pdfFontsModule.vfs || pdfFontsModule.default;
-    if (vfs) pdfMake.vfs = vfs;
+    const baseVfs = pdfFontsModule.default?.pdfMake?.vfs || pdfFontsModule.pdfMake?.vfs || pdfFontsModule.default?.vfs || pdfFontsModule.vfs || {};
+
+    // Detect language from i18next cookie
+    const isBn = typeof document !== 'undefined'
+        ? document.cookie.split(';').some((c) => c.trim().startsWith('i18nextLng=bn'))
+        : false;
+
+    // Build VFS and fonts to pass directly to createPdf
+    let docVfs: Record<string, string> = { ...baseVfs };
+    let docFonts: Record<string, any> = { ...ROBOTO_FONTS };
+    let useBnFont = false;
+
+    if (isBn) {
+        try {
+            const [rResp, bResp] = await Promise.all([
+                fetch('/fonts/NotoSansBengali-Regular.ttf'),
+                fetch('/fonts/NotoSansBengali-Bold.ttf'),
+            ]);
+            if (rResp.ok && bResp.ok) {
+                const [regularB64, boldB64] = await Promise.all([
+                    rResp.blob().then(blobToBase64),
+                    bResp.blob().then(blobToBase64),
+                ]);
+                docVfs = {
+                    ...docVfs,
+                    'NotoSansBengali-Regular.ttf': regularB64,
+                    'NotoSansBengali-Bold.ttf': boldB64,
+                };
+                docFonts = {
+                    ...ROBOTO_FONTS,
+                    NotoSansBengali: {
+                        normal: 'NotoSansBengali-Regular.ttf',
+                        bold: 'NotoSansBengali-Bold.ttf',
+                        italics: 'NotoSansBengali-Regular.ttf',
+                        bolditalics: 'NotoSansBengali-Bold.ttf',
+                    },
+                };
+                useBnFont = true;
+            }
+        } catch {
+            // Fall through to Roboto
+        }
+    }
 
     const { invoice, order_id, order_status, customer, items, store_items_count, store_items_subtotal, store_total, paymentMethod, paymentStatus, notes, store } = payload;
 
@@ -372,8 +430,8 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload) {
             tableHeader: { bold: true, fontSize: 9, color: '#1f2937' },
             sectionHeader: { fontSize: 10, bold: true },
         },
-        defaultStyle: { fontSize: 9 },
+        defaultStyle: { fontSize: 9, font: useBnFont ? 'NotoSansBengali' : 'Roboto' },
     };
 
-    pdfMake.createPdf(docDefinition).download(`invoice-${invoice || 'order'}.pdf`);
+    pdfMake.createPdf(docDefinition, null, docFonts, docVfs).download(`invoice-${invoice || 'order'}.pdf`);
 }
