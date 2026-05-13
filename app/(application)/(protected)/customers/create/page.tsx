@@ -11,13 +11,27 @@ import { useState } from 'react';
 
 interface CustomerFormData {
     name: string;
+    customer_type: string;
     email: string;
     phone: string;
+    alternative_phone: string;
+    preferred_contact_method: string;
+    date_of_birth: string;
+    gender: string;
     membership: 'normal' | 'silver' | 'gold' | 'platinum';
     points: number;
     balance: number;
+    credit_limit: string;
+    nid_no: string;
+    trade_name: string;
     is_active: boolean;
+    address_line1: string;
+    address_line2: string;
+    city: string;
+    state: string;
+    postal_code: string;
     details: string;
+    delivery_note: string;
 }
 
 const CreateCustomerPage = () => {
@@ -29,13 +43,27 @@ const CreateCustomerPage = () => {
 
     const [formData, setFormData] = useState<CustomerFormData>({
         name: '',
+        customer_type: '',
         email: '',
         phone: '',
+        alternative_phone: '',
+        preferred_contact_method: '',
+        date_of_birth: '',
+        gender: '',
         membership: 'normal',
         points: 0,
         balance: 0,
+        credit_limit: '',
+        nid_no: '',
+        trade_name: '',
         is_active: true,
+        address_line1: '',
+        address_line2: '',
+        city: '',
+        state: '',
+        postal_code: '',
         details: '',
+        delivery_note: '',
     });
 
     const [errors, setErrors] = useState<Partial<CustomerFormData>>({});
@@ -102,13 +130,28 @@ const CreateCustomerPage = () => {
         try {
             const submitData = {
                 name: formData.name.trim(),
-                email: formData.email.trim().toLowerCase(),
+                customer_type: formData.customer_type || null,
+                email: formData.email.trim() ? formData.email.trim().toLowerCase() : null,
                 phone: formData.phone.trim(),
+                alternative_phone: formData.alternative_phone.trim() || null,
+                preferred_contact_method: formData.preferred_contact_method || null,
+                date_of_birth: formData.date_of_birth || null,
+                gender: formData.gender || null,
                 membership: formData.membership,
                 points: formData.points,
                 balance: formData.balance,
+                credit_limit: formData.credit_limit ? Number(formData.credit_limit) : null,
+                nid_no: formData.nid_no.trim() || null,
+                trade_name: formData.trade_name.trim() || null,
                 is_active: formData.is_active,
+                address_line1: formData.address_line1.trim() || null,
+                address_line2: formData.address_line2.trim() || null,
+                city: formData.city.trim() || null,
+                state: formData.state.trim() || null,
+                postal_code: formData.postal_code.trim() || null,
+                country_code: 'BD',
                 details: formData.details.trim() || null,
+                delivery_note: formData.delivery_note.trim() || null,
                 store_id: currentStoreId,
             };
 
@@ -117,13 +160,27 @@ const CreateCustomerPage = () => {
             // Reset form
             setFormData({
                 name: '',
+                customer_type: '',
                 email: '',
                 phone: '',
+                alternative_phone: '',
+                preferred_contact_method: '',
+                date_of_birth: '',
+                gender: '',
                 membership: 'normal',
                 points: 0,
                 balance: 0,
+                credit_limit: '',
+                nid_no: '',
+                trade_name: '',
                 is_active: true,
+                address_line1: '',
+                address_line2: '',
+                city: '',
+                state: '',
+                postal_code: '',
                 details: '',
+                delivery_note: '',
             });
             setErrors({});
             showSuccessDialog(t('msg_success'), t('customer_created'));
@@ -135,6 +192,21 @@ const CreateCustomerPage = () => {
             showErrorDialog(t('msg_error'), errorMessage, t('btn_submit'));
         }
     };
+
+    const customerTypeOptions = [
+        { value: '', label: t('customer_type_select') },
+        { value: 'regular', label: t('customer_type_regular') },
+        { value: 'wholesale', label: t('customer_type_wholesale') },
+        { value: 'reseller', label: t('customer_type_reseller') },
+        { value: 'corporate', label: t('customer_type_corporate') },
+    ];
+
+    const contactMethodOptions = [
+        { value: '', label: t('customer_contact_method_select') },
+        { value: 'call', label: t('customer_contact_call') },
+        { value: 'sms', label: t('customer_contact_sms') },
+        { value: 'whatsapp', label: t('customer_contact_whatsapp') },
+    ];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
@@ -200,6 +272,21 @@ const CreateCustomerPage = () => {
                                         {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
                                     </div>
 
+                                    <div>
+                                        <label htmlFor="customer_type" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_type')}</label>
+                                        <select
+                                            id="customer_type"
+                                            name="customer_type"
+                                            value={formData.customer_type}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
+                                        >
+                                            {customerTypeOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
                                     {/* Email */}
                                     <div>
                                         <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
@@ -236,6 +323,88 @@ const CreateCustomerPage = () => {
                                             }`}
                                         />
                                         {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="alternative_phone" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_alternative_phone')}</label>
+                                        <input
+                                            id="alternative_phone"
+                                            name="alternative_phone"
+                                            type="tel"
+                                            value={formData.alternative_phone}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_alternative_phone_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="preferred_contact_method" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_preferred_contact_method')}</label>
+                                        <select
+                                            id="preferred_contact_method"
+                                            name="preferred_contact_method"
+                                            value={formData.preferred_contact_method}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
+                                        >
+                                            {contactMethodOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="date_of_birth" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_date_of_birth')}</label>
+                                        <input
+                                            id="date_of_birth"
+                                            name="date_of_birth"
+                                            type="date"
+                                            value={formData.date_of_birth}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="gender" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_gender')}</label>
+                                        <select
+                                            id="gender"
+                                            name="gender"
+                                            value={formData.gender}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary"
+                                        >
+                                            <option value="">{t('customer_gender_select')}</option>
+                                            <option value="male">{t('lbl_male')}</option>
+                                            <option value="female">{t('lbl_female')}</option>
+                                            <option value="other">{t('lbl_other')}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-gray-200 pt-6">
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('customer_address_information')}</h3>
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <div>
+                                        <label htmlFor="address_line1" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_address_line1')}</label>
+                                        <input id="address_line1" name="address_line1" type="text" value={formData.address_line1} onChange={handleChange} placeholder={t('customer_address_line1_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="address_line2" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_address_line2')}</label>
+                                        <input id="address_line2" name="address_line2" type="text" value={formData.address_line2} onChange={handleChange} placeholder={t('customer_address_line2_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="city" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_city_area')}</label>
+                                        <input id="city" name="city" type="text" value={formData.city} onChange={handleChange} placeholder={t('customer_city_area_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="state" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_district')}</label>
+                                        <input id="state" name="state" type="text" value={formData.state} onChange={handleChange} placeholder={t('customer_district_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="delivery_note" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_delivery_note')}</label>
+                                        <textarea id="delivery_note" name="delivery_note" value={formData.delivery_note} onChange={handleChange} placeholder={t('customer_delivery_note_placeholder')} rows={2} maxLength={1000} className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
                                     </div>
                                 </div>
                             </div>
@@ -283,7 +452,7 @@ const CreateCustomerPage = () => {
                                     {/* Balance */}
                                     <div>
                                         <label htmlFor="balance" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_balance')} ({symbol})
+                                            {t('customer_opening_balance')} ({symbol})
                                         </label>
                                         <input
                                             id="balance"
@@ -297,6 +466,11 @@ const CreateCustomerPage = () => {
                                         />
                                         <p className="mt-1 text-xs text-gray-500">{t('msg_negative_for_due')}</p>
                                     </div>
+
+                                    <div>
+                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_credit_limit')} ({symbol})</label>
+                                        <input id="credit_limit" name="credit_limit" type="number" min="0" step="0.01" value={formData.credit_limit} onChange={handleChange} placeholder="0.00" className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -304,6 +478,14 @@ const CreateCustomerPage = () => {
                             <div className="border-t border-gray-200 pt-6">
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_additional_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <div>
+                                        <label htmlFor="trade_name" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_trade_name')}</label>
+                                        <input id="trade_name" name="trade_name" type="text" value={formData.trade_name} onChange={handleChange} placeholder={t('customer_trade_name_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="nid_no" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_nid_no')}</label>
+                                        <input id="nid_no" name="nid_no" type="text" value={formData.nid_no} onChange={handleChange} placeholder={t('customer_nid_no_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                    </div>
                                     {/* Details */}
                                     <div className="md:col-span-2">
                                         <label htmlFor="details" className="mb-2 block text-sm font-medium text-gray-700">

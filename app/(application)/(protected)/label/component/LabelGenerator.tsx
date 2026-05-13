@@ -269,20 +269,24 @@ const LabelGenerator = () => {
             let useBnFont = false;
             if (i18n.language === 'bn') {
                 try {
-                    const toBase64 = (buf: ArrayBuffer) => {
-                        const bytes = new Uint8Array(buf);
-                        let b = '';
-                        for (let k = 0; k < bytes.byteLength; k++) b += String.fromCharCode(bytes[k]);
-                        return btoa(b);
-                    };
+                    const blobToBase64Jspdf = (blob: Blob): Promise<string> =>
+                        new Promise((res, rej) => {
+                            const reader = new FileReader();
+                            reader.onload = () => res((reader.result as string).split(',')[1]);
+                            reader.onerror = rej;
+                            reader.readAsDataURL(blob);
+                        });
                     const [rResp, bResp] = await Promise.all([
                         fetch('/fonts/NotoSansBengali-Regular.ttf'),
                         fetch('/fonts/NotoSansBengali-Bold.ttf'),
                     ]);
                     if (rResp.ok && bResp.ok) {
-                        const [rBuf, bBuf] = await Promise.all([rResp.arrayBuffer(), bResp.arrayBuffer()]);
-                        doc.addFileToVFS('NotoSansBengali-Regular.ttf', toBase64(rBuf));
-                        doc.addFileToVFS('NotoSansBengali-Bold.ttf', toBase64(bBuf));
+                        const [rB64, bB64] = await Promise.all([
+                            rResp.blob().then(blobToBase64Jspdf),
+                            bResp.blob().then(blobToBase64Jspdf),
+                        ]);
+                        doc.addFileToVFS('NotoSansBengali-Regular.ttf', rB64);
+                        doc.addFileToVFS('NotoSansBengali-Bold.ttf', bB64);
                         doc.addFont('NotoSansBengali-Regular.ttf', 'NotoSansBengali', 'normal');
                         doc.addFont('NotoSansBengali-Bold.ttf', 'NotoSansBengali', 'bold');
                         useBnFont = true;

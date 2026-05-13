@@ -33,7 +33,16 @@ const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, p
     const router = useRouter();
 
     const columns: TableColumn[] = useMemo(
-        () => [
+        () => {
+            const supplierTypeLabels: Record<string, string> = {
+                wholesaler: t('supplier_type_wholesaler'),
+                distributor: t('supplier_type_distributor'),
+                manufacturer: t('supplier_type_manufacturer'),
+                service_provider: t('supplier_type_service_provider'),
+                other: t('supplier_type_other'),
+            };
+
+            return [
             {
                 key: 'name',
                 label: t('supplier_col_name'),
@@ -41,9 +50,15 @@ const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, p
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{value || 'N/A'}</span>
+                        {row.company_name && <span className="text-xs text-gray-500">{row.company_name}</span>}
                         {row.email && <span className="text-xs text-gray-500">{row.email}</span>}
                     </div>
                 ),
+            },
+            {
+                key: 'supplier_type',
+                label: t('supplier_type'),
+                render: (value) => <span className="text-sm text-gray-700">{supplierTypeLabels[value] || value || 'N/A'}</span>,
             },
             {
                 key: 'phone',
@@ -51,7 +66,8 @@ const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, p
                 render: (value, row) => (
                     <div className="flex flex-col">
                         {value && <span className="text-sm text-gray-900">{value}</span>}
-                        {row.contact_person && <span className="text-xs text-gray-500">Contact: {row.contact_person}</span>}
+                        {row.contact_person && <span className="text-xs text-gray-500">{t('supplier_contact_person')}: {row.contact_person}</span>}
+                        {row.mobile_banking_number && <span className="text-xs text-gray-500">{t('lbl_mobile_banking')}: {row.mobile_banking_number}</span>}
                     </div>
                 ),
             },
@@ -100,7 +116,8 @@ const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, p
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
-        ],
+        ];
+        },
         [t]
     );
 

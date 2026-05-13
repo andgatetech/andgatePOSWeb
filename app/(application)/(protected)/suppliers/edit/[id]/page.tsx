@@ -10,10 +10,24 @@ import { useEffect, useState } from 'react';
 
 interface SupplierFormData {
     name: string;
+    company_name: string;
     email: string;
     phone: string;
     address: string;
-    contact_person?: string;
+    contact_person: string;
+    supplier_type: string;
+    opening_balance: string;
+    payment_terms: string;
+    credit_limit: string;
+    preferred_payment_method: string;
+    mobile_banking_number: string;
+    bank_name: string;
+    bank_account_name: string;
+    bank_account_number: string;
+    trade_license_no: string;
+    tin_no: string;
+    bin_no: string;
+    notes: string;
     status: 'active' | 'inactive' | 'blocked';
 }
 
@@ -29,10 +43,24 @@ const EditSupplierPage = () => {
 
     const [formData, setFormData] = useState<SupplierFormData>({
         name: '',
+        company_name: '',
         email: '',
         phone: '',
         address: '',
         contact_person: '',
+        supplier_type: '',
+        opening_balance: '',
+        payment_terms: '',
+        credit_limit: '',
+        preferred_payment_method: '',
+        mobile_banking_number: '',
+        bank_name: '',
+        bank_account_name: '',
+        bank_account_number: '',
+        trade_license_no: '',
+        tin_no: '',
+        bin_no: '',
+        notes: '',
         status: 'active',
     });
 
@@ -48,10 +76,24 @@ const EditSupplierPage = () => {
             const supplier = supplierResponse.data;
             setFormData({
                 name: supplier.name || '',
+                company_name: supplier.company_name || '',
                 email: supplier.email || '',
                 phone: supplier.phone || '',
                 address: supplier.address || '',
                 contact_person: supplier.contact_person || '',
+                supplier_type: supplier.supplier_type || '',
+                opening_balance: supplier.opening_balance || '',
+                payment_terms: supplier.payment_terms || '',
+                credit_limit: supplier.credit_limit || '',
+                preferred_payment_method: supplier.preferred_payment_method || '',
+                mobile_banking_number: supplier.mobile_banking_number || '',
+                bank_name: supplier.bank_name || '',
+                bank_account_name: supplier.bank_account_name || '',
+                bank_account_number: supplier.bank_account_number || '',
+                trade_license_no: supplier.trade_license_no || '',
+                tin_no: supplier.tin_no || '',
+                bin_no: supplier.bin_no || '',
+                notes: supplier.notes || '',
                 status: supplier.status || 'active',
             });
         }
@@ -70,37 +112,34 @@ const EditSupplierPage = () => {
         const newErrors: Partial<SupplierFormData> = {};
 
         if (!formData.name.trim()) {
-            newErrors.name = 'Supplier name is required';
-            showMessage('Supplier name is required', 'error');
+            newErrors.name = t('msg_supplier_name_required');
+            showMessage(t('msg_supplier_name_required'), 'error');
         } else if (formData.name.trim().length < 2) {
-            newErrors.name = 'Name must be at least 2 characters';
-            showMessage('Name must be at least 2 characters', 'error');
+            newErrors.name = t('msg_name_min_2_chars');
+            showMessage(t('msg_name_min_2_chars'), 'error');
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email.trim()) {
-            newErrors.email = 'Email is required';
-            if (!newErrors.name) showMessage('Email is required', 'error');
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address';
-            if (!newErrors.name) showMessage('Please enter a valid email address', 'error');
+        if (formData.email.trim() && !emailRegex.test(formData.email)) {
+            newErrors.email = t('msg_invalid_email');
+            if (!newErrors.name) showMessage(t('msg_invalid_email'), 'error');
         }
 
         const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
         if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-            if (!newErrors.name && !newErrors.email) showMessage('Phone number is required', 'error');
+            newErrors.phone = t('msg_phone_required');
+            if (!newErrors.name && !newErrors.email) showMessage(t('msg_phone_required'), 'error');
         } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Please enter a valid phone number';
-            if (!newErrors.name && !newErrors.email) showMessage('Please enter a valid phone number', 'error');
+            newErrors.phone = t('msg_invalid_phone');
+            if (!newErrors.name && !newErrors.email) showMessage(t('msg_invalid_phone'), 'error');
         }
 
         if (!formData.address.trim()) {
-            newErrors.address = 'Address is required';
-            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage('Address is required', 'error');
+            newErrors.address = t('msg_address_required');
+            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage(t('msg_address_required'), 'error');
         } else if (formData.address.trim().length < 10) {
-            newErrors.address = 'Address must be at least 10 characters';
-            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage('Address must be at least 10 characters', 'error');
+            newErrors.address = t('msg_address_min_10_chars');
+            if (!newErrors.name && !newErrors.email && !newErrors.phone) showMessage(t('msg_address_min_10_chars'), 'error');
         }
 
         setErrors(newErrors);
@@ -118,10 +157,24 @@ const EditSupplierPage = () => {
             const submitData = {
                 id: id as string,
                 name: formData.name.trim(),
-                email: formData.email.trim().toLowerCase(),
+                company_name: formData.company_name.trim() || null,
+                email: formData.email.trim() ? formData.email.trim().toLowerCase() : null,
                 phone: formData.phone.trim(),
                 address: formData.address.trim(),
-                contact_person: formData.contact_person?.trim() || null,
+                contact_person: formData.contact_person.trim() || null,
+                supplier_type: formData.supplier_type || null,
+                opening_balance: Number(formData.opening_balance || 0),
+                payment_terms: formData.payment_terms || null,
+                credit_limit: formData.credit_limit ? Number(formData.credit_limit) : null,
+                preferred_payment_method: formData.preferred_payment_method || null,
+                mobile_banking_number: formData.mobile_banking_number.trim() || null,
+                bank_name: formData.bank_name.trim() || null,
+                bank_account_name: formData.bank_account_name.trim() || null,
+                bank_account_number: formData.bank_account_number.trim() || null,
+                trade_license_no: formData.trade_license_no.trim() || null,
+                tin_no: formData.tin_no.trim() || null,
+                bin_no: formData.bin_no.trim() || null,
+                notes: formData.notes.trim() || null,
                 status: formData.status,
             };
 
@@ -135,6 +188,31 @@ const EditSupplierPage = () => {
             showErrorDialog(t('msg_error'), errorMessage, t('btn_confirm'));
         }
     };
+
+    const supplierTypeOptions = [
+        { value: '', label: t('supplier_type_select') },
+        { value: 'wholesaler', label: t('supplier_type_wholesaler') },
+        { value: 'distributor', label: t('supplier_type_distributor') },
+        { value: 'manufacturer', label: t('supplier_type_manufacturer') },
+        { value: 'service_provider', label: t('supplier_type_service_provider') },
+        { value: 'other', label: t('supplier_type_other') },
+    ];
+
+    const paymentTermOptions = [
+        { value: '', label: t('supplier_terms_select') },
+        { value: 'cash', label: t('supplier_terms_cash') },
+        { value: '7_days', label: t('supplier_terms_7_days') },
+        { value: '15_days', label: t('supplier_terms_15_days') },
+        { value: '30_days', label: t('supplier_terms_30_days') },
+    ];
+
+    const paymentMethodOptions = [
+        { value: '', label: t('supplier_payment_method_select') },
+        { value: 'cash', label: t('bd_payments_cash') },
+        { value: 'mobile_banking', label: t('lbl_mobile_banking') },
+        { value: 'bank_transfer', label: t('lbl_bank_transfer') },
+        { value: 'cheque', label: t('supplier_payment_method_cheque') },
+    ];
 
     if (!isClient || fetchLoading) {
         return (
@@ -222,10 +300,38 @@ const EditSupplierPage = () => {
                                         {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
                                     </div>
 
+                                    <div>
+                                        <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_company_name')}</label>
+                                        <input
+                                            id="company_name"
+                                            name="company_name"
+                                            type="text"
+                                            value={formData.company_name}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_company_name_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="supplier_type" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_type')}</label>
+                                        <select
+                                            id="supplier_type"
+                                            name="supplier_type"
+                                            value={formData.supplier_type}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        >
+                                            {supplierTypeOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
                                     {/* Email */}
                                     <div>
                                         <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_email')} <span className="text-red-500">*</span>
+                                            {t('lbl_email')}
                                         </label>
                                         <input
                                             id="email"
@@ -261,9 +367,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     {/* Contact Person */}
-                                    <div className="md:col-span-2">
+                                    <div>
                                         <label htmlFor="contact_person" className="mb-2 block text-sm font-medium text-gray-700">
-                                            {t('lbl_full_name')}
+                                            {t('supplier_contact_person')}
                                         </label>
                                         <input
                                             id="contact_person"
@@ -271,7 +377,168 @@ const EditSupplierPage = () => {
                                             type="text"
                                             value={formData.contact_person}
                                             onChange={handleChange}
-                                            placeholder={t('lbl_full_name')}
+                                            placeholder={t('supplier_contact_person_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="mobile_banking_number" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_mobile_banking_number')}</label>
+                                        <input
+                                            id="mobile_banking_number"
+                                            name="mobile_banking_number"
+                                            type="tel"
+                                            value={formData.mobile_banking_number}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_mobile_banking_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-gray-200 pt-6">
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('supplier_payment_information')}</h3>
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <div>
+                                        <label htmlFor="opening_balance" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_opening_balance')}</label>
+                                        <input
+                                            id="opening_balance"
+                                            name="opening_balance"
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.opening_balance}
+                                            onChange={handleChange}
+                                            placeholder="0.00"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="payment_terms" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_payment_terms')}</label>
+                                        <select
+                                            id="payment_terms"
+                                            name="payment_terms"
+                                            value={formData.payment_terms}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        >
+                                            {paymentTermOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_credit_limit')}</label>
+                                        <input
+                                            id="credit_limit"
+                                            name="credit_limit"
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.credit_limit}
+                                            onChange={handleChange}
+                                            placeholder="0.00"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="preferred_payment_method" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_preferred_payment_method')}</label>
+                                        <select
+                                            id="preferred_payment_method"
+                                            name="preferred_payment_method"
+                                            value={formData.preferred_payment_method}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        >
+                                            {paymentMethodOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="bank_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_name')}</label>
+                                        <input
+                                            id="bank_name"
+                                            name="bank_name"
+                                            type="text"
+                                            value={formData.bank_name}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_bank_name_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="bank_account_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_account_name')}</label>
+                                        <input
+                                            id="bank_account_name"
+                                            name="bank_account_name"
+                                            type="text"
+                                            value={formData.bank_account_name}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_bank_account_name_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="bank_account_number" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_account_number')}</label>
+                                        <input
+                                            id="bank_account_number"
+                                            name="bank_account_number"
+                                            type="text"
+                                            value={formData.bank_account_number}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_bank_account_number_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-gray-200 pt-6">
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('supplier_business_information')}</h3>
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <div>
+                                        <label htmlFor="trade_license_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_trade_license_no')}</label>
+                                        <input
+                                            id="trade_license_no"
+                                            name="trade_license_no"
+                                            type="text"
+                                            value={formData.trade_license_no}
+                                            onChange={handleChange}
+                                            placeholder={t('ph_trade_license_no')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="tin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_tin_no')}</label>
+                                        <input
+                                            id="tin_no"
+                                            name="tin_no"
+                                            type="text"
+                                            value={formData.tin_no}
+                                            onChange={handleChange}
+                                            placeholder={t('ph_tin_no')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
+                                        <input
+                                            id="bin_no"
+                                            name="bin_no"
+                                            type="text"
+                                            value={formData.bin_no}
+                                            onChange={handleChange}
+                                            placeholder={t('ph_bin_no')}
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         />
                                     </div>
@@ -300,7 +567,22 @@ const EditSupplierPage = () => {
                                             }`}
                                         />
                                         {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
-                                        <p className="mt-1 text-sm text-gray-500">{formData.address.length}/500 characters</p>
+                                        <p className="mt-1 text-sm text-gray-500">{formData.address.length}/500</p>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label htmlFor="notes" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
+                                        <textarea
+                                            id="notes"
+                                            name="notes"
+                                            value={formData.notes}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_notes_placeholder')}
+                                            rows={3}
+                                            maxLength={1000}
+                                            className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
+                                        <p className="mt-1 text-sm text-gray-500">{formData.notes.length}/1000</p>
                                     </div>
 
                                     {/* Status */}
@@ -317,7 +599,7 @@ const EditSupplierPage = () => {
                                         >
                                             <option value="active">{t('status_active')}</option>
                                             <option value="inactive">{t('status_inactive')}</option>
-                                            <option value="blocked">{t('status_rejected')}</option>
+                                            <option value="blocked">{t('status_blocked')}</option>
                                         </select>
                                     </div>
 
@@ -383,12 +665,12 @@ const EditSupplierPage = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div className="text-sm text-orange-800">
-                            <p className="mb-1 font-medium">Update Guidelines:</p>
+                            <p className="mb-1 font-medium">{t('supplier_update_guidelines_title')}</p>
                             <ul className="space-y-1 text-orange-700">
-                                <li>• Email changes may affect supplier login credentials</li>
-                                <li>• Ensure contact information is current for better communication</li>
-                                <li>• Blocked suppliers cannot participate in new transactions</li>
-                                <li>• Contact person field is optional but recommended</li>
+                                <li>• {t('supplier_update_guideline_1')}</li>
+                                <li>• {t('supplier_update_guideline_2')}</li>
+                                <li>• {t('supplier_update_guideline_3')}</li>
+                                <li>• {t('supplier_update_guideline_4')}</li>
                             </ul>
                         </div>
                     </div>

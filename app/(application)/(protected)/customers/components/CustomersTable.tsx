@@ -35,7 +35,15 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
     const { formatCurrency } = useCurrency();
 
     const columns: TableColumn[] = useMemo(
-        () => [
+        () => {
+            const customerTypeLabels: Record<string, string> = {
+                regular: t('customer_type_regular'),
+                wholesale: t('customer_type_wholesale'),
+                reseller: t('customer_type_reseller'),
+                corporate: t('customer_type_corporate'),
+            };
+
+            return [
             {
                 key: 'name',
                 label: t('customer_col_name'),
@@ -43,6 +51,8 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{value || 'N/A'}</span>
+                        {row.customer_type && <span className="text-xs text-gray-500">{customerTypeLabels[row.customer_type] || row.customer_type}</span>}
+                        {row.trade_name && <span className="text-xs text-gray-500">{row.trade_name}</span>}
                         {row.email && <span className="text-xs text-gray-500">{row.email}</span>}
                     </div>
                 ),
@@ -50,7 +60,12 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
             {
                 key: 'phone',
                 label: t('lbl_phone'),
-                render: (value) => <span className="text-sm text-gray-900">{value || 'N/A'}</span>,
+                render: (value, row) => (
+                    <div className="flex flex-col">
+                        <span className="text-sm text-gray-900">{value || 'N/A'}</span>
+                        {row.alternative_phone && <span className="text-xs text-gray-500">{t('customer_alternative_phone')}: {row.alternative_phone}</span>}
+                    </div>
+                ),
             },
             {
                 key: 'membership',
@@ -118,7 +133,8 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                 sortable: true,
                 render: (value) => <DateColumn date={value} />,
             },
-        ],
+        ];
+        },
         [t, formatCurrency]
     );
 

@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import {
     Archive,
@@ -41,6 +41,7 @@ import {
     VolumeX,
     Wifi,
     WifiOff,
+    X,
     Zap,
 } from 'lucide-react';
 
@@ -110,6 +111,7 @@ export default function HomePageClient() {
     const [isMuted, setIsMuted] = useState(true);
     const [flashIcon, setFlashIcon] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
+    const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
     const toggleVideo = useCallback(() => {
         const iframe = videoRef.current;
@@ -134,6 +136,24 @@ export default function HomePageClient() {
         );
         setIsMuted((m) => !m);
     }, [isMuted]);
+
+    useEffect(() => {
+        if (!isDemoModalOpen) return;
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setIsDemoModalOpen(false);
+            }
+        };
+
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', onKeyDown);
+        };
+    }, [isDemoModalOpen]);
 
     const stats = [
         { number: '100+', label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
@@ -309,94 +329,181 @@ export default function HomePageClient() {
                         </div>
                     </div>
 
-                    <div className="rounded-3xl border border-[#046ca9]/10 bg-white p-3 shadow-2xl shadow-[#034d79]/10 sm:p-4">
-                        <div className="rounded-2xl border border-gray-100 bg-[#f8fafc] p-4 sm:p-5">
-                            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('dashboard')}</p>
-                                    <h2 className="text-xl font-black text-gray-950">AndgatePOS</h2>
+                    <div className="rounded-[1.75rem] border border-[#046ca9]/10 bg-white p-3 shadow-2xl shadow-[#034d79]/10 sm:p-4">
+                        <div className="overflow-hidden rounded-[1.35rem] border border-gray-100 bg-[#f7fafc]">
+                            <div className="flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-5">
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#046ca9] text-white shadow-lg shadow-[#046ca9]/20">
+                                        <Receipt className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('feature_pos')}</p>
+                                        <h2 className="truncate text-lg font-black text-gray-950">AndgatePOS</h2>
+                                    </div>
                                 </div>
-                                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                                <div className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
                                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                                    {t('lbl_today')}
+                                    {t('hero_offline_badge')}
                                 </div>
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                {[
-                                    { label: t('dashboard_today_sales'), value: `৳${convertNumberByLanguage('48,250')}`, icon: <TrendingUp className="h-4 w-4" />, color: 'bg-[#046ca9]/10 text-[#046ca9]' },
-                                    { label: t('hero_floating_orders_label'), value: convertNumberByLanguage('128'), icon: <ShoppingCart className="h-4 w-4" />, color: 'bg-[#e79237]/10 text-[#c47920]' },
-                                    { label: t('dashboard_low_stock'), value: convertNumberByLanguage('12'), icon: <Archive className="h-4 w-4" />, color: 'bg-red-50 text-red-600' },
-                                    { label: t('lbl_customer'), value: convertNumberByLanguage('342'), icon: <Users className="h-4 w-4" />, color: 'bg-emerald-50 text-emerald-700' },
-                                ].map((item, i) => (
-                                    <div key={i} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                                        <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${item.color}`}>
-                                            {item.icon}
-                                        </div>
-                                        <p className="text-xs font-semibold text-gray-500">{item.label}</p>
-                                        <p className="mt-1 text-2xl font-black text-gray-950">{item.value}</p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_0.82fr]">
-                                <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-950">{t('quick_step_4')}</p>
-                                            <p className="text-xs text-gray-500">{t('feature_inventory')}</p>
-                                        </div>
-                                        <span className="rounded-full bg-[#046ca9]/10 px-2.5 py-1 text-xs font-bold text-[#046ca9]">{convertNumberByLanguage('76')}%</span>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {[
-                                            { label: t('feature_pos'), width: 'w-[88%]' },
-                                            { label: t('feature_inventory'), width: 'w-[76%]' },
-                                            { label: t('feature_order'), width: 'w-[62%]' },
-                                        ].map((item, i) => (
-                                            <div key={i}>
-                                                <div className="mb-1 flex justify-between text-xs font-semibold text-gray-500">
-                                                    <span>{item.label}</span>
-                                                </div>
-                                                <div className="h-2 rounded-full bg-gray-100">
-                                                    <div className={`h-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#034d79] ${item.width}`} />
-                                                </div>
+                            <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[1.12fr_0.88fr]">
+                                <div className="space-y-4">
+                                    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                        <div className="mb-4 flex items-center justify-between gap-4">
+                                            <div>
+                                                <p className="text-xs font-bold uppercase tracking-wide text-gray-400">{t('dashboard_today_sales')}</p>
+                                                <p className="mt-1 text-3xl font-black text-gray-950">৳{convertNumberByLanguage('48,250')}</p>
                                             </div>
-                                        ))}
+                                            <div className="rounded-xl bg-[#046ca9]/10 px-3 py-2 text-right">
+                                                <p className="text-xs font-bold text-[#046ca9]">{t('hero_floating_orders_label')}</p>
+                                                <p className="text-lg font-black text-[#034d79]">{convertNumberByLanguage('128')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {[
+                                                { label: isBn ? 'ক্যাশ' : 'Cash', value: '18,900' },
+                                                { label: 'bKash', value: '14,350' },
+                                                { label: 'Nagad', value: '8,600' },
+                                            ].map((item) => (
+                                                <div key={item.label} className="rounded-xl bg-gray-50 px-3 py-2">
+                                                    <p className="text-[11px] font-bold text-gray-400">{item.label}</p>
+                                                    <p className="text-sm font-black text-gray-900">৳{convertNumberByLanguage(item.value)}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <p className="text-sm font-black text-gray-950">{t('quick_step_4')}</p>
+                                            <span className="rounded-full bg-[#e79237]/10 px-2.5 py-1 text-xs font-bold text-[#c47920]">
+                                                {convertNumberByLanguage('3')} {isBn ? 'টি পণ্য' : 'items'}
+                                            </span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {[
+                                                { name: isBn ? 'প্রিমিয়াম চাল ৫ কেজি' : 'Premium Rice 5kg', qty: '2', price: '1,560' },
+                                                { name: isBn ? 'শার্ট - নীল M' : 'Shirt - Blue M', qty: '1', price: '850' },
+                                                { name: isBn ? 'ফোন চার্জার' : 'Phone Charger', qty: '1', price: '420' },
+                                            ].map((item) => (
+                                                <div key={item.name} className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 px-3 py-2">
+                                                    <div className="min-w-0">
+                                                        <p className="truncate text-sm font-bold text-gray-900">{item.name}</p>
+                                                        <p className="text-xs text-gray-500">{isBn ? 'পরিমাণ' : 'Qty'} {convertNumberByLanguage(item.qty)}</p>
+                                                    </div>
+                                                    <p className="flex-shrink-0 text-sm font-black text-gray-950">৳{convertNumberByLanguage(item.price)}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="mt-3 flex items-center justify-between rounded-xl bg-[#034d79] px-4 py-3 text-white">
+                                            <span className="text-sm font-bold">{t('lbl_total')}</span>
+                                            <span className="text-xl font-black">৳{convertNumberByLanguage('2,830')}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-                                    <div className="relative aspect-video bg-black">
-                                        <iframe
-                                            ref={videoRef}
-                                            src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&loop=1&playlist=EwQRFTYUXn0&controls=0&rel=0&modestbranding=1&enablejsapi=1"
-                                            title="AndgatePOS"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            className="absolute inset-0 h-full w-full"
-                                        />
-                                        <button type="button" aria-label={t('watch_demo')} className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
-                                        <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                                            {t('watch_demo')}
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={toggleMute}
-                                            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
-                                            aria-label={isMuted ? 'Unmute demo video' : 'Mute demo video'}
-                                        >
-                                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                                        </button>
-                                        {flashIcon && (
-                                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
-                                                    {isPlaying
-                                                        ? <Play className="h-5 w-5 fill-white text-white" />
-                                                        : <Pause className="h-5 w-5 fill-white text-white" />
-                                                    }
-                                                </div>
+                                <div className="space-y-4">
+                                    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-black text-gray-950">{t('feature_inventory')}</p>
+                                                <p className="text-xs text-gray-500">{t('dashboard_low_stock')}: {convertNumberByLanguage('12')}</p>
                                             </div>
-                                        )}
+                                            <Archive className="h-5 w-5 text-red-500" />
+                                        </div>
+                                        <div className="space-y-3">
+                                            {[
+                                                { label: t('feature_pos'), width: 'w-[92%]', value: '92' },
+                                                { label: t('feature_inventory'), width: 'w-[76%]', value: '76' },
+                                                { label: t('feature_order'), width: 'w-[64%]', value: '64' },
+                                            ].map((item) => (
+                                                <div key={item.label}>
+                                                    <div className="mb-1 flex justify-between text-xs font-semibold text-gray-500">
+                                                        <span>{item.label}</span>
+                                                        <span>{convertNumberByLanguage(item.value)}%</span>
+                                                    </div>
+                                                    <div className="h-2 rounded-full bg-gray-100">
+                                                        <div className={`h-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#e79237] ${item.width}`} />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                                            <Users className="mb-2 h-4 w-4 text-emerald-700" />
+                                            <p className="text-xs font-bold text-emerald-800">{t('lbl_customer')}</p>
+                                            <p className="text-xl font-black text-emerald-900">{convertNumberByLanguage('342')}</p>
+                                        </div>
+                                        <div className="rounded-2xl border border-[#e79237]/20 bg-[#fff7ed] p-3">
+                                            <Barcode className="mb-2 h-4 w-4 text-[#c47920]" />
+                                            <p className="text-xs font-bold text-[#9a5b19]">{isBn ? 'বারকোড' : 'Barcode'}</p>
+                                            <p className="text-xl font-black text-[#7a4511]">{convertNumberByLanguage('1.2')}s</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:col-span-2">
+                                    <div className="grid gap-0 lg:grid-cols-[0.42fr_0.58fr]">
+                                        <div className="flex flex-col justify-center border-b border-gray-100 p-4 lg:border-b-0 lg:border-r">
+                                            <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('hero_live_demo')}</p>
+                                            <h3 className="mt-2 text-lg font-black text-gray-950">{t('watch_demo')}</h3>
+                                            <p className="mt-2 text-sm leading-6 text-gray-500">
+                                                {isBn
+                                                    ? 'কাউন্টার বিলিং, পেমেন্ট আর স্টক আপডেট কীভাবে একসাথে চলে দেখুন।'
+                                                    : 'See how counter billing, payment tracking, and stock updates work together.'}
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsDemoModalOpen(true)}
+                                                className="mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-[#046ca9] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2"
+                                            >
+                                                <Play className="h-4 w-4 fill-white" />
+                                                {isBn ? 'বড় স্ক্রিনে ডেমো দেখুন' : 'Watch full demo'}
+                                            </button>
+                                        </div>
+                                        <div className="relative aspect-video bg-black lg:aspect-[16/8.5]">
+                                            <iframe
+                                                ref={videoRef}
+                                                src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&loop=1&playlist=EwQRFTYUXn0&controls=0&rel=0&modestbranding=1&enablejsapi=1"
+                                                title="AndgatePOS"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                className="absolute inset-0 h-full w-full"
+                                            />
+                                            <button type="button" aria-label={t('watch_demo')} className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
+                                            <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                                                {t('watch_demo')}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsDemoModalOpen(true)}
+                                                className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-black text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
+                                                aria-label={isBn ? 'বড় স্ক্রিনে ডেমো দেখুন' : 'Watch full demo'}
+                                            >
+                                                <Play className="h-3.5 w-3.5 fill-[#034d79]" />
+                                                {isBn ? 'বড় করে দেখুন' : 'Full demo'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={toggleMute}
+                                                className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
+                                                aria-label={isMuted ? 'Unmute demo video' : 'Mute demo video'}
+                                            >
+                                                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                                            </button>
+                                            {flashIcon && (
+                                                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
+                                                        {isPlaying
+                                                            ? <Play className="h-5 w-5 fill-white text-white" />
+                                                            : <Pause className="h-5 w-5 fill-white text-white" />
+                                                        }
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -404,6 +511,44 @@ export default function HomePageClient() {
                     </div>
                 </div>
             </section>
+
+            {isDemoModalOpen && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 px-4 py-5 backdrop-blur-sm sm:px-6"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={isBn ? 'AndgatePOS ডেমো ভিডিও' : 'AndgatePOS demo video'}
+                    onClick={() => setIsDemoModalOpen(false)}
+                >
+                    <div className="w-full max-w-6xl" onClick={(event) => event.stopPropagation()}>
+                        <div className="mb-3 flex items-center justify-between gap-3 text-white">
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-wide text-white/60">{t('hero_live_demo')}</p>
+                                <h2 className="text-lg font-black sm:text-2xl">
+                                    {isBn ? 'AndgatePOS কীভাবে দোকানের কাজ সহজ করে' : 'See how AndgatePOS works in a real shop flow'}
+                                </h2>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsDemoModalOpen(false)}
+                                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/70"
+                                aria-label={isBn ? 'ভিডিও বন্ধ করুন' : 'Close video'}
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl shadow-black/40">
+                            <iframe
+                                src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&controls=1&rel=0&modestbranding=1"
+                                title="AndgatePOS full demo"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                                allowFullScreen
+                                className="absolute inset-0 h-full w-full"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ── Stats bar ── */}
             <section className="bg-gradient-to-r from-[#046ca9] to-[#034d79] py-12">

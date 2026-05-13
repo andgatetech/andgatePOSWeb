@@ -31,6 +31,10 @@ const _rptPdf: {
     bnLoaded: false,
 };
 let _rptPdfPromise: Promise<void> | null = null;
+const BN_REGULAR_FONT = 'NotoSansBengali-Regular.ttf';
+const BN_BOLD_FONT = 'NotoSansBengali-Bold.ttf';
+
+const hasBengaliReportFonts = () => Boolean(_rptPdf.vfs[BN_REGULAR_FONT] && _rptPdf.vfs[BN_BOLD_FONT]);
 
 const _ensureRptPdf = (): Promise<void> => {
     if (_rptPdf.bnLoaded && _rptPdf.instance) return Promise.resolve();
@@ -61,17 +65,17 @@ const _ensureRptPdf = (): Promise<void> => {
             ]);
             if (rr.ok && br.ok) {
                 const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
-                _rptPdf.vfs = { ..._rptPdf.vfs, 'NotoSansBengali-Regular.ttf': rb64, 'NotoSansBengali-Bold.ttf': bb64 };
+                _rptPdf.vfs = { ..._rptPdf.vfs, [BN_REGULAR_FONT]: rb64, [BN_BOLD_FONT]: bb64 };
                 _rptPdf.fonts = {
                     ..._rptPdf.fonts,
                     NotoSansBengali: {
-                        normal: 'NotoSansBengali-Regular.ttf',
-                        bold: 'NotoSansBengali-Bold.ttf',
-                        italics: 'NotoSansBengali-Regular.ttf',
-                        bolditalics: 'NotoSansBengali-Bold.ttf',
+                        normal: BN_REGULAR_FONT,
+                        bold: BN_BOLD_FONT,
+                        italics: BN_REGULAR_FONT,
+                        bolditalics: BN_BOLD_FONT,
                     },
                 };
-                _rptPdf.bnLoaded = true;
+                _rptPdf.bnLoaded = hasBengaliReportFonts();
             }
         } catch {
             _rptPdfPromise = null; // allow retry
@@ -236,7 +240,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             if (!_rptPdf.instance) return;
 
             const exportData = await getExportData();
-            const useBnFont = isBn && _rptPdf.bnLoaded;
+            const useBnFont = isBn && _rptPdf.bnLoaded && hasBengaliReportFonts();
             const fontName = useBnFont ? 'NotoSansBengali' : 'Roboto';
 
             // Translation helper — Bengali when font ready, English fallback
@@ -425,6 +429,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 },
             };
 
+            // Register fonts on the instance (pdfMake reads this.fonts internally)
+            _rptPdf.instance.fonts = { ..._rptPdf.instance.fonts, ..._rptPdf.fonts };
+            _rptPdf.instance.vfs = { ..._rptPdf.instance.vfs, ..._rptPdf.vfs };
             const pdf = _rptPdf.instance.createPdf(docDefinition, undefined, _rptPdf.fonts, _rptPdf.vfs);
             if (mode === 'print') {
                 pdf.print();

@@ -10,9 +10,24 @@ import { useState } from 'react';
 
 interface SupplierFormData {
     name: string;
+    company_name: string;
     email: string;
     phone: string;
+    contact_person: string;
+    supplier_type: string;
+    opening_balance: string;
+    payment_terms: string;
+    credit_limit: string;
+    preferred_payment_method: string;
+    mobile_banking_number: string;
+    bank_name: string;
+    bank_account_name: string;
+    bank_account_number: string;
+    trade_license_no: string;
+    tin_no: string;
+    bin_no: string;
     address: string;
+    notes: string;
     status: 'active' | 'inactive';
 }
 
@@ -24,9 +39,24 @@ const CreateSupplierPage = () => {
 
     const [formData, setFormData] = useState<SupplierFormData>({
         name: '',
+        company_name: '',
         email: '',
         phone: '',
+        contact_person: '',
+        supplier_type: '',
+        opening_balance: '',
+        payment_terms: '',
+        credit_limit: '',
+        preferred_payment_method: '',
+        mobile_banking_number: '',
+        bank_name: '',
+        bank_account_name: '',
+        bank_account_number: '',
+        trade_license_no: '',
+        tin_no: '',
+        bin_no: '',
         address: '',
+        notes: '',
         status: 'active',
     });
 
@@ -53,10 +83,7 @@ const CreateSupplierPage = () => {
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email.trim()) {
-            newErrors.email = t('msg_email_required');
-            if (!newErrors.name) showMessage(t('msg_email_required'), 'error');
-        } else if (!emailRegex.test(formData.email)) {
+        if (formData.email.trim() && !emailRegex.test(formData.email)) {
             newErrors.email = t('msg_invalid_email');
             if (!newErrors.name) showMessage(t('msg_invalid_email'), 'error');
         }
@@ -97,9 +124,24 @@ const CreateSupplierPage = () => {
         try {
             const submitData = {
                 name: formData.name.trim(),
-                email: formData.email.trim().toLowerCase(),
+                company_name: formData.company_name.trim() || null,
+                email: formData.email.trim() ? formData.email.trim().toLowerCase() : null,
                 phone: formData.phone.trim(),
+                contact_person: formData.contact_person.trim() || null,
+                supplier_type: formData.supplier_type || null,
+                opening_balance: Number(formData.opening_balance || 0),
+                payment_terms: formData.payment_terms || null,
+                credit_limit: formData.credit_limit ? Number(formData.credit_limit) : null,
+                preferred_payment_method: formData.preferred_payment_method || null,
+                mobile_banking_number: formData.mobile_banking_number.trim() || null,
+                bank_name: formData.bank_name.trim() || null,
+                bank_account_name: formData.bank_account_name.trim() || null,
+                bank_account_number: formData.bank_account_number.trim() || null,
+                trade_license_no: formData.trade_license_no.trim() || null,
+                tin_no: formData.tin_no.trim() || null,
+                bin_no: formData.bin_no.trim() || null,
                 address: formData.address.trim(),
+                notes: formData.notes.trim() || null,
                 status: formData.status,
                 store_id: currentStoreId,
             };
@@ -109,9 +151,24 @@ const CreateSupplierPage = () => {
             // Reset form
             setFormData({
                 name: '',
+                company_name: '',
                 email: '',
                 phone: '',
+                contact_person: '',
+                supplier_type: '',
+                opening_balance: '',
+                payment_terms: '',
+                credit_limit: '',
+                preferred_payment_method: '',
+                mobile_banking_number: '',
+                bank_name: '',
+                bank_account_name: '',
+                bank_account_number: '',
+                trade_license_no: '',
+                tin_no: '',
+                bin_no: '',
                 address: '',
+                notes: '',
                 status: 'active',
             });
             setErrors({});
@@ -124,6 +181,31 @@ const CreateSupplierPage = () => {
             showErrorDialog(t('msg_error'), errorMessage, t('btn_confirm'));
         }
     };
+
+    const supplierTypeOptions = [
+        { value: '', label: t('supplier_type_select') },
+        { value: 'wholesaler', label: t('supplier_type_wholesaler') },
+        { value: 'distributor', label: t('supplier_type_distributor') },
+        { value: 'manufacturer', label: t('supplier_type_manufacturer') },
+        { value: 'service_provider', label: t('supplier_type_service_provider') },
+        { value: 'other', label: t('supplier_type_other') },
+    ];
+
+    const paymentTermOptions = [
+        { value: '', label: t('supplier_terms_select') },
+        { value: 'cash', label: t('supplier_terms_cash') },
+        { value: '7_days', label: t('supplier_terms_7_days') },
+        { value: '15_days', label: t('supplier_terms_15_days') },
+        { value: '30_days', label: t('supplier_terms_30_days') },
+    ];
+
+    const paymentMethodOptions = [
+        { value: '', label: t('supplier_payment_method_select') },
+        { value: 'cash', label: t('bd_payments_cash') },
+        { value: 'mobile_banking', label: t('lbl_mobile_banking') },
+        { value: 'bank_transfer', label: t('lbl_bank_transfer') },
+        { value: 'cheque', label: t('supplier_payment_method_cheque') },
+    ];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
@@ -187,8 +269,49 @@ const CreateSupplierPage = () => {
                                 </div>
 
                                 <div>
+                                    <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_company_name')}</label>
+                                    <input
+                                        id="company_name"
+                                        name="company_name"
+                                        type="text"
+                                        value={formData.company_name}
+                                        onChange={handleChange}
+                                        placeholder={t('supplier_company_name_placeholder')}
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="contact_person" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_contact_person')}</label>
+                                    <input
+                                        id="contact_person"
+                                        name="contact_person"
+                                        type="text"
+                                        value={formData.contact_person}
+                                        onChange={handleChange}
+                                        placeholder={t('supplier_contact_person_placeholder')}
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="supplier_type" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_type')}</label>
+                                    <select
+                                        id="supplier_type"
+                                        name="supplier_type"
+                                        value={formData.supplier_type}
+                                        onChange={handleChange}
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                    >
+                                        {supplierTypeOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
                                     <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                                        {t('lbl_email')} <span className="text-red-500">*</span>
+                                        {t('lbl_email')}
                                     </label>
                                     <input
                                         id="email"
@@ -221,6 +344,169 @@ const CreateSupplierPage = () => {
                                     />
                                     {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
                                 </div>
+
+                                <div>
+                                    <label htmlFor="mobile_banking_number" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_mobile_banking_number')}</label>
+                                    <input
+                                        id="mobile_banking_number"
+                                        name="mobile_banking_number"
+                                        type="tel"
+                                        value={formData.mobile_banking_number}
+                                        onChange={handleChange}
+                                        placeholder={t('supplier_mobile_banking_placeholder')}
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
+                                <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('supplier_payment_information')}</h2>
+
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                    <div>
+                                        <label htmlFor="opening_balance" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_opening_balance')}</label>
+                                        <input
+                                            id="opening_balance"
+                                            name="opening_balance"
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.opening_balance}
+                                            onChange={handleChange}
+                                            placeholder="0.00"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="payment_terms" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_payment_terms')}</label>
+                                        <select
+                                            id="payment_terms"
+                                            name="payment_terms"
+                                            value={formData.payment_terms}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        >
+                                            {paymentTermOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_credit_limit')}</label>
+                                        <input
+                                            id="credit_limit"
+                                            name="credit_limit"
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.credit_limit}
+                                            onChange={handleChange}
+                                            placeholder="0.00"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="preferred_payment_method" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_preferred_payment_method')}</label>
+                                        <select
+                                            id="preferred_payment_method"
+                                            name="preferred_payment_method"
+                                            value={formData.preferred_payment_method}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        >
+                                            {paymentMethodOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="bank_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_name')}</label>
+                                        <input
+                                            id="bank_name"
+                                            name="bank_name"
+                                            type="text"
+                                            value={formData.bank_name}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_bank_name_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="bank_account_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_account_name')}</label>
+                                        <input
+                                            id="bank_account_name"
+                                            name="bank_account_name"
+                                            type="text"
+                                            value={formData.bank_account_name}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_bank_account_name_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+
+                                    <div className="lg:col-span-2">
+                                        <label htmlFor="bank_account_number" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_account_number')}</label>
+                                        <input
+                                            id="bank_account_number"
+                                            name="bank_account_number"
+                                            type="text"
+                                            value={formData.bank_account_number}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_bank_account_number_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
+                                <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('supplier_business_information')}</h2>
+
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                    <div>
+                                        <label htmlFor="trade_license_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_trade_license_no')}</label>
+                                        <input
+                                            id="trade_license_no"
+                                            name="trade_license_no"
+                                            type="text"
+                                            value={formData.trade_license_no}
+                                            onChange={handleChange}
+                                            placeholder={t('ph_trade_license_no')}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="tin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_tin_no')}</label>
+                                        <input
+                                            id="tin_no"
+                                            name="tin_no"
+                                            type="text"
+                                            value={formData.tin_no}
+                                            onChange={handleChange}
+                                            placeholder={t('ph_tin_no')}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+
+                                    <div className="lg:col-span-2">
+                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
+                                        <input
+                                            id="bin_no"
+                                            name="bin_no"
+                                            type="text"
+                                            value={formData.bin_no}
+                                            onChange={handleChange}
+                                            placeholder={t('ph_bin_no')}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
@@ -245,6 +531,21 @@ const CreateSupplierPage = () => {
                                         />
                                         {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address}</p>}
                                         <p className="mt-1 text-xs text-gray-500">{formData.address.length}/500</p>
+                                    </div>
+
+                                    <div className="lg:col-span-2">
+                                        <label htmlFor="notes" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
+                                        <textarea
+                                            id="notes"
+                                            name="notes"
+                                            value={formData.notes}
+                                            onChange={handleChange}
+                                            placeholder={t('supplier_notes_placeholder')}
+                                            rows={3}
+                                            maxLength={1000}
+                                            className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">{formData.notes.length}/1000</p>
                                     </div>
 
                                     <div>

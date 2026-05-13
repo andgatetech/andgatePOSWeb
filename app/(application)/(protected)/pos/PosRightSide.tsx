@@ -1357,23 +1357,52 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             };
             await saveOfflineOrder(offlineOrder);
             dispatch(queueOfflineOrder(offlineOrder));
+            setQuotePreview(null);
+            setOrderResponse({
+                data: {
+                    id: localId,
+                    order_id: localId,
+                    invoice: localInvoice,
+                    invoice_number: localInvoice,
+                    customer: {
+                        name: formData.customerName || t('pos_walk_in_customer'),
+                        email: formData.customerEmail || '',
+                        phone: formData.customerPhone || '',
+                    },
+                    products: invoiceItems.map((item) => ({
+                        product_id: item.productId,
+                        product_name: item.title || t('lbl_untitled'),
+                        name: item.title || t('lbl_untitled'),
+                        quantity: item.quantity,
+                        unit_price: item.rate,
+                        price: item.rate,
+                        unit: item.unit || 'piece',
+                        subtotal: item.amount || item.rate * item.quantity,
+                        tax: item.tax_rate || 0,
+                        tax_included: item.tax_included || false,
+                    })),
+                    payment_method: formData.paymentMethod,
+                    payment_status: formData.paymentStatus,
+                    amount_paid: actualAmountPaid,
+                    change_amount: actualChangeAmount,
+                    due_amount: dueAmount,
+                    tax: orderTax,
+                    discount: orderDiscount,
+                    total: orderSubtotal,
+                    grand_total: grandTotal,
+                    totals: {
+                        total: orderSubtotal,
+                        subtotal: orderSubtotal,
+                        tax: orderTax,
+                        discount: orderDiscount,
+                        grand_total: grandTotal,
+                    },
+                    offline: true,
+                },
+            });
+            setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
+            setShowPreview(true);
             showMessage(t('msg_order_queued_offline'), 'success');
-            if (currentStoreId) dispatch(clearItemsRedux(currentStoreId));
-            clearCustomerSelection();
-            setFormData((prev) => ({
-                ...prev,
-                discount: 0,
-                membershipDiscount: 0,
-                usePoints: false,
-                useBalance: false,
-                pointsToUse: 0,
-                balanceToUse: 0,
-                useWholesale: false,
-                amountPaid: 0,
-                changeAmount: 0,
-                partialPaymentAmount: 0,
-                dueAmount: 0,
-            }));
             return;
         }
 
@@ -2068,19 +2097,34 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             </span>
                             <span className="font-bold text-primary">{formatCurrency(backendGrandTotal)}</span>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
-                            disabled={loading || invoiceItems.length === 0}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
-                        >
-                            {loading ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            ) : (
-                                <IconSave />
-                            )}
-                            {t('btn_confirm_order')}
-                        </button>
+                        <div className="grid gap-3 sm:grid-cols-[1fr_1fr]">
+                            <button
+                                type="button"
+                                onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
+                                disabled={loading || invoiceItems.length === 0}
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconSave />
+                                )}
+                                {t('btn_confirm_order')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { postActionRef.current = 'receipt'; handleSubmit(); }}
+                                disabled={loading || invoiceItems.length === 0}
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                            >
+                                {loading ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                ) : (
+                                    <IconPrinter />
+                                )}
+                                {t('btn_confirm_print_receipt')}
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

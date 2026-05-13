@@ -36,10 +36,42 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
 
     const isActive = customer.is_active === true || customer.is_active === 1;
     const membership = customer.membership?.toLowerCase() || 'normal';
+    const customerTypeLabels: Record<string, string> = {
+        regular: t('customer_type_regular'),
+        wholesale: t('customer_type_wholesale'),
+        reseller: t('customer_type_reseller'),
+        corporate: t('customer_type_corporate'),
+    };
+    const contactMethodLabels: Record<string, string> = {
+        call: t('customer_contact_call'),
+        sms: t('customer_contact_sms'),
+        whatsapp: t('customer_contact_whatsapp'),
+    };
+    const genderLabels: Record<string, string> = {
+        male: t('lbl_male'),
+        female: t('lbl_female'),
+        other: t('lbl_other'),
+    };
+    const address = [customer.address_line1, customer.address_line2, customer.city, customer.state].filter(Boolean).join(', ');
+
+    const rows = [
+        { label: t('customer_type'), value: customerTypeLabels[customer.customer_type] || customer.customer_type },
+        { label: t('customer_trade_name'), value: customer.trade_name },
+        { label: t('lbl_email'), value: customer.email },
+        { label: t('lbl_phone'), value: customer.phone },
+        { label: t('customer_alternative_phone'), value: customer.alternative_phone },
+        { label: t('customer_preferred_contact_method'), value: contactMethodLabels[customer.preferred_contact_method] || customer.preferred_contact_method },
+        { label: t('customer_date_of_birth'), value: customer.date_of_birth },
+        { label: t('lbl_gender'), value: genderLabels[customer.gender] || customer.gender },
+        { label: t('customer_address_information'), value: address },
+        { label: t('customer_delivery_note'), value: customer.delivery_note },
+        { label: t('lbl_credit_limit'), value: customer.credit_limit ? formatCurrency(customer.credit_limit) : null },
+        { label: t('customer_nid_no'), value: customer.nid_no },
+    ].filter((row) => row.value);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-            <div className="w-full max-w-[360px] rounded-lg border bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-lg border bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
                 {/* Modal Header */}
                 <div className="border-b px-6 py-4">
                     <div className="space-y-1">
@@ -54,16 +86,13 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
                 </div>
 
                 {/* Modal Content */}
-                <div className="space-y-3 p-6 text-sm">
-                    <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">{t('lbl_email')}</span>
-                        <span className="font-medium">{customer.email || '—'}</span>
-                    </div>
-
-                    <div className="flex justify-between border-b border-gray-200 py-2">
-                        <span className="text-gray-500">{t('lbl_phone')}</span>
-                        <span className="font-medium">{customer.phone || '—'}</span>
-                    </div>
+                <div className="max-h-[64vh] space-y-3 overflow-y-auto p-6 text-sm">
+                    {rows.map((row) => (
+                        <div key={row.label} className="flex justify-between border-b border-gray-200 py-2">
+                            <span className="pr-4 text-gray-500">{row.label}</span>
+                            <span className="max-w-[60%] text-right font-medium">{row.value}</span>
+                        </div>
+                    ))}
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
                         <span className="text-gray-500">{t('lbl_loyalty_tier')}</span>
