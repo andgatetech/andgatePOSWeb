@@ -83,6 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         description:
             'AndgatePOS is Bangladesh\'s leading cloud POS software for retail shops, grocery stores, pharmacies, and fashion stores. Features inventory management, billing, purchase orders, 20+ business reports, staff management, and a free integrated online store powered by Hawkeri.',
         url: BASE_URL,
+        image: `${BASE_URL}/images/pos.png`,
         inLanguage: ['en', 'bn'],
         author: {
             '@type': 'Organization',
@@ -132,16 +133,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         description: 'Andgate Technologies builds POS and ecommerce software for businesses in Bangladesh.',
         address: {
             '@type': 'PostalAddress',
+            streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',
             addressCountry: 'BD',
             addressLocality: 'Dhaka',
             addressRegion: 'Dhaka Division',
         },
         contactPoint: {
             '@type': 'ContactPoint',
+            telephone: '+8801577303608',
+            email: 'support@andgatetech.net',
             contactType: 'customer support',
             availableLanguage: ['English', 'Bengali'],
         },
         sameAs: ['https://facebook.com/andgatetech'],
+        areaServed: {
+            '@type': 'Country',
+            name: 'Bangladesh',
+        },
+    };
+
+    const localBusinessJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        name: 'Andgate Technologies',
+        url: BASE_URL,
+        image: `${BASE_URL}/images/pos.png`,
+        description: 'POS software provider for retail, inventory, billing and ecommerce businesses in Bangladesh.',
+        telephone: '+8801577303608',
+        email: 'support@andgatetech.net',
+        priceRange: 'Free and paid POS software plans',
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',
+            addressLocality: 'Dhaka',
+            addressRegion: 'Dhaka Division',
+            addressCountry: 'BD',
+        },
         areaServed: {
             '@type': 'Country',
             name: 'Bangladesh',
@@ -153,6 +180,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <head>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#046ca9" />
                 {/* Geo targeting — Bangladesh */}

@@ -122,7 +122,7 @@ export default function StockThresholdsPage() {
                         className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                         <RefreshCw className="w-4 h-4" />
-                        {t('Refresh')}
+                        {t('btn_refresh')}
                     </button>
                     {dirtyIds.length > 0 && (
                         <button
@@ -131,7 +131,7 @@ export default function StockThresholdsPage() {
                             className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg bg-primary text-white hover:bg-primary/90 disabled:opacity-60 transition-colors"
                         >
                             <Save className="w-4 h-4" />
-                            {saving ? t('Saving...') : `${t('Save')} (${dirtyIds.length})`}
+                            {saving ? t('btn_saving') : `${t('btn_save')} (${dirtyIds.length})`}
                         </button>
                     )}
                 </div>
@@ -144,7 +144,7 @@ export default function StockThresholdsPage() {
                     type="text"
                     value={search}
                     onChange={handleSearchChange}
-                    placeholder={t('Search products...')}
+                    placeholder={t('placeholder_search_products')}
                     className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
             </div>
@@ -153,7 +153,7 @@ export default function StockThresholdsPage() {
             {dirtyIds.length > 0 && (
                 <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {dirtyIds.length} unsaved change(s). Click &quot;Save&quot; to apply.
+                    {t('msg_unsaved_threshold_changes', { count: dirtyIds.length })}
                 </div>
             )}
 
@@ -162,22 +162,22 @@ export default function StockThresholdsPage() {
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800 text-left">
-                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 w-1/3">{t('Product')}</th>
-                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300">{t('Category')}</th>
-                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('In Stock')}</th>
+                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 w-1/3">{t('lbl_product')}</th>
+                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300">{t('lbl_category')}</th>
+                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('lbl_in_stock')}</th>
                             <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Cat. Default')}</th>
-                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right min-w-[140px]">{t('Threshold')}</th>
+                            <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right min-w-[140px]">{t('lbl_threshold')}</th>
                             <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-center">{t('Suppress')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {isFetching && items.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('Loading...')}</td>
+                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('lbl_loading')}</td>
                             </tr>
                         ) : items.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('No products found')}</td>
+                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('msg_no_products_found')}</td>
                             </tr>
                         ) : items.map((item) => {
                             const draft = getDraft(item);
@@ -233,7 +233,7 @@ export default function StockThresholdsPage() {
                                     <td className="px-4 py-3 text-center">
                                         <button
                                             onClick={() => handleSuppressToggle(item)}
-                                            title={draft.suppress_low_stock ? 'Click to re-enable alerts' : 'Click to suppress alerts'}
+                                            title={draft.suppress_low_stock ? t('msg_reenable_stock_alerts') : t('msg_suppress_stock_alerts')}
                                             className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
                                                 draft.suppress_low_stock
                                                     ? 'bg-gray-100 dark:bg-gray-800 text-gray-400'
@@ -256,14 +256,14 @@ export default function StockThresholdsPage() {
             {/* Pagination */}
             {meta && meta.last_page > 1 && (
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{meta.total} products total</span>
+                    <span>{t('msg_products_total', { count: meta.total })}</span>
                     <div className="flex gap-1">
                         <button
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={page === 1}
                             className="px-3 py-1 rounded border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                            {t('Prev')}
+                            {t('btn_previous')}
                         </button>
                         <span className="px-3 py-1">{page} / {meta.last_page}</span>
                         <button
@@ -271,7 +271,7 @@ export default function StockThresholdsPage() {
                             disabled={page === meta.last_page}
                             className="px-3 py-1 rounded border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                            {t('Next')}
+                            {t('btn_next')}
                         </button>
                     </div>
                 </div>

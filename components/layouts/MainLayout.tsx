@@ -22,6 +22,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         { label: t('layout.nav.home'), href: '/' },
         { label: t('layout.nav.features'), href: '/#features' },
         { label: t('layout.nav.overview'), href: '/#overview' },
+        { label: t('layout.nav.solutions'), href: '/landing/pos-software-bangladesh' },
         { label: t('layout.nav.pricing'), href: '/pricing' },
         { label: t('layout.nav.training'), href: '/training' },
         { label: t('layout.nav.contact'), href: '/contact' },

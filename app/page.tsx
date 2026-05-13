@@ -5,9 +5,9 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'AndgatePOS — #1 POS Software in Bangladesh | বাংলাদেশের সেরা POS সফটওয়্যার',
+    title: 'POS Software in Bangladesh | AndgatePOS Retail Billing & Inventory',
     description:
-        'AndgatePOS — Bangladesh\'s best POS software for retail shops, grocery stores, pharmacies & fashion stores. Inventory management, billing, purchase orders, 20+ reports & free online store. শুরু করুন বিনামূল্যে!',
+        'AndgatePOS is POS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion stores. Manage billing, inventory, bKash/Nagad payments, purchase orders, 20+ reports and a free online store.',
     keywords: BD_KEYWORDS,
     alternates: {
         canonical: BASE_URL,
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         },
     },
     openGraph: {
-        title: 'AndgatePOS — #1 POS Software in Bangladesh | বাংলাদেশের সেরা POS সফটওয়্যার',
+        title: 'POS Software in Bangladesh | AndgatePOS',
         description:
             'Complete POS solution for Bangladesh businesses. Inventory, billing, purchase orders, 20+ reports & a free Hawkeri online store. 100+ shop owners trust AndgatePOS.',
         url: BASE_URL,

@@ -49,6 +49,7 @@ import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
+import { landingPages } from '@/lib/landing-pages';
 import Footer from './terms-of-service/Footer';
 
 // Heavy sections loaded lazily — keeps initial JS bundle small
@@ -828,6 +829,34 @@ export default function HomePageClient() {
 
             {/* ── Pricing ── */}
             <PriceSection id="pricing" />
+
+            {/* ── SEO Solution Links ── */}
+            <section className="bg-white py-20">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-10 max-w-3xl">
+                        <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
+                            POS Software Bangladesh
+                        </span>
+                        <h2 className="text-3xl font-black text-gray-900 sm:text-4xl">Find the right POS solution for your business</h2>
+                        <p className="mt-4 text-base leading-7 text-gray-500">
+                            Dedicated pages for Bangladesh businesses looking for retail POS, restaurant POS, pharmacy POS, grocery billing, inventory and shop management software.
+                        </p>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        {landingPages.slice(0, 8).map((page) => (
+                            <Link
+                                key={page.slug}
+                                href={`/landing/${page.slug}`}
+                                className="rounded-2xl border border-gray-100 bg-gray-50 p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-[#046ca9]/20 hover:bg-white hover:shadow-md"
+                            >
+                                <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{page.eyebrow}</p>
+                                <h3 className="mt-3 text-base font-black text-gray-900">{page.title}</h3>
+                                <p className="mt-2 text-sm leading-6 text-gray-500">{page.primaryKeyword}</p>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
             {/* ── FAQ ── */}
             <section className="bg-white py-24">

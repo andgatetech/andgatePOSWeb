@@ -210,19 +210,19 @@ export default function ThresholdIntelligencePage() {
                     )}
 
                     {isFetching && recs.length === 0 ? (
-                        <div className="text-center py-12 text-gray-400">{t('Loading...')}</div>
+                        <div className="text-center py-12 text-gray-400">{t('lbl_loading')}</div>
                     ) : recs.length === 0 ? (
-                        <div className="text-center py-12 text-gray-400">{t('No data available')}</div>
+                        <div className="text-center py-12 text-gray-400">{t('msg_no_data')}</div>
                     ) : (
                         <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-gray-50 dark:bg-gray-800 text-left">
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 w-1/4">{t('Product')}</th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('In Stock')}</th>
+                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 w-1/4">{t('lbl_product')}</th>
+                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('lbl_in_stock')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Curr. Threshold')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Recommended')}</th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Avg/day')}</th>
+                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('lbl_avg_per_day')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-center">{t('Days left')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-center">{t('Trend')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300"></th>
@@ -288,7 +288,7 @@ export default function ThresholdIntelligencePage() {
                                                         disabled={applyingIds.has(rec.stock_id)}
                                                         className="text-xs px-2.5 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors whitespace-nowrap"
                                                     >
-                                                        {applyingIds.has(rec.stock_id) ? t('Applying...') : t('Apply')}
+                                                        {applyingIds.has(rec.stock_id) ? t('Applying...') : t('btn_apply')}
                                                     </button>
                                                 )}
                                             </td>
@@ -313,12 +313,12 @@ export default function ThresholdIntelligencePage() {
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-gray-50 dark:bg-gray-800 text-left">
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 w-1/3">{t('Product')}</th>
+                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 w-1/3">{t('lbl_product')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Deficit Qty')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Units Needed')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300">{t('Transfer From')}</th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Available')}</th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('Avg/day')}</th>
+                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 text-right">{t('lbl_avg_per_day')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">

@@ -1,4 +1,5 @@
 'use client';
+import { getTranslation } from '@/i18n';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 
 const SUPPORT_PHONE = '+880 1819-646514';
@@ -11,6 +12,7 @@ interface ContactSupportCardProps {
 }
 
 export default function ContactSupportCard({ accentColor = 'blue', whatsappMessage }: ContactSupportCardProps) {
+    const { t } = getTranslation();
     const colorMap: Record<string, { bg: string; border: string; icon: string; call: string; callHover: string; wa: string; waHover: string }> = {
         red: { bg: 'bg-red-50', border: 'border-red-200', icon: 'text-red-500', call: 'bg-red-600', callHover: 'hover:bg-red-700', wa: 'bg-green-600', waHover: 'hover:bg-green-700' },
         orange: {
@@ -39,7 +41,7 @@ export default function ContactSupportCard({ accentColor = 'blue', whatsappMessa
     return (
         <div className={`mt-5 rounded-xl border-2 ${c.border} ${c.bg} p-4 lg:p-5`}>
             {/* Header */}
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">Need Help? Contact Support</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-500">{t('support_need_help')}</p>
 
             {/* Big visible phone number */}
             <div className="mb-4 flex items-center gap-3">
@@ -59,7 +61,7 @@ export default function ContactSupportCard({ accentColor = 'blue', whatsappMessa
                     className={`inline-flex items-center gap-2 rounded-lg ${c.call} ${c.callHover} px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all`}
                 >
                     <Phone className="h-4 w-4" />
-                    Call Now
+                    {t('support_call_now')}
                 </a>
 
                 {/* WhatsApp / Message */}
@@ -70,7 +72,7 @@ export default function ContactSupportCard({ accentColor = 'blue', whatsappMessa
                     className={`inline-flex items-center gap-2 rounded-lg ${c.wa} ${c.waHover} px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all`}
                 >
                     <MessageCircle className="h-4 w-4" />
-                    WhatsApp Message
+                    {t('support_whatsapp_message')}
                 </a>
 
                 {/* Email */}

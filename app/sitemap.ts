@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { landingPages } from '@/lib/landing-pages';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andgatepos.com';
@@ -32,6 +33,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'monthly',
             priority: 0.8,
         },
+        {
+            url: `${baseUrl}/landing`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.85,
+        },
+        ...landingPages.map((page) => ({
+            url: `${baseUrl}/landing/${page.slug}`,
+            lastModified: now,
+            changeFrequency: 'weekly' as const,
+            priority: page.slug === 'pos-software-bangladesh' ? 0.95 : 0.86,
+        })),
         {
             url: `${baseUrl}/login`,
             lastModified: now,
