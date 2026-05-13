@@ -51,6 +51,7 @@ import { convertNumberByLanguage } from '@/components/custom/convertNumberByLang
 import { getTranslation } from '@/i18n';
 import { highIntentPages } from '@/lib/high-intent-pages';
 import { landingPages } from '@/lib/landing-pages';
+import { landingCopyBn } from '@/components/seo/LandingSeoPageView';
 import Footer from './terms-of-service/Footer';
 
 // Heavy sections loaded lazily — keeps initial JS bundle small
@@ -101,7 +102,8 @@ const BangladeshMap = dynamic(
 );
 
 export default function HomePageClient() {
-    const { t, data } = getTranslation();
+    const { t, data, i18n } = getTranslation();
+    const isBn = i18n.language === 'bn';
 
     const videoRef = useRef<HTMLIFrameElement>(null);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -233,10 +235,10 @@ export default function HomePageClient() {
     ];
 
     const quickStartSteps = [
-        { step: '01', title: t('quick_step_1'), description: t('quick_step_1_desc'), icon: <Target className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#034d79]' },
-        { step: '02', title: t('quick_step_2'), description: t('quick_step_2_desc'), icon: <Settings className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#0586cb]' },
-        { step: '03', title: t('quick_step_3'), description: t('quick_step_3_desc'), icon: <Package className="h-6 w-6 text-white" />, gradient: 'from-[#035887] to-[#046ca9]' },
-        { step: '04', title: t('quick_step_4'), description: t('quick_step_4_desc'), icon: <ShoppingCart className="h-6 w-6 text-white" />, gradient: 'from-[#e79237] to-[#c47920]' },
+        { step: convertNumberByLanguage(1, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_1'), description: t('quick_step_1_desc'), icon: <Target className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#034d79]' },
+        { step: convertNumberByLanguage(2, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_2'), description: t('quick_step_2_desc'), icon: <Settings className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#0586cb]' },
+        { step: convertNumberByLanguage(3, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_3'), description: t('quick_step_3_desc'), icon: <Package className="h-6 w-6 text-white" />, gradient: 'from-[#035887] to-[#046ca9]' },
+        { step: convertNumberByLanguage(4, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_4'), description: t('quick_step_4_desc'), icon: <ShoppingCart className="h-6 w-6 text-white" />, gradient: 'from-[#e79237] to-[#c47920]' },
     ];
 
     const businessTypes = [
@@ -836,25 +838,39 @@ export default function HomePageClient() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-10 max-w-3xl">
                         <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
-                            POS Software Bangladesh
+                            {isBn ? 'POS সফটওয়্যার বাংলাদেশ' : 'POS Software Bangladesh'}
                         </span>
-                        <h2 className="text-3xl font-black text-gray-900 sm:text-4xl">Find the right POS solution for your business</h2>
+                        <h2 className="text-3xl font-black text-gray-900 sm:text-4xl">
+                            {isBn ? 'আপনার ব্যবসার জন্য ঠিক POS সলিউশন খুঁজুন' : 'Find the right POS solution for your business'}
+                        </h2>
                         <p className="mt-4 text-base leading-7 text-gray-500">
-                            Dedicated pages for Bangladesh businesses looking for retail POS, restaurant POS, pharmacy POS, grocery billing, inventory and shop management software.
+                            {isBn
+                                ? 'Retail POS, restaurant POS, pharmacy POS, grocery billing, inventory এবং shop management software খুঁজছেন এমন বাংলাদেশি ব্যবসার জন্য আলাদা পেজ।'
+                                : 'Dedicated pages for Bangladesh businesses looking for retail POS, restaurant POS, pharmacy POS, grocery billing, inventory and shop management software.'}
                         </p>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        {[...landingPages.slice(0, 4), ...highIntentPages].map((page) => (
-                            <Link
-                                key={'slug' in page ? page.slug : page.path}
-                                href={'slug' in page ? `/landing/${page.slug}` : page.path}
-                                className="rounded-2xl border border-gray-100 bg-gray-50 p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-[#046ca9]/20 hover:bg-white hover:shadow-md"
-                            >
-                                <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{page.eyebrow}</p>
-                                <h3 className="mt-3 text-base font-black text-gray-900">{page.title}</h3>
-                                <p className="mt-2 text-sm leading-6 text-gray-500">{page.primaryKeyword}</p>
-                            </Link>
-                        ))}
+                        {[...landingPages.slice(0, 4), ...highIntentPages].map((page) => {
+                            const isLandingPage = 'slug' in page;
+                            const landingBn = isBn && isLandingPage ? landingCopyBn[page.slug] : null;
+                            const highIntentBn = isBn && !isLandingPage ? page.bn : null;
+                            const href = isLandingPage ? `/landing/${page.slug}` : page.path;
+                            const eyebrow = landingBn?.eyebrow ?? highIntentBn?.eyebrow ?? page.eyebrow;
+                            const title = landingBn?.title ?? highIntentBn?.title ?? page.title;
+                            const description = landingBn?.intro ?? highIntentBn?.intro ?? page.intro;
+
+                            return (
+                                <Link
+                                    key={href}
+                                    href={href}
+                                    className="rounded-2xl border border-gray-100 bg-gray-50 p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-[#046ca9]/20 hover:bg-white hover:shadow-md"
+                                >
+                                    <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{eyebrow}</p>
+                                    <h3 className="mt-3 text-base font-black text-gray-900">{title}</h3>
+                                    <p className="mt-2 text-sm leading-6 text-gray-500">{description}</p>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
