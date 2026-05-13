@@ -96,6 +96,13 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const cachedProductsState = useSelector((state: RootState) => state.cachedProducts);
     const masterData = usePOSMasterDataSync(currentStoreId ?? undefined, isOnline);
 
+    // Request persistent storage so iOS/Android don't evict IndexedDB under storage pressure
+    useEffect(() => {
+        if (navigator.storage?.persist) {
+            navigator.storage.persist().catch(() => {});
+        }
+    }, []);
+
     useEffect(() => {
         if (!currentStoreId) return;
         let cancelled = false;
@@ -957,7 +964,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                         }
                                     </button>
                                     {showReadinessPanel && (
-                                        <div className="absolute right-0 top-9 z-[300]">
+                                        <div className="absolute right-0 top-9 z-[300] max-w-[calc(100vw-2rem)]">
                                             <OfflineReadinessPanel
                                                 productCount={cachedProductsState.byStoreId[currentStoreId ?? 0]?.products?.length ?? 0}
                                                 categoryCount={masterData.categories.length}

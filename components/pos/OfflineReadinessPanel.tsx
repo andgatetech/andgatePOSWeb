@@ -78,7 +78,7 @@ export default function OfflineReadinessPanel({
         'text-danger';
 
     return (
-        <div className="w-80 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+        <div className="w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl sm:w-80 dark:border-gray-700 dark:bg-gray-900">
             {/* Header */}
             <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
