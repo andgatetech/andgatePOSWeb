@@ -6,49 +6,79 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import enLocale from '@/public/locales/en.json';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { FileSpreadsheet, FileText, Loader2, Printer } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import * as XLSX from 'xlsx';
 
-// Module-level Bengali font cache — loaded once per browser session
-const bnFont = { regular: '', bold: '', loaded: false };
-let bnFontPromise: Promise<void> | null = null;
-
-const loadBengaliFonts = (): Promise<void> => {
-    if (bnFont.loaded) return Promise.resolve();
-    if (bnFontPromise) return bnFontPromise;
-
-    const toBase64 = (buf: ArrayBuffer): string => {
-        const bytes = new Uint8Array(buf);
-        let b = '';
-        for (let i = 0; i < bytes.byteLength; i++) b += String.fromCharCode(bytes[i]);
-        return btoa(b);
-    };
-
-    bnFontPromise = Promise.all([
-        fetch('/fonts/NotoSansBengali-Regular.ttf'),
-        fetch('/fonts/NotoSansBengali-Bold.ttf'),
-    ])
-        .then(([r, b]) => (r.ok && b.ok ? Promise.all([r.arrayBuffer(), b.arrayBuffer()]) : Promise.reject()))
-        .then(([rBuf, bBuf]) => {
-            bnFont.regular = toBase64(rBuf);
-            bnFont.bold = toBase64(bBuf);
-            bnFont.loaded = true;
-        })
-        .catch(() => { bnFontPromise = null; });
-
-    return bnFontPromise;
+// Module-level pdfMake + Bengali font cache — survives component unmount/remount
+const _rptPdf: {
+    instance: any;
+    vfs: Record<string, string>;
+    fonts: Record<string, any>;
+    bnLoaded: boolean;
+} = {
+    instance: null,
+    vfs: {},
+    fonts: {
+        Roboto: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-MediumItalic.ttf',
+        },
+    },
+    bnLoaded: false,
 };
+let _rptPdfPromise: Promise<void> | null = null;
 
-// Extend jsPDF type for autoTable
-declare module 'jspdf' {
-    interface jsPDF {
-        lastAutoTable: { finalY: number };
-    }
-}
+const _ensureRptPdf = (): Promise<void> => {
+    if (_rptPdf.bnLoaded && _rptPdf.instance) return Promise.resolve();
+    if (_rptPdfPromise) return _rptPdfPromise;
+
+    const blobToBase64 = (blob: Blob): Promise<string> =>
+        new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res((r.result as string).split(',')[1]);
+            r.onerror = rej;
+            r.readAsDataURL(blob);
+        });
+
+    _rptPdfPromise = (async () => {
+        try {
+            const [pmMod, vfsMod] = await Promise.all([
+                import('pdfmake/build/pdfmake') as any,
+                import('pdfmake/build/vfs_fonts') as any,
+            ]);
+            const inst = pmMod.default || pmMod;
+            const vfs = vfsMod.default?.pdfMake?.vfs || vfsMod.pdfMake?.vfs || vfsMod.default?.vfs || vfsMod.vfs || vfsMod.default;
+            if (inst) _rptPdf.instance = inst;
+            if (vfs) _rptPdf.vfs = { ...vfs };
+
+            const [rr, br] = await Promise.all([
+                fetch('/fonts/NotoSansBengali-Regular.ttf'),
+                fetch('/fonts/NotoSansBengali-Bold.ttf'),
+            ]);
+            if (rr.ok && br.ok) {
+                const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
+                _rptPdf.vfs = { ..._rptPdf.vfs, 'NotoSansBengali-Regular.ttf': rb64, 'NotoSansBengali-Bold.ttf': bb64 };
+                _rptPdf.fonts = {
+                    ..._rptPdf.fonts,
+                    NotoSansBengali: {
+                        normal: 'NotoSansBengali-Regular.ttf',
+                        bold: 'NotoSansBengali-Bold.ttf',
+                        italics: 'NotoSansBengali-Regular.ttf',
+                        bolditalics: 'NotoSansBengali-Bold.ttf',
+                    },
+                };
+                _rptPdf.bnLoaded = true;
+            }
+        } catch {
+            _rptPdfPromise = null; // allow retry
+        }
+    })();
+    return _rptPdfPromise;
+};
 
 export interface ExportColumn {
     key: string;
@@ -59,19 +89,18 @@ export interface ExportColumn {
 
 export interface ReportExportToolbarProps {
     reportTitle: string;
-    reportDescription?: string; // NEW: Optional description for the report
-    reportIcon?: React.ReactNode; // NEW: Optional icon for the report
-    iconBgClass?: string; // NEW: Optional background class for icon
+    reportDescription?: string;
+    reportIcon?: React.ReactNode;
+    iconBgClass?: string;
     data: any[];
     columns: ExportColumn[];
-    summary?: { label: string; value: string | number }[]; // label = i18n key (looked up in English for PDF)
+    summary?: { label: string; value: string | number }[];
     filterSummary?: {
         dateRange?: { startDate?: string; endDate?: string; type?: string };
         storeName?: string;
         customFilters?: { label: string; value: string }[];
     };
     fileName?: string;
-    // Optional: function to fetch ALL data for export (bypasses pagination)
     fetchAllData?: () => Promise<any[]>;
 }
 
@@ -96,20 +125,11 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const { code, symbol } = useCurrency();
     const user = useSelector((state: RootState) => state.auth?.user);
     const [isExporting, setIsExporting] = useState(false);
-    const fontReadyRef = useRef(bnFont.loaded);
 
-    // Preload Bengali fonts on mount so they're ready when user clicks PDF
-    useEffect(() => {
-        loadBengaliFonts().then(() => { fontReadyRef.current = bnFont.loaded; });
-    }, []);
+    // Preload on mount so fonts are ready before user clicks
+    useEffect(() => { _ensureRptPdf(); }, []);
 
     const isBn = i18n.language === 'bn';
-
-    // Use current-language translation in PDF when Bengali font is loaded; English fallback otherwise
-    const tPdf = (key: string): string => {
-        if (isBn && fontReadyRef.current) return t(key);
-        return (enLocale as Record<string, string>)[key] || key;
-    };
 
     // Store details from Redux
     const storeDetails = useMemo(
@@ -121,11 +141,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
         [currentStore]
     );
 
-    // Get date display text
     const dateDisplayText = useMemo(() => {
         if (!filterSummary?.dateRange) return t('lbl_all_time');
         const { type, startDate, endDate } = filterSummary.dateRange;
-
         if (type === 'none' || (!startDate && !endDate)) return t('lbl_all_time');
         if (type === 'today') return t('lbl_today');
         if (type === 'yesterday') return t('lbl_yesterday');
@@ -134,387 +152,301 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
         if (type === 'this_month') return t('lbl_this_month');
         if (type === 'last_month') return t('lbl_last_month');
         if (type === 'this_year') return t('lbl_this_year');
-
-        if (startDate && endDate) {
-            return `${format(parseSafeDate(startDate), 'dd MMM yyyy')} - ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
-        }
+        if (startDate && endDate) return `${format(parseSafeDate(startDate), 'dd MMM yyyy')} - ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
         if (startDate) return `${t('lbl_from')} ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
         if (endDate) return `${t('lbl_until')} ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
-
         return t('lbl_custom_range');
     }, [filterSummary?.dateRange, t]);
 
     const storeDisplayText = filterSummary?.storeName || currentStore?.store_name || t('lbl_all_stores');
     const baseFileName = fileName || reportTitle.toLowerCase().replace(/\s+/g, '_');
 
-    // Build dynamic title with filter info
     const displayTitle = useMemo(() => {
         const filterParts: string[] = [];
-
-        // Add date range if not "All Time"
-        if (dateDisplayText && dateDisplayText !== t('lbl_all_time')) {
-            filterParts.push(dateDisplayText);
-        }
-
-        // Add custom filters
-        if (filterSummary?.customFilters && filterSummary.customFilters.length > 0) {
-            filterSummary.customFilters.forEach((filter) => {
-                filterParts.push(filter.value);
-            });
-        }
-
-        // Combine: "Sales Report - This Month / Paid"
-        if (filterParts.length > 0) {
-            return `${reportTitle} - ${filterParts.join(' / ')}`;
-        }
-
-        return reportTitle;
+        if (dateDisplayText && dateDisplayText !== t('lbl_all_time')) filterParts.push(dateDisplayText);
+        filterSummary?.customFilters?.forEach((f) => filterParts.push(f.value));
+        return filterParts.length > 0 ? `${reportTitle} - ${filterParts.join(' / ')}` : reportTitle;
     }, [reportTitle, dateDisplayText, filterSummary?.customFilters, t]);
 
-    // Sanitize text for PDF rendering
-    const sanitizeForPdf = useCallback(
-        (text: string): string => {
-            if (!text) return '';
-            let cleanText = String(text);
-
-            // When Bengali font is loaded, pass text through as-is (font handles Unicode)
-            if (isBn && fontReadyRef.current) return cleanText;
-
-            // English mode: normalize to ASCII
-            // Bengali digits → ASCII digits
-            cleanText = cleanText.replace(/[০-৯]/g, (d) => String('০১২৩৪৫৬৭৮৯'.indexOf(d)));
-            // Currency symbol → code
-            if (symbol) {
-                const escapedSymbol = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                cleanText = cleanText.replace(new RegExp(escapedSymbol, 'g'), `${code} `);
-            }
-            // Strip remaining non-ASCII
-            return cleanText.replace(/[^\x00-\x7F]/g, '');
-        },
-        [isBn, symbol, code]
-    );
-
-    // Get export data (all rows)
     const getExportData = useCallback(async (): Promise<any[]> => {
-        if (fetchAllData) {
-            return await fetchAllData();
-        }
+        if (fetchAllData) return await fetchAllData();
         return data;
     }, [data, fetchAllData]);
 
-    // Transform data for export
     const transformData = useCallback(
-        (exportData: any[]) => {
-            return exportData.map((row) => {
+        (exportData: any[]) =>
+            exportData.map((row) => {
                 const exportRow: Record<string, any> = {};
                 columns.forEach((col) => {
                     const value = row[col.key];
                     exportRow[col.label] = col.format ? col.format(value, row) : value ?? '';
                 });
                 return exportRow;
-            });
-        },
+            }),
         [columns]
     );
 
-    // Calculate totals for numeric columns
     const getTotals = useCallback(
         (exportData: any[]) => {
             const totals: Record<string, number> = {};
             const skippedKeys = ['invoice', 'date', 'created_at', 'status', 'payment', 'customer', 'user', 'id', 'name', 'email', 'phone'];
-
             columns.forEach((col) => {
-                // Skip columns that shouldn't be summed
-                if (skippedKeys.some((key) => col.key.toLowerCase().includes(key))) return;
-
+                if (skippedKeys.some((k) => col.key.toLowerCase().includes(k))) return;
                 const values = exportData.map((row) => {
                     const val = row[col.key];
                     return typeof val === 'number' ? val : parseFloat(String(val).replace(/[^\d.-]/g, '')) || 0;
                 });
                 const sum = values.reduce((a, b) => a + b, 0);
-                if (!isNaN(sum) && sum !== 0) {
-                    totals[col.label] = sum;
-                }
+                if (!isNaN(sum) && sum !== 0) totals[col.label] = sum;
             });
             return totals;
         },
         [columns]
     );
 
-    // Excel Export
+    // Excel Export — unchanged
     const handleExcelExport = useCallback(async () => {
         setIsExporting(true);
         try {
             const exportData = await getExportData();
             const transformedData = transformData(exportData);
             const totals = getTotals(exportData);
-
-            // Add totals row
             if (Object.keys(totals).length > 0) {
                 const totalRow: Record<string, any> = {};
                 columns.forEach((col, idx) => {
-                    if (idx === 0) {
-                        totalRow[col.label] = t('lbl_total').toUpperCase() + ':';
-                    } else {
-                        totalRow[col.label] = totals[col.label] !== undefined ? totals[col.label] : '';
-                    }
+                    totalRow[col.label] = idx === 0 ? t('lbl_total').toUpperCase() + ':' : totals[col.label] !== undefined ? totals[col.label] : '';
                 });
                 transformedData.push(totalRow);
             }
-
             const worksheet = XLSX.utils.json_to_sheet(transformedData);
             const workbook = XLSX.utils.book_new();
-
-            // Set column widths
             const colWidths = columns.map((col) => ({ wch: col.width || Math.max(col.label.length + 2, 15) }));
             worksheet['!cols'] = colWidths;
-
             XLSX.utils.book_append_sheet(workbook, worksheet, reportTitle.substring(0, 31));
             XLSX.writeFile(workbook, `${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
         } finally {
             setIsExporting(false);
         }
-    }, [getExportData, transformData, getTotals, columns, reportTitle, baseFileName]);
+    }, [getExportData, transformData, getTotals, columns, reportTitle, baseFileName, t]);
 
-    // Generate PDF/Print content
-    const generatePdfDocument = useCallback(
-        async (forPrint: boolean = false) => {
-            // Ensure Bengali font is ready before generating (no-op if already loaded)
-            if (isBn) await loadBengaliFonts();
+    // Build and output PDF using pdfMake (proper OpenType shaping for Bengali)
+    const generatePdf = useCallback(
+        async (mode: 'download' | 'print') => {
+            await _ensureRptPdf();
+            if (!_rptPdf.instance) return;
 
             const exportData = await getExportData();
+            const useBnFont = isBn && _rptPdf.bnLoaded;
+            const fontName = useBnFont ? 'NotoSansBengali' : 'Roboto';
+
+            // Translation helper — Bengali when font ready, English fallback
+            const tDoc = (key: string): string =>
+                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+
+            // Text sanitizer — strip non-ASCII only in English mode (Roboto has no Bengali glyphs)
+            const san = (text: string): string => {
+                if (!text) return '';
+                if (useBnFont) return String(text);
+                let s = String(text).replace(/[০-৯]/g, (d) => String('০১২৩৪৫৬৭৮৯'.indexOf(d)));
+                if (symbol) {
+                    const esc = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    s = s.replace(new RegExp(esc, 'g'), `${code} `);
+                }
+                return s.replace(/[^\x00-\x7F]/g, '');
+            };
+
             const isLandscape = columns.length > 6;
-            const doc = new jsPDF({ orientation: isLandscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+            // A4 in points: portrait 595×842, landscape 842×595
+            const pageW = isLandscape ? 841.89 : 595.28;
+            const marginPts = 40;
+            const usableW = pageW - marginPts * 2;
 
-            // Register Bengali font with jsPDF if loaded
-            const useBnFont = isBn && bnFont.loaded;
-            if (useBnFont) {
-                doc.addFileToVFS('NotoSansBengali-Regular.ttf', bnFont.regular);
-                doc.addFileToVFS('NotoSansBengali-Bold.ttf', bnFont.bold);
-                doc.addFont('NotoSansBengali-Regular.ttf', 'NotoSansBengali', 'normal');
-                doc.addFont('NotoSansBengali-Bold.ttf', 'NotoSansBengali', 'bold');
-            }
-
-            // Font helpers — switch between Bengali and Helvetica transparently
-            const fontName = useBnFont ? 'NotoSansBengali' : 'helvetica';
-            const setNormal = () => doc.setFont(fontName, 'normal');
-            const setBold   = () => doc.setFont(fontName, 'bold');
-
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            const margin = 14;
-            const tableWidth = pageWidth - margin * 2;
-            let yPos = 12;
-
-            // Date label (uses tPdf which respects language when font is ready)
+            // Date label for PDF header
             const pdfDateText = (() => {
-                if (!filterSummary?.dateRange) return tPdf('lbl_all_time');
+                if (!filterSummary?.dateRange) return tDoc('lbl_all_time');
                 const { type, startDate, endDate } = filterSummary.dateRange;
-                if (type === 'none' || (!startDate && !endDate)) return tPdf('lbl_all_time');
-                if (type === 'today') return tPdf('lbl_today');
-                if (type === 'yesterday') return tPdf('lbl_yesterday');
-                if (type === 'this_week') return tPdf('lbl_this_week');
-                if (type === 'last_week') return tPdf('lbl_last_week');
-                if (type === 'this_month') return tPdf('lbl_this_month');
-                if (type === 'last_month') return tPdf('lbl_last_month');
-                if (type === 'this_year') return tPdf('lbl_this_year');
+                if (type === 'none' || (!startDate && !endDate)) return tDoc('lbl_all_time');
+                if (type === 'today') return tDoc('lbl_today');
+                if (type === 'yesterday') return tDoc('lbl_yesterday');
+                if (type === 'this_week') return tDoc('lbl_this_week');
+                if (type === 'last_week') return tDoc('lbl_last_week');
+                if (type === 'this_month') return tDoc('lbl_this_month');
+                if (type === 'last_month') return tDoc('lbl_last_month');
+                if (type === 'this_year') return tDoc('lbl_this_year');
                 if (startDate && endDate) return `${format(parseSafeDate(startDate), 'dd MMM yyyy')} - ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
-                if (startDate) return `${tPdf('lbl_from')} ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
-                if (endDate) return `${tPdf('lbl_until')} ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
-                return tPdf('lbl_custom_range');
+                if (startDate) return `${tDoc('lbl_from')} ${format(parseSafeDate(startDate), 'dd MMM yyyy')}`;
+                if (endDate) return `${tDoc('lbl_until')} ${format(parseSafeDate(endDate), 'dd MMM yyyy')}`;
+                return tDoc('lbl_custom_range');
             })();
 
-            // === HEADER SECTION ===
-            // Left side: Store Details
-            doc.setFontSize(14);
-            setBold();
-            doc.setTextColor(30);
-            doc.text(sanitizeForPdf(storeDetails.name), margin, yPos);
-            yPos += 5;
+            // Column widths proportional to weight
+            const totalWeight = columns.reduce((s, c) => s + (c.width || 10), 0);
+            const colWidths = columns.map((c) => (c.width || 10) / totalWeight * usableW);
 
-            doc.setFontSize(9);
-            setNormal();
-            doc.setTextColor(100);
-            if (storeDetails.contact) {
-                doc.text(`${tPdf('lbl_phone')}: ${sanitizeForPdf(storeDetails.contact)}`, margin, yPos);
-                yPos += 4;
-            }
-            if (storeDetails.location) {
-                doc.text(`${tPdf('lbl_address')}: ${sanitizeForPdf(storeDetails.location)}`, margin, yPos);
-                yPos += 4;
-            }
+            const isNumeric = (col: ExportColumn) =>
+                ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some(
+                    (k) => col.key.includes(k) || col.label.toLowerCase().includes(k)
+                );
 
-            // Right side: Report Info (at same height as store name)
-            const rightX = pageWidth - margin;
-            doc.setFontSize(12);
-            setBold();
-            doc.setTextColor(59, 130, 246);
-            doc.text(sanitizeForPdf(reportTitle), rightX, 12, { align: 'right' });
+            const fontSize = columns.length > 10 ? 6 : columns.length > 8 ? 7 : 8;
 
-            doc.setFontSize(8);
-            setNormal();
-            doc.setTextColor(100);
-            doc.text(`${tPdf('lbl_period')}: ${pdfDateText}`, rightX, 17, { align: 'right' });
-            doc.text(`${tPdf('lbl_store')}: ${sanitizeForPdf(storeDisplayText)}`, rightX, 21, { align: 'right' });
-            doc.text(`${tPdf('lbl_generated')}: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, rightX, 25, { align: 'right' });
+            // Header row
+            const headerRow = columns.map((col) => ({
+                text: san(col.label),
+                bold: true,
+                color: '#ffffff',
+                fontSize,
+                alignment: isNumeric(col) ? 'right' : 'center',
+            }));
 
-            // Custom filters
-            if (filterSummary?.customFilters && filterSummary.customFilters.length > 0) {
-                const filterText = filterSummary.customFilters.map((f) => `${sanitizeForPdf(f.label)}: ${sanitizeForPdf(f.value)}`).join(' | ');
-                doc.text(filterText, rightX, 29, { align: 'right' });
-                yPos = Math.max(yPos, 33);
-            } else {
-                yPos = Math.max(yPos, 29);
-            }
-
-            // Divider line
-            yPos += 3;
-            doc.setDrawColor(200);
-            doc.setLineWidth(0.1);
-            doc.line(margin, yPos, pageWidth - margin, yPos);
-            yPos += 6;
-
-            // Summary section
-            if (summary.length > 0) {
-                doc.setFontSize(9);
-                setNormal();
-                doc.setTextColor(60);
-                const summaryText = summary.map((s) => `${tPdf(String(s.label))}: ${sanitizeForPdf(String(s.value))}`).join('   |   ');
-
-                const splitTitle = doc.splitTextToSize(summaryText, tableWidth);
-                doc.text(splitTitle, margin, yPos);
-                yPos += splitTitle.length * 4 + 4;
-            }
-
-            // Table data transformation
-            const tableData = exportData.map((row, index) =>
+            // Data rows
+            const bodyRows = exportData.map((row, idx) =>
                 columns.map((col) => {
-                    // Special handling for serial number if key matches
-                    if (col.key === 'serial' || col.label === '#') return String(index + 1);
-
-                    const value = row[col.key];
-                    const formatted = col.format ? col.format(value, row) : String(value ?? '');
-                    return sanitizeForPdf(formatted);
+                    if (col.key === 'serial' || col.label === '#') return { text: String(idx + 1), alignment: 'center', fontSize };
+                    const raw = row[col.key];
+                    const txt = col.format ? col.format(raw, row) : String(raw ?? '');
+                    return { text: san(txt), alignment: isNumeric(col) ? 'right' : 'left', fontSize };
                 })
             );
 
-            // Add totals row
+            // Totals row
             const totals = getTotals(exportData);
-            if (Object.keys(totals).length > 0) {
-                const totalRow = columns.map((col, idx) => {
-                    if (idx === 0) return tPdf('lbl_total').toUpperCase();
-                    if (col.key === 'serial' || col.label === '#') return '';
-                    // Only show total if the column was calculated in getTotals
-                    return totals[col.label] !== undefined ? `${totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
-                });
-                tableData.push(totalRow);
+            const hasTotals = Object.keys(totals).length > 0;
+            if (hasTotals) {
+                bodyRows.push(
+                    columns.map((col, idx) => ({
+                        text: idx === 0
+                            ? tDoc('lbl_total').toUpperCase()
+                            : col.key === 'serial' || col.label === '#'
+                                ? ''
+                                : totals[col.label] !== undefined
+                                    ? totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                    : '',
+                        bold: true,
+                        alignment: isNumeric(col) ? 'right' : 'left',
+                        fontSize: fontSize + 1,
+                    })) as any
+                );
             }
 
-            // Calculate exact column widths based on weights or defaults
-            // If width is provided in ExportColumn, treat it as a weight (e.g. 15, 20 etc)
-            const totalWeight = columns.reduce((sum, col) => sum + (col.width || 10), 0);
+            const summaryText = summary.map((s) => `${tDoc(String(s.label))}: ${san(String(s.value))}`).join('   |   ');
+            const filtersText = filterSummary?.customFilters?.length
+                ? filterSummary.customFilters.map((f) => `${san(f.label)}: ${san(f.value)}`).join(' | ')
+                : '';
 
-            const columnStyles = columns.reduce((acc, col, idx) => {
-                const weight = col.width || 10;
-                // Calculate proportional width: (weight / totalWeight) * usableTableWidth
-                const proportionalWidth = (weight / totalWeight) * tableWidth;
-
-                acc[idx] = {
-                    cellWidth: proportionalWidth,
-                    halign: ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some((k) => col.key.includes(k) || col.label.toLowerCase().includes(k)) ? 'right' : 'left',
-                };
-                return acc;
-            }, {} as Record<number, { cellWidth: number; halign: 'left' | 'right' | 'center' }>);
-
-            // Dynamically adjust font size based on column count to fit width
-            const fontSize = columns.length > 10 ? 6 : columns.length > 8 ? 7 : 8;
-
-            autoTable(doc, {
-                startY: yPos,
-                head: [columns.map((col) => sanitizeForPdf(col.label))],
-                body: tableData,
-                styles: {
-                    fontSize: fontSize,
-                    cellPadding: 2,
-                    overflow: 'linebreak',
-                    halign: 'left',
-                    valign: 'middle',
-                    lineWidth: 0.1,
-                    lineColor: [230, 230, 230],
-                    ...(useBnFont ? { font: 'NotoSansBengali', fontStyle: 'normal' } : {}),
+            const docDefinition: any = {
+                // Declare fonts inside the doc definition — pdfMake reads this unconditionally
+                // (3rd param to createPdf is not always applied reliably across versions)
+                fonts: {
+                    Roboto: {
+                        normal: 'Roboto-Regular.ttf',
+                        bold: 'Roboto-Medium.ttf',
+                        italics: 'Roboto-Italic.ttf',
+                        bolditalics: 'Roboto-MediumItalic.ttf',
+                    },
+                    ...(useBnFont ? {
+                        NotoSansBengali: {
+                            normal: 'NotoSansBengali-Regular.ttf',
+                            bold: 'NotoSansBengali-Bold.ttf',
+                            italics: 'NotoSansBengali-Regular.ttf',
+                            bolditalics: 'NotoSansBengali-Bold.ttf',
+                        },
+                    } : {}),
                 },
-                headStyles: {
-                    fillColor: [59, 130, 246],
-                    textColor: 255,
-                    fontStyle: 'bold',
-                    halign: 'center',
-                    lineWidth: 0,
-                    ...(useBnFont ? { font: 'NotoSansBengali' } : {}),
+                pageOrientation: isLandscape ? 'landscape' : 'portrait',
+                pageSize: 'A4',
+                pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
+                content: [
+                    // === Header ===
+                    {
+                        columns: [
+                            {
+                                stack: [
+                                    { text: san(storeDetails.name), fontSize: 14, bold: true, color: '#1e1e1e', margin: [0, 0, 0, 3] },
+                                    ...(storeDetails.contact ? [{ text: `${tDoc('lbl_phone')}: ${san(storeDetails.contact)}`, fontSize: 8, color: '#666666' }] : []),
+                                    ...(storeDetails.location ? [{ text: `${tDoc('lbl_address')}: ${san(storeDetails.location)}`, fontSize: 8, color: '#666666' }] : []),
+                                ],
+                                width: '*',
+                            },
+                            {
+                                stack: [
+                                    { text: san(reportTitle), fontSize: 12, bold: true, color: '#3b82f6', alignment: 'right' },
+                                    { text: `${tDoc('lbl_period')}: ${pdfDateText}`, fontSize: 8, color: '#666666', alignment: 'right' },
+                                    { text: `${tDoc('lbl_store')}: ${san(storeDisplayText)}`, fontSize: 8, color: '#666666', alignment: 'right' },
+                                    { text: `${tDoc('lbl_generated')}: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, fontSize: 8, color: '#666666', alignment: 'right' },
+                                    ...(filtersText ? [{ text: filtersText, fontSize: 8, color: '#666666', alignment: 'right' }] : []),
+                                ],
+                                width: '*',
+                            },
+                        ],
+                        columnGap: 10,
+                        margin: [0, 0, 0, 8],
+                    },
+                    // Divider
+                    {
+                        canvas: [{ type: 'line', x1: 0, y1: 0, x2: usableW, y2: 0, lineWidth: 0.5, lineColor: '#c8c8c8' }],
+                        margin: [0, 0, 0, 8],
+                    },
+                    // Summary
+                    ...(summary.length > 0 ? [{ text: summaryText, fontSize: 8, color: '#3c3c3c', margin: [0, 0, 0, 8] }] : []),
+                    // Table
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: colWidths,
+                            body: [headerRow, ...bodyRows],
+                        },
+                        layout: {
+                            hLineWidth: () => 0.1,
+                            vLineWidth: () => 0.1,
+                            hLineColor: () => '#e6e6e6',
+                            vLineColor: () => '#e6e6e6',
+                            fillColor: (rowIndex: number, node: any) => {
+                                if (rowIndex === 0) return '#3b82f6';
+                                if (hasTotals && rowIndex === node.table.body.length - 1) return '#dce6f5';
+                                return (rowIndex - 1) % 2 === 0 ? null : '#f8fafc';
+                            },
+                            paddingLeft: () => 4,
+                            paddingRight: () => 4,
+                            paddingTop: () => 3,
+                            paddingBottom: () => 3,
+                        },
+                    },
+                ],
+                footer: (currentPage: number, pageCount: number) => ({
+                    columns: [
+                        { text: `${san(storeDetails.name)} - ${san(reportTitle)}`, margin: [marginPts, 5, 0, 0], fontSize: 7, color: '#999999' },
+                        { text: `${tDoc('lbl_page')} ${currentPage} ${tDoc('lbl_of')} ${pageCount}`, alignment: 'right', margin: [0, 5, marginPts, 0], fontSize: 7, color: '#999999' },
+                    ],
+                }),
+                defaultStyle: {
+                    font: fontName,
+                    fontSize,
                 },
-                alternateRowStyles: { fillColor: [248, 250, 252] },
-                margin: { left: margin, right: margin },
-                tableWidth: 'auto',
-                columnStyles: columnStyles,
-                didParseCell: (data) => {
-                    if (tableData.length > 0 && data.row.index === tableData.length - 1) {
-                        data.cell.styles.fontStyle = 'bold';
-                        data.cell.styles.fillColor = [220, 230, 245];
-                        data.cell.styles.textColor = [0, 0, 0];
-                        data.cell.styles.fontSize = fontSize + 1;
-                        if (useBnFont) data.cell.styles.font = 'NotoSansBengali';
-                    }
-                },
-            });
+            };
 
-            // Footer with page numbers
-            const pageCount = doc.internal.pages.length - 1;
-            for (let i = 1; i <= pageCount; i++) {
-                doc.setPage(i);
-                doc.setFontSize(7);
-                setNormal();
-                doc.setTextColor(150);
-                doc.text(`${tPdf('lbl_page')} ${i} ${tPdf('lbl_of')} ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
-                doc.text(`${sanitizeForPdf(storeDetails.name)} - ${sanitizeForPdf(reportTitle)}`, margin, pageHeight - 10);
+            const pdf = _rptPdf.instance.createPdf(docDefinition, undefined, _rptPdf.fonts, _rptPdf.vfs);
+            if (mode === 'print') {
+                pdf.print();
+            } else {
+                pdf.download(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
             }
-
-            return doc;
         },
-        [getExportData, columns, getTotals, storeDetails, reportTitle, dateDisplayText, storeDisplayText, filterSummary, summary, sanitizeForPdf, isBn, tPdf]
+        [getExportData, getTotals, columns, isBn, t, storeDetails, reportTitle, storeDisplayText, filterSummary, summary, baseFileName, symbol, code]
     );
 
-    // PDF Export
     const handlePdfExport = useCallback(async () => {
         setIsExporting(true);
-        try {
-            const doc = await generatePdfDocument(false);
-            doc.save(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-        } finally {
-            setIsExporting(false);
-        }
-    }, [generatePdfDocument, baseFileName]);
+        try { await generatePdf('download'); } finally { setIsExporting(false); }
+    }, [generatePdf]);
 
-    // Print - uses same PDF generation
     const handlePrint = useCallback(async () => {
         setIsExporting(true);
-        try {
-            const doc = await generatePdfDocument(true);
-            // Open PDF in new window for printing
-            const pdfBlob = doc.output('blob');
-            const pdfUrl = URL.createObjectURL(pdfBlob);
-            const printWindow = window.open(pdfUrl, '_blank');
-            if (printWindow) {
-                printWindow.onload = () => {
-                    printWindow.print();
-                };
-            }
-        } finally {
-            setIsExporting(false);
-        }
-    }, [generatePdfDocument]);
+        try { await generatePdf('print'); } finally { setIsExporting(false); }
+    }, [generatePdf]);
 
     return (
         <div className="mb-6">
-            {/* Simplified Header Section */}
             <div>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     {/* Left: Report Icon + Title + Description */}
