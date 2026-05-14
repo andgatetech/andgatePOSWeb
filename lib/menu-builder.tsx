@@ -177,6 +177,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/suppliers/list',
                 requiredPermissions: ['suppliers.index'],
             },
+            {
+                label: 'Supplier Due',
+                href: '/suppliers/due',
+                requiredPermissions: ['reports.purchase'],
+            },
         ],
     },
     {

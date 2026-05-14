@@ -4740,6 +4740,7 @@
   "report_customer_due_title": "Customer Due Report",
   "report_customer_due_desc": "Track customer credit sales, partial payments, aging, and remaining due.",
   "lbl_customer_due": "Customer Due",
+  "lbl_supplier_due": "Supplier Due",
   "lbl_aging": "Aging",
   "lbl_oldest_due": "Oldest Due",
   "lbl_all_aging": "All Aging",

@@ -144,6 +144,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                     store_id: data.store_id,
                     payment_amount: data.amount,
                     payment_method: data.payment_method || 'cash',
+                    payment_notes: data.notes || data.payment_notes,
                 },
             }),
             invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
@@ -157,6 +158,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
                 body: {
                     store_id: data.store_id,
                     payment_method: data.payment_method || 'cash',
+                    payment_notes: data.notes || data.payment_notes,
                 },
             }),
             invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],

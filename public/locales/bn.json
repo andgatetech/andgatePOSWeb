@@ -4742,6 +4742,7 @@
   "report_customer_due_title": "গ্রাহকের বাকি রিপোর্ট",
   "report_customer_due_desc": "গ্রাহকের বাকিতে বিক্রি, আংশিক পেমেন্ট, কত দিনের বাকি এবং বাকি পরিমাণ দেখুন।",
   "lbl_customer_due": "গ্রাহকের বাকি",
+  "lbl_supplier_due": "সরবরাহকারীর বাকি",
   "lbl_aging": "কত দিনের বাকি",
   "lbl_oldest_due": "সবচেয়ে পুরোনো বাকি",
   "lbl_all_aging": "সব দিনের বাকি",
