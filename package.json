@@ -103,6 +103,7 @@
         "autoprefixer": "^10.4.21",
         "baseline-browser-mapping": "^2.9.0",
         "eslint": "^9.39.4",
+        "patch-package": "^8.0.1",
         "postcss": "^8.4.35",
         "prettier": "^2.8.0",
         "prettier-plugin-tailwindcss": "^0.2.0",
