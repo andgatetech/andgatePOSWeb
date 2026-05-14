@@ -38,6 +38,7 @@ const OrderReturnList = () => {
         if (apiParams.store_ids) params.store_ids = apiParams.store_ids;
         if (apiParams.search) params.search = apiParams.search;
         if (apiParams.return_type) params.return_type = apiParams.return_type;
+        if (apiParams.payment_status) params.payment_status = apiParams.payment_status;
         if (apiParams.order_id) params.order_id = apiParams.order_id;
         if (apiParams.start_date) params.start_date = apiParams.start_date;
         if (apiParams.end_date) params.end_date = apiParams.end_date;
@@ -64,20 +65,21 @@ const OrderReturnList = () => {
 
     // Calculate stats
     const stats = useMemo(() => {
-        const totalReturns = paginationMeta?.total || 0;
-        const totalRefundAmount = returns.reduce((sum: number, ret: any) => {
+        const summary = returnsData?.data?.summary;
+        const totalReturns = summary?.total_returns ?? paginationMeta?.total ?? 0;
+        const totalRefundAmount = summary?.total_refund_amount ?? returns.reduce((sum: number, ret: any) => {
             const netAmount = Number(ret.net_amount || 0);
             return netAmount < 0 ? sum + Math.abs(netAmount) : sum;
         }, 0);
-        const totalExchangeAmount = returns.reduce((sum: number, ret: any) => {
+        const totalExchangeAmount = summary?.total_exchange_amount ?? returns.reduce((sum: number, ret: any) => {
             const netAmount = Number(ret.net_amount || 0);
             return netAmount > 0 ? sum + netAmount : sum;
         }, 0);
-        const pureReturns = returns.filter((ret: any) => ret.return_type === 'return').length;
-        const exchanges = returns.filter((ret: any) => ret.return_type === 'exchange').length;
+        const pureReturns = summary?.pure_returns ?? returns.filter((ret: any) => ret.return_type === 'return').length;
+        const exchanges = summary?.exchanges ?? returns.filter((ret: any) => ret.return_type === 'exchange' || ret.return_type === 'return_and_buy').length;
 
         return { totalReturns, totalRefundAmount, totalExchangeAmount, pureReturns, exchanges };
-    }, [returns, paginationMeta]);
+    }, [returns, paginationMeta, returnsData]);
 
     // Handle filter changes
     const handleFilterChange = useCallback((newApiParams: Record<string, any>) => {

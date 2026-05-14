@@ -18,7 +18,7 @@ interface OrderDetailsModalProps {
 }
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order }) => {
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const [sendEmailOpen, setSendEmailOpen] = useState(false);
@@ -46,6 +46,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
     const paymentStatus = normalizePaymentStatus(order.payment?.status ?? order.payment_status ?? 'paid');
     const statusStyle = getPaymentStatusConfig(paymentStatus);
     const na = t('lbl_na');
+    const localizeDigits = (value: string) => value.replace(/\d+/g, (match) => formatNumber(match, { useGrouping: false }));
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -142,8 +143,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     <div className="text-gray-900">
                                                         {order.created_at ? (
                                                             <>
-                                                                <div className="font-medium">{order.created_at.split(' ')[0]}</div>
-                                                                <div className="text-xs text-gray-500">{order.created_at.split(' ').slice(1).join(' ')}</div>
+                                                                <div className="font-medium">{localizeDigits(order.created_at.split(' ')[0])}</div>
+                                                                <div className="text-xs text-gray-500">{localizeDigits(order.created_at.split(' ').slice(1).join(' '))}</div>
                                                             </>
                                                         ) : (
                                                             na
@@ -155,8 +156,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     <div className="text-gray-900">
                                                         {order.updated_at ? (
                                                             <>
-                                                                <div className="font-medium">{order.updated_at.split(' ')[0]}</div>
-                                                                <div className="text-xs text-gray-500">{order.updated_at.split(' ').slice(1).join(' ')}</div>
+                                                                <div className="font-medium">{localizeDigits(order.updated_at.split(' ')[0])}</div>
+                                                                <div className="text-xs text-gray-500">{localizeDigits(order.updated_at.split(' ').slice(1).join(' '))}</div>
                                                             </>
                                                         ) : (
                                                             na
@@ -189,7 +190,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                     <div className="mb-6">
                                         <div className="mb-4 flex items-center gap-2">
                                             <Package className="h-5 w-5 text-indigo-600" />
-                                            <h3 className="text-lg font-semibold text-gray-900">{t('order_items')} ({order.items_count})</h3>
+                                            <h3 className="text-lg font-semibold text-gray-900">{t('order_items')} ({formatNumber(order.items_count ?? order.items?.length ?? 0)})</h3>
                                         </div>
                                         <div className="space-y-4">
                                             {order.items?.map((item: any, index: number) => (
@@ -233,9 +234,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                         <div>
                                                             <p className="mb-1 text-xs text-gray-500">{t('lbl_quantity')}</p>
                                                             <p className="font-semibold text-gray-900">
-                                                                {item.quantity ?? 0} {item.unit ?? t('lbl_piece')}
+                                                                {formatNumber(item.quantity ?? 0)} {item.unit ?? t('lbl_piece')}
                                                             </p>
-                                                            {item.quantity_returned > 0 && <p className="text-xs text-red-600">{t('status_returned')}: {item.quantity_returned}</p>}
+                                                            {item.quantity_returned > 0 && <p className="text-xs text-red-600">{t('status_returned')}: {formatNumber(item.quantity_returned)}</p>}
                                                         </div>
                                                         <div>
                                                             <p className="mb-1 text-xs text-gray-500">{t('lbl_selling_price')}</p>
@@ -262,7 +263,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                 <div>
                                                                     <span className="text-gray-500">{t('lbl_stock')}:</span>
                                                                     <span className={`ml-1 font-semibold ${item.stock.is_low_stock ? 'text-red-600' : 'text-green-600'}`}>
-                                                                        {item.stock.current_quantity}
+                                                                        {formatNumber(item.stock.current_quantity)}
                                                                     </span>
                                                                 </div>
                                                                 <div>
@@ -315,22 +316,22 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                     <span className="text-green-700">{t('lbl_duration')}:</span>
                                                                     <span className="ml-1 font-semibold text-green-900">
                                                                         {item.warranty.duration_months
-                                                                            ? `${item.warranty.duration_months} ${t('lbl_months')}`
+                                                                            ? `${formatNumber(item.warranty.duration_months)} ${t('lbl_months')}`
                                                                             : item.warranty.duration_days
-                                                                            ? `${item.warranty.duration_days} ${t('lbl_days')}`
+                                                                            ? `${formatNumber(item.warranty.duration_days)} ${t('lbl_days')}`
                                                                             : t('lbl_lifetime')}
                                                                     </span>
                                                                 </div>
                                                                 {item.warranty.start_date && (
                                                                     <div>
                                                                         <span className="text-green-700">{t('lbl_start')}:</span>
-                                                                        <span className="ml-1 font-semibold text-green-900">{item.warranty.start_date.split(' ')[0]}</span>
+                                                                        <span className="ml-1 font-semibold text-green-900">{localizeDigits(item.warranty.start_date.split(' ')[0])}</span>
                                                                     </div>
                                                                 )}
                                                                 {item.warranty.end_date && (
                                                                     <div>
                                                                         <span className="text-green-700">{t('lbl_end')}:</span>
-                                                                        <span className="ml-1 font-semibold text-green-900">{item.warranty.end_date.split(' ')[0]}</span>
+                                                                        <span className="ml-1 font-semibold text-green-900">{localizeDigits(item.warranty.end_date.split(' ')[0])}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -401,7 +402,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                 </div>
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-red-700">{t('order_return')}:</span>
-                                                    <span className="font-medium text-red-900">{order.returns.count ?? 0}</span>
+                                                    <span className="font-medium text-red-900">{formatNumber(order.returns.count ?? 0)}</span>
                                                 </div>
                                                 {order.returns.items && order.returns.items.length > 0 && (
                                                     <div className="mt-4 border-t border-red-200 pt-3">
@@ -444,7 +445,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2">
                                                                     <Hash className="h-4 w-4 text-gray-400" />
-                                                                    <span className="font-semibold text-gray-900">{t('lbl_transaction')} #{transaction.id}</span>
+                                                                    <span className="font-semibold text-gray-900">{t('lbl_transaction')} #{formatNumber(transaction.id, { useGrouping: false })}</span>
                                                                     <span
                                                                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                                                                             transaction.type === 'sale' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -474,8 +475,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                         <span>
                                                                             {transaction.created_at ? (
                                                                                 <>
-                                                                                    {transaction.created_at.split(' ')[0]}{' '}
-                                                                                    <span className="text-gray-400">{transaction.created_at.split(' ').slice(1).join(' ')}</span>
+                                                                                    {localizeDigits(transaction.created_at.split(' ')[0])}{' '}
+                                                                                    <span className="text-gray-400">{localizeDigits(transaction.created_at.split(' ').slice(1).join(' '))}</span>
                                                                                 </>
                                                                             ) : (
                                                                                 na

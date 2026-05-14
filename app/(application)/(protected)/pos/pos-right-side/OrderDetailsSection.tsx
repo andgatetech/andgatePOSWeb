@@ -48,6 +48,7 @@ interface InvoiceItem {
     // Return mode fields
     isReturnItem?: boolean;
     orderItemId?: number;
+    soldQuantity?: number;
     originalQuantity?: number;
     returnQuantity?: number;
 }
@@ -84,6 +85,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const displayUnit = (unit?: string) => (unit && unit.toLowerCase() !== 'piece' ? unit : t('lbl_piece'));
+    const returnableItemsCount = invoiceItems.filter((item) => item.isReturnItem).length;
+    const selectedReturnItemsCount = invoiceItems.filter((item) => item.isReturnItem && Number(item.returnQuantity ?? item.quantity ?? 0) > 0).length;
 
     const handlePreview = (item: InvoiceItem) => {
         setPreviewItem(item);
@@ -107,8 +110,10 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                         <IconShoppingCart className="h-4 w-4 text-primary" />
                     </div>
-                    <h3 className="text-sm font-bold uppercase tracking-wide text-gray-600">{t('pos_order_details')}</h3>
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{formatNumber(invoiceItems.length)}</span>
+                    <h3 className="text-sm font-bold uppercase tracking-wide text-gray-600">{isReturnMode ? t('pos_return_selection') : t('pos_order_details')}</h3>
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                        {isReturnMode ? `${formatNumber(selectedReturnItemsCount)}/${formatNumber(returnableItemsCount)}` : formatNumber(invoiceItems.length)}
+                    </span>
                 </div>
                 {!isReturnMode && invoiceItems.length > 0 && (
                     <button type="button" onClick={onClearItems} className="text-xs font-medium text-red-400 hover:text-red-600">
@@ -123,11 +128,11 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                         <tr className="bg-primary">
                             <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">#</th>
                             <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_items')}</th>
-                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_qty')}</th>
+                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{isReturnMode ? t('lbl_qty_returned') : t('lbl_qty')}</th>
                             <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_unit')}</th>
                             <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_rate')}</th>
                             <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_tax')}</th>
-                            <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_amount')}</th>
+                            <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-white/90">{isReturnMode ? t('lbl_return_value') : t('lbl_amount')}</th>
                             <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_action')}</th>
                         </tr>
                     </thead>
@@ -145,8 +150,11 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                         ) : (
                             invoiceItems.map((item, index) => {
                                 // Check if this is a fully returned item (in return mode)
-                                const isFullyReturned = isReturnMode && item.isReturnItem && item.quantity === 0;
-                                const isPartiallyReturned = isReturnMode && item.isReturnItem && item.returnQuantity && item.returnQuantity > 0 && item.quantity > 0;
+                                const selectedReturnQty = Number(item.returnQuantity ?? item.quantity ?? 0);
+                                const originalQty = Number(item.originalQuantity ?? item.PlaceholderQuantity ?? 0);
+                                const soldQty = Number(item.soldQuantity ?? item.originalQuantity ?? 0);
+                                const isFullyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty >= originalQty;
+                                const isPartiallyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty < originalQty;
 
                                 return (
                                     <tr
@@ -192,6 +200,17 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                             {item.variantData && <span className="ml-1">({Object.values(item.variantData).join(', ')})</span>}
                                                         </div>
                                                     )}
+                                                    {isReturnMode && item.isReturnItem && (
+                                                        <div className="mt-1 flex flex-wrap gap-1 text-xs">
+                                                            <span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">
+                                                                {t('lbl_qty_sold')}: {formatNumber(soldQty)}
+                                                            </span>
+                                                            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-blue-700">
+                                                                {t('lbl_returnable')}: {formatNumber(item.originalQuantity || 0)}
+                                                            </span>
+                                                            {selectedReturnQty <= 0 && <span className="rounded bg-gray-50 px-1.5 py-0.5 text-gray-400">{t('lbl_not_selected')}</span>}
+                                                        </div>
+                                                    )}
                                                     {/* Serial Number Badge */}
                                                     {item.has_serial && item.serials && item.serials.length > 0 && (
                                                         <div className="mt-1">
@@ -222,11 +241,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                         </td>
                                         <td className="px-3 py-2.5 text-center">
                                             <div className="relative">
-                                                {item.has_serial ? (
-                                                    // Serialized products have fixed quantity = 1
-                                                    <span className="inline-block rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">1</span>
-                                                ) : isReturnMode && item.isReturnItem ? (
-                                                    // Return item - show kept quantity with original
+                                                {isReturnMode && item.isReturnItem ? (
+                                                    // Return item - show selected return quantity
                                                     <div className="flex flex-col items-center gap-1">
                                                         <div className="flex items-center gap-1">
                                                             <button
@@ -261,6 +277,9 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                         </div>
                                                         <span className="text-xs text-gray-500">{t('lbl_of')} {item.originalQuantity}</span>
                                                     </div>
+                                                ) : item.has_serial ? (
+                                                    // Serialized products have fixed quantity = 1
+                                                    <span className="inline-block rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">1</span>
                                                 ) : (
                                                     <div className="relative flex w-[80px] items-center">
                                                         <input
@@ -304,44 +323,48 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
                                         </td>
                                         <td className="px-3 py-2.5 text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => onItemWholesaleToggle(item.id)}
-                                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-                                                        item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                    }`}
-                                                    title={t('msg_switch_price_mode', { mode: item.isWholesale ? t('lbl_retail') : t('lbl_wholesale') })}
-                                                >
-                                                    {item.isWholesale ? t('lbl_wholesale') : t('lbl_retail')}
-                                                </button>
-                                                <div className="relative flex w-[80px] items-center">
-                                                    <input
-                                                        type="number"
-                                                        step="1"
-                                                        className="form-input h-9 w-full border-gray-300 pr-6 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                        value={item.rate === 0 ? '' : item.rate}
-                                                        onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
-                                                        onBlur={() => onUnitPriceBlur(item.id)}
-                                                    />
-                                                    <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => onUnitPriceChange(item.id, (item.rate + 1).toString())}
-                                                            className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-                                                        >
-                                                            <ChevronUp className="h-3 w-3" />
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => onUnitPriceChange(item.id, Math.max(0, item.rate - 1).toString())}
-                                                            className="flex h-1/2 w-6 items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-                                                        >
-                                                            <ChevronDown className="h-3 w-3" />
-                                                        </button>
+                                            {isReturnMode && item.isReturnItem ? (
+                                                <span className="font-semibold text-gray-700">{formatCurrency(item.rate)}</span>
+                                            ) : (
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onItemWholesaleToggle(item.id)}
+                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                            item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                        }`}
+                                                        title={t('msg_switch_price_mode', { mode: item.isWholesale ? t('lbl_retail') : t('lbl_wholesale') })}
+                                                    >
+                                                        {item.isWholesale ? t('lbl_wholesale') : t('lbl_retail')}
+                                                    </button>
+                                                    <div className="relative flex w-[80px] items-center">
+                                                        <input
+                                                            type="number"
+                                                            step="1"
+                                                            className="form-input h-9 w-full border-gray-300 pr-6 text-center text-sm [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                            value={item.rate === 0 ? '' : item.rate}
+                                                            onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
+                                                            onBlur={() => onUnitPriceBlur(item.id)}
+                                                        />
+                                                        <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onUnitPriceChange(item.id, (item.rate + 1).toString())}
+                                                                className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                                                            >
+                                                                <ChevronUp className="h-3 w-3" />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => onUnitPriceChange(item.id, Math.max(0, item.rate - 1).toString())}
+                                                                className="flex h-1/2 w-6 items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                                                            >
+                                                                <ChevronDown className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            )}
                                         </td>
                                         <td className="px-3 py-2.5 text-center text-sm">
                                             {item.tax_rate ? (
@@ -360,17 +383,23 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             )}
                                         </td>
                                         <td className="px-3 py-2.5 text-right">
-                                            <span className="text-sm font-bold text-primary">{totalAmountForItem(item)}</span>
+                                            <span className={`text-sm font-bold ${isReturnMode && item.isReturnItem && selectedReturnQty <= 0 ? 'text-gray-300' : 'text-primary'}`}>
+                                                {isReturnMode && item.isReturnItem && selectedReturnQty <= 0 ? '—' : totalAmountForItem(item)}
+                                            </span>
                                         </td>
                                         <td className="px-3 py-2.5 text-center">
-                                            <button
-                                                type="button"
-                                                onClick={() => onRemoveItem(item.id)}
-                                                className="inline-flex items-center justify-center rounded-lg p-1.5 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                                                title={t('btn_remove_item')}
-                                            >
-                                                <IconX className="h-4 w-4" />
-                                            </button>
+                                            {isReturnMode && item.isReturnItem && selectedReturnQty <= 0 ? (
+                                                <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-400">{t('lbl_not_selected')}</span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onRemoveItem(item.id)}
+                                                    className="inline-flex items-center justify-center rounded-lg p-1.5 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                                    title={isReturnMode && item.isReturnItem ? t('btn_clear_selection') : t('btn_remove_item')}
+                                                >
+                                                    <IconX className="h-4 w-4" />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 );
@@ -391,8 +420,11 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                     </div>
                 ) : (
                     invoiceItems.map((item, index) => {
-                        const isFullyReturned = isReturnMode && item.isReturnItem && item.quantity === 0;
-                        const isPartiallyReturned = isReturnMode && item.isReturnItem && item.returnQuantity && item.returnQuantity > 0 && item.quantity > 0;
+                        const selectedReturnQty = Number(item.returnQuantity ?? item.quantity ?? 0);
+                        const originalQty = Number(item.originalQuantity ?? item.PlaceholderQuantity ?? 0);
+                        const soldQty = Number(item.soldQuantity ?? item.originalQuantity ?? 0);
+                        const isFullyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty >= originalQty;
+                        const isPartiallyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty < originalQty;
 
                         return (
                             <div
@@ -421,6 +453,17 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 <p className="mt-0.5 text-xs text-gray-500">
                                                     {item.variantName}{item.variantData && ` (${Object.values(item.variantData).join(', ')})`}
                                                 </p>
+                                            )}
+                                            {isReturnMode && item.isReturnItem && (
+                                                <div className="mt-1 flex flex-wrap gap-1 text-xs">
+                                                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">
+                                                        {t('lbl_qty_sold')}: {formatNumber(soldQty)}
+                                                    </span>
+                                                    <span className="rounded bg-blue-50 px-1.5 py-0.5 text-blue-700">
+                                                        {t('lbl_returnable')}: {formatNumber(item.originalQuantity || 0)}
+                                                    </span>
+                                                    {selectedReturnQty <= 0 && <span className="rounded bg-gray-50 px-1.5 py-0.5 text-gray-400">{t('lbl_not_selected')}</span>}
+                                                </div>
                                             )}
                                             <div className="mt-1 flex flex-wrap gap-1">
                                                 {isFullyReturned && (
@@ -454,9 +497,16 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                         <button type="button" onClick={() => handlePreview(item)} className="rounded-lg p-1.5 text-primary hover:bg-primary/10">
                                             <Eye className="h-4 w-4" />
                                         </button>
-                                        <button type="button" onClick={() => onRemoveItem(item.id)} className="rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600">
-                                            <IconX className="h-4 w-4" />
-                                        </button>
+                                        {isReturnMode && item.isReturnItem && selectedReturnQty <= 0 ? null : (
+                                            <button
+                                                type="button"
+                                                onClick={() => onRemoveItem(item.id)}
+                                                className="rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
+                                                title={isReturnMode && item.isReturnItem ? t('btn_clear_selection') : t('btn_remove_item')}
+                                            >
+                                                <IconX className="h-4 w-4" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 
@@ -465,10 +515,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                                         {/* Qty */}
                                         <div>
-                                            <p className="mb-1 font-medium text-gray-500">{t('lbl_qty')}</p>
-                                            {item.has_serial ? (
-                                                <span className="inline-block rounded bg-gray-100 px-2 py-0.5 font-semibold text-gray-700">1</span>
-                                            ) : isReturnMode && item.isReturnItem ? (
+                                            <p className="mb-1 font-medium text-gray-500">{isReturnMode && item.isReturnItem ? t('lbl_qty_returned') : t('lbl_qty')}</p>
+                                            {isReturnMode && item.isReturnItem ? (
                                                 <div className="flex items-center gap-1">
                                                     <button
                                                         type="button"
@@ -497,6 +545,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     </button>
                                                     <span className="ml-0.5 text-gray-400">/{item.originalQuantity}</span>
                                                 </div>
+                                            ) : item.has_serial ? (
+                                                <span className="inline-block rounded bg-gray-100 px-2 py-0.5 font-semibold text-gray-700">1</span>
                                             ) : (
                                                 <div className="relative flex w-[72px] items-center">
                                                     <input
@@ -530,34 +580,40 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                         <div className="col-span-2">
                                             <div className="mb-1 flex items-center justify-between">
                                                 <p className="font-medium text-gray-500">{t('lbl_rate')}</p>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => onItemWholesaleToggle(item.id)}
-                                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
-                                                >
-                                                    {item.isWholesale ? t('lbl_wholesale') : t('lbl_retail')}
-                                                </button>
+                                                {!isReturnMode || !item.isReturnItem ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onItemWholesaleToggle(item.id)}
+                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                                                    >
+                                                        {item.isWholesale ? t('lbl_wholesale') : t('lbl_retail')}
+                                                    </button>
+                                                ) : null}
                                             </div>
-                                            <div className="relative flex w-full items-center">
-                                                <input
-                                                    type="number"
-                                                    step="1"
-                                                    className="form-input h-8 w-full border-gray-300 pr-5 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                    placeholder={t('lbl_rate')}
-                                                    value={item.rate === 0 ? '' : item.rate}
-                                                    onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
-                                                    onBlur={() => onUnitPriceBlur(item.id)}
-                                                    min="0"
-                                                />
-                                                <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
-                                                    <button type="button" onClick={() => onUnitPriceChange(item.id, (item.rate + 1).toString())} className="flex h-1/2 w-5 items-center justify-center border-b border-gray-300 bg-gray-50 hover:bg-gray-100">
-                                                        <ChevronUp className="h-2.5 w-2.5" />
-                                                    </button>
-                                                    <button type="button" onClick={() => onUnitPriceChange(item.id, Math.max(0, item.rate - 1).toString())} className="flex h-1/2 w-5 items-center justify-center bg-gray-50 hover:bg-gray-100">
-                                                        <ChevronDown className="h-2.5 w-2.5" />
-                                                    </button>
+                                            {isReturnMode && item.isReturnItem ? (
+                                                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center text-sm font-semibold text-gray-700">{formatCurrency(item.rate)}</div>
+                                            ) : (
+                                                <div className="relative flex w-full items-center">
+                                                    <input
+                                                        type="number"
+                                                        step="1"
+                                                        className="form-input h-8 w-full border-gray-300 pr-5 text-center text-xs [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                        placeholder={t('lbl_rate')}
+                                                        value={item.rate === 0 ? '' : item.rate}
+                                                        onChange={(e) => onUnitPriceChange(item.id, e.target.value)}
+                                                        onBlur={() => onUnitPriceBlur(item.id)}
+                                                        min="0"
+                                                    />
+                                                    <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
+                                                        <button type="button" onClick={() => onUnitPriceChange(item.id, (item.rate + 1).toString())} className="flex h-1/2 w-5 items-center justify-center border-b border-gray-300 bg-gray-50 hover:bg-gray-100">
+                                                            <ChevronUp className="h-2.5 w-2.5" />
+                                                        </button>
+                                                        <button type="button" onClick={() => onUnitPriceChange(item.id, Math.max(0, item.rate - 1).toString())} className="flex h-1/2 w-5 items-center justify-center bg-gray-50 hover:bg-gray-100">
+                                                            <ChevronDown className="h-2.5 w-2.5" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
 
                                         {/* Tax */}
@@ -579,8 +635,10 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
 
                                 {/* Card Footer - Amount */}
                                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-3 py-2">
-                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('lbl_amount')}</span>
-                                    <span className="text-base font-bold text-primary">{totalAmountForItem(item)}</span>
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{isReturnMode ? t('lbl_return_value') : t('lbl_amount')}</span>
+                                    <span className={`text-base font-bold ${isReturnMode && item.isReturnItem && selectedReturnQty <= 0 ? 'text-gray-300' : 'text-primary'}`}>
+                                        {isReturnMode && item.isReturnItem && selectedReturnQty <= 0 ? '—' : totalAmountForItem(item)}
+                                    </span>
                                 </div>
                             </div>
                         );

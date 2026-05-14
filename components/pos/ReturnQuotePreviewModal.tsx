@@ -6,7 +6,7 @@ import type { QuoteOrderReturnResult } from '@/store/features/Order/orderApi';
 import { ArrowDownLeft, ArrowUpRight, CheckCircle, X } from 'lucide-react';
 
 interface ReturnQuotePreviewModalProps {
-    quote: QuoteOrderReturnResult;
+    quote: QuoteOrderReturnResult | { data?: QuoteOrderReturnResult };
     onConfirm: () => void;
     onCancel: () => void;
     isLoading?: boolean;
@@ -21,8 +21,16 @@ export default function ReturnQuotePreviewModal({
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
-    const { totals } = quote;
-    const isRefund = totals.direction === 'refund';
+    const normalizedQuote = ('data' in quote && quote.data ? quote.data : quote) as QuoteOrderReturnResult;
+    const totals = normalizedQuote.totals || {
+        total_return_amount: 0,
+        total_new_amount: 0,
+        net_amount: 0,
+        direction: 'even' as const,
+        precision: 2,
+    };
+    const isRefund = totals.direction === 'refund' || Number(totals.net_amount || 0) < 0;
+    const isEven = totals.direction === 'even' || Number(totals.net_amount || 0) === 0;
 
     const fmt = (n: number) => formatCurrency(n);
 
@@ -45,13 +53,13 @@ export default function ReturnQuotePreviewModal({
 
                 <div className="p-5 space-y-4">
                     {/* Return items */}
-                    {quote.return_items?.length > 0 && (
+                    {normalizedQuote.return_items?.length > 0 && (
                         <section>
                             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 {t('return_quote_items_returned')}
                             </h3>
                             <div className="space-y-1.5 rounded-xl bg-red-50 p-3 dark:bg-red-900/20">
-                                {quote.return_items.map((item: any, i: number) => (
+                                {normalizedQuote.return_items.map((item: any, i: number) => (
                                     <div key={i} className="flex justify-between text-sm">
                                         <span className="text-gray-700 dark:text-gray-300">
                                             {item.product_name ?? item.name ?? `Item #${i + 1}`}
@@ -67,13 +75,13 @@ export default function ReturnQuotePreviewModal({
                     )}
 
                     {/* Exchange items */}
-                    {quote.new_items?.length > 0 && (
+                    {normalizedQuote.new_items?.length > 0 && (
                         <section>
                             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 {t('return_quote_exchange_items')}
                             </h3>
                             <div className="space-y-1.5 rounded-xl bg-green-50 p-3 dark:bg-green-900/20">
-                                {quote.new_items.map((item: any, i: number) => (
+                                {normalizedQuote.new_items.map((item: any, i: number) => (
                                     <div key={i} className="flex justify-between text-sm">
                                         <span className="text-gray-700 dark:text-gray-300">
                                             {item.product_name ?? item.name ?? `Item #${i + 1}`}
@@ -115,9 +123,9 @@ export default function ReturnQuotePreviewModal({
                                     ? <ArrowDownLeft className="h-4 w-4" />
                                     : <ArrowUpRight className="h-4 w-4" />
                                 }
-                                {fmt(totals.net_amount)}
+                                {fmt(Math.abs(Number(totals.net_amount || 0)))}
                                 <span className="ml-0.5 text-xs font-normal">
-                                    ({isRefund ? t('return_quote_direction_refund') : t('return_quote_direction_charge')})
+                                    ({isEven ? t('lbl_even_exchange') : isRefund ? t('return_quote_direction_refund') : t('return_quote_direction_charge')})
                                 </span>
                             </div>
                         </div>

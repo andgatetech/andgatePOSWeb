@@ -32,7 +32,7 @@ const OrderReturnStats: React.FC<OrderReturnStatsProps> = ({ totalReturns, total
             bgGradient: 'from-red-500 to-rose-600',
         },
         {
-            title: t('lbl_sale'),
+            title: t('lbl_exchange'),
             value: exchanges.toString(),
             subtitle: formatCurrency(totalExchangeAmount),
             color: 'blue',

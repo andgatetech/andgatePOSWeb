@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PosLeftSide from '../../pos/PosLeftSide';
 import PosRightSide from '../../pos/PosRightSide';
 
-const OrderReturnPage = () => {
+export const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number }) => {
     const { t } = getTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -24,30 +24,34 @@ const OrderReturnPage = () => {
     // Get return session from Redux
     const returnSession = useSelector((state: RootState) => (currentStoreId ? selectOrderReturnSession(currentStoreId)(state) : null));
 
-    // Priority: URL Param > Redux State
+    // Priority: clean route param > legacy URL query > Redux State
     const urlOrderId = searchParams.get('orderId');
-    const orderId = urlOrderId ? parseInt(urlOrderId) : returnSession?.orderId;
+    const legacyOrderId = urlOrderId ? parseInt(urlOrderId) : undefined;
+    const orderId = routeOrderId || legacyOrderId || returnSession?.orderId;
 
     const [isLoadingOrder, setIsLoadingOrder] = useState(true);
 
-    // Redirect if no order ID found at all OR if session is cleared but URL has orderId
+    useEffect(() => {
+        if (!routeOrderId && legacyOrderId) {
+            router.replace(`/orders/return/create/${legacyOrderId}`);
+        }
+    }, [legacyOrderId, routeOrderId, router]);
+
+    // Direct links such as /orders/return?orderId=93 must load the order first,
+    // then initialize the return session from the fetched order data.
     useEffect(() => {
         if (currentStoreId && !orderId) {
             router.push('/orders');
         }
-        // If URL has orderId but no session exists, redirect (means return was completed)
-        if (currentStoreId && urlOrderId && !returnSession) {
-            router.push('/orders');
-        }
-    }, [orderId, urlOrderId, returnSession, router, currentStoreId]);
+    }, [orderId, router, currentStoreId]);
 
-    // Fetch order data - skip if returnSession is already cleared (after successful return)
+    // Fetch order data even when Redux session is empty; direct URL entry depends on it.
     const {
         data: orderData,
         isLoading,
         error,
     } = useGetOrderByIdQuery(orderId!, {
-        skip: !orderId || !returnSession || (urlOrderId && !returnSession),
+        skip: !orderId,
     });
 
     // Initialize return session when order is loaded
@@ -79,6 +83,10 @@ const OrderReturnPage = () => {
             }
         };
     }, [dispatch, currentStoreId]);
+
+    if (!routeOrderId && legacyOrderId) {
+        return <Loader message={t('order_loading')} />;
+    }
 
     if (!orderId) {
         return (
@@ -197,5 +205,7 @@ const OrderReturnPage = () => {
         </div>
     );
 };
+
+const OrderReturnPage = () => <OrderReturnPageContent />;
 
 export default OrderReturnPage;

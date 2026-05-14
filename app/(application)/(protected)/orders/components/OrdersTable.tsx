@@ -35,7 +35,7 @@ interface OrdersTableProps {
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint }) => {
     const { t } = getTranslation();
     const router = useRouter();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const dispatch = useDispatch();
     const { currentStoreId } = useCurrentStore();
     const columns: TableColumn[] = useMemo(
@@ -161,8 +161,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                         if (!dateTimeStr) return { date: '-', time: '' };
                         const parts = dateTimeStr.split(' ');
                         return {
-                            date: parts[0] || '-',
-                            time: parts.slice(1).join(' ') || '',
+                            date: (parts[0] || '-').replace(/\d+/g, (match) => formatNumber(match, { useGrouping: false })),
+                            time: (parts.slice(1).join(' ') || '').replace(/\d+/g, (match) => formatNumber(match, { useGrouping: false })),
                         };
                     };
 
@@ -190,7 +190,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
         ],
-        [t, formatCurrency]
+        [t, formatCurrency, formatNumber]
     );
 
     const actions: TableAction[] = useMemo(
@@ -207,7 +207,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 onClick: (order: any) => {
                     if (currentStoreId) {
                         dispatch(setReturnOrderId({ storeId: currentStoreId, orderId: order.id }));
-                        router.push(`/orders/return?orderId=${order.id}`);
+                        router.push(`/orders/return/create/${order.id}`);
                     }
                 },
                 className: 'text-amber-600',

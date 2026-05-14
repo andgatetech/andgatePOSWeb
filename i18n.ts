@@ -18,20 +18,7 @@ const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
 // Get current language (server or client)
 const getLang = (): string => {
     if (typeof window === 'undefined') {
-        // Server-side: cookie takes priority, then the x-lang header injected by
-        // middleware (ensures SSR and client hydration use the same language).
-        const { cookies, headers } = require('next/headers');
-        const cookieStore = cookies();
-        const headerStore = headers();
-
-        if (typeof cookieStore?.then === 'function' || typeof headerStore?.then === 'function') {
-            return DEFAULT_LANG;
-        }
-
-        const langCookie = cookieStore.get(LANGUAGE_COOKIE);
-        if (langCookie?.value) return langCookie.value;
-        const headerLang = headerStore.get('x-lang');
-        return headerLang || DEFAULT_LANG;
+        return DEFAULT_LANG;
     } else {
         // Client-side
         const cookies = new UniversalCookie();

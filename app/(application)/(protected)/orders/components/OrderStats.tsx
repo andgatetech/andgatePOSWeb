@@ -15,11 +15,11 @@ interface OrderStatsProps {
 
 const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paidOrders, partialOrders, dueOrders, pendingOrders }) => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const stats = [
         {
             label: t('report_total_sales'),
-            value: totalOrders,
+            value: formatNumber(totalOrders),
             icon: ShoppingCart,
             bgColor: 'bg-blue-500',
             lightBg: 'bg-blue-50',
@@ -35,7 +35,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         },
         {
             label: t('status_paid'),
-            value: paidOrders,
+            value: formatNumber(paidOrders),
             icon: CheckCircle,
             bgColor: 'bg-emerald-500',
             lightBg: 'bg-emerald-50',
@@ -43,7 +43,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         },
         {
             label: t('status_partial'),
-            value: partialOrders,
+            value: formatNumber(partialOrders),
             icon: CreditCard,
             bgColor: 'bg-yellow-500',
             lightBg: 'bg-yellow-50',
@@ -51,7 +51,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         },
         {
             label: t('lbl_due'),
-            value: dueOrders,
+            value: formatNumber(dueOrders),
             icon: XCircle,
             bgColor: 'bg-red-500',
             lightBg: 'bg-red-50',
@@ -59,7 +59,7 @@ const OrderStats: React.FC<OrderStatsProps> = ({ totalOrders, totalRevenue, paid
         },
         {
             label: t('status_pending'),
-            value: pendingOrders,
+            value: formatNumber(pendingOrders),
             icon: AlertCircle,
             bgColor: 'bg-orange-500',
             lightBg: 'bg-orange-50',

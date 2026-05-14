@@ -1,5 +1,19 @@
 import { baseApi } from '@/store/api/baseApi';
 
+const customerItemsFromResult = (result: any): any[] => {
+    if (Array.isArray(result?.data)) return result.data;
+    if (Array.isArray(result?.data?.items)) return result.data.items;
+    if (Array.isArray(result?.items)) return result.items;
+    return [];
+};
+
+const provideCustomerListTags = (result: any) => {
+    const customers = customerItemsFromResult(result);
+    return customers.length
+        ? [...customers.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers' as const, id: 'LIST' }]
+        : [{ type: 'Customers' as const, id: 'LIST' }];
+};
+
 const CustomerApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         createCustomer: builder.mutation({
@@ -29,8 +43,7 @@ const CustomerApi = baseApi.injectEndpoints({
                     method: 'GET',
                 };
             },
-            providesTags: (result) =>
-                result ? [...result.data.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }] : [{ type: 'Customers', id: 'LIST' }],
+            providesTags: provideCustomerListTags,
         }),
 
         // ✅ Store customers list endpoint for /customers
@@ -74,10 +87,7 @@ const CustomerApi = baseApi.injectEndpoints({
                     method: 'GET',
                 };
             },
-            providesTags: (result) =>
-                result?.data?.items
-                    ? [...result.data.items.map((customer: any) => ({ type: 'Customers' as const, id: customer.id })), { type: 'Customers', id: 'LIST' }]
-                    : [{ type: 'Customers', id: 'LIST' }],
+            providesTags: provideCustomerListTags,
         }),
 
         // ✅ Update customer mutation to invalidate store customers list

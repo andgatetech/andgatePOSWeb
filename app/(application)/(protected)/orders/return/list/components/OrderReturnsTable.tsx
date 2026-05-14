@@ -65,10 +65,15 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 key: 'return_type',
                 label: t('lbl_type'),
                 render: (value) => {
-                    const isReturn = value === 'return';
+                    const typeConfig: Record<string, { className: string; label: string }> = {
+                        return: { className: 'bg-red-100 text-red-800', label: t('lbl_pure_return') },
+                        exchange: { className: 'bg-blue-100 text-blue-800', label: t('lbl_exchange') },
+                        return_and_buy: { className: 'bg-purple-100 text-purple-800', label: t('lbl_return_and_buy') },
+                    };
+                    const config = typeConfig[value] || typeConfig.return;
                     return (
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isReturn ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                            {isReturn ? t('lbl_return') : t('lbl_exchange')}
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.className}`}>
+                            {config.label}
                         </span>
                     );
                 },

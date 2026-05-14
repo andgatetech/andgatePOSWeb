@@ -27,7 +27,7 @@ export interface QuoteOrderReturnResult {
         total_return_amount: number;
         total_new_amount: number;
         net_amount: number;
-        direction: 'refund' | 'charge';
+        direction: 'refund' | 'charge' | 'even';
         precision: number;
     };
 }

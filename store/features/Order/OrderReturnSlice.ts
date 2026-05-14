@@ -29,7 +29,8 @@ export interface ReturnItem {
     sku?: string;
     variantName?: string;
     rate: number; // Unit price
-    originalQuantity: number; // Original quantity from order
+    soldQuantity?: number; // Original sold quantity from order
+    originalQuantity: number; // Remaining returnable quantity
     returnQuantity: number; // Quantity being returned
     amount: number; // rate * returnQuantity
     tax_rate?: number;
@@ -132,9 +133,10 @@ const orderReturnSlice = createSlice({
 
             // Transform order items to return items (initially all with 0 return quantity)
             session.returnItems =
-                order.items?.map((item: any, index: number) => {
+                order.items?.filter((item: any) => Number(item.returnable_quantity ?? item.quantity ?? 0) > 0).map((item: any, index: number) => {
                     const productId = item.product?.id || item.product_id;
                     const returnableQuantity = Number(item.returnable_quantity ?? item.quantity ?? 0);
+                    const soldQuantity = Number(item.quantity ?? returnableQuantity);
                     return {
                         id: -(index + 1),
                         orderItemId: item.id,
@@ -144,6 +146,7 @@ const orderReturnSlice = createSlice({
                         sku: item.sku || '',
                         variantName: item.variant_name || null,
                         rate: parseFloat(item.unit_price),
+                        soldQuantity,
                         originalQuantity: returnableQuantity,
                         returnQuantity: 0, // Start with 0 return quantity
                         amount: 0,
@@ -164,7 +167,7 @@ const orderReturnSlice = createSlice({
         updateReturnQuantity(state, action: PayloadAction<{ storeId: number; itemId: number; quantity: number }>) {
             const { storeId, itemId, quantity } = action.payload;
             const session = getStoreSession(state, storeId);
-            const item = session.returnItems.find((i) => i.id === itemId);
+            const item = session.returnItems.find((i) => i.id === itemId || i.orderItemId === itemId);
             if (item) {
                 // Clamp quantity between 0 and original quantity
                 item.returnQuantity = Math.max(0, Math.min(quantity, item.originalQuantity));

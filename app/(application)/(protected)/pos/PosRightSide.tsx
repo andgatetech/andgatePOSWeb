@@ -74,19 +74,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (reduxSlice === 'orderReturn') {
             // In return mode, combine original order items (returnItems) with new exchange items
             // Map return items to match Item interface
-            const mappedReturns = returnItemsData
-                .map((item) => ({
-                    ...item,
-                    // In POS view, quantity = what they keep (Original - Returning)
-                    quantity: item.originalQuantity - item.returnQuantity,
-                    // Amount = value of kept items
-                    amount: item.rate * (item.originalQuantity - item.returnQuantity),
-                    // Helper to identify
-                    isReturnItem: true,
-                }))
-                // Filter out fully returned items (customer keeping 0 = returning all)
-                // These items are still tracked in returnItemsData for the return summary
-                .filter((item) => item.quantity > 0);
+            const mappedReturns = returnItemsData.map((item) => ({
+                ...item,
+                // In return mode, quantity means "how many units to return".
+                quantity: item.returnQuantity,
+                amount: item.rate * item.returnQuantity,
+                isReturnItem: true,
+            }));
 
             // Return items come first, then exchange items
             return [...mappedReturns, ...exchangeItemsData];
@@ -534,88 +528,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             const item = invoiceItems.find((i: any) => i.id === itemId);
             // Check if this is an original order item (has isReturnItem flag) or exchange item
             if (item && (item as any).isReturnItem) {
-                const currentReturnQty = (item as any).returnQuantity || 0;
-                const originalQty = (item as any).originalQuantity || 0;
-
-                // If already fully marked for return, offer to undo
-                if (currentReturnQty >= originalQty) {
-                    const result = await Swal.fire({
-                        title: `<h3 class="text-xl font-bold">${t('pos_item_already_returned')}</h3>`,
-                        html: `
-                            <div class="text-left mt-2">
-                                <div class="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
-                                    <p class="text-sm text-gray-500 mb-1">${t('lbl_item')}</p>
-                                    <p class="font-bold text-gray-800 text-lg">${item.title}</p>
-                                    <p class="text-sm text-amber-600 font-medium mt-1">${t('pos_all_units_returned', { qty: originalQty })}</p>
-                                </div>
-                                <p class="text-sm text-gray-600">${t('pos_undo_return_question')}</p>
-                            </div>
-                        `,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: t('pos_undo_return'),
-                        confirmButtonColor: '#10b981',
-                        cancelButtonColor: '#e5e7eb',
-                        cancelButtonText: `<span class="text-gray-700">${t('pos_keep_as_return')}</span>`,
-                        customClass: {
-                            popup: 'rounded-xl',
-                            confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
-                            cancelButton: 'px-6 py-2.5 rounded-lg font-medium',
-                        },
-                    });
-
-                    if (result.isConfirmed) {
-                        // Undo return - set return quantity to 0
-                        dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: 0 }));
-                    }
-                    return;
-                }
-
-                // Not fully returned yet - show modal to confirm full return
-                if (!(await checkReturnReasons())) return;
-
-                const result = await Swal.fire({
-                    title: `<h3 class="text-xl font-bold">${t('pos_confirm_full_return')}</h3>`,
-                    html: `
-                        <div class="text-left mt-2">
-                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-                                <p class="text-sm text-gray-500 mb-1">${t('pos_item_to_return')}</p>
-                                <p class="font-bold text-gray-800 text-lg">${item.title}</p>
-                                <p class="text-sm text-amber-600 font-medium mt-1">${t('pos_full_return')}: ${originalQty} ${t('lbl_units')}</p>
-                            </div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">${t('lbl_reason')}:</label>
-                        </div>
-                    `,
-                    input: 'select',
-                    inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
-                        acc[reason.id] = reason.name;
-                        return acc;
-                    }, {}),
-                    inputPlaceholder: t('placeholder_select_reason'),
-                    showCancelButton: true,
-                    confirmButtonText: t('pos_confirm_return_btn'),
-                    confirmButtonColor: '#f59e0b',
-                    cancelButtonColor: '#e5e7eb',
-                    cancelButtonText: `<span class="text-gray-700">${t('btn_cancel')}</span>`,
-                    customClass: {
-                        popup: 'rounded-xl',
-                        confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
-                        cancelButton: 'px-6 py-2.5 rounded-lg font-medium',
-                        input: 'border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500',
-                    },
-                    inputValidator: (value) => {
-                        if (!value) return t('msg_select_reason');
-                        return null;
-                    },
-                });
-
-                if (result.isConfirmed && result.value) {
-                    const reasonId = parseInt(result.value);
-                    dispatch(setReturnReason({ storeId: currentStoreId, reasonId }));
-                    // Set return quantity to max (full return)
-                    dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: originalQty }));
-                }
-                // DO NOT remove the item - it stays in the list
+                dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: 0 }));
             } else {
                 // This is an exchange item - remove normally
                 dispatch(removeExchangeItem({ storeId: currentStoreId, id: itemId }));
@@ -692,70 +605,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (reduxSlice === 'orderReturn') {
             // Check if this is an original order item
             if ((item as any).isReturnItem) {
-                const currentReturnQty = (item as any).returnQuantity || 0;
                 const originalQty = (item as any).originalQuantity || 0;
-                const currentKeptQty = originalQty - currentReturnQty; // What's currently being kept
-
-                // Only show modal when DECREASING the kept quantity (marking MORE items for return)
-                // Not when INCREASING (undoing a return)
-                if (newQuantity < currentKeptQty) {
-                    if (!(await checkReturnReasons())) return;
-
-                    const returnQty = originalQty - newQuantity;
-                    const result = await Swal.fire({
-                        title: `<h3 class="text-xl font-bold">${t('pos_confirm_partial_return')}</h3>`,
-                        html: `
-                            <div class="text-left mt-2">
-                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-                                    <p class="text-sm text-gray-500 mb-1">${t('pos_item_to_return')}</p>
-                                    <p class="font-bold text-gray-800 text-lg">${item.title}</p>
-                                    <div class="flex gap-4 mt-2 text-sm">
-                                        <div class="bg-white px-3 py-1 rounded border border-gray-200">
-                                            <span class="text-gray-500">${t('pos_keeping')}:</span> 
-                                            <span class="font-bold text-gray-900">${newQuantity}</span>
-                                        </div>
-                                        <div class="bg-amber-50 px-3 py-1 rounded border border-amber-200">
-                                            <span class="text-amber-700">${t('pos_returning')}:</span> 
-                                            <span class="font-bold text-amber-700">${returnQty}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">${t('lbl_reason')}:</label>
-                            </div>
-                        `,
-                        input: 'select',
-                        inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
-                            acc[reason.id] = reason.name;
-                            return acc;
-                        }, {}),
-                        inputPlaceholder: t('placeholder_select_reason'),
-                        showCancelButton: true,
-                        confirmButtonText: t('pos_confirm_return_btn'),
-                        confirmButtonColor: '#f59e0b',
-                        cancelButtonColor: '#e5e7eb',
-                        cancelButtonText: `<span class="text-gray-700">${t('btn_cancel')}</span>`,
-                        customClass: {
-                            popup: 'rounded-xl',
-                            confirmButton: 'px-6 py-2.5 rounded-lg font-medium',
-                            cancelButton: 'px-6 py-2.5 rounded-lg font-medium',
-                            input: 'border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500',
-                        },
-                        inputValidator: (value) => {
-                            if (!value) return t('msg_select_reason');
-                            return null;
-                        },
-                    });
-
-                    if (result.isConfirmed && result.value) {
-                        const reasonId = parseInt(result.value);
-                        dispatch(setReturnReason({ storeId: currentStoreId, reasonId }));
-                        dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: returnQty }));
-                    }
-                } else {
-                    // Increasing quantity (undoing return) - no modal needed
-                    const returnQty = originalQty - newQuantity;
-                    dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: Math.max(0, returnQty) }));
-                }
+                dispatch(updateReturnQuantity({ storeId: currentStoreId, itemId, quantity: Math.max(0, Math.min(newQuantity, originalQty)) }));
             } else {
                 // Exchange item - normal behavior
                 dispatch(
@@ -1470,16 +1321,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 order_item_id: item.orderItemId,
                 quantity_returned: item.returnQuantity,
             }));
+        const validExchangeItems = exchangeItemsData.filter((item) => Number(item.quantity) > 0);
 
         // Validate: Must have either exchange items OR return items (or both)
-        if (invoiceItems.length === 0 && validReturnItems.length === 0) {
+        if (validExchangeItems.length === 0 && validReturnItems.length === 0) {
             showMessage(t('msg_add_exchange_or_return_items'), 'error');
-            return;
-        }
-
-        // Validate that at least one item is being returned (only if no exchange items)
-        if (invoiceItems.length === 0 && validReturnItems.length === 0) {
-            showMessage(t('msg_reduce_return_item_quantity'), 'error');
             return;
         }
 
@@ -1542,7 +1388,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             notes: notes,
             payment_method: formData.paymentMethod || 'cash',
             return_items: validReturnItems,
-            new_items: exchangeItemsData.map((item) => ({
+            new_items: validExchangeItems.map((item) => ({
                 product_id: item.productId,
                 stock_id: item.stockId,
                 quantity: item.quantity,
@@ -1557,15 +1403,16 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 order_id: orderId!,
                 store_id: currentStoreId!,
                 return_items: validReturnItems,
-                new_items: exchangeItemsData.map((item) => ({
+                new_items: validExchangeItems.map((item) => ({
                     product_id: item.productId,
+                    stock_id: item.stockId,
                     quantity: item.quantity,
                     unit_price: item.rate,
                 })),
             }).unwrap();
             setLoading(false);
             setPendingReturnData(returnData);
-            setReturnQuotePreview(quoteResult);
+            setReturnQuotePreview((quoteResult as any)?.data || quoteResult);
             setShowReturnQuoteModal(true);
         } catch (error: any) {
             setLoading(false);
