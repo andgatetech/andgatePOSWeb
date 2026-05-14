@@ -1,0 +1,12 @@
+diff --git a/node_modules/pdfmake/build/pdfmake.js b/node_modules/pdfmake/build/pdfmake.js
+index 343aa0a..8667299 100644
+--- a/node_modules/pdfmake/build/pdfmake.js
++++ b/node_modules/pdfmake/build/pdfmake.js
+@@ -58725,6 +58725,7 @@ class $79ea6270f0a90256$export$2e2bcd8739ae039 extends (0, $7b226e6bbeadedeb$exp
+     }
+     getAnchor(anchor) {
+         // TODO: contour point, device tables
++        if (!anchor) return { x: 0, y: 0 };
+         let x = anchor.xCoordinate;
+         let y = anchor.yCoordinate;
+         // Adjustments for font variations

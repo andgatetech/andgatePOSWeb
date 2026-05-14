@@ -133,30 +133,88 @@ const formatWarranty = (warranty?: InvoiceItem['warranty'], daysLabel = 'Day(s)'
     return null;
 };
 
-const blobToBase64 = (blob: Blob): Promise<string> =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
-
-const ROBOTO_FONTS = {
-    Roboto: {
-        normal: 'Roboto-Regular.ttf',
-        bold: 'Roboto-Medium.ttf',
-        italics: 'Roboto-Italic.ttf',
-        bolditalics: 'Roboto-MediumItalic.ttf',
-    },
+// Recursively routes text by Unicode script: Bengali (U+0980-U+09FF) → NotoSansBengali, rest → Roboto
+const _fixPdfNode = (n: any): any => {
+    if (!n || typeof n !== 'object') return n;
+    if (Array.isArray(n)) return n.map(_fixPdfNode);
+    const o: any = { ...n };
+    if (typeof o.text === 'string' && o.text.length > 0) {
+        const hasBn = /[ঀ-৿]/.test(o.text);
+        const hasLatin = o.text.replace(/[ঀ-৿]/g, '').length > 0;
+        if (hasBn && hasLatin) {
+            const segs: any[] = [];
+            let run = '', runBn = /[ঀ-৿]/.test(o.text[0]);
+            for (const ch of o.text) {
+                const isBn = /[ঀ-৿]/.test(ch);
+                if (isBn === runBn) { run += ch; }
+                else { if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' }); run = ch; runBn = isBn; }
+            }
+            if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' });
+            o.text = segs; delete o.font;
+        } else if (hasBn) {
+            o.font = 'NotoSansBengali';
+        }
+    } else if (Array.isArray(o.text)) {
+        o.text = o.text.map(_fixPdfNode);
+    }
+    if (Array.isArray(o.stack)) o.stack = o.stack.map(_fixPdfNode);
+    if (Array.isArray(o.columns)) o.columns = o.columns.map(_fixPdfNode);
+    if (o.table?.body) o.table = { ...o.table, body: o.table.body.map((r: any[]) => r.map(_fixPdfNode)) };
+    return o;
 };
-const BN_REGULAR_FONT = 'NotoSansBengali-Regular.ttf';
-const BN_BOLD_FONT = 'NotoSansBengali-Bold.ttf';
+
+// Module-level — pdfMake 0.3 is a singleton; Bengali fonts registered once per session
+let _ecPm: any = null;
+let _ecBnLoaded = false;
+let _ecLoadPromise: Promise<void> | null = null;
+
+const _ensureEcPdf = (): Promise<void> => {
+    if (_ecPm && _ecBnLoaded) return Promise.resolve();
+    if (_ecLoadPromise) return _ecLoadPromise;
+    _ecLoadPromise = (async () => {
+        try {
+            // pdfmake must load first so window.pdfMake is set before vfs_fonts runs
+            const pmMod: any = await import('pdfmake/build/pdfmake');
+            _ecPm = pmMod.default || pmMod;
+            // vfs_fonts registers Roboto into window.pdfMake — requires pdfmake loaded first
+            await import('pdfmake/build/vfs_fonts');
+            const blobToBase64 = (blob: Blob): Promise<string> =>
+                new Promise((res, rej) => {
+                    const r = new FileReader();
+                    r.onload = () => res((r.result as string).split(',')[1]);
+                    r.onerror = rej;
+                    r.readAsDataURL(blob);
+                });
+            const [rr, br] = await Promise.all([
+                fetch('/fonts/NotoSansBengali-Regular.ttf'),
+                fetch('/fonts/NotoSansBengali-Bold.ttf'),
+            ]);
+            if (rr.ok && br.ok) {
+                const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
+                // pdfMake 0.3 public API — writes to internal singleton VirtualFileSystem
+                _ecPm.addVirtualFileSystem({
+                    'NotoSansBengali-Regular.ttf': rb64,
+                    'NotoSansBengali-Bold.ttf': bb64,
+                });
+                _ecPm.addFonts({
+                    NotoSansBengali: {
+                        normal: 'NotoSansBengali-Regular.ttf',
+                        bold: 'NotoSansBengali-Bold.ttf',
+                        italics: 'NotoSansBengali-Regular.ttf',
+                        bolditalics: 'NotoSansBengali-Bold.ttf',
+                    },
+                });
+                _ecBnLoaded = true;
+            }
+        } catch {
+            _ecLoadPromise = null;
+        }
+    })();
+    return _ecLoadPromise;
+};
 
 export async function generateOrderInvoicePDF(payload: InvoicePayload) {
-    const pdfMakeModule: any = await import('pdfmake/build/pdfmake');
-    const pdfFontsModule: any = await import('pdfmake/build/vfs_fonts');
-    const pdfMake = pdfMakeModule.default || pdfMakeModule;
-    const baseVfs = pdfFontsModule.default?.pdfMake?.vfs || pdfFontsModule.pdfMake?.vfs || pdfFontsModule.default?.vfs || pdfFontsModule.vfs || {};
+    await _ensureEcPdf();
 
     // Language detection from cookie
     const isBn = typeof document !== 'undefined'
@@ -167,39 +225,7 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload) {
     const locale = isBn ? (bnLocale as unknown as Record<string, string>) : (enLocale as unknown as Record<string, string>);
     const t = (key: string): string => locale[key] || (enLocale as unknown as Record<string, string>)[key] || key;
 
-    // Load Bengali fonts
-    let docVfs: Record<string, string> = { ...baseVfs };
-    let docFonts: Record<string, any> = { ...ROBOTO_FONTS };
-    let useBnFont = false;
-
-    if (isBn) {
-        try {
-            const [rResp, bResp] = await Promise.all([
-                fetch('/fonts/NotoSansBengali-Regular.ttf'),
-                fetch('/fonts/NotoSansBengali-Bold.ttf'),
-            ]);
-            if (rResp.ok && bResp.ok) {
-                const [rB64, bB64] = await Promise.all([rResp.blob().then(blobToBase64), bResp.blob().then(blobToBase64)]);
-                docVfs = {
-                    ...docVfs,
-                    [BN_REGULAR_FONT]: rB64,
-                    [BN_BOLD_FONT]: bB64,
-                };
-                docFonts = {
-                    ...ROBOTO_FONTS,
-                    NotoSansBengali: {
-                        normal: BN_REGULAR_FONT,
-                        bold: BN_BOLD_FONT,
-                        italics: BN_REGULAR_FONT,
-                        bolditalics: BN_BOLD_FONT,
-                    },
-                };
-                useBnFont = Boolean(docVfs[BN_REGULAR_FONT] && docVfs[BN_BOLD_FONT]);
-            }
-        } catch {
-            // fall through to Roboto
-        }
-    }
+    const useBnFont = isBn && _ecBnLoaded;
 
     const { invoice, order_id, order_status, customer, items, store_items_count, store_items_subtotal, store_total, paymentMethod, paymentStatus, notes, store } = payload;
     const currency = { ...DEFAULT_CURRENCY, ...(store.currency || {}) } as typeof DEFAULT_CURRENCY;
@@ -222,7 +248,7 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload) {
     headerColumns.push({
         stack: [
             { text: store.store_name || t('lbl_store_name'), style: 'companyName' },
-            { text: store.store_location || t('lbl_store_address'), style: 'companyInfo' },
+            ...((store.store_location || '').replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: store.store_location!, style: 'companyInfo' }] : []),
             {
                 text: [
                     store.store_email ? store.store_email : '',
@@ -415,23 +441,6 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload) {
     });
 
     const docDefinition: any = {
-        // Embed font declarations inside the document — most reliable across pdfMake versions
-        fonts: {
-            Roboto: {
-                normal: 'Roboto-Regular.ttf',
-                bold: 'Roboto-Medium.ttf',
-                italics: 'Roboto-Italic.ttf',
-                bolditalics: 'Roboto-MediumItalic.ttf',
-            },
-            ...(useBnFont ? {
-                NotoSansBengali: {
-                    normal: 'NotoSansBengali-Regular.ttf',
-                    bold: 'NotoSansBengali-Bold.ttf',
-                    italics: 'NotoSansBengali-Regular.ttf',
-                    bolditalics: 'NotoSansBengali-Bold.ttf',
-                },
-            } : {}),
-        },
         content,
         pageSize: 'A4',
         pageMargins: [40, 40, 40, 40],
@@ -441,11 +450,14 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload) {
             invoiceTitle: { fontSize: 20, bold: true },
             tableHeader: { bold: true, fontSize: 9, color: '#1f2937' },
         },
-        defaultStyle: { fontSize: 9, font: useBnFont ? 'NotoSansBengali' : 'Roboto' },
+        defaultStyle: { fontSize: 9, font: 'Roboto' },
     };
 
-    // Register fonts on the instance (pdfMake reads this.fonts internally)
-    pdfMake.fonts = { ...pdfMake.fonts, ...docFonts };
-    pdfMake.vfs = { ...pdfMake.vfs, ...docVfs };
-    pdfMake.createPdf(docDefinition, undefined, docFonts, docVfs).download(`invoice-${invoice || 'order'}.pdf`);
+    // Route Bengali text nodes to NotoSansBengali; Latin inherits Roboto defaultStyle
+    if (useBnFont) {
+        docDefinition.content = (docDefinition.content as any[]).map(_fixPdfNode);
+    }
+
+    // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
+    _ecPm.createPdf(docDefinition).download(`invoice-${invoice || 'order'}.pdf`);
 }

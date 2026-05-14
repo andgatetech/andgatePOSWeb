@@ -59,49 +59,51 @@ interface PosInvoicePreviewProps {
     autoPrint?: 'invoice' | 'receipt' | null;
 }
 
-// --- Module-level PDF font cache (singleton, survives component unmount/remount) ---
-const _pdfCache: {
-    vfs: Record<string, string>;
-    fonts: Record<string, any>;
-    bnLoaded: boolean;
-    pdfMake: any;
-} = {
-    vfs: {},
-    fonts: {
-        Roboto: {
-            normal: 'Roboto-Regular.ttf',
-            bold: 'Roboto-Medium.ttf',
-            italics: 'Roboto-Italic.ttf',
-            bolditalics: 'Roboto-MediumItalic.ttf',
-        },
-    },
-    bnLoaded: false,
-    pdfMake: null,
-};
+// Module-level cache — pdfMake 0.3 is a singleton; we track Bengali font state here
+const _pdfCache: { pm: any; bnLoaded: boolean } = { pm: null, bnLoaded: false };
 let _pdfLoadPromise: Promise<void> | null = null;
-const BN_REGULAR_FONT = 'NotoSansBengali-Regular.ttf';
-const BN_BOLD_FONT = 'NotoSansBengali-Bold.ttf';
 
-const hasBengaliPdfFonts = () => Boolean(_pdfCache.vfs[BN_REGULAR_FONT] && _pdfCache.vfs[BN_BOLD_FONT]);
+// Recursively routes text by Unicode script: Bengali (U+0980-U+09FF) → NotoSansBengali, rest → Roboto
+const _fixPdfNode = (n: any): any => {
+    if (!n || typeof n !== 'object') return n;
+    if (Array.isArray(n)) return n.map(_fixPdfNode);
+    const o: any = { ...n };
+    if (typeof o.text === 'string' && o.text.length > 0) {
+        const hasBn = /[ঀ-৿]/.test(o.text);
+        const hasLatin = o.text.replace(/[ঀ-৿]/g, '').length > 0;
+        if (hasBn && hasLatin) {
+            const segs: any[] = [];
+            let run = '', runBn = /[ঀ-৿]/.test(o.text[0]);
+            for (const ch of o.text) {
+                const isBn = /[ঀ-৿]/.test(ch);
+                if (isBn === runBn) { run += ch; }
+                else { if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' }); run = ch; runBn = isBn; }
+            }
+            if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' });
+            o.text = segs; delete o.font;
+        } else if (hasBn) {
+            o.font = 'NotoSansBengali';
+        }
+    } else if (Array.isArray(o.text)) {
+        o.text = o.text.map(_fixPdfNode);
+    }
+    if (Array.isArray(o.stack)) o.stack = o.stack.map(_fixPdfNode);
+    if (Array.isArray(o.columns)) o.columns = o.columns.map(_fixPdfNode);
+    if (o.table?.body) o.table = { ...o.table, body: o.table.body.map((r: any[]) => r.map(_fixPdfNode)) };
+    return o;
+};
 
 const _ensurePdfFonts = (): Promise<void> => {
-    if (_pdfCache.bnLoaded && _pdfCache.pdfMake) return Promise.resolve();
+    if (_pdfCache.pm && _pdfCache.bnLoaded) return Promise.resolve();
     if (_pdfLoadPromise) return _pdfLoadPromise;
     _pdfLoadPromise = (async () => {
         try {
-            const [pdfMakeModule, pdfFontsModule] = await Promise.all([
-                import('pdfmake/build/pdfmake') as any,
-                import('pdfmake/build/vfs_fonts') as any,
-            ]);
-            const instance = pdfMakeModule.default || pdfMakeModule;
-            const vfsFonts =
-                pdfFontsModule.default?.pdfMake?.vfs ||
-                pdfFontsModule.pdfMake?.vfs ||
-                pdfFontsModule.default?.vfs ||
-                pdfFontsModule.vfs ||
-                pdfFontsModule.default;
-            if (instance) _pdfCache.pdfMake = instance;
-            if (vfsFonts) _pdfCache.vfs = { ...vfsFonts };
+            // pdfmake must load first so window.pdfMake is set before vfs_fonts runs
+            const pmMod: any = await import('pdfmake/build/pdfmake');
+            const pm = pmMod.default || pmMod;
+            _pdfCache.pm = pm;
+            // vfs_fonts registers Roboto into window.pdfMake — requires pdfmake loaded first
+            await import('pdfmake/build/vfs_fonts');
 
             const blobToBase64 = (blob: Blob): Promise<string> =>
                 new Promise((resolve, reject) => {
@@ -115,27 +117,25 @@ const _ensurePdfFonts = (): Promise<void> => {
                 fetch('/fonts/NotoSansBengali-Regular.ttf'),
                 fetch('/fonts/NotoSansBengali-Bold.ttf'),
             ]);
-
             if (regResp.ok && boldResp.ok) {
                 const [regB64, boldB64] = await Promise.all([
                     regResp.blob().then(blobToBase64),
                     boldResp.blob().then(blobToBase64),
                 ]);
-                _pdfCache.vfs = {
-                    ..._pdfCache.vfs,
-                    [BN_REGULAR_FONT]: regB64,
-                    [BN_BOLD_FONT]: boldB64,
-                };
-                _pdfCache.fonts = {
-                    ..._pdfCache.fonts,
+                // pdfMake 0.3 public API — writes to the internal singleton VirtualFileSystem
+                pm.addVirtualFileSystem({
+                    'NotoSansBengali-Regular.ttf': regB64,
+                    'NotoSansBengali-Bold.ttf': boldB64,
+                });
+                pm.addFonts({
                     NotoSansBengali: {
-                        normal: BN_REGULAR_FONT,
-                        bold: BN_BOLD_FONT,
-                        italics: BN_REGULAR_FONT,
-                        bolditalics: BN_BOLD_FONT,
+                        normal: 'NotoSansBengali-Regular.ttf',
+                        bold: 'NotoSansBengali-Bold.ttf',
+                        italics: 'NotoSansBengali-Regular.ttf',
+                        bolditalics: 'NotoSansBengali-Bold.ttf',
                     },
-                };
-                _pdfCache.bnLoaded = hasBengaliPdfFonts();
+                });
+                _pdfCache.bnLoaded = true;
             }
         } catch {
             _pdfLoadPromise = null; // allow retry on next click
@@ -531,7 +531,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         // Await fonts — resolves immediately if already cached, waits if still loading
         await _ensurePdfFonts();
 
-        if (!_pdfCache.pdfMake) {
+        if (!_pdfCache.pm) {
             alert(t('msg_pdf_loading'));
             setIsPrinting(false);
             return;
@@ -559,7 +559,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             // Company info
             const companyInfoStack: any[] = [
                 { text: currentStore?.store_name || 'andgatePOS', style: 'companyName' },
-                { text: currentStore?.store_location || t('lbl_store_address'), style: 'companyInfo' },
+                ...((currentStore?.store_location || '').replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: currentStore!.store_location, style: 'companyInfo' }] : []),
                 {
                     text: [
                         currentStore?.store_email ? `${currentStore.store_email}` : '',
@@ -978,24 +978,8 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             );
             content.push({ stack: footerStack });
 
-            const useBnFont = i18n.language === 'bn' && _pdfCache.bnLoaded && hasBengaliPdfFonts();
+            const useBnFont = i18n.language === 'bn' && _pdfCache.bnLoaded;
             const docDefinition: any = {
-                fonts: {
-                    Roboto: {
-                        normal: 'Roboto-Regular.ttf',
-                        bold: 'Roboto-Medium.ttf',
-                        italics: 'Roboto-Italic.ttf',
-                        bolditalics: 'Roboto-MediumItalic.ttf',
-                    },
-                    ...(useBnFont ? {
-                        NotoSansBengali: {
-                            normal: 'NotoSansBengali-Regular.ttf',
-                            bold: 'NotoSansBengali-Bold.ttf',
-                            italics: 'NotoSansBengali-Regular.ttf',
-                            bolditalics: 'NotoSansBengali-Bold.ttf',
-                        },
-                    } : {}),
-                },
                 content: content,
                 pageSize: 'A4',
                 pageMargins: [40, 40, 40, 40],
@@ -1027,15 +1011,17 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 },
                 defaultStyle: {
                     fontSize: 9,
-                    font: useBnFont ? 'NotoSansBengali' : 'Roboto',
+                    font: 'Roboto',
                 },
             };
 
-            // Pass fonts + VFS directly — bypasses pdfMake module-level state
-            // Register fonts on the instance (pdfMake reads this.fonts internally)
-            _pdfCache.pdfMake.fonts = { ..._pdfCache.pdfMake.fonts, ..._pdfCache.fonts };
-            _pdfCache.pdfMake.vfs = { ..._pdfCache.pdfMake.vfs, ..._pdfCache.vfs };
-            _pdfCache.pdfMake.createPdf(docDefinition, undefined, _pdfCache.fonts, _pdfCache.vfs).download(`invoice-${invoice || 'preview'}.pdf`);
+            // Route Bengali text nodes to NotoSansBengali; Latin inherits Roboto defaultStyle
+            if (useBnFont) {
+                docDefinition.content = (docDefinition.content as any[]).map(_fixPdfNode);
+            }
+
+            // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
+            _pdfCache.pm.createPdf(docDefinition).download(`invoice-${invoice || 'preview'}.pdf`);
         } catch (error) {
             console.error('[PDF] generation failed:', error);
             alert(t('msg_pdf_generate_failed'));

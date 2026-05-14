@@ -11,33 +11,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import * as XLSX from 'xlsx';
 
-// Module-level pdfMake + Bengali font cache — survives component unmount/remount
-const _rptPdf: {
-    instance: any;
-    vfs: Record<string, string>;
-    fonts: Record<string, any>;
-    bnLoaded: boolean;
-} = {
-    instance: null,
-    vfs: {},
-    fonts: {
-        Roboto: {
-            normal: 'Roboto-Regular.ttf',
-            bold: 'Roboto-Medium.ttf',
-            italics: 'Roboto-Italic.ttf',
-            bolditalics: 'Roboto-MediumItalic.ttf',
-        },
-    },
-    bnLoaded: false,
-};
+// Module-level cache — pdfMake 0.3 is a singleton; we track Bengali font state here
+const _rptPdf: { pm: any; bnLoaded: boolean } = { pm: null, bnLoaded: false };
 let _rptPdfPromise: Promise<void> | null = null;
-const BN_REGULAR_FONT = 'NotoSansBengali-Regular.ttf';
-const BN_BOLD_FONT = 'NotoSansBengali-Bold.ttf';
-
-const hasBengaliReportFonts = () => Boolean(_rptPdf.vfs[BN_REGULAR_FONT] && _rptPdf.vfs[BN_BOLD_FONT]);
 
 const _ensureRptPdf = (): Promise<void> => {
-    if (_rptPdf.bnLoaded && _rptPdf.instance) return Promise.resolve();
+    if (_rptPdf.pm && _rptPdf.bnLoaded) return Promise.resolve();
     if (_rptPdfPromise) return _rptPdfPromise;
 
     const blobToBase64 = (blob: Blob): Promise<string> =>
@@ -50,14 +29,12 @@ const _ensureRptPdf = (): Promise<void> => {
 
     _rptPdfPromise = (async () => {
         try {
-            const [pmMod, vfsMod] = await Promise.all([
-                import('pdfmake/build/pdfmake') as any,
-                import('pdfmake/build/vfs_fonts') as any,
-            ]);
-            const inst = pmMod.default || pmMod;
-            const vfs = vfsMod.default?.pdfMake?.vfs || vfsMod.pdfMake?.vfs || vfsMod.default?.vfs || vfsMod.vfs || vfsMod.default;
-            if (inst) _rptPdf.instance = inst;
-            if (vfs) _rptPdf.vfs = { ...vfs };
+            // pdfmake must load first so window.pdfMake is set before vfs_fonts runs
+            const pmMod: any = await import('pdfmake/build/pdfmake');
+            const pm = pmMod.default || pmMod;
+            _rptPdf.pm = pm;
+            // vfs_fonts registers Roboto into window.pdfMake — requires pdfmake loaded first
+            await import('pdfmake/build/vfs_fonts');
 
             const [rr, br] = await Promise.all([
                 fetch('/fonts/NotoSansBengali-Regular.ttf'),
@@ -65,23 +42,56 @@ const _ensureRptPdf = (): Promise<void> => {
             ]);
             if (rr.ok && br.ok) {
                 const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
-                _rptPdf.vfs = { ..._rptPdf.vfs, [BN_REGULAR_FONT]: rb64, [BN_BOLD_FONT]: bb64 };
-                _rptPdf.fonts = {
-                    ..._rptPdf.fonts,
+                // pdfMake 0.3 public API — writes to the internal singleton VirtualFileSystem
+                pm.addVirtualFileSystem({
+                    'NotoSansBengali-Regular.ttf': rb64,
+                    'NotoSansBengali-Bold.ttf': bb64,
+                });
+                pm.addFonts({
                     NotoSansBengali: {
-                        normal: BN_REGULAR_FONT,
-                        bold: BN_BOLD_FONT,
-                        italics: BN_REGULAR_FONT,
-                        bolditalics: BN_BOLD_FONT,
+                        normal: 'NotoSansBengali-Regular.ttf',
+                        bold: 'NotoSansBengali-Bold.ttf',
+                        italics: 'NotoSansBengali-Regular.ttf',
+                        bolditalics: 'NotoSansBengali-Bold.ttf',
                     },
-                };
-                _rptPdf.bnLoaded = hasBengaliReportFonts();
+                });
+                _rptPdf.bnLoaded = true;
             }
         } catch {
             _rptPdfPromise = null; // allow retry
         }
     })();
     return _rptPdfPromise;
+};
+
+// Recursively routes text by Unicode script: Bengali (U+0980-U+09FF) → NotoSansBengali, rest → Roboto
+const _fixPdfNode = (n: any): any => {
+    if (!n || typeof n !== 'object') return n;
+    if (Array.isArray(n)) return n.map(_fixPdfNode);
+    const o: any = { ...n };
+    if (typeof o.text === 'string' && o.text.length > 0) {
+        const hasBn = /[ঀ-৿]/.test(o.text);
+        const hasLatin = o.text.replace(/[ঀ-৿]/g, '').length > 0;
+        if (hasBn && hasLatin) {
+            const segs: any[] = [];
+            let run = '', runBn = /[ঀ-৿]/.test(o.text[0]);
+            for (const ch of o.text) {
+                const isBn = /[ঀ-৿]/.test(ch);
+                if (isBn === runBn) { run += ch; }
+                else { if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' }); run = ch; runBn = isBn; }
+            }
+            if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' });
+            o.text = segs; delete o.font;
+        } else if (hasBn) {
+            o.font = 'NotoSansBengali';
+        }
+    } else if (Array.isArray(o.text)) {
+        o.text = o.text.map(_fixPdfNode);
+    }
+    if (Array.isArray(o.stack)) o.stack = o.stack.map(_fixPdfNode);
+    if (Array.isArray(o.columns)) o.columns = o.columns.map(_fixPdfNode);
+    if (o.table?.body) o.table = { ...o.table, body: o.table.body.map((r: any[]) => r.map(_fixPdfNode)) };
+    return o;
 };
 
 export interface ExportColumn {
@@ -237,10 +247,10 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const generatePdf = useCallback(
         async (mode: 'download' | 'print') => {
             await _ensureRptPdf();
-            if (!_rptPdf.instance) return;
+            if (!_rptPdf.pm) return;
 
             const exportData = await getExportData();
-            const useBnFont = isBn && _rptPdf.bnLoaded && hasBengaliReportFonts();
+            const useBnFont = isBn && _rptPdf.bnLoaded;
             const fontName = useBnFont ? 'NotoSansBengali' : 'Roboto';
 
             // Translation helper — Bengali when font ready, English fallback
@@ -339,24 +349,6 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 : '';
 
             const docDefinition: any = {
-                // Declare fonts inside the doc definition — pdfMake reads this unconditionally
-                // (3rd param to createPdf is not always applied reliably across versions)
-                fonts: {
-                    Roboto: {
-                        normal: 'Roboto-Regular.ttf',
-                        bold: 'Roboto-Medium.ttf',
-                        italics: 'Roboto-Italic.ttf',
-                        bolditalics: 'Roboto-MediumItalic.ttf',
-                    },
-                    ...(useBnFont ? {
-                        NotoSansBengali: {
-                            normal: 'NotoSansBengali-Regular.ttf',
-                            bold: 'NotoSansBengali-Bold.ttf',
-                            italics: 'NotoSansBengali-Regular.ttf',
-                            bolditalics: 'NotoSansBengali-Bold.ttf',
-                        },
-                    } : {}),
-                },
                 pageOrientation: isLandscape ? 'landscape' : 'portrait',
                 pageSize: 'A4',
                 pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
@@ -367,8 +359,8 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                             {
                                 stack: [
                                     { text: san(storeDetails.name), fontSize: 14, bold: true, color: '#1e1e1e', margin: [0, 0, 0, 3] },
-                                    ...(storeDetails.contact ? [{ text: `${tDoc('lbl_phone')}: ${san(storeDetails.contact)}`, fontSize: 8, color: '#666666' }] : []),
-                                    ...(storeDetails.location ? [{ text: `${tDoc('lbl_address')}: ${san(storeDetails.location)}`, fontSize: 8, color: '#666666' }] : []),
+                                    ...(storeDetails.contact.trim() ? [{ text: `${tDoc('lbl_phone')}: ${san(storeDetails.contact)}`, fontSize: 8, color: '#666666' }] : []),
+                                    ...(storeDetails.location.replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: `${tDoc('lbl_address')}: ${san(storeDetails.location)}`, fontSize: 8, color: '#666666' }] : []),
                                 ],
                                 width: '*',
                             },
@@ -424,15 +416,20 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                     ],
                 }),
                 defaultStyle: {
-                    font: fontName,
+                    font: 'Roboto',
                     fontSize,
                 },
             };
 
-            // Register fonts on the instance (pdfMake reads this.fonts internally)
-            _rptPdf.instance.fonts = { ..._rptPdf.instance.fonts, ..._rptPdf.fonts };
-            _rptPdf.instance.vfs = { ..._rptPdf.instance.vfs, ..._rptPdf.vfs };
-            const pdf = _rptPdf.instance.createPdf(docDefinition, undefined, _rptPdf.fonts, _rptPdf.vfs);
+            // Route Bengali text nodes to NotoSansBengali; Latin inherits Roboto defaultStyle
+            if (useBnFont) {
+                docDefinition.content = (docDefinition.content as any[]).map(_fixPdfNode);
+                const _origFooter = docDefinition.footer;
+                docDefinition.footer = (...args: any[]) => _fixPdfNode(_origFooter(...args));
+            }
+
+            // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
+            const pdf = _rptPdf.pm.createPdf(docDefinition);
             if (mode === 'print') {
                 pdf.print();
             } else {
