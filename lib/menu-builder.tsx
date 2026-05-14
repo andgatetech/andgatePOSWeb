@@ -259,6 +259,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/customers/list',
                 requiredPermissions: ['customers.index'],
             },
+            {
+                label: 'Customer Due',
+                href: '/customers/due',
+                requiredPermissions: ['reports.sales'],
+            },
         ],
     },
     {
@@ -292,7 +297,10 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Customer Reports',
                 requiredPermissions: ['reports.sales'],
-                subMenu: [{ label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.sales'] }],
+                subMenu: [
+                    { label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.sales'] },
+                    { label: 'Customer Due', href: '/reports/customer-due', requiredPermissions: ['reports.sales'] },
+                ],
             },
             // Purchase & Supplier Reports
             {

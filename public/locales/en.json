@@ -4736,5 +4736,16 @@
   "Deficit Qty": "Deficit Qty",
   "Units Needed": "Units Needed",
   "Transfer From": "Transfer From",
-  "Available": "Available"
+  "Available": "Available",
+  "report_customer_due_title": "Customer Due Report",
+  "report_customer_due_desc": "Track customer credit sales, partial payments, aging, and remaining due.",
+  "lbl_customer_due": "Customer Due",
+  "lbl_aging": "Aging",
+  "lbl_oldest_due": "Oldest Due",
+  "lbl_all_aging": "All Aging",
+  "lbl_search_customer_phone": "Search customer name or phone",
+  "lbl_over_30_days": "Over 30 Days",
+  "lbl_signature": "Signature",
+  "lbl_print_receipt": "Print Receipt",
+  "lbl_open_due": "Open Due"
 }

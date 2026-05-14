@@ -4738,5 +4738,16 @@
   "Deficit Qty": "ঘাটতি",
   "Units Needed": "যত ইউনিট লাগবে",
   "Transfer From": "যে শাখা থেকে আনবেন",
-  "Available": "আছে"
+  "Available": "আছে",
+  "report_customer_due_title": "গ্রাহকের বাকি রিপোর্ট",
+  "report_customer_due_desc": "গ্রাহকের বাকিতে বিক্রি, আংশিক পেমেন্ট, কত দিনের বাকি এবং বাকি পরিমাণ দেখুন।",
+  "lbl_customer_due": "গ্রাহকের বাকি",
+  "lbl_aging": "কত দিনের বাকি",
+  "lbl_oldest_due": "সবচেয়ে পুরোনো বাকি",
+  "lbl_all_aging": "সব দিনের বাকি",
+  "lbl_search_customer_phone": "গ্রাহকের নাম বা ফোন দিয়ে খুঁজুন",
+  "lbl_over_30_days": "৩০ দিনের বেশি",
+  "lbl_signature": "স্বাক্ষর",
+  "lbl_print_receipt": "রিসিপ্ট প্রিন্ট",
+  "lbl_open_due": "চলমান বাকি"
 }
