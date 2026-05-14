@@ -103,15 +103,20 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Store ──────────────────────────────────────────────────
     '/store': ['stores.view'],
+    '/store/create': ['stores.create'],
     '/store/setting': ['stores.edit'],
     '/store/payment-methods': ['payment-methods.manage'],
     '/staff': ['users.view'],
 
     // ── Categories ─────────────────────────────────────────────
     '/category': ['categories.index'],
+    '/category/create': ['categories.create'],
+    '/category/edit': ['categories.index'],
 
     // ── Brands ─────────────────────────────────────────────────
     '/brand': ['brands.index'],
+    '/brand/create': ['brands.create'],
+    '/brand/edit': ['brands.index'],
 
     // ── Products ───────────────────────────────────────────────
     '/products': ['products.index'],
@@ -140,13 +145,20 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Orders ─────────────────────────────────────────────────
     '/orders': ['orders.index'],
+    '/orders/edit': ['orders.index'],
 
     // ── Order Returns ───────────────────────────────────────────
     '/order-returns': ['orders.return'],
+    '/orders/return': ['orders.index'],
+    '/orders/return/list': ['orders.index'],
+    '/orders/return/create': ['orders.return'],
 
     // ── Purchase Drafts & Orders ────────────────────────────────
+    '/purchases': ['purchase-orders.index'],
     '/purchases/create': ['purchase-orders.create'],
     '/purchases/list': ['purchase-orders.index'],
+    '/purchases/edit': ['purchase-orders.edit'],
+    '/purchases/receive': ['purchase-orders.edit'],
 
     // ── Suppliers ──────────────────────────────────────────────
     '/suppliers/create': ['suppliers.create'],
@@ -177,6 +189,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/customers/list': ['customers.index'],
     '/customers/create': ['customers.create'],
     '/customers/edit': ['customers.edit'],
+    '/customers/due': ['reports.sales'],
 
     // ── Reports: Sales & Revenue ────────────────────────────────
     '/reports/sales': ['reports.sales'],
@@ -200,7 +213,6 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/threshold-intelligence': ['reports.low-stock'],
     '/reports/idle-product': ['reports.inventory'],
     '/reports/adjustment': ['stock.reports'],
-    '/products/stock/stock-adjustment-list': ['stock.reports'],
     '/reports/product': ['reports.inventory'],
 
     // ── Reports: AI Insights ────────────────────────────────────
@@ -231,10 +243,13 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Employees Management (subscription owner / business_admin only) ───
     '/employees': ['subscription.owner'],
+    '/employees/create': ['subscription.owner'],
     '/employees/edit': ['subscription.owner'],
 
     // ── Roles Management ───────────────────────────────────────
     '/roles': ['users.view'],
+    '/roles/create': ['users.view'],
+    '/roles/edit': ['users.view'],
 
     // ── Audit Logs ─────────────────────────────────────────────
     '/audit-logs': ['stores.view'],
@@ -244,6 +259,12 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Data Export ────────────────────────────────────────────
     '/data-export': ['stores.view'],
+
+    // ── User Profile & Settings (all authenticated users) ──────
+    '/users': [],
+    '/users/profile': [],
+    '/users/user-account-settings': [],
+    '/users/account-settings': [],
 };
 
 /**
