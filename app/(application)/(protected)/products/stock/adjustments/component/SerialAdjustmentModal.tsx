@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getTranslation } from '@/i18n';
+import { showErrorDialog } from '@/lib/toast';
 
 interface SerialData {
     id: number;
@@ -58,7 +59,7 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
         if (mode === 'update-status') {
             const validSerials = serials.filter((s) => s.serial_number && s.reason);
             if (validSerials.length === 0) {
-                alert('Please add at least one serial with serial number and reason');
+                showErrorDialog('Incomplete', 'Please add at least one serial with serial number and reason');
                 return;
             }
             onSave(validSerials);
@@ -70,7 +71,7 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                 .filter((s) => s);
 
             if (serialNumbers.length === 0 || !bulkReason) {
-                alert('Please enter serial numbers and reason');
+                showErrorDialog('Incomplete', 'Please enter serial numbers and reason');
                 return;
             }
 

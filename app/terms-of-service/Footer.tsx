@@ -44,9 +44,9 @@ const Footer = () => {
     ];
 
     const contactItems = [
-        { icon: <MapPin className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />, text: t('contact.contact_info.visit.address') || 'Dhaka, Bangladesh' },
-        { icon: <Phone className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />, text: t('contact.contact_info.call.phone') || '+880 1234 567890' },
-        { icon: <Mail className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />, text: t('contact.contact_info.email.email') || 'hello@andgatepos.com' },
+        { icon: <MapPin className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />, text: t('contact.contact_info.visit.address') || 'House: 34, Road: 3, Block: B, Aftabnagar, Badda, Dhaka, Bangladesh' },
+        { icon: <Phone className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />, text: t('contact.contact_info.call.phone') || '+880 1577303608' },
+        { icon: <Mail className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />, text: t('contact.contact_info.email.email') || 'support@andgatetech.net' },
     ];
 
     return (

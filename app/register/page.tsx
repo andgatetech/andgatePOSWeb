@@ -4,6 +4,7 @@ import { convertNumberByLanguage } from '@/components/custom/convertNumberByLang
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { BarChart3, Package, Shield, Store, Zap } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import ComponentsAuthRegisterForm from './components-auth-register-form';
 
@@ -30,7 +31,7 @@ const RegisterPage = () => {
                     <div className="absolute -bottom-24 -right-12 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-2xl" />
 
-                    <div className="relative flex w-full flex-col justify-between p-12">
+                    <div className="relative flex w-full flex-col justify-between gap-8 p-10 xl:p-12">
                         {/* Badge */}
                         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
                             <Zap className="h-3.5 w-3.5 text-yellow-300" />
@@ -42,9 +43,32 @@ const RegisterPage = () => {
                             <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">
                                 {t('register_panel_headline')}
                             </h2>
-                            <p className="mb-10 text-sm leading-relaxed text-white/70">
+                            <p className="mb-7 max-w-md text-sm leading-relaxed text-white/70">
                                 {t('register_panel_sub')}
                             </p>
+
+                            <div className="relative mb-10">
+                                <div className="overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                                    <Image
+                                        src="/assets/LandingImage/pos.png"
+                                        alt="AndgatePOS point of sale preview"
+                                        width={1919}
+                                        height={1071}
+                                        sizes="(min-width: 1280px) 560px, 42vw"
+                                        className="h-auto w-full rounded-xl object-cover"
+                                    />
+                                </div>
+                                <div className="absolute -bottom-8 right-5 w-[27%] min-w-[112px] overflow-hidden rounded-2xl border border-white/25 bg-white/15 p-1.5 shadow-xl shadow-black/25 backdrop-blur-sm">
+                                    <Image
+                                        src="/assets/LandingImage/mobileResponside.png"
+                                        alt="AndgatePOS mobile store preview"
+                                        width={935}
+                                        height={868}
+                                        sizes="150px"
+                                        className="h-auto w-full rounded-xl object-cover"
+                                    />
+                                </div>
+                            </div>
 
                             {/* Perk cards */}
                             <div className="grid grid-cols-2 gap-3">

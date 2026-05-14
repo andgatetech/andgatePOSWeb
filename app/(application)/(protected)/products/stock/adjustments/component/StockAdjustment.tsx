@@ -4,11 +4,18 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { useCreateStockAdjustmentMutation, useUpdateSerialStatusMutation } from '@/store/features/Product/productApi';
-import { clearStockItems, removeStockItem, updateStockItemQuantity } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
-import { useCreateProductSerialsMutation } from '@/store/features/warrenty/ProductSerialApi';
-import { useState } from 'react';
+import { useCreateBatchAdjustmentMutation } from '@/store/features/Product/productApi';
+import {
+    clearStockItems,
+    removeStockItem,
+    selectConfigsForStore,
+    selectGlobalConfigForStore,
+    setAdjustmentConfig,
+    setGlobalConfig,
+    updateStockItemQuantity,
+} from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { printStockAdjustmentSlip } from './printStockAdjustmentSlip';
 import AdjustmentHeader from './AdjustmentHeader';
 import AdjustmentItem from './AdjustmentItem';
 import AdjustmentSummary from './AdjustmentSummary';
@@ -32,56 +39,20 @@ const StockAdjustment = () => {
     const { currentStore, currentStoreId } = useCurrentStore();
     // Use per-store items
     const cartItems = useSelector((state: RootState) => (currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || [] : []));
-    const [createStockAdjustment, { isLoading: isSaving }] = useCreateStockAdjustmentMutation();
-    const [updateSerialStatus] = useUpdateSerialStatusMutation();
-    const [createProductSerials] = useCreateProductSerialsMutation();
+    const configsByItem = useSelector(selectConfigsForStore(currentStoreId));
+    const globalConfig = useSelector(selectGlobalConfigForStore(currentStoreId));
+    const [createBatchAdjustment, { isLoading: isSaving }] = useCreateBatchAdjustmentMutation();
 
-    const [adjustments, setAdjustments] = useState<
-        Array<{
-            itemId: number;
-            adjustmentType: 'increase' | 'decrease';
-            adjustmentQuantity: number;
-            reason: string;
-            notes: string;
-            serialAdjustments?: any[];
-        }>
-    >([]);
-
-    const [globalReason, setGlobalReason] = useState('');
-    const [globalNotes, setGlobalNotes] = useState('');
-
-    // Handle adjustment type change
     const handleAdjustmentChange = (itemId: number, field: string, value: any) => {
-        setAdjustments((prev) => {
-            const existing = prev.find((a) => a.itemId === itemId);
-            if (existing) {
-                return prev.map((a) => (a.itemId === itemId ? { ...a, [field]: value } : a));
-            } else {
-                return [
-                    ...prev,
-                    {
-                        itemId,
-                        adjustmentType: 'increase',
-                        adjustmentQuantity: 0,
-                        reason: '',
-                        notes: '',
-                        [field]: value,
-                    },
-                ];
-            }
-        });
+        if (!currentStoreId) return;
+        dispatch(setAdjustmentConfig({ storeId: currentStoreId, itemId, field, value }));
     };
 
-    // Get adjustment for specific item
-    const getAdjustment = (itemId: number) => {
-        return adjustments.find((a) => a.itemId === itemId);
-    };
+    const getAdjustment = (itemId: number) => configsByItem[itemId];
 
-    // Remove item from cart
     const handleRemoveItem = (itemId: number) => {
         if (!currentStoreId) return;
         dispatch(removeStockItem({ storeId: currentStoreId, id: itemId }));
-        setAdjustments((prev) => prev.filter((a) => a.itemId !== itemId));
     };
 
     // Update item quantity in cart
@@ -98,32 +69,24 @@ const StockAdjustment = () => {
 
         if (confirmed && currentStoreId) {
             dispatch(clearStockItems(currentStoreId));
-            setAdjustments([]);
-            setGlobalReason('');
-            setGlobalNotes('');
         }
     };
 
-    // Submit adjustments
+    // Submit all adjustments as a single atomic batch request
     const handleSubmit = async () => {
         if (cartItems.length === 0) {
             showErrorDialog('No Items', 'Please add products to adjust stock');
             return;
         }
 
-        // Validate adjustments - different rules for serial vs normal products
         const invalidNormalProducts = cartItems.filter((item) => {
-            // Skip serial products from normal validation
             if (item.has_serial) return false;
-
             const adj = getAdjustment(item.id);
-            return !adj || adj.adjustmentQuantity <= 0 || (!adj.reason && !globalReason);
+            return !adj || adj.adjustmentQuantity <= 0 || (!adj.reason && !globalConfig.reason);
         });
 
         const invalidSerialProducts = cartItems.filter((item) => {
-            // Only validate serial products
             if (!item.has_serial) return false;
-
             const adj = getAdjustment(item.id);
             return !adj || !adj.serialAdjustments || adj.serialAdjustments.length === 0;
         });
@@ -134,112 +97,96 @@ const StockAdjustment = () => {
         }
 
         if (invalidSerialProducts.length > 0) {
-            const productNames = invalidSerialProducts.map((item) => item.title).join(', ');
-            showErrorDialog('Missing Serial Data', `Please manage serial numbers for: ${productNames}`);
+            showErrorDialog('Missing Serial Data', `Please manage serial numbers for: ${invalidSerialProducts.map((i) => i.title).join(', ')}`);
             return;
         }
 
-        try {
-            // 1. Handle serial adjustments first (if any)
-            const serialAdjustmentPromises = cartItems
-                .map((item) => {
-                    const adj = getAdjustment(item.id);
-                    if (!adj?.serialAdjustments || adj.serialAdjustments.length === 0) {
-                        return null;
-                    }
+        // Build single batch payload — all types in one array
+        const batchAdjustments: any[] = [];
 
-                    // Separate update status vs bulk add serials
-                    const updateStatusSerials = adj.serialAdjustments.filter((s: any) => s.serial_number && s.status && s.reason);
-                    const bulkAddData = adj.serialAdjustments.filter((s: any) => s.serial_number && !s.id);
+        for (const item of cartItems) {
+            const adj = getAdjustment(item.id);
 
-                    const promises = [];
+            if (item.has_serial) {
+                // Serial status updates
+                const statusSerials = (adj?.serialAdjustments || []).filter(
+                    (s: any) => s.serial_number && s.status && s.reason
+                );
+                if (statusSerials.length > 0) {
+                    batchAdjustments.push({
+                        type: 'serial_status',
+                        product_id: item.productId,
+                        product_stock_id: item.stockId,
+                        serials: statusSerials.map((s: any) => ({
+                            serial_number: s.serial_number,
+                            status: s.status,
+                            reason: s.reason,
+                            notes: s.notes || null,
+                        })),
+                    });
+                }
 
-                    // Update serial statuses
-                    if (updateStatusSerials.length > 0) {
-                        promises.push(
-                            updateSerialStatus({
-                                store_id: currentStore?.id,
-                                product_id: item.productId,
-                                product_stock_id: item.stockId,
-                                serials: updateStatusSerials.map((s: any) => ({
-                                    serial_number: s.serial_number,
-                                    status: s.status,
-                                    reason: s.reason,
-                                    notes: s.notes || '',
-                                })),
-                            }).unwrap()
-                        );
-                    }
-
-                    // Bulk add serials (if multiple serials for same product)
-                    if (bulkAddData.length > 0) {
-                        promises.push(
-                            createProductSerials({
-                                product_id: item.productId,
-                                serials: bulkAddData.map((s: any) => ({
-                                    serial_number: s.serial_number,
-                                    notes: s.notes || '',
-                                })),
-                            }).unwrap()
-                        );
-                    }
-
-                    return promises.length > 0 ? Promise.all(promises) : null;
-                })
-                .filter(Boolean);
-
-            if (serialAdjustmentPromises.length > 0) {
-                await Promise.all(serialAdjustmentPromises);
-            }
-
-            // 2. Handle regular quantity adjustments
-            const regularAdjustments = cartItems.filter((item) => {
-                const adj = getAdjustment(item.id);
-                return adj && adj.adjustmentQuantity > 0;
-            });
-
-            if (regularAdjustments.length > 0) {
-                const adjustmentData = {
-                    store_id: currentStore?.id,
-                    adjustments: regularAdjustments.map((item) => {
-                        const adj = getAdjustment(item.id);
-                        const reasonValue = adj!.reason || globalReason;
-
-                        // Build the adjustment object
-                        const adjustmentObj: any = {
-                            product_id: item.productId,
-                            product_stock_id: item.stockId,
-                            direction: adj!.adjustmentType,
-                            quantity: adj!.adjustmentQuantity,
-                            notes: adj!.notes || globalNotes,
-                        };
-
-                        // If reason is a number (ID), send as product_adjustment_reason_id
-                        // If it's 'default' or text, send as reason
-                        if (reasonValue && !isNaN(Number(reasonValue))) {
-                            adjustmentObj.product_adjustment_reason_id = Number(reasonValue);
-                        } else {
-                            adjustmentObj.reason = reasonValue;
-                        }
-
-                        return adjustmentObj;
-                    }),
+                // Bulk add new serials (no existing id)
+                const newSerials = (adj?.serialAdjustments || [])
+                    .filter((s: any) => s.serial_number && !s.id)
+                    .map((s: any) => s.serial_number);
+                if (newSerials.length > 0) {
+                    batchAdjustments.push({
+                        type: 'serial_bulk_add',
+                        product_id: item.productId,
+                        product_stock_id: item.stockId,
+                        serial_numbers: newSerials,
+                        status: 'in_stock',
+                        reason: adj?.reason || globalConfig.reason || 'bulk_add',
+                        notes: adj?.notes || globalConfig.notes || null,
+                    });
+                }
+            } else if (adj && adj.adjustmentQuantity > 0) {
+                const reasonValue = adj.reason || globalConfig.reason;
+                const qtyAdj: any = {
+                    type: 'quantity',
+                    product_id: item.productId,
+                    product_stock_id: item.stockId,
+                    direction: adj.adjustmentType,
+                    quantity: adj.adjustmentQuantity,
+                    notes: adj.notes || globalConfig.notes || null,
                 };
-
-                await createStockAdjustment(adjustmentData).unwrap();
+                if (reasonValue && !isNaN(Number(reasonValue))) {
+                    qtyAdj.product_adjustment_reason_id = Number(reasonValue);
+                } else {
+                    qtyAdj.reason = reasonValue || null;
+                }
+                batchAdjustments.push(qtyAdj);
             }
+        }
+
+        // Snapshot before clearing (Redux state wiped after clearStockItems)
+        const itemsSnapshot = [...cartItems];
+        const configsSnapshot = { ...configsByItem };
+        const globalSnapshot = { ...globalConfig };
+
+        try {
+            await createBatchAdjustment({
+                store_id: currentStore?.id,
+                adjustments: batchAdjustments,
+            }).unwrap();
 
             showSuccessDialog(t('msg_success'), t('msg_saved_success'));
 
-            // Clear all after successful save
-            if (currentStoreId) {
-                dispatch(clearStockItems(currentStoreId));
-            }
-            setAdjustments([]);
-            setGlobalReason('');
-            setGlobalNotes('');
+            if (currentStoreId) dispatch(clearStockItems(currentStoreId));
+
+            // Print slip asynchronously — don't block UI
+            printStockAdjustmentSlip(itemsSnapshot, configsSnapshot, globalSnapshot, {
+                store_name: currentStore?.store_name,
+                store_location: currentStore?.store_location,
+                store_contact: currentStore?.store_contact,
+                store_email: currentStore?.store_email,
+            }).catch(() => {});
         } catch (error: any) {
-            showErrorDialog(t('msg_error'), error?.data?.message || error?.message || 'Failed to save stock adjustments');
+            showErrorDialog(
+                t('msg_error'),
+                error?.data?.detail || error?.data?.message || error?.message || 'Failed to save stock adjustments'
+            );
         }
     };
 
@@ -289,7 +236,12 @@ const StockAdjustment = () => {
                 </div>
 
                 {/* Global Settings */}
-                <GlobalSettings globalReason={globalReason} globalNotes={globalNotes} onReasonChange={setGlobalReason} onNotesChange={setGlobalNotes} />
+                <GlobalSettings
+                    globalReason={globalConfig.reason}
+                    globalNotes={globalConfig.notes}
+                    onReasonChange={(v) => currentStoreId && dispatch(setGlobalConfig({ storeId: currentStoreId, field: 'reason', value: v }))}
+                    onNotesChange={(v) => currentStoreId && dispatch(setGlobalConfig({ storeId: currentStoreId, field: 'notes', value: v }))}
+                />
             </div>
 
             {/* Summary Footer */}

@@ -152,6 +152,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/suppliers/create': ['suppliers.create'],
     '/suppliers/list': ['suppliers.index'],
     '/suppliers/edit': ['suppliers.edit'],
+    '/suppliers/due': ['reports.purchase'],
 
     // ── Accounting (legacy) ────────────────────────────────────
     '/account/ledger-list': ['ledgers.index'],

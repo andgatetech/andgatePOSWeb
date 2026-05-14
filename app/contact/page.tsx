@@ -307,7 +307,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">{t('contact.contact_info.visit.title') || 'Address'}</p>
-                                            <p className="mt-0.5 text-sm text-blue-100">{t('contact.contact_info.visit.address') || 'Dhaka, Bangladesh'}</p>
+                                            <p className="mt-0.5 text-sm text-blue-100">{t('contact.contact_info.visit.address') || 'House: 34, Road: 3, Block: B, Aftabnagar, Badda, Dhaka, Bangladesh'}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
@@ -316,7 +316,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">{t('contact.contact_info.call.title') || 'Phone'}</p>
-                                            <p className="mt-0.5 text-sm text-blue-100">{t('contact.contact_info.call.phone') || '+880 1234 567890'}</p>
+                                            <p className="mt-0.5 text-sm text-blue-100">{t('contact.contact_info.call.phone') || '+880 1577303608'}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
@@ -325,7 +325,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">{t('contact.contact_info.email.title') || 'Email'}</p>
-                                            <p className="mt-0.5 text-sm text-blue-100">{t('contact.contact_info.email.email') || 'hello@andgatepos.com'}</p>
+                                            <p className="mt-0.5 text-sm text-blue-100">{t('contact.contact_info.email.email') || 'support@andgatetech.net'}</p>
                                         </div>
                                     </div>
                                 </div>

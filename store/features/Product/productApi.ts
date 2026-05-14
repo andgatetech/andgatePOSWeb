@@ -175,6 +175,16 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products', 'Orders'],
         }),
+
+        // Atomic batch — all adjustment types in one DB transaction
+        createBatchAdjustment: builder.mutation({
+            query: (batchData) => ({
+                url: '/product-adjustments/batch',
+                method: 'POST',
+                body: batchData,
+            }),
+            invalidatesTags: ['Products', 'Orders'],
+        }),
     }),
 });
 
@@ -194,4 +204,5 @@ export const {
     useDownloadBulkUploadTemplateMutation,
     useCreateStockAdjustmentMutation,
     useUpdateSerialStatusMutation,
+    useCreateBatchAdjustmentMutation,
 } = ProductApi;

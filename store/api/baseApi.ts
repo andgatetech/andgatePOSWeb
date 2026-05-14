@@ -86,7 +86,6 @@ export const baseApi = createApi({
         'Ledger',
         'ActivityLogs',
         'Expenses',
-        'AdjustmentType',
         'StockAdjustment',
         'Suppliers',
         'Feedback',

@@ -12,7 +12,6 @@ import SerialAdjustmentModal from './SerialAdjustmentModal';
 interface AdjustmentItemProps {
     item: any;
     adjustment?: {
-        itemId: number;
         adjustmentType: 'increase' | 'decrease';
         adjustmentQuantity: number;
         reason: string;

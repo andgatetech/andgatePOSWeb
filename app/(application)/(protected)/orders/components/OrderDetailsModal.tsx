@@ -56,7 +56,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4">
+                    <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -66,20 +66,20 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-t-2xl bg-white shadow-2xl transition-all sm:rounded-2xl">
                                 {/* Header */}
-                                <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4">
+                                <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4">
                                     <div>
-                                        <Dialog.Title className="text-2xl font-bold text-gray-900">{t('order_view_title')}</Dialog.Title>
-                                        <p className="mt-1 text-sm text-gray-600">{t('order_invoice')}: {order.invoice}</p>
+                                        <Dialog.Title className="text-lg font-bold text-gray-900 sm:text-2xl">{t('order_view_title')}</Dialog.Title>
+                                        <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">{t('order_invoice')}: {order.invoice}</p>
                                     </div>
                                     <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white hover:text-gray-600">
-                                        <X className="h-6 w-6" />
+                                        <X className="h-5 w-5 sm:h-6 sm:w-6" />
                                     </button>
                                 </div>
 
                                 {/* Content */}
-                                <div className="max-h-[70vh] overflow-y-auto p-6">
+                                <div className="max-h-[calc(100dvh-140px)] overflow-y-auto p-4 sm:max-h-[70vh] sm:p-6">
                                     {/* Status Badges */}
                                     <div className="mb-6 flex flex-wrap gap-3">
                                         {/* Order Status */}
@@ -343,7 +343,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                     </div>
 
                                     {/* Order Summary */}
-                                    <div className="rounded-lg border border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50 p-6">
+                                    <div className="rounded-lg border border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50 p-4 sm:p-6">
                                         <div className="mb-4 flex items-center gap-2">
                                             <Receipt className="h-5 w-5 text-blue-600" />
                                             <h3 className="text-lg font-semibold text-gray-900">{t('lbl_subtotal')}</h3>
@@ -364,7 +364,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                             <div className="border-t border-gray-300 pt-3">
                                                 <div className="flex justify-between">
                                                     <span className="text-lg font-semibold text-gray-900">{t('lbl_total')}:</span>
-                                                    <span className="text-2xl font-bold text-blue-600">{formatCurrency(order.financial?.grand_total ?? order.grand_total ?? 0)}</span>
+                                                    <span className="text-xl font-bold text-blue-600 sm:text-2xl">{formatCurrency(order.financial?.grand_total ?? order.grand_total ?? 0)}</span>
                                                 </div>
                                             </div>
                                             <div className="border-t border-gray-300 pt-3">
@@ -390,7 +390,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
                                     {/* Returns/Refunds Section */}
                                     {order.returns?.has_returns && (
-                                        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-6">
+                                        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 sm:p-6">
                                             <div className="mb-4 flex items-center gap-2">
                                                 <RotateCcw className="h-5 w-5 text-red-600" />
                                                 <h3 className="text-lg font-semibold text-red-900">{t('order_return')}</h3>
@@ -433,7 +433,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
                                     {/* Transactions History */}
                                     {order.transactions && order.transactions.length > 0 && (
-                                        <div className="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-6">
+                                        <div className="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-4 sm:p-6">
                                             <div className="mb-4 flex items-center gap-2">
                                                 <CreditCard className="h-5 w-5 text-indigo-600" />
                                                 <h3 className="text-lg font-semibold text-indigo-900">{t('lbl_payment')}</h3>
@@ -443,8 +443,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     <div key={transaction.id} className="rounded-lg bg-white p-4 shadow-sm">
                                                         <div className="flex items-start justify-between">
                                                             <div className="flex-1">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Hash className="h-4 w-4 text-gray-400" />
+                                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                                    <Hash className="h-4 w-4 shrink-0 text-gray-400" />
                                                                     <span className="font-semibold text-gray-900">{t('lbl_transaction')} #{formatNumber(transaction.id, { useGrouping: false })}</span>
                                                                     <span
                                                                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -465,7 +465,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                         {transaction.payment_status?.toUpperCase()}
                                                                     </span>
                                                                 </div>
-                                                                <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
+                                                                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
                                                                     <div className="flex items-center gap-1">
                                                                         <CreditCard className="h-3.5 w-3.5" />
                                                                         <span className="capitalize">{transaction.payment_method}</span>
@@ -485,8 +485,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="text-right">
-                                                                <div className={`text-xl font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                            <div className="shrink-0 text-right">
+                                                                <div className={`text-base font-bold sm:text-xl ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                                     {transaction.amount >= 0 ? '+' : ''}
                                                                     {formatCurrency(transaction.amount)}
                                                                 </div>
@@ -500,9 +500,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                 </div>
 
                                 {/* Footer */}
-                                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 space-y-3">
+                                <div className="space-y-2 border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6 sm:py-4">
                                     {sendEmailOpen && (
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-col gap-2 sm:flex-row">
                                             <input
                                                 type="email"
                                                 value={sendEmail}
@@ -510,25 +510,27 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                 placeholder={order.customer?.email || t('order_send_invoice_email_placeholder')}
                                                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={handleSendInvoice}
-                                                disabled={isSending}
-                                                className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
-                                            >
-                                                {isSending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Send className="h-4 w-4" />}
-                                                {t('btn_send')}
-                                            </button>
-                                            <button type="button" onClick={() => setSendEmailOpen(false)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100">
-                                                <X className="h-4 w-4" />
-                                            </button>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleSendInvoice}
+                                                    disabled={isSending}
+                                                    className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 sm:flex-none"
+                                                >
+                                                    {isSending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Send className="h-4 w-4" />}
+                                                    {t('btn_send')}
+                                                </button>
+                                                <button type="button" onClick={() => setSendEmailOpen(false)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col-reverse gap-2 sm:flex-row">
                                         <button
                                             type="button"
                                             onClick={() => { setSendEmail(''); setSendEmailOpen((v) => !v); }}
-                                            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                                            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:justify-start"
                                         >
                                             <Mail className="h-4 w-4" />
                                             {t('order_send_invoice')}

@@ -3,6 +3,7 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { BarChart3, CheckCircle, ShoppingCart, Store, TrendingUp, Zap } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRef } from 'react';
 import ComponentsAuthLoginForm from './components-auth-login-form';
@@ -37,7 +38,7 @@ const LoginPage = () => {
                     <div className="absolute -bottom-24 -right-12 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-2xl" />
 
-                    <div className="relative flex w-full flex-col justify-between p-12">
+                    <div className="relative flex w-full flex-col justify-between gap-8 p-10 xl:p-12">
                         {/* Top badge */}
                         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
                             <Zap className="h-3.5 w-3.5 text-yellow-300" />
@@ -45,20 +46,44 @@ const LoginPage = () => {
                         </div>
 
                         {/* Centre copy */}
-                        <div>
+                        <div className="space-y-7">
                             <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">
                                 {t('login_panel_headline')}
                             </h2>
-                            <p className="mb-10 text-sm leading-relaxed text-white/70">
+                            <p className="max-w-md text-sm leading-relaxed text-white/70">
                                 {t('login_panel_sub')}
                             </p>
-                            <ul className="space-y-4">
+
+                            <div className="relative">
+                                <div className="overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                                    <Image
+                                        src="/assets/LandingImage/Tablet Responsive.png"
+                                        alt="AndgatePOS dashboard preview"
+                                        width={1734}
+                                        height={859}
+                                        sizes="(min-width: 1280px) 560px, 42vw"
+                                        className="h-auto w-full rounded-xl object-cover"
+                                    />
+                                </div>
+                                <div className="absolute -bottom-8 right-5 w-[27%] min-w-[112px] overflow-hidden rounded-2xl border border-white/25 bg-white/15 p-1.5 shadow-xl shadow-black/25 backdrop-blur-sm">
+                                    <Image
+                                        src="/assets/LandingImage/mobileResponside.png"
+                                        alt="AndgatePOS mobile preview"
+                                        width={935}
+                                        height={868}
+                                        sizes="150px"
+                                        className="h-auto w-full rounded-xl object-cover"
+                                    />
+                                </div>
+                            </div>
+
+                            <ul className="grid grid-cols-2 gap-3 pt-6">
                                 {benefits.map((b, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-sm text-white/90">
+                                    <li key={i} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-xs text-white/90 backdrop-blur-sm">
                                         <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-white/15 text-white">
                                             {b.icon}
                                         </span>
-                                        {b.text}
+                                        <span className="leading-snug">{b.text}</span>
                                     </li>
                                 ))}
                             </ul>
